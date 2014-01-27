@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 16, 2008 1787        askripsk    Started report generation.
  * Sep 23, 2009 2260        mpduff      Finished the dialog,
  * Aug 20, 2012 13781       wkwock      Added print menu for 6 text reports
+ * Jul 16, 2013 2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -102,7 +103,7 @@ public class TextReportDlg extends CaveSWTDialog {
     private TextReport report;
 
     /**
-     * Constructor.
+     * Non-blocking Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -110,19 +111,31 @@ public class TextReportDlg extends CaveSWTDialog {
      *            Station ID.
      */
     public TextReportDlg(Shell parent, String stationId) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
 
         this.stationId = stationId;
+        setReturnValue(stationId);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
@@ -277,7 +290,7 @@ public class TextReportDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -370,31 +383,43 @@ public class TextReportDlg extends CaveSWTDialog {
         Button printBtn = new Button(btnComp, SWT.PUSH);
         printBtn.setText("Print");
         printBtn.setLayoutData(gd);
-        final TextReportDlg txtRptDlg=this;
+        final TextReportDlg txtRptDlg = this;
         printBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	if (report.getClass().getName().equals(E19Report.class.getName())){
-            		PrintE19TextReportDlg ptr = new PrintE19TextReportDlg(shell,(E19Report)report);
-                	ptr.open();
-            	} else if (report.getClass().getName().equals(E19AReport.class.getName())) {
-            		PrintE19ATextReportDlg ptr = new PrintE19ATextReportDlg(shell,(E19AReport)report);
-                	ptr.open();
-            	} else if (report.getClass().getName().equals(B44AReport.class.getName())) {
-            		PrintB44ATextReportDlg ptr = new PrintB44ATextReportDlg(shell,(B44AReport)report);
-                	ptr.open();
-            	}else if (report.getClass().getName().equals(ServiceBackupReport.class.getName())) {
-            		PrintSvcBkTextReportDlg ptr = new PrintSvcBkTextReportDlg(shell,(ServiceBackupReport)report);
-            		ptr.setTextReportDlg(txtRptDlg);
-                	ptr.open();
-            	}else if (report.getClass().getName().equals(StationClassReport.class.getName())) {
-            		PrintStnClassTextReportDlg ptr = new PrintStnClassTextReportDlg(shell,(StationClassReport)report);
-                	ptr.open();
-            	}else if (report.getClass().getName().equals(StationListReport.class.getName())) {
-            		PrintSortedStnTextReportDlg ptr = new PrintSortedStnTextReportDlg(shell,(StationListReport)report);
-            		ptr.setTextReportDlg(txtRptDlg);
-                	ptr.open();
-            	}
+                if (report.getClass().getName()
+                        .equals(E19Report.class.getName())) {
+                    PrintE19TextReportDlg ptr = new PrintE19TextReportDlg(
+                            shell, (E19Report) report);
+                    ptr.open();
+                } else if (report.getClass().getName()
+                        .equals(E19AReport.class.getName())) {
+                    PrintE19ATextReportDlg ptr = new PrintE19ATextReportDlg(
+                            shell, (E19AReport) report);
+                    ptr.open();
+                } else if (report.getClass().getName()
+                        .equals(B44AReport.class.getName())) {
+                    PrintB44ATextReportDlg ptr = new PrintB44ATextReportDlg(
+                            shell, (B44AReport) report);
+                    ptr.open();
+                } else if (report.getClass().getName()
+                        .equals(ServiceBackupReport.class.getName())) {
+                    PrintSvcBkTextReportDlg ptr = new PrintSvcBkTextReportDlg(
+                            shell, (ServiceBackupReport) report);
+                    ptr.setTextReportDlg(txtRptDlg);
+                    ptr.open();
+                } else if (report.getClass().getName()
+                        .equals(StationClassReport.class.getName())) {
+                    PrintStnClassTextReportDlg ptr = new PrintStnClassTextReportDlg(
+                            shell, (StationClassReport) report);
+                    ptr.open();
+                } else if (report.getClass().getName()
+                        .equals(StationListReport.class.getName())) {
+                    PrintSortedStnTextReportDlg ptr = new PrintSortedStnTextReportDlg(
+                            shell, (StationListReport) report);
+                    ptr.setTextReportDlg(txtRptDlg);
+                    ptr.open();
+                }
             }
         });
     }
@@ -411,12 +436,12 @@ public class TextReportDlg extends CaveSWTDialog {
     }
 
     /**
-     * 
+     * The index for page.
      */
-    public int getPageSelectionIndex () {
-    	return this.pageCbo.getSelectionIndex();
+    public int getPageSelectionIndex() {
+        return this.pageCbo.getSelectionIndex();
     }
-    
+
     /**
      * Event handler for Report combobox. This populates the page combobox and
      * displays the report

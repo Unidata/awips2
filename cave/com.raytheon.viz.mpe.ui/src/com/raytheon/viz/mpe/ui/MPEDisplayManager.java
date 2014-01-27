@@ -102,6 +102,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
  * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data, 
  *                                      fix formatting of legend for Base field Height.
+ * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.                                     
  * 
  * </pre>
  * 
@@ -726,6 +727,19 @@ public class MPEDisplayManager {
             displayedFieldResource = new MPEFieldResource(fieldResourceData,
                     new LoadProperties());
             list.add(displayedFieldResource);
+
+            IDisplayPaneContainer container = display.getContainer();
+            for (IDisplayPane pane : container.getDisplayPanes()) {
+                if (pane.getRenderableDisplay() == display) {
+                    try {
+                        displayedFieldResource.init(pane.getTarget());
+                        break;
+                    } catch (VizException e) {
+                        Activator.statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+            }
 
             if (oldField != fieldToDisplay) {
                 List<IDisplayFieldChangedListener> listeners = new ArrayList<IDisplayFieldChangedListener>();

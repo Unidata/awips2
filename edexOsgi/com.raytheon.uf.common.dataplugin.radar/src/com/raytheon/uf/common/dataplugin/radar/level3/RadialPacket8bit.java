@@ -27,16 +27,19 @@ import java.io.IOException;
  * RadialPacket is a class that will allow access to the actual radar data
  * contained in a RPG created radial product.
  * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                         Bryan Rockwood    Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * 
+ * </pre>
  * 
  * @author Bryan Rockwood
  * @version 1.0
  */
 public class RadialPacket8bit extends RadialPacket {
-    public static final int RADIAL_DATA_PACKET_8BIT = 16;
-    static {
-        PacketFactory.registerPacketType(RadialPacket8bit.class,
-                RADIAL_DATA_PACKET_8BIT);
-    }
 
     /**
      * An extension to the RadialPacket class that supports RPG generated

@@ -5,15 +5,23 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.vil
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
-Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
- com.raytheon.edex.common;bundle-version="1.11.1",
- org.apache.commons.logging;bundle-version="1.0.4",
- com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.1";resolution:=optional,
+Require-Bundle: com.raytheon.uf.common.monitor,
+ com.raytheon.uf.edex.cpgsrv;resolution:=optional,
  com.raytheon.uf.common.dataplugin.vil,
- com.raytheon.uf.common.monitor.cpg;bundle-version="1.0.0",
- com.raytheon.uf.common.status;bundle-version="1.12.1152",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
-Import-Package: com.raytheon.uf.edex.plugin.scan.common
+ com.raytheon.uf.common.monitor.cpg,
+ com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.core
+Import-Package: com.raytheon.edex.urifilter,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.util.registry,
+ com.raytheon.uf.edex.plugin.scan.common,
+ org.apache.commons.logging
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.vil,

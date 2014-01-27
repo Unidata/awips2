@@ -19,22 +19,28 @@
  ******************************************************************************************/
 
 /*
- * Thin wrapper around the NCEP decoder.  This implementation pulls the raw values from the file
- * to be processed by the python
+ * Thin wrapper around the NCEP decoder. Provides a single decode method that
+ * can be used to extract all of the data from a grib message. The return value
+ * is a list of dict with one list entry for each field in the grib
+ * file(usually 1). Each dict contains keys for each field in the gribfield
+ * struct. Detailed documentation for this structure can be found in the file
+ * dependencies/src/g2clib-1.1.8/grib2c.doc. All g2int fields are converted to
+ * python integer types and all data pointers are converted to numpy arrays of
+ * the appropriate type.
  *
  * <pre>
  *
  * SOFTWARE HISTORY
  *
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Mar 25, 2013 1821        bsteffen    Make grib2 decoding more multithreaded
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 07, 2013  2402     bsteffen    Rewritten to work on file extents and
+ *                                    more closely mirror C api
  *
  * </pre>
  *
- * @author bphillip
- * @version 1
+ * @author bsteffen
+ * @version 2
  */
 
 #include <Python.h>
@@ -46,400 +52,256 @@
 
 static PyObject *Grib2FileError;
 
-int getRecord(FILE * fptr, gribfield ** gfld, int recordNumber,
-		g2int fieldNumber, g2int unpack) {
+/////////////////////////////////////////////////////////////////////////
+//    Helper method to add a g2int to a PyDict object.
+//
+//    INPUT ARGUMENTS:
+//        dp   - PyDict object to be added too.
+//        key  - Key to put item into the dict.
+//        item - the g2int item to place in the dict.
+//
+/////////////////////////////////////////////////////////////////////////
+static void PyDict_SetIntItemString(PyObject *dp, const char *key, g2int item) {
+	PyObject* pyitem = PyInt_FromLong(item);
+	PyDict_SetItemString(dp, key, pyitem);
+	Py_DECREF(pyitem);
+}
 
-	unsigned char *cgrib;
+/////////////////////////////////////////////////////////////////////////
+//    Translates a gribfield into a PyDict.
+//
+//    INPUT ARGUMENTS:
+//        gfld - A single decoded gribfield.
+//
+//    RETURN VALUE: A PyDict containing all fields from gfld, the caller is
+//                  responsible for decrementing the ref count of the returned
+//                  object.
+//
+/////////////////////////////////////////////////////////////////////////
+static PyObject* translateField(gribfield *gfld) {
+	PyObject* result;
+	PyObject* section;
+	npy_intp sectionSize[1];
+
+	result = PyDict_New();
+
+	/* version */
+	PyDict_SetIntItemString(result, "version", gfld->version);
+	/* discipline */
+	PyDict_SetIntItemString(result, "discipline", gfld->discipline);
+
+	/* idsect */
+	sectionSize[0] = gfld->idsectlen;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+	memcpy(((PyArrayObject *) section)->data, gfld->idsect,
+			gfld->idsectlen * sizeof(g2int));
+	PyDict_SetItemString(result, "idsect", section);
+	Py_DECREF(section);
+	/* idsectlen */
+	PyDict_SetIntItemString(result, "idsectlen", gfld->idsectlen);
+
+	/* local */
+	sectionSize[0] = gfld->locallen;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_UBYTE);
+	memcpy(((PyArrayObject *) section)->data, gfld->local,
+			gfld->locallen * sizeof(unsigned char));
+	PyDict_SetItemString(result, "local", section);
+	Py_DECREF(section);
+	/* locallen */
+	PyDict_SetIntItemString(result, "locallen", gfld->locallen);
+
+	/* ifldnum */
+	PyDict_SetIntItemString(result, "ifldnum", gfld->ifldnum);
+	/* griddef */
+	PyDict_SetIntItemString(result, "griddef", gfld->griddef);
+	/* ngrdpts */
+	PyDict_SetIntItemString(result, "ngrdpts", gfld->ngrdpts);
+
+	/* numoct_opt */
+	PyDict_SetIntItemString(result, "numoct_opt", gfld->numoct_opt);
+	/* interp_opt */
+	PyDict_SetIntItemString(result, "interp_opt", gfld->interp_opt);
+	/* num_opt */
+	PyDict_SetIntItemString(result, "num_opt", gfld->num_opt);
+	/* interp_opt */
+	PyDict_SetIntItemString(result, "interp_opt", gfld->interp_opt);
+	/* list_opt */
+	sectionSize[0] = gfld->num_opt;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+	memcpy(((PyArrayObject *) section)->data, gfld->list_opt,
+			gfld->num_opt * sizeof(g2int));
+	PyDict_SetItemString(result, "list_opt", section);
+	Py_DECREF(section);
+
+	/* igdtnum */
+	PyDict_SetIntItemString(result, "igdtnum", gfld->igdtnum);
+	/* igdtlen */
+	PyDict_SetIntItemString(result, "igdtlen", gfld->igdtlen);
+	/* igdtmpl */
+	sectionSize[0] = gfld->igdtlen;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+	memcpy(((PyArrayObject *) section)->data, gfld->igdtmpl,
+			gfld->igdtlen * sizeof(g2int));
+	PyDict_SetItemString(result, "igdtmpl", section);
+	Py_DECREF(section);
+
+	/* ipdtnum */
+	PyDict_SetIntItemString(result, "ipdtnum", gfld->ipdtnum);
+	/* ipdtlen */
+	PyDict_SetIntItemString(result, "ipdtlen", gfld->ipdtlen);
+	/* ipdtmpl */
+	sectionSize[0] = gfld->ipdtlen;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+	memcpy(((PyArrayObject *) section)->data, gfld->ipdtmpl,
+			gfld->ipdtlen * sizeof(g2int));
+	PyDict_SetItemString(result, "ipdtmpl", section);
+	Py_DECREF(section);
+
+	/* num_coord */
+	PyDict_SetIntItemString(result, "num_coord", gfld->num_coord);
+	/* coord_list */
+	sectionSize[0] = gfld->num_coord;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_FLOAT);
+	memcpy(((PyArrayObject *) section)->data, gfld->coord_list,
+			gfld->num_coord * sizeof(g2float));
+	PyDict_SetItemString(result, "coord_list", section);
+	Py_DECREF(section);
+
+	/* ndpts */
+	PyDict_SetIntItemString(result, "ndpts", gfld->ndpts);
+	/* idrtnum */
+	PyDict_SetIntItemString(result, "idrtnum", gfld->idrtnum);
+	/* idrtlen */
+	PyDict_SetIntItemString(result, "idrtlen", gfld->idrtlen);
+	/* idrtmpl */
+	sectionSize[0] = gfld->idrtlen;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+	memcpy(((PyArrayObject *) section)->data, gfld->idrtmpl,
+			gfld->idrtlen * sizeof(g2int));
+	PyDict_SetItemString(result, "idrtmpl", section);
+	Py_DECREF(section);
+
+	/* unpacked */
+	PyDict_SetIntItemString(result, "unpacked", gfld->unpacked);
+	/* expanded */
+	PyDict_SetIntItemString(result, "expanded", gfld->expanded);
+
+	/* ibmap */
+	PyDict_SetIntItemString(result, "ibmap", gfld->ibmap);
+	/* bmap */
+	if (gfld->ibmap == 0 || gfld->ibmap == 254) {
+		sectionSize[0] = gfld->ngrdpts;
+		section = PyArray_SimpleNew(1, sectionSize, NPY_INT);
+		memcpy(((PyArrayObject *) section)->data, gfld->bmap,
+				gfld->ngrdpts * sizeof(g2int));
+		PyDict_SetItemString(result, "bmap", section);
+		Py_DECREF(section);
+	}
+
+	/* fld */
+	sectionSize[0] = gfld->ngrdpts;
+	section = PyArray_SimpleNew(1, sectionSize, NPY_FLOAT);
+	memcpy(((PyArrayObject *) section)->data, gfld->fld,
+			gfld->ngrdpts * sizeof(g2float));
+	PyDict_SetItemString(result, "fld", section);
+	Py_DECREF(section);
+
+	return result;
+}
+
+/////////////////////////////////////////////////////////////////////////
+//    Extracts the data from a grib record already in memory.
+//
+//    INPUT ARGUMENTS:
+//        rawData - An array of raw bytes from a grib file.
+//
+//    RETURN VALUE: A PyList of PyDicts, one PyDict for each field in the grib
+//                  message. The caller is responsible for decrementing the ref
+//                  count of the returned object.
+//
+/////////////////////////////////////////////////////////////////////////
+static PyObject* decodeData(unsigned char* rawData) {
+	PyObject* result = NULL;
 	g2int listsec0[3], listsec1[13];
-	g2int iseek = 0;
-	g2int lskip;
-	g2int lgrib = 1;
 	g2int numfields;
 	g2int numlocal;
-	g2int ierr, expand = 1;
-	int ret = 1;
-	size_t lengrib;
+	g2int ierr;
+	g2int fieldIndex;
+	gribfield *gfld;
 
-	// Seek to the correct position in the file
-	int i = 0;
-	for (i = 0; i <= recordNumber; i++) {
-		seekgb(fptr, iseek, 32000, &lskip, &lgrib);
-		iseek = lskip + lgrib;
-	}
-
-	// No more data
-	if (lgrib == 0) {
-		return -1;
-	}
-
-	// Pull out the data
-	cgrib = (unsigned char *) malloc(lgrib);
-	if (cgrib == NULL) {
-		printf("getRecord: failed to malloc cgrib\n");
-		return -1;
-	}
-	ret = fseek(fptr, lskip, SEEK_SET);
-	lengrib = fread(cgrib, sizeof(unsigned char), lgrib, fptr);
-	iseek = lskip + lgrib;
-	ierr = g2_info(cgrib, listsec0, listsec1, &numfields, &numlocal);
-
+	ierr = g2_info(rawData, listsec0, listsec1, &numfields, &numlocal);
 	if (ierr != 0) {
-		free(cgrib);
-		return -1;
+		PyErr_SetString(Grib2FileError, "Failed to get grib info.\n");
+		return NULL;
 	}
-
-	ierr = g2_getfld(cgrib, fieldNumber, unpack, expand, gfld);
-
-	// Detected a grib1
-	if (ierr != 0) {
-		free(cgrib);
-		return -2;
-	}
-
-	free(cgrib);
-	return numfields;
-}
-
-/////////////////////////////////////////////////////////////////////////
-//	Extracts the data values from the grib file
-//
-//	INPUT ARGUMENTS:
-//		fptr		- The pointer to the file being decoded
-//		recordNumber	- The number of the record being decoded
-//		fieldNumber	- The number of the field being decoded
-//
-//	OUTPUT ARGUMENTS:
-//		idSection	- An array to hold the ID section
-//		localUseSection	- An array to hold the Local Use Section
-//		gdsTemplate	- An array to hold the GDS Template values
-//		pdsTemplate	- An array to hold the PDS Template values
-//		data		- An array to hold the data values
-//		bitMap		- An array to hold the bitmap values
-//
-//	RETURN VALUE: The number of fields associated with this record
-//
-/////////////////////////////////////////////////////////////////////////
-static PyObject * grib2_getData(PyObject *self, PyObject* args)
-/*FILE * fptr, int recordNumber, int fieldNumber, int idSection[],
- int localUseSection[], int gdsTemplate[],int pdsTemplate[],float data[],
- int bitMap[], int list_opt[], float coord_list[]) */{
-
-	PyObject * fileInfo;
-	FILE * fptr;
-	int recordNumber;
-	g2int fieldNumber;
-	Py_ssize_t sizeSection = 0;
-	int sectionCounter = 0;
-
-	PyArg_ParseTuple(args, "Oii", &fileInfo, &recordNumber, &fieldNumber);
-
-	fptr = PyFile_AsFile(fileInfo);
-
-	gribfield * gfld;
-	long numfields;
-	npy_intp dimSize[1];
-	PyObject *response = PyDict_New();
-	Py_BEGIN_ALLOW_THREADS
-	numfields = getRecord(fptr, &gfld, recordNumber, fieldNumber, 1);
-	Py_END_ALLOW_THREADS
-
-	PyObject * numberOfFields = PyInt_FromLong(numfields);
-	PyDict_SetItemString(response, "numFields", numberOfFields);
-	//Py_DECREF(numberOfFields);
-
-	// Copy the ID Section
-	PyObject * idSection;
-	sizeSection = gfld->idsectlen;
-	idSection = PyList_New(sizeSection);
-	for (sectionCounter = 0; sectionCounter < gfld->idsectlen; sectionCounter++) {
-		PyList_SetItem(idSection, sectionCounter, Py_BuildValue("i",
-				gfld->idsect[sectionCounter]));
-	}
-	PyDict_SetItemString(response, "idSection", idSection);
-	Py_DECREF(idSection);
-	// Copy the Local Section if exists
-	if (gfld->locallen > 0) {
-		PyObject * localSection;
-		sizeSection = gfld->locallen;
-		localSection = PyList_New(sizeSection);
-		for(sectionCounter = 0; sectionCounter < gfld->locallen; sectionCounter++) {
-			PyList_SetItem(localSection, sectionCounter, Py_BuildValue("i",gfld->local[sectionCounter]));
+	result = PyList_New(numfields);
+	for (fieldIndex = 0; fieldIndex < numfields; fieldIndex++) {
+		Py_BEGIN_ALLOW_THREADS
+			ierr = g2_getfld(rawData, fieldIndex + 1, 1, 1, &gfld);
+			Py_END_ALLOW_THREADS
+		if (ierr != 0) {
+			Py_DECREF(result);
+			PyErr_SetString(Grib2FileError, "Failed to get grib field.\n");
+			return NULL;
 		}
-		PyDict_SetItemString(response, "localSection", localSection);
-		Py_DECREF(localSection);
-	}
-
-	// Copy the number of points per row for quasi-regular grids
-	if (gfld->num_opt > 0) {
-		PyObject * listOps;
-		sizeSection = gfld->num_opt;
-		listOps = PyList_New(sizeSection);
-		for(sectionCounter = 0; sectionCounter < gfld->num_opt; sectionCounter++) {
-			PyList_SetItem(listOps, sectionCounter, Py_BuildValue("i",gfld->list_opt[sectionCounter]));
-		}
-		PyDict_SetItemString(response, "listOps", listOps);
-		Py_DECREF(listOps);
-	}
-
-	// Copy the vertical discretisation values for hybrid coordinate vertical levels
-	if (gfld->num_coord > 0) {
-		PyObject * coordList;
-		sizeSection = gfld->num_coord;
-		coordList = PyList_New(sizeSection);
-		for(sectionCounter = 0; sectionCounter < gfld->num_coord; sectionCounter++) {
-			PyList_SetItem(coordList, sectionCounter, Py_BuildValue("f",gfld->coord_list[sectionCounter]));
-		}
-		PyDict_SetItemString(response, "coordList", coordList);
-		Py_DECREF(coordList);
-	}
-
-	// Copy the GDS Template
-	PyObject * gdsTemplate;
-	sizeSection = gfld->igdtlen;
-	gdsTemplate = PyList_New(sizeSection);
-	for(sectionCounter = 0; sectionCounter < gfld->igdtlen; sectionCounter++) {
-		PyList_SetItem(gdsTemplate, sectionCounter, Py_BuildValue("i",gfld->igdtmpl[sectionCounter]));
-	}
-	PyDict_SetItemString(response, "gdsTemplate", gdsTemplate);
-	Py_DECREF(gdsTemplate);
-
-	// Copy the PDS Template
-	PyObject * pdsTemplate;
-	sizeSection = gfld->ipdtlen;
-	pdsTemplate = PyList_New(sizeSection);
-	for(sectionCounter = 0; sectionCounter < gfld->ipdtlen; sectionCounter++) {
-		PyList_SetItem(pdsTemplate, sectionCounter, Py_BuildValue("i",gfld->ipdtmpl[sectionCounter]));
-	}
-	PyDict_SetItemString(response, "pdsTemplate", pdsTemplate);
-	Py_DECREF(pdsTemplate);
-
-	// Copy the data
-	PyObject * npyData;
-	dimSize[0] = gfld->ngrdpts;
-	npyData = PyArray_SimpleNew(1, dimSize, NPY_FLOAT);
-	memcpy(((PyArrayObject *) npyData)->data, gfld->fld, gfld->ngrdpts
-			* sizeof(float));
-	PyDict_SetItemString(response, "data", npyData);
-	Py_DECREF(npyData);
-
-	// Copy the bitmap if exists
-	if (gfld->ibmap == 0 || gfld->ibmap == 254) {
-		PyObject * npyBitmap;
-		dimSize[0] = gfld->ngrdpts;
-		npyBitmap = PyArray_SimpleNew(1, dimSize, NPY_INT);
-		memcpy(((PyArrayObject *) npyBitmap)->data, gfld->bmap, gfld->ngrdpts
-				* sizeof(int));
-		PyDict_SetItemString(response, "bitmap", npyBitmap);
-		Py_DECREF(npyBitmap);
-	}
-	
-	// Copy the Data Representation Section
-	PyObject * drsTemplate;
-	sizeSection = gfld->idrtlen;
-	drsTemplate = PyList_New(sizeSection);
-	for(sectionCounter = 0; sectionCounter < gfld->idrtlen; sectionCounter++) {
-		PyList_SetItem(drsTemplate, sectionCounter, Py_BuildValue("i",gfld->idrtmpl[sectionCounter]));
-	}
-	PyDict_SetItemString(response, "drsTemplate", drsTemplate);
-	Py_DECREF(drsTemplate);
-	
-	g2_free(gfld);
-	return response;
-}
-
-/////////////////////////////////////////////////////////////////////////
-//	Extracts the metadata values from the grib file.
-//	The metadata is an array containing the values in the gribfield
-//	structure
-//
-//	INPUT ARGUMENTS:
-//		fptr		- The pointer to the file being decoded
-//		recordNumber	- The number of the record being decoded
-//		fieldNumber	- The number of the field being decoded
-//
-//	OUTPUT ARGUMENTS:
-//		metadata	- An array holding the gribfield values
-//
-//	RETURN VALUE: The number of fields associated with this record
-//
-/////////////////////////////////////////////////////////////////////////
-static PyObject * grib2_getMetadata(PyObject *self, PyObject* args)
-/* FILE * fptr, int recordNumber,int fieldNumber, int metadata[]) */{
-
-	PyObject * fileInfo;
-	FILE * fptr;
-	int recordNumber;
-	int fieldNumber;
-	int debug;
-	Py_ssize_t sizeSection = 0;
-	int sectionCounter = 0;
-
-	PyArg_ParseTuple(args, "Oiii", &fileInfo, &recordNumber, &fieldNumber,
-			&debug);
-	fptr = PyFile_AsFile(fileInfo);
-
-	gribfield * gfld;
-	long numfields;
-	//int metadata[21];
-	numfields = getRecord(fptr, &gfld, recordNumber, fieldNumber, 0);
-	PyObject *response = PyDict_New();
-
-	PyObject * numberOfFields = PyInt_FromLong(numfields);
-	PyDict_SetItemString(response, "numFields", numberOfFields);
-	//Py_DECREF(numberOfFields);
-
-	if (numfields == -1) {
-		return response;
-	} else if (numfields == -2) {
+		PyList_SET_ITEM(result, fieldIndex, translateField(gfld));
 		g2_free(gfld);
-		return response;
 	}
-
-
-	int metadata[21];
-
-	// Length of array containing ID section values
-	metadata[0] = gfld->idsectlen;
-
-	// Length of array containing local section values
-	metadata[1] = gfld->locallen;
-
-	// Field number within GRIB message
-	metadata[2] = gfld->ifldnum;
-
-	// Source of grid definition
-	metadata[3] = gfld->griddef;
-
-	// Number of grid points in the defined grid
-	metadata[4] = gfld->ngrdpts;
-
-	// Number of octets needed for each additional grid points definition
-	metadata[5] = gfld->numoct_opt;
-
-	// Interpretation of list for optional points definition (Table 3.11)
-	metadata[6] = gfld->interp_opt;
-
-	// Grid Definition Template Number
-	metadata[7] = gfld->igdtnum;
-
-	// Length of array containing GDS Template values
-	metadata[8] = gfld->igdtlen;
-
-	// The number of entries in array ideflist(Used if numoct_opt != 0)
-	metadata[9] = gfld->num_opt;
-
-	// Product Definition Template Number
-	metadata[10] = gfld->ipdtnum;
-
-	// Length of array containing PDS Template values
-	metadata[11] = gfld->ipdtlen;
-
-	// Number of values in array gfld->coord_list[]
-	metadata[12] = gfld->num_coord;
-
-	// Number of data points unpacked and returned
-	metadata[13] = gfld->ndpts;
-
-	// Data Representation Template Number
-	metadata[14] = gfld->idrtnum;
-
-	// Length of array containing DRT template values
-	metadata[15] = gfld->idrtlen;
-
-	// Logical value indicating whether the bitmap and data values were unpacked
-	metadata[16] = gfld->unpacked;
-
-	// Logical value indicating whether the data field was expanded to the grid in
-	// the case where a bit-map is present
-	metadata[17] = gfld->expanded;
-
-	// Bitmap indicator
-	metadata[18] = gfld->ibmap;
-
-	// Parameter Discipline
-	metadata[19] = gfld->discipline;
-
-	metadata[20] = sizeof(gfld->list_opt);
-
-	PyObject * metadataList;
-	sizeSection = 21;
-	metadataList = PyList_New(sizeSection);
-	for (sectionCounter = 0; sectionCounter < 21; sectionCounter++) {
-		PyList_SetItem(metadataList, sectionCounter, Py_BuildValue("i",
-				metadata[sectionCounter]));
-	}
-	PyDict_SetItemString(response, "metadata", metadataList);
-	Py_DECREF(metadataList);
-	if(debug) {
-		int j = 0;
-		printf("Metadata Values: ");
-		for(j = 0; j < 21; j++) {
-			printf(" %d",metadata[j]);
-		}
-		printf(".\n");
-	}
-
-	g2_free(gfld);
-	return response;
+	return result;
 }
 
-static PyObject * grib2_checkVersion(PyObject *self, PyObject* args) {
-	char * inputFile;
-	long gribversion = 2;
-	if (!PyArg_ParseTuple(args, "s", &inputFile)) {
-		return NULL;
-	}
-	FILE * gribFile = fopen(inputFile, "rb");
-	if (!gribFile) {
-		PyErr_SetString(Grib2FileError,
-				"Could not open the GRIB file specified.");
-		return NULL;
-	}
-	//Search for grib header
-	char header[100];
-	fread(header, 1, 100, gribFile);
-	int gCounter = 0;
-	int foundHeader = 0;
-	for (gCounter = 0; gCounter < 100; gCounter++) {
-		if (header[gCounter] == 'G' && header[gCounter + 1] == 'R'
-				&& header[gCounter + 2] == 'I' && header[gCounter + 3] == 'B') {
-			foundHeader = 1;
-			break;
-		}
-	}
+/////////////////////////////////////////////////////////////////////////
+//    Extracts the data from the specified portion of a grib file.
+//
+//    INPUT ARGUMENTS:
+//        self          - The grib2 module object
+//        fileInfo      - The PyFile for an open grib file.
+//        startPosition - The start position of the file portion to decode.
+//        messageLength - The length of the file portion to decode.
+//
+//    RETURN VALUE: A PyList of PyDicts, one PyDict for each field in the grib
+//                  message. The caller is responsible for decrementing the ref
+//                  count of the returned object.
+//
+/////////////////////////////////////////////////////////////////////////
+static PyObject* grib2_decode(PyObject* self, PyObject* args) {
+	PyObject* result = NULL;
+	PyObject* fileInfo;
+	int startPosition;
+	int messageLength;
+	FILE * fptr;
+	int ierr;
+	unsigned char* rawData;
 
-	//char * start = strstr(header, "GRIB");
-	if (!foundHeader) {
-		PyErr_SetString(Grib2FileError, "Invalid Grib file detected.");
-		fclose(gribFile);
-		return NULL;
-	}
-	fclose(gribFile);
-	if (header[gCounter + 7] == 0x01) { // GRIB 1 data
-		gribversion = 1;
-	} else if (header[gCounter + 7] != 0x02) {
-		PyErr_SetString(Grib2FileError, "Unrecognized GRIB version.");
+	PyArg_ParseTuple(args, "Oii", &fileInfo, &startPosition, &messageLength);
+
+	fptr = PyFile_AsFile(fileInfo);
+	ierr = fseek(fptr, startPosition, SEEK_SET);
+	if (ierr != 0) {
+		PyErr_SetString(Grib2FileError, "Failed to seek to start position.\n");
 		return NULL;
 	}
 
-	return PyInt_FromLong(gribversion);
+	rawData = (unsigned char *) malloc(messageLength);
+	if (rawData == NULL) {
+		PyErr_SetString(Grib2FileError, "Failed to malloc rawData.\n");
+		return NULL;
+	}
+	ierr = fread(rawData, sizeof(unsigned char), messageLength, fptr);
+	if (ierr != messageLength) {
+		free(rawData);
+		PyErr_SetString(Grib2FileError, "Failed to read full grib message.\n");
+		return NULL;
+	}
+
+	result = decodeData(rawData);
+	free(rawData);
+	return result;
 }
 
-static PyObject * grib2_grib1Togrib2(PyObject *self, PyObject* args) {
-	char * inputFile;
-	char * outputFile;
-	PyArg_ParseTuple(args, "ss", &inputFile, &outputFile);
-	return PyInt_FromLong(1);
-}
-
-static PyMethodDef grib2_methods[] = { { "getMetadata", grib2_getMetadata,
-		METH_VARARGS, "Returns the metadata for the grib file." }, { "getData",
-		grib2_getData, METH_VARARGS,
-		"Returns the data values for the grib file." }, { "checkVersion",
-		grib2_checkVersion, METH_VARARGS,
-		"Returns a file handle to a grib record." }, { "oneTotwo",
-		grib2_grib1Togrib2, METH_VARARGS, "Converts grib1 files to grib2." }, {
-		NULL, NULL, 0, NULL } /* sentinel */
+static PyMethodDef grib2_methods[] = { { "decode", grib2_decode, METH_VARARGS,
+		"Returns grib data for a range within a file." },
+		{ NULL, NULL, 0, NULL } /* sentinel */
 };
 
 void initgrib2(void) {

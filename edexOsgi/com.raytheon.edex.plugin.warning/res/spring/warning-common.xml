@@ -19,30 +19,30 @@
 		<property name="pluginName" value="warning" />
 		<property name="pluginFQN" value="com.raytheon.edex.plugin.warning" />
 		<property name="moduleName" value="WarningDecoder" />
-		<property name="cache" value="true"/>
+		<property name="cache" value="true" />
 		<property name="recordClassname"
 			value="com.raytheon.uf.common.dataplugin.warning.WarningRecord" />
 	</bean>
-		
-   <bean id="practiceWarningProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
-      <property name="pluginName" value="practicewarning" />
-      <property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.warning" />
-      <property name="record"
-         value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord" />
-      <property name="initialRetentionTime" value="144" />
-   </bean>
 
-   <bean factory-bean="pluginRegistry" factory-method="register">
-      <constructor-arg value="practicewarning" />
-      <constructor-arg ref="practiceWarningProperties" />
-   </bean>
+	<bean id="practiceWarningProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+		<property name="pluginName" value="practicewarning" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.warning" />
+		<property name="record"
+			value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord" />
+		<property name="initialRetentionTime" value="144" />
+	</bean>
 
-   <bean id="practiceWarningDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
-      <property name="pluginName" value="practicewarning" />
-      <property name="pluginFQN" value="com.raytheon.edex.plugin.warning" />
-      <property name="moduleName" value="WarningDecoder" />
-      <property name="cache" value="true"/>
-      <property name="recordClassname"
-         value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord" />
-   </bean>  
+	<bean factory-bean="pluginRegistry" factory-method="register">
+		<constructor-arg value="practicewarning" />
+		<constructor-arg ref="practiceWarningProperties" />
+	</bean>
+
+	<bean id="practiceWarningDecoder" class="com.raytheon.uf.edex.python.decoder.PythonDecoder">
+		<property name="pluginName" value="practicewarning" />
+		<property name="pluginFQN" value="com.raytheon.edex.plugin.warning" />
+		<property name="moduleName" value="WarningDecoder" />
+		<property name="cache" value="true" />
+		<property name="recordClassname"
+			value="com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord" />
+	</bean>
 </beans>

@@ -26,7 +26,8 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 
-import com.raytheon.uf.edex.database.dao.SessionManagedDao;
+import org.hibernate.criterion.Property;
+
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
@@ -41,22 +42,19 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * ------------ ---------- ----------- --------------------------
  * 3/18/2013    1082       bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching
+ * 10/08/2013   1682       bphillip    Added the id like query
+ * 12/2/2013    1829       bphillip    Now extends ExtensibleObjectTypeDao
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public abstract class IdentifiableTypeDao<ENTITY extends IdentifiableType>
-        extends SessionManagedDao<String, ENTITY> {
+public class IdentifiableTypeDao<ENTITY extends IdentifiableType> extends
+        ExtensibleObjectTypeDao<ENTITY> {
 
     public IdentifiableTypeDao() {
 
-    }
-
-    @Override
-    public ENTITY getById(String id) {
-        return super.getById(id);
     }
 
     /**
@@ -85,26 +83,23 @@ public abstract class IdentifiableTypeDao<ENTITY extends IdentifiableType>
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
+    @SuppressWarnings("unchecked")
     public List<ENTITY> getById(List<String> ids) throws EbxmlRegistryException {
-        return this.executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                this.getEntityClass(), QueryConstants.ID, "in", ids));
+        return createCriteria()
+                .add(Property.forName(QueryConstants.ID).in(ids)).list();
     }
 
     /**
-     * Queries for all ids of registry objects matching the pattern of the given
-     * id. A query using 'like' will be executed.
+     * Gets all IdentifiableType objects matching (using like) the given id.
      * 
      * @param id
-     *            The id containing % or _ denoting wildcard characters
-     * @return List of ids matching the given id pattern
-     * @throws EbxmlRegistryException
-     *             If errors occur during the query
+     *            The id to query for
+     * @return All IdentifiableType objects matching the given id
      */
-    public List<String> getMatchingIds(String id) throws EbxmlRegistryException {
-        String hql = "select obj.id from "
-                + this.getEntityClass().getSimpleName()
-                + " obj where obj.id like :id";
-        return this.executeHQLQuery(hql, "id", id);
+    @SuppressWarnings("unchecked")
+    public List<ENTITY> getByIdUsingLike(String id) {
+        return createCriteria().add(
+                Property.forName(QueryConstants.ID).like(id)).list();
     }
 
 }

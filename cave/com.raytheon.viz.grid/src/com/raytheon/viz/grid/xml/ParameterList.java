@@ -26,10 +26,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * TODO Add Description
+ * List of ParameterMappings
  * 
  * <pre>
  * 
@@ -37,6 +35,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 22, 2010 #4473      rjpeter     Initial creation
+ * Nov 07, 2013  2361      njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -45,7 +44,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "parameterList")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ParameterList implements ISerializableObject {
+public class ParameterList {
+
     @XmlElement(name = "parameter")
     private List<ParameterMapping> parameters;
 

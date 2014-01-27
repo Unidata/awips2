@@ -25,16 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
 import com.raytheon.uf.common.dataquery.requests.QlServerRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.SaveOrUpdateRequest;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
 import com.raytheon.uf.common.message.response.ResponseMessageError;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.exception.VizServerSideException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -49,6 +47,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * ------------ ---------- ----------- --------------------------
  * 10/15/2008   1615       bphillip    Initial Creation
  * 12/11/2008   1777       bphillip    Added insert/update functionality
+ * Nov 08, 2013 2361       njensen     Refactored/improved saveOrUpdateList()
  * 
  * </pre>
  * 
@@ -319,44 +318,11 @@ public class DirectDbQuery {
      */
     private int saveOrUpdateList(List<Object> objList, String database)
             throws VizException {
+        SaveOrUpdateRequest req = new SaveOrUpdateRequest();
+        req.setDbName(database);
+        req.setObjectsToUpdate(objList);
 
-        constraints.put("database", new RequestConstraint(database));
-
-        for (int i = 0; i < objList.size(); i++) {
-            String xml = null;
-            try {
-                xml = SerializationUtil.marshalToXml(objList.get(i));
-            } catch (JAXBException e) {
-                throw new VizException(
-                        "Unable to marshal object. Save Failed.", e);
-            }
-            // xml = xml.replaceAll("\"", "<quote>");
-            // xml = xml.replaceAll("\n", "");
-            constraints.put("obj" + String.valueOf(i), new RequestConstraint(
-                    xml));
-        }
-        // set mode
-        constraints.put("mode", new RequestConstraint("saveOrUpdateObject"));
-
-        // create and send request
-        QlServerRequest request = new QlServerRequest(constraints);
-        int retVal = 0;
-        AbstractResponseMessage response = (AbstractResponseMessage) ThriftClient
-                .sendRequest(request);
-
-        if (constraints.containsKey("mode")) {
-            constraints.remove("mode");
-        }
-
-        if (response instanceof ResponseMessageGeneric) {
-            retVal = (Integer) ((ResponseMessageGeneric) response)
-                    .getContents();
-        } else if (response instanceof ResponseMessageError) {
-            ResponseMessageError rme = (ResponseMessageError) response;
-            VizServerSideException innerException = new VizServerSideException(
-                    rme.toString());
-            throw new VizServerSideException(rme.getErrorMsg(), innerException);
-        }
-        return retVal;
+        Object result = ThriftClient.sendRequest(req);
+        return (Integer) result;
     }
 }

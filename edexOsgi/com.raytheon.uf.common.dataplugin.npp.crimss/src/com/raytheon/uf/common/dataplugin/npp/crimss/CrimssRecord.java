@@ -26,9 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.sounding.NPPSoundingRecord;
@@ -48,6 +45,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -58,8 +56,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "crimssseq")
 @Table(name = "crimss", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 @DynamicSerialize
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class CrimssRecord extends NPPSoundingRecord {
 
     private static final long serialVersionUID = 1L;

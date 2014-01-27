@@ -25,10 +25,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Maps;
+import com.raytheon.uf.common.datadelivery.event.retrieval.AdhocDataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.event.retrieval.DataRetrievalEvent;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
+import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.event.EventBus;
@@ -58,6 +60,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalPersistUtil;
  * Jan 31, 2013 1543       djohnson     Initial creation
  * Feb 12, 2013 1543       djohnson     Now handles the retrieval responses directly.
  * Feb 15, 2013 1543       djohnson     Retrieve the retrieval attributes from the database.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Aug 06, 2013 1654       bgonzale     Added AdhocDataRetrievalEvent.
+ * Oct 01, 2013 2267       bgonzale     Removed request parameter.  Return RetrievalRequestRecord.
  * 
  * </pre>
  * 
@@ -90,18 +95,25 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
      * {@inheritDoc}
      */
     @Override
-    public void processRetrievedPluginDataObjects(
+    public RetrievalRequestRecord processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException, TranslationException {
         Map<String, PluginDataObject[]> pluginDataObjects = Maps.newHashMap();
         final RetrievalRequestRecordPK id = retrievalPluginDataObjects
                 .getRequestRecord();
-        final RetrievalRequestRecord requestRecord = retrievalDao.getById(id);
+        RetrievalRequestRecord requestRecord = null;
+
+        if (retrievalPluginDataObjects instanceof SbnRetrievalResponseXml) {
+            requestRecord = ((SbnRetrievalResponseXml) retrievalPluginDataObjects)
+                    .getRetrievalRequestRecord();
+        } else {
+            requestRecord = retrievalDao.getById(id);
+        }
 
         if (requestRecord == null) {
-            statusHandler.warn("Unable to find retrieval by id [" + id
-                    + "]!  Retrieval will not be processed...");
-            return;
+            throw new SerializationException(
+                    "Invalid or missing retrieval found for Response id [" + id
+                            + " ] XML from Central Registry");
         }
 
         final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
@@ -159,7 +171,11 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
 
                 statusHandler.info("Successfully processed: " + records.length
                         + " : " + serviceType + " Plugin : " + pluginName);
-                DataRetrievalEvent event = new DataRetrievalEvent();
+                boolean isAdhoc = retrieval.getSubscriptionType() != null
+                        && retrieval.getSubscriptionType().equals(
+                                SubscriptionType.AD_HOC);
+                DataRetrievalEvent event = isAdhoc ? new AdhocDataRetrievalEvent()
+                        : new DataRetrievalEvent();
                 event.setId(retrieval.getSubscriptionName());
                 event.setOwner(retrieval.getOwner());
                 event.setNetwork(retrieval.getNetwork().name());
@@ -170,17 +186,17 @@ public class StoreRetrievedData implements IRetrievalPluginDataObjectsProcessor 
 
                 EventBus.publish(event);
 
-                sendToDestinationForStorage(requestRecord, records);
+                sendToDestinationForStorage(records);
             }
         }
+        return requestRecord;
     }
 
     /**
      * Sends the plugin data objects to their configured destination for storage
      * to the database.
      */
-    public void sendToDestinationForStorage(
-            RetrievalRequestRecord requestRecord, PluginDataObject[] pdos) {
+    private void sendToDestinationForStorage(PluginDataObject[] pdos) {
         String pluginName = pdos[0].getPluginName();
 
         if (pluginName != null) {

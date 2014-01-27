@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.radar.VizRadarRecord;
@@ -74,13 +75,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 16, 2009            askripsk     Initial creation
- * Jul 26, 2010 #3723      bkowal       Now implements the magnification
- *                                      capability.
- * Mar 19, 2013 1804       bsteffen    Remove empty data structures from radar
- *                                     hdf5.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 16, 2009           askripsk    Initial creation
+ * Jul 26, 2010  3723     bkowal      Now implements the magnification
+ *                                    capability.
+ * Mar 19, 2013  1804     bsteffen    Remove empty data structures from radar
+ *                                    hdf5.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -90,6 +92,15 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
+    /* Unknown source, provides acceptable barb size. */
+    private static final double BARB_SIZE = 25.6;
+
+    protected static final int X_OFFSET_NWP = 0;
+
+    protected static final int Y_OFFSET_NWP = 80;
+
+    protected static final double SCALAR = 1.6;
+
     protected HashMap<Coordinate, String> screenStringMap = new HashMap<Coordinate, String>();
 
     protected List<UnlinkedVector> unlinkedLines = new ArrayList<UnlinkedVector>();
@@ -97,12 +108,6 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
     protected List<LinkedVector> linkedLines = new ArrayList<LinkedVector>();
 
     protected List<WindBarbPoint> points = new ArrayList<WindBarbPoint>();
-
-    protected int xOffsetNWP = 0;
-
-    protected int yOffsetNWP = 80;
-
-    protected double scalar = 1.6;
 
     protected IFont font;
 
@@ -196,12 +201,12 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         width *= xScale;
         height *= yScale;
 
-        width *= scalar;
-        height *= scalar;
+        width *= SCALAR;
+        height *= SCALAR;
 
-        double upper = (yOffsetNWP + jStart) * scalar;
+        double upper = (Y_OFFSET_NWP + jStart) * SCALAR;
         double lower = upper + height;
-        double left = (xOffsetNWP + iStart) * scalar;
+        double left = (X_OFFSET_NWP + iStart) * SCALAR;
         double right = left + width;
 
         return new PixelCoverage(new Coordinate(left, upper), new Coordinate(
@@ -216,19 +221,19 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
         // Paint unlinked lines
         for (UnlinkedVector currVec : this.unlinkedLines) {
-            target.drawLine((currVec.i1 + xOffsetNWP) * scalar,
-                    (currVec.j1 + yOffsetNWP) * scalar, 0,
-                    (currVec.i2 + xOffsetNWP) * scalar,
-                    (currVec.j2 + yOffsetNWP) * scalar, 0,
+            target.drawLine((currVec.i1 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR, 0,
+                    (currVec.i2 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR, 0,
                     getVectorColor(currVec), 1 * magnification);
         }
 
         // Paint linked lines
         for (LinkedVector currVec : this.linkedLines) {
-            target.drawLine((currVec.i1 + xOffsetNWP) * scalar,
-                    (currVec.j1 + yOffsetNWP) * scalar, 0,
-                    (currVec.i2 + xOffsetNWP) * scalar,
-                    (currVec.j2 + yOffsetNWP) * scalar, 0,
+            target.drawLine((currVec.i1 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j1 + Y_OFFSET_NWP) * SCALAR, 0,
+                    (currVec.i2 + X_OFFSET_NWP) * SCALAR,
+                    (currVec.j2 + Y_OFFSET_NWP) * SCALAR, 0,
                     getVectorColor(currVec), 1 * magnification);
         }
     }
@@ -242,9 +247,12 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                 .getCanvasBounds().width) * magnification;
 
         VectorGraphicsRenderable[] renderables = new VectorGraphicsRenderable[6];
+        VectorGraphicsConfig config = new VectorGraphicsConfig();
+        config.setBaseSize(BARB_SIZE);
+        config.setSizeScaler(ratio);
         for (int i = 0; i < renderables.length; i++) {
             renderables[i] = new VectorGraphicsRenderable(descriptor, target,
-                    64, 1.0);
+                    config);
             renderables[i].setLineWidth(magnification);
         }
         renderables[0].setColor(RadarHelper.WHITE);
@@ -259,12 +267,12 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                 index = 0;
             }
             Coordinate plotLoc = new Coordinate(point.i, point.j);
-            plotLoc.x += xOffsetNWP;
-            plotLoc.y += yOffsetNWP;
+            plotLoc.x += X_OFFSET_NWP;
+            plotLoc.y += Y_OFFSET_NWP;
             plotLoc.y -= 2;
-            plotLoc.x *= scalar;
-            plotLoc.y *= scalar;
-            renderables[index].paintBarb(plotLoc, 64 * ratio,
+            plotLoc.x *= SCALAR;
+            plotLoc.y *= SCALAR;
+            renderables[index].paintBarb(plotLoc,
                     point.getWindBarbSpd(),
                     Math.toRadians(point.getWindBarbDir()));
         }
@@ -282,8 +290,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             DrawableString string = new DrawableString(
                     this.screenStringMap.get(c), null);
             string.font = font;
-            string.setCoordinates((c.x + xOffsetNWP) * scalar,
-                    (c.y + yOffsetNWP) * scalar, 0.0);
+            string.setCoordinates((c.x + X_OFFSET_NWP) * SCALAR,
+                    (c.y + Y_OFFSET_NWP) * SCALAR, 0.0);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
             string.verticallAlignment = VerticalAlignment.TOP;
             strings.add(string);

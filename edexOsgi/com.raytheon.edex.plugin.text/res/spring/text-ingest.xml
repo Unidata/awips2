@@ -14,11 +14,6 @@
 		<constructor-arg value="jms-dist:queue:Ingest.Text"/>
 	</bean>
 
-    <bean factory-bean="manualProc"
-        factory-method="registerSecondaryPlugin">
-        <constructor-arg value="text" />
-    </bean>
-
 	<bean id="textHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="text" />
@@ -52,6 +47,10 @@
 		<constructor-arg ref="textArchiveNamer" />
 	</bean>
 
+    <bean factory-bean="databaseArchiver" factory-method="registerPluginBatchSize" depends-on="databaseArchiver">
+        <constructor-arg value="text" />
+        <constructor-arg value="1000" type="java.lang.Integer"/>
+    </bean>
 
 	<camelContext id="text-camel"
 		xmlns="http://camel.apache.org/schema/spring"

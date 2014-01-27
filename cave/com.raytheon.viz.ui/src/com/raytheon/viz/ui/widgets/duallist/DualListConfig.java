@@ -35,6 +35,8 @@ import java.util.List;
  * May 31, 2012            mpduff      Initial creation.
  * Aug 10, 2012  1002      mpduff      Added numeric flag for sorting.
  * Jan 07, 2013  1431      mpduff      Add case sensitive and exclude flags.
+ * Aug 20, 2013  1733      mpduff      Add match flag.
+ * Sep 27, 2013  #2419     lvenable    Updated include description.
  * 
  * </pre>
  * 
@@ -80,7 +82,8 @@ public class DualListConfig {
     private List<String> fullList = new ArrayList<String>();
 
     /**
-     * The list to include.
+     * The include list is a set of items that will always be present the
+     * selected list and cannot be removed from the selected list.
      */
     private HashSet<String> includeList = new HashSet<String>();
 
@@ -103,6 +106,12 @@ public class DualListConfig {
 
     /** Flag for numeric data */
     private boolean numericData = false;
+
+    /**
+     * Match any/all flag. True is match any, false is match all. Only used when
+     * searchField != null;
+     */
+    private boolean matchAny = true;
 
     /**
      * Constructor.
@@ -250,7 +259,7 @@ public class DualListConfig {
      * @return The array of all available items.
      */
     public List<String> getFullList() {
-        return fullList;
+        return new ArrayList<String>(fullList);
     }
 
     /**
@@ -333,5 +342,24 @@ public class DualListConfig {
      */
     public void setExcludeFlag(boolean excludeFlag) {
         this.excludeFlag = excludeFlag;
+    }
+
+    /**
+     * true is match any, false is match all
+     * 
+     * @return the matchAny
+     */
+    public boolean getMatchAny() {
+        return matchAny;
+    }
+
+    /**
+     * true is match any, false is match all
+     * 
+     * @param matchAny
+     *            the matchAny to set
+     */
+    public void setMatchAny(boolean matchAny) {
+        this.matchAny = matchAny;
     }
 }

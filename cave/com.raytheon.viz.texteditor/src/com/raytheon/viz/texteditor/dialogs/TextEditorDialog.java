@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -332,7 +331,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 04Sep2013   2176         jsanchez    Changed the order of the QC check dialogs.
  * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
  *                                       simulated time.
+ * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
+ * 10Dec2013   2601         mpduff      Fix NullPointerException.
  * </pre>
  * 
  * @author lvenable
@@ -345,7 +346,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     /**
      * Handler used for messges.
      */
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextEditorDialog.class);
 
     /**
@@ -1367,15 +1368,17 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      */
     private boolean isPreviousLineWrapped;
 
-    private Color textForeground;
+    /** Text foregraound color. */
+    private Color textForegroundClr;
 
-    private Color textBackground;
+    /** Text background color. */
+    private Color textBackgroundClr;
 
-    private Color highlightForeground;
+    /** Highlight foreground color. */
+    private Color highlightForegroundClr;
 
-    private Color highlightBackground;
-
-    // protected Color color;
+    /** Highlight background color. */
+    private Color highlightBackgroundClr;
 
     /**
      * Constructor with additional cave style rules
@@ -2411,40 +2414,41 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Method to preserve the spacing in a bulleted section of text. Only
      * applies to VTEC warning (vtecAfosProductEnum) type products.
      */
-    private void PreserveBulletedTextSpacing(StyledText st) {
-        // Capture the input from the styled text widget.
-        String in = st.getText();
-        // New up a Scanner to use to parse the text in the editor.
-        Scanner sc = new Scanner(in).useDelimiter("\\n");
-        // Declare variables for processing the editor's contents.
-        int thisLine = -1;
-        String whatMatched;
-
-        // Process the editor's contents.
-        while (sc.hasNext()) {
-            whatMatched = sc.next();
-            thisLine++;
-            if ((whatMatched != null) && (sc.hasNext())
-                    && (whatMatched.startsWith("*"))) {
-                while (sc.hasNext()) {
-                    whatMatched = sc.next();
-                    thisLine++;
-                    if ((whatMatched != null)
-                            && (!(whatMatched.startsWith(" ")))
-                            && (!(whatMatched.equals("")))) {
-                        // Indent the bullet list entry by one space.
-                        // If operator enables word wrap they are responsible
-                        // for reformatting bullet list items that span lines.
-                        st.setCaretOffset(st.getOffsetAtLine(thisLine));
-                        st.insert(" ");
-                    } else if ((whatMatched != null)
-                            && (whatMatched.equals(""))) {
-                        break; // The end of bullet list is detected.
-                    }
-                }
-            }
-        }
-    }
+    // private void PreserveBulletedTextSpacing(StyledText st) {
+    // // Capture the input from the styled text widget.
+    // String in = st.getText();
+    // // New up a Scanner to use to parse the text in the editor.
+    // Scanner sc = new Scanner(in).useDelimiter("\\n");
+    // // Declare variables for processing the editor's contents.
+    // int thisLine = -1;
+    // String whatMatched;
+    //
+    // // Process the editor's contents.
+    // while (sc.hasNext()) {
+    // whatMatched = sc.next();
+    // thisLine++;
+    // if ((whatMatched != null) && (sc.hasNext())
+    // && (whatMatched.startsWith("*"))) {
+    // while (sc.hasNext()) {
+    // whatMatched = sc.next();
+    // thisLine++;
+    // if ((whatMatched != null)
+    // && (!(whatMatched.startsWith(" ")))
+    // && (!(whatMatched.equals("")))) {
+    // // Indent the bullet list entry by one space.
+    // // If operator enables word wrap they are responsible
+    // // for reformatting bullet list items that span lines.
+    // st.setCaretOffset(st.getOffsetAtLine(thisLine));
+    // st.insert(" ");
+    // } else if ((whatMatched != null)
+    // && (whatMatched.equals(""))) {
+    // break; // The end of bullet list is detected.
+    // }
+    // }
+    // }
+    // }
+    //
+    // }
 
     /**
      * Method to create selection sub-menu.
@@ -2759,8 +2763,6 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
             autoWrapCfg = JAXB.unmarshal(path, AutoWrapCfg.class);
         } catch (Exception e) {
-            IUFStatusHandler statusHandler = UFStatus
-                    .getHandler(TextEditorDialog.class);
             statusHandler.handle(Priority.ERROR,
                     "Unable to parse Autowrap menu configuration.", e);
             autoWrapCfg = new AutoWrapCfg();
@@ -3745,8 +3747,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
         // textColorCfg = getTextColorCfg();
         setDefaultTextColor(TextEditorCfg.getTextEditorCfg());
-        textEditor.setForeground(textForeground);
-        textEditor.setBackground(textBackground);
+        textEditor.setForeground(textForegroundClr);
+        textEditor.setBackground(textBackgroundClr);
 
         textEditor.addSelectionListener(new SelectionListener() {
             @Override
@@ -3763,8 +3765,8 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 // String slctText = stylText.getSelectionText();
                 // int length = slctText.length();
 
-                stylText.setSelectionBackground(highlightBackground);
-                stylText.setSelectionForeground(highlightForeground);
+                stylText.setSelectionBackground(highlightBackgroundClr);
+                stylText.setSelectionForeground(highlightForegroundClr);
 
             }
         });
@@ -3940,13 +3942,13 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     }
 
     private void setDefaultTextColor(TextEditorCfg txtClrCfg) {
-        textBackground = new Color(shell.getDisplay(),
+        textBackgroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getTextBackgroundColor());
-        textForeground = new Color(shell.getDisplay(),
+        textForegroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getTextForegroundColor());
-        highlightBackground = new Color(shell.getDisplay(),
+        highlightBackgroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getHighlightTextBackgroundColor());
-        highlightForeground = new Color(shell.getDisplay(),
+        highlightForegroundClr = new Color(shell.getDisplay(),
                 txtClrCfg.getHighlightTextForegroundColor());
     }
 
@@ -4946,11 +4948,11 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 if (!resend) {
                     StdTextProduct prod = getStdTextProduct();
                     OUPTestRequest testReq = new OUPTestRequest();
-                    testReq.setOupRequest(
-                            createOUPRequest(prod, prod.getProduct()));
+                    testReq.setOupRequest(createOUPRequest(prod,
+                            prod.getProduct()));
                     try {
-                        OUPResponse checkResponse = (OUPResponse)
-                                ThriftClient.sendRequest(testReq);
+                        OUPResponse checkResponse = (OUPResponse) ThriftClient
+                                .sendRequest(testReq);
                         if (checkResponse.hasFailure()) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error during text product transmission check: "
@@ -4960,24 +4962,27 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         }
                     } catch (VizException e) {
                         statusHandler.handle(Priority.PROBLEM,
-                                "Error during text product transmission check", e);
+                                "Error during text product transmission check",
+                                e);
                         inEditMode = true;
                         return;
                     }
 
-                    /* Update the vtec string in the message.  It looks wrong to
-                     * do this after saveEditedProduct, but it works because
-                     * for this case (isOpertional && ! resend) case, saveEditedProduct,
-                     * does not actually save anything. */
-                    prod.setProduct(
-                            VtecUtil.getVtec(removeSoftReturns(prod.getProduct()), true));
+                    /*
+                     * Update the vtec string in the message. It looks wrong to
+                     * do this after saveEditedProduct, but it works because for
+                     * this case (isOpertional && ! resend) case,
+                     * saveEditedProduct, does not actually save anything.
+                     */
+                    prod.setProduct(VtecUtil.getVtec(
+                            removeSoftReturns(prod.getProduct()), true));
                     /*
                      * This silly bit of code updates the ETN of a VTEC in the
                      * text pane to reflect the ETN that was actually used, but
                      * not update any other parts of the text even though they
                      * may have also been changed just before the product was
                      * sent.
-                     *
+                     * 
                      * A1 works similarly.
                      */
                     updateTextEditor(copyEtn(prod.getProduct(), body));
@@ -5047,8 +5052,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
     private OUPRequest createOUPRequest(StdTextProduct prod, String text) {
         OUPRequest req = new OUPRequest();
         OfficialUserProduct oup = new OfficialUserProduct();
-        String awipsWanPil = prod.getSite() + prod.getNnnid()
-                + prod.getXxxid();
+        String awipsWanPil = prod.getSite() + prod.getNnnid() + prod.getXxxid();
         String awipsID = prod.getNnnid() + prod.getXxxid();
 
         oup.setAwipsWanPil(awipsWanPil);
@@ -7176,6 +7180,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         private File getFile(String filename) {
             LocalizationFile lFile = pathManager.getLocalizationFile(lc,
                     SAVED_SESSION_DIR + filename);
+            if (lFile == null) {
+                return null;
+            }
+
             return lFile.getFile();
         }
 
@@ -7199,11 +7207,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
 
                 file = getFile(filename);
 
-                synchronized (this) {
-                    bufStream = new BufferedOutputStream(new FileOutputStream(
-                            file));
-                    bufStream.write(SerializationUtil.marshalToXml(
-                            stdTextProduct).getBytes());
+                if (file == null) {
+                    statusHandler
+                            .warn("Auto save failed.  See server for details...");
+                } else {
+                    synchronized (this) {
+                        bufStream = new BufferedOutputStream(
+                                new FileOutputStream(file));
+                        bufStream.write(SerializationUtil.marshalToXml(
+                                stdTextProduct).getBytes());
+                    }
                 }
 
                 // TODO Should the edit session be backed up to the server?
@@ -7634,6 +7647,22 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (browser != null) {
             browser.close();
             browser = null;
+        }
+
+        if (textForegroundClr != null) {
+            textForegroundClr.dispose();
+        }
+
+        if (textBackgroundClr != null) {
+            textBackgroundClr.dispose();
+        }
+
+        if (highlightForegroundClr != null) {
+            highlightForegroundClr.dispose();
+        }
+
+        if (highlightBackgroundClr != null) {
+            highlightBackgroundClr.dispose();
         }
 
         inEditMode = false;
@@ -8312,7 +8341,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return
      * @throws IOException
      */
-    private static boolean isTextFile(File file) throws IOException {
+    private boolean isTextFile(File file) throws IOException {
         boolean result = false;
 
         byte[] bytesFromFile = getBytesFromFile(file);
@@ -8334,7 +8363,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * @return bytes
      * @throws IOException
      */
-    private static byte[] getBytesFromFile(File file) throws IOException {
+    private byte[] getBytesFromFile(File file) throws IOException {
         InputStream is = null;
         byte[] bytes = null;
 
@@ -8365,13 +8394,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                 throw new IOException("Could not completely read file "
                         + file.getName());
             }
+        } catch (Exception ex) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error opening input stream.", ex);
         } finally {
-
             // Close the input stream and return bytes
             if (is != null) {
                 is.close();
             }
         }
+
         return bytes;
     }
 

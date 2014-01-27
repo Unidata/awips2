@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import javax.xml.bind.JAXBException;
-
 import org.eclipse.ecf.core.IContainer;
 import org.eclipse.ecf.core.util.Base64;
 
@@ -30,15 +28,18 @@ import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 
 /**
- * TODO Add Description
+ * Provides some utility methods for parsing and serializing/deserializing data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 7, 2012            jkorman     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 07, 2012           jkorman     Initial creation
+ * Oct 31, 2013  2491     bsteffen    Use CollaborationXmlManager for xml
+ *                                    serialization.
+ * 
  * 
  * </pre>
  * 
@@ -55,9 +56,9 @@ public abstract class Tools {
     public static final String PROP_SESSION_ID = "sessionId";
 
     public static final String CMD_PREAMBLE = "[[COMMAND#";
-    
+
     public static final String CONFIG_PREAMBLE = "[[CONFIG#";
-    
+
     public static final String DIRECTIVE_SUFFIX = "]]";
 
     private static final String ENV_THRIFT = CMD_PREAMBLE
@@ -275,14 +276,16 @@ public abstract class Tools {
             }
             case JAXB: {
                 try {
+                    CollaborationXmlManager jaxb = CollaborationXmlManager
+                            .getInstance();
                     if (COMPRESSION_OFF) {
-                        String s = SerializationUtil.marshalToXml(data);
+                        String s = jaxb.marshal(data);
                         if (s != null) {
                             sb.append(ENV_JAXB);
                             sb.append(s);
                         }
                     } else {
-                        String rawString = SerializationUtil.marshalToXml(data);
+                        String rawString = jaxb.marshal(data);
                         marshalledBinary = CompressionUtil.compress(rawString
                                 .getBytes());
                         sb.append(ENV_JAXB_COMPRESSED);
@@ -334,7 +337,8 @@ public abstract class Tools {
                 String s = data.substring(ENV_THRIFT.length());
                 try {
                     byte[] b = decodeFromBase64(s);
-                    unMarshalledData = SerializationUtil.transformFromThrift(b);
+                    unMarshalledData = SerializationUtil.transformFromThrift(
+                            Object.class, b);
                 } catch (SerializationException e) {
                     throw new CollaborationException(
                             "Could not deserialize object", e);
@@ -346,8 +350,8 @@ public abstract class Tools {
                     byte[] uncompressedBytes = CompressionUtil
                             .uncompress(rawBytes);
 
-                    unMarshalledData = SerializationUtil
-                            .transformFromThrift(uncompressedBytes);
+                    unMarshalledData = SerializationUtil.transformFromThrift(
+                            Object.class, uncompressedBytes);
                     // unMarshalledData = SerializationUtil
                     // .transformFromThrift(createCompressionInputStream(rawBytes));
                 } catch (Exception e) {
@@ -357,8 +361,9 @@ public abstract class Tools {
             } else if (data.startsWith(ENV_JAXB)) {
                 String s = data.substring(ENV_JAXB.length());
                 try {
-                    unMarshalledData = SerializationUtil.unmarshalFromXml(s);
-                } catch (JAXBException je) {
+                    unMarshalledData = CollaborationXmlManager.getInstance()
+                            .unmarshal(s);
+                } catch (SerializationException je) {
                     throw new CollaborationException(
                             "[JAXB] Could not deserialize object", je);
                 }
@@ -366,9 +371,10 @@ public abstract class Tools {
                 String rawString = data.substring(ENV_JAXB_COMPRESSED.length());
                 try {
                     byte[] rawBytes = decodeFromBase64(rawString);
-                    unMarshalledData = SerializationUtil
-                            .unmarshalFromXml(new String(CompressionUtil
-                                    .uncompress(rawBytes)));
+                    unMarshalledData = CollaborationXmlManager.getInstance()
+                            .unmarshal(
+                                    new String(CompressionUtil
+                                            .uncompress(rawBytes)));
                     // unMarshalledData = SerializationUtil
                     // .unmarshalFromXml(createCompressionInputStream(rawBytes));
                 } catch (Exception je) {

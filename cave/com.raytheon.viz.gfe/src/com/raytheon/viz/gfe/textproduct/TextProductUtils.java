@@ -20,16 +20,8 @@
 package com.raytheon.viz.gfe.textproduct;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.util.Properties;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -44,8 +36,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.viz.gfe.PythonUtil;
 
 /**
  * Utilities for text products
@@ -55,6 +45,7 @@ import com.raytheon.viz.gfe.PythonUtil;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sept 23, 2008			askripsky	Initial creation
+ * Sept 09, 2013  #2033     dgilling    Remove dead code.
  * 
  * </pre>
  * 
@@ -92,19 +83,6 @@ public class TextProductUtils {
     // Root path for Utilities
     public final static String UTILITIES_PATH = TEXT_PRODUCTS_ROOT_PATH
             + File.separator + "utilities";
-
-    // Root path for Templates
-    public final static String TEMPLATES_PATH = TEXT_PRODUCTS_ROOT_PATH
-            + File.separator + "templates";
-
-    // Template for Table type Text Product
-    public final static String TEXT_PRODUCT_TABLE_TEMPLATES = "textProductTable.vm";
-
-    // Template for Smart type Text Product
-    public final static String TEXT_PRODUCT_SMART_TEMPLATES = "textProductSmart.vm";
-
-    // Template for Text Utilities
-    public final static String TEXT_UTILITY_TEMPLATES = "textUtility.vm";
 
     /**
      * Copies the source file
@@ -221,104 +199,6 @@ public class TextProductUtils {
         }
 
         return rval;
-    }
-
-    /**
-     * Uses Velocity templates to create new text products and utilities
-     * 
-     * @param name
-     *            The name of the new product or utility
-     * @param type
-     *            Designate whether the file is a product or a utility
-     * @param subType
-     *            Designate whether the product is a table or smart type or null
-     *            if it is a new utility
-     */
-    public static void createNewFromTemplate(String name, String type,
-            String subType) {
-        // Verify the extension is correct
-        if (!name.endsWith(EXTENSION)) {
-            name += EXTENSION;
-        }
-
-        // Get path to template file
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext tx = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-        File templateFile = pathMgr.getFile(tx, TEMPLATES_PATH);
-
-        try {
-            // Set path to template file
-            Properties p = new Properties();
-            p.setProperty("file.resource.loader.path", templateFile.getPath());
-
-            // get velocity context
-            Velocity.init(p);
-            VelocityContext context = new VelocityContext();
-
-            String selectedTemplate = "";
-            if (type.compareTo(UTILITIES) == 0) {
-                // Choose the Utilities template
-                selectedTemplate = TEXT_UTILITY_TEMPLATES;
-            } else {
-                if (subType.compareTo(TABLE) == 0) {
-                    // Choose the Product Table template
-                    selectedTemplate = TEXT_PRODUCT_TABLE_TEMPLATES;
-                } else {
-                    // Choose the Product Smart template
-                    selectedTemplate = TEXT_PRODUCT_SMART_TEMPLATES;
-                }
-            }
-
-            // Retrieve template
-            Template template = null;
-            template = Velocity.getTemplate(selectedTemplate);
-
-            // set options for template
-            String author = LocalizationManager.getInstance().getCurrentUser();
-            context.put("author", author);
-            context.put("itemName", name.split(EXTENSION)[0]);
-
-            // Create the localization file
-            LocalizationFile localizationFile = newTextProductFile(name, type);
-
-            FileWriter fw = new FileWriter(localizationFile.getFile());
-
-            template.merge(context, fw);
-            fw.flush();
-            fw.close();
-
-            // Save the merged template to the server
-            localizationFile.save();
-
-            // Add new product or utility to the catalogue
-            TextProductCatalogue.getInstance().addEntry(name, localizationFile,
-                    type);
-
-            // Open new file in the Python editor
-            PythonUtil.openPythonFile(localizationFile);
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error creating new text product", e);
-        }
-
-    }
-
-    /**
-     * Prompts for a name for a new utility and creates it.
-     */
-    public static void promptForNewUtility() {
-        InputDialog dlg = new InputDialog(
-                Display.getCurrent().getActiveShell(), "New Text Utility",
-                "New Utility Name", "", null);
-        if (dlg.open() == Dialog.OK) {
-            String newName = dlg.getValue();
-
-            if (promptForOverwrite(newName, TextProductUtils.UTILITIES)) {
-                TextProductUtils.createNewFromTemplate(newName,
-                        TextProductUtils.UTILITIES, null);
-            }
-        }
     }
 
     public static LocalizationLevel getLocalizationLevel(String entryName,

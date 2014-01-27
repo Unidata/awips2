@@ -21,7 +21,6 @@
 package com.raytheon.edex.plugin.gfe.server.database;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +38,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.message.WsId;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.Pair;
 
@@ -76,15 +69,16 @@ import com.raytheon.uf.common.util.Pair;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 04/23/13     #1949      rjpeter     Added default implementations of history by time range
  *                                     and cachedParmId
- * 05/02/13      #1969     randerso    Removed unnecessary updateDbs method
+ * 05/02/13     #1969      randerso    Removed unnecessary updateDbs method
+ * 06/13/13     #2044      randerso    Code cleanup
+ * 08/13/13     #1571      randerso    Moved retrieveFromHDF5 methods into IFPGridDatabase
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public abstract class GridDatabase {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GridDatabase.class);
 
     /**
      * The base directory where the GFE HDF5 data is stored
@@ -113,195 +107,19 @@ public abstract class GridDatabase {
      * 
      * @param dbId
      *            The database ID for this database
-     * @param gridConfig
-     *            The configuration information for this database
      */
     protected GridDatabase(DatabaseID dbId) {
         this.dbId = dbId;
     }
 
-    public FloatDataRecord retrieveFromHDF5(ParmID parmId, TimeRange time)
-            throws GfeException {
-        return retrieveFromHDF5(parmId, Arrays.asList(new TimeRange[] { time }))[0];
-    }
-
-    public FloatDataRecord[] retrieveFromHDF5(ParmID parmId,
-            List<TimeRange> times) throws GfeException {
-        FloatDataRecord[] scalarData = null;
-        Map<IDataStore, Pair<List<TimeRange>, String[]>> dsAndGroups = getDataStoreAndGroups(
-                parmId, times);
-
-        try {
-            Map<TimeRange, FloatDataRecord> records = new HashMap<TimeRange, FloatDataRecord>(
-                    (int) (1.25 * times.size()) + 1);
-
-            // loop over the dataStores and their respective groups to pull all
-            // data, stored into records to reorder requests by times
-            for (Map.Entry<IDataStore, Pair<List<TimeRange>, String[]>> entry : dsAndGroups
-                    .entrySet()) {
-                Pair<List<TimeRange>, String[]> pair = entry.getValue();
-                String[] groups = pair.getSecond();
-
-                IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
-                        Request.ALL);
-
-                if (rawData.length != groups.length) {
-                    throw new IllegalArgumentException(
-                            "Invalid number of dataSets returned expected 1 per group, received: "
-                                    + ((double) rawData.length / groups.length));
-                }
-
-                int count = 0;
-                for (TimeRange timeRange : pair.getFirst()) {
-                    records.put(timeRange, (FloatDataRecord) rawData[count++]);
-                }
-            }
-
-            scalarData = new FloatDataRecord[times.size()];
-            int count = 0;
-            for (TimeRange timeRange : times) {
-                scalarData[count++] = records.get(timeRange);
-            }
-        } catch (Exception e) {
-            throw new GfeException("Unable to get data from HDF5 for ParmID: "
-                    + parmId + " TimeRange: " + times, e);
-        }
-
-        return scalarData;
-    }
-
-    public FloatDataRecord[] retrieveVectorFromHDF5(ParmID parmId,
-            TimeRange time) throws GfeException {
-        return retrieveVectorFromHDF5(parmId,
-                Arrays.asList(new TimeRange[] { time }))[0];
-    }
-
-    public FloatDataRecord[][] retrieveVectorFromHDF5(ParmID parmId,
-            List<TimeRange> times) throws GfeException {
-        FloatDataRecord[][] vectorData = null;
-        Map<IDataStore, Pair<List<TimeRange>, String[]>> dsAndGroups = getDataStoreAndGroups(
-                parmId, times);
-
-        try {
-            Map<TimeRange, FloatDataRecord[]> records = new HashMap<TimeRange, FloatDataRecord[]>(
-                    (int) (1.25 * times.size()) + 1);
-
-            // loop over the dataStores and their respective groups to pull all
-            // data, stored into records to reorder requests by times
-            for (Map.Entry<IDataStore, Pair<List<TimeRange>, String[]>> entry : dsAndGroups
-                    .entrySet()) {
-                Pair<List<TimeRange>, String[]> pair = entry.getValue();
-                String[] groups = pair.getSecond();
-
-                IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
-                        Request.ALL);
-
-                if (rawData.length != groups.length * 2) {
-                    throw new IllegalArgumentException(
-                            "Invalid number of dataSets returned expected  per group, received: "
-                                    + ((double) rawData.length / groups.length));
-                }
-
-                // iterate over the data from this dataStore adding it records
-                int count = 0;
-                for (TimeRange timeRange : pair.getFirst()) {
-                    FloatDataRecord[] recs = new FloatDataRecord[2];
-                    for (int i = 0; i < 2; i++) {
-                        IDataRecord rec = rawData[count * 2 + i];
-                        if ("Mag".equals(rec.getName())) {
-                            recs[0] = (FloatDataRecord) rec;
-                        } else if ("Dir".equals(rec.getName())) {
-                            recs[1] = (FloatDataRecord) rec;
-                        } else {
-                            throw new IllegalArgumentException(
-                                    "Unknown dataset retrieved for vector data.  Valid values: Mag, Dir  Received: "
-                                            + rec.getName());
-                        }
-                    }
-                    records.put(timeRange, recs);
-                    count++;
-                }
-            }
-
-            vectorData = new FloatDataRecord[times.size()][2];
-            int count = 0;
-            for (TimeRange timeRange : times) {
-                vectorData[count++] = records.get(timeRange);
-            }
-        } catch (Exception e) {
-            throw new GfeException("Unable to get data from HDF5 for ParmID: "
-                    + parmId + " TimeRange: " + times, e);
-        }
-
-        return vectorData;
-    }
-
-    public ByteDataRecord[] retrieveDiscreteFromHDF5(ParmID parmId,
-            TimeRange time) throws GfeException {
-        return retrieveDiscreteFromHDF5(parmId,
-                Arrays.asList(new TimeRange[] { time }))[0];
-    }
-
-    public ByteDataRecord[][] retrieveDiscreteFromHDF5(ParmID parmId,
-            List<TimeRange> times) throws GfeException {
-        ByteDataRecord[][] byteRecords = null;
-        Map<IDataStore, Pair<List<TimeRange>, String[]>> dsAndGroups = getDataStoreAndGroups(
-                parmId, times);
-
-        try {
-            // loop over the dataStores and their respective groups to pull all
-            // data
-            Map<TimeRange, ByteDataRecord[]> records = new HashMap<TimeRange, ByteDataRecord[]>(
-                    (int) (1.25 * times.size()) + 1);
-
-            for (Map.Entry<IDataStore, Pair<List<TimeRange>, String[]>> entry : dsAndGroups
-                    .entrySet()) {
-                Pair<List<TimeRange>, String[]> pair = entry.getValue();
-                String[] groups = pair.getSecond();
-
-                IDataRecord[] rawData = entry.getKey().retrieveGroups(groups,
-                        Request.ALL);
-
-                if (rawData.length != groups.length * 2) {
-                    throw new IllegalArgumentException(
-                            "Invalid number of dataSets returned expected 2 per group, received: "
-                                    + ((double) rawData.length / groups.length));
-                }
-
-                // iterate over the data from this dataStore adding it records
-                int count = 0;
-                for (TimeRange timeRange : pair.getFirst()) {
-                    ByteDataRecord[] recs = new ByteDataRecord[2];
-                    for (int i = 0; i < 2; i++) {
-                        IDataRecord rec = rawData[count * 2 + i];
-
-                        if ("Data".equals(rec.getName())) {
-                            recs[0] = (ByteDataRecord) rec;
-                        } else if ("Keys".equals(rec.getName())) {
-                            recs[1] = (ByteDataRecord) rec;
-                        } else {
-                            throw new IllegalArgumentException(
-                                    "Unknown dataset retrieved for vector data.  Valid values: Data, Keys  Received: "
-                                            + rec.getName());
-                        }
-                    }
-                    records.put(timeRange, recs);
-                    count++;
-                }
-            }
-
-            byteRecords = new ByteDataRecord[times.size()][2];
-            int count = 0;
-            for (TimeRange timeRange : times) {
-                byteRecords[count++] = records.get(timeRange);
-            }
-        } catch (Exception e) {
-            throw new GfeException("Unable to get data from HDF5 for ParmID: "
-                    + parmId + " TimeRange: " + times, e);
-        }
-        return byteRecords;
-    }
-
+    /**
+     * Returns the mapping of ParmIds and TimeRanges to DataStores and groups
+     * where the data should be stored.
+     * 
+     * @param parmId
+     * @param times
+     * @return mapping
+     */
     protected Map<IDataStore, Pair<List<TimeRange>, String[]>> getDataStoreAndGroups(
             ParmID parmId, List<TimeRange> times) {
         Map<File, Pair<List<TimeRange>, String[]>> fileMap = GfeUtil
@@ -327,6 +145,9 @@ public abstract class GridDatabase {
         return valid;
     }
 
+    /**
+     * Delete the database and HDF5 records for this database
+     */
     public abstract void deleteDb();
 
     /**
@@ -357,6 +178,8 @@ public abstract class GridDatabase {
      * 
      * @param id
      *            The parmID to get the inventory for
+     * @param tr
+     *            the time range
      * @return The server response
      */
     public ServerResponse<List<TimeRange>> getGridInventory(ParmID id,
@@ -415,20 +238,23 @@ public abstract class GridDatabase {
      *            The parmID to get the history for
      * @param trs
      *            The time ranges to get the history for
-     * @param history
-     *            The history
      * @return The server status
      */
     public abstract ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             ParmID id, List<TimeRange> trs);
 
+    /**
+     * get the projection ID for this database
+     * 
+     * @return the projection ID
+     */
     public abstract String getProjectionId();
 
-    public ModelState modelState() {
-        throw new UnsupportedOperationException("Not implemented for class "
-                + this.getClass().getName());
-    }
-
+    /**
+     * Retrieve the DatabaseID for this database
+     * 
+     * @return the DatabaseID
+     */
     public DatabaseID getDbId() {
         return dbId;
     }
@@ -472,7 +298,7 @@ public abstract class GridDatabase {
      *            the histories to alter in the database
      * @param publishTime
      *            the publish time to update to
-     * @return
+     * @return ServerResponse containing status only
      */
     public ServerResponse<?> updatePublishTime(List<GridDataHistory> history,
             Date publishTime) {
@@ -490,7 +316,7 @@ public abstract class GridDatabase {
      *            the time range to update sent time for
      * @param sentTime
      *            the sent time to update to
-     * @return
+     * @return ServerResponse containing updated histories
      */
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> updateSentTime(
             final ParmID parmId, TimeRange tr, Date sentTime) {
@@ -498,6 +324,16 @@ public abstract class GridDatabase {
                 + this.getClass().getName());
     }
 
+    /**
+     * Save grid slices
+     * 
+     * @param parmId
+     * @param tr
+     * @param sliceData
+     * @param requestor
+     * @param skipDelete
+     * @return ServerResponse containing status only
+     */
     public ServerResponse<?> saveGridSlices(ParmID parmId, TimeRange tr,
             List<IGridSlice> sliceData, WsId requestor,
             List<TimeRange> skipDelete) {
@@ -507,14 +343,16 @@ public abstract class GridDatabase {
     }
 
     /**
-     * Return the internally cache'd parmID for this database implementation.
+     * Return the internally cached parmID for this database implementation.
      * 
      * @param parmID
-     * @return
+     * @return cached ParmID
      * @throws GfeException
      *             If the parm does not exist for this database.
      */
     public ParmID getCachedParmID(ParmID parmID) throws GfeException {
+        // base implementation, must be overridden by Databases that store
+        // ParmID objects
         return parmID;
     }
 }

@@ -1,0 +1,20 @@
+<pluginNotificationList>
+    <!-- TODO: Run time generate to only listen to the models/satellites GFE is interested in -->
+    <pluginNotification>
+        <endpointName>gfeDataURINotification</endpointName>
+        <format>DATAURI</format>
+        <endpointType>QUEUE</endpointType>
+        <durable>true</durable>
+        <timeToLive>600000</timeToLive>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="grid" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+        <metadataMap>
+            <mapping key="pluginName">
+                <constraint constraintValue="satellite" constraintType="EQUALS"/>
+            </mapping>
+        </metadataMap>
+    </pluginNotification>
+</pluginNotificationList>

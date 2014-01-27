@@ -16,32 +16,15 @@
         autoStartup="false">
         <route id="cpgProcessAlerts">
         	<from uri="direct-vm:processCPGAlerts"/>
-            <bean ref="toDataURI" method="toDataURI"/>
-            <to uri="vm:stageNotification"/> 
+            <to uri="direct-vm:stageNotification"/> 
         </route>
 	</camelContext>
     <camelContext id="clusteredCpgSrvRoutes"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler"
         autoStartup="false">
-        <!-- Need to reroute to a queue to allow for multiple jms consumers -->
-	    <route id="cpgsrvTopicToQueueRoute">
-	        <from uri="jms-generic:topic:edex.alerts"/>
-	        <!-- technically with qpid should be able to make this a durable subscription and not need to forward to another queue -->
-	        <doTry>
-                <multicast>
-                    <to uri="jms-durable:queue:cpgsrvFiltering"/>
-                    <to uri="jms-durable:queue:scanCpgsrvFiltering"/>
-                    <to uri="jms-durable:queue:ffmpCpgsrvFiltering"/>
-                </multicast>
-		        <doCatch>
-		            <exception>java.lang.Throwable</exception>
-		            <to uri="log:cpgSrv?level=ERROR"/>
-		        </doCatch>
-	        </doTry>
-	    </route>
 	    <route id="cpgsrvListenerRoute">
-	        <!-- technically with qpid should be able to make this a durable subscription and not need to forward to another queue -->
+            <!-- Data from plugin notification -->
             <from uri="jms-durable:queue:cpgsrvFiltering?concurrentConsumers=5"/>
 	        <doTry>
 		          <pipeline>

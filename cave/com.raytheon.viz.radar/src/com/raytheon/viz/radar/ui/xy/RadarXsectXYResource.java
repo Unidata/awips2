@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 17, 2010            bsteffen     Initial creation
+ * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -188,12 +189,12 @@ public class RadarXsectXYResource extends RadarXYResource implements
         double width = 460;
         double height = 430;
 
-        width *= scalar;
-        height *= scalar;
+        width *= SCALAR;
+        height *= SCALAR;
 
-        double upper = (yOffsetNWP + jStart) * scalar;
+        double upper = (Y_OFFSET_NWP + jStart) * SCALAR;
         double lower = upper + height;
-        double left = (xOffsetNWP + iStart) * scalar;
+        double left = (X_OFFSET_NWP + iStart) * SCALAR;
         double right = left + width;
 
         return new PixelCoverage(new Coordinate(right, lower), new Coordinate(
@@ -213,11 +214,13 @@ public class RadarXsectXYResource extends RadarXYResource implements
         DrawableImage image = images.get(displayedDate);
         try {
             Coordinate c = latLon.asLatLon();
+            double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                    c.x, c.y });
             IExtent extent = image.getCoverage().getExtent();
             // Convert the screen coordinate to a coordinate within the image.
             // 0,0 is the upper left and 1,1 is the lower right of the iamge.
-            double xRat = (c.x - extent.getMinX()) / extent.getWidth();
-            double yRat = (c.y - extent.getMinY()) / extent.getHeight();
+            double xRat = (worldCoord[0] - extent.getMinX()) / extent.getWidth();
+            double yRat = (worldCoord[1] - extent.getMinY()) / extent.getHeight();
             return super.inspect(new ReferencedCoordinate(new Coordinate(xRat,
                     yRat)));
         } catch (Exception e) {

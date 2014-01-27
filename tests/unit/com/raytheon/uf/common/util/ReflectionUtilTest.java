@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -39,7 +38,8 @@ import org.junit.Test;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 10, 2012 634        djohnson     Initial creation
+ * Jul 10, 2012  634       djohnson    Initial creation
+ * Jul 08, 2013 2173       mpduff      Update to work with Java 1.7.
  * 
  * </pre>
  * 
@@ -94,7 +94,7 @@ public class ReflectionUtilTest {
 
     @Test
     public void testGetterRetrievesIsPrefixedValue() {
-        List<String> list = Collections.emptyList();
+        List<String> list = new ArrayList<String>(0);
 
         boolean value = (Boolean) ReflectionUtil.getter(list, "empty");
 

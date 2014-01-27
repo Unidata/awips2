@@ -34,6 +34,8 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2012 1187       djohnson     Initial creation
+ * Oct 2,  2013 1797       dhladky      Generics
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -42,7 +44,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class PendingSiteSubscriptionFixture extends
-        BaseSiteSubscriptionFixture<PendingSiteSubscription> {
+        BaseSiteSubscriptionFixture<PendingSiteSubscription<Time, Coverage>> {
 
     public static final PendingSiteSubscriptionFixture INSTANCE = new PendingSiteSubscriptionFixture();
 
@@ -56,8 +58,10 @@ public class PendingSiteSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    public PendingSiteSubscription getInstance(long seedValue, Random random) {
-        PendingSiteSubscription sub = super.getInstance(seedValue, random);
+    public PendingSiteSubscription<Time, Coverage> getInstance(long seedValue,
+            Random random, DataType dataType) {
+        PendingSiteSubscription<Time, Coverage> sub = super.getInstance(
+                seedValue, random, dataType);
         sub.setChangeReqId("change" + seedValue);
 
         return sub;
@@ -67,8 +71,8 @@ public class PendingSiteSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected PendingSiteSubscription getSubscription() {
-        return new PendingSiteSubscription();
+    protected PendingSiteSubscription<Time, Coverage> getSubscription() {
+        return new PendingSiteSubscription<Time, Coverage>();
     }
 
 }

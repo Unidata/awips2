@@ -19,26 +19,28 @@
  **/
 package com.raytheon.viz.gfe;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import jep.Jep;
 import jep.JepException;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 
-import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.viz.gfe.python.GfeCavePyIncludeUtil;
 import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
 
 /**
@@ -52,6 +54,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Jun 25, 2010            mschenke     Initial creation
  * Aug 20, 2012  #1081     dgilling     Don't pass -server and -site args
  *                                      to python script.
+ * Sep 11, 2013  #2033     dgilling     Update path to utilityDir and pyVizDir,
+ *                                      now that they're no longer in 
+ *                                      localization store.
+ * Dec 04, 2013  #2588     dgilling     Add thread to force shutdown.
  * 
  * </pre>
  * 
@@ -93,39 +99,39 @@ public class GfeClient extends AbstractCAVEComponent {
 
         System.out.println("Running script: " + args[gfeClientArgStartIndex]);
 
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-
-        LocalizationContext baseContext = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-
-        String pyVizDir = pathMgr.getFile(baseContext, "pyViz").getPath();
+        String pyVizDir = new File(FileLocator.resolve(
+                FileLocator.find(Activator.getDefault().getBundle(), new Path(
+                        FileUtil.join("python", "pyViz")), null)).getPath())
+                .getPath();
 
         String pyInclude = System.getProperty("python_include");
         if (pyInclude == null) {
             pyInclude = "";
         }
 
-        String utilityDir = pathMgr.getFile(baseContext,
-                com.raytheon.uf.common.util.FileUtil.join("gfe", "utility"))
+        String utilityDir = new File(FileLocator.resolve(
+                FileLocator.find(Activator.getDefault().getBundle(), new Path(
+                        FileUtil.join("python", "utility")), null)).getPath())
                 .getPath();
 
         boolean includeUser = (!VizApp.getWsId().getUserName().equals("SITE"));
 
         String includePath = PyUtil.buildJepIncludePath(true, pyInclude,
-                utilityDir, GfePyIncludeUtil.getCommonPythonIncludePath(),
-                GfePyIncludeUtil.getCommonGfeIncludePath(),
-                GfePyIncludeUtil.getConfigIncludePath(includeUser), pyVizDir,
-                GfePyIncludeUtil.getUtilitiesIncludePath(includeUser),
-                GfePyIncludeUtil.getIToolIncludePath(),
-                GfePyIncludeUtil.getVtecIncludePath(),
-                GfePyIncludeUtil.getHeadlineIncludePath(),
-                GfePyIncludeUtil.getAutotestIncludePath(),
-                GfePyIncludeUtil.getTextUtilitiesIncludePath(includeUser),
-                GfePyIncludeUtil.getTextProductsIncludePath(includeUser),
-                GfePyIncludeUtil.getTextProductsTemplatesIncludePath(),
-                GfePyIncludeUtil.getCombinationsIncludePath(includeUser),
-                GfePyIncludeUtil.getTestsIncludePath(),
-                GfePyIncludeUtil.getProceduresIncludePath(includeUser));
+                utilityDir, GfeCavePyIncludeUtil.getCommonPythonIncludePath(),
+                GfeCavePyIncludeUtil.getCommonGfeIncludePath(),
+                GfeCavePyIncludeUtil.getConfigIncludePath(includeUser),
+                pyVizDir,
+                GfeCavePyIncludeUtil.getUtilitiesIncludePath(includeUser),
+                GfeCavePyIncludeUtil.getIToolIncludePath(),
+                GfeCavePyIncludeUtil.getVtecIncludePath(),
+                GfeCavePyIncludeUtil.getHeadlineIncludePath(),
+                GfeCavePyIncludeUtil.getAutotestIncludePath(),
+                GfeCavePyIncludeUtil.getTextUtilitiesIncludePath(includeUser),
+                GfeCavePyIncludeUtil.getTextProductsIncludePath(includeUser),
+                GfeCavePyIncludeUtil.getTextProductsTemplatesIncludePath(),
+                GfeCavePyIncludeUtil.getCombinationsIncludePath(includeUser),
+                GfeCavePyIncludeUtil.getTestsIncludePath(),
+                GfeCavePyIncludeUtil.getProceduresIncludePath(includeUser));
 
         Jep jep = null;
         try {
@@ -156,6 +162,23 @@ public class GfeClient extends AbstractCAVEComponent {
         long t1 = System.currentTimeMillis();
         System.out.println("Entire execution to run python script: "
                 + (t1 - t0));
+
+        // operationally, we've found situations where gfeclient jobs seem to
+        // hang around running even though all non-daemon threads have completed
+        // their work. So, in attempt to prevent those cases from hanging around
+        // as "zombie" processes let's set a timer to kill the JVM if things
+        // haven't exited by themselves.
+        Timer shutdownTimer = new Timer("gfe-client-shutdown", true);
+        TimerTask shutdownTask = new TimerTask() {
+
+            @Override
+            public void run() {
+                statusHandler
+                        .warn("GFEClient should have already exited, but it hasn't. Manually exiting.");
+                System.exit(0);
+            }
+        };
+        shutdownTimer.schedule(shutdownTask, 45 * TimeUtil.MILLIS_PER_SECOND);
     }
 
     /*

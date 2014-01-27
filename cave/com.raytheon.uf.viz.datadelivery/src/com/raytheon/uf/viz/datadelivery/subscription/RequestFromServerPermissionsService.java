@@ -21,13 +21,15 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.rmi.RemoteException;
 
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.service.BasePrivilegedDataDeliveryService;
+import com.raytheon.uf.common.plugin.nwsauth.NwsAuthRequest;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -45,6 +47,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Feb 26, 2013 1643       djohnson     Extends base class.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Jul 26, 2031   2232     mpduff       Refactored Data Delivery permissions, removed DataDeliveryAuthRequest.
  * 
  * </pre>
  * 
@@ -53,24 +56,24 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 
 public class RequestFromServerPermissionsService extends
-        BasePrivilegedDataDeliveryService<DataDeliveryAuthRequest> implements
+        BasePrivilegedDataDeliveryService<NwsAuthRequest> implements
         IPermissionsService {
 
     /**
-     * Adapts the {@link DataDeliveryAuthRequestAdapter} to match the
+     * Adapts the {@link NwsAuthRequestAdapter} to match the
      * {@link IAuthorizedPermissionResponse} interface.
      */
-    private class DataDeliveryAuthRequestAdapter implements
+    private class NwsAuthRequestAdapter implements
             IAuthorizedPermissionResponse {
 
-        private final DataDeliveryAuthRequest response;
+        private final NwsAuthRequest response;
 
         /**
          * The response to adapt.
          * 
          * @param response
          */
-        private DataDeliveryAuthRequestAdapter(DataDeliveryAuthRequest response) {
+        private NwsAuthRequestAdapter(NwsAuthRequest response) {
             this.response = response;
         }
 
@@ -86,18 +89,22 @@ public class RequestFromServerPermissionsService extends
          * {@inheritDoc}
          */
         @Override
-        public boolean hasPermission(DataDeliveryPermission permission) {
+        public boolean hasPermission(String permission) {
             return (isAuthorized()) ? response.isAuthorized(permission) : false;
         }
     }
-    
+
     /**
-     * {@inheritDoc}
+     * 
+     * @param user
+     * @param notAuthorizedMessage
+     * @param subscription
+     * @return
+     * @throws VizException
      */
-    @Override
     public IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
             final IUser user, String notAuthorizedMessage,
-            final Subscription subscription) throws VizException {
+            final Subscription subscription) throws AuthException {
 
         // TODO: Can this be done better?
         if (subscription instanceof SiteSubscription) {
@@ -112,20 +119,23 @@ public class RequestFromServerPermissionsService extends
 
     private IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
             final IUser user, String notAuthorizedMessage,
-            final SiteSubscription subscription) throws VizException {
+            final SiteSubscription subscription) throws AuthException {
 
+        String approveSitePermission = DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                .toString();
+        String approveUserPermission = DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER
+                .toString();
         final IAuthorizedPermissionResponse r = checkPermissions(user,
-                notAuthorizedMessage,
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER);
+                notAuthorizedMessage, approveSitePermission,
+                approveUserPermission);
 
         // If they have site permissions, then yes they can approve the
         // subscription
-        if (r.hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
+        if (r.hasPermission(approveSitePermission)) {
             return r;
         } else {
             // Otherwise they must have user approval permission and be the
-            // owner
+            // ownerBaseServerService
             return new IAuthorizedPermissionResponse() {
                 @Override
                 public boolean isAuthorized() {
@@ -135,7 +145,7 @@ public class RequestFromServerPermissionsService extends
                 }
 
                 @Override
-                public boolean hasPermission(DataDeliveryPermission permission) {
+                public boolean hasPermission(String permission) {
                     return r.hasPermission(permission);
                 }
             };
@@ -144,12 +154,12 @@ public class RequestFromServerPermissionsService extends
 
     private IAuthorizedPermissionResponse checkPermissionToChangeSubscription(
             final IUser user, String notAuthorizedMessage,
-            final SharedSubscription subscription) throws VizException {
+            final SharedSubscription subscription) throws AuthException {
 
         // TODO: New permission to approve/change shared subscriptions?
         final IAuthorizedPermissionResponse r = checkPermissions(user,
                 notAuthorizedMessage,
-                DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE);
+                DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE.toString());
 
         return r;
     }
@@ -159,10 +169,10 @@ public class RequestFromServerPermissionsService extends
      */
     @Override
     public IAuthorizedPermissionResponse checkPermission(IUser user,
-            String notAuthorizedMessage, DataDeliveryPermission permission)
-            throws VizException {
+            String notAuthorizedMessage, String permission)
+            throws AuthException {
         return checkPermissions(user, notAuthorizedMessage,
-                new DataDeliveryPermission[] { permission });
+                new String[] { permission });
     }
 
     /**
@@ -170,20 +180,19 @@ public class RequestFromServerPermissionsService extends
      */
     @Override
     public IAuthorizedPermissionResponse checkPermissions(IUser user,
-            String notAuthorizedMessage, DataDeliveryPermission... permissions)
-            throws VizException {
+            String notAuthorizedMessage, String... permissions)
+            throws AuthException {
 
-        DataDeliveryAuthRequest request = new DataDeliveryAuthRequest();
+        NwsAuthRequest request = new NwsAuthRequest();
         request.setUser(user);
         request.addRequestedPermissions(permissions);
         request.setNotAuthorizedMessage(notAuthorizedMessage);
 
         try {
-            DataDeliveryAuthRequest r = sendRequest(request,
-                    DataDeliveryAuthRequest.class);
-            return new DataDeliveryAuthRequestAdapter(r);
+            NwsAuthRequest r = sendRequest(request, NwsAuthRequest.class);
+            return new NwsAuthRequestAdapter(r);
         } catch (RemoteException e) {
-            throw new VizException(e);
+            throw new AuthException(e);
         }
     }
 }

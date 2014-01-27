@@ -3,29 +3,13 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <util:list id="subscriptionRoutesToSchedule">
-        <value>OPSNET</value>
-        <value>SBN</value>
-    </util:list>
-
     <bean id="OPSNETRetrievalPlan"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan">
-        <constructor-arg value="OPSNET" />
-        <constructor-arg ref="BandwidthMap" />
-        <constructor-arg ref="bandwidthDao" />
-        <property name="scheduler">
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.PriorityRetrievalScheduler" />
-        </property>
-    </bean>
-
-    <!-- SBN routed subscriptions are scheduled for retrieval at the WFO, 
-        but the actual retrieval occurs at the NCF -->
-    <bean id="SBNRetrievalPlan"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan">
-        <constructor-arg value="SBN" />
-        <constructor-arg ref="BandwidthMap" />
-        <constructor-arg ref="bandwidthDao" />
+        <property name="network" value="OPSNET" />
+        <property name="map" ref="BandwidthMap" />
+        <property name="bandwidthDao" ref="bandwidthDao" />
+        <property name="bucketsDao" ref="bandwidthBucketDao" />
+        <property name="associator" ref="bandwidthBucketAllocationAssociator" />
         <property name="scheduler">
             <bean
                 class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.PriorityRetrievalScheduler" />
@@ -35,9 +19,6 @@
     <util:map id="retrievalPlans">
         <entry key="OPSNET">
             <ref local="OPSNETRetrievalPlan" />
-        </entry>
-        <entry key="SBN">
-            <ref local="SBNRetrievalPlan" />
         </entry>
     </util:map>
 

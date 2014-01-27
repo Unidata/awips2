@@ -19,13 +19,13 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import jep.JepException;
 
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.request.PurgeGfeGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -41,7 +41,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
  * Request handler for PurgeGfeGrids. Will execute the purgeAllGrids.py script
@@ -55,6 +54,8 @@ import com.raytheon.uf.edex.site.SiteAwareRegistry;
  * Sep 23, 2010            dgilling     Initial creation
  * Mar 07, 2013  1759      dgilling     Refactored to remove dependency
  *                                      on GfeScriptExecutor.
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
+ * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -76,11 +77,11 @@ public class PurgeGfeGridsRequestHandler implements
     @Override
     public ServerResponse<Boolean> handleRequest(PurgeGfeGridsRequest request)
             throws Exception {
+        // TODO: this could probably be rewritten in Java instead Python
         ServerResponse<Boolean> sr = new ServerResponse<Boolean>();
         sr.setPayload(Boolean.FALSE);
 
-        List<String> siteList = Arrays.asList(SiteAwareRegistry.getInstance()
-                .getActiveSites());
+        Set<String> siteList = IFPServer.getActiveSites();
         if (!siteList.contains(request.getSiteID())) {
             sr.addMessage("DatabaseID " + request.getDatabaseID()
                     + " is unknown.");
@@ -96,7 +97,8 @@ public class PurgeGfeGridsRequestHandler implements
             String includePath = PyUtil.buildJepIncludePath(
                     GfePyIncludeUtil.getCommonPythonIncludePath(),
                     GfePyIncludeUtil.getIscScriptsIncludePath());
-            script = new PythonScript(scriptPath, includePath);
+            script = new PythonScript(scriptPath, includePath, this.getClass()
+                    .getClassLoader());
             try {
                 Map<String, Object> args = new HashMap<String, Object>();
                 args.put("databaseID", request.getDatabaseID().toString());

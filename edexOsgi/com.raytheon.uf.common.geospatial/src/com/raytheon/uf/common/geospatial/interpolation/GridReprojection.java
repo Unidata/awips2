@@ -46,7 +46,8 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 18, 2012            bsteffen     Initial creation
+ * Jun 18, 2012            bsteffen    Initial creation
+ * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
  * 
  * </pre>
  * 
@@ -65,8 +66,6 @@ public class GridReprojection {
     protected int targetNy;
 
     protected MathTransform transform;
-
-    protected float[] transformTable = null;
 
     public GridReprojection(GeneralGridGeometry sourceGeometry,
             GeneralGridGeometry targetGeometry) {
@@ -128,61 +127,9 @@ public class GridReprojection {
     protected Point2D.Double getReprojectDataPoint(int x, int y)
             throws TransformException, FactoryException {
         initTransforms();
-        if (transformTable != null && x >= 0 && x < targetNx && y >= 0
-                && y < targetNy) {
-            int index = (y * targetNx + x) * 2;
-            float xVal = transformTable[index];
-            float yVal = transformTable[index + 1];
-            if (!Float.isNaN(xVal) && !Float.isNaN(yVal)) {
-                return new Point2D.Double(xVal, yVal);
-            }
-        }
         DirectPosition2D dp = new DirectPosition2D(x, y);
         transform.transform(dp, dp);
         return dp;
-    }
-
-    /**
-     * This function precomputes the math transform for all grid cells in the
-     * target grid range. This method is recommended when you are reprojecting
-     * multiple datasets using the same interpolation. Precalculating this table
-     * takes time and uses more memory but cuts the time to perform
-     * interpolation significantly.
-     * 
-     * 
-     * @return the size in bytes of the extra memory used by the transform
-     *         table.
-     * @throws FactoryException
-     * @throws TransformException
-     */
-    public int computeTransformTable() throws FactoryException,
-            TransformException {
-        initTransforms();
-        float[] transformTable = new float[targetNy * targetNx * 2];
-        int index = 0;
-        for (int j = 0; j < targetNy; j++) {
-            for (int i = 0; i < targetNx; i++) {
-                transformTable[index++] = i;
-                transformTable[index++] = j;
-            }
-        }
-        try {
-            transform.transform(transformTable, 0, transformTable, 0, targetNy
-                    * targetNx);
-        } catch (ProjectionException e) {
-            ;// Ignore, the points in the transformTable that are invalid are
-             // set to NaN, no other action is necessary.
-        }
-        this.transformTable = transformTable;
-        return transformTable.length * 4;
-    }
-
-    /**
-     * delete the transform table, freeing up memory but slowing down any future
-     * reprojections
-     */
-    public void clearTransformTable() {
-        transformTable = null;
     }
 
     public GeneralGridGeometry getSourceGeometry() {

@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
+ * 12 Aug 2013  #2256      lvenable    Moved calcArrow() to parent abstract class
  * 
  * </pre>
  * 
@@ -259,21 +260,6 @@ public class TrendVisCanvasComp extends TrendSliderComp implements
         gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
         gc.setLineWidth(2);
         gc.drawRectangle(barRect);
-    }
-
-    /**
-     * Calculate the arrow position.
-     */
-    private void calcArrow() {
-        if (region.isEmpty() == false) {
-            region.subtract(arrowPoints);
-        }
-
-        arrowPoints = new int[] { arrowCenterXCoord, arrowBottomYCoord,
-                arrowCenterXCoord + 5, arrowTopYCoord, arrowCenterXCoord - 5,
-                arrowTopYCoord, arrowCenterXCoord, arrowBottomYCoord };
-
-        region.add(arrowPoints);
     }
 
     /**

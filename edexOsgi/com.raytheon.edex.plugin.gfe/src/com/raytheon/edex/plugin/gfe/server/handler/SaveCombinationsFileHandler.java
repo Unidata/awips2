@@ -22,7 +22,9 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.Writer;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +38,13 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
- * TODO Add Description
+ * Request handler for <code>SaveCombinationsFileRequest</code>. Writes the
+ * specified zone combinations to the specified site's combinations file
+ * directory.
  * 
  * <pre>
  * 
@@ -48,6 +53,8 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 16, 2011            dgilling     Initial creation
+ * Dec 02, 2013  #2591     dgilling     Only send notification after Writer is
+ *                                      flushed/closed.
  * 
  * </pre>
  * 
@@ -79,42 +86,47 @@ public class SaveCombinationsFileHandler implements
                 FileUtil.join(COMBO_FILE_DIR, request.getFileName()));
         boolean isAdded = (!localFile.exists());
 
-        List<Object> listOfCombos = new ArrayList<Object>();
-        FileWriter file = null;
+        Writer outWriter = null;
         try {
-            file = new FileWriter(localFile);
-            BufferedWriter out = new BufferedWriter(file);
+            outWriter = new BufferedWriter(new FileWriter(localFile));
             String zoneComments = "\n# Automatically generated combinations file\n# "
                     + request.getFileName() + "\n\nCombinations = [\n";
-            out.write(zoneComments);
-            DecimalFormat df = new DecimalFormat("00");
+            outWriter.write(zoneComments);
+
+            NumberFormat df = new DecimalFormat("00");
             for (int i = 0; i < request.getCombos().size(); i++) {
+                StringBuilder nextLineToWrite = new StringBuilder();
                 List<String> modZGL = new ArrayList<String>(request.getCombos()
                         .get(i).size());
                 for (String zone : request.getCombos().get(i)) {
                     modZGL.add("'" + zone + "'");
                 }
-                listOfCombos.add("\t(" + modZGL + ", " + "'Region"
-                        + df.format((i + 1)) + "' ),\n");
-                out.write(listOfCombos.get(i).toString());
+                nextLineToWrite.append("\t([");
+                nextLineToWrite.append(StringUtil.join(modZGL, ','));
+                nextLineToWrite.append("], ");
+                nextLineToWrite.append("'Region");
+                nextLineToWrite.append(df.format(i + 1));
+                nextLineToWrite.append("' ),\n");
+                outWriter.write(nextLineToWrite.toString());
             }
-            out.write("]");
-            out.close();
-
-            FileChangeType changeType = FileChangeType.UPDATED;
-            if (isAdded) {
-                changeType = FileChangeType.ADDED;
-            }
-            EDEXUtil.getMessageProducer().sendAsync(
-                    "utilityNotify",
-                    new FileUpdatedMessage(localization, FileUtil.join(
-                            COMBO_FILE_DIR, request.getFileName()), changeType,
-                            localFile.lastModified()));
+            outWriter.write("]");
         } finally {
-            if (file != null) {
-                file.close();
+            if (outWriter != null) {
+                outWriter.close();
             }
         }
+
+        // placing the notification code here ensures we only send the
+        // notification on a successful file write operation. Otherwise we would
+        // have thrown an IOException and never gotten to this portion of the
+        // request handler.
+        FileChangeType changeType = isAdded ? FileChangeType.ADDED
+                : FileChangeType.UPDATED;
+        EDEXUtil.getMessageProducer().sendAsync(
+                "utilityNotify",
+                new FileUpdatedMessage(localization, FileUtil.join(
+                        COMBO_FILE_DIR, request.getFileName()), changeType,
+                        localFile.lastModified()));
 
         return new ServerResponse<Object>();
     }

@@ -10,7 +10,7 @@
    <bean id="cwatProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="cwatPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.cwat" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.cwat.dao.CWATDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.cwat.CWATDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.cwat.CWATRecord" />
 		<property name="dependencyFQNs">
 		    <list>

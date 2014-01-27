@@ -88,7 +88,7 @@ public final class RetrievalPersistUtil {
      * @param pdos
      * @return
      */
-    public static synchronized boolean routePlugin(String defaultPeristRoute,
+    public static synchronized boolean routePlugin(String defaultPersistRoute,
             String pluginName,
             PluginDataObject[] pdos) {
 
@@ -120,7 +120,7 @@ public final class RetrievalPersistUtil {
 
                     pluginDao.persistToDatabase(pdos);
                     EDEXUtil.getMessageProducer().sendAsyncUri(
-                            defaultPeristRoute,
+                            defaultPersistRoute,
                             pdos);
                     success = true;
                 }
@@ -163,7 +163,7 @@ public final class RetrievalPersistUtil {
 
                 try {
                     prl = (PluginRouteList) getJaxbManager()
-                            .jaxbUnmarshalFromXmlFile(file);
+                            .unmarshalFromXmlFile(file);
                 } catch (Exception e) {
                     statusHandler.error(
                             "[Data Delivery] Configuration for plugin routes failed to load: File: "

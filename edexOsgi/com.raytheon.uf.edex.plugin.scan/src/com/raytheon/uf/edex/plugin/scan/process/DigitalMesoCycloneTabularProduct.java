@@ -172,7 +172,7 @@ public class DigitalMesoCycloneTabularProduct extends RadarProduct {
                             .getTime()))) {
                         processAlarms = true;
                         alarmString = new StringBuffer();
-                        alarmString.append("NEW DMDcirculation for "
+                        alarmString.append("NEW DMD circulation for "
                                 + filter.icao + " over the last "
                                 + alarms.getDmdAlarmTime() + " minutes.");
                     }

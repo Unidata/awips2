@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * 30Jan2013    #15719     jdynina     Fixed allowed field size to accept more
  *                                     than 128 characters
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
+ * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -102,8 +103,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         DiscreteGridSlice thisSlice = getDiscreteSlice();
         Grid2DByte grid = thisSlice.getDiscreteGrid();
 
-        if (grid.getXdim() != pointsToSmooth.getXdim()
-                || grid.getYdim() != pointsToSmooth.getYdim()) {
+        if ((grid.getXdim() != pointsToSmooth.getXdim())
+                || (grid.getYdim() != pointsToSmooth.getYdim())) {
             statusHandler.handle(
                     Priority.ERROR,
                     "Dimension mismatch in doSmooth: " + getGrid().getXdim()
@@ -121,7 +122,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                 getISCGrid(time, slice);
             }
             originalGrid = slice.getDiscreteGrid();
-            originalKey = slice.getKey();
+            originalKey = slice.getKeys();
         } catch (CloneNotSupportedException e) {
             originalGrid = new Grid2DByte();
             originalKey = new DiscreteKey[0];
@@ -155,8 +156,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                         // uses fewer than nine points if near grid edge,
                         // but always has at least four values to average.
                         Arrays.fill(histo, (short) 0);
-                        for (int newx = i - ss; newx <= i + ss; newx++) {
-                            for (int newy = j - ss; newy <= j + ss; newy++) {
+                        for (int newx = i - ss; newx <= (i + ss); newx++) {
+                            for (int newy = j - ss; newy <= (j + ss); newy++) {
                                 // if inside grid limits, make a smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
                                     histo[0xFF & originalGrid.get(newx, newy)]++;
@@ -234,7 +235,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         // complex case - translation is necessary
         else {
             // copy the key from the source to the destination
-            setKey(((DiscreteGridSlice) sourceGrid.getGridSlice()).getKey());
+            setKey(((DiscreteGridSlice) sourceGrid.getGridSlice()).getKeys());
 
             // find no discrete key, which is always the 1st one
             int nowx = 0;
@@ -340,8 +341,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate[] path, Grid2DBit editArea) {
         Grid2DByte grid = getGrid();
-        if (grid.getXdim() != editArea.getXdim()
-                || grid.getYdim() != editArea.getYdim()) {
+        if ((grid.getXdim() != editArea.getXdim())
+                || (grid.getYdim() != editArea.getYdim())) {
             statusHandler.handle(Priority.ERROR,
                     "Dimension mismatch in doPencilStretch: " + grid.getXdim()
                             + ',' + grid.getYdim() + ' ' + editArea.getXdim()
@@ -675,8 +676,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
         DiscreteGridSlice thisSlice = getDiscreteSlice();
         Grid2DByte sliceGrid = thisSlice.getDiscreteGrid();
-        if (sliceGrid.getXdim() != pointsToCopy.getXdim()
-                || sliceGrid.getYdim() != pointsToCopy.getYdim()) {
+        if ((sliceGrid.getXdim() != pointsToCopy.getXdim())
+                || (sliceGrid.getYdim() != pointsToCopy.getYdim())) {
             throw new IllegalArgumentException("Dimension mismatch in doCopy: "
                     + sliceGrid.getXdim() + ',' + sliceGrid.getYdim() + ' '
                     + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
@@ -695,7 +696,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                 getISCGrid(time, slice);
             }
             originalGrid = slice.getDiscreteGrid();
-            originalKey = slice.getKey();
+            originalKey = slice.getKeys();
         } catch (CloneNotSupportedException e) {
             originalGrid = new Grid2DByte();
             originalKey = new DiscreteKey[0];
@@ -751,8 +752,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     @Override
     protected Grid2DBit doFillIn(Date time, Grid2DBit pointsToFillIn) {
         Grid2DByte grid = getGrid();
-        if (grid.getXdim() != pointsToFillIn.getXdim()
-                || grid.getYdim() != pointsToFillIn.getYdim()) {
+        if ((grid.getXdim() != pointsToFillIn.getXdim())
+                || (grid.getYdim() != pointsToFillIn.getYdim())) {
             statusHandler.handle(Priority.ERROR,
                     "Dimension mismatch in doFillIn: " + grid.getXdim() + ','
                             + grid.getYdim() + ' ' + pointsToFillIn.getXdim()
@@ -814,8 +815,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
             boolean done = false;
             while (!done) {
                 // Check for bounds
-                if (coord.x < 0 || coord.x >= gridCells.getXdim()
-                        || coord.y < 0 || coord.y >= gridCells.getYdim()) {
+                if ((coord.x < 0) || (coord.x >= gridCells.getXdim())
+                        || (coord.y < 0) || (coord.y >= gridCells.getYdim())) {
                     done = true;
                 }
                 // Check for bit set
@@ -840,7 +841,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getGrid().getBuffer().array() };
     }
 
@@ -882,8 +883,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
             Grid2DBit points) {
         Grid2DByte grid = getGrid();
         Point dim = new Point(grid.getXdim(), grid.getYdim());
-        if (values.getXdim() != dim.x || values.getYdim() != dim.y
-                || points.getXdim() != dim.x || points.getYdim() != dim.y) {
+        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)
+                || (points.getXdim() != dim.x) || (points.getYdim() != dim.y)) {
             throw new IllegalArgumentException(
                     "bad values/points dimensions for grid for: "
                             + this.getParm().getParmID() + " gridDim="
@@ -903,7 +904,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
         int numValues = values.getXdim() * values.getYdim();
         byte[] bp = values.getBuffer().array();
         for (int i = 0; i < numValues; i++) {
-            if ((0xFF & bp[i]) > key.size() - 1) {
+            if ((0xFF & bp[i]) > (key.size() - 1)) {
                 throw new IllegalArgumentException(
                         "Illegal discrete grid (bad values) in gridSet()");
             }
@@ -915,7 +916,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
                 parmId.getCompositeName());
 
         // REPLACE mode is easy
-        if (parm.getParmState().getCombineMode() == ParmState.CombineMode.REPLACE
+        if ((parm.getParmState().getCombineMode() == ParmState.CombineMode.REPLACE)
                 || !overlapping) {
             // create remap array
             byte[] remap = new byte[256];
@@ -1019,7 +1020,7 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     }
 
     private DiscreteKey[] getKey() {
-        return ((DiscreteGridSlice) getGridSlice()).getKey();
+        return ((DiscreteGridSlice) getGridSlice()).getKeys();
     }
 
     private void setKey(DiscreteKey[] key) {
@@ -1034,8 +1035,8 @@ public class DiscreteGridData extends AbstractGridData implements INumpyable {
     protected boolean doValid() {
         String emsg = "Grid contains data which exceeds limits for this parm. ";
 
-        if (!getGridTime().isValid() || getParm() == null
-                || getGridSlice() == null) {
+        if (!getGridTime().isValid() || (getParm() == null)
+                || (getGridSlice() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
             return false; // time, parm, or data slice not valid

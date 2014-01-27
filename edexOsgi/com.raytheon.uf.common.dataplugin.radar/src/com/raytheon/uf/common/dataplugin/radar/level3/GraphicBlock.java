@@ -36,7 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -107,8 +107,8 @@ public class GraphicBlock extends AbstractBlock implements ISerializableObject {
 
             while (str.available() > 2) {
                 int packetId = str.readUnsignedShort();
-                SymbologyPacket symPacket = PacketFactory.createPacket(
-                        packetId, str);
+                SymbologyPacket symPacket = PacketFactory.getInstance()
+                        .createPacket(packetId, str);
                 if (symPacket != null) {
                     pageLst.add(symPacket);
                 } else {

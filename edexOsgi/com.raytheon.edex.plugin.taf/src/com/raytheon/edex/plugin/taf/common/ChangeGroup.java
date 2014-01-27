@@ -58,13 +58,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -86,6 +81,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Oct 21, 2008  1515      jkorman      Added 30 Hour capability changes.
  * Jun 28, 2012  #827      dgilling     Annotate id field for
  *                                      serialization.
+ * Nov 01, 2013  2361      njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -95,9 +91,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 @Entity
 @Table(name = "taf_change_groups")
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class ChangeGroup extends PersistableDataObject implements
-        ISerializableObject {
+public class ChangeGroup extends PersistableDataObject {
 
     private static final long serialVersionUID = 1L;
 
@@ -124,7 +118,6 @@ public class ChangeGroup extends PersistableDataObject implements
      * The period for which the change group conditions apply.
      */
     @DynamicSerializeElement
-    @XmlElement
     @Embedded
     private TafPeriod tafChangePeriod;
 
@@ -134,7 +127,6 @@ public class ChangeGroup extends PersistableDataObject implements
      * and TEMPO change group could share the same start time.
      */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer sequenceId;
 
@@ -142,7 +134,6 @@ public class ChangeGroup extends PersistableDataObject implements
      * The change group indicator i.e. BECMG, FM, TEMPO, etc
      */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 10)
     private String change_indicator;
 
@@ -150,61 +141,51 @@ public class ChangeGroup extends PersistableDataObject implements
      * The probability percentage for PROB and PROB TEMPO change groups.
      */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer probability;
 
     /** Wind direction in degrees */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 3)
     private String wind_dir_degrees;
 
     /** Wind speed in knots */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer wind_speed_kt;
 
     /** Wind gust in knots */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer wind_gust_kt;
 
     /** Wind shear height above ground level */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer wind_shear_hgt_ft_agl;
 
     /** Wind shear direction in degrees */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer wind_shear_dir_degrees;
 
     /** Wind shear speed in knots */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer wind_shear_speed_kt;
 
     /** Visibility (horizontal) in miles */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 8)
     private String visibility_mi;
 
     /** Altimeter reading in inches of mercury */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 16)
     private String altim_in_hg;
 
     /** Vertical visibility */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column(length = 8)
     private String vert_vis_ft;
 
@@ -212,48 +193,40 @@ public class ChangeGroup extends PersistableDataObject implements
      * Weather and obscurations
      */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<TafWeatherCondition> weather;
 
     /** Sky coverage */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<TafSkyCover> sky_cover;
 
     /** The turbulence layers */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<TurbulenceLayer> turbulence_layers;
 
     /** The icing layers */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<IcingLayer> icing_layers;
 
     /** The temperature forecasts */
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentID", fetch = FetchType.EAGER)
     private Set<TemperatureForecast> temp_forecasts;
 
     /** Maximum temperature */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer max_temp_c;
 
     /** Minimum temperature */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer min_temp_c;
 
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private String remarks;
 

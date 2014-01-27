@@ -83,7 +83,7 @@ import com.raytheon.viz.ui.tools.ModalToolManager;
  */
 public abstract class AbstractVizPerspectiveManager implements
         IBackgroundColorChangedListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractVizPerspectiveManager.class);
 
     private static class PerspectivePageListener implements IPageListener {
@@ -434,7 +434,7 @@ public abstract class AbstractVizPerspectiveManager implements
      * 
      * @param perspectiveId
      */
-    public void setPerspectiveId(String perspectiveId) {
+    void setPerspectiveId(String perspectiveId) {
         this.perspectiveId = perspectiveId;
     }
 
@@ -516,7 +516,7 @@ public abstract class AbstractVizPerspectiveManager implements
         manager.deactivateContexts(this);
         if (page != null && page.getActivePart() != null
                 && perspectiveId.equals(page.getPerspective().getId())) {
-                manager.deactivateContexts(page.getActivePart());
+            manager.deactivateContexts(page.getActivePart());
         }
     }
 

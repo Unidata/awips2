@@ -44,7 +44,7 @@ import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -56,15 +56,11 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
+import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -77,7 +73,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
 import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
 
 /**
- * TODO Add Description
+ * {@link IDataCubeAdapter} for satellite plugin data
  * 
  * <pre>
  * 
@@ -91,13 +87,14 @@ import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
  * Apr 08, 2013 1293       bkowal      Removed references to hdffileid.
  * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
  *                                     concurrent python for threading.
+ * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
  * </pre>
  * 
  * @author jsanchez
  * @version 1.0
  */
 
-public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
+public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
 
     private static final String PE = "physicalElement";
 
@@ -105,21 +102,27 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
 
     private Map<String, DerivParamDesc> derParLibrary;
 
+    /**
+     * @param pluginName
+     */
+    public SatelliteDataCubeAdapter() {
+        super(SatelliteRecord.PLUGIN_ID);
+    }
+
     @Override
-    public List<Object> getData(LayerProperty property, int timeOut)
+    public PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
             throws VizException {
-        if (!property.getEntryQueryParameters(false).containsKey("DERIVED")) {
-            String scriptToExecute = ScriptCreator.createScript(property);
-            return Loader
-                    .loadScripts(new String[] { scriptToExecute }, timeOut);
+        Map<String, RequestConstraint> originalQuery = constraints;
+        if (originalQuery.containsKey(DERIVED) == false) {
+            return super.getData(originalQuery, selectedTimes);
         }
+
         String requestedParam;
-        ArrayList<Object> initResponses = new ArrayList<Object>();
-        HashMap<String, RequestConstraint> originalQuery = property
-                .getEntryQueryParameters(false);
-        ArrayList<DerivedParameterRequest> listOfRequests = new ArrayList<DerivedParameterRequest>();
-        HashMap<String, RequestConstraint> modifiedQuery = property
-                .getEntryQueryParameters(false);
+        List<PluginDataObject> initResponses = new ArrayList<PluginDataObject>();
+        List<DerivedParameterRequest> listOfRequests = new ArrayList<DerivedParameterRequest>();
+        Map<String, RequestConstraint> modifiedQuery = new HashMap<String, RequestConstraint>(
+                originalQuery);
         modifiedQuery.remove(DERIVED);
         modifiedQuery.remove(PE);
 
@@ -148,12 +151,9 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                 Map<String, RequestConstraint> query = modifyQuery(
                         modifiedQuery, field);
 
-                property.setEntryQueryParameters(query, false);
-                String scriptToExecute = ScriptCreator.createScript(property);
-                List<Object> responses = Loader.loadScripts(
-                        new String[] { scriptToExecute }, timeOut);
-                for (int i = 0; i < responses.size(); i++) {
-                    SatelliteRecord record = (SatelliteRecord) responses.get(i);
+                PluginDataObject[] pdos = super.getData(query, selectedTimes);
+                for (PluginDataObject pdo : pdos) {
+                    SatelliteRecord record = (SatelliteRecord) pdo;
                     if (requestInitialized) {
                         for (DerivedParameterRequest definedRequest : listOfRequests) {
                             if (record.getDataTime().compareTo(
@@ -173,20 +173,16 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                         SatelliteRecord derivedRecord = new SatelliteRecord(
                                 record.getDataURI());
                         // Make sure to get the number of interpolation levels!
-                        derivedRecord.setInterpolationLevels(record.getInterpolationLevels());
-                        
+                        derivedRecord.setInterpolationLevels(record
+                                .getInterpolationLevels());
+
                         derivedRecord.setPhysicalElement(originalQuery.get(PE)
                                 .getConstraintValue());
                         derivedRecord.setMessageData(request);
                         derivedRecord.setCoverage(record.getCoverage());
-                        // This should not be necessary but file based tile set
-                        // expects it.
-                        try {
-                            derivedRecord.setDataURI(null);
-                            derivedRecord.constructDataURI();
-                        } catch (PluginException e) {
-                            throw new VizException(e);
-                        }
+                        // Reset dataURI after setting fields
+                        derivedRecord.setDataURI(null);
+
                         initResponses.add(derivedRecord);
                     }
                 }
@@ -204,31 +200,17 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
                     }
                 }
             }
-            return initResponses;
+            return initResponses.toArray(new PluginDataObject[0]);
         } else {
-            String scriptToExecute = ScriptCreator.createScript(property);
-            return Loader
-                    .loadScripts(new String[] { scriptToExecute }, timeOut);
+            return super.getData(originalQuery, selectedTimes);
         }
-
-    }
-
-    public String recordKeyGenerator(PluginDataObject pdo) {
-        return null;
     }
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj)
             throws VizDataCubeException {
         if (obj.getMessageData() == null) {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName());
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving satellite record.", e);
-            }
-            return new IDataRecord[] { record };
+            return super.getRecord(obj);
         }
 
         return null;
@@ -238,15 +220,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
             String dataset) throws VizDataCubeException {
         if (obj.getMessageData() == null) {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
-                        dataset);
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving satellite record.", e);
-            }
-            return new IDataRecord[] { record };
+            return super.getRecord(obj, req, dataset);
         }
 
         boolean interpolate = false;
@@ -273,16 +247,15 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
          * used in derived parameter
          */
         GridGeometry2D geo = null;
-        if (!records.get(0).getSpatialObject().getNx()
-                .equals(records.get(1).getSpatialObject().getNx())
-                || !records.get(0).getSpatialObject().getNy()
-                        .equals(records.get(1).getSpatialObject().getNy())) {
+        if (!records.get(0).getCoverage().getNx()
+                .equals(records.get(1).getCoverage().getNx())
+                || !records.get(0).getCoverage().getNy()
+                        .equals(records.get(1).getCoverage().getNy())) {
             interpolate = true;
-            geo = MapUtil.getGridGeometry(records.get(largestRecIdx)
-                    .getSpatialObject());
-            targetWidth = records.get(largestRecIdx).getSpatialObject().getNx();
-            targetHeight = records.get(largestRecIdx).getSpatialObject()
-                    .getNy();
+            SatMapCoverage coverage = records.get(largestRecIdx).getCoverage();
+            geo = coverage.getGridGeometry();
+            targetWidth = coverage.getNx();
+            targetHeight = coverage.getNy();
         }
 
         try {
@@ -345,31 +318,8 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
     }
 
     @Override
-    public String[] getSupportedPlugins() {
-        return new String[] { "satellite" };
-    }
-
-    @Override
-    public Object getInventory() {
-        return null;
-    }
-
-    @Override
     public void initInventory() {
         derParLibrary = DerivedParameterGenerator.getDerParLibrary();
-    }
-
-    @Override
-    public PointDataContainer getPoints(String plugin, String[] parameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
-        return getPoints(plugin, parameters, null, queryParams);
-    }
-
-    @Override
-    public PointDataContainer getPoints(String plugin, String[] parameters,
-            String levelKey, Map<String, RequestConstraint> queryParams)
-            throws VizException {
-        return null;
     }
 
     private String getDataset(String dataUri, String dataset) {
@@ -457,10 +407,7 @@ public class SatelliteDataCubeAdapter implements IDataCubeAdapter {
             }
             constraints.put(PE, pe);
         }
-        List<Map<String, RequestConstraint>> result = new ArrayList<Map<String, RequestConstraint>>(
-                1);
-        result.add(constraints);
-        return result;
+        return super.getBaseUpdateConstraints(constraints);
     }
 
     @Override

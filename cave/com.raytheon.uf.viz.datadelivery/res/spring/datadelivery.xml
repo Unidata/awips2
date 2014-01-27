@@ -46,10 +46,6 @@
     </bean>
     -->
 
-    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
-        <constructor-arg ref="registryHandler" />
-    </bean>
-    
     <!-- These util:constant beans should not be required, they overwrite the ones in *-common.xml files for CAVE since
         CAVE just gets a ClassNotFoundException on boot... 
         someday the reason should be figured out and these beans removed -->

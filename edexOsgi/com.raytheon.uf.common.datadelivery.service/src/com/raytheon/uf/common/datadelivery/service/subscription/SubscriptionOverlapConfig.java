@@ -33,7 +33,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 08, 2013 2000       djohnson     Initial creation
+ * May 08, 2013   2000     djohnson    Initial creation
+ * Sep 24, 2013   2386     dhladky     Abstracted for more types
+ * Oct 21, 2013   2292     mpduff      Changes for point type implementation
  * 
  * </pre>
  * 
@@ -42,54 +44,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class SubscriptionOverlapConfig {
-
-    public static final SubscriptionOverlapConfig NEVER_OVERLAPS = new SubscriptionOverlapConfig(
-            ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-            ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-            ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-            ISubscriptionOverlapService.ONE_HUNDRED_PERCENT,
-            SubscriptionOverlapMatchStrategy.MATCH_ALL);
+public abstract class SubscriptionOverlapConfig {
+    public final static transient int ONE_HUNDRED_PERCENT = 100;
 
     @XmlElement(required = true)
-    private int maxAllowedParameterDuplication;
+    protected int maxAllowedParameterDuplication;
 
     @XmlElement(required = true)
-    private int maxAllowedForecastHourDuplication;
+    protected int maxAllowedSpatialDuplication;
 
     @XmlElement(required = true)
-    private int maxAllowedCycleDuplication;
-
-    @XmlElement(required = true)
-    private int maxAllowedSpatialDuplication;
-
-    @XmlElement(required = true)
-    private SubscriptionOverlapMatchStrategy matchStrategy;
+    protected SubscriptionOverlapMatchStrategy matchStrategy;
 
     /**
      * Constructor.
      */
     public SubscriptionOverlapConfig() {
-    }
 
-    /**
-     * Constructor.
-     * 
-     * @param maxAllowedParameterDuplication
-     * @param maxAllowedForecastHourDuplication
-     * @param maxAllowedCycleDuplication
-     * @param maxAllowedSpatialDuplication
-     * @param matchStrategy
-     */
-    public SubscriptionOverlapConfig(int maxAllowedParameterDuplication,
-            int maxAllowedForecastHourDuplication,
-            int maxAllowedCycleDuplication, int maxAllowedSpatialDuplication,
-            SubscriptionOverlapMatchStrategy matchStrategy) {
-        this.maxAllowedParameterDuplication = maxAllowedParameterDuplication;
-        this.maxAllowedForecastHourDuplication = maxAllowedForecastHourDuplication;
-        this.maxAllowedCycleDuplication = maxAllowedCycleDuplication;
-        this.maxAllowedSpatialDuplication = maxAllowedSpatialDuplication;
-        this.matchStrategy = matchStrategy;
     }
 
     /**
@@ -106,37 +77,6 @@ public class SubscriptionOverlapConfig {
     public void setMaxAllowedParameterDuplication(
             int maxAllowedParameterDuplication) {
         this.maxAllowedParameterDuplication = maxAllowedParameterDuplication;
-    }
-
-    /**
-     * @return the maxAllowedForecastHourDuplication
-     */
-    public int getMaxAllowedForecastHourDuplication() {
-        return maxAllowedForecastHourDuplication;
-    }
-
-    /**
-     * @param maxAllowedForecastHourDuplication
-     *            the maxAllowedForecastHourDuplication to set
-     */
-    public void setMaxAllowedForecastHourDuplication(
-            int maxAllowedForecastHourDuplication) {
-        this.maxAllowedForecastHourDuplication = maxAllowedForecastHourDuplication;
-    }
-
-    /**
-     * @return the maxAllowedCycleDuplication
-     */
-    public int getMaxAllowedCycleDuplication() {
-        return maxAllowedCycleDuplication;
-    }
-
-    /**
-     * @param maxAllowedCycleDuplication
-     *            the maxAllowedCycleDuplication to set
-     */
-    public void setMaxAllowedCycleDuplication(int maxAllowedCycleDuplication) {
-        this.maxAllowedCycleDuplication = maxAllowedCycleDuplication;
     }
 
     /**
@@ -170,22 +110,8 @@ public class SubscriptionOverlapConfig {
     }
 
     /**
-     * Check whether the given duplication percents indicate an overlapping
-     * subscription.
-     * 
-     * @param parameterDuplicationPercent
-     * @param forecastHourDuplicationPercent
-     * @param cycleDuplicationPercent
-     * @param spatialDuplicationPercent
-     * @return true if the subscription should be considered overlapping
+     * setup a default never overlapping config
      */
-    public boolean isOverlapping(int parameterDuplicationPercent,
-            int forecastHourDuplicationPercent, int cycleDuplicationPercent,
-            int spatialDuplicationPercent) {
+    public abstract SubscriptionOverlapConfig getNeverOverlaps();
 
-        // Pass through to the match strategy
-        return this.matchStrategy.isOverlapping(this,
-                parameterDuplicationPercent, forecastHourDuplicationPercent,
-                cycleDuplicationPercent, spatialDuplicationPercent);
-    }
 }

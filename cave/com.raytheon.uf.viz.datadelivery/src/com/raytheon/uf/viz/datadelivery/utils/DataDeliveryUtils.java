@@ -36,17 +36,17 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryAuthRequest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.StringUtil;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionManagerRowData;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalRowData;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -79,6 +79,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 04, 2013  223       mpduff       Add point data stuff.
  * Jun 11, 2013 2064       mpduff       Don't output Parameter header if none exist.
  * Jun 12, 2013 2064       mpduff       Use SizeUtil to format data size output.
+ * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
+ * Aug 30, 2013 2288       bgonzale     Added latency to details display.
+ * Sep 30, 2013 1797       dhladky      Time GriddedTime separation
+ * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Nov 07, 2013   2291     skorolev     Added showText() method for messages with many lines.
  * </pre>
  * 
  * @author mpduff
@@ -611,6 +616,20 @@ public class DataDeliveryUtils {
     }
 
     /**
+     * Show message with long list of lines.
+     * 
+     * @param shell
+     * @param messageTitle
+     * @param messageText
+     */
+    public static void showText(Shell shell, String messageTitle,
+            String messageText) {
+        TextMessageDlg textMsgDlgdlg = new TextMessageDlg(shell, messageTitle,
+                messageText);
+        textMsgDlgdlg.open();
+    }
+
+    /**
      * Provides the text for the subscription details dialog
      * 
      * @param sub
@@ -618,7 +637,7 @@ public class DataDeliveryUtils {
      * 
      * @return The formated details string
      */
-    public static String formatDetails(Subscription sub) {
+    public static String formatDetails(Subscription<Time, Coverage> sub) {
         final String newline = StringUtil.NEWLINE;
         final String space = " ";
         final String comma = ", ";
@@ -640,6 +659,8 @@ public class DataDeliveryUtils {
         fmtStr.append("Priority: ")
                 .append(sub.getPriority().getPriorityValue()).append(newline);
         fmtStr.append("Network: ").append(sub.getRoute()).append(newline);
+        fmtStr.append("Latency Minutes: ").append(sub.getLatencyInMinutes())
+                .append(newline);
 
         fmtStr.append("Coverage: ").append(newline);
         final Coverage coverage = sub.getCoverage();
@@ -676,27 +697,34 @@ public class DataDeliveryUtils {
                     .append(newline);
         }
 
-        // Get forecast hours
         final Time subTime = sub.getTime();
-        final List<String> fcstHours = subTime.getFcstHours();
-        if (!CollectionUtil.isNullOrEmpty(fcstHours)) {
-            fmtStr.append("Forecast Hours: ").append(newline);
-            fmtStr.append("------ ");
-            for (int idx : subTime.getSelectedTimeIndices()) {
-                fmtStr.append(fcstHours.get(idx)).append(space);
-            }
 
-            fmtStr.append(newline);
-        }
-        final List<Integer> cycles = subTime.getCycleTimes();
-        if (cycles != null && !cycles.isEmpty()) {
-            fmtStr.append("Cycles: ").append(newline);
-            fmtStr.append("------ ");
-            for (int cycle : cycles) {
-                fmtStr.append(cycle).append(space);
-            }
+        if (subTime instanceof GriddedTime) {
 
-            fmtStr.append(newline);
+            GriddedTime gtime = (GriddedTime) subTime;
+
+            final List<String> fcstHours = gtime.getFcstHours();
+            if (!CollectionUtil.isNullOrEmpty(fcstHours)) {
+                fmtStr.append("Forecast Hours: ").append(newline);
+                fmtStr.append("------ ");
+                for (int idx : gtime.getSelectedTimeIndices()) {
+                    fmtStr.append(fcstHours.get(idx)).append(space);
+                }
+
+                fmtStr.append(newline);
+            }
+            final List<Integer> cycles = gtime.getCycleTimes();
+            if (cycles != null && !cycles.isEmpty()) {
+                fmtStr.append("Cycles: ").append(newline);
+                fmtStr.append("------ ");
+                for (int cycle : cycles) {
+                    fmtStr.append(cycle).append(space);
+                }
+
+                fmtStr.append(newline);
+            }
+        } else if (subTime instanceof PointTime) {
+            // Nothing done for Point at this time
         }
 
         List<Parameter> parmArray = sub.getParameter();
@@ -743,20 +771,6 @@ public class DataDeliveryUtils {
     }
 
     /**
-     * Send an authorization request
-     * 
-     * @param request
-     *            The request object
-     * @return DataDeliveryAuthReqeust object
-     * @throws VizException
-     */
-    public static DataDeliveryAuthRequest sendAuthorizationRequest(
-            DataDeliveryAuthRequest request) throws VizException {
-        return (DataDeliveryAuthRequest) ThriftClient
-                .sendPrivilegedRequest(request);
-    }
-
-    /**
      * Get the maximum latency for the provided subscription. Calculated as the
      * maximum cyclic difference.
      * 
@@ -764,8 +778,16 @@ public class DataDeliveryUtils {
      *            The subscription
      * @return the maximum latency in minutes
      */
-    public static int getMaxLatency(Subscription subscription) {
-        return getMaxLatency(subscription.getTime().getCycleTimes());
+    public static int getMaxLatency(Subscription<Time, Coverage> subscription) {
+        if (subscription.getDataSetType() == DataType.POINT) {
+            return subscription.getLatencyInMinutes();
+        } else if (subscription.getDataSetType() == DataType.GRID) {
+            return getMaxLatency(((GriddedTime) subscription.getTime())
+                    .getCycleTimes());
+        } else {
+            throw new IllegalArgumentException("Invalid Data Type: "
+                    + subscription.getDataSetType().name());
+        }
     }
 
     /**

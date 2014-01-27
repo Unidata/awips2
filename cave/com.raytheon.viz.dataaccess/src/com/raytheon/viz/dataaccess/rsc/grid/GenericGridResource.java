@@ -34,6 +34,10 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
@@ -41,9 +45,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.level.Level.LevelType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
 
@@ -123,9 +124,14 @@ public class GenericGridResource extends
                 }
                 singleLevel.setValue(gridData.getLevel().getLevelonevalue());
             }
-            ColorMapParameters newCmp = ColorMapParameterFactory
-                    .build(buffer.array(), gridData.getParameter(),
-                            gridData.getUnit(), singleLevel);
+            ColorMapParameters newCmp;
+            try {
+                newCmp = ColorMapParameterFactory.build(buffer.array(),
+                        gridData.getParameter(), gridData.getUnit(),
+                        singleLevel);
+            } catch (StyleException e) {
+                throw new VizException("Unable to build colormap parameters", e);
+            }
             if (colorMapParameters != null) {
                 // This means the capability was serialized so preserve
                 // serialized fields.

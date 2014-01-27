@@ -22,11 +22,21 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.eventbus.AllowConcurrentEvents;
+import com.google.common.eventbus.Subscribe;
+import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.registry.event.UpdateRegistryEvent;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -46,30 +56,36 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions by routing to the NCF bandwidth manager.
  * Mar 11, 2013 1645       djohnson     Add missing Spring file.
  * May 15, 2013 2000       djohnson     Include daos.
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Oct 2,  2013 1797       dhladky      Generics
+ * Oct 28, 2013 2506       bgonzale     SBN (Shared) Scheduled at the central registry.
+ *                                      Added subscription notification service to bandwidth manager.
+ * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
+ *                                      Added getBandwidthGraphData.
+ *                                      Reschedule updated local subscriptions.
+ * Nov 27, 2013 2545       mpduff       Get data by network
+ * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator {
+public class WfoBandwidthManagerCreator<T extends Time, C extends Coverage>
+        implements IEdexBandwidthManagerCreator {
 
     /**
      * WFO {@link BandwidthManager} implementation.
      */
-    static class WfoBandwidthManager extends BandwidthManager {
+    static class WfoBandwidthManager<T extends Time, C extends Coverage>
+            extends EdexBandwidthManager<T, C> {
 
-        private static final String[] WFO_BANDWIDTH_MANAGER_FILES = new String[] {
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-edex-impl.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-daos.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-eventbus.xml"),
-                JarUtil.getResResourcePath("/spring/thrift-bandwidth.xml"),
-                JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
+        private static final String MODE_NAME = "registry";
+
+        private static final String[] WFO_BANDWIDTH_MANAGER_FILES = getSpringFileNamesForMode(MODE_NAME);
 
         // TODO: Change to be DIed in Spring
-        private final IBandwidthService ncfBandwidthService = new NcfBandwidthService();
+        private final IBandwidthService<T, C> ncfBandwidthService = new NcfBandwidthService();
 
         /**
          * Constructor.
@@ -78,11 +94,42 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          * @param bandwidthDao
          * @param retrievalManager
          * @param bandwidthDaoUtil
+         * @param subscriptionNotificationService
          */
         public WfoBandwidthManager(IBandwidthDbInit dbInit,
                 IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-                BandwidthDaoUtil bandwidthDaoUtil) {
-            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
+                BandwidthDaoUtil bandwidthDaoUtil,
+                IDataSetMetaDataHandler dataSetMetaDataHandler,
+                ISubscriptionHandler subscriptionHandler,
+                ISubscriptionNotificationService subscriptionNotificationService) {
+            super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+                    dataSetMetaDataHandler, subscriptionHandler,
+                    subscriptionNotificationService);
+        }
+
+        /**
+         * Listen for Registry update events. Filter for subscription specific
+         * events. Sends corresponding subscription notification events.
+         * 
+         * @param event
+         */
+        @Override
+        @Subscribe
+        @AllowConcurrentEvents
+        public void registryEventListener(UpdateRegistryEvent event) {
+            super.registryEventListener(event);
+            if (DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION.equals(event
+                    .getObjectType())) {
+                Subscription<T, C> subscription = getRegistryObjectById(
+                        getSubscriptionHandler(), event.getId());
+                boolean isLocalOrigination = subscription.getOriginatingSite()
+                        .equals(SiteUtil.getSite());
+
+                if (isLocalOrigination) {
+                    subscriptionUpdated(subscription);
+                }
+                sendSubscriptionNotificationEvent(event, subscription);
+            }
         }
 
         @Override
@@ -95,16 +142,15 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected IProposeScheduleResponse proposeScheduleSbnSubscription(
-                List<Subscription> subscriptions) throws Exception {
+                List<Subscription<T, C>> subscriptions) throws Exception {
 
             final IProposeScheduleResponse proposeResponse = ncfBandwidthService
                     .proposeSchedule(subscriptions);
 
             // If the NCF bandwidth manager says they fit without
-            // unscheduling anything, then schedule them at the WFO level to
-            // track retrievals/graphing
+            // unscheduling anything, then schedule them at the NCF level
             if (proposeResponse.getUnscheduledSubscriptions().isEmpty()) {
-                scheduleSubscriptions(subscriptions);
+                ncfBandwidthService.schedule(subscriptions);
             }
 
             return proposeResponse;
@@ -115,13 +161,25 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
          */
         @Override
         protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription> subscriptions) throws SerializationException {
+                List<Subscription<T, C>> subscriptions)
+                throws SerializationException {
 
-            final Set<String> ncfResponse = ncfBandwidthService
-                    .schedule(subscriptions);
-            scheduleSubscriptions(subscriptions);
+            return ncfBandwidthService.schedule(subscriptions);
+        }
 
-            return ncfResponse;
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected BandwidthGraphData getBandwidthGraphData() {
+            BandwidthGraphData data = super.getBandwidthGraphData();
+            BandwidthGraphData data2 = ncfBandwidthService
+                    .getBandwidthGraphData();
+            if (data2 != null) {
+                data.merge(data2);
+            }
+
+            return data;
         }
     }
 
@@ -129,11 +187,14 @@ public class WfoBandwidthManagerCreator implements IEdexBandwidthManagerCreator 
      * {@inheritDoc}
      */
     @Override
-    public IBandwidthManager getBandwidthManager(IBandwidthDbInit dbInit,
+    public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
-        return new WfoBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil);
+            BandwidthDaoUtil bandwidthDaoUtil,
+            IDataSetMetaDataHandler dataSetMetaDataHandler,
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
+        return new WfoBandwidthManager<T, C>(dbInit, bandwidthDao,
+                retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
+                subscriptionHandler, subscriptionNotificationService);
     }
-
 }

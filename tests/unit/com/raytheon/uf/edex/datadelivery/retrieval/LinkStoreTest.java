@@ -42,6 +42,7 @@ import org.junit.Test;
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2012 955        djohnson     Initial creation
  * Sep 11, 2012 1154       djohnson     Test JAXB marshall/unmarshall.
+ * Jul 08, 2013 2173       mpduff       Change to look at xml values, not the xml itself.
  * 
  * </pre>
  * 
@@ -97,27 +98,24 @@ public class LinkStoreTest {
         Writer writer = new StringWriter();
         context.createMarshaller().marshal(linkStore, writer);
 
-        final String expectedXml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-                + "<linkStore creationTime=\""
-                + creationTime
-                + "\" date=\"1969-12-31T18:00:00.00" + creationTime + "-06:00\" dateString=\""
-                + dateString
-                + "\">"
-                + "<links><entry><key xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" "
-                + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">urlOne</key>"
-                + "<value xsi:type=\"link\" url=\""
-                + linkUrl
-                + "\" name=\""
-                + linkName
-                + "\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>"
-                + "</entry></links></linkStore>";
-
-        assertEquals("The marshalled XML did not match what was expected!",
-                expectedXml, writer.toString());
-
         LinkStore restored = (LinkStore) context.createUnmarshaller()
-                .unmarshal(
-                new StringReader(writer.toString()));
+                .unmarshal(new StringReader(writer.toString()));
+
+        Link link2 = restored.getLink(LinkStore.getLinkKey(linkStoreLink));
+
+        assertEquals("Links do not match", link, link2);
+
+        assertEquals("Names do not match", link.getName(), link2.getName());
+
+        assertEquals("URLs do not match", link.getUrl(), link2.getUrl());
+
+        assertEquals("Creation Times do not match",
+                linkStore.getCreationTime(), restored.getCreationTime());
+
+        assertEquals("Date Strings do not match", linkStore.getDateString(),
+                restored.getDateString());
+        assertEquals("Dates do not match", linkStore.getDate(),
+                restored.getDate());
 
         assertEquals(
                 "The jaxb unmarshalled version should have been equal to the original!",

@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
  com.raytheon.viz.radar,
  gov.noaa.nws.ncep.viz.localization,
- com.raytheon.uf.common.units;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin,
@@ -33,7 +34,6 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.awipstools.capabilities,
  com.raytheon.viz.awipstools.capabilityInterfaces,
  com.raytheon.viz.awipstools.common,
- com.raytheon.viz.core.drawables,
  com.raytheon.viz.radar,
  com.raytheon.viz.ui.editor,
  gov.noaa.nws.ncep.viz.common.ui,

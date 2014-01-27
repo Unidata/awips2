@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.text.ParseException;
 import java.util.Random;
 
 import com.raytheon.uf.common.time.util.ImmutableDate;
@@ -37,6 +36,8 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * ------------ ---------- ----------- --------------------------
  * Sep 05, 2012 1102      djohnson     Initial creation
  * Oct 16, 2012 0726      djohnson     Always use OpenDAP service type, use TimeFixture.
+ * Oct  2, 2013 1797      dhladky      Some generics
+ * Oct 10, 2013 1797      bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -60,19 +61,15 @@ public class OpenDapGriddedDataSetMetaDataFixture extends
      */
     @Override
     public OpenDapGriddedDataSetMetaData getInstance(long seedValue, Random random) {
-        final Time time = TimeFixture.INSTANCE.get(seedValue);
+        final GriddedTime time = GriddedTimeFixture.INSTANCE.get(seedValue);
         final OpenDapGriddedDataSet dataSet = OpenDapGriddedDataSetFixture.INSTANCE
                 .get(seedValue);
 
         OpenDapGriddedDataSetMetaData obj = new OpenDapGriddedDataSetMetaData();
-        obj.setCycle(TimeFixture.getCycleForSeed(seedValue));
+        obj.setCycle(GriddedTimeFixture.getCycleForSeed(seedValue));
         obj.setDataSetDescription("description" + seedValue);
         obj.setDataSetName(dataSet.getDataSetName());
-        try {
-            obj.setDate(new ImmutableDate(time.getStartDate()));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        obj.setDate(new ImmutableDate(time.getStart()));
         // TODO: Ensemble fixture
         // obj.setEnsemble(new EnsembleFixture().get(seedValue));
         // TODO: Levels fixture

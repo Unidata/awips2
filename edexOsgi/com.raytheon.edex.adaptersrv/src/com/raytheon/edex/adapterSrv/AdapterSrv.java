@@ -24,9 +24,9 @@ import java.util.ArrayList;
 
 import com.raytheon.edex.msg.Command;
 import com.raytheon.edex.msg.ProgramOutput;
-import com.raytheon.edex.util.Util;
 import com.raytheon.edex.utility.StreamHandler;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -101,7 +101,7 @@ public class AdapterSrv {
         } catch (Exception e) {
             throw new EdexException(
                     "AdapterSrv: Error running external executable: "
-                            + Util.printString(command), e);
+                            + StringUtil.printString(command), e);
         } finally {
             // #DR 10955
             if (proc != null) {

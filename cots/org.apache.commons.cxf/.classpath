@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="cxf-2.5.0.jar" sourcepath="apache-cxf-2.5.0-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="cxf-2.5.10.jar" sourcepath="apache-cxf-2.5.10-src.jar"/>
 	<classpathentry exported="true" kind="lib" path="FastInfoset-1.2.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="geronimo-activation_1.1_spec-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="geronimo-annotation_1.0_spec-1.1.1.jar"/>

@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
+ * 06/13/13     #2044      randerso    JavaDoc cleanup
  * 
  * </pre>
  * 
@@ -91,10 +92,12 @@ public class GridUpdateNotification extends GfeNotification implements
      *            The parmID of the updated grid
      * @param replacementTimeRange
      *            The time range of the update
-     * @param timeRanges
-     *            The grid times that have been changed
+     * @param histories
+     *            The histories for the updated grids
      * @param workstationID
      *            The workstation ID of who changed the grid
+     * @param siteID
+     *            The site ID
      */
     public GridUpdateNotification(ParmID parmId,
             TimeRange replacementTimeRange,
@@ -134,34 +137,62 @@ public class GridUpdateNotification extends GfeNotification implements
         }
     }
 
+    /**
+     * @return the parmId
+     */
     public ParmID getParmId() {
         return parmId;
     }
 
+    /**
+     * @param parmId
+     *            the parmId to set
+     */
     public void setParmId(ParmID parmId) {
         this.parmId = parmId;
     }
 
+    /**
+     * @return the replacementTimeRange
+     */
     public TimeRange getReplacementTimeRange() {
         return replacementTimeRange;
     }
 
+    /**
+     * @param replacementTimeRange
+     *            the replacementTimeRange to set
+     */
     public void setReplacementTimeRange(TimeRange replacementTimeRange) {
         this.replacementTimeRange = replacementTimeRange;
     }
 
+    /**
+     * @return the histories
+     */
     public Map<TimeRange, List<GridDataHistory>> getHistories() {
         return histories;
     }
 
+    /**
+     * @param histories
+     *            the histories to set
+     */
     public void setHistories(Map<TimeRange, List<GridDataHistory>> histories) {
         this.histories = histories;
     }
 
+    /**
+     * @return the workstationID
+     */
     public WsId getWorkstationID() {
         return workstationID;
     }
 
+    /**
+     * @param workstationID
+     *            the workstationID to set
+     */
     public void setWorkstationID(WsId workstationID) {
         this.workstationID = workstationID;
     }

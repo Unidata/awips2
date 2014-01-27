@@ -20,6 +20,8 @@
 package com.raytheon.uf.common.sounding;
 
 import com.raytheon.uf.common.sounding.util.SoundingPrefs;
+import com.raytheon.uf.common.wxmath.EquivalentPotentialTemperature;
+import com.raytheon.uf.common.wxmath.TempOfTe;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -33,6 +35,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 06 Nov 2006             jkorman     Initial Coding
  * 29 Sept 2008            dhladky     Added more stuff to finish SkewT.
+ * 25 Jul 2013  2190       mschenke    Moved common sounding calculation  from
+ *                                     PopupSkewTDialog to here
+ * Aug 26, 2013 2262       bsteffen    Port ept to java.
  * </pre>
  * 
  * @author jkorman
@@ -76,6 +81,8 @@ public class WxMath {
 
     private static final double EPS = Mmoist / Mdry;
 
+    private static float[] muParcelTrajectoryPressures = new float[20];
+
     private static double[][][] DRY_ADIABATS;
 
     static {
@@ -83,6 +90,11 @@ public class WxMath {
         int j = 0;
         for (int i = -30; i <= 50; i += 10) {
             DRY_ADIABATS[j++] = createDryAdiabatIsoLine(i, 1000, 300, 10);
+        }
+
+        int i = 0;
+        for (float p = 1000; p >= 50; p -= 50, ++i) {
+            muParcelTrajectoryPressures[i] = p;
         }
     }
 
@@ -135,6 +147,40 @@ public class WxMath {
      */
     public static double[][][] getDryAdiabats() {
         return DRY_ADIABATS;
+    }
+
+    /**
+     * @param sounding
+     */
+    public static float[] derivemuParcelTrajectory(VerticalSounding soundingData) {
+        float[] muParcelTrajectory = new float[muParcelTrajectoryPressures.length];
+        float thetae, maxthetae = -999.0f;
+        float etpar, tp;
+        for (int i = 0; i < soundingData.size(); i++) {
+            float tt = soundingData.get(i).getTemperature();
+            float td = soundingData.get(i).getDewpoint();
+            float p = soundingData.get(i).getPressure();
+            thetae = (float) EquivalentPotentialTemperature.ept(tt, td, p);
+            if (thetae > maxthetae && soundingData.get(i).getPressure() > 500)
+                maxthetae = thetae;
+        }
+        for (int i = 0; i < muParcelTrajectoryPressures.length; ++i) {
+            float p = muParcelTrajectoryPressures[i];
+            etpar = (float) (maxthetae * (Math.pow(p / 1000.0f, 0.286f)));
+            tp = (float) TempOfTe.temp_of_te(etpar, p);
+            muParcelTrajectory[20 - (int) (p / 50)] = tp;
+        }
+        return muParcelTrajectory;
+    }
+
+    /**
+     * Returns the pressures used in
+     * {@link #derivemuParcelTrajectory(VerticalSounding)}
+     * 
+     * @return
+     */
+    public static float[] getMuParcelTrajectoryPressures() {
+        return muParcelTrajectoryPressures;
     }
 
     /**
@@ -195,8 +241,9 @@ public class WxMath {
         tempPressure.y = Math.pow(10, ((point.y - 132.182) / -44.061));
         tempPressure.x = (point.x - (0.90692 * point.y)) / 0.54;
 
-        tempPressure.x += SoundingPrefs.getSoundingPrefs().getTemperatureOffset();
-        
+        tempPressure.x += SoundingPrefs.getSoundingPrefs()
+                .getTemperatureOffset();
+
         return tempPressure;
     }
 

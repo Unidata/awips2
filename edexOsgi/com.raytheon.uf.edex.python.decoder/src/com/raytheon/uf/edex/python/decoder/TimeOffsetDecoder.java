@@ -20,16 +20,11 @@
 package com.raytheon.uf.edex.python.decoder;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import jep.JepException;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.python.PythonScript;
 
 /**
  * A PythonDecoder, modified to allow a time offset string (as passed in -z
@@ -41,9 +36,10 @@ import com.raytheon.uf.common.python.PythonScript;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 27, 2011            wldougher     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 27, 2011           wldougher   Initial creation
+ * Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
  * 
  * </pre>
  * 
@@ -77,9 +73,6 @@ public class TimeOffsetDecoder extends PythonDecoder {
     public PluginDataObject[] decode(File file, Headers headers)
             throws Exception {
 
-        String moduleName = getModuleName();
-        String pluginFQN = getPluginFQN();
-
         StringBuilder sb = new StringBuilder("cmd -f ");
         sb.append(file.getPath());
         Boolean notifyGFE = (Boolean) headers.get("notifygfe");
@@ -92,33 +85,11 @@ public class TimeOffsetDecoder extends PythonDecoder {
         }
 
         // create an argument map to run the decoder
-        Map<String, Object> decoderArgs = new HashMap<String, Object>();
-        decoderArgs.put("moduleName", moduleName);
-        decoderArgs.put("fileToDecode", null);
-        decoderArgs.put("commandArgs", sb.toString());
+        Map<String, Object> decoderArgs = new HashMap<String, Object>(4);
+        decoderArgs.put("filePath", null);
+        decoderArgs.put("command", sb.toString());
+        return decode(decoderArgs);
 
-        // We need a new DecoderInterface every time
-        PythonScript python = PythonDecoderFactory.makePythonDecoder(pluginFQN,
-                moduleName);
-
-        List<?> result = new ArrayList<Object>(0);
-        try {
-            // DecoderInterface calls module ctor and module.decode()
-            result = (List<?>) python.execute("decode", decoderArgs);
-        } catch (JepException e) {
-            throw new Exception("Python exception: " + e.getMessage(), e);
-        } finally {
-            python.dispose();
-        }
-
-        List<PluginDataObject> decodedObjects = asPluginDataObjects(result);
-
-        for (PluginDataObject pdo : decodedObjects) {
-            pdo.constructDataURI();
-        }
-
-        return decodedObjects.toArray(new PluginDataObject[decodedObjects
-                .size()]);
     }
 
 }

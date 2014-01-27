@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.preciprate;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
@@ -33,10 +32,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -44,7 +39,6 @@ import org.geotools.geometry.GeneralEnvelope;
 import org.hibernate.annotations.Index;
 import org.opengis.referencing.crs.ProjectedCRS;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
@@ -82,7 +76,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 12, 2013 1857        bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 06, 2013 2228        njensen     Use deserialize(byte[])
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361        njensen     Removed XML annotations
  * 
  * </pre>
  * 
@@ -96,17 +92,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "preciprate",
-		indexes = {
-				@Index(name = "preciprate_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+@org.hibernate.annotations.Table(appliesTo = "preciprate", indexes = { @Index(name = "preciprate_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @DynamicSerialize
-public class PrecipRateRecord extends PersistablePluginDataObject
-        implements IMonitorProcessing {
+public class PrecipRateRecord extends PersistablePluginDataObject implements
+        IMonitorProcessing {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PrecipRateRecord.class);
 
@@ -114,69 +104,56 @@ public class PrecipRateRecord extends PersistablePluginDataObject
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Integer gateResolution;
 
     @Column(length = 7)
     @DataURI(position = 1)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String icao;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Float latitude;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Float longitude;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Integer numRadials;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Integer numBins;
 
     @Column(length = 7)
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private String mnemonic;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Integer volumeCoveragePattern;
 
     @ManyToOne
     @PrimaryKeyJoinColumn
-    @XmlElement
     @DynamicSerializeElement
     private RadarStation location;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Double coefficent = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Double acoefficent = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Double hailcap = 0.0;
 
     @Column
     @DynamicSerializeElement
-    @XmlElement(nillable = false)
     private Double bias = 0.0;
 
     @Transient
@@ -187,7 +164,6 @@ public class PrecipRateRecord extends PersistablePluginDataObject
 
     @Transient
     @DynamicSerializeElement
-    @XmlElement
     protected float[] angleData;
 
     @Transient
@@ -344,10 +320,9 @@ public class PrecipRateRecord extends PersistablePluginDataObject
                 } else if (element.getName().equals("DHRMap")) {
                     try {
                         ByteDataRecord byteData = (ByteDataRecord) element;
-                        ByteArrayInputStream bais = new ByteArrayInputStream(
-                                byteData.getByteData());
                         Object o = DynamicSerializationManager.getManager(
-                                SerializationType.Thrift).deserialize(bais);
+                                SerializationType.Thrift).deserialize(
+                                byteData.getByteData());
                         setDhrMap((Map<DHRValues, Double>) o);
                     } catch (SerializationException e) {
                         e.printStackTrace();
@@ -599,17 +574,6 @@ public class PrecipRateRecord extends PersistablePluginDataObject
      */
     public void setCrs(ProjectedCRS crs) {
         this.crs = crs;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.PluginDataObject#getDecoderGettable()
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override

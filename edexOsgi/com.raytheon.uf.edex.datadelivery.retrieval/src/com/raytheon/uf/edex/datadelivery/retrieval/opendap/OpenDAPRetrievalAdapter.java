@@ -54,6 +54,7 @@ import dods.dap.DataDDS;
  * Jul 25, 2012 955        djohnson    Make package-private.
  * Feb 05, 2013 1580       mpduff      EventBus refactor.
  * Feb 12, 2013 1543       djohnson    The payload can just be an arbitrary object, implementations can define an array if required.
+ * Spet 19, 2013 2388      dhladky     Logging for failed requests.
  * 
  * </pre>
  * 
@@ -85,7 +86,7 @@ class OpenDAPRetrievalAdapter extends RetrievalAdapter {
             DConnect connect = ConnectionUtil.getDConnect(request.getRequest());
             data = connect.getData(null);
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.ERROR, "Request: "+request.getRequest()+" could not be fullfilled!", e.getMessage());
             EventBus.publish(new RetrievalEvent(e.getMessage()));
         }
 

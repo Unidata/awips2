@@ -24,15 +24,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import org.eclipse.ui.IWorkbenchWindow;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.menus.xml.CommonBundleMenuContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -47,6 +45,7 @@ import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceGroup;
 import com.raytheon.uf.viz.core.rsc.URICatalog;
@@ -58,15 +57,19 @@ import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * 
- * TODO Add Description
+ * Custom bundle contribution item for satellite so it has the ability to
+ * determine available times differently depending on scale by using a
+ * {@link SatBestResResourceData} to determine which resources are best to load.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 26, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 26, 2011           bsteffen    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to 
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -102,8 +105,9 @@ public class SatBundleContributionItem extends BundleContributionItem {
                 pair.setResourceData(resourceData);
                 ResourceGroup group = new ResourceGroup();
                 group.getResourceList().add(pair);
-                String xml = SerializationUtil.marshalToXml(group);
-                group = (ResourceGroup) SerializationUtil.unmarshalFromXml(xml);
+                ProcedureXmlManager jaxb = ProcedureXmlManager.getInstance();
+                String xml = jaxb.marshal(group);
+                group = jaxb.unmarshal(ResourceGroup.class, xml);
                 resourceData = (AbstractRequestableResourceData) group
                         .getResourceList().get(0).getResourceData();
                 // get the available times
@@ -129,7 +133,7 @@ public class SatBundleContributionItem extends BundleContributionItem {
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }

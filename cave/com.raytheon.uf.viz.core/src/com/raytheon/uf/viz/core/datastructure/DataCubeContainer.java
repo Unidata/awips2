@@ -40,7 +40,6 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -55,6 +54,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Jul 22, 2008             brockwoo    Initial creation
+ * Sep  9, 2013       2277  mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -323,24 +323,46 @@ public class DataCubeContainer {
     }
 
     /**
-     * Returns a list of responses for the requested layer property. If a
-     * derived parameter, this will piece together the base parameteters.
+     * Returns {@link PluginDataObject}s for the specified request constraints
      * 
-     * @param property
-     *            The layer property to request
-     * @param timeOut
-     *            A timeout period for the request to EDEX
-     * @return A list of responses
+     * @param constraints
+     * @return
      * @throws VizException
      */
-    public static List<Object> getData(LayerProperty property, int timeOut)
+    public static PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints) throws VizException {
+        return getData(constraints, (DataTime[]) null);
+    }
+
+    /**
+     * Returns {@link PluginDataObject}s for the specified request constraints
+     * and selected time
+     * 
+     * @param constraints
+     * @return
+     * @throws VizException
+     */
+    public static PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime time)
             throws VizException {
-        // Regular layer
-        HashMap<String, RequestConstraint> originalQuery = property
-                .getEntryQueryParameters(false);
-        String pluginName = originalQuery.get("pluginName")
+        return getData(constraints, time != null ? new DataTime[] { time }
+                : null);
+    }
+
+    /**
+     * Returns {@link PluginDataObject}s for the specified request constraints
+     * and selected times
+     * 
+     * @param constraints
+     * @return
+     * @throws VizException
+     */
+    public static PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] times)
+            throws VizException {
+        String pluginName = constraints.get(PluginDataObject.PLUGIN_NAME_ID)
                 .getConstraintValue();
-        return getInstance(pluginName).adapter.getData(property, timeOut);
+        return getInstance(pluginName).adapter.getData(constraints, times);
     }
 
     public static Object getInventory(String plugin) {
@@ -349,7 +371,8 @@ public class DataCubeContainer {
 
     public static List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
             Map<String, RequestConstraint> constraints) {
-        RequestConstraint pluginRC = constraints.get("pluginName");
+        RequestConstraint pluginRC = constraints
+                .get(PluginDataObject.PLUGIN_NAME_ID);
         String plugin = null;
         if (pluginRC != null
                 && pluginRC.getConstraintType() == ConstraintType.EQUALS) {

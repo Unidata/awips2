@@ -7,11 +7,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFTICWAsXML implements ISerializableObject {
-    @XmlElements ({ @XmlElement(name = "CWA", type = String.class) })
+public class FFTICWAsXML {
+
+    @XmlElements({ @XmlElement(name = "CWA", type = String.class) })
     private ArrayList<String> cwaList;
 
     public FFTICWAsXML() {
@@ -26,12 +25,13 @@ public class FFTICWAsXML implements ISerializableObject {
     }
 
     /**
-     * @param cwa the cwa to set
+     * @param cwa
+     *            the cwa to set
      */
     public void setCwaList(ArrayList<String> cwaList) {
         this.cwaList = cwaList;
     }
-    
+
     public void addCwa(String cwa) {
         this.cwaList.add(cwa);
     }

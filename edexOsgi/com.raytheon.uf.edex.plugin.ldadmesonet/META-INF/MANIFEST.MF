@@ -6,14 +6,12 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.dataplugin.ldadmesonet;bundle-version="1.0.0",
- org.eclipse.ui,
  com.raytheon.edex.common,
  com.raytheon.uf.common.pointdata,
  javax.persistence,
  javax.measure,
- org.apache.commons.logging,
- org.eclipse.core.runtime, 
  com.raytheon.edex.plugin.ldad;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.time 
+ com.raytheon.uf.common.time
+Import-Package: org.apache.commons.logging

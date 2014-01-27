@@ -22,14 +22,13 @@ package com.raytheon.viz.redbook;
 import java.io.File;
 import java.util.HashMap;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 
 /**
  * Returns the redbook WMO prefix to human readable name
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 30, 2008				chammack	Initial creation
+ * Nov 04, 2013 2361        njensen     Use JAXB instead of SerializationUtil
  * 
  * </pre>
  * 
@@ -47,10 +47,10 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class RedbookWMOMap implements ISerializableObject {
+public class RedbookWMOMap {
 
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class Info implements ISerializableObject {
+    public static class Info {
         public String name;
 
         @XmlElement(required = false)
@@ -63,8 +63,8 @@ public class RedbookWMOMap implements ISerializableObject {
         File file = PathManagerFactory.getPathManager().getStaticFile(
                 "redbook/redbookMapping.xml");
         try {
-            RedbookWMOMap map = (RedbookWMOMap) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+            RedbookWMOMap map = JAXB.unmarshal(file, RedbookWMOMap.class);
+
             // add ability for comma separated values in xml file
             RedbookWMOMap secondMap = new RedbookWMOMap();
             secondMap.mapping = new HashMap<String, Info>();

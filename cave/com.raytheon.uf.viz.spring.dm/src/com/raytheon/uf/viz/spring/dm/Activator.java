@@ -36,6 +36,7 @@ import org.osgi.framework.Constants;
  *                                      has been started
  * Mar 05, 2013 1754       djohnson     Catch exceptions and allow as much of the Spring container to boot as possible.
  * May 23, 2013 2005       njensen      Added springSuccess flag
+ * Nov 12, 2013 2361       njensen      Print out time spent on each spring context
  * 
  * </pre>
  * 
@@ -75,6 +76,7 @@ public class Activator implements BundleActivator {
      */
     @Override
     public void start(BundleContext context) throws Exception {
+        long t0 = System.currentTimeMillis();
         if (this.isInstallOperation()) {
             return;
         }
@@ -90,6 +92,8 @@ public class Activator implements BundleActivator {
         for (Bundle b : bundles) {
             createContext(bundleMap, contextMap, b, processing);
         }
+        System.out.println("Spring initialization: "
+                + (System.currentTimeMillis() - t0) + " ms");
     }
 
     private OSGIXmlApplicationContext createContext(
@@ -150,10 +154,11 @@ public class Activator implements BundleActivator {
                     }
 
                     try {
+                        long t0 = System.currentTimeMillis();
                         if (parentContexts.size() > 0) {
                             // Context with parent context
                             appCtx = new OSGIXmlApplicationContext(
-                                    new OSGIGroupApplicationContext(
+                                    new OSGIGroupApplicationContext(bundle,
                                             parentContexts),
                                     files.toArray(new String[0]), bundle);
                         } else {
@@ -161,6 +166,9 @@ public class Activator implements BundleActivator {
                             appCtx = new OSGIXmlApplicationContext(
                                     files.toArray(new String[0]), bundle);
                         }
+                        System.out.println("Bundle " + bundle.getSymbolicName()
+                                + " spring init took: "
+                                + (System.currentTimeMillis() - t0));
                     } catch (Throwable t) {
                         // No access to the statusHandler yet, so print the
                         // stack trace to the console. By catching this, we also
