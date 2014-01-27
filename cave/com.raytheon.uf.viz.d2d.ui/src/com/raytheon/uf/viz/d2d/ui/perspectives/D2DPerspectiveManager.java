@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.actions.NewMapEditor;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
@@ -87,6 +87,7 @@ import com.raytheon.viz.ui.statusline.FrameCountDisplay;
  * ------------ ---------- ----------- --------------------------
  * 04/27/2010              mschenke    Initial Creation.
  * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
+ * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
  * </pre>
  * 
  * @author mschenke
@@ -114,7 +115,7 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public void open() {
         contextActivator = new D2DContextActivator(page);
         try {
-            MapScales.loadScales(perspectiveWindow);
+            MapScalesManager.getInstance().loadEditorScales(perspectiveWindow);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error loading bundles to screen", e);

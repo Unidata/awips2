@@ -34,7 +34,7 @@
   <parameter name="sounderchannels" numDims="1" type="INT" />
   
   <parameter name="numLevels" numDims="1" type="INT" />
-  <parameter name="pressure" numDims="2" type="FLOAT" unit="hPa" dimension="maxLevels"/>
+  <parameter name="pressure" numDims="2" type="FLOAT" unit="Pa" dimension="maxLevels"/>
   <parameter name="height" numDims="2" type="FLOAT" unit="m" dimension="maxLevels"/>
   <parameter name="temperature" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>
   <parameter name="dewPoint" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>

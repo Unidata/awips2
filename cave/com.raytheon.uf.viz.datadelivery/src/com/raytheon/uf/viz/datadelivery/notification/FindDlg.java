@@ -22,19 +22,19 @@ package com.raytheon.uf.viz.datadelivery.notification;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -46,20 +46,22 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * Find dialog for the Notification Table.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 01, 2012    452      jpiatt     Initial creation.
  * Jun  1, 2012    645      jpiatt     Added tooltips.
  * Jun 07, 2012    687      lvenable   Table data refactor.
  * Dec 12. 2012   1418      mpduff     Change label.
- *
+ * Aug 30, 2013   2314      mpduff     Fixed find, filter, and various other bugs.
+ * Sep 26, 2013   2417      mpduff     Reset the highlight all indices on close.
+ * 
  * </pre>
- *
+ * 
  * @author jpiatt
  * @version 1.0
  */
@@ -131,7 +133,7 @@ public class FindDlg extends CaveSWTDialog {
 
     /**
      * Constructor.
-     *
+     * 
      * @param parent
      *            The parent shell
      * @param filteredTableList
@@ -144,24 +146,24 @@ public class FindDlg extends CaveSWTDialog {
      *            Selected table index
      * @param callback
      *            ITableFind callback
-     *
+     * 
      */
-    public FindDlg(Shell parent, TableDataManager<NotificationRowData> filteredTableList, int sIndex, int eIndex,
-            int selected, ITableFind callback) {
-        super(parent, SWT.DIALOG_TRIM, CAVE.NONE);
+    public FindDlg(Shell parent,
+            TableDataManager<NotificationRowData> filteredTableList,
+            int sIndex, int eIndex, int selected, ITableFind callback) {
+        super(parent, SWT.DIALOG_TRIM, CAVE.NONE | CAVE.DO_NOT_BLOCK);
         this.setText("Find");
 
         this.filteredTableList = filteredTableList;
         sIndex = startIndex;
         eIndex = endIndex;
-        selected = selectedIndex;
+        selectedIndex = selected;
         this.callback = callback;
-
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -176,24 +178,27 @@ public class FindDlg extends CaveSWTDialog {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
      */
     @Override
     protected void initializeComponents(Shell shell) {
-
+        shell.addListener(SWT.Close, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                callback.selectIndices(null);
+            }
+        });
         createFindLayout();
         createBottomButtons();
-
     }
 
     /**
      * Create the Find Dialog pop up.
      */
     private void createFindLayout() {
-
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.widthHint = 275;
         GridLayout gl = new GridLayout(2, false);
@@ -214,25 +219,10 @@ public class FindDlg extends CaveSWTDialog {
         findTxt.setLayoutData(gd);
         findTxt.selectAll();
         findTxt.setLayoutData(gd);
-
-        findTxt.addFocusListener(new FocusAdapter() {
+        findTxt.addKeyListener(new KeyAdapter() {
             @Override
-            public void focusLost(FocusEvent e) {
-                // handleFocusLost(e);
-            }
-        });
-        findTxt.addKeyListener(new KeyListener() {
-            @Override
-            // change
             public void keyReleased(KeyEvent e) {
-
                 findText();
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // Not Called
-
             }
         });
 
@@ -275,7 +265,6 @@ public class FindDlg extends CaveSWTDialog {
         categoryBtn = new Button(columnComp, SWT.RADIO);
         categoryBtn.setText("Category");
         categoryBtn.setToolTipText("Search Category column");
-
     }
 
     /**
@@ -308,13 +297,13 @@ public class FindDlg extends CaveSWTDialog {
         highlightBtn = new Button(bottomComp, SWT.PUSH);
         highlightBtn.setText("Highlight All");
         highlightBtn.setLayoutData(btnData);
-        highlightBtn.setToolTipText("Highlight all rows matching search criteria");
+        highlightBtn
+                .setToolTipText("Highlight all rows matching search criteria");
         highlightBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleHighlightBtn();
             }
-
         });
 
         // Close Button
@@ -325,14 +314,15 @@ public class FindDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                callback.selectIndices(null);
                 close();
             }
         });
-
     }
 
     /**
-     * Find text on key release. Check all pages of filtered list.
+     * Find text on key release. Check all pages of filtered list. Stop when
+     * match is found and don't move to the next.
      */
     private void findText() {
 
@@ -344,9 +334,6 @@ public class FindDlg extends CaveSWTDialog {
         categoryFlag = categoryBtn.getSelection();
         caseFlag = caseBtn.getSelection();
         excludeFlag = exclusionBtn.getSelection();
-
-        // Set to true if item exists
-        exists = false;
 
         int itemCount = filteredTableList.getDataArray().size();
         tableIndex = 0;
@@ -361,47 +348,47 @@ public class FindDlg extends CaveSWTDialog {
                 sub = row.getCategory();
 
                 if (tableIndex <= itemCount) {
-
                     tableIndex++;
 
                     if (caseFlag) {
                         if (excludeFlag) {
                             // Select index if does not match message or
                             // subscription
-                            if ((!msg.contains(text) && msgFlag) || (!sub.contains(text) && categoryFlag)) {
+                            if ((!msg.contains(text) && msgFlag)
+                                    || (!sub.contains(text) && categoryFlag)) {
                                 exists = true;
                                 callback.selectIndex(tableIndex);
                                 break;
                             }
                             // Select index if matches message or subscription
-                        }
-                        else if ((msg.contains(text) && msgFlag) || (sub.contains(text) && categoryFlag)) {
+                        } else if ((msg.contains(text) && msgFlag)
+                                || (sub.contains(text) && categoryFlag)) {
                             exists = true;
                             callback.selectIndex(tableIndex);
                             break;
                         }
-
-                    }
-                    else {
+                    } else {
                         if (excludeFlag) {
                             // Select index if matches non case sensitive
                             // message or subscription
-                            if ((!msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                    || (!sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
+                            if ((!msg.toUpperCase()
+                                    .contains(text.toUpperCase()) && msgFlag)
+                                    || (!sub.toLowerCase().contains(
+                                            text.toLowerCase()) && categoryFlag)) {
                                 exists = true;
                                 callback.selectIndex(tableIndex);
                                 break;
                             }
-                        }
-                        else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                || (sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
+                        } else if ((msg.toUpperCase().contains(
+                                text.toUpperCase()) && msgFlag)
+                                || (sub.toLowerCase().contains(
+                                        text.toLowerCase()) && categoryFlag)) {
                             exists = true;
                             callback.selectIndex(tableIndex);
                             break;
                         }
                     }
                 }
-
             }
         }
     }
@@ -414,20 +401,8 @@ public class FindDlg extends CaveSWTDialog {
         // Text in the find text box
         String text = findTxt.getText();
 
-        // Get button selections
-        msgFlag = msgBtn.getSelection();
-        categoryFlag = categoryBtn.getSelection();
-        caseFlag = caseBtn.getSelection();
-        excludeFlag = exclusionBtn.getSelection();
-
-        int itemCount = filteredTableList.getDataArray().size();
-        int findTextLength = findTxt.getText().length();
-
-        boolean search = false;
-        selectedIndex = selectedIndex + 1;
-
         // If no text is entered
-        if (findTextLength == 0) {
+        if (text.isEmpty()) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("Find Warning");
             mb.setMessage("Please enter text in the 'Find' field.");
@@ -435,76 +410,87 @@ public class FindDlg extends CaveSWTDialog {
             return;
         }
 
-        while (search == false) {
+        // Get button selections
+        msgFlag = msgBtn.getSelection();
+        categoryFlag = categoryBtn.getSelection();
+        caseFlag = caseBtn.getSelection();
+        excludeFlag = exclusionBtn.getSelection();
 
+        int itemCount = filteredTableList.getDataArray().size();
+        boolean continueSearch = true;
+        boolean exists = false;
+        boolean hitEnd = false;
+        selectedIndex = selectedIndex + 1;
+
+        while (continueSearch) {
             if (tableIndex < itemCount) {
-
                 // Get the row data starting at the currently highlighted row
-                NotificationRowData row = filteredTableList.getDataArray().get(tableIndex);
+                NotificationRowData row = filteredTableList.getDataArray().get(
+                        tableIndex);
 
                 // Column data
                 msg = row.getMessage();
                 sub = row.getCategory();
 
-                if (tableIndex < itemCount) {
-                    tableIndex++;
-                }
+                tableIndex++;
 
                 if (caseFlag) {
                     if (excludeFlag) {
                         // Select index if does not match message or
                         // subscription
-                        if ((!msg.contains(text) && msgFlag) || (!sub.contains(text) && categoryFlag)) {
-                            search = true;
+                        if ((!msg.contains(text) && msgFlag)
+                                || (!sub.contains(text) && categoryFlag)) {
+                            continueSearch = false;
                             callback.selectIndex(tableIndex);
                         }
-                    }
-                    else if ((msg.contains(text) && msgFlag) || (sub.contains(text) && categoryFlag)) {
+                    } else if ((msg.contains(text) && msgFlag)
+                            || (sub.contains(text) && categoryFlag)) {
                         // Select index if matches message or subscription
-                        search = true;
+                        continueSearch = false;
                         callback.selectIndex(tableIndex);
                     }
-
-                }
-                else {
+                } else {
                     if (excludeFlag) {
                         // Select index if matches non case sensitive message or
                         // subscription
                         if ((!msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                || (!sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
-                            search = true;
+                                || (!sub.toLowerCase().contains(
+                                        text.toLowerCase()) && categoryFlag)) {
+                            continueSearch = false;
                             callback.selectIndex(tableIndex);
                         }
-                    }
-                    else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
+                    } else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
                             || (sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
-                        search = true;
+                        continueSearch = false;
                         callback.selectIndex(tableIndex);
                     }
                 }
 
                 // If the item was found set exists to true
-                if (search) {
+                if (!continueSearch) {
                     exists = true;
                 }
-
-            }
-            else {
-
-                int answer = DataDeliveryUtils
-                        .showMessage(getShell(), SWT.YES | SWT.NO, "Search from Beginning",
-                                "The end of the table has been reached.  Would you like to search from the beginning of the table?");
-                if (answer == SWT.NO || (answer == SWT.YES && !exists)) {
+            } else {
+                if (!hitEnd) {
+                    int answer = DataDeliveryUtils
+                            .showMessage(
+                                    getShell(),
+                                    SWT.YES | SWT.NO,
+                                    "Search from Beginning",
+                                    "The end of the table has been reached.  Would you like to search from the beginning of the table?");
+                    if (answer == SWT.NO) {
+                        exists = true;
+                        break;
+                        // Start search over at beginning of table
+                    } else if (answer == SWT.YES) {
+                        tableIndex = 0;
+                        continueSearch = true;
+                    }
+                    hitEnd = true;
+                } else {
                     break;
-                    // Start search over at beginning of table
                 }
-                else if (answer == SWT.YES && exists) {
-                    tableIndex = 0;
-                    search = false;
-                }
-
             }
-
         }
 
         // No items matching search criteria
@@ -513,8 +499,9 @@ public class FindDlg extends CaveSWTDialog {
             mb.setText("Find Warning");
             mb.setMessage("No item matching your search was found.");
             mb.open();
+            tableIndex = 0;
+            callback.clearSelections();
         }
-
     }
 
     /**
@@ -539,10 +526,9 @@ public class FindDlg extends CaveSWTDialog {
         tableIndex = 0;
 
         if (filteredTableList != null) {
-
             for (int i = 0; i < filteredTableList.getDataArray().size(); i++) {
-
-                NotificationRowData row = filteredTableList.getDataArray().get(i);
+                NotificationRowData row = filteredTableList.getDataArray().get(
+                        i);
                 // Message Column
                 msg = row.getMessage();
                 // Subscription Name column
@@ -552,22 +538,23 @@ public class FindDlg extends CaveSWTDialog {
                     if (excludeFlag) {
                         // Select index if does not match message or
                         // subscription
-                        if ((!msg.contains(text) && msgFlag) || (!sub.contains(text) && categoryFlag)) {
+                        if ((!msg.contains(text) && msgFlag)
+                                || (!sub.contains(text) && categoryFlag)) {
                             items.add(i);
                         }
-                    }
-                    else if ((msg.contains(text) && msgFlag) || (sub.contains(text) && categoryFlag)) {
+                    } else if ((msg.contains(text) && msgFlag)
+                            || (sub.contains(text) && categoryFlag)) {
                         // Select index if matches message or subscription
                         items.add(i);
                     }
 
-                }
-                else {
+                } else {
                     if (excludeFlag) {
                         // Select index if matches non case sensitive message or
                         // subscription
                         if ((!msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                || (!sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
+                                || (!sub.toLowerCase().contains(
+                                        text.toLowerCase()) && categoryFlag)) {
                             items.add(i);
                         }
                     } else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
@@ -577,7 +564,6 @@ public class FindDlg extends CaveSWTDialog {
                 }
 
                 tableIndex++;
-
             }
 
             indices = new int[items.size()];
@@ -588,9 +574,6 @@ public class FindDlg extends CaveSWTDialog {
             }
 
             callback.selectIndices(indices);
-
         }
-
     }
-
 }

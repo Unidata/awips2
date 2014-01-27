@@ -2,69 +2,28 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Timeheight
 Bundle-SymbolicName: com.raytheon.uf.viz.xy.timeheight;singleton:=true
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.viz.xy.timeheight.Activator
+Bundle-Version: 1.0.1.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui;bundle-version="3.4.1",
- com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Eclipse-RegisterBuddy: com.raytheon.uf.viz.core, com.raytheon.viz.core
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataquery.requests,
+Require-Bundle: com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.geospatial.interpolation,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.status,
- com.raytheon.uf.common.time,
+ com.raytheon.uf.common.style,
  com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.core.data,
- com.raytheon.uf.viz.core.data.prep,
- com.raytheon.uf.viz.core.drawables,
- com.raytheon.uf.viz.core.exception,
- com.raytheon.uf.viz.core.interp,
- com.raytheon.uf.viz.core.map,
- com.raytheon.uf.viz.core.rsc,
- com.raytheon.uf.viz.core.rsc.capabilities,
- com.raytheon.uf.viz.core.rsc.sampling,
- com.raytheon.uf.viz.core.status,
- com.raytheon.uf.viz.core.style,
- com.raytheon.uf.viz.d2d.core.map,
+ com.raytheon.uf.viz.d2d.core,
  com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.xy,
- com.raytheon.uf.viz.xy.graph,
- com.raytheon.uf.viz.xy.graph.axis,
- com.raytheon.uf.viz.xy.graph.labeling,
- com.raytheon.uf.viz.xy.map.rsc,
- com.raytheon.uf.viz.xy.varheight.adapter,
- com.raytheon.uf.viz.xy.varheight.rsc,
+ com.raytheon.uf.viz.xy.varheight,
  com.raytheon.viz.core.contours,
- com.raytheon.viz.core.contours.util,
- com.raytheon.viz.core.drawables,
- com.raytheon.viz.core.graphing.util,
- com.raytheon.viz.core.graphing.xy,
- com.raytheon.viz.core.imagery,
+ com.raytheon.viz.core.graphing,
+ com.raytheon.viz.grid,
+ javax.measure,
+ org.eclipse.core.runtime,
+ org.eclipse.ui
+Import-Package: com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.map,
- com.raytheon.viz.core.rsc,
- com.raytheon.viz.core.slice.request,
- com.raytheon.viz.core.style.arrow,
- com.raytheon.viz.core.style.contour,
- com.raytheon.viz.core.style.graph,
- com.raytheon.viz.grid.rsc,
- com.raytheon.viz.pointdata,
- com.raytheon.viz.ui.editor,
- com.raytheon.viz.ui.input,
- com.vividsolutions.jts.geom,
- javax.measure.converter,
- javax.measure.unit,
- org.geotools.coverage.grid,
- org.geotools.geometry,
- org.opengis.coverage.grid,
- org.opengis.geometry,
- org.opengis.referencing.operation
-Export-Package: com.raytheon.uf.viz.xy.timeheight,
- com.raytheon.uf.viz.xy.timeheight.display,
+ com.raytheon.viz.core.rsc
+Export-Package: com.raytheon.uf.viz.xy.timeheight.display,
  com.raytheon.uf.viz.xy.timeheight.graph,
  com.raytheon.uf.viz.xy.timeheight.rsc

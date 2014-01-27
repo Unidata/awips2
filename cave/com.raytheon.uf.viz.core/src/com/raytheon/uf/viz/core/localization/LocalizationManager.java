@@ -55,7 +55,6 @@ import com.raytheon.uf.common.localization.msgs.AbstractPrivilegedUtilityCommand
 import com.raytheon.uf.common.localization.msgs.AbstractUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.DeleteUtilityResponse;
-import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.localization.msgs.GetUtilityCommand;
 import com.raytheon.uf.common.localization.msgs.ListContextCommand;
@@ -73,6 +72,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
+import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.PrivilegedRequestFactory;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -85,13 +85,14 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2007            chammack    Initial Creation.
- * Jul 24, 2007            njensen     Added upload().	
+ * Jul 24, 2007            njensen     Added upload().
  * Jul 30, 2007            njensen     Refactored.
  * Feb 12, 2008            chammack    Removed base configuration
  * Mar 26, 2008            njensen     Added rename() and getFileContents().
- * May 19, 2007     #1127  randerso    Implemented error handling
+ * May 19, 2007 1127       randerso    Implemented error handling
  * Sep 12, 2012 1167       djohnson    Add datadelivery servers.
  * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
  *                                     provided by EDEX.
  * 
@@ -219,10 +220,9 @@ public class LocalizationManager implements IPropertyChangeListener {
                 applyChanges();
             }
 
-            GetServersRequest req = new GetServersRequest();
             try {
-                GetServersResponse resp = (GetServersResponse) ThriftClient
-                        .sendLocalizationRequest(req);
+                GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
+                        currentServer, false);
                 VizApp.setHttpServer(resp.getHttpServer());
                 VizApp.setJmsConnectionString(resp.getJmsConnectionString());
                 VizApp.setPypiesServer(resp.getPypiesServer());

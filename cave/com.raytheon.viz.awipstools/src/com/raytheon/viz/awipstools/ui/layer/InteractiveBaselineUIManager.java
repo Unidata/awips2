@@ -33,7 +33,7 @@ import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.viz.awipstools.ToolsDataManager;
-import com.raytheon.viz.awipstools.common.ToolsUiUitil;
+import com.raytheon.viz.awipstools.common.ToolsUiUtil;
 import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer.Baseline;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
@@ -53,6 +53,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Aug 29, 2013 2281       bsteffen    Rename ToolsUiUitil.
+ * Sep 18, 2013 2360       njensen     Don't handle mouse actions when layer is invisible
  * 
  * 
  * </pre>
@@ -145,7 +147,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             hoverCoords = null;
         }
 
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             // Only operate if editable
             if (inMotion != null) {
                 // Already have something in motion, process the move
@@ -160,7 +163,7 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
                 Baseline[] lines = baselinesLayer.getCurrentBaselines();
                 int mouse = SWT.CURSOR_ARROW;
                 for (Baseline line : lines) {
-                    int idx = ToolsUiUitil.closeToCoordinate(container,
+                    int idx = ToolsUiUtil.closeToCoordinate(container,
                             line.line.getCoordinates(), x, y, CLICK_RADIUS_PIX);
                     if (idx >= 0) {
                         // We are close to a point in this line
@@ -170,7 +173,7 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
                         hoverCoords = new Coordinate[] { hoverLine.line
                                 .getCoordinateN(idx) };
                         break;
-                    } else if (ToolsUiUitil.closeToLine(container,
+                    } else if (ToolsUiUtil.closeToLine(container,
                             line.line.getCoordinates(), x, y, CLICK_RADIUS_PIX)) {
                         // We are close this this line
                         mouse = SWT.CURSOR_SIZEALL;
@@ -199,7 +202,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
      */
     @Override
     public boolean handleMouseDown(int x, int y, int mouseButton) {
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             Baseline inMotion = baselinesLayer.getLineInMotion();
             // Only operate if editable
             if (inMotion != null) {
@@ -250,7 +254,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             lastX = x;
             lastY = y;
         }
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             Baseline inMotion = baselinesLayer.getLineInMotion();
             // Only process if editable
             if (selectX >= 0 && selectY >= 0) {
@@ -312,7 +317,8 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             lastX = x;
             lastY = y;
         }
-        if (baselinesLayer.isEditable()) {
+        if (baselinesLayer.isEditable()
+                && baselinesLayer.getProperties().isVisible()) {
             if (deleting) {
                 baselinesLayer.issueRefresh();
                 return true;
@@ -434,7 +440,7 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             double[] screenLoc = container.translateInverseClick(c);
             screenLoc[0] += changeX;
             screenLoc[1] += changeY;
-            Coordinate translated = ToolsUiUitil.translateClick(container,
+            Coordinate translated = ToolsUiUtil.translateClick(container,
                     baselinesLayer.getDescriptor(), screenLoc[0], screenLoc[1]);
             c.x = translated.x;
             c.y = translated.y;
@@ -486,7 +492,7 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             // First time we've moved our new line, change to two points
             firstSelection = false;
             coords = new Coordinate[] { coords[0],
-                    ToolsUiUitil.translateClick(container, descriptor, x, y) };
+                    ToolsUiUtil.translateClick(container, descriptor, x, y) };
         } else {
             double[] d1 = container
                     .translateInverseClick(coords[coords.length - 1]);
@@ -497,7 +503,7 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
             Coordinate c = new Coordinate(x, y);
             if (Angle.angleBetween(c2, c1, c) > (Math.PI / 2)) {
                 coords = Arrays.copyOf(coords, coords.length + 1);
-                coords[coords.length - 1] = ToolsUiUitil.translateClick(
+                coords[coords.length - 1] = ToolsUiUtil.translateClick(
                         container, descriptor, c.x, c.y);
             } else {
                 selectionQueue.add(currentlySelecting);
@@ -550,13 +556,13 @@ public class InteractiveBaselineUIManager extends InputAdapter implements
         Coordinate[] newLine = new Coordinate[hoverCoords.length + 1];
         for (int i = 0; i < newLine.length; i++) {
             if (i < insertionPoint) {
-                newLine[i] = ToolsUiUitil.translateClick(container, descriptor,
+                newLine[i] = ToolsUiUtil.translateClick(container, descriptor,
                         screenLocs[i].x, screenLocs[i].y);
             } else if (i > insertionPoint) {
-                newLine[i] = ToolsUiUitil.translateClick(container, descriptor,
+                newLine[i] = ToolsUiUtil.translateClick(container, descriptor,
                         screenLocs[i - 1].x, screenLocs[i - 1].y);
             } else {
-                newLine[i] = ToolsUiUitil.translateClick(container, descriptor,
+                newLine[i] = ToolsUiUtil.translateClick(container, descriptor,
                         screenRefPoint.x, screenRefPoint.y);
             }
         }

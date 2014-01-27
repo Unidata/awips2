@@ -38,6 +38,7 @@ import org.apache.commons.collections.map.MultiValueMap;
 
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
+import com.raytheon.uf.common.time.DataTimeComparator;
 
 /**
  * 
@@ -48,7 +49,9 @@ import com.raytheon.uf.common.time.DataTime.FLAG;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 19, 2007            chammack    Initial Creation.
- * May 31, 2013 DR 15908   dhuffman    Removed a null from a method call to cease a null pointer exception.
+ * May 31, 2013 15908      dhuffman    Removed a null from a method call to
+ *                                     cease a null pointer exception.
+ * Aug 08, 2013 2245       bsteffen    Make all DataTime comparisons consistent.
  * 
  * </pre>
  * 
@@ -177,14 +180,9 @@ public class TimeMatcher {
             return;
         }
 
-        for (DataTime time : times) {
-            if (time != null) {
-                time.setSortKeys(DataTime.SortKey.VALID_TIME,
-                        DataTime.SortKey.FORECAST_TIME, true);
-            }
-        }
-
-        Collections.sort(times);
+        Collections.sort(times, new DataTimeComparator(
+                DataTimeComparator.SortKey.VALID_TIME,
+                DataTimeComparator.SortKey.FORECAST_TIME, true));
 
         if (majorIndex == null) {
             return;
@@ -896,11 +894,9 @@ public class TimeMatcher {
             return;
         }
 
-        for (DataTime t : times) {
-            t.setSortKeys(DataTime.SortKey.INITIAL_TIME,
-                    DataTime.SortKey.FORECAST_TIME, true);
-        }
-        Collections.sort(times);
+        Collections.sort(times, new DataTimeComparator(
+                DataTimeComparator.SortKey.INITIAL_TIME,
+                DataTimeComparator.SortKey.FORECAST_TIME, true));
 
         if (majorIndex == null) {
             return;

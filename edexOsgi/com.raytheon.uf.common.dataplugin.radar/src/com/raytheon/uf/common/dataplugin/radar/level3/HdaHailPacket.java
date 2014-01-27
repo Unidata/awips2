@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * </pre>
  * 
  * @author mnash
@@ -52,13 +53,6 @@ public class HdaHailPacket extends SymbologyPacket implements
 
     public HdaHailPacket() {
 
-    }
-
-    private static final int HDA_HAIL_PACKET19 = 19;
-
-    static {
-        PacketFactory
-                .registerPacketType(HdaHailPacket.class, HDA_HAIL_PACKET19);
     }
 
     @DynamicSerialize

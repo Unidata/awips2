@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 
 /**
  * Integration test {@link BandwidthInitializer}.
@@ -47,7 +48,11 @@ public class IntegrationTestBandwidthInitializer implements
      * {@inheritDoc}
      */
     @Override
-    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
+    public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit,
+            RetrievalManager retrievalManager) {
+
+        retrievalManager.initRetrievalPlans();
+
         return true;
     }
 

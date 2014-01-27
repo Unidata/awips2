@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.gfe.query;
 
+import java.io.IOException;
+
 import jep.JepException;
 
 import com.raytheon.uf.common.python.concurrent.AbstractPythonScriptFactory;
@@ -81,6 +83,9 @@ public class QueryScriptFactory extends
         } catch (JepException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to create query script", e);
+        } catch (IOException e) {
+            statusHandler.error(
+                    "Unable to create query script from internal bundle", e);
         }
         return null;
     }

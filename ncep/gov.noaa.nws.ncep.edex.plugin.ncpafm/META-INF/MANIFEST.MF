@@ -8,9 +8,6 @@ Bundle-Vendor: AWIPS II Migration
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  javax.persistence;bundle-version="1.0.0",
- org.junit;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.apache.log4j;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.10.13",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0"
@@ -18,6 +15,8 @@ Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.edex.decodertools.core,
  gov.noaa.nws.ncep.common.dataplugin.ncpafm,
  gov.noaa.nws.ncep.edex.tools.decoder,
- gov.noaa.nws.ncep.edex.util
+ gov.noaa.nws.ncep.edex.util,
+ org.apache.commons.logging,
+ org.apache.log4j
 Export-Package: gov.noaa.nws.ncep.edex.plugin.ncpafm.decoder,
  gov.noaa.nws.ncep.edex.plugin.ncpafm.util

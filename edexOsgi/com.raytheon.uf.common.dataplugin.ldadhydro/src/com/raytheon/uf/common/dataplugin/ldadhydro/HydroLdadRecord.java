@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.ldadhydro;
  **/
 
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
@@ -40,15 +38,9 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -77,6 +69,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 15, 2013 2361        njensen     Remove XML annotations and IDecoderGettable
  * 
  * </pre>
  * 
@@ -93,11 +86,9 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @org.hibernate.annotations.Table(appliesTo = "ldadhydro", indexes = { @Index(name = "ldadhydro_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class HydroLdadRecord extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -115,269 +106,211 @@ public class HydroLdadRecord extends PersistablePluginDataObject implements
 
     public static final Unit<Angle> LOCATION_UNIT = NonSI.DEGREE_ANGLE;
 
-    private static final HashMap<String, String> PARM_MAP = new HashMap<String, String>();
-    static {
-        PARM_MAP.put("T", SFC_TEMP);
-        PARM_MAP.put("DpT", SFC_DWPT);
-        PARM_MAP.put("WS", SFC_WNDSPD);
-        PARM_MAP.put("WD", SFC_WNDDIR);
-        PARM_MAP.put("WGS", SFC_WNDGST);
-        PARM_MAP.put("ASET", "SFC.PRESS.ALTIMETER");
-        PARM_MAP.put("PMSL", PRES_SLP);
-        PARM_MAP.put("NLAT", STA_LAT);
-        PARM_MAP.put("NLON", STA_LON);
-        PARM_MAP.put("STA", "STA");
-        PARM_MAP.put("stationId", "STA");
-        PARM_MAP.put("message", OBS_TEXT);
-        PARM_MAP.put(OBS_TEXT, OBS_TEXT);
-    }
-
     // Time of the observation.
     @DataURI(position = 2)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar observationTime;
 
     // numeric WMO identification number
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private long numericWMOid;
 
     // latitude, longitude, elevation, stationId="RALC2"
     @Embedded
     @DataURI(position = 3, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     // Data Provider station Id
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String providerId; // * "110" "FA6026DA"
 
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String stationName; // * "Ralston_Res"
 
     // Handbook Id (AFOS id or SHEF id)
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String handbook5Id;
 
     // Home WFO Id for the LDAD data
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String homeWFO;
 
     // LDAD hydro station type.
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String stationType;
 
     // LDAD hydro data provider
     @DataURI(position = 1)
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String dataProvider;
 
     // time data was processed by the provider
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private double reportTime; // * 1.247436157E9
 
     // * time data was received
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Double receivedTime; // seconds since 1-1-1970
 
     // Below surface
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float belowSurface; // meter
 
     // River stage
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float riverStage; // meter
 
     // Pool elevation
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float poolElevation; // meter
 
     // Tail water stage
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float tailwaterStage; // meter
 
     // River velocity
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float riverVelocity; // kph
 
     // River inflow
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float riverInflow; // meter^3 / sec
 
     // River flow
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float riverFlow; // meter^3 / sec
 
     // Computed outflow
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float computedOutflow; // meter^3 / sec
 
     // Water temperature
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float waterTemperature; // kelvin
 
     // Battery voltage
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float voltageBattery; // volt
 
     // Water conductance
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float waterConductance; // umhos/cm
 
     // Water oxygen
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float waterOxygen; // mg/l
 
     // Water PH
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float waterPH; // pH
 
     // Relative humidity
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float relHumidity;
 
     // River stage & flow - time of last change (ALERT)
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Double riverReportChangeTime; // seconds since 1970-1-1 00:00:00.0
 
     // Observation air temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float temperature;
 
     // Observation dewpoint temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float dewpoint;
 
     // Observation wind direction in angular degrees.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float windDir;
 
     // Observation wind speed in meters per second.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float windSpeed;
 
     // Wind speed peak
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float windSpeedPeak;
 
     // Observation wind gust in meters per second.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double windGust;
 
     // precip accumulation with an unknown time period in mm.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precipAccum; // mm
 
     // 5 minute precip accumulation
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precip5min; // mm
 
     // 1 hour precip accumulation
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precip1hr; // mm
 
     // 3 hour precip accumulation
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precip3hr; // float precip3hr mm
 
     // 6 hour precip accumulation
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precip6hr; // float precip6hr mm
 
     // 12 hour precip accumulation mm
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float precip12hr;
 
     // 18 hour precip accumulation mm
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Float precip18hr;
 
     // 24 hour precip accumulation
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Float precip24hr; // mm
 
     // Raw text LDAD hydro report
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private String rawMessage;
 
     private PointDataView pointDataView;
@@ -520,68 +453,6 @@ public class HydroLdadRecord extends PersistablePluginDataObject implements
     }
 
     /**
-     * This class implements IDecoderGettable so return this instance.
-     * 
-     * @return The reference to this instance.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return this;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public String getString(String paramName) {
-        String retValue = null;
-        String pName = PARM_MAP.get(paramName);
-        if ("STA".matches(pName)) {
-            retValue = getStationId();
-        } else if (OBS_TEXT.equals(pName)) {
-            retValue = getStationId();
-        }
-
-        return retValue;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Amount getValue(String paramName) {
-        Amount a = null;
-        String pName = PARM_MAP.get(paramName);
-
-        if (SFC_TEMP.equals(pName)) {
-            a = new Amount(temperature, TEMPERATURE_UNIT);
-        } else if (SFC_DWPT.equals(pName)) {
-            a = new Amount(dewpoint, TEMPERATURE_UNIT);
-        } else if (SFC_WNDSPD.equals(pName)) {
-            a = new Amount(windSpeed, WIND_SPEED_UNIT);
-        } else if (SFC_WNDGST.equals(pName)) {
-            a = new Amount(windGust, WIND_SPEED_UNIT);
-        } else if (SFC_WNDDIR.equals(pName)) {
-            a = new Amount(windDir, WIND_DIR_UNIT);
-        } else if (STA_LAT.equals(pName)) {
-            a = new Amount(getLatitude(), LOCATION_UNIT);
-        } else if (STA_LON.equals(pName)) {
-            a = new Amount(getLongitude(), LOCATION_UNIT);
-        }
-
-        return a;
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
     /**
      * @param providerId
      *            the providerId to set

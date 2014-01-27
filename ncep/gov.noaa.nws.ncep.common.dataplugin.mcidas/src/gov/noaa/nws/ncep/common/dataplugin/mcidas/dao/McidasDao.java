@@ -9,6 +9,7 @@
  * ------------ ---------- 	----------- --------------------------
  * 10/2009		144			T. Lee		Created
  * 11/2009		144			T. Lee		Implemented area name DAO
+ * Nov 14, 2013 2393        bclement    added in-java interpolation
  * </pre>
  * 
  * @author tlee
@@ -17,20 +18,32 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.mcidas.dao;
 
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasAreaName;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasImageType;
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasSatelliteName;
+
+import java.awt.Rectangle;
 import java.util.List;
+
+import org.geotools.coverage.grid.GridGeometry2D;
+
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
+import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
-
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasRecord;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasAreaName;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasSatelliteName;
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.fixed.McidasImageType;
 
 public class McidasDao extends PluginDao {
     private McidasSatelliteNameDao satelliteNameDao = new McidasSatelliteNameDao();    
@@ -45,7 +58,7 @@ public class McidasDao extends PluginDao {
     @Override
     protected IDataStore populateDataStore(IDataStore dataStore, IPersistable record) 
     		throws StorageException {
-        McidasRecord satRecord = (McidasRecord) record;
+        final McidasRecord satRecord = (McidasRecord) record;
 
         /*
          * Write McIDAS Area file header block.
@@ -62,21 +75,62 @@ public class McidasDao extends PluginDao {
          * Write McIDAS image data block to HDF5.
          */
         if ( satRecord.getMessageData() != null ) {
-        	long xdim = satRecord.getCoverage().getNx();
-        	long ydim = satRecord.getCoverage().getNy();
+            McidasMapCoverage coverage = satRecord.getCoverage();
+            int xdim = coverage.getNx();
+            int ydim = coverage.getNy();
         	long[] sizes = new long[] { xdim, ydim };        
-        	AbstractStorageRecord storageRecord = new ByteDataRecord("Data", 
-        			satRecord.getDataURI(), (byte[]) satRecord.getMessageData(), 2, sizes);
+            AbstractStorageRecord storageRecord = new ByteDataRecord(
+                    DataStoreFactory.DEF_DATASET_NAME, satRecord.getDataURI(),
+                    (byte[]) satRecord.getMessageData(), 2, sizes);
         	
-        	StorageProperties props = new StorageProperties();
-        	
-        	props.setDownscaled(true);
-//        	props.setChunked(true);
-//        	props.setCompressed(true);
+            final StorageProperties props = new StorageProperties();
+
+            GridGeometry2D gridGeom;
+            try {
+                gridGeom = coverage.getGridGeometry();
+            } catch (Exception e) {
+                throw new StorageException(
+                        "Unable to create grid geometry for record: "
+                                + satRecord, storageRecord, e);
+            }
+            GridDownscaler downScaler = new GridDownscaler(gridGeom);
         	
         	storageRecord.setProperties(props);
         	storageRecord.setCorrelationObject(satRecord);
-        	dataStore.addDataRecord(storageRecord);        	
+            // Store the base record.
+            dataStore.addDataRecord(storageRecord);
+
+            DataWrapper1D dataSource = DataRecordWrapUtil.wrap(storageRecord,
+                    xdim,
+                    ydim, true);
+            // this way of interpolating does not create the Data-interpolated/0
+            // link to the full sized data. This shouldn't be an issue since the
+            // retrieval code checks for level 0 and requests the full sized
+            // data.
+            DownscaleStoreUtil.storeInterpolated(dataStore, downScaler,
+                    dataSource, new IDataRecordCreator() {
+
+                        @Override
+                        public IDataRecord create(Object data,
+                                int downScaleLevel, Rectangle size)
+                                throws StorageException {
+                            long[] sizes = new long[] { size.width, size.height };
+                            String group = DataStoreFactory.createGroupName(
+                                    satRecord.getDataURI(), null, true);
+                            String name = String.valueOf(downScaleLevel);
+                            IDataRecord rval = DataStoreFactory
+                                    .createStorageRecord(name, group, data, 2,
+                                            sizes);
+                            rval.setProperties(props);
+                            rval.setCorrelationObject(satRecord);
+                            return rval;
+                        }
+
+                        @Override
+                        public double getFillValue() {
+                            return Double.NaN;
+                        }
+                    });
         }
         return dataStore;
     }

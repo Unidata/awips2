@@ -35,7 +35,6 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -59,15 +58,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2012            bsteffen    Initial creation
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 21, 2012            bsteffen   Initial creation
+ * Apr 04, 2013  1846      bkowal     Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857      bgonzale   Added SequenceGenerator annotation.
+ * May 07, 2013  1869      bsteffen   Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Dec 16, 2013  2574     bsteffen    Remove getDecoderGettable.
  * 
  * </pre>
  * 
@@ -182,11 +182,6 @@ public class GridRecord extends PersistablePluginDataObject implements
 
     public void setEnsembleId(String ensembleId) {
         getInfoNotNull().setEnsembleId(ensembleId);
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override

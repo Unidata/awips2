@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
-import com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.plugin.tcg.decoder.TCGDataAdapter;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;

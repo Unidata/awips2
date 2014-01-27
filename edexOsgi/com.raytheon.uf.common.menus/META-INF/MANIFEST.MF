@@ -12,7 +12,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.util.registry,
- org.apache.commons.logging
+ com.raytheon.uf.common.util.registry
 Export-Package: com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml

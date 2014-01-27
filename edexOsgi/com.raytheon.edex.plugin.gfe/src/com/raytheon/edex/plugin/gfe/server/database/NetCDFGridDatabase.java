@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -65,6 +66,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * May 14, 2012            randerso    Initial creation
  * Oct 10  2012     #1260  randerso    Added check for domain not overlapping the dataset
+ * Jul 03  2013     #2044  randerso    Changed getValidTimes to return empty set instead of null
+ *                                     Don't create RemapGrid until needed.
  * 
  * </pre>
  * 
@@ -127,7 +130,7 @@ public class NetCDFGridDatabase extends VGridDatabase {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((pid == null) ? 0 : pid.hashCode());
+            result = (prime * result) + ((pid == null) ? 0 : pid.hashCode());
             return result;
         }
 
@@ -168,6 +171,15 @@ public class NetCDFGridDatabase extends VGridDatabase {
 
     private RemapGrid remap;
 
+    /**
+     * Constructor
+     * 
+     * @param config
+     *            the server configuration
+     * @param file
+     *            the NetCDFFile
+     * @throws GfeException
+     */
     public NetCDFGridDatabase(IFPServerConfig config, NetCDFFile file)
             throws GfeException {
         super(config);
@@ -202,23 +214,19 @@ public class NetCDFGridDatabase extends VGridDatabase {
             this.subdomain = NetCDFUtils.getSubGridDims(this.inputGloc,
                     this.outputGloc);
 
-            if (this.subdomain.isEmpty()) {
-                statusHandler.warn(this.dbId
-                        + ": GFE domain does not overlap dataset domain.");
-                this.remap = null;
-            } else {
-                GridLocation subGloc = new GridLocation(this.dbId.toString(),
-                        this.inputGloc.getProjection(), new Point(
-                                this.subdomain.width, this.subdomain.height),
-                        new Coordinate(this.subdomain.x, this.subdomain.y),
-                        new Coordinate(this.subdomain.width,
-                                this.subdomain.height), "GMT");
-                this.remap = new RemapGrid(subGloc, this.outputGloc);
-            }
             loadParms();
         }
     }
 
+    /**
+     * Get the DatabaseID for a NetCDFFile
+     * 
+     * @param file
+     *            the NetCDFFile
+     * @param config
+     *            the server configuration
+     * @return the DatabaseID
+     */
     public static DatabaseID getDBID(NetCDFFile file, IFPServerConfig config) {
         return new DatabaseID(getSiteID(config), DataType.GRID, "D2D",
                 file.getModelName(), file.getModelTime());
@@ -237,9 +245,9 @@ public class NetCDFGridDatabase extends VGridDatabase {
     @Override
     public SortedSet<Date> getValidTimes() throws GfeException,
             DataAccessLayerException {
-        // do nothing for now, only needed for manual smartInit to run against
+        // return an empty list, only needed for smartInit to run against
         // this database which shouldn't be needed
-        return null;
+        return new TreeSet<Date>();
     }
 
     @Override
@@ -261,15 +269,15 @@ public class NetCDFGridDatabase extends VGridDatabase {
 
     // Calculates the precision based on the max/min values.
     private int calcPrecision(float minV, float maxV) {
-        if (maxV - minV > 250.0) {
+        if ((maxV - minV) > 250.0) {
             return 0;
-        } else if (maxV - minV > 25.0) {
+        } else if ((maxV - minV) > 25.0) {
             return 1;
-        } else if (maxV - minV > 2.5) {
+        } else if ((maxV - minV) > 2.5) {
             return 2;
-        } else if (maxV - minV > 0.25) {
+        } else if ((maxV - minV) > 0.25) {
             return 3;
-        } else if (maxV - minV > 0.025) {
+        } else if ((maxV - minV) > 0.025) {
             return 4;
         } else {
             return 5;
@@ -285,9 +293,9 @@ public class NetCDFGridDatabase extends VGridDatabase {
                 .getStart().getTime()) / 1000);
         int start = (int) (times.get(0).getStart().getTime() / 1000) % 86400;
 
-        for (int i = 1; i < times.size() - 1; i++) {
-            if ((times.get(i + 1).getStart().getTime() - times.get(i)
-                    .getStart().getTime()) / 1000 != repeat) {
+        for (int i = 1; i < (times.size() - 1); i++) {
+            if (((times.get(i + 1).getStart().getTime() - times.get(i)
+                    .getStart().getTime()) / 1000) != repeat) {
                 return new TimeConstraints(3600, 3600, 0);
             }
         }
@@ -354,9 +362,10 @@ public class NetCDFGridDatabase extends VGridDatabase {
         // inventory.setLength(atts.getInventory().getYdim());
 
         for (int time = atts.getInventory().getYdim() - 1; time >= 0; time--) {
-            if (atts.getInventory().get(level, time) == 0
-                    || ((accParm) && (time > 0 && this.file.getTpSubPrev(time) && atts
-                            .getInventory().get(level, time - 1) == 0))) {
+            if ((atts.getInventory().get(level, time) == 0)
+                    || ((accParm) && ((time > 0)
+                            && this.file.getTpSubPrev(time) && (atts
+                            .getInventory().get(level, time - 1) == 0)))) {
                 inventory.remove(time);
                 indices.remove(time);
             }
@@ -402,8 +411,8 @@ public class NetCDFGridDatabase extends VGridDatabase {
         // inventory.setLength(uatts.getInventory().getYdim());
 
         for (int time = uatts.getInventory().getYdim() - 1; time >= 0; time--) {
-            if (uatts.getInventory().get(level, time) == 0
-                    || vatts.getInventory().get(level, time) == 0) {
+            if ((uatts.getInventory().get(level, time) == 0)
+                    || (vatts.getInventory().get(level, time) == 0)) {
                 inventory.remove(time);
                 indices.remove(time);
             }
@@ -423,13 +432,13 @@ public class NetCDFGridDatabase extends VGridDatabase {
         // First see if we can make wind.
         int uindex = parmNames.indexOf("uw");
         int vindex = parmNames.indexOf("vw");
-        if (uindex != -1 && vindex != -1) {
+        if ((uindex != -1) && (vindex != -1)) {
             NetCDFFile.ParmAtts uatts = this.file.getAtts("uw");
             NetCDFFile.ParmAtts vatts = this.file.getAtts("vw");
-            if (uatts.getInventory().getXdim() == vatts.getInventory()
-                    .getXdim()
-                    && uatts.getInventory().getYdim() == vatts.getInventory()
-                            .getYdim()) {
+            if ((uatts.getInventory().getXdim() == vatts.getInventory()
+                    .getXdim())
+                    && (uatts.getInventory().getYdim() == vatts.getInventory()
+                            .getYdim())) {
                 if (uindex < vindex) {
                     int tmp = uindex;
                     uindex = vindex;
@@ -444,13 +453,13 @@ public class NetCDFGridDatabase extends VGridDatabase {
         } else {
             int sindex = parmNames.indexOf("ws");
             int dindex = parmNames.indexOf("wd");
-            if (sindex != -1 && dindex != -1) {
+            if ((sindex != -1) && (dindex != -1)) {
                 NetCDFFile.ParmAtts satts = this.file.getAtts("ws");
                 NetCDFFile.ParmAtts datts = this.file.getAtts("wd");
-                if (satts.getInventory().getXdim() == datts.getInventory()
-                        .getXdim()
-                        && satts.getInventory().getYdim() == datts
-                                .getInventory().getYdim()) {
+                if ((satts.getInventory().getXdim() == datts.getInventory()
+                        .getXdim())
+                        && (satts.getInventory().getYdim() == datts
+                                .getInventory().getYdim())) {
                     if (sindex < dindex) {
                         int tmp = sindex;
                         sindex = dindex;
@@ -498,7 +507,7 @@ public class NetCDFGridDatabase extends VGridDatabase {
 
         // deal with the special tp case, where some of the grids are actually
         // sums of other grids
-        if (name.equals("tp") && index > 0 && this.file.getTpSubPrev(index)) {
+        if (name.equals("tp") && (index > 0) && this.file.getTpSubPrev(index)) {
             Grid2DFloat prev = new Grid2DFloat(this.file.getGrid(name,
                     index - 1, level, this.subdomain));
             for (int x = 0; x < bdata.getXdim(); x++) {
@@ -516,7 +525,7 @@ public class NetCDFGridDatabase extends VGridDatabase {
         }
 
         try {
-            return this.remap.remap(bdata, fillV, maxv, minv, minv);
+            return getOrCreateRemap().remap(bdata, fillV, maxv, minv, minv);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return null;
@@ -593,10 +602,12 @@ public class NetCDFGridDatabase extends VGridDatabase {
         GridParmInfo gpi = p.getGpi();
         GridLocation gloc = gpi.getGridLoc();
 
+        RemapGrid remap = getOrCreateRemap();
+
         switch (gpi.getGridType()) {
         case SCALAR: {
             Grid2DFloat data = null;
-            if (this.remap == null) {
+            if (remap == null) {
                 // GFE domain does not overlap D2D grid, return default grid
                 data = new Grid2DFloat(gloc.getNx(), gloc.getNy(),
                         gpi.getMinValue());
@@ -617,7 +628,7 @@ public class NetCDFGridDatabase extends VGridDatabase {
             Grid2DFloat mag = new Grid2DFloat(gloc.getNx(), gloc.getNy());
             Grid2DFloat dir = new Grid2DFloat(gloc.getNx(), gloc.getNy());
 
-            if (this.remap == null) {
+            if (remap == null) {
                 // GFE domain does not overlap D2D grid, return default grid
                 mag.setAllValues(gpi.getMinValue());
                 dir.setAllValues(0.0f);
@@ -713,5 +724,20 @@ public class NetCDFGridDatabase extends VGridDatabase {
     public String getProjectionId() {
         String pid = this.outputGloc.getProjection().getProjectionID();
         return pid;
+    }
+
+    private RemapGrid getOrCreateRemap() {
+        if ((this.remap == null) && !this.subdomain.isEmpty()) {
+            GridLocation subGloc = new GridLocation(
+                    this.dbId.toString(),
+                    this.inputGloc.getProjection(),
+                    new Point(this.subdomain.width, this.subdomain.height),
+                    new Coordinate(this.subdomain.x, this.subdomain.y),
+                    new Coordinate(this.subdomain.width, this.subdomain.height),
+                    "GMT");
+            this.remap = new RemapGrid(subGloc, this.outputGloc);
+        }
+
+        return this.remap;
     }
 }

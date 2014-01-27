@@ -22,11 +22,11 @@ package com.raytheon.viz.core.contours;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 
 /**
  * ContourCreateRequest

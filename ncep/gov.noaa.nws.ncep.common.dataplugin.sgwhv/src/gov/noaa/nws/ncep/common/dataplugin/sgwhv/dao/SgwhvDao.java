@@ -16,23 +16,23 @@
  **/
 package gov.noaa.nws.ncep.common.dataplugin.sgwhv.dao;
 
-import java.util.List;
-
-import javax.xml.bind.JAXBException;
-
 import gov.noaa.nws.ncep.common.dataplugin.sgwhv.SgwhvRecord;
 import gov.noaa.nws.ncep.edex.common.dao.NcepPointDataPluginDao;
 
+import java.util.List;
+
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
-public class SgwhvDao extends NcepPointDataPluginDao<SgwhvRecord>  {
-	private PointDataDescription pdd;
-    
+public class SgwhvDao extends NcepPointDataPluginDao<SgwhvRecord> {
+    private PointDataDescription pdd;
+
     /**
      * Creates a new ReccoDao
-     * @throws PluginException 
+     * 
+     * @throws PluginException
      */
     public SgwhvDao(String pluginName) throws PluginException {
         super(pluginName);
@@ -53,19 +53,20 @@ public class SgwhvDao extends NcepPointDataPluginDao<SgwhvRecord>  {
         } catch (DataAccessLayerException e) {
             e.printStackTrace();
         }
-        if((obs != null)&&(obs.size() > 0)) {
+        if ((obs != null) && (obs.size() > 0)) {
             report = (SgwhvRecord) obs.get(0);
         }
         return report;
     }
-    
+
     /**
-     * Queries for to determine if a given data uri exists on the Bufrsgwhv table.
+     * Queries for to determine if a given data uri exists on the Bufrsgwhv
+     * table.
      * 
      * @param dataUri
      *            The DataURI to find.
      * @return An array of objects. If not null, there should only be a single
-     * element.
+     *         element.
      */
     public Object[] queryDataUriColumn(final String dataUri) {
 
@@ -76,13 +77,16 @@ public class SgwhvDao extends NcepPointDataPluginDao<SgwhvRecord>  {
 
         return results;
     }
-    public PointDataDescription getPointDataDescription() throws JAXBException {
+
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
         if (pdd == null) {
             pdd = PointDataDescription.fromStream(this.getClass()
                     .getResourceAsStream("/res/pointdata/sgwhv.xml"));
         }
         return pdd;
     }
+
     @Override
     public String[] getKeysRequiredForFileName() {
         return new String[] { "dataTime.refTime" };

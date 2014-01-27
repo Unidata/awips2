@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.auth.user;
 
+import com.raytheon.uf.common.serialization.ISerializableObject;
+
 /**
  * A permission.
  * 
@@ -28,7 +30,8 @@ package com.raytheon.uf.common.auth.user;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2012  1302      djohnson     Initial creation
+ * Nov 05, 2012  1302      djohnson     Initial creation
+ * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  * 
  * </pre>
  * 
@@ -36,7 +39,7 @@ package com.raytheon.uf.common.auth.user;
  * @version 1.0
  */
 
-public interface IPermission {
+public interface IPermission extends ISerializableObject {
 
     /**
      * Get the description.
@@ -46,10 +49,9 @@ public interface IPermission {
     String getDescription();
 
     /**
-     * The display name of the permission.
+     * Get the name.
      * 
      * @return the name
      */
-    @Override
-    String toString();
+    String getName();
 }

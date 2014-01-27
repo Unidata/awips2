@@ -1,34 +1,27 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="staticDataGenerator"
-		class="com.raytheon.uf.edex.grid.staticdata.StaticDataGenerator"
-		factory-method="getInstance" />
-  	
-	<camelContext id="grid-staticdata-process" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+    <bean id="staticDataGenerator"
+        class="com.raytheon.uf.edex.grid.staticdata.StaticDataGenerator"
+        factory-method="getInstance" />
+      
+    <camelContext id="grid-staticdata-process" xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
 
-		<!-- Begin Grid Process Route -->
-		<route id="gridTopoNotificationRoute">
-			<from uri="jms-generic:topic:edex.alerts" />
-			<doTry>
-				<bean ref="serializationUtil" method="transformFromThrift" />
-				<bean ref="staticDataGenerator" method="processNotification"/>
-				<bean ref="toDataURI" method="toDataURI"/>
-            	<to uri="vm:stageNotification"/> 
-				<doCatch>
-					<exception>java.lang.Throwable</exception>
-					<to
-						uri="log:grid-staticdata?level=ERROR" />
-				</doCatch>
-			</doTry>
-		</route>
-	</camelContext>
-	
-  	<bean id="gridStaticDataProcessCamelRegistered"  factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
-		<constructor-arg ref="grid-staticdata-process" />
-  	</bean>
+        <!-- Begin Grid Process Route -->
+        <route id="gridStaticDataGenerationRoute">
+            <!-- Fed from plugin notification -->
+            <from uri="vm:grid-staticdata-generate" />
+            <doTry>
+                <bean ref="staticDataGenerator" method="processNotification"/>
+                <to uri="direct-vm:stageNotification"/> 
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:grid-staticdata?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
 </beans>

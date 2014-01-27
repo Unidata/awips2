@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetIscSendStatusRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetIscSendStatusRequest.IscSendStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 21, 2011      #4686 randerso     Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -46,7 +47,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class GetIscSendStatusHandler implements
+public class GetIscSendStatusHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetIscSendStatusRequest> {
     protected final transient Log logger = LogFactory.getLog(getClass());
 
@@ -63,8 +64,8 @@ public class GetIscSendStatusHandler implements
 
         ServerResponse<IscSendStatus> sr = null;
         try {
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(request.getSiteID());
+            IFPServer ifpServer = getIfpServer(request);
+            IFPServerConfig config = ifpServer.getConfig();
 
             boolean sendISConSave = config.sendiscOnSave();
             boolean sendISConPublish = config.sendiscOnPublish();

@@ -50,8 +50,10 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20071026            384 jkorman     Initial Coding.
- * 20090408            952 jsanchez    Added @DynamicSerializeElement tags.
+ * Oct 26, 2007 384        jkorman     Initial Coding.
+ * Apr 08, 2009 952        jsanchez    Added @DynamicSerializeElement tags.
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
  * 
  * </pre>
  * 
@@ -94,8 +96,8 @@ public class AircraftObsLocation implements ISpatialObject {
     @DynamicSerializeElement
     private double longitude;
 
-    @Column(name = "location", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     private Point location;

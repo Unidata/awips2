@@ -37,10 +37,8 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
+import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -69,11 +67,12 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
  * @version 1.0
  */
 
-public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
+public abstract class AbstractDataCubeAdapter extends DefaultDataCubeAdapter {
 
     private String[] supportedPlugins;
 
     protected AbstractDataCubeAdapter(String[] supportedPlugins) {
+        super(null);
         this.supportedPlugins = supportedPlugins;
     }
 
@@ -181,49 +180,19 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getPoints(java
-     * .lang.String, java.lang.String[], java.util.Map)
+     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getData(java.
+     * util.Map, com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    public PointDataContainer getPoints(String plugin, String[] parameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
-        // TODO Someday we should put objective analysis code
-        // into this area
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getPoints(java
-     * .lang.String, java.lang.String[], java.lang.String, java.util.Map)
-     */
-    @Override
-    public PointDataContainer getPoints(String plugin, String[] parameters,
-            String levelKey, Map<String, RequestConstraint> queryParams)
+    public PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
             throws VizException {
-        // TODO Someday we should put objective analysis code
-        // into this area
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getData(com.raytheon
-     * .uf.viz.core.catalog.LayerProperty, int)
-     */
-    @Override
-    public List<Object> getData(LayerProperty property, int timeOut)
-            throws VizException {
-        List<AbstractRequestableNode> requests = evaluateRequestConstraints(property
-                .getEntryQueryParameters(false));
+        List<AbstractRequestableNode> requests = evaluateRequestConstraints(new HashMap<String, RequestConstraint>(
+                constraints));
         Set<TimeAndSpace> availability = null;
-        if (property.getSelectedEntryTime() != null) {
+        if (selectedTimes != null) {
             availability = new HashSet<TimeAndSpace>();
-            for (DataTime time : property.getSelectedEntryTime()) {
+            for (DataTime time : selectedTimes) {
                 availability.add(new TimeAndSpace(time));
             }
         } else {
@@ -232,8 +201,8 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
 
         // pull the actual results from the cache
         List<AbstractRequestableData> requesters = new ArrayList<AbstractRequestableData>();
-        MetadataContainer container = createMetadataContainer(property
-                .getEntryQueryParameters(false));
+        MetadataContainer container = createMetadataContainer(new HashMap<String, RequestConstraint>(
+                constraints));
         for (AbstractRequestableNode request : requests) {
             container.prepareRequests(request, availability);
         }
@@ -241,7 +210,8 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
             requesters.addAll(container.getData(request, availability));
         }
 
-        return getData(property, requesters);
+        return getData(constraints, selectedTimes, requesters).toArray(
+                new PluginDataObject[0]);
     }
 
     protected MetadataContainer createMetadataContainer(
@@ -253,21 +223,6 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
     protected AvailabilityContainer createAvailabilityContainer(
             Map<String, RequestConstraint> constraints) {
         return new AvailabilityContainer(constraints);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#
-     * getBaseUpdateConstraints(java.util.Map)
-     */
-    @Override
-    public List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
-            Map<String, RequestConstraint> constraints) {
-        List<Map<String, RequestConstraint>> result = new ArrayList<Map<String, RequestConstraint>>(
-                1);
-        result.add(constraints);
-        return result;
     }
 
     /*
@@ -321,6 +276,8 @@ public abstract class AbstractDataCubeAdapter implements IDataCubeAdapter {
      * @param requesters
      * @return
      */
-    protected abstract List<Object> getData(LayerProperty property,
-            List<AbstractRequestableData> requesters) throws VizException;
+    protected abstract List<PluginDataObject> getData(
+            Map<String, RequestConstraint> constraints,
+            DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
+            throws VizException;
 }

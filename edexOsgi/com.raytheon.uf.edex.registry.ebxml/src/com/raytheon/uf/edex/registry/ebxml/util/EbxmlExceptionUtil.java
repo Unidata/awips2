@@ -19,21 +19,28 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.AuthenticationExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.AuthorizationExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.InvalidRequestExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectExistsExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ObjectNotFoundExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.QuotaExceededExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.ReferencesExistExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.TimeoutExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnsupportedCapabilityExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogingExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilteringExceptionType;
+import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.raytheon.uf.common.registry.constants.ErrorSeverity;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Utility class used to generate registry exceptions
@@ -46,6 +53,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
  * Apr 23, 2013 1910       djohnson     Add createUnresolvedReferenceException().
+ * 8/1/2013     1693       bphillip     Added methods to create exceptions
+ * 10/20/2013   1682       bphillip     createMsgRegistryException changed to accept throwable
  * 
  * </pre>
  * 
@@ -55,250 +64,343 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 public class EbxmlExceptionUtil {
 
+    /** The logger */
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(EbxmlExceptionUtil.class);
+
     /**
-     * Creates a new MsgRegistryException as well as populating it with the
-     * underlying exception
+     * Creates a new MsgRegistryException object
      * 
-     * @param msgRegistryExceptionMessage
-     *            The message to attach to the exception
-     * @param exceptionType
-     *            The class type of the exception
-     * @param code
-     *            The error code, if any
      * @param message
-     *            The message to attach to the underlying exception
+     *            The message attached to the exception
      * @param detail
-     *            More details about the exception
-     * @param severity
-     *            The severity of the exception
-     * @return The new MsgRegistryException
+     *            Any additional details
+     * @param exception
+     *            The underlying exception that caused the MsgRegistryException
+     * @return The MsgRegistryException
      */
     public static MsgRegistryException createMsgRegistryException(
-            String msgRegistryExceptionMessage, Class<?> exceptionType,
-            String code, String message, String detail, String severity,
-            IUFStatusHandler statusHandler) {
-        return new MsgRegistryException(msgRegistryExceptionMessage,
-                createRegistryException(exceptionType, code, message, detail,
-                        severity, null, statusHandler));
+            String message, String detail, RegistryExceptionType exception) {
+        exception.setCode(exception.getClass().getSimpleName());
+        exception.setDetail(detail);
+        exception.setMessage(message);
+        exception.setSeverity(ErrorSeverity.ERROR);
+        MsgRegistryException msgException = new MsgRegistryException(message,
+                exception);
+        statusHandler.error(msgException.toString());
+        return msgException;
     }
 
     /**
-     * Creates a new MsgRegistryException as well as populating it with the
-     * underlying exception
+     * Creates a new MsgRegistryException object
      * 
-     * @param msgRegistryExceptionMessage
-     *            The message to attach to the exception
-     * @param exceptionType
-     *            The class type of the exception
-     * @param code
-     *            The error code, if any
      * @param message
-     *            The message to attach to the underlying exception
+     *            The message attached to the exception
      * @param detail
-     *            More details about the exception
-     * @param severity
-     *            The severity of the exception
-     * @return The new MsgRegistryException
+     *            Any additional details
+     * @param exception
+     *            The underlying exception that caused the MsgRegistryException
+     * @return The MsgRegistryException
      */
     public static MsgRegistryException createMsgRegistryException(
-            String msgRegistryExceptionMessage, Class<?> exceptionType,
-            String code, String message, String detail, String severity,
-            Exception rootException, IUFStatusHandler statusHandler) {
-        return new MsgRegistryException(msgRegistryExceptionMessage,
-                createRegistryException(exceptionType, code, message, detail,
-                        severity, rootException, statusHandler));
+            String message, String detail, Throwable exception) {
+        StringBuilder builder = new StringBuilder();
+        if (detail == null || detail.isEmpty()) {
+            builder.append("Exception Encountered");
+        } else {
+            builder.append(detail);
+        }
+
+        builder.append("\n");
+        Throwable[] throwables = ExceptionUtils.getThrowables(exception);
+        for (int i = 0; i < throwables.length; i++) {
+            if (throwables[i].getLocalizedMessage() != null) {
+                if (i == 0) {
+                    builder.append("\t\t  Exception: ");
+                } else {
+                    builder.append("\t\t  Caused By: ");
+                }
+                builder.append(throwables[i].getClass().getName()).append(": ")
+                        .append(throwables[i].getLocalizedMessage())
+                        .append("\n");
+            }
+        }
+        MsgRegistryException retVal = createRegistryExceptionType(message,
+                builder.toString());
+        /*
+         * Log the exception stack trace details in the server logs, but don't
+         * return it to the client
+         */
+        statusHandler.error(message, exception);
+        return retVal;
     }
 
     /**
-     * Creates a new MsgRegistryException given an existing underlying exception
+     * Creates a new MsgRegistryException
      * 
      * @param message
      *            The message to attach to the exception
      * @param exception
      *            The underlying exception
-     * @return The new MsgRegistryException
+     * @return The MsgRegistryException
      */
     public static MsgRegistryException createMsgRegistryException(
-            String message, RegistryExceptionType exception,
-            IUFStatusHandler statusHandler) {
-        return new MsgRegistryException(message, exception);
+            String message, Throwable exception) {
+        return createMsgRegistryException(message, null, exception);
     }
 
     /**
-     * Creates a new Exception instance
+     * Creates a MsgRegistryException with RegistryExceptionType as the
+     * underlying exception
      * 
-     * @param <T>
-     *            A class type extending RegistryExceptionType
-     * @param exceptionType
-     *            The class type of the exception
-     * @param code
-     *            The error code, if any
      * @param message
-     *            The message to attach to the underlying exception
+     *            The message to attach to the MsgRegistryException
      * @param detail
-     *            More details about the exception
-     * @param severity
-     *            The severity of the exception
-     * @return The new exception instance
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with RegistryExceptionType as the
+     *         underlying exception
      */
-    public static <T extends RegistryExceptionType> T createRegistryException(
-            Class<?> exceptionType, String code, String message, String detail,
-            String severity, IUFStatusHandler statusHandler) {
-        return createRegistryException(exceptionType, code, message, detail,
-                severity, null, statusHandler);
+    public static MsgRegistryException createRegistryExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new RegistryExceptionType());
     }
 
     /**
-     * Creates a new Exception instance
+     * Creates a MsgRegistryException with AuthenticationExceptionType as the
+     * underlying exception
      * 
-     * @param <T>
-     *            A class type extending RegistryExceptionType
-     * @param exceptionType
-     *            The class type of the exception
-     * @param code
-     *            The error code, if any
      * @param message
-     *            The message to attach to the underlying exception
+     *            The message to attach to the MsgRegistryException
      * @param detail
-     *            More details about the exception
-     * @param severity
-     *            The severity of the exception
-     * @return The new exception instance
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with AuthenticationExceptionType as the
+     *         underlying exception
      */
-    @SuppressWarnings("unchecked")
-    public static <T extends RegistryExceptionType> T createRegistryException(
-            Class<?> exceptionType, String code, String message, String detail,
-            String severity, Exception rootException,
-            IUFStatusHandler statusHandler) {
-        T exception = null;
-        String accessor = "create" + exceptionType.getSimpleName();
-
-        try {
-            try {
-                return (T) createException(EbxmlObjectUtil.rsObjectFactory,
-                        accessor, code, message, detail, severity,
-                        rootException, statusHandler);
-            } catch (NoSuchMethodException e) {
-                // ignore
-            }
-            try {
-                return (T) createException(EbxmlObjectUtil.spiObjectFactory,
-                        accessor, code, message, detail, severity,
-                        rootException, statusHandler);
-            } catch (NoSuchMethodException e) {
-                // ignore
-            }
-            try {
-                return (T) createException(EbxmlObjectUtil.queryObjectFactory,
-                        accessor, code, message, detail, severity,
-                        rootException, statusHandler);
-            } catch (NoSuchMethodException e) {
-                // ignore
-            }
-        } catch (EbxmlRegistryException e) {
-            statusHandler.error(
-                    "Unexpected error encountered during error reporting", e);
-        }
-        return exception;
+    public static MsgRegistryException createAuthenticationExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new AuthenticationExceptionType());
     }
 
     /**
-     * Creates a new Exception instance
+     * Creates a MsgRegistryException with AuthorizationExceptionType as the
+     * underlying exception
      * 
-     * @param <T>
-     *            A class type extending RegistryExceptionType
-     * @param exceptionType
-     *            The class type of the exception
-     * @param code
-     *            The error code, if any
      * @param message
-     *            The message to attach to the underlying exception
+     *            The message to attach to the MsgRegistryException
      * @param detail
-     *            More details about the exception
-     * @param severity
-     *            The severity of the exception
-     * @return The new exception instance
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with AuthorizationExceptionType as the
+     *         underlying exception
      */
-    private static RegistryExceptionType createException(Object factory,
-            String accessor, String code, String message, String detail,
-            String severity, Exception rootException,
-            IUFStatusHandler statusHandler) throws NoSuchMethodException,
-            EbxmlRegistryException {
-        try {
-            RegistryExceptionType exception = (RegistryExceptionType) MethodUtils
-                    .invokeExactMethod(factory, accessor, null);
-            exception.setCode(code);
-            exception.setMessage(message);
-            exception.setDetail(detail);
-            exception.setSeverity(severity);
-            exception.setDetail(detail);
-            statusHandler.error("Exception Encountered: \n"
-                    + exception.toString()
-                    + getStackTrace(statusHandler, rootException));
-            return exception;
-        } catch (IllegalAccessException e) {
-            throw new EbxmlRegistryException("Error creating exception", e);
-        } catch (InvocationTargetException e) {
-            throw new EbxmlRegistryException("Error creating exception", e);
-        }
+    public static MsgRegistryException createAuthorizationExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new AuthorizationExceptionType());
     }
 
     /**
-     * Extracts the text of a stacktrace from an exception
+     * Creates a MsgRegistryException with CatalogingExceptionType as the
+     * underlying exception
      * 
-     * @param handler
-     *            The log handler
-     * @param e
-     *            The exception
-     * @return The text version of the stack trace
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with CatalogingExceptionType as the
+     *         underlying exception
      */
-    private static String getStackTrace(IUFStatusHandler handler, Exception e) {
-        if (e == null) {
-            return "";
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream printOut = new PrintStream(baos);
-        try {
-            e.printStackTrace(printOut);
-            return new String(baos.toByteArray());
-        } finally {
-            if (baos != null) {
-                try {
-                    baos.close();
-                } catch (IOException e1) {
-                    handler.error(
-                            "Error closing output stream when reporting error!",
-                            e);
-                }
-            }
-            if (printOut != null) {
-                printOut.close();
-            }
-        }
-
+    public static MsgRegistryException createCatalogingExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new CatalogingExceptionType());
     }
 
     /**
-     * Create an {@link UnresolvedReferenceExceptionType} exception.
+     * Creates a MsgRegistryException with FilteringExceptionType as the
+     * underlying exception
      * 
-     * @param referencedObjectType
-     *            the referenced object type, can be null
-     * @param id
-     *            the id of the referenced object, cannot be null
-     * @param statusHandler
-     *            the statusHandler reference
-     * @return the exception type
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with FilteringExceptionType as the
+     *         underlying exception
      */
-    public static UnresolvedReferenceExceptionType createUnresolvedReferenceException(
-            Class<? extends RegistryObjectType> referencedObjectType,
-            String id, IUFStatusHandler statusHandler) {
-        final String ofType = (referencedObjectType == null) ? "" : "to type ["
-                                       + referencedObjectType.getCanonicalName()
-                                       + "] ";
-        final String message = "Registry object reference " + ofType
-                + "with id [" + id + "] was unresolved";
-        return createRegistryException(UnresolvedReferenceExceptionType.class,
-                "", "Unresolved reference found", message, ErrorSeverity.ERROR,
-                statusHandler);
+    public static MsgRegistryException createFilteringExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new FilteringExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with InvalidRequestExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with InvalidRequestExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createInvalidRequestExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new InvalidRequestExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with ObjectExistsExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with ObjectExistsExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createObjectExistsExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new ObjectExistsExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with ObjectNotFoundExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with ObjectNotFoundExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createObjectNotFoundExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new ObjectNotFoundExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with QueryExceptionType as the underlying
+     * exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with QueryExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createQueryExceptionType(String message,
+            String detail) {
+        return createMsgRegistryException(message, detail,
+                new QueryExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with QuotaExceededExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with QuotaExceededExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createQuotaExceededExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new QuotaExceededExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with ReferencesExistExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with ReferencesExistExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createReferencesExistExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new ReferencesExistExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with TimeoutExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with TimeoutExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createTimeoutExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new TimeoutExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with UnresolvedReferenceExceptionType as
+     * the underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with UnresolvedReferenceExceptionType as
+     *         the underlying exception
+     */
+    public static MsgRegistryException createUnresolvedReferenceExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new UnresolvedReferenceExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with UnsupportedCapabilityExceptionType as
+     * the underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with UnsupportedCapabilityExceptionType
+     *         as the underlying exception
+     */
+    public static MsgRegistryException createUnsupportedCapabilityExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new UnsupportedCapabilityExceptionType());
+    }
+
+    /**
+     * Creates a MsgRegistryException with ValidationExceptionType as the
+     * underlying exception
+     * 
+     * @param message
+     *            The message to attach to the MsgRegistryException
+     * @param detail
+     *            Additional details to add to the exception
+     * @return The MsgRegistryException with ValidationExceptionType as the
+     *         underlying exception
+     */
+    public static MsgRegistryException createValidationExceptionType(
+            String message, String detail) {
+        return createMsgRegistryException(message, detail,
+                new ValidationExceptionType());
     }
 }

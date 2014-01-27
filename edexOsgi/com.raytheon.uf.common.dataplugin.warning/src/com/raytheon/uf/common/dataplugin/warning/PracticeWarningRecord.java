@@ -48,7 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 02, 2013 1949        rjpeter     Removed ugcZones.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
- * 
+ * Aug 13, 2013 2253        mnash       Fixed null data uri errors
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
@@ -100,6 +100,7 @@ public class PracticeWarningRecord extends AbstractWarningRecord {
     public PracticeWarningRecord(String uri) {
         super(uri);
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)

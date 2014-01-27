@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -48,28 +47,31 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ThreatLocation implements ISerializableObject {
-    
+public class ThreatLocation {
+
     @XmlElement
     @DynamicSerializeElement
     public String locationName = null;
+
     @XmlElement
     @DynamicSerializeElement
     public String wfoName = null;
+
     @XmlElement
     @DynamicSerializeElement
     public Double lat = null;
+
     @XmlElement
     @DynamicSerializeElement
     public Double lon = null;
-       
+
     /**
      * For thrift
      */
     public ThreatLocation() {
-        
+
     }
-    
+
     /**
      * For actual use
      */
@@ -79,7 +81,7 @@ public class ThreatLocation implements ISerializableObject {
         this.lat = coor.y;
         this.lon = coor.x;
     }
-    
+
     public String getLocationName() {
         return locationName;
     }
@@ -87,23 +89,23 @@ public class ThreatLocation implements ISerializableObject {
     public void setLocationName(String locationName) {
         this.locationName = locationName;
     }
-   
+
     public Double getLat() {
         return lat;
     }
-    
+
     public void setLat(Double lat) {
         this.lat = lat;
     }
-    
+
     public Double getLon() {
         return lon;
     }
-    
+
     public void setLon(Double lon) {
         this.lon = lon;
     }
-   
+
     public Coordinate getCoor() {
         return new Coordinate(getLon(), getLat(), 0.0);
     }

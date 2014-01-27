@@ -2,33 +2,26 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Modelsounding Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.modelsounding
-Bundle-Version: 1.13.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Version: 1.13.1.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
+Require-Bundle:  com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.edex.pointdata,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.localization,
- org.geotools,
- org.apache.commons.logging,
- javax.persistence,
- com.raytheon.uf.common.site;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- org.apache.commons.lang;bundle-version="2.3.0",
- com.google.guava;bundle-version="1.0.0",
- javax.measure,
- com.raytheon.uf.common.comm,
- com.raytheon.uf.common.dataaccess,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataquery,
- com.raytheon.uf.common.serialization.comm
+ com.raytheon.uf.common.site
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.plugin
 Export-Package: com.raytheon.edex.plugin.modelsounding,
  com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
  com.raytheon.edex.plugin.modelsounding.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.geospatial.spi,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.common.pointdata.vadriver,
- com.raytheon.uf.edex.pointdata
 

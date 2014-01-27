@@ -21,7 +21,6 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.Random;
 
-
 /**
  * Fixture for {@link PendingSharedSubscription} objects.
  * 
@@ -32,6 +31,8 @@ import java.util.Random;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013 1650       djohnson     Initial creation
+ * Oct 2,  2013 1797       dhladky      Updated to work with generics
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -39,8 +40,9 @@ import java.util.Random;
  * @version 1.0
  */
 
-public class PendingSharedSubscriptionFixture extends
-        BaseSharedSubscriptionFixture<PendingSharedSubscription> {
+public class PendingSharedSubscriptionFixture
+        extends
+        BaseSharedSubscriptionFixture<PendingSharedSubscription<Time, Coverage>> {
 
     public static final PendingSharedSubscriptionFixture INSTANCE = new PendingSharedSubscriptionFixture();
 
@@ -54,8 +56,10 @@ public class PendingSharedSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    public PendingSharedSubscription getInstance(long seedValue, Random random) {
-        PendingSharedSubscription sub = super.getInstance(seedValue, random);
+    public PendingSharedSubscription<Time, Coverage> getInstance(
+            long seedValue, Random random, DataType dataType) {
+        PendingSharedSubscription<Time, Coverage> sub = super.getInstance(
+                seedValue, random, dataType);
         sub.setChangeReqId("change" + seedValue);
 
         return sub;
@@ -65,8 +69,8 @@ public class PendingSharedSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected PendingSharedSubscription getSubscription() {
-        return new PendingSharedSubscription();
+    protected PendingSharedSubscription<Time, Coverage> getSubscription() {
+        return new PendingSharedSubscription<Time, Coverage>();
     }
 
 }

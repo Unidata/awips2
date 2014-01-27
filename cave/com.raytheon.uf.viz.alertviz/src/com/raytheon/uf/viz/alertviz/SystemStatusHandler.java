@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.viz.alertviz;
 
-import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.statushandlers.AbstractStatusHandler;
 import org.eclipse.ui.statushandlers.StatusAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,7 +45,8 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 9, 2008  1433       chammack    Initial creation
+ * Sep 09, 2008 1433       chammack    Initial creation
+ * Aug 26, 2013 2142       njensen     Changed to use SLF4J
  * </pre>
  * 
  * @author chammack
@@ -51,10 +55,12 @@ import com.raytheon.uf.viz.core.status.VizStatusInternal;
 
 public class SystemStatusHandler extends AbstractStatusHandler {
 
-    private transient static final org.apache.log4j.Logger logger = Logger
+    private transient static final Logger logger = LoggerFactory
             .getLogger("CaveLogger");
 
     private static final String WORKSTATION = "WORKSTATION";
+
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 
     /*
      * (non-Javadoc)
@@ -73,10 +79,15 @@ public class SystemStatusHandler extends AbstractStatusHandler {
             sm = vs.toStatusMessage();
         } else {
             sm = from(status);
+
         }
 
+        Priority p = sm.getPriority();
+        String msg = status.getMessage();
+        Throwable t = status.getException();
+        logStatus(p, msg, t);
+
         try {
-            logStatus(sm);
             AlertVizClient.sendMessage(sm);
         } catch (final AlertvizException e) {
             // not a good situation, since we can't communicate with the log
@@ -188,23 +199,23 @@ public class SystemStatusHandler extends AbstractStatusHandler {
         return LogMessageDAO.getInstance().load(count, category);
     }
 
-    private void logStatus(StatusMessage status) {
-        switch (status.getPriority()) {
+    private void logStatus(Priority priority, String message, Throwable t) {
+        switch (priority) {
         case CRITICAL:
-            logger.fatal(status);
+            logger.error(FATAL, message, t);
             break;
         case SIGNIFICANT:
-            logger.error(status);
+            logger.error(message, t);
             break;
         case PROBLEM:
-            logger.warn(status);
+            logger.warn(message, t);
             break;
         case EVENTA: // fall through
         case EVENTB:
-            logger.info(status);
+            logger.info(message, t);
             break;
         case VERBOSE:
-            logger.debug(status);
+            logger.debug(message, t);
             break;
         }
     }

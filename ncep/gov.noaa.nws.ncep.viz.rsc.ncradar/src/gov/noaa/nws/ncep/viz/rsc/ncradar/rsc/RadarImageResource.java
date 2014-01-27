@@ -11,12 +11,9 @@ package gov.noaa.nws.ncep.viz.rsc.ncradar.rsc;
 import gov.noaa.nws.ncep.viz.common.ColorMapUtil;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResource;
 import gov.noaa.nws.ncep.viz.resources.colorBar.ColorBarResourceData;
-import com.raytheon.viz.radar.DefaultVizRadarRecord;
-import com.raytheon.viz.radar.VizRadarRecord;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 
 import java.awt.Rectangle;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,21 +44,20 @@ import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
-import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.SamplePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.units.PiecewisePixel;
 import com.raytheon.uf.viz.core.DrawableImage;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.IMeshCallback;
@@ -83,10 +79,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
-import com.raytheon.viz.core.style.image.ImagePreferences;
-import com.raytheon.viz.core.style.image.SamplePreferences;
-import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
+import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.util.DataUtilities;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -411,8 +404,13 @@ public abstract class RadarImageResource<D extends IDescriptor> extends
         int prodCode = record.getProductCode();
         Unit<?> dataUnit = DataUtilities.getDataUnit(record);
 
-        params = ColorMapParameterFactory.build((Object) null, "" + prodCode,
-                dataUnit, null, ((RadarResourceData)resourceData).mode);
+        try {
+            params = ColorMapParameterFactory.build((Object) null, ""
+                    + prodCode, dataUnit, null,
+                    ((RadarResourceData) resourceData).mode);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         if (params.getDisplayUnit() == null) {
             params.setDisplayUnit(record.getUnitObject());
         }

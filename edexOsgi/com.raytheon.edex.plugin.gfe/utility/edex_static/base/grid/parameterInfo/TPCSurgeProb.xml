@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oct 03, 2013    #2418    dgilling    Update for pSurge 2.0 data.
+ -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>21600</fcst>
@@ -25,21 +28,6 @@
     <uiname>ProbSurge23c</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge60Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(60)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE60pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
@@ -225,21 +213,6 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge70Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(70)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE70pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge17Ft</short_name>
     <long_name>80 hr Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
     <units>%</units>
@@ -336,21 +309,6 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>SloshSurge</short_name>
-    <long_name>slosh max surge</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SloshSurge</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge50Pct</short_name>
     <long_name>80 hr Hurricane Storm Surge Percentile(50)</long_name>
     <units>feet</units>
@@ -373,21 +331,6 @@
     <uiname>ProbSurge22c</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge80Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(80)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE80pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
@@ -493,21 +436,6 @@
     <uiname>ProbSurge07c</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge90Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(90)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE90pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>

@@ -32,6 +32,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -39,11 +43,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendedCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicsResource;
 
 /**
@@ -264,7 +264,7 @@ public class RadarNameGenerator extends AbstractNameGenerator {
                     // unitName = "(" + unitName + ") ";
                 }
             }
-        } catch (VizStyleException e1) {
+        } catch (StyleException e1) {
             // Don't worry about it just grab the units from the record.
         }
 

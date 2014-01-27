@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: AlertMonitor Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.alertmonitor
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.message,

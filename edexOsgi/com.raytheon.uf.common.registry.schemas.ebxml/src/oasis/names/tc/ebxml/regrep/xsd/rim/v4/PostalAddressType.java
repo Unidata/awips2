@@ -21,20 +21,18 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -64,22 +62,32 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "PostalAddress")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PostalAddressType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "PostalAddress")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "PostalAddress")
 public class PostalAddressType extends ExtensibleObjectType {
 
-    @Id
-    @SequenceGenerator(name = "PostalAddressTypeGenerator", schema = "ebxml", sequenceName = "ebxml.PostalAddress_sequence")
-    @GeneratedValue(generator = "PostalAddressTypeGenerator")
-    @XmlTransient
-    private Integer key;
+    private static final long serialVersionUID = 600729702802113902L;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -107,10 +115,11 @@ public class PostalAddressType extends ExtensibleObjectType {
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String type;
 
-    public Integer getKey() {
-        return key;
+    public PostalAddressType() {
+        super();
     }
 
     /**
@@ -349,6 +358,31 @@ public class PostalAddressType extends ExtensibleObjectType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PostalAddressType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ncity=");
+        builder.append(city);
+        builder.append(", \ncountry=");
+        builder.append(country);
+        builder.append(", \npostalCode=");
+        builder.append(postalCode);
+        builder.append(", \nstateOrProvince=");
+        builder.append(stateOrProvince);
+        builder.append(", \nstreet=");
+        builder.append(street);
+        builder.append(", \nstreetNumber=");
+        builder.append(streetNumber);
+        builder.append(", \ntype=");
+        builder.append(type);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * VGB's
  * 
@@ -46,9 +44,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "FFMPRunConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPRunConfigXML implements ISerializableObject {
-   
-    @XmlElements( { @XmlElement(name = "runner", type = FFMPRunXML.class) })
+public class FFMPRunConfigXML {
+
+    @XmlElements({ @XmlElement(name = "runner", type = FFMPRunXML.class) })
     private ArrayList<FFMPRunXML> runner;
 
     public ArrayList<FFMPRunXML> getFFMPRun() {
@@ -58,7 +56,7 @@ public class FFMPRunConfigXML implements ISerializableObject {
     public void setFFMPRun(ArrayList<FFMPRunXML> runner) {
         this.runner = runner;
     }
-    
+
     public void add(FFMPRunXML run) {
         if (runner == null) {
             runner = new ArrayList<FFMPRunXML>();

@@ -64,6 +64,7 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.retrieval.ServiceTypeFactory;
 import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
@@ -85,6 +86,9 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Mar 05, 2013 1647       djohnson     Pass wmo header strategy to constructor.
  * Mar 19, 2013 1794       djohnson     RetrievalTasks integrate at a queue.
  * Apr 29, 2013 1910       djohnson     Unregister from EventBus after each test.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Pass request parameter instead of components of request.
+ * Nov 04, 2013 2506       bgonzale     removed IRetrievalDao parameter.
  * 
  * </pre>
  * 
@@ -105,11 +109,13 @@ public class RetrievalTaskTest {
 
         /**
          * {@inheritDoc}
+         * 
+         * @return RetrievalRequestRecord
          */
         @Override
-        public void processRetrievedPluginDataObjects(
+        public RetrievalRequestRecord processRetrievedPluginDataObjects(
                 RetrievalResponseXml retrievalPluginDataObjects)
-                throws Exception {
+                throws SerializationException, TranslationException {
             final List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = retrievalPluginDataObjects
                     .getRetrievalAttributePluginDataObjects();
             final RetrievalRequestRecord requestRecord = dao
@@ -139,6 +145,7 @@ public class RetrievalTaskTest {
                     pluginDataObjects.addAll(Arrays.asList(pdos));
                 }
             }
+            return requestRecord;
         }
     }
 
@@ -238,15 +245,16 @@ public class RetrievalTaskTest {
         final File testDirectory = TestUtil
                 .setupTestClassDir(RetrievalTaskTest.class);
         IRetrievalPluginDataObjectsProcessor serializeToDirectory = new SerializeRetrievedDataToDirectory(
-                testDirectory, new AlwaysSameWmoHeader("SMYG10 LYBM 280000"));
+                testDirectory, new AlwaysSameWmoHeader("SMYG10 LYBM 280000"),
+                dao);
 
         RetrievalTask downloadTask = new RetrievalTask(Network.OPSNET,
                 retrievalDataFinder, serializeToDirectory,
-                mock(IRetrievalResponseCompleter.class), dao);
+                mock(IRetrievalResponseCompleter.class));
         RetrievalTask readDownloadsTask = new RetrievalTask(Network.OPSNET,
                 new DeserializeRetrievedDataFromIngest(retrievalQueue),
                 retrievedDataProcessor, new RetrievalResponseCompleter(
-                        mock(SubscriptionNotifyTask.class), dao), dao);
+                        mock(SubscriptionNotifyTask.class), dao));
 
         downloadTask.run();
 
@@ -294,7 +302,7 @@ public class RetrievalTaskTest {
                 mock(SubscriptionNotifyTask.class), dao);
 
         new RetrievalTask(Network.OPSNET, retrievalDataFinder,
-                retrievedDataProcessor, retrievalCompleter, dao).run();
+                retrievedDataProcessor, retrievalCompleter).run();
     }
 
     /**

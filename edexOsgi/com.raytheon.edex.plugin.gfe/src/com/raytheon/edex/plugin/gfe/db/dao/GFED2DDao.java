@@ -67,16 +67,18 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  */
 
 // **********************************************************************
-// TODO: this was moved out of GFEDao and needs to be cleaned up to better
-// use the inherited GridDao functionality and hibernate instead of
-// SQL/HQL queries. Some parts of the queries could be pushed up to
-// GridDao
+// TODO: Can this be merged into GridDao/D2DGridDatabase?
 // **********************************************************************
 public class GFED2DDao extends GridDao {
     private static final String FCST_TIME = "dataTime.fcstTime";
 
     private static final String REF_TIME = "dataTime.refTime";
 
+    /**
+     * Constructor
+     * 
+     * @throws PluginException
+     */
     public GFED2DDao() throws PluginException {
         super();
     }
@@ -84,8 +86,9 @@ public class GFED2DDao extends GridDao {
     /**
      * Retrieves a list of available forecast times
      * 
-     * @param dbId
-     *            The database ID to get the times for
+     * @param d2dModelName
+     * @param refTime
+     * 
      * @return The list of forecast times associated with the specified
      *         DatabaseID
      * @throws DataAccessLayerException
@@ -108,10 +111,12 @@ public class GFED2DDao extends GridDao {
      * Retrieves a GridRecord from the grib metadata database based on a ParmID,
      * TimeRange, and GridParmInfo.
      * 
-     * @param id
-     *            The parmID of the desired GridRecord
+     * @param d2dModelName
+     * @param refTime
+     * @param d2dParmName
+     * @param d2dLevel
      * @param forecastTime
-     *            The foreCast time of the desired GridRecord, null for any
+     *            The forecast time of the desired GridRecord, null for any
      *            record
      * @param info
      *            The GridParmInfo for the requested d2d grid.
@@ -157,8 +162,10 @@ public class GFED2DDao extends GridDao {
      * database which match the given ParmID. Session passed to allow reuse
      * across multiple calls.
      * 
-     * @param id
-     *            The ParmID to search with
+     * @param d2dModelName
+     * @param refTime
+     * @param d2dParmName
+     * @param d2dLevel
      * @param s
      *            The database session to use
      * @return The list of GridRecords from the grib metadata database which
@@ -258,8 +265,11 @@ public class GFED2DDao extends GridDao {
     /**
      * Retrieve the available Forecast Hours by D2D parm id.
      * 
-     * @param id
-     * @return the list of forecast hours
+     * @param d2dModelName
+     * @param refTime
+     * @param d2dParmName
+     * @param d2dLevel
+     * @return the list of forecast hours, empty if none
      * @throws DataAccessLayerException
      */
     public List<Integer> queryFcstHourByParmId(String d2dModelName,
@@ -295,7 +305,7 @@ public class GFED2DDao extends GridDao {
      * 
      * @param d2dModelName
      * @param maxRecords
-     * @return
+     * @return list of model run times, empty if none
      * @throws DataAccessLayerException
      */
     public List<Date> getModelRunTimes(String d2dModelName, int maxRecords)

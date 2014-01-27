@@ -11,8 +11,7 @@ Require-Bundle: gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet;bundle-version
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools,
  javax.persistence,
  javax.measure
-Import-Package: org.junit
+Import-Package: org.apache.commons.logging

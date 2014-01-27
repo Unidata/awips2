@@ -13,7 +13,7 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.plugin.nwsauth.exception.RoleApplicationNotFoundException;
 import com.raytheon.uf.common.plugin.nwsauth.xml.NwsRoleData;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.auth.roles.IRoleStorage;
@@ -27,6 +27,7 @@ import com.raytheon.uf.edex.auth.roles.IRoleStorage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 25, 2010            rgeorge     Initial creation
+ * Oct 09, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -34,6 +35,10 @@ import com.raytheon.uf.edex.auth.roles.IRoleStorage;
  * @version 1.0
  */
 public class NwsRoleStorage implements IRoleStorage {
+
+    private static final SingleTypeJAXBManager<NwsRoleData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(NwsRoleData.class);
+
     private static NwsRoleStorage instance = null;
 
     private final Map<String, File> lastUsedFileMap = new HashMap<String, File>();
@@ -65,12 +70,15 @@ public class NwsRoleStorage implements IRoleStorage {
 
         // Check COMMON_STATIC base and site levels
         LocalizationContext[] contexts = new LocalizationContext[2];
-        contexts[0] = pm.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        contexts[1] = pm.getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+        contexts[0] = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+        contexts[1] = pm.getContext(LocalizationType.COMMON_STATIC,
+                LocalizationLevel.SITE);
 
         String[] extensions = new String[] { ".xml" };
-        LocalizationFile[] localizationFiles =
-                PathManagerFactory.getPathManager().listFiles(contexts, "roles", extensions, true, true);
+        LocalizationFile[] localizationFiles = PathManagerFactory
+                .getPathManager().listFiles(contexts, "roles", extensions,
+                        true, true);
 
         File file = null;
         for (LocalizationFile locFile : localizationFiles) {
@@ -79,20 +87,26 @@ public class NwsRoleStorage implements IRoleStorage {
                 file = locFile.getFile();
 
                 if (lastUsedFileMap.get(locFile.getName()) == null
-                        || (file != null && (file.equals(lastUsedFileMap.get(locFile.getName())) == false || file
-                                .lastModified() > lastModificationTimeMap.get(locFile.getName())))) {
+                        || (file != null && (file.equals(lastUsedFileMap
+                                .get(locFile.getName())) == false || file
+                                .lastModified() > lastModificationTimeMap
+                                .get(locFile.getName())))) {
                     // First time we found a role file, or we have a different
                     // file to
                     // use or we were modified since our last check
                     lastUsedFileMap.put(locFile.getName(), file);
                     try {
-                        roleData = (NwsRoleData) SerializationUtil.jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
-                        applicationRoleMap.put(roleData.getApplication(), roleData);
+                        roleData = jaxb.unmarshalFromXmlFile(file
+                                .getAbsolutePath());
+                        applicationRoleMap.put(roleData.getApplication(),
+                                roleData);
                     } catch (Exception e) {
-                        UFStatus.getHandler().handle(Priority.PROBLEM, "Error loading file: " + file.getName(), e);
+                        UFStatus.getHandler().handle(Priority.PROBLEM,
+                                "Error loading file: " + file.getName(), e);
                     }
 
-                    lastModificationTimeMap.put(locFile.getName(), file.lastModified());
+                    lastModificationTimeMap.put(locFile.getName(),
+                            file.lastModified());
                 }
             }
         }
@@ -131,7 +145,7 @@ public class NwsRoleStorage implements IRoleStorage {
         NwsRoleData roleData = getRoleData(application);
         return roleData.isAuthorized(permission, user);
     }
-    
+
     @Override
     public String[] getAllDefinedPermissions(String application)
             throws AuthorizationException {

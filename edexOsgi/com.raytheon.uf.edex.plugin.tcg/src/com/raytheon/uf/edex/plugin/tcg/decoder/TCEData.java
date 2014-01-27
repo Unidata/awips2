@@ -28,10 +28,10 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.dataplugin.tcg.TCGStormType;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
-import com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 
 /**
  * TODO Add Description

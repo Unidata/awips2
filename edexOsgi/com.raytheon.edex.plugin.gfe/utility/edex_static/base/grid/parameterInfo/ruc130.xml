@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Mar 20, 2013    #1774    randerso    Added forecast hours out to 18
+  Jun 19, 2013    #2044    randerso    Updated to match model
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
@@ -65,7 +66,7 @@
     <valid_range>20000.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>37</n3D>
-    <levelsDesc>MB 1000-300 by 25 250-100 by 50  FRZ  CCTL  EL</levelsDesc>
+    <levelsDesc>MB 1000-100 by 25  FRZ  CBL  CTL  CCTL  EL</levelsDesc>
     <levels>
       <level>MB1000</level>
       <level>MB975</level>
@@ -96,11 +97,17 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
       <level>FRZ</level>
+      <level>CBL</level>
+      <level>CTL</level>
       <level>CCTL</level>
       <level>EL</level>
     </levels>
@@ -121,9 +128,9 @@
     <valid_range>20.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>BL 0&gt;180</levelsDesc>
     <levels>
-      <level>SFC</level>
+      <level>BL0180</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -187,7 +194,7 @@
     <valid_range>330.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>37</n3D>
-    <levelsDesc>FHAG 2   MB 1000-300 by 25 250-100 by 50  BL 0&gt;30 30&gt;60 60&gt;90
+    <levelsDesc>FHAG 2   MB 1000-100 by 25  BL 0&gt;30 30&gt;60 60&gt;90
 	    90&gt;120 120&gt;150 150&gt;180 TROP</levelsDesc>
     <levels>
       <level>FHAG2</level>
@@ -220,9 +227,13 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
       <level>BL030</level>
       <level>BL3060</level>
@@ -243,7 +254,7 @@
     <valid_range>2.5</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>5</n3D>
-    <levelsDesc>MB 1000-300 by 25 250-100 by 50</levelsDesc>
+    <levelsDesc>MB 1000-100 by 25</levelsDesc>
     <levels>
       <level>MB1000</level>
       <level>MB975</level>
@@ -274,9 +285,13 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
     </levels>
   </gridParameterInfo>
@@ -311,7 +326,7 @@
     <valid_range>100.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>29</n3D>
-    <levelsDesc>FHAG 2  MB 1000-300 by 25 250-100 by 50 BL 0&gt;30 30&gt;60 60&gt;90
+    <levelsDesc>FHAG 2  MB 1000-100 by 25 BL 0&gt;30 30&gt;60 60&gt;90
 	    90&gt;120 120&gt;150 150&gt;180 FRZ</levelsDesc>
     <levels>
       <level>FHAG2</level>
@@ -344,9 +359,13 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
       <level>FRZ</level>
       <level>BL030</level>
@@ -492,9 +511,9 @@
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>FHAG 6000</levelsDesc>
     <levels>
-      <level>SFC</level>
+      <level>FHAG06000</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -507,7 +526,7 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>37</n3D>
-    <levelsDesc>FHAG 10 MB 1000-300 by 25 250-100 by 50  TROP MAXW BL 0&gt;30 30&gt;60 60&gt;90
+    <levelsDesc>FHAG 10 MB 1000-100 by 25  TROP MAXW BL 0&gt;30 30&gt;60 60&gt;90
 	    90&gt;120 120&gt;150 150&gt;180</levelsDesc>
     <levels>
       <level>FHAG10</level>
@@ -540,9 +559,13 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
       <level>TROP</level>
       <level>MAXW</level>
@@ -610,7 +633,7 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>37</n3D>
-    <levelsDesc>FHAG 10 MB 1000-300 by 25 250-100 by 50  TROP  MAXW BL 0&gt;30 30&gt;60 60&gt;90
+    <levelsDesc>FHAG 10 MB 1000-100 by 25  TROP  MAXW BL 0&gt;30 30&gt;60 60&gt;90
 	    90&gt;120 120&gt;150 150&gt;180</levelsDesc>
     <levels>
       <level>FHAG10</level>
@@ -643,9 +666,13 @@
       <level>MB350</level>
       <level>MB325</level>
       <level>MB300</level>
+      <level>MB275</level>
       <level>MB250</level>
+      <level>MB225</level>
       <level>MB200</level>
+      <level>MB175</level>
       <level>MB150</level>
+      <level>MB125</level>
       <level>MB100</level>
       <level>TROP</level>
       <level>MAXW</level>
@@ -697,9 +724,9 @@
     <valid_range>150.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>FHAG 6000</levelsDesc>
     <levels>
-      <level>SFC</level>
+      <level>FHAG06000</level>
     </levels>
   </gridParameterInfo>
 </gridParamInfo>

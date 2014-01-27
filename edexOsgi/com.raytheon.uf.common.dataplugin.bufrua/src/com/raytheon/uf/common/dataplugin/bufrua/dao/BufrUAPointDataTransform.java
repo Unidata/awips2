@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataplugin.bufrua.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -35,80 +36,66 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Converts a PointDataContainer into a UAObs record.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 19, 2009            jkorman     Initial creation
- *
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
+ * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class BufrUAPointDataTransform {
 
     /** The logger */
-    private static Log logger = LogFactory.getLog(BufrUAPointDataTransform.class);
+    private static Log logger = LogFactory
+            .getLog(BufrUAPointDataTransform.class);
+
+    public static final String[] HDR_PARAMS = new String[] { "wmoStaNum",
+            "staName", "validTime", "relTime", "staElev", "latitude",
+            "longitude", "dataURI", "sfcPressure", "rptType" };
 
     public static final String HDR_PARAMS_LIST;
     static {
         StringBuffer sb = new StringBuffer();
-
-        sb.append("wmoStaNum,");
-        sb.append("staName,");
-        sb.append("validTime,");
-        sb.append("relTime,");
-        sb.append("staElev,");
-        sb.append("latitude,");
-        sb.append("longitude,");
-        sb.append("dataURI,");
-        sb.append("sfcPressure,");
-        sb.append("rptType,");
-        
-        
+        for (int i = 0; i < HDR_PARAMS.length - 1; ++i) {
+            sb.append(HDR_PARAMS[i]).append(",");
+        }
+        sb.append(HDR_PARAMS[HDR_PARAMS.length - 1]);
         HDR_PARAMS_LIST = sb.toString();
     }
-    
+
+    private static final String[] OTHER_PARAMS = new String[] { "numMand",
+            "prMan", "htMan", "tpMan", "tdMan", "wdMan", "wsMan", "numTrop",
+            "prTrop", "tpTrop", "tdTrop", "wdTrop", "wsTrop", "numMwnd",
+            "prMaxW", "wdMaxW", "wsMaxW", "numSigT", "prSigT", "tpSigT",
+            "tdSigT", "numSigW", "htSigW", "wdSigW", "wsSigW" };
+
+    public static final String[] MAN_PARAMS = Arrays.copyOf(HDR_PARAMS,
+            HDR_PARAMS.length + OTHER_PARAMS.length);
+
     public static final String MAN_PARAMS_LIST;
     static {
         StringBuffer sb = new StringBuffer();
-        sb.append(HDR_PARAMS_LIST);
-        sb.append("numMand,");
-        sb.append("prMan,");
-        sb.append("htMan,");
-        sb.append("tpMan,");
-        sb.append("tdMan,");
-        sb.append("wdMan,");
-        sb.append("wsMan,");
-        //-------------------------
-        sb.append("numTrop,");
-        sb.append("prTrop,");
-        sb.append("tpTrop,");
-        sb.append("tdTrop,");
-        sb.append("wdTrop,");
-        sb.append("wsTrop,");
-        //-------------------------
-        sb.append("numMwnd,");
-        sb.append("prMaxW,");
-        sb.append("wdMaxW,");
-        sb.append("wsMaxW,");
-        //-------------------------
-        sb.append("numSigT,");
-        sb.append("prSigT,");
-        sb.append("tpSigT,");
-        sb.append("tdSigT,");
-        //-------------------------
-        sb.append("numSigW,");
-        sb.append("htSigW,");
-        sb.append("wdSigW,");
-        sb.append("wsSigW");
-        //-------------------------
+        sb.append(HDR_PARAMS_LIST).append(",");
+
+        for (int i = 0; i < OTHER_PARAMS.length - 1; ++i) {
+            sb.append(OTHER_PARAMS[i]).append(",");
+            MAN_PARAMS[HDR_PARAMS.length + i] = OTHER_PARAMS[i];
+        }
+        sb.append(OTHER_PARAMS[OTHER_PARAMS.length - 1]);
+        MAN_PARAMS[MAN_PARAMS.length - 1] = OTHER_PARAMS[OTHER_PARAMS.length - 1];
+
         MAN_PARAMS_LIST = sb.toString();
     }
 
@@ -121,9 +108,7 @@ public class BufrUAPointDataTransform {
             obs = new UAObs(uri);
 
             long vt = pdv.getNumber("validTime").longValue();
-            obs.setValidTime(TimeTools.newCalendar(vt));
 
-            obs.setRefHour(TimeTools.newCalendar(vt));
             obs.setDataTime(new DataTime(TimeTools.newCalendar(vt)));
 
             SurfaceObsLocation location = new SurfaceObsLocation();
@@ -138,14 +123,14 @@ public class BufrUAPointDataTransform {
             obs.setLocation(location);
             Integer sfcpres = pdv.getNumber("sfcPressure").intValue();
             obs.setPressure_station(sfcpres);
-            
+
             obs.setStationName(pdv.getString("staName"));
         }
         return obs;
     }
-    
+
     private static UAObs getManUAObsRecord(PointDataView pdv, UAObs obs) {
-        if(obs != null) {
+        if (obs != null) {
             Number numLvls = pdv.getNumber("numMand");
             Number[] pr = pdv.getNumberAllLevels("prMan");
             Number[] ht = pdv.getNumberAllLevels("htMan");
@@ -154,7 +139,7 @@ public class BufrUAPointDataTransform {
             Number[] wd = pdv.getNumberAllLevels("wdMan");
             Number[] ws = pdv.getNumberAllLevels("wsMan");
 
-            if ((numLvls != null)&&(numLvls.intValue() > 0)) {
+            if ((numLvls != null) && (numLvls.intValue() > 0)) {
                 for (int i = 0; i < numLvls.intValue(); i++) {
                     if (pr[i] != null) {
                         if ((pr[i].intValue() > 120000)
@@ -163,7 +148,7 @@ public class BufrUAPointDataTransform {
                         }
                     }
                     UAObsLevel lvl = new UAObsLevel();
-                    if(pr[i].intValue() == obs.getPressure_station()) {
+                    if (pr[i].intValue() == obs.getPressure_station()) {
                         lvl.setVertSig(LayerTools.SFC_LEVEL);
                         lvl.setGeoHeight(obs.getElevation());
                     } else {
@@ -186,7 +171,7 @@ public class BufrUAPointDataTransform {
             wd = pdv.getNumberAllLevels("wdTrop");
             ws = pdv.getNumberAllLevels("wsTrop");
 
-            if ((numLvls != null)&&(numLvls.intValue() > 0)) {
+            if ((numLvls != null) && (numLvls.intValue() > 0)) {
                 for (int i = 0; i < numLvls.intValue(); i++) {
                     if (pr[i] != null) {
                         if ((pr[i].intValue() > 120000)
@@ -210,7 +195,7 @@ public class BufrUAPointDataTransform {
             wd = pdv.getNumberAllLevels("wdMaxW");
             ws = pdv.getNumberAllLevels("wsMaxW");
 
-            if ((numLvls != null)&&(numLvls.intValue() > 0)) {
+            if ((numLvls != null) && (numLvls.intValue() > 0)) {
                 for (int i = 0; i < numLvls.intValue(); i++) {
                     if (pr[i] != null) {
                         if ((pr[i].intValue() > 120000)
@@ -262,7 +247,7 @@ public class BufrUAPointDataTransform {
         }
         return obs;
     }
-    
+
     /**
      * 
      * @param pdv
@@ -296,41 +281,41 @@ public class BufrUAPointDataTransform {
         }
         return obs;
     }
-    
+
     /**
      * 
      * @param container
      * @return
      */
-    public static UAObs [] toUAObsRecords(PointDataContainer container) {
+    public static UAObs[] toUAObsRecords(PointDataContainer container) {
         List<UAObs> records = new ArrayList<UAObs>();
         container.setCurrentSz(container.getAllocatedSz());
         for (int i = 0; i < container.getCurrentSz(); i++) {
             PointDataView pdv = container.readRandom(i);
-            
+
             UAObs obs = getUAObsHdr(pdv);
-            if(obs != null) {
-                
-                switch(obs.getReportType()) {
-                
-                case LayerTools.MANLVL_LO :
-                case LayerTools.MANLVL_HI : {
-                    obs = getManUAObsRecord(pdv,obs);
+            if (obs != null) {
+
+                switch (obs.getReportType()) {
+
+                case LayerTools.MANLVL_LO:
+                case LayerTools.MANLVL_HI: {
+                    obs = getManUAObsRecord(pdv, obs);
                     break;
                 }
-                
-                case LayerTools.SIGTLVL_LO :
-                case LayerTools.SIGTLVL_HI : {
-                    obs = getObsSigTLevelData(pdv,obs);
+
+                case LayerTools.SIGTLVL_LO:
+                case LayerTools.SIGTLVL_HI: {
+                    obs = getObsSigTLevelData(pdv, obs);
                     break;
                 }
-                
-                case LayerTools.SIGWLVL_LO :
-                case LayerTools.SIGWLVL_HI : {
-                    obs = getObsSigWLevelData(pdv,obs);
+
+                case LayerTools.SIGWLVL_LO:
+                case LayerTools.SIGWLVL_HI: {
+                    obs = getObsSigWLevelData(pdv, obs);
                     break;
                 }
-                } 
+                }
                 records.add(obs);
             }
         }

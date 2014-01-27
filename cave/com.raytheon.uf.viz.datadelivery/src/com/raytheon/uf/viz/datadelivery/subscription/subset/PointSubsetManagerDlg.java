@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.datadelivery.subscription.subset;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
@@ -40,9 +41,15 @@ import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.PointTimeSubsetPresenter;
+import com.raytheon.uf.common.datadelivery.retrieval.util.PointDataSizeUtils;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.SizeUtil;
+import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
 
 /**
  * {@link SubsetManagerDlg} for point data sets.
@@ -55,6 +62,13 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013    223     mpduff      Initial creation.
  * Jun 11, 2013   2064     mpduff      Fix editing of subscriptions.
+ * Jun 14, 2013   2108     mpduff      Refactored DataSizeUtils and 
+ *                                     implement subset size.
+ * Sep 05, 2013   2335     mpduff      Fix times for adhoc point queries.
+ * Sep 10, 2013   2351     dhladky     Finished adhoc queries
+ * Sep 16, 2013   2383     bgonzale    Start time precedes end time.
+ * Oct 10, 2013   1797     bgonzale    Refactored registry Time objects.
+ * Oct 11, 2013   2386     mpduff      Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -62,10 +76,18 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
  * @version 1.0
  */
 
-public class PointSubsetManagerDlg extends
-        SubsetManagerDlg<PointDataSet, PointTimeSubsetPresenter, PointTimeXML> {
+public class PointSubsetManagerDlg extends SubsetManagerDlg {
+    /** Status Handler */
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PointSubsetManagerDlg.class);
 
-    private static final String TIMING_TAB_TEXT = "Retrieval Interval";
+    private final String TIMING_TAB_TEXT = "Retrieval Interval";
+
+    /** Point data size utility */
+    private PointDataSizeUtils dataSize;
+
+    /** The point subset tab */
+    private PointTimeSubsetTab timingTabControls;
 
     /**
      * Constructor.
@@ -80,6 +102,7 @@ public class PointSubsetManagerDlg extends
     public PointSubsetManagerDlg(Shell shell, boolean loadDataSet,
             Subscription subscription) {
         super(shell, loadDataSet, subscription);
+        setTitle();
     }
 
     /**
@@ -95,8 +118,11 @@ public class PointSubsetManagerDlg extends
      *            the subset xml object
      */
     public PointSubsetManagerDlg(Shell shell, PointDataSet dataSet,
-            boolean loadDataSet, SubsetXML<PointTimeXML> subsetXml) {
-        super(shell, dataSet, loadDataSet, subsetXml);
+            boolean loadDataSet, SubsetXML subsetXml) {
+        super(shell, loadDataSet, dataSet);
+        this.dataSet = dataSet;
+        this.subsetXml = subsetXml;
+        setTitle();
     }
 
     /**
@@ -109,8 +135,13 @@ public class PointSubsetManagerDlg extends
      */
     public PointSubsetManagerDlg(Shell shell, PointDataSet dataSet) {
         super(shell, dataSet);
+        this.dataSet = dataSet;
+        setTitle();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     void createTabs(TabFolder tabFolder) {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -123,26 +154,36 @@ public class PointSubsetManagerDlg extends
         timingComp.setLayout(gl);
         timingComp.setLayoutData(gd);
         timingTab.setControl(timingComp);
-        timingTabControls = getDataTimingSubsetPresenter(timingComp, dataSet,
-                this, shell);
-        timingTabControls.init();
-    }
+        timingTabControls = new PointTimeSubsetTab(timingComp, this, shell);
 
-    @Override
-    public void updateDataSize() {
-        // Not used for point
+        TabItem spatialTab = new TabItem(tabFolder, SWT.NONE);
+        spatialTab.setText(SPATIAL_TAB);
+        Composite spatialComp = new Composite(tabFolder, SWT.NONE);
+        spatialComp.setLayout(gl);
+        spatialComp.setLayoutData(gd);
+        spatialTab.setControl(spatialComp);
+        spatialTabControls = new SpatialSubsetTab(spatialComp, dataSet, this);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected PointTimeSubsetPresenter getDataTimingSubsetPresenter(
-            Composite parentComp, PointDataSet dataSet, IDataSize callback,
-            Shell shell) {
-        PointTimeSubsetTab view = new PointTimeSubsetTab(parentComp, callback,
-                shell);
-        return new PointTimeSubsetPresenter(dataSet, view);
+    public void updateDataSize() {
+        if (!initialized) {
+            return;
+        }
+
+        if (dataSize == null) {
+            this.dataSize = new PointDataSizeUtils((PointDataSet) dataSet);
+        }
+
+        ReferencedEnvelope env = spatialTabControls.getEnvelope();
+        int interval = timingTabControls.getDataRetrievalInterval();
+
+        // Update the data set size label text.
+        this.sizeLbl.setText(SizeUtil.prettyByteSize(dataSize
+                .getDataSetSizeInBytes(env, interval)));
     }
 
     /**
@@ -150,8 +191,21 @@ public class PointSubsetManagerDlg extends
      */
     @Override
     protected Time setupDataSpecificTime(Time newTime, Subscription sub) {
-        // TODO Auto-generated method stub
-        return null;
+        PointTime newTimePoint = (PointTime) newTime;
+
+        // Format must be set before setting the dates.
+        newTimePoint.setFormat(dataSet.getTime().getFormat());
+        int interval = timingTabControls.getSaveInfo()
+                .getDataRetrievalInterval();
+        Calendar cal = TimeUtil.newGmtCalendar();
+        newTimePoint.setInterval(interval);
+
+        newTimePoint.setEnd(cal.getTime());
+        cal.add(Calendar.MINUTE, interval * -1);
+        newTimePoint.setStart(cal.getTime());
+
+        sub.setLatencyInMinutes(interval);
+        return newTimePoint;
     }
 
     /**
@@ -167,15 +221,14 @@ public class PointSubsetManagerDlg extends
      * {@inheritDoc}
      */
     @Override
-    protected <T extends Subscription> T populateSubscription(T sub,
-            boolean create) {
+    protected Subscription populateSubscription(Subscription sub, boolean create) {
+        sub.setProvider(dataSet.getProviderName());
+        sub.setDataSetName(dataSet.getDataSetName());
+        sub.setDataSetType(dataSet.getDataSetType());
+        sub.setDataSetName(dataSet.getDataSetName());
 
-        PointTime newTime = new PointTime();
-        int interval = timingTabControls.getSaveInfo()
-                .getDataRetrievalInterval();
-        newTime.setInterval(interval);
-        newTime.setStartDate(new Date());
-        newTime.setEndDate(new Date());
+        Time newTime = new PointTime();
+        newTime = setupDataSpecificTime(newTime, sub);
         sub.setTime(newTime);
 
         Coverage cov = new Coverage();
@@ -194,24 +247,26 @@ public class PointSubsetManagerDlg extends
         }
 
         sub.setParameter(paramList);
+
+        if (dataSize == null) {
+            this.dataSize = new PointDataSizeUtils((PointDataSet) dataSet);
+        }
+
+        sub.setDataSetSize(dataSize.getDataSetSizeInKb(sub));
+
         return sub;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg
-     * #loadFromSubsetXML
-     * (com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML)
+    /**
+     * {@inheritDoc}
      */
     @Override
-    protected void loadFromSubsetXML(SubsetXML<PointTimeXML> subsetXml) {
+    protected void loadFromSubsetXML(SubsetXML subsetXml) {
         super.loadFromSubsetXML(subsetXml);
 
-        PointTimeXML time = subsetXml.getTime();
-        this.timingTabControls.populate(time, dataSet);
-
+        PointTimeXML time = (PointTimeXML) subsetXml.getTime();
+        this.timingTabControls.setDataRetrievalInterval(time
+                .getDataRetrievalInterval());
     }
 
     /*
@@ -230,6 +285,29 @@ public class PointSubsetManagerDlg extends
         time.setDataRetrievalInterval(((PointTime) subscription.getTime())
                 .getInterval());
 
-        this.timingTabControls.populate(time, dataSet);
+        this.timingTabControls.setDataRetrievalInterval(time
+                .getDataRetrievalInterval());
+
+        AreaXML area = new AreaXML();
+        ReferencedEnvelope envelope = this.subscription.getCoverage()
+                .getEnvelope();
+        ReferencedEnvelope requestEnvelope = this.subscription.getCoverage()
+                .getRequestEnvelope();
+
+        if (requestEnvelope != null && !requestEnvelope.isEmpty()) {
+            area.setEnvelope(requestEnvelope);
+        } else {
+            area.setEnvelope(envelope);
+        }
+        spatialTabControls.setDataSet(this.dataSet);
+        spatialTabControls.populate(area);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected TimeXML getDataTimeInfo() {
+        return timingTabControls.getSaveInfo();
     }
 }

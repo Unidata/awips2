@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.core.maps.scales;
 
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
-
 /**
  * Interface for display containing a scale
  * 
@@ -31,6 +29,8 @@ import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2013            mschenke    Initial creation
+ * Oct 10, 2013       2104 mschenke    Added ability to change name of scale
+ *                                     without affecting the projection
  * 
  * </pre>
  * 
@@ -41,15 +41,23 @@ import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 public interface IMapScaleDisplay {
 
     /**
-     * Returns the name of the scale to be used in
-     * {@link MapScales#getScaleByName(String)}
+     * Returns the name of the scale for the display
      */
     public String getScaleName();
 
     /**
-     * Changes the scale of the display
+     * Sets the name of the current scale. This should be nothing other than a
+     * rename operation
+     * 
+     * @param scaleName
+     */
+    public void setScaleName(String scaleName);
+
+    /**
+     * Changes the scale of the display to the one passed in. This should cause
+     * the display to internally change
      * 
      * @param scale
      */
-    public void changeScale(MapScale scale);
+    public void changeScale(String scaleName);
 }

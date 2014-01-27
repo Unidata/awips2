@@ -31,33 +31,37 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
-import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
-import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService.ISubscriptionOverlapResponse;
+import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapRequest;
+import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapResponse;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datadelivery.actions.SubscriptionManagerAction;
 import com.raytheon.uf.viz.datadelivery.system.SystemRuleManager;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -84,6 +88,12 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * May 14, 2013 2000       djohnson     Check for subscription overlap/duplication.
  * May 23, 2013 1650       djohnson     Move out some presentation logic to DisplayForceApplyPromptDialog.
  * Jun 12, 2013 2038       djohnson     Launch subscription manager on the UI thread.
+ * Jul 18, 2013 1653       mpduff       Add SubscriptionStatusSummary.
+ * Jul 26, 2013 2232       mpduff       Refactored Data Delivery permissions.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 12, 2013 2460       dhladky      restored adhoc subscriptions to registry storage.
+ * Oct 22, 2013  2292      mpduff       Removed subscriptionOverlapService.
+ * Nov 07, 2013  2291      skorolev     Used showText() method for "Shared Subscription" message.
  * 
  * </pre>
  * 
@@ -94,6 +104,11 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 public class SubscriptionService implements ISubscriptionService {
     private static final String PENDING_SUBSCRIPTION_AWAITING_APPROVAL = "The subscription is awaiting approval.\n\n"
             + "A notification message will be generated upon approval.";
+
+    private final String OVERLAPPING_SUBSCRIPTIONS = "The following subscriptions overlap with this one "
+            + "and are candidates for a shared subscription: ";
+
+    private final String DUPLICATE_SUBSCRIPTIONS = "This subscription is completely fulfilled by ";
 
     /**
      * Implementation of {@link IDisplayForceApplyPrompt} that uses an SWT
@@ -106,8 +121,6 @@ public class SubscriptionService implements ISubscriptionService {
 
         /**
          * {@inheritDoc}
-         * 
-         * @param subscription
          */
         @Override
         public ForceApplyPromptResponse displayForceApplyPrompt(
@@ -138,8 +151,8 @@ public class SubscriptionService implements ISubscriptionService {
             shell.getDisplay().syncExec(new Runnable() {
                 @Override
                 public void run() {
-                    DataDeliveryUtils.showMessage(shell, SWT.OK,
-                            "Shared Subscription", message);
+                    DataDeliveryUtils.showText(shell, "Shared Subscription",
+                            message);
                 }
             });
         }
@@ -158,60 +171,6 @@ public class SubscriptionService implements ISubscriptionService {
     private final IPermissionsService permissionsService;
 
     private final IDisplayForceApplyPrompt forceApplyPrompt;
-
-    private final ISubscriptionOverlapService subscriptionOverlapService;
-
-    /**
-     * Implementation of {@link ISubscriptionServiceResult}.
-     */
-    private final class SubscriptionServiceResult implements
-            ISubscriptionServiceResult {
-
-        private final boolean allowFurtherEditing;
-
-        private final String message;
-
-        private SubscriptionServiceResult(String message) {
-            this(false, message);
-        }
-
-        private SubscriptionServiceResult(boolean allowFurtherEditing,
-                String message) {
-            this.allowFurtherEditing = allowFurtherEditing;
-            this.message = message;
-        }
-
-        /**
-         * @param b
-         */
-        public SubscriptionServiceResult(boolean allowFurtherEditing) {
-            this(allowFurtherEditing, null);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean isAllowFurtherEditing() {
-            return allowFurtherEditing;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean hasMessageToDisplay() {
-            return message != null;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getMessageToDisplay() {
-            return message;
-        }
-    }
 
     /**
      * Result class used internally to denote whether the user should be
@@ -314,18 +273,15 @@ public class SubscriptionService implements ISubscriptionService {
      *            the subscription notification service
      * @param bandwidthService
      *            the bandwidth service
-     * @param subscriptionOverlapService
      */
     @VisibleForTesting
     SubscriptionService(ISubscriptionNotificationService notificationService,
             IBandwidthService bandwidthService,
             IPermissionsService permissionsService,
-            ISubscriptionOverlapService subscriptionOverlapService,
             IDisplayForceApplyPrompt displayForceApplyPrompt) {
         this.notificationService = notificationService;
         this.bandwidthService = bandwidthService;
         this.permissionsService = permissionsService;
-        this.subscriptionOverlapService = subscriptionOverlapService;
         this.forceApplyPrompt = displayForceApplyPrompt;
     }
 
@@ -343,18 +299,16 @@ public class SubscriptionService implements ISubscriptionService {
     public static ISubscriptionService newInstance(
             ISubscriptionNotificationService notificationService,
             IBandwidthService bandwidthService,
-            IPermissionsService permissionsService,
-            ISubscriptionOverlapService subscriptionOverlapService) {
+            IPermissionsService permissionsService) {
         return new SubscriptionService(notificationService, bandwidthService,
-                permissionsService, subscriptionOverlapService,
-                new DisplayForceApplyPrompt());
+                permissionsService, new DisplayForceApplyPrompt());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ISubscriptionServiceResult store(final Subscription subscription,
+    public SubscriptionServiceResult store(final Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
@@ -362,7 +316,6 @@ public class SubscriptionService implements ISubscriptionService {
         final String successMessage = "Subscription " + subscription.getName()
                 + " has been created.";
         final ServiceInteraction action = new ServiceInteraction() {
-
             @Override
             public String call() throws RegistryHandlerException {
                 DataDeliveryHandlers.getSubscriptionHandler().store(
@@ -371,7 +324,15 @@ public class SubscriptionService implements ISubscriptionService {
             }
         };
 
-        return performAction(subscriptions, action, displayTextStrategy);
+        SubscriptionServiceResult result = performAction(subscriptions, action,
+                displayTextStrategy);
+
+        if (!result.isAllowFurtherEditing()) {
+            result.setSubscriptionStatusSummary(bandwidthService
+                    .getSubscriptionStatusSummary(subscription));
+        }
+
+        return result;
     }
 
     /**
@@ -379,7 +340,7 @@ public class SubscriptionService implements ISubscriptionService {
      * 
      */
     @Override
-    public ISubscriptionServiceResult update(final Subscription subscription,
+    public SubscriptionServiceResult update(final Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
@@ -403,7 +364,7 @@ public class SubscriptionService implements ISubscriptionService {
      * {@inheritDoc}
      */
     @Override
-    public ISubscriptionServiceResult update(final List<Subscription> subs,
+    public SubscriptionServiceResult update(final List<Subscription> subs,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
@@ -426,7 +387,7 @@ public class SubscriptionService implements ISubscriptionService {
      * {@inheritDoc}
      */
     @Override
-    public ISubscriptionServiceResult updateWithPendingCheck(
+    public SubscriptionServiceResult updateWithPendingCheck(
             final List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
@@ -466,7 +427,13 @@ public class SubscriptionService implements ISubscriptionService {
                     final String username = user.uniqueId().toString();
 
                     try {
-                        boolean authorized = permissionsService
+                        if (!(permissionsService instanceof RequestFromServerPermissionsService)) {
+                            throw new RegistryHandlerException(
+                                    "Invalid Handler "
+                                            + permissionsService.getClass()
+                                                    .toString());
+                        }
+                        boolean authorized = ((RequestFromServerPermissionsService) permissionsService)
                                 .checkPermissionToChangeSubscription(user,
                                         PENDING_SUBSCRIPTION_AWAITING_APPROVAL,
                                         subscription).isAuthorized();
@@ -492,7 +459,7 @@ public class SubscriptionService implements ISubscriptionService {
                             continue;
                         }
 
-                    } catch (VizException e) {
+                    } catch (AuthException e) {
                         statusHandler.handle(Priority.INFO,
                                 e.getLocalizedMessage(), e);
                     }
@@ -523,7 +490,7 @@ public class SubscriptionService implements ISubscriptionService {
      * {@inheritDoc}
      */
     @Override
-    public ISubscriptionServiceResult store(final AdhocSubscription sub,
+    public SubscriptionServiceResult store(final AdhocSubscription sub,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
@@ -532,25 +499,22 @@ public class SubscriptionService implements ISubscriptionService {
         final String successMessage = "The query was successfully stored.";
         final ServiceInteraction action = new ServiceInteraction() {
             @Override
-            public String call() {
-                // Adhoc subscriptions don't interact with the registry any
-                // longer, so it gets a blank implementation
+            public String call() throws RegistryHandlerException {
+                DataDeliveryHandlers.getSubscriptionHandler().store(sub);
                 return successMessage;
             }
         };
 
         SubscriptionServiceResult result = performAction(subscriptions, action,
                 displayTextStrategy);
-        if (!result.allowFurtherEditing) {
+        if (!result.isAllowFurtherEditing()) {
             Date date = bandwidthService.getEstimatedCompletionTime(sub);
             if (date != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat(
                         "MM/dd/yyyy HH:mm zzz");
                 sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                result = new SubscriptionServiceResult(
-                        result.getMessageToDisplay()
-                                + "\n\nEstimated completion time:"
-                                + sdf.format(date));
+                result = new SubscriptionServiceResult(result.getMessage()
+                        + "\n\nEstimated completion time:" + sdf.format(date));
             }
         }
 
@@ -575,40 +539,28 @@ public class SubscriptionService implements ISubscriptionService {
             final IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
-        for (Subscription subscription : subscriptions) {
-            if (!(subscription instanceof AdhocSubscription)) {
-                final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
-                        .getSubscriptionHandler();
-                final List<Subscription> potentialDuplicates = subscriptionHandler
-                        .getActiveByDataSetAndProvider(
-                                subscription.getDataSetName(),
-                                subscription.getProvider());
-                List<String> overlappingSubscriptions = Lists.newArrayList();
-                for (Subscription potentialDuplicate : potentialDuplicates) {
-                    final ISubscriptionOverlapResponse overlapResponse = subscriptionOverlapService
-                            .isOverlapping(potentialDuplicate, subscription);
-                    final String potentialDuplicateName = potentialDuplicate
-                            .getName();
-                    if (overlapResponse.isDuplicate()) {
-                        return new SubscriptionServiceResult(true,
-                                "This subscription would be an exact duplicate of "
-                                        + potentialDuplicateName);
-                    }
-                    if (overlapResponse.isOverlapping()) {
-                        overlappingSubscriptions.add(potentialDuplicateName);
-                    }
-                }
-                if (!overlappingSubscriptions.isEmpty()) {
-                    Collections.sort(overlappingSubscriptions);
-                    forceApplyPrompt
-                            .displayMessage(
-                                    displayTextStrategy,
-                                    StringUtil
-                                            .createMessage(
-                                                    ISubscriptionOverlapService.OVERLAPPING_SUBSCRIPTIONS,
-                                                    overlappingSubscriptions));
-                }
+        SubscriptionOverlapRequest request = new SubscriptionOverlapRequest(
+                subscriptions);
+
+        SubscriptionOverlapResponse response = null;
+        try {
+            response = (SubscriptionOverlapResponse) RequestRouter.route(
+                    request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+            if (response.isDuplicate()) {
+                return new SubscriptionServiceResult(true,
+                        StringUtil.createMessage(DUPLICATE_SUBSCRIPTIONS,
+                                response.getSubscriptionNameList()));
             }
+
+            if (response.isOverlap()) {
+                List<String> subNames = response.getSubscriptionNameList();
+                Collections.sort(subNames);
+                forceApplyPrompt.displayMessage(displayTextStrategy, StringUtil
+                        .createMessage(OVERLAPPING_SUBSCRIPTIONS, subNames));
+            }
+        } catch (Exception e) {
+            statusHandler.error("Error checking subscription overlapping", e);
+            return new SubscriptionServiceResult(false);
         }
 
         try {
@@ -745,11 +697,7 @@ public class SubscriptionService implements ISubscriptionService {
 
         if (singleSubscription) {
             Subscription subscription = subscriptions.get(0);
-            final int maximumLatencyFromRules = SystemRuleManager.getInstance()
-                    .getLatency(
-                            subscription,
-                            Sets.newTreeSet(subscription.getTime()
-                                    .getCycleTimes()));
+            final int maximumLatencyFromRules = getMaximumAllowableLatency(subscription);
 
             return new ForceApplyPromptConfiguration(TITLE, msg.toString(),
                     proposeScheduleResponse.getRequiredLatency(),
@@ -822,5 +770,28 @@ public class SubscriptionService implements ISubscriptionService {
             unscheduledSub.setUnscheduled(true);
             subscriptionHandler.update(unscheduledSub);
         }
+    }
+
+    /**
+     * Gets the max allowed latency for this subscription from rules for it's
+     * type
+     * 
+     * @param subscription
+     * @return
+     */
+    private int getMaximumAllowableLatency(Subscription subscription) {
+
+        Time subTime = subscription.getTime();
+
+        if (subTime instanceof GriddedTime) {
+            return SystemRuleManager.getInstance().getLatency(subscription,
+                    Sets.newTreeSet(((GriddedTime) subTime).getCycleTimes()));
+        } else if (subTime instanceof PointTime) {
+            return ((PointTime) subTime).getInterval();
+        } else {
+            throw new IllegalArgumentException(subTime.getClass()
+                    + " Not yet implemented!");
+        }
+
     }
 }

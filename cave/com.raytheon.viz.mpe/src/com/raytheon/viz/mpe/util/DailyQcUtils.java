@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Feb 16, 2009            snaples     Initial creation
  * Dec 04, 2012 15544      wkwock      fix missing 12z-18z after 12
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks and Scanner resource leak.
  * 
  * </pre>
  * 
@@ -877,13 +878,12 @@ public class DailyQcUtils {
         qcDays = MPEDataManager.getInstance().getDQCDays();
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        Cursor prev = shell.getCursor();
-        Cursor wait = new Cursor(Display.getDefault(), SWT.CURSOR_WAIT);
-        shell.setCursor(wait);
+        Cursor prevCursor = shell.getCursor();
+        shell.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT));
         new_area_flag = 1;
         int retval = loadDataSet();
         lastQcArea = currentQcArea;
-        shell.setCursor(prev);
+        shell.setCursor(prevCursor);
         return retval;
     }
 
@@ -930,15 +930,15 @@ public class DailyQcUtils {
                 || newarea == true) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            Cursor prev = shell.getCursor();
-            Cursor wait = new Cursor(Display.getDefault(), SWT.CURSOR_WAIT);
-            shell.setCursor(wait);
+            Cursor prevCursor = shell.getCursor();
+            shell.setCursor(Display.getDefault().getSystemCursor(
+                    SWT.CURSOR_WAIT));
             int retval = loadDataSet();
             if (retval == 2) {
                 load_gage_data_once = 1;
             }
             lastQcArea = currentQcArea;
-            shell.setCursor(prev);
+            shell.setCursor(prevCursor);
             return retval;
         } else {
             new_area_flag = 1;
@@ -1022,11 +1022,15 @@ public class DailyQcUtils {
             btime.set(Calendar.SECOND, 0);
             hrgt12z = 0;
         }
-        /* In order to allow user access the 12~18Z point data for the most recent day,
-        advance one more day from current day if the later than 18Z */
-        Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        if (currentTime.get(Calendar.HOUR_OF_DAY)>=18) {
-        	btime.add(Calendar.DAY_OF_MONTH, 1);
+        /*
+         * In order to allow user access the 12~18Z point data for the most
+         * recent day, advance one more day from current day if the later than
+         * 18Z
+         */
+        Calendar currentTime = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
+        if (currentTime.get(Calendar.HOUR_OF_DAY) >= 18) {
+            btime.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         emonth = btime.get(Calendar.MONTH);
@@ -1285,7 +1289,7 @@ public class DailyQcUtils {
                 if (td_fp == null) {
                     statusHandler
                             .handle(Priority.PROBLEM,
-									"Could not open mpe_td_details_file in load_gage_data().");
+                                    "Could not open mpe_td_details_file in load_gage_data().");
                     return 0;
                 }
                 try {
@@ -1293,7 +1297,7 @@ public class DailyQcUtils {
                 } catch (IOException e) {
                     statusHandler
                             .handle(Priority.PROBLEM,
-									"Could not open mpe_td_details_file for writing, in load_gage_data().");
+                                    "Could not open mpe_td_details_file for writing, in load_gage_data().");
                 }
             }
 
@@ -1349,7 +1353,7 @@ public class DailyQcUtils {
             if (freezing_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-								"ERROR, Could not read freezing level station list file. DailyQC stopped.");
+                                "ERROR, Could not read freezing level station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Temperature Stations List. ");
@@ -1358,7 +1362,7 @@ public class DailyQcUtils {
             if (temperature_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-								"ERROR, Could not read temperature station list file. DailyQC stopped.");
+                                "ERROR, Could not read temperature station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
             System.out.println("DQC: Reading Precip Stations List. ");
@@ -1367,7 +1371,7 @@ public class DailyQcUtils {
             if (precip_stations == null) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-								"ERROR, Could not read precip station list file. DailyQC stopped.");
+                                "ERROR, Could not read precip station list file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
 
@@ -1377,7 +1381,7 @@ public class DailyQcUtils {
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-								"Could not read precipitation Climo file. DailyQC stopped.");
+                                "Could not read precipitation Climo file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
 
@@ -1387,7 +1391,7 @@ public class DailyQcUtils {
             if (status == false) {
                 statusHandler
                         .handle(Priority.PROBLEM,
-								"Could not read temperature Climo file. DailyQC stopped.");
+                                "Could not read temperature Climo file. DailyQC stopped.");
                 return DAILYQC_FAILED;
             }
         }
@@ -1399,7 +1403,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-							"Could not read precipitation PRISM file. DailyQC stopped.");
+                            "Could not read precipitation PRISM file. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
 
@@ -1408,7 +1412,7 @@ public class DailyQcUtils {
                 smonth, emonth);
         if (status == false) {
             statusHandler.handle(Priority.PROBLEM,
-					"Could not read temperature PRISM file. DailyQC stopped.");
+                    "Could not read temperature PRISM file. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         System.out.println("DQC: Finished loading Climo data. ");
@@ -1436,7 +1440,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-							"Could not map freezing level points to the HRAP grid. DailyQC stopped.");
+                            "Could not map freezing level points to the HRAP grid. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         System.out.println("DQC: Mapping temperature gages to grid. ");
@@ -1447,7 +1451,7 @@ public class DailyQcUtils {
         if (status == false) {
             statusHandler
                     .handle(Priority.PROBLEM,
-							"Could not map temp level points to the HRAP grid. DailyQC stopped.");
+                            "Could not map temp level points to the HRAP grid. DailyQC stopped.");
             return DAILYQC_FAILED;
         }
         long elapsed = System.currentTimeMillis() - start;
@@ -1474,7 +1478,7 @@ public class DailyQcUtils {
                     mean_areal_precip_global, tag);
             if (status == false) {
                 statusHandler.handle(Priority.PROBLEM,
-						"Error retrieving basin data.  DailyQC Stopped.");
+                        "Error retrieving basin data.  DailyQC Stopped.");
                 return DAILYQC_FAILED;
             }
         }
@@ -1651,12 +1655,13 @@ public class DailyQcUtils {
             // open and read file containing std dev of point precip data
             // --------------------------------------------------------------
             BufferedReader in = null;
+            Scanner s = null;
 
             try {
                 in = new BufferedReader(new FileReader(precc));
                 String ibuf = "";
                 ibuf = in.readLine();
-                Scanner s = new Scanner(ibuf);
+                s = new Scanner(ibuf);
 
                 pdata[m].stddev = s.nextFloat();
 
@@ -1665,7 +1670,7 @@ public class DailyQcUtils {
 
                     pdata[m].stddev = 3.0f;
                 }
-                in.close();
+
             } catch (FileNotFoundException e) {
                 System.out.println("File not found " + precc);
             } catch (IOException e) {
@@ -1674,6 +1679,12 @@ public class DailyQcUtils {
                 try {
                     if (in != null) {
                         in.close();
+                        in = null;
+                    }
+
+                    if (s != null) {
+                        s.close();
+                        s = null;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -1686,7 +1697,7 @@ public class DailyQcUtils {
                 in = new BufferedReader(new FileReader(tpointc));
                 String ibuf = "";
                 ibuf = in.readLine();
-                Scanner s = new Scanner(ibuf);
+                s = new Scanner(ibuf);
 
                 tdata[m].stddev = s.nextFloat();
 
@@ -1695,7 +1706,6 @@ public class DailyQcUtils {
                     tdata[m].stddev = 10.0f;
                 }
 
-                in.close();
             } catch (FileNotFoundException e) {
                 System.out.println("File not found " + tpointc);
             } catch (IOException e) {
@@ -1704,6 +1714,10 @@ public class DailyQcUtils {
                 try {
                     if (in != null) {
                         in.close();
+                    }
+                    if (s != null) {
+                        s.close();
+                        s = null;
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

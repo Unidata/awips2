@@ -44,6 +44,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2011            bphillip     Initial creation
+ * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -77,7 +78,8 @@ public class LogPurger {
 
             PythonScript script = siteScriptMap.get(siteID);
             if (script == null) {
-                script = new PythonScript(scriptFile, includePath);
+                script = new PythonScript(scriptFile, includePath, this
+                        .getClass().getClassLoader());
                 siteScriptMap.put(siteID, script);
             }
             Map<String, Object> args = new HashMap<String, Object>();

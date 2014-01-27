@@ -23,7 +23,6 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
@@ -50,7 +49,8 @@ import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 1, 2009            snaples     Initial creation
+ * Apr 1, 2009             snaples     Initial creation
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leaks.
  * 
  * </pre>
  * 
@@ -77,9 +77,7 @@ public class ScreeningOptions {
         ArrayList<Station> temp_stations = DailyQcUtils.temperature_stations;
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-        final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = new Cursor(Display.getDefault(),
-                SWT.CURSOR_WAIT);
+        Cursor prevCursor = shell.getCursor();
 
         if (client_data == 0) {
             pdata[pcpn_day].stddev = 5.0f;
@@ -97,7 +95,7 @@ public class ScreeningOptions {
             tdata[pcpn_day].stddev = 5.0f;
         }
 
-        shell.setCursor(waitCursor);
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         /*
          * do not estimate daily and partial point precipitation from each other

@@ -22,16 +22,16 @@ package com.raytheon.viz.awipstools.ui.dialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -51,11 +51,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
@@ -65,21 +67,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
+import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
-import com.raytheon.uf.viz.points.ui.layer.PointsToolLayer;
+import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
-import com.raytheon.viz.awipstools.ui.layer.HomeToolLayer;
-import com.raytheon.viz.awipstools.ui.layer.InteractiveBaselinesLayer;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -90,14 +86,17 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 07Dec2007    #576        Eric Babin Initial Creation.
- * 23Jul2010    #5948      bkowal      Added the ability to move
- *                                     a point to the location of a
- *                                     &quot;mesocyclone&quot;.
- * 31Jul2012    #875       rferrel     Let preopen initialize components.
- * 05Nov2012    #1304      rferrel     Added Point Change Listener.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 07, 2007  576      Eric Babin  Initial Creation.
+ * Jul 23, 2010  5948     bkowal      Added the ability to move a point to the
+ *                                    location of a &quot;mesocyclone&quot;.
+ * Jul 31, 2012  875      rferrel     Let preopen initialize components.
+ * Nov 05, 2012  1304     rferrel     Added Point Change Listener.
+ * Sep 03, 2013  2310     bsteffen    Use IPointChangedListener and
+ *                                    IToolChangedListener instead of
+ *                                    IResourceDataChanged.
+ * Sep  9, 2013  2277     mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -116,19 +115,11 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
 
     private Button pointsRdo, baselinesRdo, homeRdo;
 
-    private HomeToolLayer homeToolLayer;
-
-    private PointsToolLayer pointsToolLayer;
-
-    private InteractiveBaselinesLayer baselinesToolLayer;
-
-    private final List<IResourceDataChanged> changeListeners = new ArrayList<IResourceDataChanged>();
+    private final List<ChooseByIdKeyListener> changeListeners = new ArrayList<ChooseByIdKeyListener>();
 
     private final List<Text> pointStationIdTextFields;
 
     private final List<Text> baselineStationIdTextFields;
-
-    private IDescriptor descriptor;
 
     private final PointsDataManager pointsDataManager = PointsDataManager
             .getInstance();
@@ -190,7 +181,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
     }
 
     private class ChooseByIdKeyListener implements KeyListener,
-            IResourceDataChanged {
+            IPointChangedListener, IToolChangedListener {
 
         private final String idName;
 
@@ -273,8 +264,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
                     if (obStation != null) {
                         c = obStation.getGeometry().getCoordinate();
                     } else {
-                        c = this.getDmdInformation(stationID,
-                                descriptor.getNumberOfFrames());
+                        c = this.getDmdInformation(stationID);
                     }
 
                     if (c == null) {
@@ -326,64 +316,43 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             if (isPoint()) {
                 pointsDataManager.setCoordinate(idName,
                         stationCoordinates.get(0));
-                refreshToolLayer(pointsToolLayer);
-
+                pointsDataManager.addPointsChangedListener(this);
             } else if (isBaseline()) {
                 toolsDataManager.setBaseline(idName, (new GeometryFactory())
                         .createLineString(stationCoordinates
                                 .toArray(new Coordinate[] {})));
-                refreshToolLayer(baselinesToolLayer);
-
+                toolsDataManager.addBaselinesChangedListener(this);
             } else if (isHome()) {
                 pointsDataManager.setHome(stationCoordinates.get(0));
-                refreshToolLayer(homeToolLayer);
+                pointsDataManager.addHomeChangedListener(this);
             }
-        }
-
-        /**
-         * @param toolLayer
-         */
-        private void refreshToolLayer(AbstractVizResource<?, ?> toolLayer) {
-            if (toolLayer != null) {
-                toolLayer.getResourceData().fireChangeListeners(
-                        ChangeType.DATA_UPDATE, null);
-                toolLayer.getResourceData().addChangeListener(this);
-                changeListeners.add(this);
-            }
+            changeListeners.add(this);
         }
 
         /**
          * 
          * @param mesoId
-         * @param frameCount
          * @return
          */
-        private Coordinate getDmdInformation(String mesoId, int frameCount) {
+        private Coordinate getDmdInformation(String mesoId) {
+            int frameCount = 64;
+            Object framesObj = VizGlobalsManager.getCurrentInstance()
+                    .getPropery(VizConstants.FRAMES_ID);
+            if (framesObj instanceof Integer) {
+                frameCount = (Integer) framesObj;
+            }
+
             Coordinate c = null;
             RadarRecord rr = null;
 
-            LayerProperty property = new LayerProperty();
             HashMap<String, RequestConstraint> metadataMap = new HashMap<String, RequestConstraint>();
-            RequestConstraint requestConstraint = null;
 
-            Object[] resp = null;
             DataTime[] availableDataTimes = null;
-            DataTime[] selectedDataTimes = null;
+            Collection<DataTime> selectedDataTimes = new LinkedHashSet<DataTime>();
 
-            requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.EQUALS);
-            requestConstraint.setConstraintValue("149");
-            metadataMap.put("productCode", requestConstraint);
-
-            requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.EQUALS);
-            requestConstraint.setConstraintValue("radar");
-            metadataMap.put("pluginName", requestConstraint);
-
-            requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.EQUALS);
-            requestConstraint.setConstraintValue("Graphic");
-            metadataMap.put("format", requestConstraint);
+            metadataMap.put("productCode", new RequestConstraint("149"));
+            metadataMap.put("pluginName", new RequestConstraint("radar"));
+            metadataMap.put("format", new RequestConstraint("Graphic"));
 
             try {
                 availableDataTimes = DataCubeContainer.performTimeQuery(
@@ -398,70 +367,52 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             }
 
             if (availableDataTimes != null && availableDataTimes.length > 0) {
-                Arrays.sort(availableDataTimes);
-                ArrayUtils.reverse(availableDataTimes);
+                Arrays.sort(availableDataTimes, Collections.reverseOrder());
 
-                selectedDataTimes = new DataTime[frameCount];
-                int count = 0;
-                int numElements = availableDataTimes.length;
-                int indx = 0;
-                while (count < frameCount && indx < numElements) {
-                    boolean found = false;
-                    DataTime dt = availableDataTimes[indx];
-                    if (dt == null) {
-                        ++indx;
-                        continue;
+                for (int i = 0; i < availableDataTimes.length
+                        && selectedDataTimes.size() < frameCount; ++i) {
+                    DataTime dt = availableDataTimes[i];
+                    if (dt != null) {
+                        selectedDataTimes.add(dt);
                     }
-
-                    for (DataTime t : selectedDataTimes) {
-                        if (dt.equals(t)) {
-                            found = true;
-                        }
-                    }
-
-                    if (!found) {
-                        selectedDataTimes[count] = dt;
-                        ++count;
-                    }
-                    ++indx;
                 }
             }
 
-            property.setDesiredProduct(ResourceType.PLAN_VIEW);
-            property.setNumberOfImages(9999);
-            property.setSelectedEntryTimes(selectedDataTimes);
-
-            try {
-                property.setEntryQueryParameters(metadataMap, false);
-                resp = DataCubeContainer.getData(property, 60000).toArray(
-                        new Object[] {});
-            } catch (Exception e) {
-                Status s = new Status(Status.INFO, UiPlugin.PLUGIN_ID,
-                        "The query for the entered Mesocyclone ID has failed.");
-                ErrorDialog.openError(Display.getCurrent().getActiveShell(),
-                        "Error Finding Mesocyclone ID",
-                        "Error Finding Mesocyclone ID", s);
-                return null;
-            }
-
-            for (int i = 0; i < resp.length; i++) {
-                rr = (RadarRecord) resp[i];
-                File loc = HDF5Util.findHDF5Location(rr);
-
-                IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+            if (selectedDataTimes.isEmpty() == false) {
+                PluginDataObject[] resp = null;
 
                 try {
-                    RadarDataRetriever.populateRadarRecord(dataStore, rr);
+                    resp = DataCubeContainer.getData(metadataMap,
+                            selectedDataTimes.toArray(new DataTime[0]));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Status s = new Status(Status.INFO, UiPlugin.PLUGIN_ID,
+                            "The query for the entered Mesocyclone ID has failed.");
+                    ErrorDialog.openError(
+                            Display.getCurrent().getActiveShell(),
+                            "Error Finding Mesocyclone ID",
+                            "Error Finding Mesocyclone ID", s);
+                    return null;
                 }
 
-                List<String> ids = RadarRecordUtil.getDMDFeatureIDs(rr);
-                if (!ids.contains(mesoId)) {
-                    continue;
+                for (int i = 0; i < resp.length; i++) {
+                    rr = (RadarRecord) resp[i];
+                    File loc = HDF5Util.findHDF5Location(rr);
+
+                    IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+
+                    try {
+                        RadarDataRetriever.populateRadarRecord(dataStore, rr);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    List<String> ids = RadarRecordUtil.getDMDFeatureIDs(rr);
+                    if (!ids.contains(mesoId)) {
+                        continue;
+                    }
+                    c = RadarRecordUtil.getDMDLonLatFromFeatureID(rr, mesoId);
+                    break;
                 }
-                c = RadarRecordUtil.getDMDLonLatFromFeatureID(rr, mesoId);
-                break;
             }
 
             return c;
@@ -473,31 +424,24 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
          * @return the ObStation with the given stationID
          */
         private ObStation getObStation(String stationID) {
+            ObStation obStation = null;
+            DbQueryRequest request = new DbQueryRequest();
+            request.addConstraint(
+                    "gid",
+                    new RequestConstraint(ObStation.createGID(
+                            ObStation.CAT_TYPE_ICAO, stationID)));
+            request.setEntityClass(ObStation.class);
+            request.setLimit(1);
 
-            HashMap<String, RequestConstraint> query = new HashMap<String, RequestConstraint>();
-            query.put("pluginName", new RequestConstraint("table"));
-            query.put("databasename", new RequestConstraint("metadata"));
-            query.put("classname",
-                    new RequestConstraint(ObStation.class.getCanonicalName()));
-            String gid = ObStation
-                    .createGID(ObStation.CAT_TYPE_ICAO, stationID);
-            query.put("gid", new RequestConstraint(gid));
-
-            LayerProperty lpParm = new LayerProperty();
-
-            List<Object> list = null;
             try {
-                lpParm.setEntryQueryParameters(query, false);
-                String tableScript = ScriptCreator.createScript(lpParm);
-                list = Loader.loadData(tableScript, 10000);
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
+                if (response.getNumResults() == 1) {
+                    obStation = response.getEntityObjects(ObStation.class)[0];
+                }
             } catch (VizException e) {
                 statusHandler.handle(Priority.WARN,
                         "Error querying for points", e);
-            }
-
-            ObStation obStation = null;
-            if (list != null && list.size() != 0) {
-                obStation = ((ObStation) (list.get(0)));
             }
 
             return obStation;
@@ -507,17 +451,23 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             this.isBaseline = isBaseline;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged
-         * (com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-         * java.lang.Object)
-         */
         @Override
-        public void resourceChanged(ChangeType type, Object object) {
+        public void pointChanged() {
+            toolChanged();
+        }
 
+        @Override
+        public void toolChanged() {
+            VizApp.runAsync(new Runnable() {
+
+                @Override
+                public void run() {
+                    handleChange();
+                }
+            });
+        }
+
+        public void handleChange() {
             boolean stationLocationHasChanged = false;
 
             if (stationCoordinates == null || stationCoordinates.size() == 0) {
@@ -569,7 +519,7 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
     }
 
     public ChooseByIdDialog(Shell parentShell) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         setText(DIALOG_TITLE);
 
         pointStationIdTextFields = new ArrayList<Text>();
@@ -595,15 +545,6 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
             }
         });
 
-        // remove registered listeners when closing the dialog
-        shell.addDisposeListener(new DisposeListener() {
-
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                unregisterListeners();
-            }
-        });
-
         shell.pack();
         shell.setMinimumSize(new Point(340, 570));
     }
@@ -612,13 +553,10 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
      * 
      */
     private void unregisterListeners() {
-        for (IResourceDataChanged changeListener : changeListeners) {
-            homeToolLayer.getResourceData()
-                    .removeChangeListener(changeListener);
-            pointsToolLayer.getResourceData().removeChangeListener(
-                    changeListener);
-            baselinesToolLayer.getResourceData().removeChangeListener(
-                    changeListener);
+        for (ChooseByIdKeyListener changeListener : changeListeners) {
+            pointsDataManager.removePointsChangedListener(changeListener);
+            pointsDataManager.removeHomeChangedListener(changeListener);
+            toolsDataManager.removeBaselinesChangedListener(changeListener);
         }
     }
 
@@ -839,34 +777,10 @@ public class ChooseByIdDialog extends CaveSWTDialog implements
                 baselineStationIdTextFields));
     }
 
-    /**
-     * @param containsResource
-     */
-    public void setHomeResource(AbstractVizResource<?, ?> containsResource) {
-        this.homeToolLayer = (HomeToolLayer) containsResource;
-    }
-
-    /**
-     * @param containsResource
-     */
-    public void setPointsResource(AbstractVizResource<?, ?> containsResource) {
-        this.pointsToolLayer = (PointsToolLayer) containsResource;
-    }
-
-    /**
-     * @param containsResource
-     */
-    public void setBaslinesResource(AbstractVizResource<?, ?> containsResource) {
-        this.baselinesToolLayer = (InteractiveBaselinesLayer) containsResource;
-    }
-
-    public void setDescriptor(IDescriptor descriptor) {
-        this.descriptor = descriptor;
-    }
-
     @Override
     protected void disposed() {
         pointsDataManager.removePointsChangedListener(this);
+        unregisterListeners();
     }
 
     @Override

@@ -8,18 +8,11 @@ Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.raytheon.uf.viz.core,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.time;bundle-version="1.11.1",
- com.raytheon.edex.common;bundle-version="1.11.1",
- org.geotools;bundle-version="2.5.2",
- javax.measure,
- com.raytheon.viz.grid,
  com.raytheon.viz.core,
- com.raytheon.viz.pointdata;bundle-version="1.11.1",
- com.raytheon.uf.common.dataplugin.cwat;bundle-version="1.0.0",
- com.raytheon.uf.common.colormap;bundle-version="1.11.17",
- com.raytheon.uf.common.monitor;bundle-version="1.11.17"
+ com.raytheon.uf.common.dataplugin.cwat,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.common.monitor,
+ com.raytheon.uf.common.style
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.cwat

@@ -1,0 +1,60 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <bean id="bandwidthManagerCreator"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.ncf.NcfBandwidthManagerCreator" />
+
+    <bean name="sharedSubscriptionHandler"
+        class="com.raytheon.uf.common.datadelivery.registry.handlers.SubscriptionHandler">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.EmptySiteSubscriptionHandler">
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.common.datadelivery.registry.handlers.SharedSubscriptionHandler">
+                <property name="registryHandler" ref="registryHandler" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+    <util:list id="subscriptionRoutesToSchedule">
+        <value>SBN</value>
+    </util:list>
+
+    <bean id="bandwidthInitializer"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
+        <constructor-arg>
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+                <constructor-arg ref="sharedSubscriptionHandler" />
+                <constructor-arg ref="subscriptionRoutesToSchedule" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="sbnSubscriptionRetrievalAgentPrototype"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent"
+        scope="prototype">
+        <constructor-arg value="SBN" />
+        <constructor-arg value="notifyRetrieval" />
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg value="${bandwidth.default.retrieval.priority}" />
+        <constructor-arg ref="retrievalManager" />
+        <constructor-arg ref="bandwidthDao" />
+        <constructor-arg ref="retrievalDao" />
+        <constructor-arg ref="ProviderHandler" />
+    </bean>
+
+    <util:map id="retrievalAgents">
+        <entry key="Retrievals-1" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-2" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-3" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-4" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-5" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+    </util:map>
+
+</beans>

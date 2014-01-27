@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
@@ -149,7 +149,7 @@ public class MetarSeparator extends AbstractRecordSeparator {
     public byte[] next() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return new byte[0];
             } else {
                 return temp.getBytes();

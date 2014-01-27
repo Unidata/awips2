@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2011  #8393     dgilling     Initial creation
  * 02/19/13     #1637      randerso    Added exception handling for Discrete and Weather
+ * 10/31/2013   #2508      randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -139,7 +140,7 @@ public class ASCIIGrid {
      * @return
      */
     public boolean translateGrid(int index, GridParmInfo destGPI) {
-        if ((index < 0) || (index > gridSlices.size() - 1)) {
+        if ((index < 0) || (index > (gridSlices.size() - 1))) {
             return false;
         }
 
@@ -337,7 +338,7 @@ public class ASCIIGrid {
                     for (int i = discrete.getDiscreteGrid().getYdim() - 1; i >= 0; i--) {
                         for (int j = 0; j < discrete.getDiscreteGrid()
                                 .getXdim(); j++) {
-                            String key = discrete.getKey()[discrete
+                            String key = discrete.getKeys()[discrete
                                     .getDiscreteGrid().get(j, i)].toString();
                             outputStream.println(key);
                         }

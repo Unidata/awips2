@@ -19,9 +19,12 @@
  **/
 package com.raytheon.edex.plugin.poessounding;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,11 +32,13 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.edex.plugin.poessounding.dao.POESSoundingDAO;
 import com.raytheon.edex.plugin.poessounding.decoder.POESSoundingDataAdapter;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -57,6 +62,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 03, 2008 1026       jkorman     Initial implementation.
  * Apr 08, 2008 1039       jkorman     Added traceId for tracing data.
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
+ * Jul 17, 2013 2112       bsteffen    Split poes data so it gets stored in
+ *                                     correct file.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
@@ -136,13 +143,15 @@ public class POESSoundingDecoder extends AbstractDecoder implements
                     Iterator<BUFRDataDocument> iterator = document.iterator();
                     List<POESSounding> pdoList = new ArrayList<POESSounding>();
 
-                    PointDataContainer container = PointDataContainer
-                            .build(this.pdd);
+                    Map<File, PointDataContainer> container = new HashMap<File, PointDataContainer>();
+
+                    POESSoundingDAO dao = (POESSoundingDAO) PluginFactory
+                            .getInstance().getPluginDao(PLUGIN_NAME);
 
                     while (iterator.hasNext()) {
                         POESSounding soundingData = POESSoundingDataAdapter
                                 .createSoundingData(iterator, wmoHeader,
-                                        container);
+                                        container, pdd, dao);
                         if (soundingData != null) {
                             soundingData.setTraceId(traceId);
                             pdoList.add(soundingData);

@@ -43,7 +43,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.GridUtil;
 
 /**
  * Contains utility methods for use in common.
@@ -61,7 +60,7 @@ import com.raytheon.uf.common.util.GridUtil;
  * Nov 09, 2012 1322        djohnson    Add close for Spring context.
  * Feb 15, 2013 1638        mschenke    Deleted unused functions and moved ones used by common/viz
  *                                      code into common projects
- *
+ * 
  * </pre>
  * 
  * @author mfegan
@@ -91,35 +90,8 @@ public final class Util {
      */
     public static final String EOL = FileUtil.EOL;
 
-    public static final float GRID_FILL_VALUE = GridUtil.GRID_FILL_VALUE;
-
     private Util() {
         // No Instantiation
-    }
-
-    /**
-     * Simple check if str is null or empty.
-     * 
-     * @param str
-     *            A string to check
-     * @return true if string is null or empty, false otherwise
-     */
-    public static final boolean isEmptyString(String str) {
-        return (str == null) || ("".equals(str));
-    }
-
-    /**
-     * Wraps input Object.toString (if non-null) in [] for display (helps show
-     * empty string in output).<br>
-     * Example: printString("test") would display "[test]"<br>
-     * printString(null) would display "[null]"
-     * 
-     * @param obj
-     *            An object instance
-     * @return The object's {@link Object#toString()} value
-     */
-    public static final String printString(Object obj) {
-        return "[" + (obj == null ? "null" : obj.toString()) + "]";
     }
 
     /**
@@ -437,30 +409,6 @@ public final class Util {
             }
         }
         return status;
-    }
-
-    /**
-     * Determines if the given string is all alpha-numeric characters
-     * 
-     * @param str
-     *            The string to test
-     * @return True if the string is alpha-numeric
-     */
-    public static boolean isAlnum(String str) {
-        int count = 0;
-        Pattern pat = Pattern.compile("\\p{Alnum}");
-        Matcher mat = pat.matcher(str);
-
-        while (mat.find()) {
-            count++;
-        }
-
-        if (count == str.length()) {
-            return true;
-        } else {
-            return false;
-        }
-
     }
 
     /**

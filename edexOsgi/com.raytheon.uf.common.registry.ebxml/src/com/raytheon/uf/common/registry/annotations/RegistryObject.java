@@ -6,10 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.raytheon.uf.common.registry.RegistryManager;
-
-
-
 /**
  * An annotation that indicates that an instance of this Class can be stored 
  * in the registry using the RegistryManager Class.  Member fields of a Class 

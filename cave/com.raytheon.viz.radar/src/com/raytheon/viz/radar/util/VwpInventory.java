@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
@@ -45,8 +46,6 @@ import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
@@ -154,28 +153,25 @@ public class VwpInventory extends AbstractPointDataInventory {
         List<String> baseParams = new ArrayList<String>(baseParameters);
         baseParams.remove(LATITUDE);
         baseParams.remove(LONGITUDE);
-        queryParams.put("pluginName", new RequestConstraint("radar"));
+        queryParams.put(PluginDataObject.PLUGIN_NAME_ID, new RequestConstraint(
+                RadarRecord.PLUGIN_NAME));
         queryParams.put("productCode", new RequestConstraint(ProductCode));
 
         queryParams.remove("type");
-        String script = ScriptCreator.createScript(queryParams, 1000, "select");
-        List<Object> respList = Loader.loadData(script, 60000);
-        RadarRecord[] records = new RadarRecord[respList.size()];
-        for (int i = 0; i < records.length; i++) {
-            if (respList.get(i) instanceof RadarRecord) {
-                records[i] = (RadarRecord) respList.get(i);
-                File loc = HDF5Util.findHDF5Location(records[i]);
-                IDataStore dataStore = DataStoreFactory.getDataStore(loc);
-                try {
-                    RadarDataRetriever.populateRadarRecord(dataStore,
-                            records[i]);
-                } catch (FileNotFoundException e) {
-                    throw new VizException(
-                            "Error Retrieving VWP Data from Radar Record", e);
-                } catch (StorageException e) {
-                    throw new VizException(
-                            "Error Retrieving VWP Data from Radar Record", e);
-                }
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                .sendRequest(new DbQueryRequest(queryParams));
+        RadarRecord[] records = response.getEntityObjects(RadarRecord.class);
+        for (RadarRecord record : records) {
+            File loc = HDF5Util.findHDF5Location(record);
+            IDataStore dataStore = DataStoreFactory.getDataStore(loc);
+            try {
+                RadarDataRetriever.populateRadarRecord(dataStore, record);
+            } catch (FileNotFoundException e) {
+                throw new VizException(
+                        "Error Retrieving VWP Data from Radar Record", e);
+            } catch (StorageException e) {
+                throw new VizException(
+                        "Error Retrieving VWP Data from Radar Record", e);
             }
         }
         Object[] vals = new Object[baseParams.size()];
