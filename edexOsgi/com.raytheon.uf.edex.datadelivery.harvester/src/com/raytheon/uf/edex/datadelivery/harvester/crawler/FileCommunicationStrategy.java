@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
 import com.raytheon.uf.common.datadelivery.harvester.ProtoCollection;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
@@ -43,7 +44,6 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.SerializableExceptionWrapper;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -73,6 +73,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.ProviderCollectionLinkStore;
  * Aug 06, 2012 1022       djohnson     Add shutdown(), write out millis with filename to prevent overwriting.
  * Sep 10, 2012 1154       djohnson     Use JAXB instead of thrift, allowing introspection of links, return files in ascending order.
  * Mar 14, 2013 1794       djohnson     Consolidate common FilenameFilter implementations.
+ *  * Oct 28, 2013 2361       dhladky     Fixed up JAXBManager.
  * 
  * </pre>
  * 
@@ -373,18 +374,15 @@ class FileCommunicationStrategy implements CommunicationStrategy {
         File file = lf.getFile();
 
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(hconfig,
-                    file.getAbsolutePath());
+            HarvesterConfigurationManager.setHarvesterFile(hconfig, file);
             lf.save();
-        } catch (SerializationException e) {
+        } catch (Exception e) {
             statusHandler
                     .error("Unable to recreate the "
                             + provider
                             + "-harvester.xml configuration! Save of new collections failed",
                             e);
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-        }
+        } 
     }
 
     /**

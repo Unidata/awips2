@@ -20,7 +20,6 @@ package com.raytheon.uf.edex.datadelivery.retrieval.opendap;
  * further licensing information.
  **/
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
@@ -39,6 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.edex.datadelivery.retrieval.Link;
 import com.raytheon.uf.edex.datadelivery.retrieval.LinkStore;
 import com.raytheon.uf.edex.datadelivery.retrieval.MetaDataParser;
@@ -91,6 +91,8 @@ import dods.dap.DAS;
  * Jan 08, 2013            dhladky      Performance enhancements, specific model fixes.
  * Jan 18, 2013 1513       dhladky      Level look up improvements.
  * Jan 24, 2013 1527       dhladky      Changed 0DEG to FRZ
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -138,7 +140,9 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 if (levelType.equals(LevelType.MB)
                         || levelType.equals(LevelType.SEAB)) {
 
-                    List<Double> levelList = OpenDAPParseUtility.getInstance().parseLevels(gdsmd.getUrl(), serviceConfig.getConstantValue("LEV"));
+                    List<Double> levelList = OpenDAPParseUtility.getInstance()
+                            .parseLevels(gdsmd.getUrl(),
+                                    serviceConfig.getConstantValue("LEV"));
                     LookupManager.getInstance().modifyLevelLookups(
                             collectionName, dz, levMin, levMax, levelList);
                 }
@@ -185,9 +189,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
      * @return
      */
     private Map<String, Parameter> getParameters(DAS das,
-            GriddedDataSet dataSet,
-            GriddedDataSetMetaData gdsmd, Link link, Collection collection,
-            String dataDateFormat) {
+            GriddedDataSet dataSet, GriddedDataSetMetaData gdsmd, Link link,
+            Collection collection, String dataDateFormat) {
 
         final String collectionName = dataSet.getCollectionName();
         final String url = gdsmd.getUrl();
@@ -229,28 +232,29 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         final String missing_value = serviceConfig
                 .getConstantValue("MISSING_VALUE");
         final String fill_value = serviceConfig.getConstantValue("FILL_VALUE");
-        final String fill = new Float(Util.GRID_FILL_VALUE).toString();
+        final String fill = new Float(GridUtil.GRID_FILL_VALUE).toString();
 
         // process globals first
         // process time
         if (das.getAttributeTable(timecon) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(timecon);
-                Time time = new Time();
-                // number of times
-                time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
-                // minimum time val
-                time.setStart(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(
-                        minimum).getValueAt(0)));
-                // maximum time val
-                time.setEnd(OpenDAPParseUtility.getInstance().parseDate(at.getAttribute(maximum)
-                        .getValueAt(0)));
+                GriddedTime time = new GriddedTime();
                 // format of time
                 time.setFormat(dataDateFormat);
+                // number of times
+                time.setNumTimes(new Integer(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
+                // minimum time val
+                time.setStartDate(OpenDAPParseUtility.getInstance().parseDate(
+                        at.getAttribute(minimum).getValueAt(0)));
+                // maximum time val
+                time.setEndDate(OpenDAPParseUtility.getInstance().parseDate(
+                        at.getAttribute(maximum).getValueAt(0)));
                 // step
-                List<String> step = OpenDAPParseUtility.getInstance().parseTimeStep(at
-                        .getAttribute(time_step).getValueAt(0));
+                List<String> step = OpenDAPParseUtility
+                        .getInstance()
+                        .parseTimeStep(at.getAttribute(time_step).getValueAt(0));
                 time.setStep(new Double(step.get(0)).doubleValue());
                 time.setStepUnit(Time.findStepUnit(step.get(1))
                         .getDurationUnit());
@@ -264,20 +268,26 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(lat);
                 // ny
-                gridCoverage.setNy(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
+                gridCoverage.setNy(new Integer(OpenDAPParseUtility
+                        .getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // dy
-                gridCoverage.setDy(new Float(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                gridCoverage.setDy(new Float(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(resolution).getValueAt(0)))
+                        .floatValue());
                 // first latitude point
-                gridCoverage.setLa1(new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue());
+                gridCoverage.setLa1(new Double(OpenDAPParseUtility
+                        .getInstance().trim(
+                                at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue());
 
-                upperLeft.y = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        maximum).getValueAt(0))).doubleValue();
+                upperLeft.y = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(maximum).getValueAt(0)))
+                        .doubleValue();
 
-                lowerRight.y = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+                lowerRight.y = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue();
 
             } catch (Exception le) {
                 logParsingException(lat, "Latitude", collectionName, url);
@@ -288,17 +298,21 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(lon);
                 // nx
-                gridCoverage.setNx(new Integer(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(size).getValueAt(0))).intValue());
+                gridCoverage.setNx(new Integer(OpenDAPParseUtility
+                        .getInstance()
+                        .trim(at.getAttribute(size).getValueAt(0))).intValue());
                 // dx
-                gridCoverage.setDx(new Float(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(resolution).getValueAt(0))).floatValue());
+                gridCoverage.setDx(new Float(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(resolution).getValueAt(0)))
+                        .floatValue());
                 // min Lon
-                double minLon = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(minimum).getValueAt(0))).doubleValue();
+                double minLon = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(minimum).getValueAt(0)))
+                        .doubleValue();
                 // max Lon
-                double maxLon = new Double(OpenDAPParseUtility.getInstance().trim(at
-                        .getAttribute(maximum).getValueAt(0))).doubleValue();
+                double maxLon = new Double(OpenDAPParseUtility.getInstance()
+                        .trim(at.getAttribute(maximum).getValueAt(0)))
+                        .doubleValue();
 
                 gridCoverage.setLo1(minLon);
                 upperLeft.x = minLon;
@@ -312,12 +326,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
         if (das.getAttributeTable(lev) != null) {
             try {
                 AttributeTable at = das.getAttributeTable(lev);
-                dz = new Double(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        resolution).getValueAt(0))).doubleValue();
-                levMin = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        minimum).getValueAt(0))).floatValue();
-                levMax = new Float(OpenDAPParseUtility.getInstance().trim(at.getAttribute(
-                        maximum).getValueAt(0))).floatValue();
+                dz = new Double(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(resolution).getValueAt(0)))
+                        .doubleValue();
+                levMin = new Float(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(minimum).getValueAt(0))).floatValue();
+                levMax = new Float(OpenDAPParseUtility.getInstance().trim(
+                        at.getAttribute(maximum).getValueAt(0))).floatValue();
                 hasLevels = true;
 
             } catch (Exception le) {
@@ -329,10 +344,11 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             try {
                 AttributeTable at = das.getAttributeTable(nc_global);
                 dataSet.setDataSetType(DataType
-                        .valueOfIgnoreCase(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(data_type).getValueAt(0))));
+                        .valueOfIgnoreCase(OpenDAPParseUtility.getInstance()
+                                .trim(at.getAttribute(data_type).getValueAt(0))));
                 String description = at.getAttribute(title).getValueAt(0);
-                gdsmd.setDataSetDescription(OpenDAPParseUtility.getInstance().trim(description));
+                gdsmd.setDataSetDescription(OpenDAPParseUtility.getInstance()
+                        .trim(description));
             } catch (Exception ne) {
                 logParsingException(nc_global, "Global Dataset Info",
                         collectionName, url);
@@ -361,7 +377,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                 // regular parameter parsing
                 try {
 
-                	AttributeTable at = das.getAttributeTable(name);
+                    AttributeTable at = das.getAttributeTable(name);
                     Parameter parm = new Parameter();
                     parm.setDataType(dataSet.getDataSetType());
 
@@ -387,8 +403,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     // descriptions, default fill, or missing vals.
                     String description = "unknown description";
                     try {
-                        description = OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(long_name).getValueAt(0));
+                        description = OpenDAPParseUtility.getInstance().trim(
+                                at.getAttribute(long_name).getValueAt(0));
 
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
@@ -396,11 +412,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     parm.setDefinition(description);
-                    parm.setUnits(OpenDAPParseUtility.getInstance().parseUnits(description));
+                    parm.setUnits(OpenDAPParseUtility.getInstance().parseUnits(
+                            description));
 
                     try {
-                        parm.setMissingValue(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(missing_value).getValueAt(0)));
+                        parm.setMissingValue(OpenDAPParseUtility.getInstance()
+                                .trim(at.getAttribute(missing_value)
+                                        .getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Invalid DAP missing value block! " + name);
@@ -408,8 +426,9 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     }
 
                     try {
-                        parm.setFillValue(OpenDAPParseUtility.getInstance().trim(at
-                                .getAttribute(fill_value).getValueAt(0)));
+                        parm.setFillValue(OpenDAPParseUtility
+                                .getInstance()
+                                .trim(at.getAttribute(fill_value).getValueAt(0)));
                     } catch (Exception iae) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Invalid DAP fill value block! " + name);
@@ -610,7 +629,7 @@ class OpenDAPMetaDataParser extends MetaDataParser {
             }
 
             if (type == null) {
-            	type = new DataLevelType(LevelType.UNKNOWN);
+                type = new DataLevelType(LevelType.UNKNOWN);
             }
         }
 
@@ -618,10 +637,10 @@ class OpenDAPMetaDataParser extends MetaDataParser {
     }
 
     @Override
-    public List<DataSetMetaData> parseMetaData(Provider provider,
+    public List<DataSetMetaData<?>> parseMetaData(Provider provider,
             LinkStore store, Collection collection, String dataDateFormat) {
 
-        final Map<OpenDapGriddedDataSet, List<DataSetMetaData>> metaDatas = new HashMap<OpenDapGriddedDataSet, List<DataSetMetaData>>();
+        final Map<OpenDapGriddedDataSet, List<DataSetMetaData<?>>> metaDatas = new HashMap<OpenDapGriddedDataSet, List<DataSetMetaData<?>>>();
 
         Set<String> linkKeys = new TreeSet<String>(store.getLinkKeys());
 
@@ -640,8 +659,8 @@ class OpenDAPMetaDataParser extends MetaDataParser {
 
             List<String> vals = null;
             try {
-                vals = OpenDAPParseUtility.getInstance().getDataSetNameAndCycle(linkKey,
-                        collection.getName());
+                vals = OpenDAPParseUtility.getInstance()
+                        .getDataSetNameAndCycle(linkKey, collection.getName());
             } catch (Exception e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failed to get cycle and dataset name set...", e1);
@@ -668,17 +687,13 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                     serviceConfig.getConstantValue("BLANK")));
             dataSet.setParameters(getParameters(das, dataSet, gdsmd, link,
                     collection, dataDateFormat));
-            Time dataSetTime = gdsmd.getTime();
+            GriddedTime dataSetTime = gdsmd.getTime();
             if (dataSetTime == null) {
                 throw new IllegalStateException(
                         "The time cannot be null for a DataSetMetaData object!");
             }
             dataSet.setTime(dataSetTime);
-            try {
-                gdsmd.setDate(new ImmutableDate(dataSetTime.getStartDate()));
-            } catch (ParseException e) {
-                throw new IllegalStateException("Unable to parse a date!", e);
-            }
+            gdsmd.setDate(new ImmutableDate(dataSetTime.getStart()));
 
             List<Integer> forecastHoursAsInteger = new ArrayList<Integer>();
             for (String forecastHour : gdsmd.getTime().getFcstHours()) {
@@ -725,17 +740,17 @@ class OpenDAPMetaDataParser extends MetaDataParser {
                         "The time cannot be null for a DataSet object!");
             }
 
-            List<DataSetMetaData> toStore = metaDatas.get(dataSet);
+            List<DataSetMetaData<?>> toStore = metaDatas.get(dataSet);
             if (toStore == null) {
-                toStore = new ArrayList<DataSetMetaData>();
+                toStore = new ArrayList<DataSetMetaData<?>>();
                 metaDatas.put(dataSet, toStore);
             }
             toStore.add(gdsmd);
         }
 
-        List<DataSetMetaData> parsedMetadatas = new ArrayList<DataSetMetaData>();
-        for (DataSet dataSet : metaDatas.keySet()) {
-            List<DataSetMetaData> dataSetMetaDatas = metaDatas.get(dataSet);
+        List<DataSetMetaData<?>> parsedMetadatas = new ArrayList<DataSetMetaData<?>>();
+        for (DataSet<GriddedTime, GriddedCoverage> dataSet : metaDatas.keySet()) {
+            List<DataSetMetaData<?>> dataSetMetaDatas = metaDatas.get(dataSet);
 
             storeDataSet(dataSet);
             storeMetaData(dataSetMetaDatas, dataSet);

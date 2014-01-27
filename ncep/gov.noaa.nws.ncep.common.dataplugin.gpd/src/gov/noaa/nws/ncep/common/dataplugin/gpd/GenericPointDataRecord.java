@@ -1,20 +1,3 @@
-/**
- * 
- * 
- * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
- * 
- * <pre>
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    	Engineer    Description
- * -------		------- 	-------- 	-----------
- * 05/30/2013				Chin J. Chen	Initial coding
- *
- * </pre>
- * 
- * @author Chin J. Chen
- * @version 1.0
- */
 package gov.noaa.nws.ncep.common.dataplugin.gpd;
 
 import gov.noaa.nws.ncep.common.dataplugin.gpd.product.GenericPointDataProductInfo;
@@ -48,6 +31,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.DataTime;
 
+/**
+ * 
+ * 
+ * This code has been developed by the NCEP-SIB for use in the AWIPS2 system.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * -------      -------     --------    -----------
+ * 05/30/2013               Chin J. Chen    Initial coding
+ * 
+ * </pre>
+ * 
+ * @author Chin J. Chen
+ * @version 1.0
+ */
 @Entity
 // @Table(name = "gpd", uniqueConstraints = { @UniqueConstraint(columnNames = {
 // "dataURI" }) })
@@ -300,6 +300,11 @@ public class GenericPointDataRecord extends PersistablePluginDataObject
         this.productVersion = productVersion;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.dataplugin.PluginDataObject#getPluginName()
+     */
     @Override
     public String getPluginName() {
         return "gpd";

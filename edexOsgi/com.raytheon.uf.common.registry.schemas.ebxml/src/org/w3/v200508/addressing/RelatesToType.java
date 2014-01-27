@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.XmlValue;
 import javax.xml.namespace.QName;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -62,13 +63,27 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RelatesToType", propOrder = { "value" })
 @DynamicSerialize
 public class RelatesToType {
+
+    private static final String ADDRESSING_REPLY = EbxmlNamespaces.ADDRESSING_URI
+            + "/reply";
 
     @XmlValue
     @XmlSchemaType(name = "anyURI")
@@ -112,7 +127,7 @@ public class RelatesToType {
      */
     public String getRelationshipType() {
         if (relationshipType == null) {
-            return "http://www.w3.org/2005/08/addressing/reply";
+            return ADDRESSING_REPLY;
         } else {
             return relationshipType;
         }

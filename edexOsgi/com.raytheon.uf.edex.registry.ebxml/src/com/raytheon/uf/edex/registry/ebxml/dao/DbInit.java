@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import javax.xml.bind.JAXBException;
+
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.lcm.v4.SubmitObjectsRequest;
@@ -45,19 +47,20 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.jdbc.Work;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -78,19 +81,22 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * ------------ ----------  ----------- --------------------------
  * 2/9/2012     184         bphillip    Initial Coding
  * 3/18/2013    1082        bphillip    Changed to use transactional boundaries and spring injection
- * 4/9/2013     1802       bphillip     Changed submitObjects method call from submitObjectsInternal
- * Apr 15, 2013 1693       djohnson     Use a strategy to verify the database is up to date.
+ * 4/9/2013     1802        bphillip    Changed submitObjects method call from submitObjectsInternal
+ * Apr 15, 2013 1693        djohnson    Use a strategy to verify the database is up to date.
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
- * 5/21/2013    2022       bphillip     Using TransactionTemplate for database initialization
- * May 29, 2013 1650       djohnson     Reference LifecycleManager as interface type.
+ * 5/21/2013    2022        bphillip    Using TransactionTemplate for database initialization
+ * May 29, 2013 1650        djohnson    Reference LifecycleManager as interface type.
+ * Jun 24, 2013 2106        djohnson    Invoke registry initialized listeners in their own transaction so 
+ *                                      they can't fail the ebxml schema creation/population.
+ * Nov 01, 2013 2361        njensen     Use EbxmlJaxbManager instead of SerializationUtil
+ * Nov 14, 2013 2552        bkowal      EbxmlJaxbManager is now accessed via getInstance
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Transactional
 public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
-        ApplicationListener<ContextRefreshedEvent> {
+        ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
 
     @VisibleForTesting
     static volatile boolean INITIALIZED = false;
@@ -108,8 +114,7 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     /** Hibernate session factory */
     private SessionFactory sessionFactory;
 
-    /** Transaction template */
-    private TransactionTemplate txTemplate;
+    private ApplicationContext applicationContext;
 
     /**
      * Creates a new instance of DbInit. This constructor should only be called
@@ -161,9 +166,18 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
             statusHandler.info("Populating RegRep database from file: "
                     + fileList[i].getName());
 
-            SubmitObjectsRequest obj = SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(SubmitObjectsRequest.class,
-                            fileList[i]);
+            SubmitObjectsRequest obj = null;
+            try {
+                obj = EbxmlJaxbManager
+                        .getInstance()
+                        .getJaxbManager()
+                        .unmarshalFromXmlFile(SubmitObjectsRequest.class,
+                                fileList[i]);
+            } catch (JAXBException e) {
+                throw new SerializationException(
+                        "Error unmarshalling from file: "
+                                + fileList[i].getPath(), e);
+            }
 
             // Ensure an owner is assigned
             for (RegistryObjectType regObject : obj.getRegistryObjectList()
@@ -319,44 +333,38 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
     }
 
     @Override
+    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (!INITIALIZED) {
-            txTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(
-                        TransactionStatus status) {
-                    try {
-                        initDb();
-                    } catch (Exception e) {
-                        statusHandler.fatal(
-                                "Error initializing EBXML database!", e);
-                    }
+            // Must reference this bean through the proxy to get proper
+            // transactional semantics, which requires going through the
+            // application context
+            final DbInit myself = applicationContext.getBean(DbInit.class);
+            try {
+                myself.initDb();
+            } catch (Exception e) {
+                statusHandler.fatal("Error initializing EBXML database!", e);
+            }
 
-                }
-            });
+            myself.postInitDb();
 
-            statusHandler.info("Executing post initialization actions");
-
-            txTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(
-                        TransactionStatus status) {
-                    try {
-                        Map<String, RegistryInitializedListener> beans = EDEXUtil
-                                .getSpringContext().getBeansOfType(
-                                        RegistryInitializedListener.class);
-                        for (RegistryInitializedListener listener : beans
-                                .values()) {
-                            listener.executeAfterRegistryInit();
-                        }
-                    } catch (Throwable t) {
-                        throw new RuntimeException(
-                                "Error initializing EBXML database!", t);
-                    }
-
-                }
-            });
             INITIALIZED = true;
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void postInitDb() {
+        statusHandler.info("Executing post initialization actions");
+
+        try {
+            Map<String, RegistryInitializedListener> beans = EDEXUtil
+                    .getSpringContext().getBeansOfType(
+                            RegistryInitializedListener.class);
+            for (RegistryInitializedListener listener : beans.values()) {
+                listener.executeAfterRegistryInit();
+            }
+        } catch (Throwable t) {
+            throw new RuntimeException("Error initializing EBXML database!", t);
         }
     }
 
@@ -384,7 +392,12 @@ public class DbInit extends com.raytheon.uf.edex.database.init.DbInit implements
         this.sessionFactory = sessionFactory;
     }
 
-    public void setTxTemplate(TransactionTemplate txTemplate) {
-        this.txTemplate = txTemplate;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

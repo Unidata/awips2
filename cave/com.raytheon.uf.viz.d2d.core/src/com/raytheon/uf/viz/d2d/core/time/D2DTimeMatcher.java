@@ -73,7 +73,8 @@ import com.raytheon.uf.viz.d2d.core.D2DLoadProperties;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 10, 2009            chammack     Initial creation
+ * Feb 10, 2009            chammack    Initial creation
+ * Jul 03, 2013 2159       bsteffen    Synchronize TimeCache access.
  * Aug  9, 2013 DR 16448   D. Friedman Validate time match basis in redoTimeMatching
  * 
  * </pre>
@@ -87,6 +88,10 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DTimeMatcher.class);
 
+    /**
+     * Always synchronize on an instance of TimeCache before using it to avoid
+     * getting mixed state from modification on other threads.
+     */
     private static class TimeCache {
         /**
          * The last set of times that the resource with these properties was
@@ -123,6 +128,7 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             this.lastFrameTimes = frameTimes;
             this.lastFrameCount = frameCount;
         }
+
     }
 
     protected transient AbstractVizResource<?, ?> timeMatchBasis;
@@ -179,10 +185,41 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     }
 
     public void redoTimeMatching(AbstractVizResource<?, ?> resource) {
-        TimeCache cache = timeCacheMap.get(resource);
-        if (cache != null) {
-            cache.setTimes(null, null);
+        TimeCache cache = null;
+        synchronized (timeCacheMap) {
+            cache = timeCacheMap.get(resource);
         }
+        if (cache != null) {
+            synchronized (cache) {
+                cache.setTimes(null, null);
+            }
+        }
+    }
+
+    /**
+     * Checks if a resource is contained in the {@link IResourceGroup}
+     * recursively checking for {@link IResourceGroup}s in the group's list
+     * 
+     * @param group
+     * @param resource
+     * @return
+     */
+    private boolean contained(IResourceGroup group,
+            AbstractVizResource<?, ?> resource) {
+        ResourceList list = group.getResourceList();
+        if (list.containsRsc(resource)) {
+            return true;
+        } else {
+            for (ResourcePair rp : list) {
+                if (rp.getResourceData() instanceof IResourceGroup) {
+                    if (contained((IResourceGroup) rp.getResourceData(),
+                            resource)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /*
@@ -199,8 +236,13 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             }
             if (timeMatchBasis != null) {
                 IDescriptor tmDescriptor = timeMatchBasis.getDescriptor();
-                if (tmDescriptor != null && tmDescriptor != descriptor) {
-                    redoTimeMatching(timeMatchBasis.getDescriptor());
+                if (tmDescriptor != null) {
+                    if (tmDescriptor != descriptor) {
+                        redoTimeMatching(tmDescriptor);
+                    } else if (contained(tmDescriptor, timeMatchBasis) == false) {
+                        // Checks to ensure the timeMatchBasis is not "orphaned"
+                        timeMatchBasis = null;
+                    }
                 }
             }
             FramesInfo currInfo = descriptor.getFramesInfo();
@@ -358,22 +400,26 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             TimeMatchingConfiguration config = getConfiguration(rsc
                     .getLoadProperties());
             TimeCache timeCache = getTimeCache(rsc);
-            DataTime[] timeSteps = getFrameTimes(descriptor, framesInfo);
-            if (Arrays.equals(timeSteps, timeCache.getLastBaseTimes())) {
-                framesInfo.getTimeMap().put(rsc, timeCache.getLastFrameTimes());
-            } else {
-                config = config.clone();
-                if (config.getDataTimes() == null
-                        || config.getDataTimes().length < 1) {
-                    config.setDataTimes(getLatestTimes(rsc));
+            synchronized (timeCache) {
+                DataTime[] timeSteps = getFrameTimes(descriptor, framesInfo);
+                if (Arrays.equals(timeSteps, timeCache.getLastBaseTimes())) {
+                    framesInfo.getTimeMap().put(rsc,
+                            timeCache.getLastFrameTimes());
+                } else {
+                    config = config.clone();
+                    if (config.getDataTimes() == null
+                            || config.getDataTimes().length < 1) {
+                        config.setDataTimes(getLatestTimes(rsc));
+                    }
+                    populateConfiguration(config);
+                    DataTime[] overlayDates = TimeMatcher.makeOverlayList(
+                            config.getDataTimes(), config.getClock(),
+                            timeSteps, config.getLoadMode(),
+                            config.getForecast(), config.getDelta(),
+                            config.getTolerance());
+                    timeCache.setTimes(timeSteps, overlayDates);
+                    framesInfo.getTimeMap().put(rsc, overlayDates);
                 }
-                populateConfiguration(config);
-                DataTime[] overlayDates = TimeMatcher.makeOverlayList(
-                        config.getDataTimes(), config.getClock(), timeSteps,
-                        config.getLoadMode(), config.getForecast(),
-                        config.getDelta(), config.getTolerance());
-                timeCache.setTimes(timeSteps, overlayDates);
-                framesInfo.getTimeMap().put(rsc, overlayDates);
             }
         }
     }
@@ -449,11 +495,14 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             int numberOfFrames) throws VizException {
         if (timeMatchBasis != null) {
             TimeCache timeCache = getTimeCache(timeMatchBasis);
-            DataTime[] times = timeCache.getLastFrameTimes();
-            if (times == null || timeCache.getLastBaseTimes() != null
-                    || timeCache.getLastFrameCount() != numberOfFrames) {
-                times = makeEmptyLoadList(numberOfFrames, timeMatchBasis);
-                timeCache.setTimes(null, times, numberOfFrames);
+            DataTime[] times = null;
+            synchronized (timeCache) {
+                times = timeCache.getLastFrameTimes();
+                if (times == null || timeCache.getLastBaseTimes() != null
+                        || timeCache.getLastFrameCount() != numberOfFrames) {
+                    times = makeEmptyLoadList(numberOfFrames, timeMatchBasis);
+                    timeCache.setTimes(null, times, numberOfFrames);
+                }
             }
             if (times != null) {
                 return times;
@@ -485,7 +534,10 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
             } else {
                 DataTime[] times = makeEmptyLoadList(numberOfFrames, rsc);
                 if (times != null) {
-                    getTimeCache(rsc).setTimes(null, times, numberOfFrames);
+                    TimeCache cache = getTimeCache(rsc);
+                    synchronized (cache) {
+                        cache.setTimes(null, times, numberOfFrames);
+                    }
                     return times;
                 }
             }
@@ -584,12 +636,14 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
     }
 
     private TimeCache getTimeCache(AbstractVizResource<?, ?> resource) {
-        TimeCache cache = timeCacheMap.get(resource);
-        if (cache == null) {
-            cache = new TimeCache();
-            timeCacheMap.put(resource, cache);
+        synchronized (timeCacheMap) {
+            TimeCache cache = timeCacheMap.get(resource);
+            if (cache == null) {
+                cache = new TimeCache();
+                timeCacheMap.put(resource, cache);
+            }
+            return cache;
         }
-        return cache;
     }
 
     /**
@@ -740,7 +794,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                 timeMatchBasis = null;
             }
         }
-        timeCacheMap.remove(resource);
+        synchronized (timeCacheMap) {
+            timeCacheMap.remove(resource);
+        }
     }
 
     /**
@@ -839,7 +895,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                         .getLoadProperties());
                 config.setTimeMatchBasis(false);
                 TimeCache timeCache = getTimeCache(timeMatchBasis);
-                timeCache.setTimes(null, null);
+                synchronized (timeCache) {
+                    timeCache.setTimes(null, null);
+                }
                 timeMatchBasis
                         .unregisterListener(timeMatchBasisDisposeListener);
             }
@@ -851,7 +909,9 @@ public class D2DTimeMatcher extends AbstractTimeMatcher {
                         .getLoadProperties());
                 config.setTimeMatchBasis(true);
                 TimeCache timeCache = getTimeCache(timeMatchBasis);
-                timeCache.setTimes(null, null);
+                synchronized (timeCache) {
+                    timeCache.setTimes(null, null);
+                }
                 timeMatchBasis.registerListener(timeMatchBasisDisposeListener);
             }
         }

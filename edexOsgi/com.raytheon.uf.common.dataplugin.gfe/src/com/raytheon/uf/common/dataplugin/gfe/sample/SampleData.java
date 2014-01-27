@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -56,7 +56,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SampleData implements Cloneable, ISerializableObject {
+public class SampleData implements Cloneable {
 
     private static final String LEGACY_FILE_HEADER_LINE_PATTERN = "\\d+";
 
@@ -66,11 +66,23 @@ public class SampleData implements Cloneable, ISerializableObject {
 
     private static final String LINE_STRING_COORDINATE_PATTERN = "\\s*(-?\\d+(?:\\.\\d+)?)\\s+(-?\\d+(?:\\.\\d+)?)\\s*";
 
+    private static final SingleTypeJAXBManager<SampleData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(SampleData.class);
+
     private SampleId sampleId;
 
     @XmlJavaTypeAdapter(value = CoordAdapter.class)
     @DynamicSerializeElement
     private List<Coordinate> points;
+
+    /**
+     * Returns the JAXBManager that handles SampleData
+     * 
+     * @return
+     */
+    public static SingleTypeJAXBManager<SampleData> getJAXBManager() {
+        return jaxb;
+    }
 
     /**
      * Default constructor

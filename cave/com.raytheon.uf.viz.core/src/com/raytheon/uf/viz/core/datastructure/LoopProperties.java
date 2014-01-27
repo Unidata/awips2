@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlElement;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * This class is a container for the loop properties
  * 
@@ -36,9 +34,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Aug 30, 2007             randerso    Initial Creation.
+ * Date       	 Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2007           randerso    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -47,7 +46,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class LoopProperties implements ISerializableObject {
+public class LoopProperties {
 
     public enum LoopMode {
         Forward, Backward, Cycle

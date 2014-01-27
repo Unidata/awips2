@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.IPathManager;
@@ -37,7 +36,7 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 /**
- * TODO Add Description
+ * This dialog will allow users to open existing procedures.
  * 
  * <pre>
  * 
@@ -46,6 +45,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2011            mschenke     Initial creation
+ * 11 Dec 2013  #2583      lvenable    Added a check to determine if current user,
+ *                                     all users or all procedures should be requested.
  * 
  * </pre>
  * 
@@ -56,16 +57,18 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 public class OpenProcedureListDlg extends ProcedureListDlg {
 
     /**
-     * @param title
+     * Constructor.
+     * 
      * @param parent
-     * @param mode
+     *            Parent shell.
      */
     public OpenProcedureListDlg(Shell parent) {
         super("Open Procedure", parent, Mode.OPEN);
     }
 
     @Override
-    protected ProcedureTree populateDataList(TreeViewer treeViewer) {
+    protected ProcedureTree populateDataList() {
+
         ProcedureTree root = new ProcedureTree("root", null);
         IPathManager pm = PathManagerFactory.getPathManager();
         Set<LocalizationContext> searchContexts = new HashSet<LocalizationContext>();
@@ -73,18 +76,31 @@ public class OpenProcedureListDlg extends ProcedureListDlg {
         searchContexts.addAll(Arrays.asList(pm
                 .getLocalSearchHierarchy(LocalizationType.CAVE_STATIC)));
 
-        // Use of LocalizationLevels.values() in this case should be okay since
-        // we are requesting all possible context names for the level, doesn't
-        // matter if our local context for the level is set
-        LocalizationLevel[] levels = pm.getAvailableLevels();
-        for (LocalizationLevel level : levels) {
-            if (level.isSystemLevel() == false) {
-                String[] available = pm.getContextList(level);
-                for (String s : available) {
-                    LocalizationContext ctx = pm.getContext(
-                            LocalizationType.CAVE_STATIC, level);
-                    ctx.setContextName(s);
-                    searchContexts.add(ctx);
+        // If the show type is not the current user then look at loading the
+        // remaining procedures.
+        if (selectedShowType != ShowType.MINE) {
+            // Use of LocalizationLevels.values() in this case should be okay
+            // since we are requesting all possible context names for the level,
+            // doesn't matter if our local context for the level is set
+            LocalizationLevel[] levels = pm.getAvailableLevels();
+            for (LocalizationLevel level : levels) {
+
+                // If the show type is all users and the localization is USER or
+                // show type is ALL then load the procedure. This will either
+                // load all of the procedures or only the ones at the user
+                // level.
+                if ((selectedShowType == ShowType.ALL_USERS && level == LocalizationLevel.USER)
+                        || selectedShowType == ShowType.ALL) {
+
+                    if (level.isSystemLevel() == false) {
+                        String[] available = pm.getContextList(level);
+                        for (String s : available) {
+                            LocalizationContext ctx = pm.getContext(
+                                    LocalizationType.CAVE_STATIC, level);
+                            ctx.setContextName(s);
+                            searchContexts.add(ctx);
+                        }
+                    }
                 }
             }
         }

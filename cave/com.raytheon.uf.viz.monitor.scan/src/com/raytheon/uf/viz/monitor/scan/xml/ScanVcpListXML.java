@@ -26,27 +26,25 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * VCP List.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 20, 2011            mpduff     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 20, 2011           mpduff      Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScanVcpListXML implements ISerializableObject {
+public class ScanVcpListXML {
     @XmlElements({ @XmlElement(name = "vcp", type = ScanVcpXML.class) })
     private ArrayList<ScanVcpXML> vcpData;
     

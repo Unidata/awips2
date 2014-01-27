@@ -47,8 +47,10 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 8, 2011            mschenke     Initial creation
- * Jan 14, 2013 1469      bkowal       The hdf5 data directory is no longer a preference.
+ * Nov 08, 2011            mschenke    Initial creation
+ * Jan 14, 2013 1469       bkowal      The hdf5 data directory is no longer a
+ *                                     preference.
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -135,7 +137,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
         // check HTTP Server
         Text text = servicesServer.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkHttpServer(text.getText().trim(),
+        ConnectivityManager.checkLocalizationServer(text.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {

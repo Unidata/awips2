@@ -28,7 +28,6 @@ import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord;
 import com.raytheon.uf.common.dataplugin.vil.VILRecord.DATA_TYPE;
-import com.raytheon.uf.common.dataplugin.vil.dao.VILDao;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;

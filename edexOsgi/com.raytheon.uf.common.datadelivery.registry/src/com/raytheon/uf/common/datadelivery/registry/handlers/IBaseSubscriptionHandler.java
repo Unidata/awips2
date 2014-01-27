@@ -43,6 +43,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * May 28, 2013 1650       djohnson     Add getByNames.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -108,13 +109,18 @@ public interface IBaseSubscriptionHandler<T extends Subscription> extends
             throws RegistryHandlerException;
 
     /**
-     * Get the {@link Set} of data set names that are subscribed to.
+     * Get the {@link Set} of data set names that are subscribed to for the
+     * provided site.
+     * 
+     * @param siteId
+     *            The site id
      * 
      * @return the {@link Set} of data set names
      * @throws RegistryHandlerException
      *             on error
      */
-    Set<String> getSubscribedToDataSetNames() throws RegistryHandlerException;
+    Set<String> getSubscribedToDataSetNames(String siteId)
+            throws RegistryHandlerException;
 
     /**
      * Retrieve all active subscriptions.

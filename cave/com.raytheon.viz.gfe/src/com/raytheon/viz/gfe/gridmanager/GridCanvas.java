@@ -113,6 +113,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 01/22/2013    #1518    randerso     Removed use of Map with Parms as keys
  * 03/28/2013    #1838    randerso     Fixed selected time range when Select Grids When 
  *                                     Stepping is enabled. Cleaned up deprecated warnings.
+ * 06/20/2013    #2111    dgilling     Prevent NullPointerException in mouse handler's
+ *                                     displayContextMenu() method.
  * 
  * </pre>
  * 
@@ -475,6 +477,11 @@ public class GridCanvas extends Canvas implements IMessageClient {
             @Override
             public void displayContextMenu(MouseEvent e)
                     throws GFEServerException {
+                if (menuMgr != null) {
+                    menuMgr.dispose();
+                    menuMgr = null;
+                }
+
                 super.displayContextMenu(e);
 
                 GridBar gridBar = findClickedBar(e.x, e.y);
@@ -495,9 +502,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
                             .getTimeConstraints().constraintTime(clickTime)
                             .isValid();
 
-                    if (menuMgr != null) {
-                        menuMgr.dispose();
-                    }
                     menuMgr = new MenuManager("#PopupMenu");
 
                     if (!isEmpty) {
@@ -608,11 +612,11 @@ public class GridCanvas extends Canvas implements IMessageClient {
                             menuMgr.add(action);
                         }
                     }
-                }
 
-                Menu menu = menuMgr.createContextMenu(GridCanvas.this);
-                menu.setVisible(true);
-                setMenu(menu);
+                    Menu menu = menuMgr.createContextMenu(GridCanvas.this);
+                    menu.setVisible(true);
+                    setMenu(menu);
+                }
             }
         };
 

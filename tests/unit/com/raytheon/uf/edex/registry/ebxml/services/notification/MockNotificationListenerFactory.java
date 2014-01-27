@@ -26,9 +26,7 @@ import java.util.Map;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 
-import com.raytheon.uf.edex.registry.ebxml.services.notification.EmailSender;
-import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationDestination;
-import com.raytheon.uf.edex.registry.ebxml.services.notification.NotificationListenerFactory;
+import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.edex.registry.ebxml.services.notification.listeners.WebServiceNotificationListener;
 
 /**
@@ -57,8 +55,9 @@ public class MockNotificationListenerFactory extends
      * 
      * @param emailSender
      */
-    public MockNotificationListenerFactory(EmailSender emailSender) {
-        super(emailSender);
+    public MockNotificationListenerFactory(EmailSender emailSender,
+            RegistrySOAPServices registrySoapClient) {
+        super(emailSender, registrySoapClient);
     }
 
     private final Map<String, NotificationListener> mockListeners = new HashMap<String, NotificationListener>();

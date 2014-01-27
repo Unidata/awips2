@@ -29,7 +29,6 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionDataSetNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -48,6 +47,9 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Oct 10, 2012 0726       djohnson     Add {@link #getActive()}.
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * May 28, 2013 1650       djohnson     Add getByNames.
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
+ * Jul 18, 2013 2193       mpduff       Changes for SubscriptionDataSetNameQuery.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -68,8 +70,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setName(name);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByName");
 
@@ -85,8 +86,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setNames(names);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByNames");
 
@@ -101,8 +101,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setOwner(owner);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByOwner");
 
@@ -117,8 +116,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setGroupName(group);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByGroupName");
 
@@ -129,10 +127,13 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
      * {@inheritDoc}
      */
     @Override
-    public Set<String> getSubscribedToDataSetNames()
+    public Set<String> getSubscribedToDataSetNames(String siteId)
             throws RegistryHandlerException {
-        RegistryQueryResponse<String> response = RegistryManager
-                .getRegistyObjects(new SubscriptionDataSetNameQuery());
+        SubscriptionDataSetNameQuery query = new SubscriptionDataSetNameQuery();
+        query.setRegistryObjectClass(getRegistryObjectClass().getName());
+        query.setOfficeId(siteId);
+        RegistryQueryResponse<String> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getSubscribedToDataSetNames");
 
@@ -154,8 +155,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
             query.setOfficeId(officeId);
         }
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByFilters");
 
@@ -170,8 +170,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setActive(true);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getActive");
 
@@ -197,8 +196,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
         query.setActive(true);
         query.setRoutes(Arrays.asList(routes));
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getActiveForRoutes");
 

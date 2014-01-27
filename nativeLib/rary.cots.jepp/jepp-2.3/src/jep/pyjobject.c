@@ -86,17 +86,11 @@ static jmethodID objectGetClass  = 0;
 static jmethodID classGetMethods = 0;
 static jmethodID classGetFields  = 0;
 
+// all following static variables added by njensen
 static jmethodID xMethod = 0;
 static jmethodID yMethod = 0;
-static jmethodID getMethod = 0;
+static jmethodID getNumpyMethod = 0;
 
-// added by njensen
-static jclass floatarrayclass = NULL;
-static jclass bytearrayclass = NULL;
-static jclass intarrayclass = NULL;
-static jclass stringclass = NULL;
-
-// added by njensen
 static jmethodID classGetName  = 0;
 static PyObject* classnamePyJMethodsDict = NULL;
 
@@ -739,35 +733,35 @@ static PyObject* pyjobject_getattr(PyJobject_Object *obj,
 
 // added by njensen
 static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
-	int i=0;
-	/* updated by bkowal */
-	npy_intp *dims = NULL;
-	jfloat *dataFloat = NULL;
-	jbyte *dataByte = NULL;
-	jint *dataInt = NULL;
-	const char *message = NULL;
-	jobjectArray objarray = NULL;
-	PyObject *resultList = NULL;
-	jint xsize = 0;
-	jint ysize = 0;
-	jsize listSize =0;
+    int i=0;
+    /* updated by bkowal */
+    npy_intp *dims = NULL;
+    jobjectArray objarray = NULL;
+    PyObject *resultList = NULL;
+    jint xsize = 0;
+    jint ysize = 0;
+    jsize listSize =0;
 
-	JNIEnv *env = pyembed_get_env();
+    JNIEnv *env = pyembed_get_env();
+    // methods are forever but classes are fleeting
     jclass numpyable = (*env)->FindClass(env, "jep/INumpyable");
     if((*env)->IsInstanceOf(env, obj->object, numpyable))
     {
-        xMethod = (*env)->GetMethodID(env, numpyable, "getNumpyX", "()I");
+        if(xMethod == NULL)
+            xMethod = (*env)->GetMethodID(env, numpyable, "getNumpyX", "()I");
         xsize = (jint) (*env)->CallIntMethod(env, obj->object, xMethod);
 
-        yMethod = (*env)->GetMethodID(env, numpyable, "getNumpyY", "()I");
+        if(yMethod == NULL)
+            yMethod = (*env)->GetMethodID(env, numpyable, "getNumpyY", "()I");
         ysize = (jint) (*env)->CallIntMethod(env, obj->object, yMethod);
 
         dims = malloc(2 * sizeof(npy_intp));
         dims[0] = ysize;
         dims[1] = xsize;
 
-        getMethod = (*env)->GetMethodID(env, numpyable, "getNumPy", "()[Ljava/lang/Object;");
-        objarray = (jobjectArray) (*env)->CallObjectMethod(env, obj->object, getMethod);
+        if(getNumpyMethod == NULL)
+            getNumpyMethod = (*env)->GetMethodID(env, numpyable, "getNumpy", "()[Ljava/lang/Object;");
+        objarray = (jobjectArray) (*env)->CallObjectMethod(env, obj->object, getNumpyMethod);
         if(process_java_exception(env) || !objarray)
         {
                 Py_INCREF(Py_None);
@@ -775,54 +769,19 @@ static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
         }
 
         listSize = (*env)->GetArrayLength(env, objarray);
-
-        initNumpy();
-
-        resultList = PyList_New(listSize);
-
-        floatarrayclass = (*env)->FindClass(env, "[F");
-        bytearrayclass = (*env)->FindClass(env, "[B");
-        intarrayclass = (*env)->FindClass(env, "[I");
-        stringclass = (*env)->FindClass(env, "java/lang/String");
-
+        resultList = PyList_New(listSize);               
         for(i=0; i < listSize; i=i+1)
         {
-               PyObject      *pyjob;
+               PyObject      *pyjob = NULL; 
                jobject jo = (*env)->GetObjectArrayElement(env, objarray, i);
-               if((*env)->IsInstanceOf(env, jo, floatarrayclass))
+               pyjob = javaToNumpyArray(env, jo, dims);
+               if(pyjob == NULL)
                {
-            	       pyjob = PyArray_SimpleNew(2, dims, NPY_FLOAT32);
-                       dataFloat = (*env)->GetFloatArrayElements(env, jo, 0);
-                       memcpy(((PyArrayObject *)pyjob)->data,
-                          dataFloat, ysize * xsize * sizeof(float));
-                       (*env)->ReleaseFloatArrayElements(env, jo, dataFloat, 0);
-               }
-               else if((*env)->IsInstanceOf(env, jo, bytearrayclass))
-               {
-            	       pyjob = PyArray_SimpleNew(2, dims, NPY_BYTE);
-                       dataByte = (*env)->GetByteArrayElements(env, jo, 0);
-                       memcpy(((PyArrayObject *)pyjob)->data,
-                          dataByte, ysize * xsize * 1);
-                       (*env)->ReleaseByteArrayElements(env, jo, dataByte, 0);
-               }
-               else if((*env)->IsInstanceOf(env, jo, intarrayclass))
-			  {
-					   pyjob = PyArray_SimpleNew(2, dims, NPY_INT32);
-					  dataInt = (*env)->GetIntArrayElements(env, jo, 0);
-					  memcpy(((PyArrayObject *)pyjob)->data,
-						 dataInt, ysize * xsize * sizeof(int));
-					  (*env)->ReleaseIntArrayElements(env, jo, dataInt, 0);
-			  }
-               else if((*env)->IsInstanceOf(env, jo, stringclass))
-               {
-               		message = jstring2char(env, jo);
-               		pyjob = PyString_FromString(message);
-               		release_utf_char(env, jo, message);
-               }
-               else
-               {
-                       pyjob = Py_None;
-               }
+                   PyErr_Format(PyExc_TypeError, "Cannot transform INumpyable.getNumpy()[%i] java object to numpy array", i);
+                   free(dims);
+                   Py_DECREF(resultList);
+                   return NULL;                       
+               }               
                PyList_SetItem(resultList, i, pyjob);
                (*env)->DeleteLocalRef(env, jo);
         }
@@ -832,20 +791,11 @@ static PyObject* pyjobject_numpy(PyJobject_Object *obj) {
     }
     else
     {
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_Format(PyExc_TypeError, "Object does not implement INumpyable and therefore cannot be transformed to numpy array");
+        return NULL;
     }
 }
 
-// added by njensen
-static void initNumpy(void)
-{
-    if (!numpyInit)
-    {
-        import_array();
-        numpyInit = 1;
-    }
-}
 
 // set attribute v for object.
 // uses obj->attr dictionary for storage.

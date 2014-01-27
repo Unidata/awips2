@@ -9,5 +9,9 @@ if [ ! "${RC}" = "0" ]; then
 fi
 
 # Determine where awips2-cli has been installed.
-CLI_INSTALL=/awips2/fxa
+CLI_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}\n' awips2-cli`
+if [ "${CLI_INSTALL}" = "" ]; then
+   return
+fi
+
 export PATH=${CLI_INSTALL}/bin:${PATH}

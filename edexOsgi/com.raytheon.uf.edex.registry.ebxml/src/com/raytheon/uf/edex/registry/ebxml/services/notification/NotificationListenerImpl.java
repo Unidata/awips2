@@ -24,6 +24,9 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
 import javax.xml.ws.WebServiceContext;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
@@ -46,24 +49,28 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.ActionTypes;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.DeletionScope;
-import com.raytheon.uf.common.registry.constants.Format;
-import com.raytheon.uf.common.registry.constants.Languages;
+import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.edex.registry.ebxml.dao.ClassificationNodeDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.lifecycle.LifecycleManagerImpl;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -78,6 +85,11 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1082       bphillip    Initial creation
  * 4/9/2013     1802       bphillip    Implemented notification handling
  * 5/21/2013    2022       bphillip    Reworked how notifications are handled
+ * 9/11/2013    2254       bphillip    Cleaned up handling of notifications and removed unneccessary code
+ * 10/20/2013    1682       bphillip    Added synchronous notification delivery
+ * 10/23/2013   1538       bphillip    Added log message denoting when processing is complete and time duration
+ * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
+ * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
  * 
  * </pre>
  * 
@@ -107,11 +119,13 @@ public class NotificationListenerImpl implements NotificationListener {
     /** Data access object for getting RegistryType objects */
     private RegistryDao registryDao;
 
-    /** The classification node data access object */
-    private ClassificationNodeDao classificationNodeDao;
+    /** Registry soap service client */
+    private RegistrySOAPServices registrySoapClient;
 
     @Override
     public void onNotification(NotificationType notification) {
+        long startTime = TimeUtil.currentTimeMillis();
+
         String clientBaseURL = EbxmlObjectUtil.getClientHost(wsContext);
         RegistryType sourceRegistry = registryDao
                 .getRegistryByBaseURL(clientBaseURL);
@@ -121,84 +135,109 @@ public class NotificationListenerImpl implements NotificationListener {
         } else {
             statusHandler
                     .info("Received notification from Registry Federation member at ["
-                            + sourceRegistry.getId() + "]");
+                            + sourceRegistry.getId()
+                            + "("
+                            + clientBaseURL
+                            + ")]");
         }
 
         List<AuditableEventType> events = notification.getEvent();
 
-        // Process the received auditable events and add them to the appropriate
+        // Process the received auditable events and add them to the
+        // appropriate
         // list based on the action performed
-        RegistryObjectActionList objActionList = new RegistryObjectActionList();
         for (AuditableEventType event : events) {
             List<ActionType> actions = event.getAction();
             for (ActionType action : actions) {
                 String eventType = action.getEventType();
+                List<String> objectIds = getIdsFromAction(action);
 
-                // Verify this is a valid event type
-                if (!classificationNodeDao.isValidNode(eventType)) {
-                    statusHandler.info("Unknown event type [" + eventType
-                            + "] received in notification");
+                if (objectIds.isEmpty()) {
+                    statusHandler.info("Event " + event.getId()
+                            + " contains 0 affected objects ");
                     continue;
                 }
 
-                if (action.getAffectedObjectRefs() != null) {
-                    for (ObjectRefType ref : action.getAffectedObjectRefs()
-                            .getObjectRef()) {
-                        objActionList.addAction(eventType, ref.getId());
+                if (eventType.equals(ActionTypes.create)
+                        || eventType.equals(ActionTypes.update)) {
+                    try {
+                        SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
+                                clientBaseURL, notification.getId(), objectIds,
+                                Mode.CREATE_OR_REPLACE);
+                        lcm.submitObjects(submitRequest);
+                    } catch (MsgRegistryException e) {
+                        throw new RuntimeException(
+                                "Error creating objects in registry!", e);
+                    } catch (EbxmlRegistryException e) {
+                        throw new RuntimeException(
+                                "Error creating submit objects request!", e);
                     }
-                } else if (action.getAffectedObjects() != null) {
-                    for (RegistryObjectType regObj : action
-                            .getAffectedObjects().getRegistryObject()) {
-                        objActionList.addAction(eventType, regObj.getId());
-                    }
-                } else {
-                    statusHandler.info("Event " + event.getId()
-                            + " contains 0 affected objects ");
-                }
-            }
-        }
-
-        for (RegistryObjectAction regObjAction : objActionList.getActionList()) {
-            String action = regObjAction.getAction();
-            try {
-                if (action.equals(ActionTypes.create)
-                        || action.equals(ActionTypes.update)) {
-                    SubmitObjectsRequest submitRequest = createSubmitObjectsRequest(
-                            clientBaseURL, notification.getId(),
-                            regObjAction.getObjIds(), Mode.CREATE_OR_REPLACE);
-                    lcm.submitObjects(submitRequest);
-                } else if (action.equals(ActionTypes.delete)) {
+                } else if (eventType.equals(ActionTypes.delete)) {
                     ObjectRefListType refList = new ObjectRefListType();
-                    for (String id : regObjAction.getObjIds()) {
+                    for (String id : objectIds) {
                         RegistryObjectType object = registryObjectDao
                                 .getById(id);
                         if (object != null) {
-                            String replicaHome = object
-                                    .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
-                            if (clientBaseURL.equals(replicaHome)) {
-                                ObjectRefType ref = new ObjectRefType();
-                                ref.setId(id);
-                                refList.getObjectRef().add(ref);
-                            }
+                            refList.getObjectRef().add(new ObjectRefType(id));
                         }
                     }
-                    RemoveObjectsRequest request = new RemoveObjectsRequest(
-                            "Remove Objects for notification ["
-                                    + notification.getId() + "]",
-                            "Notification delete object submission", null,
-                            null, refList, false, false,
-                            DeletionScope.DELETE_ALL);
-                    lcm.removeObjects(request);
+                    if (!CollectionUtil.isNullOrEmpty(refList.getObjectRef())) {
+                        RemoveObjectsRequest request = new RemoveObjectsRequest(
+                                "Remove Objects for notification ["
+                                        + notification.getId() + "]",
+                                "Notification delete object submission", null,
+                                null, refList, false, true,
+                                DeletionScope.DELETE_ALL);
+                        try {
+                            lcm.removeObjects(request);
+                        } catch (MsgRegistryException e) {
+                            throw new RuntimeException(
+                                    "Error creating remove objects request!", e);
+                        }
+                    }
+                } else {
+                    statusHandler.info("Unknown event type [" + eventType
+                            + "] received in notification");
                 }
-
-            } catch (EbxmlRegistryException e) {
-                statusHandler
-                        .error("Error getting remote objects to create", e);
-            } catch (MsgRegistryException e) {
-                statusHandler.error("Error creating objects in registry!", e);
             }
         }
+        statusHandler.info("Processing notification id ["
+                + notification.getId() + "] completed in "
+                + (TimeUtil.currentTimeMillis() - startTime) + " ms");
+    }
 
+    private List<String> getIdsFromAction(ActionType action) {
+        List<String> objectIds = new ArrayList<String>();
+        if (action.getAffectedObjectRefs() != null) {
+            for (ObjectRefType ref : action.getAffectedObjectRefs()
+                    .getObjectRef()) {
+                objectIds.add(ref.getId());
+            }
+        } else if (action.getAffectedObjects() != null) {
+            for (RegistryObjectType regObj : action.getAffectedObjects()
+                    .getRegistryObject()) {
+                objectIds.add(regObj.getId());
+            }
+        }
+        return objectIds;
+    }
+
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        RegistryResponseType response = new RegistryResponseType();
+        response.setRequestId(notification.getId());
+        try {
+            onNotification(notification);
+            response.setStatus(RegistryResponseStatus.SUCCESS);
+            return response;
+        } catch (Throwable e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error processing notification.", e);
+        }
     }
 
     /**
@@ -223,19 +262,29 @@ public class NotificationListenerImpl implements NotificationListener {
             Collection<String> objIds, Mode mode) throws EbxmlRegistryException {
         try {
             // Get a the remote query service
-            QueryManager queryManager = RegistrySOAPServices
+            QueryManager queryManager = registrySoapClient
                     .getQueryServiceForHost(clientBaseURL);
-            // Create a query to get the current state of the affected objects
+            // Create a query to get the current state of the affected
             QueryRequest queryRequest = createGetCurrentStateQuery(
                     notificationId, objIds);
             // Query the remote server
             QueryResponse response = queryManager.executeQuery(queryRequest);
             List<RegistryObjectType> remoteObjects = response
                     .getRegistryObjectList().getRegistryObject();
+
             // Set the home server slot on the object denoting the home server
             // of the received object.
             for (RegistryObjectType object : remoteObjects) {
-                object.updateSlot(EbxmlObjectUtil.HOME_SLOT_NAME, clientBaseURL);
+                SlotType homeSlot = object
+                        .getSlotByName(EbxmlObjectUtil.HOME_SLOT_NAME);
+                if (homeSlot == null) {
+                    object.getSlot().add(
+                            new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                                    new StringValueType(clientBaseURL)));
+                } else {
+                    ((StringValueType) homeSlot.getSlotValue())
+                            .setStringValue(clientBaseURL);
+                }
             }
 
             /*
@@ -245,14 +294,17 @@ public class NotificationListenerImpl implements NotificationListener {
              * they have identical subscriptions with one another
              */
             // Create the submit objects request object
-            SubmitObjectsRequest request = new SubmitObjectsRequest(
-                    "Submit Objects for notification [" + notificationId + "]",
-                    "Notification object submission",
-                    CollectionUtil.asSet(new SlotType(
-                            EbxmlObjectUtil.HOME_SLOT_NAME,
-                            new StringValueType(clientBaseURL))),
-                    new RegistryObjectListType(remoteObjects), false,
-                    Mode.CREATE_OR_REPLACE);
+            SubmitObjectsRequest request = new SubmitObjectsRequest();
+            request.setId("Submit Objects for notification [" + notificationId
+                    + "]");
+            request.setComment("Notification object submission");
+            request.setRegistryObjectList(new RegistryObjectListType(
+                    remoteObjects));
+            request.setCheckReferences(false);
+            request.setMode(Mode.CREATE_OR_REPLACE);
+            request.getSlot().add(
+                    new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                            new StringValueType(clientBaseURL)));
             return request;
         } catch (Exception e) {
             throw new EbxmlRegistryException("Error processing notification", e);
@@ -286,21 +338,23 @@ public class NotificationListenerImpl implements NotificationListener {
         }
         queryExpression.append(")");
 
-        ResponseOptionType responseOption = new ResponseOptionType();
-        responseOption.setReturnComposedObjects(true);
-        responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
+        SlotType queryLanguageSlot = new SlotType(
+                QueryConstants.QUERY_LANGUAGE, new StringValueType(
+                        QueryLanguages.HQL));
+        SlotType queryExpressionSlot = new SlotType(
+                QueryConstants.QUERY_EXPRESSION, new StringValueType(
+                        queryExpression.toString()));
+        QueryType query = new QueryType();
+        query.setQueryDefinition(CanonicalQueryTypes.ADHOC_QUERY);
+        query.getSlot().add(queryLanguageSlot);
+        query.getSlot().add(queryExpressionSlot);
 
-        SlotType queryLanguageSlot = new SlotType("queryLanguage",
-                new StringValueType("HQL"));
-        SlotType queryExpressionSlot = new SlotType("queryExpression",
-                new StringValueType(queryExpression.toString()));
-        QueryType selectorQuery = new QueryType(
-                CanonicalQueryTypes.ADHOC_QUERY, queryLanguageSlot,
-                queryExpressionSlot);
-        return new QueryRequest("NotificationListener object update",
-                "NotificationListener object Update", new ResponseOptionType(
-                        QueryReturnTypes.REGISTRY_OBJECT, true), selectorQuery,
-                false, null, Format.EBRIM, Languages.EN_US, 0, 0, 0, false);
+        QueryRequest request = new QueryRequest();
+        request.setResponseOption(new ResponseOptionType(
+                QueryReturnTypes.REGISTRY_OBJECT, true));
+        request.setId("Notification Update Query");
+        request.setQuery(query);
+        return request;
     }
 
     public void setLcm(LifecycleManagerImpl lcm) {
@@ -311,58 +365,11 @@ public class NotificationListenerImpl implements NotificationListener {
         this.registryObjectDao = registryObjectDao;
     }
 
-    public void setClassificationNodeDao(
-            ClassificationNodeDao classificationNodeDao) {
-        this.classificationNodeDao = classificationNodeDao;
-    }
-
     public void setRegistryDao(RegistryDao registryDao) {
         this.registryDao = registryDao;
     }
 
-    private class RegistryObjectActionList {
-
-        List<RegistryObjectAction> actionList = new ArrayList<RegistryObjectAction>();
-
-        public void addAction(String action, String objId) {
-            if (actionList.isEmpty()
-                    || !actionList.get(actionList.size() - 1).getAction()
-                            .equals(action)) {
-                RegistryObjectAction newAction = new RegistryObjectAction(
-                        action);
-                newAction.addObj(objId);
-                actionList.add(newAction);
-            } else {
-                actionList.get(actionList.size() - 1).addObj(objId);
-            }
-        }
-
-        public List<RegistryObjectAction> getActionList() {
-            return actionList;
-        }
+    public void setRegistrySoapClient(RegistrySOAPServices registrySoapClient) {
+        this.registrySoapClient = registrySoapClient;
     }
-
-    private class RegistryObjectAction {
-
-        private String action;
-
-        private List<String> objIds = new ArrayList<String>();
-
-        public RegistryObjectAction(String action) {
-            this.action = action;
-        }
-
-        public void addObj(String obj) {
-            this.objIds.add(obj);
-        }
-
-        public String getAction() {
-            return action;
-        }
-
-        public List<String> getObjIds() {
-            return objIds;
-        }
-    }
-
 }

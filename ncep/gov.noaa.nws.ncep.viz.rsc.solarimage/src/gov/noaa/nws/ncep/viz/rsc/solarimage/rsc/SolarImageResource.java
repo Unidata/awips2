@@ -36,6 +36,16 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleRuleset;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.DataScale.Type;
+import com.raytheon.uf.common.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.SamplePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -50,16 +60,6 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.StyleRuleset;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.DataScale;
-import com.raytheon.viz.core.style.image.DataScale.Type;
-import com.raytheon.viz.core.style.image.ImagePreferences;
-import com.raytheon.viz.core.style.image.SamplePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -77,6 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/19/2013    958       qzhou, sgurung   implemented colormap and colorbar
  * 04/03/2013    958       qzhou            Added cylindrical display to updateFrameData, paintFrame, 
  *                                          inspect, dispose and construct.
+ * Sep 5,2013    2051       mnash           Fixed a deprecated method.
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -826,9 +827,8 @@ public class SolarImageResource extends
         File file = NcPathManager.getInstance().getStaticFile(locFileName);
         StyleRule sRule = null;
         try {
-            @SuppressWarnings("deprecation")
             StyleRuleset styleSet = (StyleRuleset) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file);
+                    .jaxbUnmarshalFromXmlFile(StyleRuleset.class, file);
 
             if (styleSet != null) {
                 List<StyleRule> styleRuleList = styleSet.getStyleRules();
@@ -881,7 +881,7 @@ public class SolarImageResource extends
         } catch (SerializationException e1) {
 
             e1.printStackTrace();
-        } catch (VizStyleException e1) {
+        } catch (StyleException e1) {
 
             e1.printStackTrace();
         } catch (NullPointerException e1) {

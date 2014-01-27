@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
@@ -19,6 +18,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * 12 Sept, 2012   1038      dhladky     Initial creation
  * 1  May   2013   1959      dhladky     remove backup registry references
+ * 23 Oct,  2013   2361      njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -28,7 +28,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @XmlRootElement(name = "harvester")
 @XmlAccessorType(XmlAccessType.NONE)
-public class HarvesterConfig implements ISerializableObject {
+public class HarvesterConfig {
 
     @XmlElement(name = "provider", type = Provider.class)
     @DynamicSerializeElement

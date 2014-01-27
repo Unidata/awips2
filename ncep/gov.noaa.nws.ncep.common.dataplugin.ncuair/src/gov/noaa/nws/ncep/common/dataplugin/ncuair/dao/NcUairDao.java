@@ -24,123 +24,120 @@
 
 package gov.noaa.nws.ncep.common.dataplugin.ncuair.dao;
 
-import java.io.InputStream;
-import java.util.List;
-import javax.xml.bind.JAXBException;
-import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.pointdata.PointDataDescription;
-import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
-
 import gov.noaa.nws.ncep.common.dataplugin.ncuair.NcUairRecord;
 import gov.noaa.nws.ncep.edex.common.dao.NcepPointDataPluginDao;
 
+import java.io.InputStream;
+import java.util.List;
+
+import javax.xml.bind.JAXBException;
+
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
+
 public class NcUairDao extends NcepPointDataPluginDao<NcUairRecord> {
 
-	   private PointDataDescription pdd;
-	   
-	    /**
-	     * Creates a new ReccoDao
-	     * 
-	     * @throws PluginException
-	     */
-	    public NcUairDao(String pluginName) throws PluginException {
-	        super(pluginName);
-	    }
+    private PointDataDescription pdd;
 
-	    /**
-	     * Retrieves an sfcobs report using the datauri .
-	     * 
-	     * @param dataURI
-	     *            The dataURI to match against.
-	     * @return The report record if it exists.
-	     */
-	    public NcUairRecord queryByDataURI(String dataURI) {
-	        NcUairRecord report = null;
-	        List<?> obs = null;
-	        try {
-	            obs = queryBySingleCriteria("dataURI", dataURI);
-	        } catch (DataAccessLayerException e) {
-	            e.printStackTrace();
-	        }
-	        if ((obs != null) && (obs.size() > 0)) {
-	            report = (NcUairRecord) obs.get(0);
-	        }
-	        return report;
-	    }
+    /**
+     * Creates a new ReccoDao
+     * 
+     * @throws PluginException
+     */
+    public NcUairDao(String pluginName) throws PluginException {
+        super(pluginName);
+    }
 
-	    /**
-	     * Queries for to determine if a given data uri exists on the sfcobs table.
-	     * 
-	     * @param dataUri
-	     *            The DataURI to find.
-	     * @return An array of objects. If not null, there should only be a single
-	     *         element.
-	     */
-	    public Object[] queryDataUriColumn(final String dataUri) {
+    /**
+     * Retrieves an sfcobs report using the datauri .
+     * 
+     * @param dataURI
+     *            The dataURI to match against.
+     * @return The report record if it exists.
+     */
+    public NcUairRecord queryByDataURI(String dataURI) {
+        NcUairRecord report = null;
+        List<?> obs = null;
+        try {
+            obs = queryBySingleCriteria("dataURI", dataURI);
+        } catch (DataAccessLayerException e) {
+            e.printStackTrace();
+        }
+        if ((obs != null) && (obs.size() > 0)) {
+            report = (NcUairRecord) obs.get(0);
+        }
+        return report;
+    }
 
-	        String sql = "select datauri from awips.ncuair where datauri='"
-	                + dataUri + "';";
+    /**
+     * Queries for to determine if a given data uri exists on the sfcobs table.
+     * 
+     * @param dataUri
+     *            The DataURI to find.
+     * @return An array of objects. If not null, there should only be a single
+     *         element.
+     */
+    public Object[] queryDataUriColumn(final String dataUri) {
 
-	        Object[] results = executeSQLQuery(sql);
+        String sql = "select datauri from awips.ncuair where datauri='"
+                + dataUri + "';";
 
-	        return results;
-	    }
-	    
-	    @Override
-	    public String[] getKeysRequiredForFileName() {
-	        return new String[] { "dataTime.refTime" };
-	    }
+        Object[] results = executeSQLQuery(sql);
 
-	    @Override
-	    public String getPointDataFileName(NcUairRecord p) {
-	        return "ncuairs.h5";
-	    }
+        return results;
+    }
 
-	    @Override
-	    public NcUairRecord newObject() {
-	        return new NcUairRecord();
-	    }
+    @Override
+    public String[] getKeysRequiredForFileName() {
+        return new String[] { "dataTime.refTime" };
+    }
 
-	    /*
-	    @Override
-	    public String[] getParameters(File file) throws StorageException,
-	            FileNotFoundException {
-	        try {
-	            // This should be faster than hitting the datastore.
-	            return getPointDataDescription().getParameterNames();
-	        } catch (Exception e) {
-	            // let super handle it
-	            return super.getParameters(file);
-	        }
-	    }
-	    */
+    @Override
+    public String getPointDataFileName(NcUairRecord p) {
+        return "ncuairs.h5";
+    }
 
-	    public PointDataDescription getPointDataDescription() throws JAXBException {
-	        if (pdd == null) {
-	            pdd = PointDataDescription.fromStream(this.getClass()
-	                    .getResourceAsStream("/res/pointdata/ncuair.xml"));
-	        }
-	        return pdd;
-	    }
-	   
-	    @Override
-	    public PointDataDbDescription getPointDataDbDescription() {
-	        if (dbDataDescription == null) {
-	            InputStream stream = this.getClass().getResourceAsStream(
-	                    "/res/pointdata/ncuairdb.xml");
-	            if (stream != null) {
-	                try {
-	                    dbDataDescription = PointDataDbDescription
-	                            .fromStream(stream);
-	                } catch (JAXBException e) {
-	                    logger.error("Unable to load " + pluginName
-	                            + " Point Data Database Description", e);
-	                }
-	            }
-	        }
-	        return dbDataDescription;
-	    }
-	    
-	    
-	}
+    @Override
+    public NcUairRecord newObject() {
+        return new NcUairRecord();
+    }
+
+    /*
+     * @Override public String[] getParameters(File file) throws
+     * StorageException, FileNotFoundException { try { // This should be faster
+     * than hitting the datastore. return
+     * getPointDataDescription().getParameterNames(); } catch (Exception e) { //
+     * let super handle it return super.getParameters(file); } }
+     */
+
+    public PointDataDescription getPointDataDescription()
+            throws SerializationException {
+        if (pdd == null) {
+            pdd = PointDataDescription.fromStream(this.getClass()
+                    .getResourceAsStream("/res/pointdata/ncuair.xml"));
+        }
+        return pdd;
+    }
+
+    @Override
+    public PointDataDbDescription getPointDataDbDescription() {
+        if (dbDataDescription == null) {
+            InputStream stream = this.getClass().getResourceAsStream(
+                    "/res/pointdata/ncuairdb.xml");
+            if (stream != null) {
+                try {
+                    dbDataDescription = PointDataDbDescription
+                            .fromStream(stream);
+                } catch (JAXBException e) {
+                    logger.error("Unable to load " + pluginName
+                            + " Point Data Database Description", e);
+                }
+            }
+        }
+        return dbDataDescription;
+    }
+
+}

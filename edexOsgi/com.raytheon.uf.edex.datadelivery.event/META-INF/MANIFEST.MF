@@ -24,3 +24,6 @@ Require-Bundle: com.google.guava;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  org.hibernate;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174"
+Export-Package: com.raytheon.uf.edex.datadelivery.event.dao,
+ com.raytheon.uf.edex.datadelivery.event.handler,
+ com.raytheon.uf.edex.datadelivery.event.notification

@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -55,13 +56,6 @@ public class MesocyclonePacket extends SymbologyPacket implements
 
     public MesocyclonePacket() {
 
-    }
-
-    private static final int MESOCYCLONE_PACKET3 = 3;
-
-    static {
-        PacketFactory.registerPacketType(MesocyclonePacket.class,
-                MESOCYCLONE_PACKET3);
     }
 
     @DynamicSerialize

@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="profilerDataAccessFactory" class="com.raytheon.uf.common.pointdata.dataaccess.PointDataAccessFactory" />
+	
+	<bean factory-bean="dataAccessRegistry" factory-method="register">
+		<constructor-arg value="profiler"/>
+		<constructor-arg ref="profilerDataAccessFactory"/>
+	</bean>	
+	
+	<bean factory-bean="profilerDataAccessFactory" factory-method="register2D">
+		<constructor-arg value="numProfLvls"/>
+		<constructor-arg value="height"/>
+		<constructor-arg value="FHAG"/>
+		<constructor-arg>
+			<list>
+				<value>height</value>
+				<value>uComponent</value>
+				<value>vComponent</value>
+				<value>HorizSpStdDev</value>
+				<value>wComponent</value>
+				<value>VertSpStdDev</value>
+				<value>peakPower</value>
+				<value>levelMode</value>
+				<value>uvQualityCode</value>
+				<value>consensusNum</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	
+</beans>

@@ -7,9 +7,9 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools,
  javax.persistence,
  javax.measure
 Import-Package: com.raytheon.edex.plugin.obs.metar,
- com.raytheon.uf.common.dataplugin.obs.metar
+ com.raytheon.uf.common.dataplugin.obs.metar,
+ org.apache.commons.logging

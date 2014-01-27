@@ -28,64 +28,56 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Location for a VAARecord
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            jkorman     Initial creation
- *
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 @Entity
-@Table(name="vaa_location")
-@XmlAccessorType(XmlAccessType.NONE)
+@Table(name = "vaa_location")
 @DynamicSerialize
-public class VAALocation implements Serializable, ISerializableObject {
+public class VAALocation implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue
     private Integer recordId = null;
 
-    // 
+    //
     @ManyToOne
-    @JoinColumn(name="parentId", nullable=false)
+    @JoinColumn(name = "parentId", nullable = false)
     private VAASubPart parentId;
 
-    
     // Point latitude
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private double latitude;
 
     // Point longitude
     @Column
-    @XmlElement
     @DynamicSerializeElement
-    private double longitude;   
-    
+    private double longitude;
+
     // Position index. These points are kept in a set. Order
     // is not preserved.
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private Integer index;
 
@@ -95,50 +87,52 @@ public class VAALocation implements Serializable, ISerializableObject {
     public VAALocation() {
         // Empty constructor for bean operations
     }
-    
+
     /**
      * 
      * @param lat
      * @param lon
      * @param index
      */
-    public VAALocation(double lat, double lon,int index, VAASubPart parent) {
+    public VAALocation(double lat, double lon, int index, VAASubPart parent) {
         latitude = lat;
         longitude = lon;
         this.index = index;
         parentId = parent;
     }
-    
+
     /**
      * Get the record id.
-     *
+     * 
      * @return The recordId. If not set returns null.
      */
-     public Integer getRecordId() {
+    public Integer getRecordId() {
         return recordId;
     }
 
-     /**
-      * Set the record id.
-      * @param record
-      */
-     public void setRecordId(Integer recordId) {
+    /**
+     * Set the record id.
+     * 
+     * @param record
+     */
+    public void setRecordId(Integer recordId) {
         this.recordId = recordId;
     }
 
-     /**
-      * @return the parentID
-      */
-     public VAASubPart getParentId() {
-         return parentId;
-     }
+    /**
+     * @return the parentID
+     */
+    public VAASubPart getParentId() {
+        return parentId;
+    }
 
-     /**
-      * @param parentID the parentID to set
-      */
-     public void setParentId(VAASubPart parent) {
-         this.parentId = parent;
-     }
+    /**
+     * @param parentID
+     *            the parentID to set
+     */
+    public void setParentId(VAASubPart parent) {
+        this.parentId = parent;
+    }
 
     /**
      * @return the latitude
@@ -148,7 +142,8 @@ public class VAALocation implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param latitude the latitude to set
+     * @param latitude
+     *            the latitude to set
      */
     public void setLatitude(double latitude) {
         this.latitude = latitude;
@@ -162,7 +157,8 @@ public class VAALocation implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param longitude the longitude to set
+     * @param longitude
+     *            the longitude to set
      */
     public void setLongitude(double longitude) {
         this.longitude = longitude;
@@ -176,7 +172,8 @@ public class VAALocation implements Serializable, ISerializableObject {
     }
 
     /**
-     * @param index the index to set
+     * @param index
+     *            the index to set
      */
     public void setIndex(Integer index) {
         this.index = index;

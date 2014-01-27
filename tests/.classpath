@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="unit"/>
+	<classpathentry excluding="*HILOTest.java*|com/raytheon/viz/gfe/core/parm/TestParm.java|com/raytheon/viz/gfe/core/parm/TestParmManager.java|com/raytheon/viz/gfe/ui/runtimeui/TestHazardUtils.java|gov/noaa/nws/ncep/gempak/parameters/colorbar/CLRBARTest.java|gov/noaa/nws/ncep/gempak/parameters/line/LineDataStringParserTest.java" kind="src" path="unit"/>
 	<classpathentry kind="src" path="deploy"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="integration"/>
+	<classpathentry kind="src" path="manual"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.junit"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.codec"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.slf4j"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.eclipse.jetty"/>
@@ -24,7 +24,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.lang"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.geotools"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.grib"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.geospatial"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hibernate"/>
@@ -51,7 +50,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.mchange"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.management"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.apache.commons.io"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.facebook.thrift"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datastorage"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.datadelivery.event"/>
@@ -94,5 +92,75 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.archive"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.datadelivery.bandwidth.ncf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.thrift"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.python"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.message"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.dataplugin.obs"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ffg"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ffg"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.airmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.airmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.atcf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.atcf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.aww"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.aww"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.convsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.convsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.idft"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.idft"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.intlsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncpafm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.intlsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncpafm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncscd"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.nctaf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.ncuair"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncscd"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.nctaf"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.ncuair"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.stormtrack"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.tcm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.nonconvsigmet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.stormtrack"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.tcm"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.common.dataplugin.wcp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.wcp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.uengine"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.viz.gfe"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.rsc.pgen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.viz.tools"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameters"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.ui.pgen"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameterConversionLibrary"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.gempak.parameters.core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.lib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.rcm.server"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.hamcrest"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.mockito"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86_64.jar"/>
+	<classpathentry kind="lib" path="lib/swt_gtk_linux_x86.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.wxmath"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jface_3.8.0.v20120912-135020.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.configuration"/>
+	<classpathentry kind="src" path="/com.raytheon.uf.edex.datadelivery.retrieval.wfs"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.source_2.5.0.v200910301333.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp-2.1.0.v201105211820.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-http-7.6.14.v20131031.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-server-7.6.14.v20131031.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlet-7.6.14.v20131031.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlets-7.6.14.v20131031.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-7.6.14.v20131031.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-security-7.6.14.v20131031.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.taf"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

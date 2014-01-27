@@ -9,3 +9,4 @@ Export-Package: com.raytheon.uf.common.registry.event
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  com.raytheon.uf.common.stats;bundle-version="1.0.0"
+Import-Package: oasis.names.tc.ebxml.regrep.xsd.rim.v4

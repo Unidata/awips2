@@ -378,7 +378,7 @@ public class FileLocker {
         // locking, can't do any locking
         if (parentDir.canWrite() == false) {
             UFStatus.getHandler()
-                    .handle(Priority.PROBLEM,
+                    .handle(Priority.DEBUG,
                             "Cannot write to directory: "
                                     + parentDir.getAbsolutePath());
             return false;

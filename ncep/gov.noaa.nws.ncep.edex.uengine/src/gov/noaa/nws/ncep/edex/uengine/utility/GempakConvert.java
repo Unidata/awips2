@@ -1,43 +1,37 @@
 package gov.noaa.nws.ncep.edex.uengine.utility;
 
+import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
+
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.DataOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+
 import javax.xml.bind.JAXBException;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
 import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.message.CatalogAttribute;
 import com.raytheon.uf.common.message.CatalogItem;
 import com.raytheon.uf.common.message.response.ResponseMessageCatalog;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-
-import gov.noaa.nws.ncep.common.dataplugin.mcidas.McidasMapCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.NcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LambertConformalNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.LatLonNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.MercatorNcgridCoverage;
-import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStereoNcgridCoverage;
 
 /**
  * GempakConvert
@@ -61,6 +55,9 @@ import gov.noaa.nws.ncep.common.dataplugin.ncgrib.spatial.projections.PolarStere
  * 																Added getGridNavigationContent, float2File,
  * 																serialize2File, data2File, flipData
  * 09/14/2010			284				mgamazaychikov			Add addHours method
+ * 10/02/2013           2333            mschenke                Removed unused function getSatHdrContent
+ * Oct 15, 2012         2473            bsteffen                Remove unused imports
+ * 
  * </pre>
  * 
  * @author mgamazaychikov
@@ -295,45 +292,6 @@ public class GempakConvert {
 		return inputStrings;
 	}
 
-   /*
-    * Construct the satellite header string
-    */
-	public static String getSatHdrContent(ISpatialObject obj) throws JAXBException {
-        SatMapCoverage mapCoverage = (SatMapCoverage)obj;
-        StringBuffer resultsBuf = new StringBuffer();
-        resultsBuf.append(mapCoverage.getProjection());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getNx());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getNy());
-        resultsBuf.append(";");
-        Float dummy = mapCoverage.getLa1()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLa2()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLo1()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLo2()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLatin()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        dummy = mapCoverage.getLov()*10000;
-        resultsBuf.append(dummy.intValue());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getDx().intValue());
-        resultsBuf.append(";");
-        resultsBuf.append(mapCoverage.getDy().intValue());
-        
-        String content = resultsBuf.toString();
-        
-        return content;
-    }
-	
    /*
 	* Converts AWIPS2 date time string into GEMPAK DATTIM string
 	*/
@@ -754,145 +712,6 @@ public class GempakConvert {
   		}
   		return aFileName;
   	}
-     
-    /*
-     * Construct the grid navigation string
-     */
-     public static String getNcgridNavigationContent(ISpatialObject obj) throws JAXBException {
-    	 
-    	 NcgridCoverage gc = (NcgridCoverage)obj;
-    	 StringBuffer resultsBuf = new StringBuffer();
-
-         if (gc instanceof LatLonNcgridCoverage) {
-        	 /*
-        	  * LatLonGridCoverage
-        	  */
-        	 LatLonNcgridCoverage llgc = (LatLonNcgridCoverage) gc;
-             resultsBuf.append("CED");
-             resultsBuf.append(";");
-        	 resultsBuf.append(llgc.getNx());
-             resultsBuf.append(";");
-             resultsBuf.append(llgc.getNy());
-             resultsBuf.append(";");
-             Double dummy = llgc.getLa1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = llgc.getLo1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = llgc.getLa2()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = llgc.getLo2()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = -9999.0;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = llgc.getDx()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = llgc.getDy()*10000;
-             resultsBuf.append(dummy.intValue());
-         }
-         else if (gc instanceof LambertConformalNcgridCoverage) {
-             resultsBuf.append("LCC");
-             resultsBuf.append(";");
-        	 LambertConformalNcgridCoverage lcgc = (LambertConformalNcgridCoverage) gc;
-        	 resultsBuf.append(lcgc.getNx());
-             resultsBuf.append(";");
-             resultsBuf.append(lcgc.getNy());
-             resultsBuf.append(";");
-             Double dummy = lcgc.getLa1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getLo1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getLatin1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getLatin2()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getLov()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getDx()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = lcgc.getDy()*10000;
-             resultsBuf.append(dummy.intValue());
-         }
-         else if (gc instanceof MercatorNcgridCoverage) {
-        	 /*
-        	  * TODO - finish with MercatorGridCoverage
-        	  */
-        	 MercatorNcgridCoverage mgc = (MercatorNcgridCoverage) gc;
-        	 resultsBuf.append("MER");
-             resultsBuf.append(";");
-        	 resultsBuf.append(mgc.getNx());
-             resultsBuf.append(";");
-             resultsBuf.append(mgc.getNy());
-             resultsBuf.append(";");
-             Double dummy = mgc.getLa1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getLo1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getLatin()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getLa2()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getLo2()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getDx()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = mgc.getDy()*10000;
-             resultsBuf.append(dummy.intValue());
-         }
-         else if (gc instanceof PolarStereoNcgridCoverage){
-        	 /*
-        	  * PolarStereoGridCoverage
-        	  */
-        	 PolarStereoNcgridCoverage psgc = (PolarStereoNcgridCoverage) gc;
-        	 resultsBuf.append("STR");
-             resultsBuf.append(";");
-        	 resultsBuf.append(psgc.getNx());
-             resultsBuf.append(";");
-             resultsBuf.append(psgc.getNy());
-             resultsBuf.append(";");
-             Double dummy = psgc.getLa1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = psgc.getLo1()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = -9999.0;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = -9999.0;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = psgc.getLov()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = psgc.getDx()*10000;
-             resultsBuf.append(dummy.intValue());
-             resultsBuf.append(";");
-             dummy = psgc.getDy()*10000;
-             resultsBuf.append(dummy.intValue());
-         }
-         
-         String content = resultsBuf.toString();
-         return content;
-    	 
-     }
      
     /*
  	 * Returns string representing updated by hours baseTime

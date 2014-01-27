@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.ui.personalities.awips;
 
-import com.raytheon.uf.viz.core.maps.MapStore;
-
 /**
  * This is the default component for CAVE that is the standard workbench with
  * all the perspectives.
@@ -30,8 +28,9 @@ import com.raytheon.uf.viz.core.maps.MapStore;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2010            mschenke     Initial creation
- * Jul 1, 2013  2139      jsanchez     Loaded map tree at cave start up.
+ * Aug 09, 2010            mschenke    Initial creation
+ * Jul 01, 2013  2139      jsanchez    Loaded map tree at cave start up.
+ * Oct 22, 2013  2361      njensen     Undid 2139 fix since 2158 fixes it more efficiently
  * 
  * </pre>
  * 
@@ -54,11 +53,7 @@ public class CAVE extends AbstractCAVEComponent {
      */
     @Override
     protected void startInternal(String componentName) throws Exception {
-        // Loading Map Tree
-        long t = System.currentTimeMillis();
-        MapStore.getMapTree();
-        System.out.println("Loading Map Tree: "
-                + (System.currentTimeMillis() - t));
+
     }
 
 }

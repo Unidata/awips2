@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
  * Aug 15, 2013  DR 16418 D. Friedman  Only raise dialog if editable.  Don't call featureEdit if not editable.
+ * Sep 24, 2013  #2403     lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -94,8 +95,6 @@ public class WarngenUIManager extends InputAdapter {
 
     private final Cursor movePoint;
 
-    private final Cursor arrow;
-
     /** The last mouse position - x */
     private int lastMouseX;
 
@@ -111,11 +110,8 @@ public class WarngenUIManager extends InputAdapter {
 
         warngenLayer.getResourceContainer().registerMouseHandler(this);
 
-        Display display = Display.getCurrent();
-
-        movePolygon = new Cursor(display, SWT.CURSOR_SIZEALL);
-        movePoint = new Cursor(display, SWT.CURSOR_HAND);
-        arrow = new Cursor(display, SWT.CURSOR_ARROW);
+        movePolygon = new Cursor(null, SWT.CURSOR_SIZEALL);
+        movePoint = new Cursor(null, SWT.CURSOR_HAND);
     }
 
     public void dispose() {
@@ -386,8 +382,9 @@ public class WarngenUIManager extends InputAdapter {
             if (c2 != null) {
                 PolygonUtil.truncate(c2, 2);
                 if (warngenLayer.isModifiedVertexNeedsToBeUpdated()) {
-                    int i = StormTrackUIManager.getCoordinateIndex(warngenLayer,
-                            state.getWarningPolygon().getCoordinates(), c2);
+                    int i = StormTrackUIManager.getCoordinateIndex(
+                            warngenLayer, state.getWarningPolygon()
+                                    .getCoordinates(), c2);
                     if (i != -1) {
                         this.movePointIndex = i;
                     }
@@ -669,7 +666,7 @@ public class WarngenUIManager extends InputAdapter {
     public void setHandleInput(boolean handle) {
         handleInput = handle;
         if (!handle) {
-            getShell().setCursor(arrow);
+            getShell().setCursor(null);
         }
     }
 

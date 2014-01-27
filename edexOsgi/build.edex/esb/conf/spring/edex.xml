@@ -14,18 +14,15 @@
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;heartbeat='0'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
        <constructor-arg ref="amqConnectionFactory"/>
        <property name="provider" value="QPID"/>
        <property name="reconnectInterval" value="5000"/>
-       <!-- After connection has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
-       <property name="connectionHoldTime" value="90000"/>
-       <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
-       <property name="resourceRetention" value="60000"/>
-       <property name="maxSpareConnections" value="10"/>
+       <!-- After resource has been closed by thread keep it allocated for another 2 minutes in case thread needs it again -->
+       <property name="resourceRetention" value="120000"/>
     </bean>
  
     <bean id="genericThreadPool"
@@ -158,11 +155,12 @@
 		<property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
 		<property name="initialRetentionTime" value="24" />
 		<property name="pathProvider" ref="defaultPathProvider"/>
-	</bean>  
+	</bean>  		
 
 	<!--  This causes database tables to be initialized when a db plugin is registered -->
-    <bean id="schemaManager" class="com.raytheon.edex.db.purge.SchemaManager"
+    <bean id="schemaManager" class="com.raytheon.uf.edex.database.schema.SchemaManager"
     	factory-method="getInstance" />
+    	
     <bean factory-bean="dbPluginRegistry" factory-method="addListener">
     	<constructor-arg><ref bean="schemaManager"/></constructor-arg>
     </bean>
@@ -185,24 +183,13 @@
     <bean id="errorHandler" class="org.apache.camel.builder.LoggingErrorHandlerBuilder"/>
     
     <!-- sets default settings of log component across all of edex -->
-    <bean id="defaultEdexLogFormatter" class="org.apache.camel.component.log.LogFormatter">
+    <!-- if log component beans are created and the exchangeFormatter property is set, they can't process URI parameters -->
+    <!-- this bean needs to be named 'logFormatter' for the log component to find it in the context -->
+    <bean id="logFormatter" class="org.apache.camel.component.log.LogFormatter" scope="prototype">
         <property name="maxChars" value="0" />
         <property name="showBody" value="false" />
         <property name="showCaughtException" value="true" />
         <property name="showStackTrace" value="true" />
-    </bean>
-    <bean id="log" class="org.apache.camel.component.log.LogComponent">
-        <property name="exchangeFormatter" ref="defaultEdexLogFormatter" />        
-    </bean>
-    
-    <!--  for those special times when you really want to see the content of the message -->
-    <bean id="showBodyLogFormatter" class="org.apache.camel.component.log.LogFormatter">
-        <property name="maxChars" value="0" />        
-        <property name="showCaughtException" value="true" />
-        <property name="showStackTrace" value="true" />
-    </bean>
-    <bean id="log-showbody" class="org.apache.camel.component.log.LogComponent">
-        <property name="exchangeFormatter" ref="showBodyLogFormatter" />        
     </bean>
 
     <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />    
@@ -309,7 +296,9 @@
   	</bean>
 
    <!-- Redirect geotools log -->
-   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
+        <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory" />
+   </bean>
 
    <!-- Reference properties files -->
    <bean id="projectPropertyConfigurer"

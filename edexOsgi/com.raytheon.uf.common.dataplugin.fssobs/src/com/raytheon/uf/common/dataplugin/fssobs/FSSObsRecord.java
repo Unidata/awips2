@@ -44,12 +44,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "fssobsseq")
-@Table(name = "fssobs", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = FSSObsRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "fssobs", indexes = { @Index(name = "fssobs_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = FSSObsRecord.PLUGIN_NAME, indexes = { @Index(name = "fssobs_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -1240,6 +1240,6 @@ public class FSSObsRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "fssobs";
+        return PLUGIN_NAME;
     }
 }

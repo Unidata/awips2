@@ -8,7 +8,6 @@ Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization, gov.noaa.nws.ncep.viz.resources
 Require-Bundle: com.raytheon.viz.core,
  com.raytheon.viz.ui,
- org.apache.log4j;bundle-version="1.0.0",
  org.apache.commons.lang,
  org.eclipse.core.runtime,
  org.eclipse.ui,
@@ -27,6 +26,7 @@ Export-Package: gov.noaa.nws.ncep.viz.overlays,
 Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.core.maps,
- javax.measure.converter
+ javax.measure.converter,
+ org.apache.log4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
  

@@ -23,67 +23,63 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANAttributesXML implements ISerializableObject
-{
+public class SCANAttributesXML {
     @XmlElement(name = "AttrName")
     private String attrName;
-    
+
     @XmlElement(name = "Low")
     private double low;
-    
+
     @XmlElement(name = "Mid")
     private double mid;
-    
+
     @XmlElement(name = "Upper")
     private double upper;
-    
+
     @XmlElement(name = "Rank")
     private String rank;
-    
+
     @XmlElement(name = "Trend")
     private boolean trend;
-    
+
     @XmlElement(name = "TimeHeight")
     private boolean timeHeight;
-    
+
     @XmlElement(name = "Colored")
     private boolean colored;
-    
+
     @XmlElement(name = "Clutter")
     private boolean clutter;
-    
+
     @XmlElement(name = "InTable")
     private boolean inTable;
-    
+
     @XmlElement(name = "Min")
     private double min;
-    
+
     @XmlElement(name = "Interval")
     private double interval;
-    
+
     @XmlElement(name = "Range")
     private double range;
-    
+
     @XmlElement(name = "Alarm")
     private int alarm;
-    
+
     @XmlElement(name = "AbsAlarm")
     private int absAlarm;
-    
-//    @XmlElement(name = "AlarmDisabled")
-//    private boolean alarmDisabled;
-    
+
+    // @XmlElement(name = "AlarmDisabled")
+    // private boolean alarmDisabled;
+
     @XmlElement(name = "HasAlarm")
     private boolean hasAlarm;
-    
+
     @XmlElement(name = "Units")
     private String units;
-    
-    public SCANAttributesXML()
-    {        
+
+    public SCANAttributesXML() {
     }
 
     public String getAttrName() {
@@ -206,13 +202,13 @@ public class SCANAttributesXML implements ISerializableObject
         this.absAlarm = absAlarm;
     }
 
-//    public boolean getAlarmDisabled() {
-//        return alarmDisabled;
-//    }
-//
-//    public void setAlarmDisabled(boolean alarmDisabled) {
-//        this.alarmDisabled = alarmDisabled;
-//    }
+    // public boolean getAlarmDisabled() {
+    // return alarmDisabled;
+    // }
+    //
+    // public void setAlarmDisabled(boolean alarmDisabled) {
+    // this.alarmDisabled = alarmDisabled;
+    // }
 
     public boolean getHasAlarm() {
         return hasAlarm;

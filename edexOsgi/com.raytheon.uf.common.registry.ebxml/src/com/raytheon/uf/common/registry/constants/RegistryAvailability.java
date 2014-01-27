@@ -30,6 +30,7 @@ package com.raytheon.uf.common.registry.constants;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/24/2013    2036        bphillip    Initial implementation
+ * 9/5/2013     1538        bphillip    Changed status message
  * </pre>
  * 
  * @author bphillip
@@ -41,5 +42,5 @@ public class RegistryAvailability {
     public static final String AVAILABLE = "Registry services available.";
 
     /** Registry not available since the database is not yet initialized */
-    public static final String DB_NOT_INITIALIZED = "Registry services available, but database has not yet been initialized!";
+    public static final String DB_NOT_INITIALIZED = "Registry database and services are currently initializing!";
 }

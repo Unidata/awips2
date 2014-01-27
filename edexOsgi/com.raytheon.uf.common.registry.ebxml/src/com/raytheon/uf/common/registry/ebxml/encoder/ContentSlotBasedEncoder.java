@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.registry.ebxml.encoder;
 
-import java.util.Set;
+import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
@@ -44,6 +44,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * ------------ ---------- ----------- --------------------------
  * Sep 07, 2012 1102       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Add equals/hashcode.
+ * 12/2/2013    1829       bphillip    Changed slot field in ExtensibleObjectType to be List instead of Set
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ abstract class ContentSlotBasedEncoder<SLOT_VALUE_TYPE extends ValueType, CONTEN
             throws SerializationException {
         Object object = null;
 
-        Set<SlotType> returnedSlots = registryObjectType.getSlot();
+        List<SlotType> returnedSlots = registryObjectType.getSlot();
         // Walk the returned slots looking for the "content" slot
         for (SlotType s : returnedSlots) {
             if (CONTENT_SLOT.equals(s.getName())) {

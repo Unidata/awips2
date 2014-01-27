@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2007            chammack    Initial Creation.
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -217,7 +218,7 @@ public class LocalizationPreferences extends FieldEditorPreferencePage
     private void checkConnectivity() {
         final ConnectivityResult result = new ConnectivityResult(false, "");
         Text text = localizationEditor.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkHttpServer(text.getText().trim(),
+        ConnectivityManager.checkLocalizationServer(text.getText().trim(),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {

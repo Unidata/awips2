@@ -65,6 +65,7 @@ import com.raytheon.uf.edex.datadelivery.harvester.crawler.CrawlLauncher;
  * Sep 04, 2012 1102       djohnson     Initial creation
  * Oct 05, 2012 1241       djohnson     Replace RegistryManager calls with registry handler calls.
  * Dec 12, 2012 1410       dhladky      multi provider configurations.
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -105,7 +106,7 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
      * @return the key
      */
     @VisibleForTesting
-    static String getDatasetMetaDataMapKey(DataSetMetaData metaData) {
+    static String getDatasetMetaDataMapKey(DataSetMetaData<?> metaData) {
         return metaData.getDataSetName() + metaData.getProviderName();
     }
 
@@ -118,7 +119,7 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
      *             if the metadata passed in is null
      */
     @VisibleForTesting
-    static void purgeMetaData(DataSetMetaData metaData) {
+    static void purgeMetaData(DataSetMetaData<?> metaData) {
 
         checkNotNull(metaData, "metaData must not be null!");
 
@@ -170,6 +171,7 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
      * 
      * @return the {@link DataSetMetaData} instances
      */
+    @SuppressWarnings("rawtypes")
     @VisibleForTesting
     List<DataSetMetaData> getDataSetMetaDatas() {
         try {
@@ -189,11 +191,11 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
      * @return the map
      */
     @VisibleForTesting
-    Multimap<String, DataSetMetaData> getDataSetNameKeyedInstanceMap() {
-        Multimap<String, DataSetMetaData> map = TreeMultimap.create(
+    Multimap<String, DataSetMetaData<?>> getDataSetNameKeyedInstanceMap() {
+        Multimap<String, DataSetMetaData<?>> map = TreeMultimap.create(
                 Ordering.<String> natural(), DataSetMetaData.DATE_COMPARATOR);
 
-        for (DataSetMetaData metaData : getDataSetMetaDatas()) {
+        for (DataSetMetaData<?> metaData : getDataSetMetaDatas()) {
             String key = getDatasetMetaDataMapKey(metaData);
             map.put(key, metaData);
         }
@@ -253,7 +255,7 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
      * @param purge
      *            the purge strategy
      */
-    private <T extends DataSetMetaData> void handleVisit(T metaData,
+    private <T extends DataSetMetaData<?>> void handleVisit(T metaData,
             IServiceDataSetMetaDataPurge<T> purge) {
         State state = threadState.get();
         List<HarvesterConfig> harvesterConfigs = state.harvesterConfigs;
@@ -301,19 +303,19 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
         ITimer timer = TimeUtil.getTimer();
         timer.start();
 
-        Multimap<String, DataSetMetaData> dataSetKeyedMap = getDataSetNameKeyedInstanceMap();
+        Multimap<String, DataSetMetaData<?>> dataSetKeyedMap = getDataSetNameKeyedInstanceMap();
 
         try {
             State state = initializeState();
 
             for (String key : dataSetKeyedMap.keySet()) {
-                Collection<DataSetMetaData> metaDatas = dataSetKeyedMap
+                Collection<DataSetMetaData<?>> metaDatas = dataSetKeyedMap
                         .get(key);
-                Iterator<DataSetMetaData> iter = metaDatas.iterator();
+                Iterator<DataSetMetaData<?>> iter = metaDatas.iterator();
 
                 state.continueWithDataSet = true;
                 while (iter.hasNext() && state.continueWithDataSet) {
-                    DataSetMetaData metaData = iter.next();
+                    DataSetMetaData<?> metaData = iter.next();
                     metaData.accept(this);
                 }
             }

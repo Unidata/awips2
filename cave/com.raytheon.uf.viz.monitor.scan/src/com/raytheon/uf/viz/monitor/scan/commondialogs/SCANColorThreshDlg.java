@@ -51,6 +51,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 2, 2009  #3039      lvenable     Initial creation
+ * 24 Jul 2013  #2143      skorolev    Changes non-blocking dialogs.
+ * Aug 15, 2013 #2143      mpduff      Remove resize.
  * 
  * </pre>
  * 
@@ -127,13 +129,18 @@ public class SCANColorThreshDlg extends CaveSWTDialog implements
      */
     public SCANColorThreshDlg(Shell parentShell, ScanTables scanTable,
             IThresholdUpdate thresholdCB) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText(scanTable.name() + " Color Threshold");
 
         this.thresholdCB = thresholdCB;
         this.scanTable = scanTable;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -143,6 +150,13 @@ public class SCANColorThreshDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createAttributeControls();
@@ -301,8 +315,6 @@ public class SCANColorThreshDlg extends CaveSWTDialog implements
 
         String attrName = attributeCbo
                 .getItem(attributeCbo.getSelectionIndex());
-        
-        
 
         upperVal = textIsANumber(upperTF.getText());
         if (upperVal.isNaN() == true) {
@@ -331,11 +343,10 @@ public class SCANColorThreshDlg extends CaveSWTDialog implements
             displayMessageDialog("Mid value is less than lower value.");
             return false;
         }
-        
+
         Point pt = scanCfg.getMinMaxValues(scanTable, attrName);
-        
-        if (pt != null)
-        {
+
+        if (pt != null) {
 
             if (upperVal > pt.getY()) {
                 displayMessageDialog("Upper value is greater than max allowed value: "
@@ -437,7 +448,7 @@ public class SCANColorThreshDlg extends CaveSWTDialog implements
      */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
     /**

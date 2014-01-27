@@ -8,16 +8,4 @@
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthContextFactory" />
 
-    <bean id="retrievalAgents" class="java.util.Collections"
-        factory-method="emptyMap">
-        <!-- No retrievals for in-memory -->
-    </bean>
-
-    <bean id="registryManagerInstanceInitializer" class="java.lang.String">
-        <!-- required for depends-on -->
-    </bean>
-
-    <bean id="registerDataDeliveryHandlers" class="java.lang.String">
-        <!-- required for depends-on -->
-    </bean>
 </beans>

@@ -23,20 +23,16 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANTrendSetXML implements ISerializableObject
-{
-    
+public class SCANTrendSetXML {
+
     @XmlElement(name = "Name")
     private String name;
-    
+
     @XmlElement(name = "Attributes")
     private String attributes;
-    
-    public SCANTrendSetXML()
-    {        
+
+    public SCANTrendSetXML() {
     }
 
     public String getName() {

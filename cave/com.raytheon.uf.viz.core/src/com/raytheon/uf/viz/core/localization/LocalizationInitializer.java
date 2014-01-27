@@ -28,13 +28,12 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
+import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 /**
  * Class that does work of checking localization server, popping up dialog if
@@ -47,10 +46,11 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 5, 2009            mschenke     Initial creation
- * Sep 12, 2012 1167      djohnson     Add datadelivery servers.
- * Jan 14, 2013 1469      bkowal       Removed the hdf5 data directory.
- * Aug 27, 2013 2295      bkowal       The entire jms connection string is now
+ * Nov 05, 2009            mschenke    Initial creation
+ * Sep 12, 2012 1167       djohnson    Add datadelivery servers.
+ * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
  *                                     provided by EDEX.
  * 
  * </pre>
@@ -78,10 +78,11 @@ public class LocalizationInitializer {
         LocalizationContext baseContext = pm.getContext(
                 LocalizationType.CAVE_CONFIG, LocalizationLevel.BASE);
         String filePath = "config.xml";
-        for (String bundle : BundleScanner.getListOfBundles(false)) {
-            File copyFrom = BundleScanner.searchInBundle(bundle, "", filePath);
+        BundleScanner scanner = new BundleScanner(filePath);
+        for (String bundle : scanner.getContributingBundles()) {
+            File copyFrom = scanner.searchInBundle(bundle, null);
             if (copyFrom != null) {
-                String searchPath = bundle + File.separator + filePath;
+                String searchPath = bundle + IPathManager.SEPARATOR + filePath;
                 File copyTo = pm.getFile(baseContext, searchPath);
                 if (copyTo.exists() == false
                         || copyFrom.lastModified() != copyTo.lastModified()) {
@@ -123,9 +124,9 @@ public class LocalizationInitializer {
      * @throws VizException
      */
     protected final void processGetServers() throws VizException {
-        GetServersRequest req = new GetServersRequest();
-        GetServersResponse resp = (GetServersResponse) ThriftClient
-                .sendLocalizationRequest(req);
+        GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
+                LocalizationManager.getInstance().getLocalizationServer(),
+                false);
         VizApp.setHttpServer(resp.getHttpServer());
         VizApp.setJmsConnectionString(resp.getJmsConnectionString());
         VizApp.setPypiesServer(resp.getPypiesServer());

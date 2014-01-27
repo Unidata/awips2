@@ -1,24 +1,21 @@
 // Simple shader program for applying alpha,brightness, and contrast to the 
 // colormap in the same way they are applied to data
+#include <mapping>
+#include <coloring>
 
-#include <colorUtil>
-#include <indexing>
-
-uniform float brightness;
-uniform float contrast;
-uniform float alphaVal;
+uniform ColorMapping colorMapping;
+uniform ColorModifiers modifiers;
 
 uniform float bkgrndRed;
 uniform float bkgrndGreen;
 uniform float bkgrndBlue;
 
-uniform sampler1D colorMap;
-uniform sampler2D alphaMask;
-
-uniform int applyMask;
-uniform float logFactor;
-
 void main(void){
+	sampler1D colorMap = colorMapping.colorMap;
+	float logFactor = colorMapping.logFactor;
+	int applyMask = colorMapping.applyMask;
+	sampler1D alphaMask = colorMapping.alphaMask;
+	
 	// Lookup color in colorMap for index
 	float index = gl_TexCoord[0].s;
 	if ( logFactor > 0.0 ) {
@@ -29,10 +26,11 @@ void main(void){
 	// Apply alpha mask if set 
     float alpha = color.a;
     if ( applyMask == 1 ) {
-        if ( texture2D(alphaMask , vec2(index,index) ).r != 0.0 ) {
+        if ( texture1D(alphaMask , index ).r != 0.0 ) {
             color = vec4(bkgrndRed, bkgrndGreen, bkgrndBlue, alpha);
         }
     }
+    
     if(alpha < 1.0){
 		// blend the color with background color, the colorbar should not be transparent
 		alpha = 1.0;
@@ -42,5 +40,5 @@ void main(void){
 		             alpha);
 	}
 
-	gl_FragColor = applyContrastAlphaBrightness(color, alphaVal, brightness, contrast);
+	gl_FragColor = applyColorModifiers(color, modifiers);
 }

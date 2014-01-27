@@ -61,10 +61,10 @@ public class InterpolationContainer implements INumpyable {
     /*
      * (non-Javadoc)
      * 
-     * @see jep.INumpyable#getNumPy()
+     * @see jep.INumpyable#getNumpy()
      */
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         // todo
         return new Object[] { xValues, yValues, zValues };
     }

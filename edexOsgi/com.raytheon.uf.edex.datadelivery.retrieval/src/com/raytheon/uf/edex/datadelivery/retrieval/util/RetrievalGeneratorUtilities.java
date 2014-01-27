@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -48,6 +47,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012            bsteffen     Initial javadoc
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
+ * Dec 11, 2013   2625     mpduff       Remove creation of DataURI.
  * 
  * </pre>
  * 
@@ -91,8 +91,7 @@ public class RetrievalGeneratorUtilities {
      */
     public static Map<DataTime, List<Level>> findGridDuplicates(String name,
             List<DataTime> times, List<Level> levels,
-            List<String> ensembleMembers, Parameter parm,
-            GridCoverage cov) {
+            List<String> ensembleMembers, Parameter parm, GridCoverage cov) {
 
         HashMap<DataTime, List<Level>> dups = new HashMap<DataTime, List<Level>>();
 
@@ -112,13 +111,12 @@ public class RetrievalGeneratorUtilities {
                                 .getGridRecord(name, parm, level,
                                         ensembleMember, cov);
                         rec.setDataTime(time);
-                        rec.constructDataURI();
                         boolean isDup = findDuplicateUri(rec.getDataURI(),
                                 "grid");
                         if (isDup) {
                             levDups.add(level);
                         }
-                    } catch (PluginException e) {
+                    } catch (Exception e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
                     }

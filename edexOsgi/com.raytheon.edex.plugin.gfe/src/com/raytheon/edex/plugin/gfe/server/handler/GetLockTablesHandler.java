@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetLockTablesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -37,18 +36,20 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * 04/08/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class GetLockTablesHandler implements IRequestHandler<GetLockTablesRequest> {
+public class GetLockTablesHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<GetLockTablesRequest> {
     @Override
     public ServerResponse<List<LockTable>> handleRequest(
             GetLockTablesRequest request) throws Exception {
-        ServerResponse<List<LockTable>> sr = LockManager.getInstance()
+        ServerResponse<List<LockTable>> sr = getIfpServer(request).getLockMgr()
                 .getLockTables(request.getRequests(),
-                        request.getWorkstationID(), request.getSiteID());
+                        request.getWorkstationID());
         return sr;
     }
 }

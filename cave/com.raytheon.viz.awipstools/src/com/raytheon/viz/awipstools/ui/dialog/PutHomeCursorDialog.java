@@ -24,20 +24,25 @@ package com.raytheon.viz.awipstools.ui.dialog;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 	Dec 5 2007		       Eric Babin   Initial Creation
- *  10Dec2007   #598       Eric Babin   Added city, state query.
- *  20Dec2007   #656       Eric Babin   Updated to refresh location after clicking GO.
- *  15Jan2007                ebabin     Update for lat/lon put home cursor bug.
- *  10-21-09    #1049       bsteffen    Synchronize with new Home Tool Layer
- *  07-09-10    #3654      bkowal       The stationid column will now be used in the
- *                                      station query instead of the icao column.
- *  07-21-10    #3654      bkowal       Added additional logic to increase the likelihood
- *                                      that we will get enough information to fill all
- *                                      of the fields on the interface for the query by
- *                                      station id and the query by city, state.                                    
-
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 05, 2007		      Eric Babin  Initial Creation
+ * Dec 10, 2007  598      Eric Babin  Added city, state query.
+ * Dec 20, 2007  656      Eric Babin  Updated to refresh location after
+ *                                    clicking GO.
+ * Jan 15, 2007           ebabin      Update for lat/lon put home cursor bug.
+ * Oct 21, 2009  1049     bsteffen    Synchronize with new Home Tool Layer
+ * Jul 09, 2010  3654     bkowal      The stationid column will now be used in
+ *                                    the station query instead of the icao
+ *                                    column.
+ * Jul 21, 2010  3654     bkowal      Added additional logic to increase the
+ *                                    likelihood that we will get enough
+ *                                    information to fill all of the fields on
+ *                                    the interface for the query by station id
+ *                                    and the query by city, state.                                    
+ * Sep 03, 2013  2310     bsteffen    Extend IPointChangedListener instead of
+ *                                    IResourceDataChanged.
+ *
  * </pre>
  * 
  * @author ebabin
@@ -72,9 +77,9 @@ import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -85,7 +90,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 public class PutHomeCursorDialog extends CaveJFACEDialog implements
-        IResourceDataChanged {
+        IPointChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PutHomeCursorDialog.class);
 
@@ -125,13 +130,10 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
 
     private Button goButton, closeButton;
 
-    private final AbstractResourceData resourceData;
-
-    public PutHomeCursorDialog(Shell shell,
-            AbstractResourceData abstractResourceData) {
+    public PutHomeCursorDialog(Shell shell) {
         super(shell);
+        this.setBlockOnOpen(false);
         this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE);
-        this.resourceData = abstractResourceData;
     }
 
     /*
@@ -320,12 +322,13 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
-        resourceData.addChangeListener(this);
+        PointsDataManager.getInstance().addHomeChangedListener(this);
         shell.addDisposeListener(new DisposeListener() {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                resourceData.removeChangeListener(PutHomeCursorDialog.this);
+                PointsDataManager.getInstance().removeHomeChangedListener(
+                        PutHomeCursorDialog.this);
             }
         });
         shell.setText("Put Home Cursor");
@@ -346,7 +349,7 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
      * Exits the dialog.
      */
     private void exitDialog() {
-        this.resourceData.removeChangeListener(this);
+        PointsDataManager.getInstance().removeHomeChangedListener(this);
         this.close();
     }
 
@@ -367,8 +370,6 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                     stationTextField.setFocus();
                 } else {
                     PointsDataManager.getInstance().setHome(c);
-                    resourceData.fireChangeListeners(ChangeType.DATA_UPDATE,
-                            null);
                     stationTextField.setText(station);
                 }
             } else {
@@ -401,7 +402,6 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                 cityTextField.setFocus();
             } else {
                 PointsDataManager.getInstance().setHome(c);
-                resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
                 cityTextField.setText(city);
                 stateTextField.setText(state);
             }
@@ -434,7 +434,6 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
                 return;
             }
             PointsDataManager.getInstance().setHome(c);
-            resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
         }
     }
 
@@ -584,12 +583,19 @@ public class PutHomeCursorDialog extends CaveJFACEDialog implements
     }
 
     @Override
-    public void resourceChanged(ChangeType type, Object object) {
-        Coordinate point = PointsDataManager.getInstance().getHome();
-        lonTextField.setText(String.valueOf(point.x));
-        latTextField.setText(String.valueOf(point.y));
-        // find the nearest station and update the fields.
-        updateStationInfo(point);
+    public void pointChanged() {
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                Coordinate point = PointsDataManager.getInstance().getHome();
+                lonTextField.setText(String.valueOf(point.x));
+                latTextField.setText(String.valueOf(point.y));
+                // find the nearest station and update the fields.
+                updateStationInfo(point);
+            }
+        });
+
     }
 
 }

@@ -31,15 +31,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.status.StatusConstants;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.ui.Activator;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.service.ILocalizationService;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
 
 /**
- * TODO Add Description
+ * Wizard for generating derived paramters
  * 
  * <pre>
  * 
@@ -47,7 +45,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2010            mschenke     Initial creation
+ * Dec 16, 2010            mschenke    Initial creation
+ * Sep 17, 2013 2285       mschenke    Fixed serialization of DerivParamDesc
  * 
  * </pre>
  * 
@@ -56,7 +55,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTWizard;
  */
 
 public class DerivedParamWizard extends CaveSWTWizard {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DerivedParamWizard.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DerivedParamWizard.class);
 
     private DerivedParamNewDefinitionPage newDefinitionPage;
 
@@ -113,15 +113,15 @@ public class DerivedParamWizard extends CaveSWTWizard {
                 file.save();
                 functionFile = file;
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         String definitionContents = newDefinitionPage.createDefinition();
         if (definitionContents != null) {
             String fileName = newDefinitionPage.getAbbreviation() + ".xml";
-            String path = DerivedParameterGenerator.XML_DIR + File.separator
-                    + fileName;
+            String path = DerivedParameterGenerator.XML_DIR
+                    + IPathManager.SEPARATOR + fileName;
             LocalizationFile file = pm.getLocalizationFile(userCtx, path);
             File f = file.getFile();
             if (f.exists()) {
@@ -132,8 +132,8 @@ public class DerivedParamWizard extends CaveSWTWizard {
                 file.save();
                 definitionFile = file;
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
 

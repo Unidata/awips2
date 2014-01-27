@@ -7,7 +7,6 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.swt,
  org.eclipse.jface,
- org.junit;bundle-version="1.0.0",
  org.jep;bundle-version="1.0.0"
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.localization.exception,

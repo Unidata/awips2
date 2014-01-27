@@ -25,8 +25,8 @@ import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.SingleLevel;
 
 /**
  * Grid Level Translator

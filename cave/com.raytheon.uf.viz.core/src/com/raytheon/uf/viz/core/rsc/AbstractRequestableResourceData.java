@@ -23,6 +23,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,8 +40,10 @@ import org.apache.commons.lang.Validate;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -49,13 +52,12 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.NoMatchingTimesException;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 
 /**
@@ -84,6 +86,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
  * Mar 29, 2013 1638       mschenke    Switched to create PDO from dataURI
  *                                     mapping instead of dataURI string
  * May 14, 2013 1869       bsteffen    Get dataURI map directly from PDO.
+ * Sep  9, 2013 2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -115,14 +118,22 @@ public abstract class AbstractRequestableResourceData extends
             Object objectToSend = null;
             Map<String, Object> attribs = new HashMap<String, Object>(
                     message.decodedAlert);
-            attribs.put("dataURI", message.dataURI);
 
             if (reqResourceData.isUpdatingOnMetadataOnly()) {
                 PluginDataObject record = RecordFactory.getInstance()
                         .loadRecordFromMap(attribs);
                 objectToSend = record;
             } else {
-                objectToSend = Loader.loadData(attribs);
+                DbQueryRequest request = new DbQueryRequest(
+                        RequestConstraint.toConstraintMapping(attribs));
+                request.setLimit(1);
+                DbQueryResponse response = (DbQueryResponse) ThriftClient
+                        .sendRequest(request);
+                PluginDataObject[] pdos = response
+                        .getEntityObjects(PluginDataObject.class);
+                if (pdos.length > 0) {
+                    objectToSend = pdos[0];
+                }
             }
             return objectToSend;
         }
@@ -492,10 +503,7 @@ public abstract class AbstractRequestableResourceData extends
      */
     protected PluginDataObject[] requestPluginDataObjects(
             Collection<DataTime> loadSet) throws VizException {
-        LayerProperty property = new LayerProperty();
-        // TODO fix?
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        // property.setDesiredProduct("Imagery");
+        Map<String, RequestConstraint> constraints = getMetadataMap();
 
         BinOffset binOffset = getBinOffset();
 
@@ -503,14 +511,12 @@ public abstract class AbstractRequestableResourceData extends
 
         if (binOffset == null) {
             // Just ask for the data
-            property.setEntryQueryParameters(getMetadataMap(), false);
-            property.setNumberOfImages(9999);
             selectedEntryTimes = new ArrayList<DataTime>(loadSet);
         } else {
-            property.setEntryQueryParameters(getMetadataMap(), true);
-            property.setNumberOfImages(9999);
-            // Find all the actual datatimes for the bins
-            DataTime[] allDataTimes = property.getAllEntryTimes();
+            // Find all the actual datatimes for the bins. TODO: Better way to
+            // do this? Construct time range for each datatime in loadSet and
+            // request data in that range?
+            DataTime[] allDataTimes = getAvailableTimes(constraints, null);
             List<DataTime> trueDataTimes = new ArrayList<DataTime>();
 
             for (DataTime realDataTime : allDataTimes) {
@@ -526,8 +532,6 @@ public abstract class AbstractRequestableResourceData extends
             selectedEntryTimes = trueDataTimes;
         }
 
-        Object[] resp = null;
-
         ArrayList<PluginDataObject> responses = new ArrayList<PluginDataObject>(
                 selectedEntryTimes.size());
 
@@ -539,21 +543,13 @@ public abstract class AbstractRequestableResourceData extends
             }
             List<DataTime> slice = selectedEntryTimes.subList(start, end);
 
-            property.setSelectedEntryTimes(slice.toArray(new DataTime[slice
-                    .size()]));
-
-            resp = DataCubeContainer.getData(property, 60000).toArray(
-                    new Object[] {});
-            for (Object o : resp) {
-                responses.add((PluginDataObject) o);
-            }
+            PluginDataObject[] pdos = DataCubeContainer.getData(
+                    getMetadataMap(), slice.toArray(new DataTime[0]));
+            responses.addAll(Arrays.asList(pdos));
         }
 
-        PluginDataObject[] arr = responses
-                .toArray(new PluginDataObject[responses.size()]);
-
-        Arrays.sort(arr, layerComparator);
-        return arr;
+        Collections.sort(responses, layerComparator);
+        return responses.toArray(new PluginDataObject[0]);
     }
 
     /**
@@ -601,12 +597,8 @@ public abstract class AbstractRequestableResourceData extends
             Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
             throws VizException {
         Validate.notNull(constraintMap);
-        LayerProperty property = new LayerProperty();
-
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        property.setEntryQueryParameters(constraintMap, true, binOffset);
-        DataTime[] availableTimes = property.getEntryTimes();
-        return availableTimes;
+        return DataCubeContainer.performTimeQuery(constraintMap, false,
+                binOffset);
     }
 
     /**

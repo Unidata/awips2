@@ -22,8 +22,8 @@ package com.raytheon.edex.subscription.runners;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.dao.SubscriptionDAO;
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.util.Tools;
 import com.raytheon.uf.common.message.Header;
 import com.raytheon.uf.common.message.Message;

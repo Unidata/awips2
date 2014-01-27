@@ -234,9 +234,7 @@ Export-Package: ChartDirector,
  ucar.util.prefs.ui
 Bundle-ActivationPolicy: lazy
 Require-Bundle: ohd.hseb.ihfsdb,
- org.junit,
- org.postgres,
- org.apache.log4j
+ org.postgres
 Bundle-ClassPath: externaljars/bsf.jar,
  externaljars/bsh-2.0b4.jar,
  externaljars/ChartDirector.jar,

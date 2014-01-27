@@ -9,7 +9,7 @@
     <bean id="vaaProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="vaaPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.vaa" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.vaa.dao.VAARecordDao" />
+        <property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.vaa.VAARecord" />
     </bean>
     

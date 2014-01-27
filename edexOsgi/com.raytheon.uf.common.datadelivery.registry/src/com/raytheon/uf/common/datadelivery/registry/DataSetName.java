@@ -15,7 +15,6 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.ebxml.MapValuesResolver;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -45,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject(value = { "providerName", "dataSetType", "dataSetName" }, storeContent = false)
-public class DataSetName implements ISerializableObject {
+public class DataSetName {
 
     @RegistryObjectOwner
     @XmlAttribute

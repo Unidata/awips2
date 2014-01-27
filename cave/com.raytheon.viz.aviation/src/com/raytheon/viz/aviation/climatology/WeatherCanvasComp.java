@@ -49,6 +49,7 @@ import com.raytheon.viz.aviation.xml.WxPlotCfg;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 JUN 2008  1119        lvenable    Initial creation
+ * 12 Aug 2013  #2256      lvenable    Disposed of image when composite is disposed.
  * 
  * </pre>
  * 
@@ -227,6 +228,10 @@ abstract class WeatherCanvasComp extends Composite {
         this.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
                 smallFont.dispose();
+
+                if (image != null) {
+                    image.dispose();
+                }
             }
         });
     }

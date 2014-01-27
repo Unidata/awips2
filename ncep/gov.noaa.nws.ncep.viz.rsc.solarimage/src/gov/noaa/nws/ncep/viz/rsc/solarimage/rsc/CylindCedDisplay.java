@@ -37,7 +37,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.graph.GraphProperties;
-import com.raytheon.viz.core.style.image.DataScale;
+import com.raytheon.uf.common.style.image.DataScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

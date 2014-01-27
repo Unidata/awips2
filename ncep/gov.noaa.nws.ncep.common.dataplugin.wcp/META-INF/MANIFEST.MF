@@ -8,8 +8,7 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.31",
  javax.persistence;bundle-version="1.0.0",
- gov.noaa.nws.ncep.common;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4"
+ gov.noaa.nws.ncep.common;bundle-version="1.0.0"
 Export-Package: gov.noaa.nws.ncep.common.dataplugin.wcp,
  gov.noaa.nws.ncep.common.dataplugin.wcp.dao
 Import-Package: gov.noaa.nws.ncep.edex.common.dao

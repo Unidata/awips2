@@ -34,6 +34,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.w3c.dom.Element;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -62,22 +63,47 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @Entity
-@Table(schema = "ebxml", name = "XMLQueryExpression")
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "XMLQueryExpression")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@XmlRootElement(name = "XMLQueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "XMLQueryExpressionType", propOrder = { "any" })
 @DynamicSerialize
 public class XMLQueryExpressionType extends QueryExpressionType {
+
+    private static final long serialVersionUID = -4520183948278760674L;
 
     @XmlAnyElement(lax = true)
     @DynamicSerializeElement
     @Column(name = "anyValue", columnDefinition = "text")
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.SerializedType")
     protected Object any;
+
+    public XMLQueryExpressionType() {
+        super();
+    }
+
+    public XMLQueryExpressionType(String queryLanguage, Object any) {
+        super(queryLanguage);
+        this.any = any;
+    }
 
     /**
      * Gets the value of the any property.
@@ -98,6 +124,46 @@ public class XMLQueryExpressionType extends QueryExpressionType {
      */
     public void setAny(Object value) {
         this.any = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((any == null) ? 0 : any.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        XMLQueryExpressionType other = (XMLQueryExpressionType) obj;
+        if (any == null) {
+            if (other.any != null)
+                return false;
+        } else if (!any.equals(other.any))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("XMLQueryExpressionType \n[queryLanguage=");
+        builder.append(queryLanguage);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nany=");
+        builder.append(any);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

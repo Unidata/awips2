@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 19, 2013 1785        bgonzale    Added performance status handler and added
  *                                      status to decode.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Oct 23, 2013 2361        njensen     Removed dead mesowest code
  * </pre>
  * 
  * @author bphillip
@@ -145,13 +146,9 @@ public class ObsDecoder extends AbstractDecoder {
                 logger.error(traceId + "- Attempt to create non-METAR Decoder");
             }
         } else {
-            if (message.startsWith("PARM")) {
-                logger.error(traceId + "- Attempt to create MESOWest Decoder");
-            } else {
-                logger.error(traceId
-                        + " - Unable to find appropriate obs decoder:Data Length="
-                        + messageData.length);
-            }
+            logger.error(traceId
+                    + " - Unable to find appropriate obs decoder:Data Length="
+                    + messageData.length);
         }
 
         return decoder;

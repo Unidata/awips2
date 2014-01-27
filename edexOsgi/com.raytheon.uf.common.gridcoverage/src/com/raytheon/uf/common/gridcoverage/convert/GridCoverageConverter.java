@@ -22,6 +22,7 @@ package com.raytheon.uf.common.gridcoverage.convert;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 
+import com.raytheon.uf.common.dataplugin.annotations.DataURIFieldConverter;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
 
@@ -33,9 +34,10 @@ import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 12, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 12, 2012           bsteffen    Initial creation
+ * Nov 25, 2013  2574     bsteffen    Switch to DataURIFieldConverter
  * 
  * </pre>
  * 
@@ -43,34 +45,59 @@ import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
  * @version 1.0
  */
 
-public class GridCoverageConverter implements Converter {
+public class GridCoverageConverter implements DataURIFieldConverter, Converter {
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public GridCoverage convert(Class clazz, Object value) {
-        Integer intValue = null;
-        if (value instanceof Integer) {
-            intValue = (Integer) value;
-        } else if (value instanceof String) {
-            try {
-                intValue = Integer.parseInt((String) value);
-            } catch (NumberFormatException e) {
-                ;// ignore and throw conversion exception later.
+    public String toString(Object field) {
+        if (field instanceof GridCoverage) {
+            Integer id = ((GridCoverage) field).getId();
+            if (id == null) {
+                throw new UnsupportedOperationException(
+                        "Coverage Information Not Specified yet");
+            } else {
+                return id.toString();
             }
         }
-        if (intValue != null) {
+        return null;
+    }
+
+    @Override
+    public GridCoverage fromString(String string) {
+        try {
+            if (string == null || "null".equals(string)) {
+                return null;
+            }
+            return fromInteger(Integer.parseInt(string));
+        } catch (NumberFormatException e) {
+            throw new UnsupportedOperationException(string
+                    + " is not a valid GridCoverage id.");
+        }
+    }
+
+    @Override
+    public GridCoverage convert(Class clazz, Object value) {
+        if (value instanceof Integer) {
+            return fromInteger((Integer) value);
+        } else if (value instanceof String) {
+            return fromString((String) value);
+        } else {
+            throw new ConversionException("Cannot convert "
+                    + String.valueOf(value) + " of type "
+                    + value.getClass().getSimpleName() + " to a GridCoverage.");
+        }
+    }
+
+    public GridCoverage fromInteger(Integer integer) {
+        if (integer != null) {
             GridCoverage result = GridCoverageLookup.getInstance().getCoverage(
-                    intValue);
+                    integer);
             if (result != null) {
                 return result;
             }
-            throw new ConversionException(
-                    "Cannot find GridCoverage with id of "
-                            + String.valueOf(intValue));
         }
-        throw new ConversionException("Cannot convert " + String.valueOf(value)
-                + " of type " + value.getClass().getSimpleName()
-                + " to a GridCoverage.");
+        throw new UnsupportedOperationException(
+                "Cannot find GridCoverage with id of "
+                        + String.valueOf(integer));
     }
 
 }

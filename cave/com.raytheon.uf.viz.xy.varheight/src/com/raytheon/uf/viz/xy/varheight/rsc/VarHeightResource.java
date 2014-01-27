@@ -31,6 +31,8 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
@@ -55,6 +57,7 @@ import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
 import com.raytheon.uf.viz.xy.map.rsc.PointRenderable;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -64,7 +67,6 @@ import com.raytheon.viz.core.map.GeoUtil;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.style.graph.GraphPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -75,9 +77,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * ------------- -------- ----------- --------------------------
  * Nov 23, 2009            mschenke     Initial creation
  * Feb 10, 2011 8344       bkowal       enabled the magnification capability.
+ * Sep 23, 2013 2363       bsteffen     Add more vector configuration options.
+ * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -108,8 +112,6 @@ public class VarHeightResource extends
 
     protected DataTime currentTime = null;
 
-    private double imageSize = XYWindImageData.IMAGE_SIZE;
-
     protected VarHeightResource(VarHeightResourceData resourceData,
             LoadProperties loadProperties, AbstractVarHeightAdapter<?> adapter)
             throws VizException {
@@ -130,8 +132,12 @@ public class VarHeightResource extends
             this.combineOperation = combinedResourceData.getCombineOperation();
         }
 
-        prefs = GraphPrefsFactory.buildPreferences(resourceData.getParameter(),
-                null);
+        try {
+            prefs = GraphPrefsFactory.buildPreferences(
+                    resourceData.getParameter(), null);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
 
         resourceData.addChangeListener(new IResourceDataChanged() {
 
@@ -314,9 +320,14 @@ public class VarHeightResource extends
         descriptor.getGraph(this).setCurrentMagnification(magnification);
         target.setupClippingPlane(descriptor.getGraph(this).getExtent());
 
+        double ratio = paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width;
+
         // build the renderable
+        VectorGraphicsConfig config = new VectorGraphicsConfig();
+        config.setSizeScaler(magnification * ratio);
         VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(
-                this.descriptor, target, this.imageSize, 1.0f);
+                this.descriptor, target, config);
         for (int i = 0; i < data.size(); i++) {
             XYData d = data.get(i);
             double x = ((Number) d.getX()).doubleValue();
@@ -327,8 +338,6 @@ public class VarHeightResource extends
             double screenX = screenLoc[0];
             double screenY = screenLoc[1];
 
-            double ratio = paintProps.getView().getExtent().getWidth()
-                    / paintProps.getCanvasBounds().width;
 
             IExtent graphExtent = descriptor.getGraph(this).getExtent();
 
@@ -344,8 +353,7 @@ public class VarHeightResource extends
                 }
 
                 if (withinBounds) {
-                    double adjSize = (this.imageSize * magnification) * ratio;
-                    vgr.paintBarb(plotLoc, adjSize, dd.getWindSpd(),
+                    vgr.paintBarb(plotLoc, dd.getWindSpd(),
                             dd.getWindDir() * DEGREE_TO_RADIAN);
                     vgr.setColor(color);
                     vgr.setLineWidth(getCapability(OutlineCapability.class)
@@ -543,9 +551,13 @@ public class VarHeightResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Coordinate object = coord.getObject();
-        object = descriptor.getGraphCoordiante(this, object);
-        if (object != null) {
-            return object.x + ", " + object.y;
+        double[] worldCoord = descriptor.pixelToWorld(
+                new double[] { object.x, object.y });
+        Coordinate c = new Coordinate(worldCoord[0], worldCoord[1]);
+
+        c = descriptor.getGraphCoordiante(this, c);
+        if (c != null) {
+            return c.x + ", " + c.y;
         }
         return null;
     }

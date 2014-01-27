@@ -14,7 +14,7 @@
     <fcst>432000</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>routed_flow_m</short_name>
+    <short_name>routedflowm</short_name>
     <long_name>Channel Routed Flow</long_name>
     <units>cfs</units>
     <udunits/>
@@ -29,7 +29,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>routed_flow_h</short_name>
+    <short_name>routedflowh</short_name>
     <long_name>Channel Routed Flow</long_name>
     <units>cfs</units>
     <udunits/>
@@ -44,7 +44,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>routed_flow_c</short_name>
+    <short_name>routedflowc</short_name>
     <long_name>Channel Routed Flow</long_name>
     <units>cfs</units>
     <udunits/>
@@ -74,7 +74,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>routed_flow</short_name>
+    <short_name>routedflow</short_name>
     <long_name>Channel Routed Flow</long_name>
     <units>cfs</units>
     <udunits/>
@@ -134,7 +134,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>water_depth</short_name>
+    <short_name>waterdepth</short_name>
     <long_name>Hillslope water depth</long_name>
     <units>in</units>
     <udunits/>

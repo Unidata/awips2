@@ -1,6 +1,7 @@
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 %define _java_major_version 1.7
-%define _java_version %{_java_major_version}.0_21 
+%define _java_revision 40
+%define _java_version %{_java_major_version}.0_%{_java_revision} 
 %define _build_arch %(uname -i)
 %define _java_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -24,7 +25,7 @@ AutoReq: no
 provides: awips2-java
 
 %description
-AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_21 
+AWIPS II Java Distribution - Contains Java SE Development Kit (JDK) 1.7.0_40 
 plus additional libraries used by AWIPS II.
 
 %prep
@@ -68,7 +69,7 @@ else
 fi
 
 JDK_BIN_var_javahome="jdk%{_java_version}"
-jdk_tar="jdk-7u21-linux-${jdk_arch}.tar.gz"
+jdk_tar="jdk-7u%{_java_revision}-linux-${jdk_arch}.tar.gz"
 jai_bin="jai-1_1_3-lib-linux-${build_arch}-jdk.bin"
 jai_imageio_bin="jai_imageio-1_1-lib-linux-${build_arch}-jdk.bin"
 jai_bin_patch="jai.patch1"

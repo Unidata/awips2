@@ -22,6 +22,9 @@
  */
 package com.raytheon.viz.hydro.ratingcurve;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,6 +33,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for unimplemented features. To be used temporarily until final
@@ -43,6 +47,7 @@ import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
  * ------------	----------	-----------	--------------------------
  * 6/27/06                  lvenable    Initial Creation.
  * 24 Nov 2008    1628      dhladky     updated.
+ * 15 Jul 2013    2088      rferrel     Changes for non-blocking RatingCurveDlg.
  * 
  * </pre>
  * 
@@ -50,6 +55,8 @@ import com.raytheon.viz.hydrocommon.ratingcurve.RatingCurveDlg;
  * 
  */
 public class RatingCurveAction extends AbstractHandler {
+    private Map<String, RatingCurveDlg> ratingCurveDlgMap = new HashMap<String, RatingCurveDlg>();
+
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
@@ -57,16 +64,33 @@ public class RatingCurveAction extends AbstractHandler {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         if (manager.isCurrentLidSelected(shell)) {
             String lid = manager.getCurrentLid();
-            String name = manager.getCurrentData().getName();
+            RatingCurveDlg ratingCurveDlg = ratingCurveDlgMap.get(lid);
 
-            String displayString = " - "
-                    + lid
-                    + ((name != null && name.compareTo("") != 0) ? " - " + name
-                            : "");
+            if (ratingCurveDlg == null || ratingCurveDlg.isDisposed()) {
+                String name = manager.getCurrentData().getName();
+                StringBuilder displayString = new StringBuilder(" - ");
+                displayString.append(lid);
+                if (name != null && name.length() > 0) {
+                    displayString.append(" - ").append(name);
+                }
 
-            RatingCurveDlg ratingCurveDlg = new RatingCurveDlg(shell, lid,
-                    displayString, false);
-            ratingCurveDlg.open();
+                ratingCurveDlg = new RatingCurveDlg(shell, lid,
+                        displayString.toString(), false);
+                ratingCurveDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String) {
+                            String lid = returnValue.toString();
+                            ratingCurveDlgMap.remove(lid);
+                        }
+                    }
+                });
+                ratingCurveDlg.open();
+                ratingCurveDlgMap.put(lid, ratingCurveDlg);
+            } else {
+                ratingCurveDlg.bringToTop();
+            }
         }
 
         return null;

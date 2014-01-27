@@ -22,8 +22,8 @@ package com.raytheon.edex.msg;
 
 import java.util.Date;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Represent a subscription response for the server. This message
@@ -64,9 +64,9 @@ public class ResponseMessageSubscription extends AbstractResponseMessage {
                                         Exception cause) {
         this.statusMessage = message;
         if (cause != null) {
-            this.statusMessage += " Cause was " + Util.printString(cause);
+            this.statusMessage += " Cause was " + StringUtil.printString(cause);
             if(cause.getCause() != null) {
-                this.statusMessage += " " + Util.printString(cause.getCause());
+                this.statusMessage += " " + StringUtil.printString(cause.getCause());
             }
         }
 

@@ -143,12 +143,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "radarseq")
-@Table(name = "radar", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = RadarRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "radar", indexes = { @Index(name = "radar_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = RadarRecord.PLUGIN_NAME, indexes = { @Index(name = "radar_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -157,6 +157,8 @@ public class RadarRecord extends PersistablePluginDataObject implements
         ISpatialEnabled, IRadarRecord {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME = "radar";
 
     @Column
     @DataURI(position = 2)
@@ -1757,6 +1759,6 @@ public class RadarRecord extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "radar";
+        return PLUGIN_NAME;
     }
 }
