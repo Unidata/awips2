@@ -38,6 +38,10 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * Mar 25, 2013 1841       djohnson     Extracted from UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Changed officeId to a set.
+ * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
+ * Sept 30,2013 1797       dhladky      Abstracted and genericized.
+ * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type information.
  * 
  * </pre>
  * 
@@ -45,7 +49,12 @@ import javax.xml.bind.annotation.XmlEnumValue;
  * @version 1.0
  */
 
-public interface Subscription {
+public interface Subscription<T extends Time, C extends Coverage> {
+
+    @XmlEnum
+    public enum SubscriptionType {
+        QUERY, RECURRING;
+    }
 
     /** Enumeration to use for subscription priorities */
     @XmlEnum
@@ -95,6 +104,17 @@ public interface Subscription {
         }
 
         /**
+         * Check whether this priority is higher than the other priority.
+         * 
+         * @param other
+         *            the other priority
+         * @return true if higher priority
+         */
+        public boolean isHigherPriorityThan(SubscriptionPriority other) {
+            return this.priorityValue < other.priorityValue;
+        }
+
+        /**
          * Retrieve the {@link SubscriptionPriority} by its string
          * representation.
          * 
@@ -128,6 +148,12 @@ public interface Subscription {
 
     /** Route slot */
     String ROUTE_SLOT = "route";
+
+    /** Originating Site slot */
+    String ORIGINATING_SITE_SLOT = "originatingSite";
+
+    /** Subscription type slot (query, recurring) */
+    String SUBSCRIPTION_TYPE_SLOT = "subscriptionType";
 
     /**
      * Get subscription name.
@@ -306,7 +332,7 @@ public interface Subscription {
      * 
      * @return coverage
      */
-    Coverage getCoverage();
+    C getCoverage();
 
     /**
      * Set the coverage area for the subscription.
@@ -314,14 +340,14 @@ public interface Subscription {
      * @param coverage
      *            coverage area
      */
-    void setCoverage(Coverage coverage);
+    void setCoverage(C coverage);
 
     /**
      * Get subscription submission time.
      * 
      * @return subscription time
      */
-    Time getTime();
+    T getTime();
 
     /**
      * Set the subscription submission time.
@@ -329,7 +355,7 @@ public interface Subscription {
      * @param time
      *            time stamp
      */
-    void setTime(Time time);
+    void setTime(T time);
 
     /**
      * Set the subscription parameters.
@@ -573,26 +599,26 @@ public interface Subscription {
      * 
      * @return the copy
      */
-    Subscription copy();
+    Subscription<T, C> copy();
 
     /**
      * Copy the subscription.
      * 
      * @return the copy with the new name
      */
-    Subscription copy(String newName);
+    Subscription<T, C> copy(String newName);
 
     /**
      * @param currentUser
      * @return
      */
-    InitialPendingSubscription initialPending(String currentUser);
+    InitialPendingSubscription<T, C> initialPending(String currentUser);
 
     /**
      * @param currentUser
      * @return
      */
-    PendingSubscription pending(String currentUser);
+    PendingSubscription<T, C> pending(String currentUser);
 
     /**
      * Add an office Id to the list.
@@ -601,4 +627,32 @@ public interface Subscription {
      *            Office Id to add
      */
     void addOfficeID(String officeId);
+
+    /**
+     * Gets the original site the subscription was created as
+     * 
+     * @return
+     */
+    String getOriginatingSite();
+
+    /**
+     * Sets the originating Site the subscription was created as
+     * 
+     * @param originatingSite
+     */
+    void setOriginatingSite(String originatingSite);
+
+    /**
+     * Get the subscription type (Recurring or Query)
+     * 
+     * @return the SubscriptionType
+     */
+    SubscriptionType getSubscriptionType();
+
+    /**
+     * Set the subscription type.
+     * 
+     * @param subType
+     */
+    void setSubscriptionType(SubscriptionType subType);
 }

@@ -108,7 +108,7 @@ public class StaticDataGenerator {
      * whether static data has been created to avoid too many trips to db to
      * check.
      */
-    private Map<CacheKey, CacheKey> dataGeneratedCache = Collections
+    private final Map<CacheKey, CacheKey> dataGeneratedCache = Collections
             .synchronizedMap(new LinkedHashMap<CacheKey, CacheKey>(
                     (int) (CACHE_SIZE / 0.75f) + 1, 0.75f, true) {
 
@@ -138,8 +138,9 @@ public class StaticDataGenerator {
      */
     public GridRecord[] processNotification(DataURINotificationMessage msg)
             throws Exception {
-        Set<GridRecord> staticRecords = new HashSet<GridRecord>();
-        for (String dataURI : msg.getDataURIs()) {
+        String[] uris = msg.getDataURIs();
+        Set<GridRecord> staticRecords = new HashSet<GridRecord>(uris.length, 1);
+        for (String dataURI : uris) {
             if (dataURI.startsWith("/grid/")) {
                 try {
                     GridRecord record = new GridRecord(dataURI);
@@ -376,8 +377,6 @@ public class StaticDataGenerator {
         staticRecord.setLevel(LevelFactory.getInstance().getLevel("Dflt", 0,
                 "m"));
         staticRecord.setDataTime(dataTime);
-
-        staticRecord.constructDataURI();
         return staticRecord;
 
     }
@@ -458,38 +457,47 @@ public class StaticDataGenerator {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + coverageid;
-            result = prime * result
+            result = (prime * result) + coverageid;
+            result = (prime * result)
                     + ((datasetid == null) ? 0 : datasetid.hashCode());
-            result = prime * result + forecastTime;
-            result = prime * result
+            result = (prime * result) + forecastTime;
+            result = (prime * result)
                     + ((refTime == null) ? 0 : refTime.hashCode());
             return result;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             CacheKey other = (CacheKey) obj;
-            if (coverageid != other.coverageid)
+            if (coverageid != other.coverageid) {
                 return false;
+            }
             if (datasetid == null) {
-                if (other.datasetid != null)
+                if (other.datasetid != null) {
                     return false;
-            } else if (!datasetid.equals(other.datasetid))
+                }
+            } else if (!datasetid.equals(other.datasetid)) {
                 return false;
-            if (forecastTime != other.forecastTime)
+            }
+            if (forecastTime != other.forecastTime) {
                 return false;
+            }
             if (refTime == null) {
-                if (other.refTime != null)
+                if (other.refTime != null) {
                     return false;
-            } else if (!refTime.equals(other.refTime))
+                }
+            } else if (!refTime.equals(other.refTime)) {
                 return false;
+            }
             return true;
         }
 

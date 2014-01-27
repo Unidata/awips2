@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -44,6 +44,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Dec 12, 2012 1433       bgonzale     Use new Subscription copy ctor.
  * Mar 29, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Oct 2,  2013 1797       dhladky      Generics start
+ * Oct 11, 2013 2460       dhladky      Restored Adhoc's to registryObject store, WFO only
+ * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -54,8 +58,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "AdhocSubscription")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class AdhocSubscription extends SiteSubscription implements
-        ISerializableObject {
+@RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
+public class AdhocSubscription<T extends Time, C extends Coverage> extends
+        SiteSubscription<T, C> {
 
     private static final long serialVersionUID = -2200080380095632486L;
 
@@ -63,7 +70,7 @@ public class AdhocSubscription extends SiteSubscription implements
         setGroupName("Adhoc");
     }
 
-    public AdhocSubscription(SiteSubscription subscription) {
+    public AdhocSubscription(SiteSubscription<T, C> subscription) {
         super(subscription);
         setGroupName("Adhoc");
     }

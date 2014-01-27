@@ -33,7 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -43,16 +43,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class TextSymbolPacket extends SymbologyPacket implements
         ISerializableObject {
-    public static final int TEXT_SYMBOL_PACKET1 = 1;
 
-    public static final int TEXT_SYMBOL_PACKET2 = 2;
-
-    public static final int TEXT_SYMBOL_PACKET8 = 8;
-
-    static {
-        PacketFactory.registerPacketType(TextSymbolPacket.class,
-                TEXT_SYMBOL_PACKET1, TEXT_SYMBOL_PACKET2, TEXT_SYMBOL_PACKET8);
-    }
+    private static final int TEXT_SYMBOL_PACKET8 = 8;
 
     @DynamicSerializeElement
     protected int theColor;

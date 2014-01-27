@@ -20,7 +20,6 @@
 
 package com.raytheon.uf.viz.core.comm;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +34,8 @@ import com.raytheon.uf.common.message.response.ResponseMessageCatalog;
 import com.raytheon.uf.common.message.response.ResponseMessageError;
 import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.exception.VizServerSideException;
 
@@ -51,6 +50,7 @@ import com.raytheon.uf.viz.core.exception.VizServerSideException;
  *    ------------    ----------  -----------   --------------------------
  *    Sep 11, 2006                chammack      Initial Creation.
  *    09May2007       TO7         njensen       Fixed XML responses.
+ *    Aug 06, 2013    2228        njensen       Use deserialize(byte[])
  * 
  * </pre>
  * 
@@ -84,8 +84,7 @@ public class MessageMarshaller {
 
             DynamicSerializationManager dsm = DynamicSerializationManager
                     .getManager(SerializationType.Thrift);
-
-            Object rawMsg = dsm.deserialize(new ByteArrayInputStream(message));
+            Object rawMsg = dsm.deserialize(message);
 
             if (!(rawMsg instanceof Message))
                 throw new VizException(

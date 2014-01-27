@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.datadelivery.filter.IFilterUpdate;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 import com.raytheon.viz.ui.widgets.duallist.IUpdate;
+import com.raytheon.viz.ui.widgets.duallist.SearchUtils;
 
 /**
  * Standard Filter Composite
@@ -55,6 +56,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Aug 08, 2012    863     jpiatt      Added new interface method.
  * Jan 07, 2013   1432     mpduff      Fix case sensitive and exclude checkboxes.
  * Feb 25, 2013   1588     mpduff      Fix match any/all.
+ * Aug 20, 2013   1733     mpduff      Match any/all now executes the search on selection.
  * 
  * </pre>
  * 
@@ -223,9 +225,10 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
         matchAnyBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (matchAnyBtn.getSelection() == true) {
+                if (matchAnyBtn.getSelection()) {
                     matchAnyFlag = true;
                 }
+                handleSearch();
             }
         });
 
@@ -235,9 +238,10 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
         matchAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (matchAllBtn.getSelection() == true) {
+                if (matchAllBtn.getSelection()) {
                     matchAnyFlag = false;
                 }
+                handleSearch();
             }
         });
     }
@@ -284,26 +288,36 @@ public class FilterComp extends AbstractFilterComp implements IUpdate {
         boolean excludeSearch = exclusionBtn.getSelection();
 
         String search = regExTxt.getText();
+        dualConfig.setSearchField(search);
+        dualConfig.setMatchAny(matchAnyFlag);
+        List<String> fullList = dualConfig.getFullList();
+
         if (search != null && search.length() > 0) {
-
-            dualConfig.setSearchField(search);
-
             String[] filteredList = dualConfig.getFullList().toArray(
                     new String[dualConfig.getFullList().size()]);
 
-            List<String> tmpFilterList = DataBrowserUtils.search(search,
+            List<String> tmpFilterList = SearchUtils.search(search,
                     filteredList, matchAnyFlag, caseBtn.getSelection(),
                     excludeSearch);
 
             // Clear the list and add the newly filtered items
             dualList.clearAvailableList(false);
+            for (String s : dualList.getSelectedListItems()) {
+                tmpFilterList.remove(s);
+            }
             dualList.setAvailableItems(tmpFilterList);
             return;
+        } else {
+
+            // Clear the list and repopulate with the full list
+            dualList.clearAvailableList(false);
+            for (String s : dualList.getSelectedListItems()) {
+                fullList.remove(s);
+            }
+            dualList.setAvailableItems(fullList);
         }
 
-        // Clear the list and repopulate with the full list
-        dualList.clearAvailableList(false);
-        dualList.setAvailableItems(dualConfig.getFullList());
+        dualList.enableDisableLeftRightButtons();
     }
 
     /**

@@ -31,7 +31,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 
 /**
  * Test 
@@ -66,7 +65,7 @@ public class SubscriptionServiceStoreTest extends
      * {@inheritDoc}
      */
     @Override
-    ISubscriptionServiceResult performServiceInteraction()
+    SubscriptionServiceResult performServiceInteraction()
             throws RegistryHandlerException {
         return service.store(sub1, mockPromptDisplayText);
     }

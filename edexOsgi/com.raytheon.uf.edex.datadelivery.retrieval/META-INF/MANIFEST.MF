@@ -17,7 +17,6 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
- org.junit,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.datadelivery.event;bundle-version="1.0.0",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
@@ -32,7 +31,9 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
- com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0"
+ com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.edex.datadelivery.event;bundle-version="1.0.0",
+ org.apache.http;bundle-version="4.1.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
@@ -44,6 +45,7 @@ Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
    com.raytheon.uf.common.serialization,
    com.raytheon.uf.common.datadelivery.registry",
  com.raytheon.uf.edex.datadelivery.retrieval.adapters;uses:="com.raytheon.uf.edex.datadelivery.retrieval.interfaces,com.raytheon.uf.common.datadelivery.retrieval.xml,com.raytheon.uf.edex.datadelivery.retrieval.response",
+ com.raytheon.uf.edex.datadelivery.retrieval.adhoc,
  com.raytheon.uf.edex.datadelivery.retrieval.db;uses:="com.raytheon.uf.common.dataplugin.persist,com.raytheon.uf.edex.database.dao,com.raytheon.uf.common.serialization",
  com.raytheon.uf.edex.datadelivery.retrieval.handlers;uses:="com.raytheon.uf.edex.datadelivery.retrieval.interfaces,com.raytheon.uf.common.datadelivery.retrieval.xml,com.raytheon.uf.edex.datadelivery.retrieval.db",
  com.raytheon.uf.edex.datadelivery.retrieval.interfaces;
@@ -73,4 +75,5 @@ Export-Package: com.raytheon.uf.edex.datadelivery.retrieval;
    dods.dap,
    com.raytheon.uf.common.dataplugin.grid,
    com.raytheon.uf.common.dataplugin.level,
-   com.raytheon.uf.common.datadelivery.registry"
+   com.raytheon.uf.common.datadelivery.registry",
+ com.raytheon.uf.edex.datadelivery.retrieval.wfs

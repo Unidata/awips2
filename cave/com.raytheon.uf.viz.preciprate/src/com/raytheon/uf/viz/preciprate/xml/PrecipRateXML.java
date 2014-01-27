@@ -20,15 +20,16 @@
 package com.raytheon.uf.viz.preciprate.xml;
 
 /**
- * TODO Add Description
+ * Configuration file format for Precip Rate data.
  * 
  * <pre>
  *
  * SOFTWARE HISTORY
  *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 20, 2011            lvenable     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 20, 2011           lvenable    Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  *
  * </pre>
  *
@@ -40,10 +41,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class PrecipRateXML implements ISerializableObject {
+public class PrecipRateXML {
 
     @XmlElement(name = "EnumID")
     private String enumID;

@@ -1,7 +1,0 @@
-# Product Discipline 0: Meteorological products, Parameter Category 14: Trace Gases
-0:0:Total ozone:Dobson:TOZNE
-1:1:Ozone mixing ratio:kg/kg:O3MR
-2:2:Total Column Integrated Ozone:Dobson:TCIOZ
-# 2-191 Reserved
-255:255:Missing
-

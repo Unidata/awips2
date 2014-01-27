@@ -24,6 +24,7 @@ import javax.measure.quantity.Dimensionless;
 import javax.measure.quantity.Length;
 import javax.measure.quantity.Temperature;
 import javax.measure.quantity.Velocity;
+import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.dataplugin.satellite.units.water.RainfallRatePixel
  * Sep 4, 2007             njensen     Initial creation
  * Mar 23, 2009     2086   jsanchez    Updated RainfallRatePixel to be velocity.
  *                                     Added PolarPrecipWaterPixel.
+ * Jun 20, 2013     2122   mschenke    Added alias for degrees celsius to "C"
  * 
  * </pre>
  * 
@@ -83,8 +85,9 @@ public class SatelliteUnits {
     public static final Unit<Dimensionless> GENERIC_PIXEL = new GenericPixel();
 
     public static void register() {
+        UnitFormat.getUCUMInstance().alias(SI.KELVIN, "kelvin");
+        UnitFormat.getUCUMInstance().alias(SI.CELSIUS, "C");
         UnitFormat.getUCUMInstance().label(SatelliteUnits.IR_PIXEL, "IRPixel");
-
         UnitFormat.getUCUMInstance().label(SatelliteUnits.PRECIP_PIXEL,
                 "PrecipPixel");
         UnitFormat.getUCUMInstance().label(SatelliteUnits.RAINFALL_RATE_PIXEL,

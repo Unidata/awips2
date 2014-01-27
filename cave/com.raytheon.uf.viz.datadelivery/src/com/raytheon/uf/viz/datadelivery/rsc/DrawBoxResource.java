@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Region;
 import org.eclipse.swt.widgets.Shell;
 
@@ -44,18 +45,22 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Resource for drawing a bounding box on the Spatial Subset Map Dialog.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012            mpduff      Initial creation.
  * Oct 31, 2012   1278     mpduff      Added functionality for other datasets in NOMADS.
- *
+ * Jun 21, 2013   2132     mpduff      Convert coordinates to East/West before drawing.
+ * Oct 10, 2013   2428     skorolev    Fixed memory leak for Regions
+ * Oct 24, 2013   2486     skorolev    Fixed an error of editing subset box.
+ * Nov 06, 2013   2486     skorolev    Corrected the regions and zoom handling defects.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -119,6 +124,9 @@ public class DrawBoxResource extends
     /** The x value of the 360 degree longitude line */
     private double x360;
 
+    /** Map pixel rectangle */
+    private Rectangle mapRctgl;
+
     /**
      * @param resourceData
      * @param loadProperties
@@ -130,17 +138,17 @@ public class DrawBoxResource extends
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
      */
     @Override
     protected void disposeInternal() {
-
+        this.disposeRegions();
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
      * .uf.viz.core.IGraphicsTarget,
@@ -151,16 +159,19 @@ public class DrawBoxResource extends
             PaintProperties paintProps) throws VizException {
         this.target = target;
         if ((c1 != null) && (c2 != null)) {
+            c1.x = spatialUtils.convertToEastWest(c1.x);
+            c2.x = spatialUtils.convertToEastWest(c2.x);
             double[] ul = descriptor.worldToPixel(new double[] { c1.x, c1.y });
             double[] lr = descriptor.worldToPixel(new double[] { c2.x, c2.y });
             PixelExtent pe = new PixelExtent(ul[0], lr[0], ul[1], lr[1]);
             target.drawRect(pe, boxColor, 3, 1);
+            getMapRectangle();
         }
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
      * .uf.viz.core.IGraphicsTarget)
@@ -178,11 +189,14 @@ public class DrawBoxResource extends
         c.y = 0;
         double[] point360 = getResourceContainer().translateInverseClick(c);
         this.x360 = Math.round(point360[0]);
+
+        getMapRectangle();
+
     }
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
      */
     @Override
@@ -204,20 +218,26 @@ public class DrawBoxResource extends
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see com.raytheon.viz.ui.input.InputAdapter#handleMouseDown(int, int,
          * int)
          */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                if (!resizingBox) {
-                    x1 = x;
-                    y1 = y;
-                    c1 = getResourceContainer().translateClick(x, y);
-                    c1.x = spatialUtils.convertToEasting(c1.x);
-                    if (spatialUtils.getLongitudinalShift() > 0 && x >= x360) {
-                        c1.x += 360;
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (!resizingBox) {
+                        x1 = x;
+                        y1 = y;
+                        c1 = getResourceContainer().translateClick(x, y);
+                        if (c1 != null) {
+                            c1.x = spatialUtils.convertToEasting(c1.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c1.x += 360;
+                            }
+                        }
                     }
                 }
             } else if (mouseButton == 2) {
@@ -228,7 +248,7 @@ public class DrawBoxResource extends
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see com.raytheon.viz.ui.input.InputAdapter#handleMouseDownMove(int,
          * int, int)
          */
@@ -236,50 +256,61 @@ public class DrawBoxResource extends
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
                 drawingBox = true;
-                if (resizingBox) {
-                    Coordinate c = getResourceContainer().translateClick(x, y);
-                    if (boxSide == 0) {
-                        c1.y = c.y;
-                    } else if (boxSide == 1) {
-                        c1.x = c.x;
-                        c1.x = spatialUtils.convertToEasting(c1.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c1.x += 360;
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (resizingBox) {
+                        Coordinate c = getResourceContainer().translateClick(x,
+                                y);
+                        if (c != null) {
+                            if (boxSide == 0) {
+                                c1.y = c.y;
+                                y1 = y;
+                            } else if (boxSide == 1) {
+                                c1.x = c.x;
+                                x1 = x;
+                                c1.x = spatialUtils.convertToEasting(c1.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c1.x += 360;
+                                }
+                            } else if (boxSide == 2) {
+                                c2.y = c.y;
+                                y2 = y;
+                            } else if (boxSide == 3) {
+                                c2.x = c.x;
+                                x2 = x;
+                                c2.x = spatialUtils.convertToEasting(c2.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c2.x += 360;
+                                }
+                            }
                         }
-                    } else if (boxSide == 2) {
-                        c2.y = c.y;
-                    } else if (boxSide == 3) {
-                        c2.x = c.x;
-                        c2.x = spatialUtils.convertToEasting(c2.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c2.x += 360;
+                    } else {
+                        c2 = getResourceContainer().translateClick(x, y);
+                        if (c2 != null) {
+                            c2.x = spatialUtils.convertToEasting(c2.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c2.x += 360;
+                            }
                         }
+                        x2 = x;
+                        y2 = y;
                     }
-                } else {
-                    c2 = getResourceContainer().translateClick(x, y);
-                    if (c2 != null) {
-                        c2.x = spatialUtils.convertToEasting(c2.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c2.x += 360;
-                        }
-                    }
+
+                    fireBoxChangedEvent();
+                    target.setNeedsRefresh(true);
                 }
-                fireBoxChangedEvent();
-                createRegions();
-                target.setNeedsRefresh(true);
             } else if (mouseButton == 2) {
                 super.handleMouseDownMove(x, y, 1);
             }
-
             return true;
         }
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see com.raytheon.viz.ui.input.InputAdapter#handleMouseMove(int, int)
          */
         @Override
@@ -309,67 +340,70 @@ public class DrawBoxResource extends
 
         /*
          * (non-Javadoc)
-         *
+         * 
          * @see com.raytheon.viz.ui.input.InputAdapter#handleMouseUp(int, int,
          * int)
          */
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (mouseButton == 1) {
-                if (resizingBox) {
-                    Coordinate c = getResourceContainer().translateClick(x, y);
-                    c.x = spatialUtils.convertToEasting(c.x);
-                    if (spatialUtils.getLongitudinalShift() > 0 && x >= x360) {
-                        c.x += 360;
-                    }
-                    if (boxSide == 0) {
-                        c1.y = c.y;
-                        y1 = y;
-                    } else if (boxSide == 1) {
-                        c1.x = c.x;
-                        x1 = x;
-                    } else if (boxSide == 2) {
-                        c2.y = c.y;
-                        y2 = y;
-                    } else if (boxSide == 3) {
-                        c2.x = c.x;
-                        x2 = x;
-                    }
-
-                    createRegions();
-                    fireBoxChangedEvent();
-                    target.setNeedsRefresh(true);
-                    drawingBox = false;
-                } else {
-                    if (drawingBox) {
-                        x2 = x;
-                        y2 = y;
-                        target.setNeedsRefresh(true);
-                        c2 = getResourceContainer().translateClick(x, y);
-                        c2.x = spatialUtils.convertToEasting(c2.x);
-                        if (spatialUtils.getLongitudinalShift() > 0
-                                && x >= x360) {
-                            c2.x += 360;
+                // handle mouse only in the map space
+                if (mapRctgl.contains(x, y)) {
+                    if (resizingBox) {
+                        Coordinate c = getResourceContainer().translateClick(x,
+                                y);
+                        if (c != null) {
+                            c.x = spatialUtils.convertToEasting(c.x);
+                            if (spatialUtils.getLongitudinalShift() > 0
+                                    && x >= x360) {
+                                c.x += 360;
+                            }
+                            if (boxSide == 0) {
+                                c1.y = c.y;
+                                y1 = y;
+                            } else if (boxSide == 1) {
+                                c1.x = c.x;
+                                x1 = x;
+                            } else if (boxSide == 2) {
+                                c2.y = c.y;
+                                y2 = y;
+                            } else if (boxSide == 3) {
+                                c2.x = c.x;
+                                x2 = x;
+                            }
                         }
-
-                        createRegions();
-                        fireBoxChangedEvent();
-                        drawingBox = false;
                     } else {
-                        c1 = getResourceContainer().translateClick(x, y);
+                        if (drawingBox) {
+                            x2 = x;
+                            y2 = y;
+                            c2 = getResourceContainer().translateClick(x, y);
+                            if (c2 != null) {
+                                c2.x = spatialUtils.convertToEasting(c2.x);
+                                if (spatialUtils.getLongitudinalShift() > 0
+                                        && x >= x360) {
+                                    c2.x += 360;
+                                }
+                            }
+                        } else {
+                            c1 = getResourceContainer().translateClick(x, y);
+                        }
                     }
                 }
+                createRegions();
+                target.setNeedsRefresh(true);
+                fireBoxChangedEvent();
+                drawingBox = false;
             } else if (mouseButton == 2) {
-                super.handleMouseDown(x, y, 1);
+                super.handleMouseUp(x, y, 1);
+                getMapRectangle();
             }
-
             return true;
         }
     }
 
     /**
      * Add a box listener.
-     *
+     * 
      * @param listener
      *            the listener to add
      */
@@ -379,7 +413,7 @@ public class DrawBoxResource extends
 
     /**
      * Remove the box listener.
-     *
+     * 
      * @param listener
      *            the listener to remove
      */
@@ -408,7 +442,9 @@ public class DrawBoxResource extends
      * Create the regions for the mouseover for resizing the existing box
      */
     private void createRegions() {
-        regionList.clear();
+        if (!regionList.isEmpty()) {
+            disposeRegions();
+        }
         int buffer = 10;
 
         // Top
@@ -470,7 +506,7 @@ public class DrawBoxResource extends
 
     /**
      * Set the parent shell.
-     *
+     * 
      * @param shell
      *            the parent shell
      */
@@ -480,7 +516,7 @@ public class DrawBoxResource extends
 
     /**
      * Set the coordinates.
-     *
+     * 
      * @param ul
      *            upper left coordinates
      * @param lr
@@ -503,5 +539,47 @@ public class DrawBoxResource extends
      */
     public void setSpatialUtils(SpatialUtils spatialUtils) {
         this.spatialUtils = spatialUtils;
+    }
+
+    /**
+     * Dispose regions.
+     */
+    private void disposeRegions() {
+        for (Region i : regionList) {
+            i.dispose();
+        }
+        regionList.clear();
+    }
+
+    /**
+     * Get map's rectangle in pixels after changing.
+     */
+    private void getMapRectangle() {
+        Coordinate top = new Coordinate();
+        top.x = spatialUtils.getUpperLeft().x;
+        top.y = spatialUtils.getUpperLeft().y;
+        double[] pointTop = getResourceContainer().translateInverseClick(top);
+        int xTop = (int) Math.round(pointTop[0]);
+        int yTop = (int) Math.round(pointTop[1]);
+
+        Coordinate bot = new Coordinate();
+        bot.x = spatialUtils.getLowerRight().x;
+        bot.y = spatialUtils.getLowerRight().y;
+        double[] pointBot = getResourceContainer().translateInverseClick(bot);
+        int xBottom = (int) Math.round(pointBot[0]);
+        int yBottom = (int) Math.round(pointBot[1]);
+
+        mapRctgl = new Rectangle(xTop, yTop, (xBottom - xTop), (yBottom - yTop));
+
+        // Re-calculate regions
+        if ((c1 != null) && (c2 != null)) {
+            double[] luBox = getResourceContainer().translateInverseClick(c1);
+            x1 = (int) luBox[0];
+            y1 = (int) luBox[1];
+            double[] rbBox = getResourceContainer().translateInverseClick(c2);
+            x2 = (int) rbBox[0];
+            y2 = (int) rbBox[1];
+            createRegions();
+        }
     }
 }

@@ -8,7 +8,7 @@
 Name: awips2-postgresql
 Summary: AWIPS II PostgreSQL Distribution
 Version: %{_postgresql_version}
-Release: 1.el6
+Release: 2.el6
 Group: AWIPSII
 BuildRoot: %{_build_root}
 BuildArch: %{_build_arch}

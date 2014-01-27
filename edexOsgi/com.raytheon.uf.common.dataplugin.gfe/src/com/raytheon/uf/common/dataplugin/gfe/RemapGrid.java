@@ -23,6 +23,7 @@ package com.raytheon.uf.common.dataplugin.gfe;
 import java.awt.RenderingHints;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 
 import javax.media.jai.BorderExtender;
@@ -46,8 +47,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -63,8 +64,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 5/16/08      875        bphillip    Initial Creation.
  * 10/10/12     #1260      randerso    Added getters for source and destination glocs
  * 02/19/13     #1637      randerso    Fixed remapping of byte grids
+ * 07/09/13     #2044      randerso    Made SoftReferences to interp and rotation since 
+ *                                     they can be quite large and may not be needed frequently
  * 08/27/13     #2287      randerso    Removed 180 degree adjustment required by error
  *                                     in Maputil.rotation
+ * 07/17/13     #2185      bsteffen    Cache computed grid reprojections.
+ * 08/13/13     #1571      randerso    Passed fill values into interpolator.
  * 
  * </pre>
  * 
@@ -80,9 +85,7 @@ public class RemapGrid {
 
     private boolean rescale = false;
 
-    private Grid2DFloat rotation;
-
-    private GridReprojection interp;
+    private SoftReference<Grid2DFloat> rotationRef;
 
     /**
      * Constructs a new RemapGrid with the given input and output grid locations
@@ -91,7 +94,6 @@ public class RemapGrid {
      *            The source grid location describing the source data
      * @param destinationGloc
      *            The destination grid location describing the destination data
-     * @throws FactoryException
      */
     public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc) {
         this(sourceGloc, destinationGloc, false);
@@ -106,19 +108,25 @@ public class RemapGrid {
      *            The destination grid location describing the destination data
      * @param rescale
      *            true if data is to be rescaled
-     * @throws FactoryException
      */
     public RemapGrid(GridLocation sourceGloc, GridLocation destinationGloc,
             boolean rescale) {
         this.sourceGloc = sourceGloc;
         this.destinationGloc = destinationGloc;
         this.rescale = rescale;
+        this.rotationRef = new SoftReference<Grid2DFloat>(null);
     }
 
+    /**
+     * @return source GridLocation
+     */
     public GridLocation getSourceGloc() {
         return sourceGloc;
     }
 
+    /**
+     * @return destination GridLocation
+     */
     public GridLocation getDestinationGloc() {
         return destinationGloc;
     }
@@ -148,7 +156,7 @@ public class RemapGrid {
             float max, float min, float outputFill) throws FactoryException,
             TransformException {
 
-        Grid2DFloat retVal = resample(input);
+        Grid2DFloat retVal = resample(input, inputFill, outputFill);
         limitGrid(retVal, inputFill, max, min, outputFill);
         return retVal;
     }
@@ -178,8 +186,8 @@ public class RemapGrid {
 
         Grid2DByte retVal = null;
 
-        if (input.getXdim() != sourceGloc.gridSize().x
-                || input.getYdim() != sourceGloc.gridSize().y) {
+        if ((input.getXdim() != sourceGloc.gridSize().x)
+                || (input.getYdim() != sourceGloc.gridSize().y)) {
             throw new IllegalArgumentException(
                     "Input grid dimensions do not match source grid location dimensions");
         }
@@ -189,7 +197,7 @@ public class RemapGrid {
             return input;
         }
 
-        retVal = resample(input);
+        retVal = resample(input, inputFill, outputFill);
 
         ByteBuffer buffer = retVal.getBuffer();
         buffer.rewind();
@@ -206,6 +214,26 @@ public class RemapGrid {
         return retVal;
     }
 
+    /**
+     * Returns a Grid2D<byte> that has been remapped from the input grid in the
+     * source GridLocation domain space to the destination GridLocation domain
+     * space. The input grid must be in the same coordinate system as the source
+     * GridLocation. The data will be sampled. Points outside the area will be
+     * assigned the input fillValue.
+     * 
+     * @param input
+     *            The input byte data
+     * @param inputFill
+     *            The input fill value
+     * @param outputFill
+     *            The output fill value
+     * @return The remapped Grid2DByte object
+     * @throws TransformException
+     * @throws FactoryException
+     * @throws IllegalArgumentException
+     *             If the input dimensions do not match the source dimensions or
+     *             when problems occur during resampling
+     */
     public Grid2DByte remap(final Grid2DByte input, int inputFill,
             int outputFill) throws FactoryException, TransformException {
         return remap(input, (byte) inputFill, (byte) outputFill);
@@ -233,7 +261,7 @@ public class RemapGrid {
      *            The max value for data values
      * @param minLimit
      *            The min value for data values
-     * @param outputFillValue
+     * @param outputFill
      *            The output fill value
      * @param rotate
      *            The rotation flag
@@ -247,14 +275,14 @@ public class RemapGrid {
      *             If grid dimensions do not match or resampling fails
      */
     public void remapUV(final Grid2DFloat uinput, final Grid2DFloat vinput,
-            float inputFill, float maxLimit, float minLimit,
-            float outputFillValue, boolean rotate, boolean flip,
-            Grid2DFloat magGrid, Grid2DFloat dirGrid) throws Exception {
+            float inputFill, float maxLimit, float minLimit, float outputFill,
+            boolean rotate, boolean flip, Grid2DFloat magGrid,
+            Grid2DFloat dirGrid) throws Exception {
 
-        if (uinput.getXdim() != sourceGloc.getNx()
-                || uinput.getYdim() != sourceGloc.getNy()
-                || vinput.getXdim() != sourceGloc.getNx()
-                || vinput.getYdim() != sourceGloc.getNy()) {
+        if ((uinput.getXdim() != sourceGloc.getNx())
+                || (uinput.getYdim() != sourceGloc.getNy())
+                || (vinput.getXdim() != sourceGloc.getNx())
+                || (vinput.getYdim() != sourceGloc.getNy())) {
             String error = "Source grid sizes do not match source grid location: \n";
             error += "source (" + sourceGloc.getNx() + ", "
                     + sourceGloc.getNy() + ")\n";
@@ -277,13 +305,13 @@ public class RemapGrid {
             }
         }
 
-        Grid2DFloat resampledUinput = resample(uinput);
-        Grid2DFloat resampledVinput = resample(vinput);
+        Grid2DFloat resampledUinput = resample(uinput, Float.NaN, Float.NaN);
+        Grid2DFloat resampledVinput = resample(vinput, Float.NaN, Float.NaN);
 
         calculateWindGrid(resampledUinput, resampledVinput, rotate, flip,
                 magGrid, dirGrid);
 
-        limitGrid(magGrid, inputFill, maxLimit, minLimit, outputFillValue);
+        limitGrid(magGrid, inputFill, maxLimit, minLimit, outputFill);
         limitGrid(dirGrid, 0.0f, 360.0f, 0.0f, 0.0f);
     }
 
@@ -376,7 +404,7 @@ public class RemapGrid {
         for (int x = 0; x < grid.getXdim(); x++) {
             for (int y = 0; y < grid.getYdim(); y++) {
                 float val = grid.get(x, y);
-                if (Float.isNaN(val) || val == inputFill) {
+                if (Float.isNaN(val) || (val == inputFill)) {
                     grid.set(x, y, outputFillValue);
                 } else if (val != outputFillValue) {
                     if (val < minLimit) {
@@ -416,7 +444,8 @@ public class RemapGrid {
                 float uVal = uGrid.get(x, y);
                 float vVal = vGrid.get(x, y);
 
-                float magValue = (float) Math.sqrt(uVal * uVal + vVal * vVal);
+                float magValue = (float) Math.sqrt((uVal * uVal)
+                        + (vVal * vVal));
                 float dirValue = (float) Math.toDegrees(Math.atan2(uVal, vVal));
 
                 if (rotate) {
@@ -449,12 +478,16 @@ public class RemapGrid {
      * 
      * @param input
      *            The input data
+     * @param inputFill
+     *            the input fill value
+     * @param outputFill
+     *            the output fill value
      * @return The resampled data
      * @throws TransformException
      * @throws FactoryException
      */
-    private Grid2DByte resample(final Grid2DByte input)
-            throws FactoryException, TransformException {
+    private Grid2DByte resample(final Grid2DByte input, float inputFill,
+            float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
@@ -462,16 +495,17 @@ public class RemapGrid {
         ByteBuffer resampledData = null;
 
         GridGeometry2D destGeometry = MapUtil.getGridGeometry(destinationGloc);
-        synchronized (this) {
-            if (interp == null) {
-                interp = new GridReprojection(sourceGeometry, destGeometry);
-                interp.computeTransformTable();
-            }
-        }
-        DataSource source = new ByteBufferWrapper(data, sourceGeometry);
+        GridReprojection interp = PrecomputedGridReprojection.getReprojection(
+                sourceGeometry, destGeometry);
+
+        ByteBufferWrapper source = new ByteBufferWrapper(data, sourceGeometry);
+        source.setFillValue(inputFill);
+
+        ByteBufferWrapper dest = new ByteBufferWrapper(destGeometry);
+        dest.setFillValue(outputFill);
+
         resampledData = interp.reprojectedGrid(
-                new NearestNeighborInterpolation(), source,
-                new ByteBufferWrapper(destGeometry)).getBuffer();
+                new NearestNeighborInterpolation(), source, dest).getBuffer();
 
         // Remap the the output data into a Grid2DFloat object
 
@@ -487,12 +521,16 @@ public class RemapGrid {
      * 
      * @param input
      *            The input data
+     * @param inputFill
+     *            the input fill value
+     * @param outputFill
+     *            the output fill value
      * @return The resampled data
      * @throws TransformException
      * @throws FactoryException
      */
-    private Grid2DFloat resample(final Grid2DFloat input)
-            throws FactoryException, TransformException {
+    private Grid2DFloat resample(final Grid2DFloat input, float inputFill,
+            float outputFill) throws FactoryException, TransformException {
 
         GridGeometry2D sourceGeometry = MapUtil.getGridGeometry(sourceGloc);
 
@@ -540,15 +578,19 @@ public class RemapGrid {
         } else {
             GridGeometry2D destGeometry = MapUtil
                     .getGridGeometry(destinationGloc);
-            synchronized (this) {
-                if (interp == null) {
-                    interp = new GridReprojection(sourceGeometry, destGeometry);
-                    interp.computeTransformTable();
-                }
-            }
-            DataSource source = new FloatArrayWrapper(data, sourceGeometry);
+
+            GridReprojection interp = PrecomputedGridReprojection
+                    .getReprojection(sourceGeometry, destGeometry);
+
+            FloatArrayWrapper source = new FloatArrayWrapper(data,
+                    sourceGeometry);
+            source.setFillValue(inputFill);
+
+            FloatArrayWrapper dest = new FloatArrayWrapper(destGeometry);
+            dest.setFillValue(outputFill);
+
             f1 = interp.reprojectedGrid(new BilinearInterpolation(), source,
-                    new FloatArrayWrapper(destGeometry)).getArray();
+                    dest).getArray();
         }
 
         // Remap the the output data into a Grid2DFloat object
@@ -592,16 +634,21 @@ public class RemapGrid {
     }
 
     private float getRot(int x, int y) {
-        if (this.rotation == null || !this.rotation.isValid()) {
-            this.rotation = new Grid2DFloat(destinationGloc.gridSize().x,
-                    destinationGloc.gridSize().y);
-            for (int x1 = 0; x1 < rotation.getXdim(); x1++) {
-                for (int y1 = 0; y1 < rotation.getYdim(); y1++) {
-                    Coordinate llc = destinationGloc
-                            .latLonCenter(new Coordinate(x1, y1));
-                    this.rotation.set(x1, y1,
+        Grid2DFloat rotation;
+        synchronized (rotationRef) {
+            rotation = rotationRef.get();
+            if ((rotation == null) || !rotation.isValid()) {
+                rotation = new Grid2DFloat(destinationGloc.gridSize().x,
+                        destinationGloc.gridSize().y);
+                for (int x1 = 0; x1 < rotation.getXdim(); x1++) {
+                    for (int y1 = 0; y1 < rotation.getYdim(); y1++) {
+                        Coordinate llc = destinationGloc
+                                .latLonCenter(new Coordinate(x1, y1));
+                        rotation.set(x1, y1,
                             (float) (-MapUtil.rotation(llc, sourceGloc)));
+                    }
                 }
+                rotationRef = new SoftReference<Grid2DFloat>(rotation);
             }
         }
         return rotation.get(x, y);

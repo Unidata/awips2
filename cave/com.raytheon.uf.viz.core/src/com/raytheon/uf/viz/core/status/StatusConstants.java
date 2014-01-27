@@ -26,7 +26,9 @@ package com.raytheon.uf.viz.core.status;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 6, 2008  1433       chammack     Initial creation
+ * Oct 06, 2008 1433       chammack     Initial creation
+ * Aug 28, 2013 2262       bsteffen     Remove meteolib category.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -43,6 +45,4 @@ public class StatusConstants {
     /** Indicates a connectivity issue/notification */
     public static final String SUBCATEGORY_CONNECTIVITY = "CONNECTIVITY";
 
-    /** Indicates a meteoLib functionality issue */
-    public static final String SUBCATEGORY_METEOLIB = "METEOROLOGICAL LIBRARY";
 }

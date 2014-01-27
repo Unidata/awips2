@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * ------------ ---------- ----------- --------------------------
  * Jan 31, 2012            mpduff     Initial creation.
  * Aug 29, 2012   1115     jpiatt     Set default sort column.
+ * Aug 30, 2013   2314     mpduff     Set sort ascending to false.
  * 
  * </pre>
  * 
@@ -171,14 +172,17 @@ public class NotificationConfigXML implements ISerializableObject {
     }
 
     private void createDefault() {
-        String[] titles = DataDeliveryUtils.getColumnTitles(TABLE_TYPE.NOTIFICATION);
+        String[] titles = DataDeliveryUtils
+                .getColumnTitles(TABLE_TYPE.NOTIFICATION);
         for (String title : titles) {
             ColumnXML col = new ColumnXML(title, true);
-            if (title.equals(DataDeliveryUtils.NotifColumnNames.TIME.getColumnName())) {
+            if (title.equals(DataDeliveryUtils.NotifColumnNames.TIME
+                    .getColumnName())) {
                 col.setSortColumn(true);
+                col.setSortAsc(false);
             }
             this.addColumn(col);
         }
-        
+
     }
 }

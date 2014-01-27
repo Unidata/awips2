@@ -52,9 +52,10 @@ import com.raytheon.uf.viz.ui.menus.widgets.SubmenuContributionItem;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 12, 2009            chammack    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Mar 12, 2009           chammack    Initial creation
+ * Dec 11, 2013  2602     bsteffen    Update MenuXMLMap.
  * 
  * </pre>
  * 
@@ -136,8 +137,8 @@ public class IncludeMenuItem extends CommonIncludeMenuItem implements
 
             if (mtf.contributions != null) {
                 for (CommonAbstractMenuContribution c : mtf.contributions) {
-                    AbstractMenuContributionItem<?> amc = MenuXMLMap.xmlMapping
-                            .get(c.getClass());
+                    IContribItemProvider amc = MenuXMLMap.getProvider(c
+                            .getClass());
                     if (removalsSet.contains(c.id))
                         continue;
 

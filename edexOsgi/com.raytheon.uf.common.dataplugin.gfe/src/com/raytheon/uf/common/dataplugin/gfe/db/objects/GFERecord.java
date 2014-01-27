@@ -81,6 +81,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * Jun 20, 2013 2127        rjpeter     Added OnDelete annotation.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Sep 20, 2013 2147        rferrel     Changes to archive hdf5 files.
+ * Dec 03, 2013 2597        randerso    Cleared gridHistory id when adding new history
+ *                                      records in consolidateHistory so dao will recognize
+ *                                      it as a new record
  * 
  * </pre>
  * 
@@ -89,13 +92,13 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gfeseq")
-@Table(name = "gfe", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = GFERecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = {
         "parmId_id", "rangestart", "rangeend", "refTime", "forecasttime" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "gfe", indexes = { @Index(name = "gfe_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = GFERecord.PLUGIN_NAME, indexes = { @Index(name = "gfe_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @DynamicSerialize
 @BatchSize(size = 500)
@@ -107,6 +110,8 @@ public class GFERecord extends PluginDataObject implements IPersistable {
     public enum GridType {
         NONE, SCALAR, VECTOR, WEATHER, DISCRETE
     };
+
+    public static final String PLUGIN_NAME = "gfe";
 
     /**
      * The parmID of the associated parm.<br>
@@ -263,6 +268,7 @@ public class GFERecord extends PluginDataObject implements IPersistable {
             } else {
                 GridDataHistory hist = newHistory.get(i);
                 hist.setParent(this);
+                hist.setId(0);
                 gridHistory.add(hist);
             }
         }
@@ -282,7 +288,7 @@ public class GFERecord extends PluginDataObject implements IPersistable {
 
     @Override
     public String getPluginName() {
-        return "gfe";
+        return PLUGIN_NAME;
     }
 
     @Override

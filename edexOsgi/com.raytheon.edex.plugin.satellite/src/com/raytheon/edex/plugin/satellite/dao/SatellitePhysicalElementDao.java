@@ -19,7 +19,7 @@
  **/
 package com.raytheon.edex.plugin.satellite.dao;
 
-import com.raytheon.edex.util.satellite.SatellitePhysicalElement;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePhysicalElement;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 

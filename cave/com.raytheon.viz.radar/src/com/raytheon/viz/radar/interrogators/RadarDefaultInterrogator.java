@@ -38,12 +38,12 @@ import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.units.PiecewisePixel;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -54,8 +54,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 4, 2010            mnash     Initial creation
- * 05/02/2013   DR 14587   D. Friedman Refactor to store multiple types.
+ * Aug 04, 2010            mnash       Initial creation
+ * May 02, 2013 14587      D. Friedman Refactor to store multiple types.
+ * Aug 22, 2013 2278       bsteffen    Allow radar interrogation to work
+ *                                     without ColorMapParameters.
  * 
  * </pre>
  * 
@@ -220,7 +222,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         UnitConverter converter = getConverter(params, radarRecord);
         double dispVal = converter.convert(dataValue);
         dataMap.put(baseName + "numericValue", String.valueOf(dispVal));
-        if (params.getDataMapping() != null) {
+        if (params != null && params.getDataMapping() != null) {
             for (DataMappingEntry entry : params.getDataMapping().getEntries()) {
                 if (entry.getSample() == null) {
                     continue;
@@ -239,7 +241,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             }
         }
         String unitString = "";
-        if (params.getDisplayUnit() != Unit.ONE) {
+        if (params != null && params.getDisplayUnit() != Unit.ONE) {
             unitString = UnitFormat.getUCUMInstance().format(
                     params.getDisplayUnit());
         }
@@ -251,7 +253,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         if (sr != null && sr.getPreferences() instanceof ImagePreferences) {
@@ -277,7 +279,9 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
             RadarRecord radarRecord) {
         UnitConverter converter = null;
         Unit<?> dataUnit = radarRecord.getDataUnit();
-        if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
+        if (params == null) {
+            converter = UnitConverter.IDENTITY;
+        } else if (dataUnit != null && !dataUnit.equals(params.getDataUnit())) {
             Unit<?> displayUnit = params.getDisplayUnit();
             if (dataUnit.isCompatible(displayUnit)) {
                 converter = dataUnit.getConverterTo(displayUnit);
@@ -285,6 +289,7 @@ public class RadarDefaultInterrogator implements IRadarInterrogator {
         } else {
             converter = params.getDataToDisplayConverter();
         }
+
         return converter;
     }
 }

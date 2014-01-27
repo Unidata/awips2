@@ -27,10 +27,11 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 
-import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.core.IParmManager;
-import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.viz.gfe.core.msgs.EnableDisableTopoMsg;
+import com.raytheon.viz.gfe.core.msgs.EnableDisableTopoMsg.Action;
+import com.raytheon.viz.gfe.core.msgs.Message;
 
 /**
  * Handle the GFE Topography menu item
@@ -38,8 +39,9 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 2, 2008		#1160	randerso	Initial creation
+ * ------------ ----------  ----------- --------------------------
+ * Jul  2, 2008      #1160  randerso    Initial creation
+ * Nov 20, 2013      #2331  randerso    Re-implemented using message
  * 
  * </pre>
  * 
@@ -48,6 +50,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  */
 
 public class TopoHandler extends AbstractHandler implements IElementUpdater {
+    private IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TopoHandler.class);
 
     /*
      * (non-Javadoc)
@@ -58,14 +62,19 @@ public class TopoHandler extends AbstractHandler implements IElementUpdater {
      */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-        DataManager dataMgr = DataManager.getCurrentInstance();
-        IParmManager parmMgr = dataMgr.getParmManager();
-        Parm topoParm = parmMgr.getParm(dataMgr.getTopoManager()
-                .getCompositeParmID());
-        boolean wanted = topoParm != null;
-        wanted = !wanted;
-        parmMgr.enableDisableTopoParm(wanted, true);
+        Action lastAction = Message.inquireLastMessage(
+                EnableDisableTopoMsg.class).getAction();
 
+        Action newAction;
+        if (lastAction.equals(Action.ENABLE)) {
+            newAction = Action.DISABLE;
+        } else {
+            newAction = Action.ENABLE;
+        }
+
+        statusHandler.debug("Maps->Topography " + newAction);
+
+        new EnableDisableTopoMsg(newAction, true).send();
         return null;
     }
 
@@ -76,23 +85,11 @@ public class TopoHandler extends AbstractHandler implements IElementUpdater {
      * org.eclipse.ui.commands.IElementUpdater#updateElement(org.eclipse.ui.
      * menus.UIElement, java.util.Map)
      */
+    @SuppressWarnings("rawtypes")
     @Override
-    @SuppressWarnings(value = "unchecked")
     public void updateElement(final UIElement element, Map parameters) {
-        DataManager dataMgr = DataManager.getCurrentInstance();
-        if (dataMgr != null) {
-            IParmManager parmMgr = dataMgr.getParmManager();
-            Parm topoParm = parmMgr.getParm(dataMgr.getTopoManager()
-                    .getCompositeParmID());
-            final boolean checked = topoParm != null;
-
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    element.setChecked(checked);
-                }
-            });
-        }
+        element.setChecked(Message
+                .inquireLastMessage(EnableDisableTopoMsg.class).getAction()
+                .equals(EnableDisableTopoMsg.Action.ENABLE));
     }
 }

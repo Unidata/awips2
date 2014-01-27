@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
+ * 12 Aug 2013  #2256      lvenable    Moved calcArrow() to parent abstract class
  * 
  * </pre>
  * 
@@ -220,21 +221,6 @@ public class TrendWindSpdCanvasComp extends TrendSliderComp implements
         gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_RED));
         gc.setLineWidth(2);
         gc.drawRectangle(barRect);
-    }
-
-    /**
-     * Calculate the arrow position.
-     */
-    private void calcArrow() {
-        if (region.isEmpty() == false) {
-            region.subtract(arrowPoints);
-        }
-
-        arrowPoints = new int[] { arrowCenterXCoord, arrowBottomYCoord,
-                arrowCenterXCoord + 5, arrowTopYCoord, arrowCenterXCoord - 5,
-                arrowTopYCoord, arrowCenterXCoord, arrowBottomYCoord };
-
-        region.add(arrowPoints);
     }
 
     /**
@@ -635,7 +621,6 @@ public class TrendWindSpdCanvasComp extends TrendSliderComp implements
         }
 
         String[] ranges = rangeTF.getText().split("-");
-        String startStr = ranges[0];
         String endStr = ranges[1];
         int newXCoord = calcValueToXCoord(startVal);
         barRect.x = newXCoord;
@@ -677,8 +662,8 @@ public class TrendWindSpdCanvasComp extends TrendSliderComp implements
         windSpdRange[1] = str[1];
 
         if (windSpdRange[1].endsWith("+")) {
-            windSpdRange[1] = windSpdRange[1].substring(0, (windSpdRange[1]
-                    .length() - 1));
+            windSpdRange[1] = windSpdRange[1].substring(0,
+                    (windSpdRange[1].length() - 1));
         }
 
         return windSpdRange;

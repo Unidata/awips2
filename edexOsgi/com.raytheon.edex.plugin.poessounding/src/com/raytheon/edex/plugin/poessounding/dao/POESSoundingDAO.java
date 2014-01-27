@@ -22,11 +22,10 @@ package com.raytheon.edex.plugin.poessounding.dao;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
-
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -149,7 +148,7 @@ public class POESSoundingDAO extends PointDataPluginDao<POESSounding> {
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/poes.xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load " + pluginName
                         + " Point Data Description", e);
             }

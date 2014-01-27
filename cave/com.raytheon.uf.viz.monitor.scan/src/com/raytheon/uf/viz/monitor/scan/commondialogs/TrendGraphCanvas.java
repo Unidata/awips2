@@ -49,6 +49,26 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.viz.monitor.scan.TrendGraphData;
 
+/**
+ * 
+ * Canvas to display the trend graph.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??????????              lvenable    Initial creation
+ * Oct 9, 2013  #2447      lvenable    Replaced creating a new color with using a
+ *                                     system color (white).  This fixes a memory
+ *                                     leak.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class TrendGraphCanvas {
     private final Composite parentComp;
 
@@ -127,8 +147,6 @@ public class TrendGraphCanvas {
 
     private String valueFormatStr = null;
 
-    // private final double timeIncPerPix = Double.NaN;
-
     private double valueLabelIncPerPix = Double.NaN;
 
     private boolean overMaxLimit = false;
@@ -144,6 +162,26 @@ public class TrendGraphCanvas {
      */
     private String ident = null;
 
+    /**
+     * Constructor.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param trendGraphData
+     *            Trend graph data.
+     * @param currentDate
+     *            Current date.
+     * @param scanTable
+     *            Scan table.
+     * @param attrName
+     *            Attribute name.
+     * @param vcp
+     *            Volume coverage pattern.
+     * @param requestDataCallback
+     *            Request callback.
+     * @param ident
+     *            Identification.
+     */
     public TrendGraphCanvas(Composite parentComp,
             TrendGraphData trendGraphData, Date currentDate,
             ScanTables scanTable, String attrName, Integer vcp,
@@ -386,7 +424,7 @@ public class TrendGraphCanvas {
             return;
 
         double topAngle = attributeData.getMin() + rangeValue;
-        gc.setForeground(new Color(gc.getDevice(), 255, 255, 255));
+        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         Object[] rngValLst = rngDateMap.values().toArray();
         Object[] dates = rngDateMap.keySet().toArray();
         for (int dateIndex = 0; dateIndex < (dates.length - 1); dateIndex++) {

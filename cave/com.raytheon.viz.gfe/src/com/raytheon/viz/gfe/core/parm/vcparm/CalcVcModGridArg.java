@@ -48,6 +48,8 @@ import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2012            dgilling     Initial creation
+ * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
+ * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -95,7 +97,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             tempNames.addAll(encodeGridAndMask(gd, mask, i, sb, instance));
             sb.append(')');
 
-            if (i < argTuples.size() - 1) {
+            if (i < (argTuples.size() - 1)) {
                 sb.append(',');
             }
         }
@@ -117,7 +119,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             ScalarGridData grid = (ScalarGridData) gd;
             Grid2DFloat f = (grid.getScalarSlice()).getScalarGrid();
             String name = prefix + "grid";
-            jep.setNumeric(name, f.getFloats(), f.getXdim(), f.getYdim());
+            jep.setNumpy(name, f.getFloats(), f.getXdim(), f.getYdim());
             jepString.append(name);
             jepString.append(", ");
             tempGridNames.add(name);
@@ -127,9 +129,9 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             Grid2DFloat dir = (grid.getVectorSlice()).getDirGrid();
             String magName = prefix + "Mag";
             String dirName = prefix + "Dir";
-            jep.setNumeric(magName, mag.getFloats(), mag.getXdim(),
+            jep.setNumpy(magName, mag.getFloats(), mag.getXdim(),
                     mag.getYdim());
-            jep.setNumeric(dirName, dir.getFloats(), dir.getXdim(),
+            jep.setNumpy(dirName, dir.getFloats(), dir.getXdim(),
                     dir.getYdim());
             jepString.append('(');
             jepString.append(magName);
@@ -142,7 +144,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             WeatherGridData grid = (WeatherGridData) gd;
             Grid2DByte bytes = grid.getWeatherSlice().getWeatherGrid();
             String name = prefix + "grid";
-            jep.setNumeric(name, bytes.getBytes(), bytes.getXdim(),
+            jep.setNumpy(name, bytes.getBytes(), bytes.getXdim(),
                     bytes.getYdim());
             jepString.append('(');
             jepString.append(name);
@@ -159,12 +161,12 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             DiscreteGridData grid = (DiscreteGridData) gd;
             Grid2DByte bytes = grid.getDiscreteSlice().getDiscreteGrid();
             String name = prefix + "grid";
-            jep.setNumeric(name, bytes.getBytes(), bytes.getXdim(),
+            jep.setNumpy(name, bytes.getBytes(), bytes.getXdim(),
                     bytes.getYdim());
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
-            DiscreteKey[] keys = grid.getDiscreteSlice().getKey();
+            DiscreteKey[] keys = grid.getDiscreteSlice().getKeys();
             ArrayList<String> stringKeys = new ArrayList<String>(keys.length);
             for (DiscreteKey k : keys) {
                 stringKeys.add(k.toString());
@@ -175,7 +177,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
         }
 
         String maskName = prefix + "mask";
-        jep.setNumeric(maskName, mask.getBytes(), mask.getXdim(),
+        jep.setNumpy(maskName, mask.getBytes(), mask.getXdim(),
                 mask.getYdim());
         jepString.append(maskName);
         sb.append(jepString);

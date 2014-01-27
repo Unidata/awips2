@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 import com.raytheon.uf.common.dataplugin.gfe.serialize.TimeConstraintsAdapter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
@@ -43,6 +45,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 2/19/2008               chammack    Ported from AWIPS I
  * 03/20/2013     #1774    randerso    Added isValid method, use TimeUtil constants,
  *                                     added serialization adapter, removed setters.
+ * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
+ * 10/22/2013     #2361    njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -50,21 +54,27 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * @version 1.0
  */
 
+@Embeddable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = TimeConstraintsAdapter.class)
-public class TimeConstraints implements ISerializableObject {
+public class TimeConstraints {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeConstraints.class);
 
+    @Column(nullable = false)
     @DynamicSerializeElement
     private int duration;
 
+    @Column(nullable = false)
     @DynamicSerializeElement
     private int repeatInterval;
 
+    @Column(nullable = false)
     @DynamicSerializeElement
     private int startTime;
 
+    @Column(nullable = false)
     boolean valid;
 
     /**
@@ -77,21 +87,28 @@ public class TimeConstraints implements ISerializableObject {
         valid = false;
     }
 
+    /**
+     * Constructor
+     * 
+     * @param duration
+     * @param repeatInterval
+     * @param startTime
+     */
     public TimeConstraints(int duration, int repeatInterval, int startTime) {
         this.duration = duration;
         this.repeatInterval = repeatInterval;
         this.startTime = startTime;
 
-        if (this.duration == 0 && this.repeatInterval == 0
-                && this.startTime == 0) {
+        if ((this.duration == 0) && (this.repeatInterval == 0)
+                && (this.startTime == 0)) {
             valid = true;
         } else {
-            if (repeatInterval <= 0
-                    || repeatInterval > TimeUtil.SECONDS_PER_DAY
-                    || TimeUtil.SECONDS_PER_DAY % repeatInterval != 0
-                    || repeatInterval < duration || startTime < 0
-                    || startTime > TimeUtil.SECONDS_PER_DAY || duration < 0
-                    || duration > TimeUtil.SECONDS_PER_DAY) {
+            if ((repeatInterval <= 0)
+                    || (repeatInterval > TimeUtil.SECONDS_PER_DAY)
+                    || ((TimeUtil.SECONDS_PER_DAY % repeatInterval) != 0)
+                    || (repeatInterval < duration) || (startTime < 0)
+                    || (startTime > TimeUtil.SECONDS_PER_DAY) || (duration < 0)
+                    || (duration > TimeUtil.SECONDS_PER_DAY)) {
                 statusHandler.warn("Bad init values for TimeConstraints: "
                         + this);
                 valid = false;
@@ -112,6 +129,7 @@ public class TimeConstraints implements ISerializableObject {
      * 
      * @param absTime
      *            the time that the range should contain
+     * @return the time range
      */
     public TimeRange constraintTime(Date absTime) {
         if (!valid) {
@@ -127,17 +145,18 @@ public class TimeConstraints implements ISerializableObject {
 
         int tStart = startTime - repeatInterval;
 
-        while (tStart + duration >= 0) {
+        while ((tStart + duration) >= 0) {
             // tstart+duration is ending time
             tStart -= repeatInterval; // keep going until below 0
         }
 
         while (tStart < TimeUtil.SECONDS_PER_DAY) {
             int tEnd = tStart + duration;
-            if ((tStart * TimeUtil.MILLIS_PER_SECOND) <= secSinceMidnight
-                    && secSinceMidnight < (tEnd * TimeUtil.MILLIS_PER_SECOND)) {
-                return new TimeRange(midnight + TimeUtil.MILLIS_PER_SECOND
-                        * tStart, midnight + TimeUtil.MILLIS_PER_SECOND * tEnd);
+            if (((tStart * TimeUtil.MILLIS_PER_SECOND) <= secSinceMidnight)
+                    && (secSinceMidnight < (tEnd * TimeUtil.MILLIS_PER_SECOND))) {
+                return new TimeRange(midnight
+                        + (TimeUtil.MILLIS_PER_SECOND * tStart), midnight
+                        + (TimeUtil.MILLIS_PER_SECOND * tEnd));
             }
             tStart += repeatInterval;
         }
@@ -197,8 +216,8 @@ public class TimeConstraints implements ISerializableObject {
 
         TimeConstraints rhs = (TimeConstraints) obj;
 
-        return (valid == rhs.valid && duration == rhs.duration
-                && repeatInterval == rhs.repeatInterval && startTime == rhs.startTime);
+        return ((valid == rhs.valid) && (duration == rhs.duration)
+                && (repeatInterval == rhs.repeatInterval) && (startTime == rhs.startTime));
 
     }
 
@@ -207,7 +226,7 @@ public class TimeConstraints implements ISerializableObject {
      * 
      * @param tr
      *            the time range
-     * @return
+     * @return true if the input time range matches the time constraints
      */
     public boolean validTR(final TimeRange tr) {
         if (!anyConstraints()) {
@@ -251,9 +270,8 @@ public class TimeConstraints implements ISerializableObject {
         // is beyond the time range given
         List<TimeRange> sbs = new ArrayList<TimeRange>(); // returned value
         TimeRange tr = firstSB(timeRange.getStart());
-        while (timeRange.getEnd().getTime()
-                + (duration * TimeUtil.MILLIS_PER_SECOND) > tr.getEnd()
-                .getTime()) {
+        while ((timeRange.getEnd().getTime() + (duration * TimeUtil.MILLIS_PER_SECOND)) > tr
+                .getEnd().getTime()) {
             if (tr.overlaps(timeRange)) {
                 sbs.add(tr);
             }

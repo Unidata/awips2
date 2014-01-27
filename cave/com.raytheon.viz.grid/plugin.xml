@@ -31,13 +31,6 @@
       </resource>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="grib"
-            scriptLibrary="GridRequest">
-      </scriptTemplate>
-   </extension>
-   <extension
          point="com.raytheon.uf.viz.core.units">
       <units
             class="com.raytheon.viz.grid.units.GridUnits"

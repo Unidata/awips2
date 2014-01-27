@@ -2,20 +2,59 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<bean id="edexRegistryManager"
-		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager">
-		<property name="xacmlPep" ref="XACMLPolicyEnforcementPoint" />
+	<bean id="edexRegistryManagerFactory"
+		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManagerFactory">
 		<property name="queryManager" ref="queryServiceImpl" />
+		<property name="lifecycleManager" ref="lcmServiceImpl" />
 	</bean>
 
 	<bean id="registryHandler"
 		class="com.raytheon.uf.common.registry.ebxml.FactoryRegistryHandler">
-		<property name="lcmFactory" ref="edexRegistryManager" />
-		<property name="queryFactory" ref="edexRegistryManager" />
+		<property name="lcmFactory" ref="edexRegistryManagerFactory" />
+		<property name="queryFactory" ref="edexRegistryManagerFactory" />
+		<property name="encoderStrategy" ref="registryEncoder" />
 	</bean>
 
-	<bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
-		<constructor-arg ref="registryHandler" />
+	<bean id="edexRegistryManager"
+		class="com.raytheon.uf.edex.registry.ebxml.util.EDEXRegistryManager">
+		<property name="xacmlPep" ref="XACMLPolicyEnforcementPoint" />
+		<property name="registryHandler" ref="registryHandler" />
 	</bean>
+
+	<bean id="registryEncoderType"
+		class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders$Type"
+		factory-method="valueOf">
+		<constructor-arg value="JAXB" />
+	</bean>
+
+	<bean id="registryEncoder"
+		class="com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders"
+		factory-method="ofType">
+		<constructor-arg ref="registryEncoderType" />
+	</bean>
+
+	<bean id="RegistryGarbageCollector"
+		class="com.raytheon.uf.edex.registry.ebxml.services.RegistryGarbageCollector">
+		<constructor-arg ref="AuditableEventTypeDao" />
+		<constructor-arg ref="metadataTxTemplate"/>
+	</bean>
+	
+	<bean id="objectReferenceResolver" class="com.raytheon.uf.edex.registry.ebxml.services.lifecycle.ObjectReferenceResolver">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+		<property name="dynamicRefDao" ref="dynamicObjectRefDao"/>
+		<property name="queryManager" ref="queryServiceImpl"/>
+		<property name="registryRestClient" ref="registryRestClient"/>
+	</bean>
+	
+	<bean id="registryXpathProcessor" class="com.raytheon.uf.edex.registry.ebxml.util.xpath.RegistryXPathProcessor">
+		<constructor-arg ref="registryJaxbManager"/>
+		<constructor-arg ref="registryNamespaceMapper"/>
+	</bean>
+	
+	<bean id="registryJaxbManager" class="com.raytheon.uf.common.registry.RegistryJaxbManager">
+		<constructor-arg ref="registryNamespaceMapper"/>
+	</bean>
+	
+	<bean id="registryNamespaceMapper" class="com.raytheon.uf.common.registry.RegistryNamespaceMapper"/>
 
 </beans>

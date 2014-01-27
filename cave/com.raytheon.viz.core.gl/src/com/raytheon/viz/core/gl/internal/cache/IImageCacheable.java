@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.core.gl.internal.cache;
 
-import javax.media.opengl.GL;
-
 import com.raytheon.uf.common.util.cache.ICacheObject;
 
 /**
@@ -44,6 +42,6 @@ public interface IImageCacheable extends ICacheObject {
 
     public abstract void disposeTextureData();
 
-    public abstract void disposeTexture(GL gl);
+    public abstract void disposeTexture();
 
 }

@@ -19,9 +19,7 @@
  **/
 package com.raytheon.edex.plugin.grib.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,22 +28,16 @@ import javax.xml.bind.JAXB;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoSet;
 import com.raytheon.uf.common.dataplugin.grid.mapping.DatasetIdMapper;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.mapping.Alias;
-import com.raytheon.uf.common.util.mapping.AliasList;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
 /**
@@ -56,12 +48,13 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 29, 2013 DR 15715   dhuffman    Near line 202; Transposed edex site and base precedence
- *                                         per DR: loading was in reverse.
- * Apr 30, 2013            bsteffen    Initial javadoc
- * Apr 30, 2013 1961       bsteffen    Add ability to disable grib tables.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 29, 2013  15715    dhuffman    Near line 202; Transposed edex site and
+ *                                    base precedence per DR: loading was in
+ *                                    reverse.
+ * Apr 30, 2013  1961     bsteffen    Add ability to disable grib tables.
+ * Oct 14, 2013  2473     bsteffen    Remove lookup of deprecated grib files.
  * 
  * </pre>
  * 
@@ -244,106 +237,6 @@ public class GribModelLookup {
         }
     }
 
-    /**
-     * GribModels files used to be in common and contained information used on
-     * viz. This information has been moved to datasetInfo files and now the
-     * gribModel files should only be used on edex. To ease this transition this
-     * method will search for any old common files and generate datasetInfo
-     * files. At some point in the future all files should be converted and this
-     * method can be removed.
-     * 
-     * 
-     * @return
-     * @throws GribException
-     */
-    public Boolean initCommonStaticModels() {
-        GridModelSet modelSet = new GridModelSet();
-        LocalizationContext commonStaticSite = PathManagerFactory
-                .getPathManager().getContext(
-                        LocalizationContext.LocalizationType.COMMON_STATIC,
-                        LocalizationContext.LocalizationLevel.SITE);
-
-        LocalizationFile[] legacyFiles = PathManagerFactory.getPathManager()
-                .listFiles(new LocalizationContext[] { commonStaticSite },
-                        "grid" + IPathManager.SEPARATOR + "models", // Win32
-                        new String[] { ".xml" }, false, true);
-
-        List<Alias> aliasList = new ArrayList<Alias>(legacyFiles.length * 64);
-
-        for (LocalizationFile modelFile : legacyFiles) {
-            try {
-                logger.info("Loading deprecated gribModel file: "
-                        + modelFile.getFile());
-                GridModelSet fileSet = JAXB.unmarshal(modelFile.getFile(),
-                        GridModelSet.class);
-                modelSet.addModels(fileSet.getModels());
-                ArrayList<DatasetInfo> infoList = new ArrayList<DatasetInfo>(
-                        fileSet.getModels().size());
-                for (GridModel model : fileSet.getModels()) {
-                    DatasetInfo info = new DatasetInfo();
-                    info.setDatasetId(model.getName());
-                    info.setTitle(model.getTitle());
-                    info.setDt(model.getDt());
-                    info.setAlias(model.getAlias());
-                    infoList.add(info);
-                    if (model.getParamInfo() != null) {
-                        aliasList.add(new Alias(model.getName(), model
-                                .getParamInfo()));
-                    }
-                }
-                LocalizationFile file = PathManagerFactory.getPathManager()
-                        .getLocalizationFile(
-                                commonStaticSite,
-                                "/grid/datasetInfo/imported-"
-                                        + modelFile.getFile().getName());
-                if (!file.exists()) {
-                    DatasetInfoSet infoSet = new DatasetInfoSet();
-                    infoSet.setInfos(infoList);
-                    JAXB.marshal(infoSet, file.getFile());
-                    file.save();
-                }
-            } catch (Exception e) {
-                logger.error("Unable to unmarshal grib models file:"
-                        + modelFile, e);
-            }
-        }
-        if (!aliasList.isEmpty()) {
-            LocalizationFile file = PathManagerFactory.getPathManager()
-                    .getLocalizationFile(
-                            commonStaticSite,
-                            "/grid/dataset/alias/gfeParamInfo.xml");
-            if (!file.exists()) {
-                LocalizationContext commonStaticBase = PathManagerFactory
-                        .getPathManager()
-                        .getContext(
-                                LocalizationContext.LocalizationType.COMMON_STATIC,
-                                LocalizationContext.LocalizationLevel.BASE);
-                LocalizationFile baseFile = PathManagerFactory.getPathManager()
-                        .getLocalizationFile(commonStaticBase,
-                                "/grid/dataset/alias/gfeParamInfo.xml");
-                AliasList al = null;
-                if (baseFile.exists()) {
-                    al = JAXB.unmarshal(baseFile.getFile(), AliasList.class);
-                    al.getAliasList().addAll(aliasList);
-                } else {
-                    al = new AliasList();
-                    al.setAliasList(aliasList);
-                    al.setNamespace("gfeParamInfo");
-                }
-                JAXB.marshal(al, file.getFile());
-                try {
-                    file.save();
-                } catch (LocalizationOpFailedException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to save gfe ParamInfo aliases", e);
-                }
-            }
-        }
-        if (modelSet.getModels() != null) {
-            addModels(modelSet);
-        }
-        return modelSet.getModels() != null && !modelSet.getModels().isEmpty();
-    }
 
     private String toKey(Integer center, Integer subcenter, String grid,
             Integer process) {

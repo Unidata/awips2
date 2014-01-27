@@ -3,19 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Ncwf Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrncwf
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.dataplugin.ncwf,
- com.raytheon.uf.common.dataplugin.ncwf.dao
-Require-Bundle: com.raytheon.edex.common,
- org.geotools,
- org.apache.commons.logging,
+Export-Package: com.raytheon.uf.common.dataplugin.bufrncwf
+Require-Bundle: com.raytheon.uf.common.serialization,
  javax.persistence,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.geospatial
 Import-Package: com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time,
- com.raytheon.uf.edex.pointdata
+ com.raytheon.uf.edex.decodertools.core

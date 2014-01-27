@@ -45,6 +45,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.raytheon.uf.common.util.StringUtil;
 import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 
 /**
@@ -552,13 +553,13 @@ public final class XMLUtils {
     throws Exception {
         NodeList nodes = document.getElementsByTagName(tagName);
         if(nodes == null) {
-            throw new Exception("Unable to find tag " + Util.printString(tagName));
+            throw new Exception("Unable to find tag " + StringUtil.printString(tagName));
         }
         Node node = nodes.item(0);
         Node attribute = node.getAttributes().getNamedItem(name);
         if (attribute == null) {
-            throw new Exception("Unable to find attribute " + Util.printString(name) +
-                                " for tag " + Util.printString(tagName));
+            throw new Exception("Unable to find attribute " + StringUtil.printString(name) +
+                                " for tag " + StringUtil.printString(tagName));
         }
         String retVal = attribute.getNodeValue();
         return retVal;

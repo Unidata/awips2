@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.ifpAG.ASCIIGrid;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -36,7 +37,6 @@ import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -50,7 +50,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Request handler SaveASCIIGridsRequest
  * 
  * <pre>
  * 
@@ -60,13 +60,14 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Apr 21, 2011            dgilling     Initial creation
  * Apr 23, 2013 1949       rjpeter      Removed extra lock table look up
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author dgilling
  * @version 1.0
  */
 
-public class SaveASCIIGridsHandler implements
+public class SaveASCIIGridsHandler extends BaseGfeRequestHandler implements
         IRequestHandler<SaveASCIIGridsRequest> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -82,6 +83,10 @@ public class SaveASCIIGridsHandler implements
     @Override
     public ServerResponse<String> handleRequest(SaveASCIIGridsRequest request)
             throws Exception {
+        IFPServer ifpServer = getIfpServer(request);
+        GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
+        LockManager lockMgr = ifpServer.getLockMgr();
+
         ServerResponse<String> sr = new ServerResponse<String>();
 
         LocalizationFile tempFile = getTempFile(request.getWorkstationID(),
@@ -95,12 +100,11 @@ public class SaveASCIIGridsHandler implements
         int ngrids = agrid.getGridSlices().size();
         for (int i = 0; i < ngrids; i++) {
             ParmID pid = agrid.getGridSlices().get(i).getGridInfo().getParmID();
-            String siteId = pid.getDbId().getSiteId();
 
             // get a list of available databases, see if the grid is part of an
-            // existing databse.
-            ServerResponse<List<DatabaseID>> srDbInv = GridParmManager
-                    .getDbInventory(siteId);
+            // existing database.
+            ServerResponse<List<DatabaseID>> srDbInv = gridParmMgr
+                    .getDbInventory();
             if (!srDbInv.isOkay()) {
                 msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
                         + "]. Unable to get database inventory. net: "
@@ -112,7 +116,7 @@ public class SaveASCIIGridsHandler implements
 
             // if database doesn't exist, then we need to create it
             if (!databases.contains(pid.getDbId())) {
-                ServerResponse<?> srCreate = GridParmManager.createNewDb(pid
+                ServerResponse<?> srCreate = gridParmMgr.createNewDb(pid
                         .getDbId());
                 if (!srCreate.isOkay()) {
                     msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
@@ -126,7 +130,7 @@ public class SaveASCIIGridsHandler implements
             // get the grid parm info for this grid slice from the ifpServer.
             // check for any translation needed and instruct ASCIIGrid to
             // perform the translation
-            ServerResponse<GridParmInfo> srGpi = GridParmManager
+            ServerResponse<GridParmInfo> srGpi = gridParmMgr
                     .getGridParmInfo(pid);
             if (!srGpi.isOkay()) {
                 msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
@@ -146,17 +150,13 @@ public class SaveASCIIGridsHandler implements
                 }
             }
 
-            // make a LockTableRequest
-            LockTableRequest ltr = new LockTableRequest(pid);
-
             // make the Lock Request object to lock
             LockRequest lrl = new LockRequest(pid, agrid.getGridSlices().get(i)
                     .getValidTime(), LockMode.LOCK);
 
             // make the request lock change
-            ServerResponse<List<LockTable>> srLockChange = LockManager
-                    .getInstance().requestLockChange(lrl,
-                            request.getWorkstationID(), siteId);
+            ServerResponse<List<LockTable>> srLockChange = lockMgr
+                    .requestLockChange(lrl, request.getWorkstationID());
             if (!srLockChange.isOkay()) {
                 msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
                         + "]. Unable to obtain lock for " + pid.toString()
@@ -179,8 +179,8 @@ public class SaveASCIIGridsHandler implements
             sgrs.add(sgr);
 
             // save the grid
-            ServerResponse<?> srSave = GridParmManager.saveGridData(sgrs,
-                    request.getWorkstationID(), siteId);
+            ServerResponse<?> srSave = gridParmMgr.saveGridData(sgrs,
+                    request.getWorkstationID());
             if (!srSave.isOkay()) {
                 msg = "Skipping grid storage [" + (i + 1) + " of " + ngrids
                         + "]. Unable to store grid for " + pid.toString()
@@ -209,8 +209,8 @@ public class SaveASCIIGridsHandler implements
                     .get(i).getValidTime(), LockMode.UNLOCK);
 
             // make the request unlock change
-            srLockChange = LockManager.getInstance().requestLockChange(lrul,
-                    request.getWorkstationID(), siteId);
+            srLockChange = lockMgr.requestLockChange(lrul,
+                    request.getWorkstationID());
         }
 
         tempFile.delete();

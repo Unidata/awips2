@@ -4,17 +4,13 @@ Bundle-Name: Cwa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.cwa
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Export-Package: com.raytheon.uf.common.dataplugin.cwa,
- com.raytheon.uf.common.dataplugin.cwa.dao
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.16",
+Export-Package: com.raytheon.uf.common.dataplugin.cwa
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
  org.geotools,
- org.apache.commons.logging,
- javax.persistence,javax.measure
+ javax.persistence,
+ javax.measure,
+ com.raytheon.uf.common.dataplugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization

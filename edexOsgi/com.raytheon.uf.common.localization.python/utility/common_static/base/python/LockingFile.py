@@ -28,6 +28,8 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/12/13                      mnash        Initial Creation.
+#    09/25/13        2250          mnash        Fix for FileLocker.unlock
+#                                               not being correctly called
 #    
 # 
 #
@@ -35,7 +37,7 @@
 from com.raytheon.uf.common.localization import FileLocker, FileLocker_Type as Type
 from java.io import File as JavaFile
 from java.lang import Object
-
+import jep
 
 class File(file):
     
@@ -52,7 +54,9 @@ class File(file):
         super(File, self).__init__(file.getAbsolutePath(), mode)
     
     def close(self):
-        FileLocker.unlock(self.lockerObject, self.file)
-        return super(File,self).close()
+        array = jep.jarray(1, JavaFile)
+        array[0] = self.file
+        FileLocker.unlock(self.lockerObject, array)
+        return super(File, self).close()
     
     

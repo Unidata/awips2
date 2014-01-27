@@ -43,7 +43,6 @@ import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.ebxml.slots.SetSlotConverter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -60,6 +59,10 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Changed to use Set for office id.
  * May 21, 2013 2020       mpduff       Rename UserSubscription to SiteSubscription.
+ * Sept 30,2013 1797       dhladky      Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Oct 30, 2013   2448     dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -70,8 +73,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlSeeAlso({ PendingSiteSubscription.class, PendingSharedSubscription.class,
         AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
-public abstract class RecurringSubscription implements ISerializableObject,
-        Serializable, Subscription {
+public abstract class RecurringSubscription<T extends Time, C extends Coverage>
+        implements Serializable, Subscription<T, C> {
 
     private static final long serialVersionUID = -6422673887457060034L;
 
@@ -90,7 +93,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param name
      *            New subscription name
      */
-    public RecurringSubscription(Subscription sub, String name) {
+    public RecurringSubscription(Subscription<T, C> sub, String name) {
         this.setActive(sub.isActive());
         this.setActivePeriodEnd(sub.getActivePeriodEnd());
         this.setActivePeriodStart(sub.getActivePeriodStart());
@@ -115,6 +118,8 @@ public abstract class RecurringSubscription implements ISerializableObject,
         this.setRoute(sub.getRoute());
         this.setLatencyInMinutes(sub.getLatencyInMinutes());
         this.setEnsemble(sub.getEnsemble());
+        this.setOriginatingSite(sub.getOriginatingSite());
+        this.setSubscriptionType(sub.getSubscriptionType());
 
         // Set the registry id
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -126,7 +131,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @param sub
      *            Subscription object
      */
-    public RecurringSubscription(Subscription sub) {
+    public RecurringSubscription(Subscription<T, C> sub) {
         this(sub, sub.getName());
     }
 
@@ -186,13 +191,13 @@ public abstract class RecurringSubscription implements ISerializableObject,
 
     @XmlElement(name = "coverage")
     @DynamicSerializeElement
-    private Coverage coverage;
+    private C coverage;
 
     @XmlElement
     @DynamicSerializeElement
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
-    private Time time;
+    private T time;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -250,6 +255,16 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @XmlAttribute
     @DynamicSerializeElement
     private int latencyInMinutes;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    @SlotAttribute(Subscription.ORIGINATING_SITE_SLOT)
+    private String originatingSite;
+
+    @XmlAttribute
+    @DynamicSerializeElement
+    @SlotAttribute(Subscription.SUBSCRIPTION_TYPE_SLOT)
+    private SubscriptionType subscriptionType;
 
     /**
      * Get subscription name.
@@ -483,7 +498,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @return coverage
      */
     @Override
-    public Coverage getCoverage() {
+    public C getCoverage() {
         return coverage;
     }
 
@@ -494,7 +509,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      *            coverage area
      */
     @Override
-    public void setCoverage(Coverage coverage) {
+    public void setCoverage(C coverage) {
         this.coverage = coverage;
     }
 
@@ -504,7 +519,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      * @return subscription time
      */
     @Override
-    public Time getTime() {
+    public T getTime() {
         return time;
     }
 
@@ -515,7 +530,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
      *            time stamp
      */
     @Override
-    public void setTime(Time time) {
+    public void setTime(T time) {
         this.time = time;
     }
 
@@ -775,13 +790,15 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Subscription) {
-            Subscription other = (Subscription) obj;
+            @SuppressWarnings("unchecked")
+            Subscription<T, C> other = (Subscription<T, C>) obj;
 
             EqualsBuilder builder = new EqualsBuilder();
             builder.append(getProvider(), other.getProvider());
             builder.append(getName(), other.getName());
             builder.append(getDataSetName(), other.getDataSetName());
             builder.append(getOwner(), other.getOwner());
+            builder.append(getOriginatingSite(), other.getOriginatingSite());
 
             return builder.isEquals();
         }
@@ -795,6 +812,7 @@ public abstract class RecurringSubscription implements ISerializableObject,
         builder.append(getName());
         builder.append(getDataSetName());
         builder.append(getOwner());
+        builder.append(getOriginatingSite());
 
         return builder.toHashCode();
     }
@@ -802,7 +820,8 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @Override
     public String toString() {
         return getName() + "::" + getProvider() + "::" + getDataSetName()
-                + "::" + getOwner();
+                + "::" + getOwner() + "::" + getOriginatingSite() + "::"
+                + getSubscriptionType().name();
     }
 
     /**
@@ -858,18 +877,23 @@ public abstract class RecurringSubscription implements ISerializableObject,
         if (activePeriodStart == null && activePeriodEnd == null) {
             return true;
         } else if (activePeriodStart != null && activePeriodEnd != null) {
+
             Calendar startCal = TimeUtil.newGmtCalendar();
             startCal.setTime(activePeriodStart);
             startCal = TimeUtil.minCalendarFields(startCal,
                     Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND,
                     Calendar.MILLISECOND);
+            // add the current year for true comparison
+            startCal = TimeUtil.addCurrentYearCalendar(startCal);
+
             activePeriodStart = startCal.getTime();
 
             Calendar endCal = TimeUtil.newGmtCalendar();
             endCal.setTime(activePeriodEnd);
             endCal = TimeUtil.maxCalendarFields(endCal, Calendar.HOUR_OF_DAY,
                     Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
-
+            // add the current year for true comparison
+            endCal = TimeUtil.addCurrentYearCalendar(endCal);
             // If the period crosses a year boundary, add a year to the end
             if (endCal.before(startCal)) {
                 endCal.add(Calendar.YEAR, 1);
@@ -877,9 +901,11 @@ public abstract class RecurringSubscription implements ISerializableObject,
 
             activePeriodEnd = endCal.getTime();
 
-            // Only concerned with month and day, need to set the years equal
+            // Only concerned with month and day, need to set the
+            // years on equal footing for comparison sake.
             Calendar c = TimeUtil.newGmtCalendar();
             c.setTime(checkDate);
+            // set the date to compare with the current date from the start
             c.set(Calendar.YEAR, startCal.get(Calendar.YEAR));
             Date date = c.getTime();
 
@@ -929,5 +955,32 @@ public abstract class RecurringSubscription implements ISerializableObject,
     @Override
     public void setEnsemble(Ensemble ensemble) {
         this.ensemble = ensemble;
+    }
+
+    @Override
+    public void setOriginatingSite(String originatingSite) {
+        this.originatingSite = originatingSite;
+    }
+
+    @Override
+    public String getOriginatingSite() {
+        return originatingSite;
+    }
+
+    /**
+     * @return the subscriptionType
+     */
+    @Override
+    public SubscriptionType getSubscriptionType() {
+        return subscriptionType;
+    }
+
+    /**
+     * @param subscriptionType
+     *            the subscriptionType to set
+     */
+    @Override
+    public void setSubscriptionType(SubscriptionType subscriptionType) {
+        this.subscriptionType = subscriptionType;
     }
 }

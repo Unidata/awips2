@@ -6,20 +6,10 @@ Bundle-Version: 1.0.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.annotations,
- com.raytheon.uf.common.dataplugin.persist,
- com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.pointdata.spatial,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.serialization.adapters,
- com.raytheon.uf.common.serialization.annotations,
- com.raytheon.uf.common.time,
- com.vividsolutions.jts.geom,
- javax.measure.quantity,
- javax.measure.unit,
- javax.persistence
 Export-Package: com.raytheon.uf.common.dataplugin.goessounding
-Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0"

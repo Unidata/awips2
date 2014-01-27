@@ -49,7 +49,8 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Aug 29, 2012   223      mpduff      REfactor change.
  * Dec 18, 2012  1440      mpduff      Ignore "None" group.
  * Jan 02, 2013  1441      djohnson    Add isGroupSelected(), separate NO_GROUP constant to reusable location.
- * 
+ * Oct 14, 2013  2386      mpduff      Added NONE_AVAILABLE constant.
+ * OCt 15, 2013  2477      mpduff      Removed NONE_AVAILABLE constant.
  * </pre>
  * 
  * @author jpiatt

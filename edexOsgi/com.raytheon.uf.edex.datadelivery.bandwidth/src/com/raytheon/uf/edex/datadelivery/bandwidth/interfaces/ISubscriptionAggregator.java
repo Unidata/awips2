@@ -4,13 +4,14 @@ import java.util.List;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.processing.BandwidthSubscriptionContainer;
 
 /**
  * 
  * Interface for Subscription aggregation and RetrievalRequest generation. Each
- * implementation of this interface will examine the List of BandwidthSubscription
- * Objects provided and evaluate how to combine and/or subset those
- * Subscriptions into SubscriptionRetrieval Objects.
+ * implementation of this interface will examine the List of
+ * BandwidthSubscription Objects provided and evaluate how to combine and/or
+ * subset those Subscriptions into SubscriptionRetrieval Objects.
  * 
  * <pre>
  * 
@@ -20,6 +21,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
  * ------------ ---------- ----------- --------------------------
  * Jul 18, 2012 726        jspinks     Initial creation
  * Nov 09, 2012 1286       djohnson    Renamed to comply with AWIPS standards.
+ * Jun 13, 2013 2095       djohnson    Aggregator only receives the newly created bandwidth subscriptions now.
  * 
  * </pre>
  * 
@@ -32,13 +34,15 @@ public interface ISubscriptionAggregator {
      * Generate a List of SubscriptionRetrieval Object for the provided
      * BandwidthSubscription Objects.
      * 
-     * @param subscriptions
-     *            A List of BandwidthSubscription Objects to examine for retrieval.
+     * @param container
+     *            A container with a List of BandwidthSubscription Objects which
+     *            were just added, and their subscription
      * 
      * @return The SubscriptionRetrieval Objects used to fulfill the
      *         BandwidthSubscription Objects provided.
      */
-    List<SubscriptionRetrieval> aggregate(List<BandwidthSubscription> subscriptions);
+    List<SubscriptionRetrieval> aggregate(
+            BandwidthSubscriptionContainer container);
 
     /**
      * This method is called once all the SubscriptionRetrievals for a

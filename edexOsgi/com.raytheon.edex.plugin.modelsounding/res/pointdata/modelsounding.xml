@@ -62,7 +62,7 @@
   <parameter name="numProfLvls" numDims="1" type="INT" />
   <parameter name="pressure" numDims="2" type="FLOAT" unit="Pa" dimension="maxLevels"/>
   <parameter name="temperature" numDims="2" type="FLOAT" unit="K" dimension="maxLevels"/>
-  <parameter name="specHum" numDims="2" type="FLOAT" unit="kg/Kg" dimension="maxLevels"/>
+  <parameter name="specHum" numDims="2" type="FLOAT" unit="kg/kg" dimension="maxLevels"/>
   <parameter name="omega" numDims="2" type="FLOAT" unit="Pa/s" dimension="maxLevels"/>
   <parameter name="uComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>
   <parameter name="vComp" numDims="2" type="FLOAT" unit="m/s" dimension="maxLevels"/>

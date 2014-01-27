@@ -25,8 +25,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.message.Message;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -121,7 +121,7 @@ public class SubscribeRunner {
      */
     public static ISubscribeRunner getInstance(String oper, Message message) throws EdexException {
         ISubscribeRunner retVal = null;
-        if (Util.isEmptyString(oper)) {
+        if (StringUtil.isEmptyString(oper)) {
             throw new EdexException("Unable to initialize ISubscribeRunner instance; null or empty operation specified - unable to continue");
         }
         SubscribeAction action = SubscribeAction.translate(oper);

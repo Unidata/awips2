@@ -36,7 +36,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.apache.commons.lang.Validate;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -55,11 +54,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Sep 5, 2007              chammack    Initial Creation.
- *    Apr 9, 2009  1288        rjpeter     Added iterator implementation to fix remove.
- *    Apr 24, 2013 1950        bsteffen    Sort resources before instantiation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 05, 2007           chammack    Initial Creation.
+ * Apr 09, 2009  1288     rjpeter     Added iterator implementation to fix
+ *                                    remove.
+ * Apr 24, 2013  1950     bsteffen    Sort resources before instantiation.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -67,8 +68,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  * @version 1
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class ResourceList extends CopyOnWriteArrayList<ResourcePair> implements
-        ISerializableObject {
+public class ResourceList extends CopyOnWriteArrayList<ResourcePair> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ResourceList.class);
 

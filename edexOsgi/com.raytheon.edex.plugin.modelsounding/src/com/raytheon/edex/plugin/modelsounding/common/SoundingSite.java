@@ -20,7 +20,6 @@
 package com.raytheon.edex.plugin.modelsounding.common;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,7 +39,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -54,21 +52,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * The ProfilerObs class encapsulates the location and time information for a
- * profiler observation as well as providing a container for the vertical level
- * data above the location.
+ * The SoundingSite class encapsulates the location and time information for a
+ * model sounding forecast as well as providing a container for the vertical
+ * level data above the location.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2008 1026       jkorman     Initial implementation.
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  1026     jkorman     Initial implementation.
+ * Apr 04, 2013  1846     bkowal      Added an index on refTime and
+ *                                    forecastTime
+ * Apr 12, 2013  1857     bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013  1869     bsteffen    Remove dataURI column from
+ *                                    PluginDataObject.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Dec 02, 2013  2537     bsteffen    Remove IDecoderGettable
  * 
  * </pre>
  * 
@@ -88,7 +87,7 @@ import com.vividsolutions.jts.geom.Geometry;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class SoundingSite extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -828,17 +827,6 @@ public class SoundingSite extends PersistablePluginDataObject implements
         this.snowWaterEquiv = snowWaterEquiv;
     }
 
-    /**
-     * Get the IDecoderGettable interface implementation. This class does not
-     * currently support this interface.
-     * 
-     * @return Returns null.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
     @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
@@ -850,58 +838,6 @@ public class SoundingSite extends PersistablePluginDataObject implements
 
     public void setLocation(SurfaceObsLocation location) {
         this.location = location;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.IDecoderGettable#getString(java.lang
-     * .String)
-     */
-    @Override
-    public String getString(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.IDecoderGettable#getStrings(java.lang
-     * .String)
-     */
-    @Override
-    public String[] getStrings(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.IDecoderGettable#getValue(java.lang
-     * .String)
-     */
-    @Override
-    public Amount getValue(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.dataplugin.IDecoderGettable#getValues(java.lang
-     * .String)
-     */
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override

@@ -31,6 +31,8 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -60,32 +62,67 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "Classification")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ClassificationType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Classification")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Classification")
 public class ClassificationType extends RegistryObjectType {
+
+    private static final long serialVersionUID = -3700650646508958566L;
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String classificationScheme;
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String classifiedObject;
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String classificationNode;
 
     @XmlAttribute
     @DynamicSerializeElement
     protected String nodeRepresentation;
+
+    public ClassificationType() {
+        super();
+
+    }
+
+    public ClassificationType(String id, String lid, String objectType,
+            String owner, String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public ClassificationType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the classificationScheme property.
@@ -234,6 +271,45 @@ public class ClassificationType extends RegistryObjectType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ClassificationType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nclassificationScheme=");
+        builder.append(classificationScheme);
+        builder.append(", \nclassifiedObject=");
+        builder.append(classifiedObject);
+        builder.append(", \nclassificationNode=");
+        builder.append(classificationNode);
+        builder.append(", \nnodeRepresentation=");
+        builder.append(nodeRepresentation);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

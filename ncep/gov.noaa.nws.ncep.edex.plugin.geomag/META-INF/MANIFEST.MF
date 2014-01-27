@@ -7,7 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: 
  com.raytheon.edex.common;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.common.dataplugin.geomag;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.1.1",
  com.raytheon.uf.common.localization;bundle-version="1.10.13"
 Import-Package: com.raytheon.uf.common.message.response,
- com.raytheon.uf.common.serialization.comm
+ com.raytheon.uf.common.serialization.comm,
+ org.apache.commons.logging

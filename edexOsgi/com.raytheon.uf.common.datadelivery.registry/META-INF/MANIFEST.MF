@@ -13,7 +13,6 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
- org.junit,
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.google.guava;bundle-version="1.0.0",
@@ -24,9 +23,12 @@ Require-Bundle: com.raytheon.uf.common.registry.schemas.ebxml;bundle-version="1.
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0"
+ com.raytheon.uf.common.datadelivery.request;bundle-version="1.0.0",
+ org.apache.commons.codec;bundle-version="1.4.0",
+ org.apache.commons.cxf;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.common.datadelivery.registry,
  com.raytheon.uf.common.datadelivery.registry.ebxml,
- com.raytheon.uf.common.datadelivery.registry.handlers
+ com.raytheon.uf.common.datadelivery.registry.handlers,
+ com.raytheon.uf.common.datadelivery.registry.web
 
 

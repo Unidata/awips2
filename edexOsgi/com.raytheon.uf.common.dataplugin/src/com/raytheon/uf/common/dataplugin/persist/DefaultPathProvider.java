@@ -33,12 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.annotations.DataURIConfig;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -57,15 +56,21 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 1/08/09      1674       bphillip    Initial creation
  * 04/08/13     1293       bkowal      Removed references to hdffileid.
  * 04/30/13     1861       bkowal      Added constant for hdf5 file suffix.
+ * 10/04/13     2081       mschenke    Removed unused annotation logic
+ * 11/08/13     2361       njensen     Use JAXBManager for XML
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class DefaultPathProvider implements IHDFFilePathProvider {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DefaultPathProvider.class);
-    
+
+    private static final SingleTypeJAXBManager<PersistencePathKeySet> jaxb = SingleTypeJAXBManager
+            .createWithoutException(PersistencePathKeySet.class);
+
     public static final String HDF5_SUFFIX = ".h5";
 
     public static final ThreadLocal<SimpleDateFormat> fileNameFormat = new ThreadLocal<SimpleDateFormat>() {
@@ -204,11 +209,9 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
         PersistencePathKeySet pathKeySet = null;
 
         if (sitePathFile.exists()) {
-            pathKeySet = (PersistencePathKeySet) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(sitePathFile);
+            pathKeySet = jaxb.unmarshalFromXmlFile(sitePathFile);
         } else if (basePathFile.exists()) {
-            pathKeySet = (PersistencePathKeySet) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(basePathFile);
+            pathKeySet = jaxb.unmarshalFromXmlFile(basePathFile);
         }
 
         List<String> keyNames = null;
@@ -241,32 +244,16 @@ public class DefaultPathProvider implements IHDFFilePathProvider {
                             + persistable.toString());
         }
 
+        StringBuffer sb = new StringBuffer();
+        sb.append(pluginName);
+
         if (persistable instanceof PluginDataObject) {
-            PluginDataObject pdo = (PluginDataObject) persistable;
-            DataURIConfig config = pdo.getClass().getAnnotation(
-                    DataURIConfig.class);
-            int idx = 0;
-
-            if (config != null) {
-                idx = config.persistentIndex();
-            }
-
-            String[] dataURIParts = pdo.getDataURI().split("/");
-            StringBuffer sb = new StringBuffer();
-            sb.append(pluginName);
-
-            for (int i = 0; i < idx; i++) {
-                sb.append("-");
-                sb.append(dataURIParts[i]);
-            }
-
             Date refTime = ((PluginDataObject) persistable).getDataTime()
                     .getRefTime();
             sb.append(fileNameFormat.get().format(refTime));
-            sb.append(".h5");
-            return sb.toString();
         }
 
-        return pluginName + ".h5";
+        sb.append(".h5");
+        return sb.toString();
     }
 }

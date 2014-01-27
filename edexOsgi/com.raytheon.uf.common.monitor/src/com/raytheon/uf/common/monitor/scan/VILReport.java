@@ -20,12 +20,6 @@ package com.raytheon.uf.common.monitor.scan;
  * further licensing information.
  **/
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -38,39 +32,33 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 06/02/2009   2037       dhladky    Initial Creation.
+ * 06/02/2009   2037       dhladky     Initial Creation.
+ * 10/02/2013   2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-@DynamicSerialize
-public class VILReport implements ISerializableObject {
 
-    @XmlElement
+@DynamicSerialize
+public class VILReport {
+
     @DynamicSerializeElement
     private int totalLgt = 0;
 
-    @XmlElement
     @DynamicSerializeElement
     private int totalMdt = 0;
 
-    @XmlElement
     @DynamicSerializeElement
     private int totalHvy = 0;
 
-    @XmlElement
     @DynamicSerializeElement
     private int ovhdLgt = 0;
 
-    @XmlElement
     @DynamicSerializeElement
     private int ovhdMdt = 0;
 
-    @XmlElement
     @DynamicSerializeElement
     private int ovhdHvy = 0;
 

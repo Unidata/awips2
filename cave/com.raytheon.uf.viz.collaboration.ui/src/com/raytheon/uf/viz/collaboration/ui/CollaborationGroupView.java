@@ -82,8 +82,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
@@ -132,6 +130,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012             rferrel     Initial creation
+ * Oct 22, 2013 #2483      lvenable    Fixed image memory leak.
  * 
  * </pre>
  * 
@@ -142,12 +141,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         LocalGroupListener, IUserSelector {
     public static final String ID = "com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView";
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CollaborationGroupView.class);
-
     private TreeViewer usersTreeViewer;
-
-    // private List<CustomRosterGroup> groups;
 
     private UsersTreeFilter usersTreeFilter;
 
@@ -159,13 +153,17 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     private DisplayFeedAction displayFeedAction;
 
-    // private Action pgenAction;
-
     private Action collapseAllAction;
 
     private TreeEditor treeEditor;
 
     private Composite parent;
+
+    private Image inactiveImage = null;
+
+    private Image activeImage = null;
+
+    private Image pressedImage = null;
 
     /**
      * @param parent
@@ -175,6 +173,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
         super.createPartControl(parent);
         this.parent = parent;
         this.parent.setLayout(new GridLayout());
+
+        createImages();
+
         // build the necessary actions for the view
         createActions();
 
@@ -184,6 +185,20 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // add some actions to the menubar
         createMenubar();
         openConnection();
+    }
+
+    /**
+     * Create images.
+     */
+    private void createImages() {
+        inactiveImage = AbstractUIPlugin.imageDescriptorFromPlugin(
+                PlatformUI.PLUGIN_ID, "$nl$/icons/full/dtool16/clear_co.gif")
+                .createImage();
+        activeImage = AbstractUIPlugin.imageDescriptorFromPlugin(
+                PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.gif")
+                .createImage();
+        pressedImage = new Image(Display.getCurrent(), activeImage,
+                SWT.IMAGE_GRAY);
     }
 
     private void openConnection() {
@@ -221,6 +236,10 @@ public class CollaborationGroupView extends CaveFloatingView implements
             connection.getContactsManager().removeLocalGroupListener(this);
         }
         super.dispose();
+
+        inactiveImage.dispose();
+        activeImage.dispose();
+        pressedImage.dispose();
     }
 
     /**
@@ -554,14 +573,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         // only create the button if the text widget doesn't support one
         // natively
-        final Image inactiveImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-                PlatformUI.PLUGIN_ID, "$nl$/icons/full/dtool16/clear_co.gif")
-                .createImage();
-        final Image activeImage = AbstractUIPlugin.imageDescriptorFromPlugin(
-                PlatformUI.PLUGIN_ID, "$nl$/icons/full/etool16/clear_co.gif")
-                .createImage();
-        final Image pressedImage = new Image(Display.getCurrent(), activeImage,
-                SWT.IMAGE_GRAY);
         final Label clearButton = new Label(comp, SWT.NONE);
         clearButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER,
                 false, false));

@@ -10,6 +10,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012  0726      jspinks     Initial creation
+ * Jul 09, 2013 2106      djohnson    No Spring required to get thread pool sizes, remove subscriptionBus.
  * 
  * </pre>
  * 
@@ -19,11 +20,11 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
 public class BandwidthEventBusConfig {
 
     // Set reasonable default values
-    private int dataSetMetaDataPoolSize = 2;
+    private static final int dataSetMetaDataPoolSize = Integer.getInteger(
+            "bandwidth.dataSetMetaDataPoolSize", 2);
 
-    private int retrievalPoolSize = 3;
-
-    private int subscriptionPoolSize = 2;
+    private static final int retrievalPoolSize = Integer.getInteger(
+            "bandwidth.retrievalPoolSize", 3);
 
     /**
      * Get attribute dataSetMetaDataPoolSize.
@@ -41,44 +42,5 @@ public class BandwidthEventBusConfig {
      */
     public int getRetrievalPoolSize() {
         return retrievalPoolSize;
-    }
-
-    /**
-     * Get attribute subscriptionPoolSize.
-     * 
-     * @return The value of attribute subscriptionPoolSize.
-     */
-    public int getSubscriptionPoolSize() {
-        return subscriptionPoolSize;
-    }
-
-    /**
-     * Set the dataSetMetaDataPoolSize.
-     * 
-     * @param dataSetMetaDataPoolSize
-     *            The value to set attribute dataSetMetaDataPoolSize to.
-     */
-    public void setDataSetMetaDataPoolSize(int dataSetMetaDataPoolSize) {
-        this.dataSetMetaDataPoolSize = dataSetMetaDataPoolSize;
-    }
-
-    /**
-     * Set the retrievalPoolSize.
-     * 
-     * @param retrievalPoolSize
-     *            The value to set attribute retrievalPoolSize to.
-     */
-    public void setRetrievalPoolSize(int retrievalPoolSize) {
-        this.retrievalPoolSize = retrievalPoolSize;
-    }
-
-    /**
-     * Set the subscriptionPoolSize.
-     * 
-     * @param subscriptionPoolSize
-     *            The value to set attribute subscriptionPoolSize to.
-     */
-    public void setSubscriptionPoolSize(int subscriptionPoolSize) {
-        this.subscriptionPoolSize = subscriptionPoolSize;
     }
 }

@@ -19,10 +19,12 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -37,6 +39,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 12, 2012 0726       djohnson     Add SW history, use string version of enum.
+ * Jun 24, 2013 2106       djohnson     Add copy constructor.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -51,7 +56,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 public class BandwidthAllocation implements IPersistableDataObject<Long>,
-        ISerializableObject, Serializable {
+        Serializable, IDeepCopyable<BandwidthAllocation> {
 
     private static final long serialVersionUID = 743702044231376839L;
 
@@ -87,7 +92,8 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
 
     @Column(nullable = false)
     @DynamicSerializeElement
-    private double priority;
+    @Enumerated(EnumType.STRING)
+    private SubscriptionPriority priority;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -115,6 +121,39 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         this.network = request.getNetwork();
         this.estimatedSize = size;
         this.bandwidthBucket = request.getBandwidthBucket();
+    }
+
+    /**
+     * Copy constructor.
+     * 
+     * @param from
+     */
+    public BandwidthAllocation(BandwidthAllocation from) {
+        final Calendar fromActualEnd = from.getActualEnd();
+        if (fromActualEnd != null) {
+            this.setActualEnd(TimeUtil.newCalendar(fromActualEnd));
+        }
+        final Calendar fromActualStart = from.getActualStart();
+        if (fromActualStart != null) {
+            this.setActualStart(TimeUtil.newCalendar(fromActualStart));
+        }
+        final Calendar fromStartTime = from.getStartTime();
+        if (fromStartTime != null) {
+            this.setStartTime(TimeUtil.newCalendar(fromStartTime));
+        }
+        final Calendar fromEndTime = from.getEndTime();
+        if (fromEndTime != null) {
+            this.setEndTime(TimeUtil.newCalendar(fromEndTime));
+        }
+
+        this.setAgentType(from.getAgentType());
+        this.setBandwidthBucket(from.getBandwidthBucket());
+        this.setEstimatedSize(from.getEstimatedSize());
+        this.setId(from.getId());
+        this.setIdentifier(from.getIdentifier());
+        this.setNetwork(from.getNetwork());
+        this.setPriority(from.getPriority());
+        this.setStatus(from.getStatus());
     }
 
     /**
@@ -168,7 +207,7 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         return Long.valueOf(id);
     }
 
-    public double getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
@@ -238,7 +277,7 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
         setId(identifier.longValue());
     }
 
-    public void setPriority(double priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
@@ -306,8 +345,15 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
      * @return true if this allocation is higher priority than the other one
      */
     public boolean isHigherPriorityThan(BandwidthAllocation other) {
-        // A lower priority value means it's higher priority
-        return this.getPriority() < other.getPriority();
+        return this.getPriority().isHigherPriorityThan(other.getPriority());
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public BandwidthAllocation copy() {
+        return new BandwidthAllocation(this);
     }
 
 }

@@ -15,7 +15,6 @@ import com.raytheon.uf.common.gridcoverage.LambertConformalGridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.gridcoverage.MercatorGridCoverage;
 import com.raytheon.uf.common.gridcoverage.PolarStereoGridCoverage;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -39,7 +38,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Projection implements ISerializableObject {
+public class Projection {
 
     /**
      * Projection

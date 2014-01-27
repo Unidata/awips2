@@ -35,7 +35,7 @@ import com.raytheon.uf.common.monitor.xml.AreaIdXML;
 import com.raytheon.uf.common.monitor.xml.AreaIdXML.ZoneType;
 import com.raytheon.uf.common.monitor.xml.MonAreaConfigXML;
 import com.raytheon.uf.common.monitor.xml.StationIdXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -54,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 29, 2011 DR#8986   zhao       Read in Counties instead of Forecast Zones
  * Feb 21 2012  14413     zhao       add code handling "adjacent areas"
  * Nov 20 2012  1297      skorolev   Cleaned code
+ * Oct 02 2013  2361      njensen    Use JAXBManager for XML
  * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
  * 
  * </pre>
@@ -80,6 +81,9 @@ public abstract class MonitorConfigurationManager {
      * Maps marine zones table in the PostgreSQL database.
      */
     public static final String MARINE_ZONE_TABLE = "mapdata.marinezones";
+
+    private static final SingleTypeJAXBManager<MonAreaConfigXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(MonAreaConfigXML.class);
 
     /**
      * Monitoring Area Configuration XML object.
@@ -132,8 +136,8 @@ public abstract class MonitorConfigurationManager {
                     pm.getContext(LocalizationType.COMMON_STATIC,
                             LocalizationLevel.SITE), filename)
                     .getAbsolutePath();
-            MonAreaConfigXML configXmltmp = (MonAreaConfigXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(monitorAreaFilePath.toString());
+            MonAreaConfigXML configXmltmp = jaxb
+                    .unmarshalFromXmlFile(monitorAreaFilePath.toString());
             configXml = configXmltmp;
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
@@ -148,8 +152,8 @@ public abstract class MonitorConfigurationManager {
                     pm.getContext(LocalizationType.COMMON_STATIC,
                             LocalizationLevel.SITE), adjAreaFilename)
                     .getAbsolutePath();
-            MonAreaConfigXML configXmltmp = (MonAreaConfigXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(adjacentAreaFilePath.toString());
+            MonAreaConfigXML configXmltmp = jaxb
+                    .unmarshalFromXmlFile(adjacentAreaFilePath.toString());
             adjAreaConfigXml = configXmltmp;
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
@@ -250,8 +254,8 @@ public abstract class MonitorConfigurationManager {
             newXmlFile.getFile().getParentFile().mkdirs();
         }
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getMessage());
@@ -274,8 +278,8 @@ public abstract class MonitorConfigurationManager {
             newXmlFile.getFile().getParentFile().mkdirs();
         }
         try {
-            SerializationUtil.jaxbMarshalToXmlFile(adjAreaConfigXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(adjAreaConfigXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR, e.getMessage());

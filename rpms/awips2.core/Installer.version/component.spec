@@ -102,7 +102,6 @@ function padEdexBannerLine()
 
 function updateCAVEVersion()
 {
-   local BUILD_XML="/awips2/cave/build.xml"
    local TMP_PRODUCTS_DIR="/awips2/cave/.tmp/products"
 
    if [ -d ${TMP_PRODUCTS_DIR} ]; then
@@ -111,21 +110,10 @@ function updateCAVEVersion()
    mkdir -p ${TMP_PRODUCTS_DIR}
    mv ${AWIPS_PRODUCT_JAR} ${TMP_PRODUCTS_DIR}
    AWIPS_PRODUCT_JAR=`ls -1 ${TMP_PRODUCTS_DIR}/*`
-   
-   touch ${BUILD_XML}
-   echo "<project name=\"nothing\" default=\"doNothing\">" > ${BUILD_XML}
-   echo "   <target name=\"doNothing\">" >> ${BUILD_XML}
-   echo "   </target>" >> ${BUILD_XML}
-   echo "</project>" >> ${BUILD_XML}
-   cd /awips2/cave
 
    # Need to use awips2-java
    export PATH=/awips2/java/bin:${PATH}
    export JAVA_HOME="/awips2/java/jre"
-
-   su awips -c './cave -application org.eclipse.ant.core.antRunner -nosplash' \
-      > /dev/null 2>&1
-   rm -f ${BUILD_XML}
    
    # Update the version information.
    cd ${TMP_PRODUCTS_DIR}

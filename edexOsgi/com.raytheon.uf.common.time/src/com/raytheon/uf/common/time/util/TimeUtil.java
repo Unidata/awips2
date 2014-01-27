@@ -52,6 +52,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Mar 20, 2013 1774       randerso    Add SECONDS_PER_DAY, changed SECONDS_PER_HOUR to int.
  * Apr 24, 2013 1628       mschenke    Added GMT TimeZone Object constant
  * Jun 05, 2013 DR 16279   D. Friedman Add timeOfDayToAbsoluteTime
+ * Oct 30, 2013  2448      dhladky     Added current year addition to calendar object.
  * Nov 05, 2013 2499       rjpeter     Added prettyDuration.
  * </pre>
  * 
@@ -288,6 +289,17 @@ public final class TimeUtil {
     }
 
     /**
+     * Retrieve a {@link ITimer} that allows the demarcation of arbitrary start
+     * and stop times. This version will always use the actual system time. It
+     * also provides lapping functionality to keep track of multiple durations.
+     * 
+     * @return a {@link ITimer}
+     */
+    public static IPerformanceTimer getPerformanceTimer() {
+        return new PerformanceTimerImpl();
+    }
+
+    /**
      * Check whether the time represented by a {@link Date} is a new day
      * compared to another {@link Date} object.
      * 
@@ -496,4 +508,48 @@ public final class TimeUtil {
      */
     private TimeUtil() {
     }
+    
+    /**
+     * New Calendar from a Date
+     * @param date
+     * @return
+     */
+    public static Calendar newCalendar(final Date date) {
+        Calendar t = null;
+        if (date != null) {
+            t = TimeUtil.newCalendar();
+            t.setTime(date);
+        }
+        return t;
+    }
+    
+    /**
+     * New Calendar from an existing calendar
+     * @param calendar
+     * @return
+     */
+    public static Calendar newCalendar(final Calendar calendar) {
+        Calendar t = null;
+        if (calendar != null) {
+            t = TimeUtil.newCalendar();
+            t.setTimeInMillis(calendar.getTimeInMillis());
+        }
+        return t;
+    }
+    
+    /**
+     * Adds the current year to the calendar object that does not already have it set.
+     * Some calendar objects are only concerned with the day and month.  When a 
+     * comparison of years is necessary, you must add the current year to that calendar object.
+     * @param calendar
+     * @return
+     */
+    public static Calendar addCurrentYearCalendar(final Calendar calendar) {
+        
+        Calendar yearTime = TimeUtil.newGmtCalendar();
+        calendar.set(Calendar.YEAR, yearTime.get(Calendar.YEAR));
+        
+        return calendar;
+    }
+   
 }
