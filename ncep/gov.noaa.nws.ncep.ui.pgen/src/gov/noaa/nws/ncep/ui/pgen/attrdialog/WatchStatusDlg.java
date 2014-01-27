@@ -26,8 +26,11 @@ import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -51,6 +54,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date       	Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * 03/10		#159		B. Yin   	Initial Creation.
+ * 12/13		TTR 800		B. Yin		Use UTC time class.
  *
  * </pre>
  * 
@@ -58,6 +62,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class WatchStatusDlg  extends CaveJFACEDialog{
+	
+	//minutes to round issue time 
+	private static final int ITIME_RND = 5;        
 
 	//instance of the Watch element working on
 	private WatchBox wb;
@@ -83,16 +90,19 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 	
 	//valid date and time
 	private DateTime validDate;
-	private DateTime validTime;
+	private UTCTimeText validTime;
 	
 	//expiration check box and date/time widgets
 	private Button expBtn;
 	private DateTime expDate;
-	private DateTime expTime;
+	private UTCTimeText expTime;
 	private Text lnTxt;
 	
 	//forecaster name
 	private Text forecaster;
+	
+	//issue time
+	private Calendar issueTime;
 	
 	/**
 	 * Protected constructor
@@ -193,21 +203,32 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 		expBtn.setText("Final Status - Expiration Time:");
 
 		expDate = new DateTime(expDt, SWT.BORDER | SWT.DATE );
-		expTime = new DateTime(expDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		
+		//expTime = new DateTime(expDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		expTime = new UTCTimeText(expDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
 
+		//FormData fd2 = new FormData();
+		//fd2.top = new FormAttachment(refComp, 2, SWT.BOTTOM);
+		//fd2.left = new FormAttachment(expDate, 5, SWT.RIGHT);
+		//expTime.setLayoutData(fd2);
+		
+		expTime.setUTCTimeTextField(expDt, Calendar.getInstance(), null, 5, false);
+		
 		//Valid date/time
 		Label validLbl = new Label( expDt, SWT.NONE);
 		validLbl.setText("Status Valid Until:");
 
 		validDate = new DateTime(expDt, SWT.BORDER | SWT.DATE );
-		validTime = new DateTime(expDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		validTime = new UTCTimeText(expDt, SWT.BORDER | SWT.TIME | SWT.SHORT );
+		validTime.setUTCTimeTextField(expDt, Calendar.getInstance(), null, 5, false);
 
 		//forecaster
 		Composite fcstComp = new Composite(top, SWT.NONE);
 		fcstComp.setLayout( new GridLayout(2, false) );
 		Label fcstLbl = new Label( fcstComp, SWT.NONE);
 		fcstLbl.setText("Forecaster:");
-		forecaster = new Text(fcstComp, SWT.SINGLE | SWT.RIGHT | SWT.BORDER );
+		forecaster = new Text(fcstComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+		forecaster.setLayoutData( new GridData( 150, 15 ) );
 		AttrDlg.addSeparator(top);
 
 		return top;
@@ -252,9 +273,12 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 		Calendar exp = wb.getExpTime();
 		if ( exp != null ){
 			expDate.setDate(exp.get(Calendar.YEAR), exp.get(Calendar.MONTH), exp.get(Calendar.DAY_OF_MONTH));
-			expTime.setTime(exp.get(Calendar.HOUR), exp.get(Calendar.MINUTE), 0);
+			expTime.setTime(exp.get(Calendar.HOUR_OF_DAY), exp.get(Calendar.MINUTE));
 		}
 		
+		Calendar valid = this.generateIssueAndValidTime();
+		validDate.setDate(valid.get(Calendar.YEAR), valid.get(Calendar.MONTH), valid.get(Calendar.DAY_OF_MONTH));
+		validTime.setTime(valid.get(Calendar.HOUR_OF_DAY), valid.get(Calendar.MINUTE));
 	}
 	
 	/**
@@ -360,7 +384,7 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 	}
 	
 	/**
-	 * Get expiration time
+	 * Get expiration time from dialog
 	 * @return
 	 */
 	private Calendar getValidTime(){
@@ -406,6 +430,7 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 			eTime = getExpirationTime();
 		}
 		
+		wb.setIssueTime( issueTime );
 		wb.addStatus(getContinueText(), dNum, getValidTime(), eTime, forecaster.getText());
 		
 	}
@@ -416,16 +441,25 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 	 */
 	private String generateStatusMsg(){
 		String msg ="";
-		msg += "WOUS20 KWNS " +  String.format("%1$td%1$tH%1$tM\n", getValidTime()) +"\n" +
+		Calendar exp;
+		if ( expBtn.getSelection() ){
+			exp = this.getExpirationTime();
+		}
+		else {
+			exp = this.getValidTime();
+		}
+		
+		
+		msg += "WOUS20 KWNS " +  String.format("%1$td%1$tH%1$tM", issueTime) +"\n" +
 						"WWASPC" + "\n" +
-						"SPC WW-A " + String.format("%1$td%1$tH%1$tM\n", getValidTime()) +"\n";
+						"SPC WW-A " + String.format("%1$td%1$tH%1$tM\n", exp) +"\n";
 		
 		String stateLine = "";
 		for ( String st : wb.getStates() ){
 			stateLine += st + "Z000-";
 		}
 		
-		stateLine += String.format("%1$td%1$tH%1$tM", getExpirationTime()) + "-" + "\n";
+		stateLine += String.format("%1$td%1$tH%1$tM", exp) + "-" + "\n";
 		
 		msg += stateLine + "\n" + 
 				"STATUS REPORT ON WW " + getWatchNumber() + "\n\n" +
@@ -433,14 +467,14 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 		
 		if ( expBtn.getSelection() ){
 			msg += "WW " + wb.getWatchNumber() +" WILL BE ALLOWED TO EXPIRE AT " +
-					String.format("%1$td%1$tH%1$tM", getExpirationTime()) + "Z." + "\n\n";
+					String.format("%1$td%1$tH%1$tM", exp) + "Z." + "\n\n";
 		}
 		
 		if ( refBtn.getSelection() ){
 			msg += "FOR ADDITIONAL INFORMATION SEE MESOSCALE DISCUSSION " +
 					String.format("%1$04d", this.getDiscussionNumber()) +"\n\n" +
 					".." + forecaster.getText().toUpperCase() + ".." + 
-					String.format("%1$tm/%1$td/%1$ty", getExpirationTime()) +
+					String.format("%1$tm/%1$td/%1$ty", exp) +
 					"\n\n";
 		}
 		
@@ -455,7 +489,7 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 		msg += "SEVERE WEATHER THREAT CONTINUES FOR THE FOLLOWING AREAS\n\n";
 		
 		for ( String state : wb.getStates()){
-			msg += wb.createCountyInfo(state, getExpirationTime());
+			msg += wb.createCountyInfo(state, exp);
 			msg += "$$\n\n\n";
 		}
 		
@@ -485,6 +519,26 @@ public class WatchStatusDlg  extends CaveJFACEDialog{
 		
 		return fromLn;
 		
+	}
+	
+	private Calendar generateIssueAndValidTime(){
+		
+		//get current time
+		Calendar currTime = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
+
+		issueTime = (Calendar) currTime.clone();
+		int min = currTime.get(Calendar.MINUTE);
+		if ( min != 0 ){
+			int remainder = min % ITIME_RND;
+			int plusmin = ITIME_RND - remainder;
+			issueTime.add(Calendar.MINUTE, plusmin);
+		}
+		
+		Calendar validTime = (Calendar) issueTime.clone();
+		validTime.add(Calendar.MINUTE, 60 - issueTime.get(Calendar.MINUTE) + 40);
+		
+		return validTime;
+
 	}
 	
 }
