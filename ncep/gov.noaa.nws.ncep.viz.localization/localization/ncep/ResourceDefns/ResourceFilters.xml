@@ -234,9 +234,6 @@
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WSAT">
 <filters>SCAT</filters>
 </ResourceDefinitionFilter>
-<ResourceDefinitionFilter isEnabled="true" rscDefnName="QSCT">
-<filters>SCAT</filters>
-</ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="WCN">
 <filters>AWW</filters>
 </ResourceDefinitionFilter>
@@ -373,7 +370,7 @@
 <filters>Forecast,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="SST_NT">
-<filters>Forecast,NTRANS</filters>
+<filters>Analysis,NTRANS</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_NT">
 <filters>Forecast,NTRANS</filters>
@@ -745,10 +742,10 @@
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTGSST">
-<filters>Forecast,Global</filters>
+<filters>Analysis,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="GEFS">
-<filters>Forecast,EnsembleMember,Global</filters>
+<filters>Forecast,Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="HPCQPF">
 <filters>Forecast,SBN</filters>
@@ -889,7 +886,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AUTOSPE">
-<filters>Forecast,SBN</filters>
+<filters>Analysis,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="QPE_XNAV_ALR">
 <filters>Forecast,SBN</filters>
@@ -901,7 +898,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_CPAC">
-<filters>Forecast,EnsembleMember,SBN</filters>
+<filters>Forecast,Ensemble,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWF_NH">
 <filters>Forecast,SBN</filters>
@@ -916,7 +913,10 @@
 <filters>Forecast,Regional,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_AK">
-<filters>Forecast,SBN</filters>
+<filters>Analysis,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_AK_HR">
+<filters>Analysis,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="NAMDNG5">
 <filters>Forecast,SBN</filters>
@@ -925,7 +925,7 @@
 <filters>Forecast,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_NA">
-<filters>Forecast,EnsembleMember</filters>
+<filters>Forecast,Ensemble</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MPE_LOCAL_TUA">
 <filters>Forecast,SBN</filters>
@@ -949,7 +949,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_PR">
-<filters>Forecast,SBN</filters>
+<filters>Analysis,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="QPE_RFC_RSA">
 <filters>Forecast,SBN</filters>
@@ -964,7 +964,7 @@
 <filters>Forecast</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_HI">
-<filters>Forecast,SBN</filters>
+<filters>Analysis,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="ICE25SH">
 <filters>Forecast</filters>
@@ -976,7 +976,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="CMCE_ENS">
-<filters>Forecast,EnsembleMember,Global</filters>
+<filters>Forecast,Ensemble,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="ICE12NH">
 <filters>Forecast</filters>
@@ -1003,7 +1003,7 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_ASIA">
-<filters>Forecast,EnsembleMember,SBN</filters>
+<filters>Forecast,Ensemble,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="ECMWFWAVE">
 <filters>Forecast</filters>
@@ -1078,13 +1078,13 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="false" rscDefnName="RTGSSTHR">
-<filters>Forecast,Global</filters>
+<filters>Analysis,Global</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="UKENS_NH">
-<filters>Forecast,EnsembleMember,SBN</filters>
+<filters>Forecast,Ensemble,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_GU">
-<filters>Forecast</filters>
+<filters>Analysis,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="MRF_NH">
 <filters>Forecast,SBN</filters>
@@ -1171,7 +1171,10 @@
 <filters>Forecast,SBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA">
-<filters>Forecast</filters>
+<filters>Analysis,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="RTMA_HR">
+<filters>Analysis,NSBN</filters>
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="AVN">
 <filters>Forecast,SBN</filters>
@@ -1343,5 +1346,65 @@
 </ResourceDefinitionFilter>
 <ResourceDefinitionFilter isEnabled="true" rscDefnName="TAF">
 <filters>Forecast,SBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SPAC_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_EU_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_ASIA_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_EPAC_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_ATL_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SAF_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_AU_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SPAC_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="UKMET_SA_HR">
+<filters>Forecast,NSBN</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECENS">
+<filters>Forecast,Ensemble,Global</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ECENS_DERV">
+<filters>Forecast,Ensemble,Global</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="CONDUCTIVITY">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="DRAP20">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="ENLIL">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="EPFLUX">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="IONTEMP">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="IRGF">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="OVATION">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SXI">
+<filters>Forecast,SWPC</filters>
+</ResourceDefinitionFilter>
+<ResourceDefinitionFilter isEnabled="true" rscDefnName="SOLARFLUX">
+<filters>Forecast,SWPC</filters>
 </ResourceDefinitionFilter>
 </ResourceDefinitionFilters>
