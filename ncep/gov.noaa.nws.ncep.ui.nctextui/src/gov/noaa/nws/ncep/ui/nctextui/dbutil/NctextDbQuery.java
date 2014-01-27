@@ -980,10 +980,9 @@ public class NctextDbQuery {
         }
         if(pdc==null){
         	try {
-        		pdc = PointDataRequest.requestPointDataAllLevels(
-        				null, tableName, 
-        				parameters.toArray( new String[parameters.size()] ),
-        				null, rcMap );
+                pdc = PointDataRequest.requestPointDataAllLevels(tableName,
+                        parameters.toArray(new String[parameters.size()]),
+                        null, rcMap);
         	} catch (VizException e) {
         		System.out.println("requestObsPointData-PointDataRequest: Error getting raw data from "+tableName+" ::" +
                     e);

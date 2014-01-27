@@ -31,6 +31,7 @@ import java.io.OutputStream;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Aug 12, 2008				chammack	Initial creation
+ * Aug 06, 2013    2228     njensen     Added buildDeserializationContext(byte[], dsm)
  * 
  * </pre>
  * 
@@ -62,5 +63,17 @@ public interface ISerializationContextBuilder {
      */
     public IDeserializationContext buildDeserializationContext(
             InputStream data, DynamicSerializationManager manager);
+
+    /**
+     * Build a deserialization context
+     * 
+     * @param data
+     *            the bytes of the data
+     * @param manager
+     *            the serialization manager
+     * @return a deserialization context
+     */
+    public IDeserializationContext buildDeserializationContext(byte[] data,
+            DynamicSerializationManager manager);
 
 }

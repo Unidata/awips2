@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2012            jsanchez     Initial creation
  * Jan 22, 2013 1501       djohnson     Route requests to datadelivery.
+ * Sep 05, 2013 2314       mpduff       support the load all messages option.
  * 
  * </pre>
  * 
@@ -86,9 +87,10 @@ public class NotificationHandler implements INotificationObserver {
         String username = null;
         Integer hours = null;
         Integer maxResults = null;
-
+        Boolean loadAll = false;
         // Retrieve the message load configuration
         if (messageLoad != null) {
+            loadAll = messageLoad.isLoadAllMessages();
             loadAmount = messageLoad.getLoadLast();
 
             if (messageLoad.isNumHours()) {
@@ -116,6 +118,7 @@ public class NotificationHandler implements INotificationObserver {
             request.setUsername(username);
             request.setHours(hours);
             request.setMaxResults(maxResults);
+            request.setLoadAll(loadAll);
             ArrayList<NotificationRecord> response = (ArrayList<NotificationRecord>) RequestRouter
                     .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
             return response;

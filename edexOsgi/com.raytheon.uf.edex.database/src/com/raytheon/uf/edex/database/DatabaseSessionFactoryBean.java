@@ -31,9 +31,6 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.Dialect;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializableManager;
-
 /**
  * Extension of the AnnotationSessionFactoryBean provided by Spring.
  * <p>
@@ -50,11 +47,16 @@ import com.raytheon.uf.common.serialization.SerializableManager;
  * ------------ ----------  ----------- --------------------------
  * 10/8/2008    1532        bphillip    Initial checkin
  * Jun 18, 2013 2117        djohnson    Remove use of config.buildSettings().
+ * Oct 14, 2013 2361        njensen     Changes to support new technique for finding classes
+ * 
  * 
  * </pre>
  * 
  */
 public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
+
+    protected Class<?>[] accessibleClasses = null;
+
     /**
      * Creates a new MetadataSessionFactoryBean.
      * <p>
@@ -77,7 +79,7 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
      * @return List of create sql.
      * @throws org.hibernate.AnnotationException
      */
-    public String[] getCreateSql(Set<Class<ISerializableObject>> classes)
+    public String[] getCreateSql(Set<Class<?>> classes)
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
@@ -96,7 +98,7 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
      * @return List of create sql.
      * @throws org.hibernate.AnnotationException
      */
-    public String[] getDropSql(Collection<Class<ISerializableObject>> classes)
+    public String[] getDropSql(Collection<Class<?>> classes)
             throws org.hibernate.AnnotationException {
         Configuration config = getConfiguration();
         AnnotationConfiguration tmp = loadNewConfigForClasses(classes);
@@ -105,10 +107,10 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
     }
 
     private AnnotationConfiguration loadNewConfigForClasses(
-            Collection<Class<ISerializableObject>> classes) {
+            Collection<Class<?>> classes) {
         AnnotationConfiguration aConfig = new AnnotationConfiguration();
 
-        for (Class<ISerializableObject> c : classes) {
+        for (Class<?> c : classes) {
             aConfig.addAnnotatedClass(c);
         }
 
@@ -117,34 +119,40 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
 
     public void setDatabaseSessionConfiguration(
             DatabaseSessionConfiguration databaseSessionConfiguration) {
-        SerializableManager serialManager = SerializableManager.getInstance();
-
         // make own copy so can modify it
-        List<String> pluginFQNs = new ArrayList<String>(serialManager
-                .getHibernatablePluginFQNs());
+        List<Class<?>> annotatedClasses = new ArrayList<Class<?>>(
+                databaseSessionConfiguration.getAnnotatedClasses());
 
         if (databaseSessionConfiguration != null) {
-            Iterator<String> iter = pluginFQNs.iterator();
+            Iterator<Class<?>> iter = annotatedClasses.iterator();
             while (iter.hasNext()) {
-                String fqn = iter.next();
-                if (!databaseSessionConfiguration.matches(fqn)) {
+                Class<?> clazz = iter.next();
+                if (!databaseSessionConfiguration.matches(clazz.getName())) {
                     iter.remove();
                 }
             }
         }
 
-        if (pluginFQNs != null && pluginFQNs.size() > 0) {
-            // Get the lists of annotated classes
-            List<Class<ISerializableObject>> annotatedClasses = new ArrayList<Class<ISerializableObject>>(
-                    10 * pluginFQNs.size());
-
-            for (String fqn : pluginFQNs) {
-                annotatedClasses.addAll(serialManager
-                        .getHibernatablesForPluginFQN(fqn));
-            }
-
-            // Set the annotated classes
-            this.setAnnotatedClasses(annotatedClasses.toArray(new Class[] {}));
-        }
+        // Set the annotated classes
+        this.setAnnotatedClasses(annotatedClasses.toArray(new Class[] {}));
     }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public void setAnnotatedClasses(Class[] annotatedClasses) {
+        super.setAnnotatedClasses(annotatedClasses);
+        // overrode setter because we need access to the classes
+        // for determining dependent classes for create/drop SQL
+        this.accessibleClasses = annotatedClasses;
+    }
+
+    /**
+     * Get the annotated classes associated with the database session
+     * 
+     * @return
+     */
+    public Class<?>[] getAnnotatedClasses() {
+        return accessibleClasses;
+    }
+
 }

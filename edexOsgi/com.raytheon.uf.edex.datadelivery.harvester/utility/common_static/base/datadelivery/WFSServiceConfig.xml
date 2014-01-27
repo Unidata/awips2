@@ -2,10 +2,12 @@
 <serviceConfig name="WFS">
     <!--  Date format used by WFS providers -->
 	<dateConfig>
-		<format>yyyy-MM-dd'T'HH:mm:ss.SSSZ</format>
+		<format>yyyy-MM-dd'T'HH:mm:ss.SSS</format>
 	</dateConfig>
 	
 	<constant name="BLANK" value=""/>
+	<constant name="SPACE" value=" "/>
+	<constant name="PLUS" value="+"/>
 	<constant name="UNKNOWN" value="unknown"/>
 	<constant name="NONE" value="NONE"/>
 	<constant name="REQUEST_HEADER" value="request"/>
@@ -29,5 +31,10 @@
 	<constant name="PORT_HEADER" value="http://"/>
 	<constant name="PORT" value="80"/>
 	<constant name="COMMA" value=","/>
+	<constant name="EQUALS" value="="/>
+	<constant name="OUTPUTFORMAT" value="text/xml"/>
+	<constant name="FORWARD_SLASH" value="/"/>
+	<constant name="DEFAULT_CRS" value="crs:84"/>
+	<constant name="MAX" value="5000"/>
 		
 </serviceConfig>

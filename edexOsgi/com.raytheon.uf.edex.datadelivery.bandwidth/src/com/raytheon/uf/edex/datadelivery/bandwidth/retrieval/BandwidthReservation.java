@@ -1,8 +1,12 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -17,19 +21,28 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 02, 2012 726        jspinks     Initial release.
  * Nov 09, 2012 1286       djohnson    Add getters for bytes.
+ * Jun 24, 2013 2106       djohnson    Add copy constructor.
+ * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
+ * Oct 30, 2013  2448      dhladky     Moved methods to TimeUtil.
+ * Dec 02, 2013  2545      mpduff      Set size in bytes.
  * 
  * </pre>
  * 
  * @version 1.0
  */
-public class BandwidthReservation {
+// TODO: Add Hibernate annotations
+public class BandwidthReservation implements Serializable,
+        IDeepCopyable<BandwidthReservation> {
+
+    private static final long serialVersionUID = 4556094983346648973L;
 
     private long id;
 
     private Network network;
 
-    private double priority;
+    private SubscriptionPriority priority;
 
+    /** Size of the reservation in bytes */
     private long size;
 
     private final RetrievalStatus status = RetrievalStatus.RESERVED;
@@ -54,8 +67,8 @@ public class BandwidthReservation {
      *            BandwidthReservation.
      * 
      * @param bandwidthRequired
-     *            The amount of bandwidth this BandwidthReservation should
-     *            reserve in a {@link RetrievalPlan}.
+     *            The amount of bandwidth in bytes this BandwidthReservation
+     *            should reserve in a {@link RetrievalPlan}.
      */
     public BandwidthReservation(BandwidthAllocation allocation,
             long bandwidthRequired) {
@@ -68,13 +81,29 @@ public class BandwidthReservation {
         this.setBandwidthBucket(allocation.getBandwidthBucket());
     }
 
+    /**
+     * Copy constructor.
+     * 
+     * @param from
+     *            the instance to copy from
+     */
+    public BandwidthReservation(BandwidthReservation from) {
+        this.bandwidthBucket = from.bandwidthBucket;
+        this.endTime = TimeUtil.newCalendar(from.endTime);
+        this.id = from.id;
+        this.network = from.network;
+        this.priority = from.priority;
+        this.size = from.size;
+        this.startTime = TimeUtil.newCalendar(from.startTime);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("reserve id: [").append(getId()).append("] ");
         sb.append("path [").append(getNetwork()).append("] ");
         sb.append("priority [").append(getPriority()).append("] ");
-        sb.append("size (bytes) [").append(getSizeInBytes()).append("] ");
+        sb.append("size (bytes) [").append(getSize()).append("] ");
         sb.append("status [").append(getStatus()).append("] ");
         sb.append("startTime [").append(BandwidthUtil.format(getStartTime()))
                 .append("] ");
@@ -102,37 +131,30 @@ public class BandwidthReservation {
      * @param priority
      *            the priority to set
      */
-    public void setPriority(double priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
     /**
      * @return the priority
      */
-    public double getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
     /**
-     * @param estimatedSize
-     *            the estimatedSize to set, in kilobytes
+     * @param size
+     *            the estimatedSize to set, in bytes
      */
     public void setSize(long size) {
         this.size = size;
     }
 
     /**
-     * @return the estimatedSize, in kilobytes
+     * @return the estimatedSize, in bytes
      */
     public long getSize() {
         return size;
-    }
-
-    /**
-     * @return the estimatedSize, in bytes
-     */
-    public long getSizeInBytes() {
-        return getSize() * BandwidthUtil.BYTES_PER_KILOBYTE;
     }
 
     /**
@@ -202,4 +224,11 @@ public class BandwidthReservation {
         return id;
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public BandwidthReservation copy() {
+        return new BandwidthReservation(this);
+    }
 }

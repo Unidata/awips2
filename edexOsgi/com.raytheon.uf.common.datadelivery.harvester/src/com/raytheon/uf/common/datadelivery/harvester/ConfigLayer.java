@@ -30,7 +30,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * 
@@ -40,7 +39,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 08/21/2012   754       dhladky      initial
+ * 08/21/2012   754        dhladky     Initial creation
+ * 10/232013    2361       njensen     Remove ISerializableObject
  * </pre>
  * 
  * @author dhladky
@@ -49,12 +49,12 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "layer")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ConfigLayer implements ISerializableObject {
+public class ConfigLayer {
 
     // corresponds to the feature name/type
     @XmlAttribute(name = "name", required = true)
     private String name;
-   
+
     // corresponds to the feature namespace
     @XmlAttribute(name = "namespace", required = true)
     private String namespace;
@@ -70,10 +70,10 @@ public class ConfigLayer implements ISerializableObject {
 
     @XmlElement(name = "maxy", required = true)
     private Double maxy;
-    
+
     @XmlElement(name = "crs", required = true)
     private String crs;
-    
+
     @XmlElements({ @XmlElement(name = "parameter", type = Parameter.class, required = true) })
     private List<Parameter> parameters;
 

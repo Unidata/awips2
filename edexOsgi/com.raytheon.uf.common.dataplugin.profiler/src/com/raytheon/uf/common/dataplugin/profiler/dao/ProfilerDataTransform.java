@@ -20,82 +20,78 @@
 package com.raytheon.uf.common.dataplugin.profiler.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerLevel;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
- * TODO Add Description
+ * Transforms profiler {@link PointDataContainer}s into {@link ProfilerObs}
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 28, 2009            jkorman     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 28, 2009           jkorman     Initial creation
+ * Dec 03, 2013  2537     bsteffen    Switch logger to ufstatus.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class ProfilerDataTransform {
 
-    private static Log logger = LogFactory.getLog(ProfilerDataTransform.class);
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ProfilerDataTransform.class);
+
+    public static final String[] HDR_PARAMS = new String[] { "stationId",
+            "profilerId", "profilerName", "validTime", "latitude", "longitude",
+            "elevation", "timeObs", "dataURI" };
 
     public static final String HDR_PARAMS_LIST;
     static {
         StringBuffer sb = new StringBuffer();
-
-        sb.append("stationId,");
-        sb.append("profilerId,");
-        sb.append("profilerName,");
-        sb.append("validTime,");
-        sb.append("latitude,");
-        sb.append("longitude,");
-        sb.append("elevation,");
-        sb.append("timeObs,");
-        sb.append("dataURI,");
-        
+        for (int i = 0; i < HDR_PARAMS.length - 1; ++i) {
+            sb.append(HDR_PARAMS[i]).append(",");
+        }
+        sb.append(HDR_PARAMS[HDR_PARAMS.length - 1]);
         HDR_PARAMS_LIST = sb.toString();
     }
+
+    private static final String[] OTHER_PARAMS = new String[] { "windSpeedSfc",
+            "windDirSfc", "pressure", "temperature", "rainRate", "relHumidity",
+            "submode", "numProfLvls", "height", "uComponent", "vComponent",
+            "HorizSpStdDev", "wComponent", "VertSpStdDev", "peakPower",
+            "levelMode", "uvQualityCode", "consensusNum" };
+
+    public static final String[] MAN_PARAMS = Arrays.copyOf(HDR_PARAMS,
+            HDR_PARAMS.length + OTHER_PARAMS.length);
 
     public static final String MAN_PARAMS_LIST;
     static {
         StringBuffer sb = new StringBuffer();
-        sb.append(HDR_PARAMS_LIST);
-        sb.append("windSpeedSfc,");
-        sb.append("windDirSfc,");
-        sb.append("pressure,");
-        sb.append("temperature,");
-        sb.append("rainRate,");
-        sb.append("relHumidity,");
-        sb.append("submode,");
-        //-------------------------
-        sb.append("numProfLvls,");
-        sb.append("height,");
-        sb.append("uComponent,");
-        sb.append("vComponent,");
-        sb.append("HorizSpStdDev,");
-        sb.append("wComponent,");
-        sb.append("VertSpStdDev,");
+        sb.append(HDR_PARAMS_LIST).append(",");
 
-        sb.append("peakPower,");
-        sb.append("levelMode,");
-        sb.append("uvQualityCode,");
-        sb.append("consensusNum,");
-        //-------------------------
+        for (int i = 0; i < OTHER_PARAMS.length - 1; ++i) {
+            sb.append(OTHER_PARAMS[i]).append(",");
+            MAN_PARAMS[HDR_PARAMS.length + i] = OTHER_PARAMS[i];
+        }
+        sb.append(OTHER_PARAMS[OTHER_PARAMS.length - 1]);
+        MAN_PARAMS[MAN_PARAMS.length - 1] = OTHER_PARAMS[OTHER_PARAMS.length - 1];
+
         MAN_PARAMS_LIST = sb.toString();
     }
 
@@ -108,7 +104,9 @@ public class ProfilerDataTransform {
             obs = new ProfilerObs(uri);
 
             long vt = pdv.getNumber("validTime").longValue();
-            obs.setTimeObs(TimeTools.newCalendar(vt));
+            Calendar timeObs = TimeUtil.newGmtCalendar();
+            timeObs.setTimeInMillis(vt);
+            obs.setTimeObs(timeObs);
 
             SurfaceObsLocation location = new SurfaceObsLocation();
 
@@ -125,13 +123,12 @@ public class ProfilerDataTransform {
         return obs;
     }
 
-    
-    private static ProfilerObs getProfilerData(PointDataView pdv, ProfilerObs profile) {
-        if(profile != null) {
+    private static ProfilerObs getProfilerData(PointDataView pdv,
+            ProfilerObs profile) {
+        if (profile != null) {
             profile.setSfcWindDir(pdv.getNumber("windDirSfc").doubleValue());
             profile.setSfcWindSpeed(pdv.getNumber("windSpeedSfc").doubleValue());
 
-            
             Number[] h = pdv.getNumberAllLevels("height");
             Number[] uWind = pdv.getNumberAllLevels("uComponent");
             Number[] vWind = pdv.getNumberAllLevels("vComponent");
@@ -154,28 +151,27 @@ public class ProfilerDataTransform {
         }
         return profile;
     }
-    
-    
+
     /**
      * 
      * @param container
      * @return
      */
-    public static ProfilerObs [] toProfilerRecords(PointDataContainer container) {
+    public static ProfilerObs[] toProfilerRecords(PointDataContainer container) {
         List<ProfilerObs> records = new ArrayList<ProfilerObs>();
-   
+
         container.setCurrentSz(container.getAllocatedSz());
         for (int i = 0; i < container.getCurrentSz(); i++) {
             PointDataView pdv = container.readRandom(i);
-            
+
             ProfilerObs obs = getProfilerObsHdr(pdv);
-            obs = getProfilerData(pdv,obs);
-            if(obs != null) {
+            obs = getProfilerData(pdv, obs);
+            if (obs != null) {
                 records.add(obs);
             }
         }
-        
+
         return records.toArray(new ProfilerObs[records.size()]);
     }
-    
+
 }

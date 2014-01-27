@@ -24,27 +24,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXBException;
-
-import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.Activator;
-import com.raytheon.viz.texteditor.StdTextProductFactory;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.texteditor.msgs.IRadarObserver;
 
 /**
@@ -68,7 +57,8 @@ import com.raytheon.viz.texteditor.msgs.IRadarObserver;
  */
 
 public class RadarTextUtility implements IRadarObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(RadarTextUtility.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarTextUtility.class);
 
     @Override
     public void saveRadarTextProd(String textProd) {
@@ -115,66 +105,19 @@ public class RadarTextUtility implements IRadarObserver {
 
             // System.out.println("Current header: " + currentHeader);
 
-            // New up request constraint for table request and
-            // also of the classname of the table for the request
-            RequestConstraint rcTable = new RequestConstraint("table");
-            String tableDatabaseName = "fxa";
-            String tableClassName = StdTextProduct.class.getName();
+            StdTextProductServerRequest request = new StdTextProductServerRequest();
+            request.setWmoid(wmoId);
+            request.setSite(siteId);
+            request.setCccid(siteNode);
+            request.setNnnid(category);
+            request.setXxxid(designator);
+            request.setHdrtime(currentDate);
+            request.setBbbid("NOR");
+            request.setCreatetime(System.currentTimeMillis());
+            request.setProduct(currentHeader + "\n" + strBldr.toString());
 
-            RequestConstraint rcDatabase = new RequestConstraint(
-                    tableDatabaseName);
-            RequestConstraint rcClass = new RequestConstraint(tableClassName);
-            // New up request constraint for table response using the
-            // tmpStr editor content after marshalling this string to
-            // XML format via the Util class.
-            // New up a StdTextProduct, then set the product component
-            // to the tmpStr that represents the new content.
-
-            StdTextProduct tmpProd = StdTextProductFactory.getInstance(CAVEMode
-                    .getMode());
-            tmpProd.setWmoid(wmoId);
-            tmpProd.setSite(siteId);
-            tmpProd.setCccid(siteNode);
-            tmpProd.setNnnid(category);
-            tmpProd.setXxxid(designator);
-            tmpProd.setHdrtime(currentDate);
-            tmpProd.setBbbid("NOR");
-            tmpProd.setRefTime(System.currentTimeMillis());
-            tmpProd.setProduct(currentHeader + "\n" + strBldr.toString());
-
-            RequestConstraint rcRow;
             try {
-                rcRow = new RequestConstraint(
-                        SerializationUtil.marshalToXml(tmpProd));
-            } catch (JAXBException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error serializing data", e);
-                return;
-            }
-            // New up hash map and populate with entry query
-            // parameters before newing up layer property
-            HashMap<String, RequestConstraint> query = new HashMap<String, RequestConstraint>();
-            query.put("pluginName", rcTable);
-            query.put("databasename", rcDatabase);
-            query.put("classname", rcClass);
-            query.put("rowname", rcRow);
-            // New up layer property and set then entry parameters
-            LayerProperty lpParm = new LayerProperty();
-            try {
-                lpParm.setEntryQueryParameters(query, false);
-                // Create Image <Any> Script for table request
-                String tableScript = ScriptCreator.createUpdateScript(lpParm);
-                // Capture the script to the console for now...
-                // System.out.printf("The update script is: %n%s%n",
-                // tableScript);
-                // Later call loadData method to run the script...
-                // For now, mouse the script in to the AWIPS Test Driver
-                // Interface through the Request/Response Message dialog.
-                // List<IMarshallable> list;
-                // list = Loader.loadData(tableScript, 10000);
-                Loader.loadData(tableScript, 10000);
-                // textEditor.insert(((StdTextProduct) (list.get(0)))
-                // .getProduct());
+                ThriftClient.sendRequest(request);
             } catch (VizException e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error retrieving metadata", e1);

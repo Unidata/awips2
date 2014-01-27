@@ -27,35 +27,31 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "ScanConfigMesoTable")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANConfigMesoXML extends SCANAbstractXML implements ISerializableObject
-{
+public class SCANConfigMesoXML extends SCANAbstractXML {
     @XmlElement(name = "LinkToFrame")
     private boolean linkToFrame;
-    
+
     @XmlElement(name = "VertOption")
     private boolean vertOption;
-    
+
     @XmlElement(name = "TipsOption")
     private boolean tipsOption;
-    
+
     @XmlElement(name = "FilterOption")
     private boolean filterOption;
-    
+
     @XmlElement(name = "ZoomFactor")
     private int zoomFactor;
-    
+
     @XmlElement(name = "DefaultRank")
     private String defaultRank;
-    
-    @XmlElements( { @XmlElement(name = "Attribute", type = SCANAttributesXML.class) })
+
+    @XmlElements({ @XmlElement(name = "Attribute", type = SCANAttributesXML.class) })
     private ArrayList<SCANAttributesXML> attributesData;
-    
-    public SCANConfigMesoXML()
-    {        
+
+    public SCANConfigMesoXML() {
     }
 
     public boolean getLinkToFrame() {

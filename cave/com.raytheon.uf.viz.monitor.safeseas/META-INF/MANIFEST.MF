@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Safeseas Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor.safeseas;singleton:=true
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.uf.common.serialization
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.monitor.safeseas.Activator
 Bundle-Vendor: RAYTHEON
@@ -14,6 +14,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui;bundle-version="1.10.13",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.viz.monitor,
+ com.raytheon.uf.common.serialization,
  com.raytheon.viz.pointdata;bundle-version="1.12.1130",
  com.raytheon.uf.common.message;bundle-version="1.12.1130",
  com.raytheon.uf.viz.localization,

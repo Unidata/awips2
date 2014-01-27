@@ -101,6 +101,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/02/2012   1229        rferrel     Made dialog non-blocking.
  * 10/09/2012   1229        rferrel     Changes for non-blocking TafMonitorDlg.
  * 04/10/2013   1735        rferrel     Changes for taf monitor speed up.
+ * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * 12 Aug 2013  #2256      lvenable     Removed unnecessary font code and other code clean up.
  * 
  * </pre>
  * 
@@ -111,13 +113,9 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AviationDialog.class);
 
-    private static String FORECAST_CONFIG_FILE = "aviation" + File.separator
-            + "avnwatch" + File.separator + "aviationForecasterConfig.xml";
-
-    /**
-     * Label font.
-     */
-    private Font font;
+    private static String FORECAST_CONFIG_FILE = "aviation"
+            + IPathManager.SEPARATOR + "avnwatch" + IPathManager.SEPARATOR
+            + "aviationForecasterConfig.xml";
 
     /**
      * Font list to dispose of.
@@ -209,7 +207,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
      */
     @Override
     protected void disposed() {
-        font.dispose();
         for (Font f : fontList) {
             f.dispose();
         }
@@ -239,9 +236,6 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
         setReturnValue(false);
 
         fontList = new ArrayList<Font>();
-
-        font = new Font(getDisplay(), "Monospace", 8, SWT.NORMAL);
-        fontList.add(font);
 
         String path = loadGifPath("avn");
         if (path != null) {
@@ -504,13 +498,8 @@ public class AviationDialog extends CaveSWTDialog implements IBackupRestart {
             return;
         }
 
-        try {
-            for (ForecasterConfig forecaster : forecasterArray) {
-                forecasterList.add(forecaster.getName());
-            }
-
-        } catch (Exception e1) {
-            // do nothing
+        for (ForecasterConfig forecaster : forecasterArray) {
+            forecasterList.add(forecaster.getName());
         }
 
         forecasterList.setSelection(0);

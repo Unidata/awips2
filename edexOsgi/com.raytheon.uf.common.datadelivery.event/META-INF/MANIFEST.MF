@@ -9,7 +9,8 @@ Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: com.raytheon.uf.common.datadelivery.event,
  com.raytheon.uf.common.datadelivery.event.notification,
- com.raytheon.uf.common.datadelivery.event.retrieval
+ com.raytheon.uf.common.datadelivery.event.retrieval,
+ com.raytheon.uf.common.datadelivery.event.status
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
@@ -18,4 +19,5 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
- com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0"
+ com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
+ com.google.guava;bundle-version="1.0.0"

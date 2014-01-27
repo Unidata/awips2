@@ -23,5 +23,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.ffg,
  gov.noaa.nws.ncep.viz.rsc.ffg.rsc
-Import-Package: gov.noaa.nws.ncep.viz.ui.display,
- org.junit
+Import-Package: gov.noaa.nws.ncep.viz.ui.display

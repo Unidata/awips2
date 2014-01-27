@@ -25,6 +25,8 @@
 // Generated on: 2011.12.14 at 12:32:26 PM CST 
 //
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://www.w3.org/2005/08/addressing", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.ADDRESSING_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.w3.v200508.addressing;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 

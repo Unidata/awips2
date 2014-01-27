@@ -25,6 +25,8 @@ import java.util.regex.Matcher;
 
 import com.raytheon.uf.common.dataplugin.radar.level3.TabularBlock;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Parses the tabular block of the radar products
@@ -33,9 +35,10 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 24, 2009            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 24, 2009           mnash     Initial creation
+ * Oct 10, 2013  2376     bsteffen  Improve STI parsing.
  * 
  * </pre>
  * 
@@ -44,6 +47,9 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
  */
 
 public class RadarTabularBlockParser {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarTabularBlockParser.class);
 
     public static void parseTabularBlock(TabularBlock tabularBlock,
             int productNum,
@@ -96,77 +102,27 @@ public class RadarTabularBlockParser {
                 temp[6].subSequence(1, temp[6].length());
                 temp[6] = temp[6].replaceFirst("\\)\\s+\n\t\\s+\n\t\\s+", " ");
                 m = RadarConstants.sti_productValues.matcher(temp[6].trim());
-                String[] tmp = new String[2];
                 while (m.find()) {
-                    if (!"NO DATA".equals(m.group(2).trim())
-                            && !"NEW".equals(m.group(2).trim())) {
-                        tmp = m.group(2).split("/");
-                        map.put(MapValues.STI_AZIMUTH_DIRECTION, tmp[0].trim());
-                        map.put(MapValues.STI_AZIMUTH_RANGE, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_AZIMUTH_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_AZIMUTH_RANGE, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(3).trim())
-                            && !"NEW".equals(m.group(3).trim())) {
-                        tmp = m.group(3).split("/");
-                        map.put(MapValues.STI_MOVEMENT_DIRECTION, tmp[0].trim());
-                        if (tmp.length > 1) {
-                            map.put(MapValues.STI_MOVEMENT_SPEED, tmp[1].trim());
-                        }
-                    } else {
-                        map.put(MapValues.STI_MOVEMENT_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_MOVEMENT_SPEED, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(4).trim())
-                            && !"NEW".equals(m.group(4).trim())) {
-                        tmp = m.group(4).split("/");
-                        map.put(MapValues.STI_FORECAST_15_DIRECTION,
-                                tmp[0].trim());
-                        map.put(MapValues.STI_FORECAST_15_RANGE, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_FORECAST_15_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_FORECAST_15_RANGE, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(5).trim())
-                            && !"NEW".equals(m.group(5).trim())) {
-                        tmp = m.group(5).split("/");
-                        map.put(MapValues.STI_FORECAST_30_DIRECTION,
-                                tmp[0].trim());
-                        map.put(MapValues.STI_FORECAST_30_RANGE, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_FORECAST_30_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_FORECAST_30_RANGE, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(6).trim())
-                            && !"NEW".equals(m.group(6).trim())) {
-                        tmp = m.group(6).split("/");
-                        map.put(MapValues.STI_FORECAST_45_DIRECTION,
-                                tmp[0].trim());
-                        map.put(MapValues.STI_FORECAST_45_RANGE, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_FORECAST_45_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_FORECAST_45_RANGE, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(7).trim())
-                            && !"NEW".equals(m.group(7).trim())) {
-                        tmp = m.group(7).split("/");
-                        map.put(MapValues.STI_FORECAST_60_DIRECTION,
-                                tmp[0].trim());
-                        map.put(MapValues.STI_FORECAST_60_RANGE, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_FORECAST_60_DIRECTION, "NO DATA");
-                        map.put(MapValues.STI_FORECAST_60_RANGE, "NO DATA");
-                    }
-                    if (!"NO DATA".equals(m.group(8).trim())
-                            && !"NEW".equals(m.group(8).trim())) {
-                        tmp = m.group(8).split("/");
-                        map.put(MapValues.STI_ERROR_FCST, tmp[0].trim());
-                        map.put(MapValues.STI_ERROR_MEAN, tmp[1].trim());
-                    } else {
-                        map.put(MapValues.STI_ERROR_FCST, "NO DATA");
-                        map.put(MapValues.STI_ERROR_MEAN, "NO DATA");
-                    }
+                    parseStiToken(m.group(2), map,
+                            MapValues.STI_AZIMUTH_DIRECTION,
+                            MapValues.STI_AZIMUTH_RANGE);
+                    parseStiToken(m.group(3), map,
+                            MapValues.STI_MOVEMENT_DIRECTION,
+                            MapValues.STI_MOVEMENT_SPEED);
+                    parseStiToken(m.group(4), map,
+                            MapValues.STI_FORECAST_15_DIRECTION,
+                            MapValues.STI_FORECAST_15_RANGE);
+                    parseStiToken(m.group(5), map,
+                            MapValues.STI_FORECAST_30_DIRECTION,
+                            MapValues.STI_FORECAST_30_RANGE);
+                    parseStiToken(m.group(6), map,
+                            MapValues.STI_FORECAST_45_DIRECTION,
+                            MapValues.STI_FORECAST_45_RANGE);
+                    parseStiToken(m.group(7), map,
+                            MapValues.STI_FORECAST_60_DIRECTION,
+                            MapValues.STI_FORECAST_60_RANGE);
+                    parseStiToken(m.group(8), map, MapValues.STI_ERROR_FCST,
+                            MapValues.STI_ERROR_MEAN);
                     data.put(m.group(1).trim(), map);
                     map = new HashMap<MapValues, String>();
                 }
@@ -373,4 +329,47 @@ public class RadarTabularBlockParser {
             recordMap.put(MapValues.RCM_TYPE, map);
         }
     }
+
+    /**
+     * Split a single STI token into two values. Within the tabular block for
+     * STI table data is formatted as "NO DATA", "NEW", or a number followed by
+     * a slash followed by a number("271/ 23"). This method will separate the
+     * two values and assign them within the map. If the token is "NO DATA" or
+     * "NEW" both MapValues will be assign "NO DATA". If the token is anything
+     * else an exception is logged and the values are set to "NO DATA".
+     * 
+     * @param token
+     *            String to parse
+     * @param map
+     *            Map where results are inserted
+     * @param left
+     *            the key for the value on the left side of the '/'
+     * @param right
+     *            the key for the value on the right side of the '/'
+     */
+    private static void parseStiToken(String token, Map<MapValues, String> map,
+            MapValues left, MapValues right) {
+        String trimToken = token.trim();
+        if (RadarConstants.NO_DATA.equals(trimToken) || "NEW".equals(trimToken)) {
+            map.put(left, RadarConstants.NO_DATA);
+            map.put(right, RadarConstants.NO_DATA);
+        } else if (trimToken.contains("/")) {
+            String[] tmp = trimToken.split("/");
+            map.put(left, tmp[0].trim());
+            if (tmp.length > 1) {
+                map.put(right, tmp[1].trim());
+            } else {
+                /* It is unknown whether this ever occurs in valid record */
+                map.put(right, RadarConstants.NO_DATA);
+            }
+        } else {
+            statusHandler
+                    .error(String
+                            .format("Error parsing radar tabular block: [%s] is not a valid token for %s/%s",
+                                    token, left.toString(), right.toString()));
+            map.put(left, RadarConstants.NO_DATA);
+            map.put(right, RadarConstants.NO_DATA);
+        }
+    }
+
 }

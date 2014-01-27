@@ -50,7 +50,7 @@ typedef void CEdexNotification;
 #include <qpid/messaging/Duration.h>
 #include <qpid/messaging/Receiver.h>
 #include <qpid/sys/Time.h>
-#include <transport/TBufferTransports.h>
+#include <thrift/transport/TBufferTransports.h>
 #include <sys/timeb.h>
 #include "Notification_types.h"
 #include "NotificationProtocol.h"

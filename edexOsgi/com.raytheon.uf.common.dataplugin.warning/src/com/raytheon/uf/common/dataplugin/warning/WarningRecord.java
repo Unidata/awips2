@@ -51,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * May 02, 2013 1949        rjpeter     Removed ugcZones.
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
+ * Aug 13, 2013 2253        mnash       Fixed null data uri errors
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * </pre>
  * 
@@ -59,12 +60,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "warningseq")
-@Table(name = "warning", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = WarningRecord.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "warning", indexes = {
+@org.hibernate.annotations.Table(appliesTo = WarningRecord.PLUGIN_NAME, indexes = {
         @Index(name = "warning_refTimeIndex", columnNames = { "refTime",
                 "forecastTime" }),
         @Index(name = "warning_office_phensig_index", columnNames = {
@@ -132,6 +133,8 @@ public class WarningRecord extends AbstractWarningRecord {
 
     }
 
+    public static final String PLUGIN_NAME = "warning";
+
     private static final long serialVersionUID = 1L;
 
     /**
@@ -162,6 +165,7 @@ public class WarningRecord extends AbstractWarningRecord {
     public WarningRecord(String uri) {
         super(uri);
     }
+
     @Override
     @Column
     @Access(AccessType.PROPERTY)
@@ -171,6 +175,6 @@ public class WarningRecord extends AbstractWarningRecord {
 
     @Override
     public String getPluginName() {
-        return "warning";
+        return PLUGIN_NAME;
     }
 }

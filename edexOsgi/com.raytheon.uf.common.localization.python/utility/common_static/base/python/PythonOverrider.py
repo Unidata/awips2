@@ -28,17 +28,17 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/12/13                      mnash        Initial Creation.
+#    11/04/13        2086          bkowal       Updated to merge classes - both legacy and non-legacy.
+#                                               Minimum to Maximum level of retrieval can now be specified.
+#    11/12/13        2540          bkowal       Relocated common methods to PythonOverriderCore.py.
 #
 #
 #
 
-import os
-import imp
-import inspect
+import PythonOverriderCore
 from PathManager import PathManager
-import LocalizationUtil
 
-def override(name, loctype):
+def importModule(name, loctype='COMMON_STATIC', level=None):
     """
     Takes a name (filename and localization path) and the localization type and finds the 
     file and overrides it, and returns the module
@@ -46,73 +46,19 @@ def override(name, loctype):
     Args:
             name : the name and path of the file in localization
             loctype : a string representation of the localization type
+            level : a string representation of the localization level (BASE, SITE, etc.)
     
     Returns:
             a module that has all the correct methods after being overridden
     """
     pathManager = PathManager()
     tieredFiles = pathManager.getTieredLocalizationFile(loctype, name)
-    levels = pathManager.getAvailableLevels()
-    lfiles = list()
-    for level in levels :
-        if tieredFiles.has_key(level) :
-            lfiles.append(tieredFiles[level].getPath())
-    themodule = _internalOverride(lfiles)
+    availableLevels = pathManager.getAvailableLevels()
+    levels = PythonOverriderCore._buildLocalizationLevelsList(availableLevels, level)
+        
+    lfiles = []
+    for _level in levels :
+        if _level in tieredFiles:
+            lfiles.append(tieredFiles[_level].getPath())
+    themodule = PythonOverriderCore._internalOverride(lfiles)
     return themodule
-
-def _internalOverride(files):
-    """
-    Takes the files and overrides them
-    
-    Args:
-            files : the files that are to be overridden
-    
-    Returns:
-            a new module that contains all the necessary elements
-    """
-    themodule = imp.new_module('tmpmodule')
-    # modules = list of all the modules
-    for module in files :
-        # load each module, temporarily
-        tmpmodule = LocalizationUtil.loadModule(module)
-        the_module = _combineMembers(tmpmodule, themodule)
-    return themodule
-
-def _combineMembers(tocombine, finalmodule):
-    """
-    Loops over the necessary parts of each module and decides how to combine them
-    
-    Args:
-            tocombine : the module to combine in
-            finalmodule : the module that is being combined into
-    
-    Returns:
-            a new python module that was created above
-    """
-    # get the functions
-    members = inspect.getmembers(tocombine, inspect.isfunction)
-    for member in members :
-        finalmodule.__setattr__(member[0], member[1])
-
-    # get the classes
-    classes = inspect.getmembers(tocombine, inspect.isclass)
-    for clazz in classes:
-        finalmodule.__setattr__(clazz[0], clazz[1])
-
-    for attr in dir(tocombine):
-        if attr.startswith('__') == False or attr.startswith('_') == False:
-            if hasattr(finalmodule, attr):
-                if isinstance(attr, dict):
-                    # simply update dicts with the new keys
-                    getattr(finalmodule, attr).update(getattr(tocombine, attr))
-                if isinstance(attr, list):
-                    listattr = getattr(tocombine, attr)
-                    for i in listattr:
-                        # override each element in the list if it exists
-                        getattr(finalmodule, attr)[i] = listattr[i]
-                else :
-                    finalmodule.__setattr__(attr, getattr(tocombine, attr))
-            else :
-                if inspect.ismethod(attr) == False and inspect.isbuiltin(attr) == False and inspect.isclass(attr) == False:
-                    finalmodule.__setattr__(attr, getattr(tocombine, attr))
-    return finalmodule

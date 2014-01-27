@@ -53,7 +53,7 @@ import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
  * @author mschenke
  * @version 1.0
  */
-
+@Deprecated
 public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatDataRetriever.class);

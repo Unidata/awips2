@@ -30,6 +30,7 @@ import java.io.IOException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1-26-2009               mnash       Initial Creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -42,11 +43,6 @@ public class PrecipDataPacket extends SymbologyPacket {
     public static final int DIGITAL_PRECIP_DATA17 = 17;
 
     public static final int PRECIP_RATE_DATA18 = 18;
-
-    static {
-        PacketFactory.registerPacketType(PrecipDataPacket.class,
-                DIGITAL_PRECIP_DATA17, PRECIP_RATE_DATA18);
-    }
 
     protected int numRows;
 

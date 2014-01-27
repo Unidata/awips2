@@ -34,6 +34,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.auth.AuthException;
+import com.raytheon.uf.common.auth.req.IPermissionsService;
+import com.raytheon.uf.common.auth.req.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
@@ -48,7 +51,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.INotificationObserver;
 import com.raytheon.uf.viz.core.notification.NotificationException;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
@@ -57,11 +59,9 @@ import com.raytheon.uf.viz.datadelivery.common.ui.TableDataManager;
 import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CancelForceApplyAndIncreaseLatencyDisplayText;
-import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
-import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService.IAuthorizedPermissionResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -92,6 +92,9 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * Apr 05, 2013 1841       djohnson    Add support for shared subscriptions.
  * Jun 06, 2013 2030       mpduff      Refactored help.
+ * Jul 26, 2013 2232       mpduff      Refactored Data Delivery permissions.
+ * Sep 03, 2013 2315       mpduff      Add subscription name to denied approval message.
+ * Oct 23, 2013 2292       mpduff      Move subscription overlap checks to edex.
  * 
  * </pre>
  * 
@@ -352,7 +355,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             boolean site = false;
 
             if (response
-                    .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
+                    .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                            .toString())) {
                 site = true;
             }
 
@@ -402,10 +406,13 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             String msg = user.uniqueId()
                     + " is not authorized to Approve/Deny subscriptions.";
 
-            return permissionsService.checkPermissions(user, msg,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                    DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER);
-        } catch (VizException e) {
+            return permissionsService
+                    .checkPermissions(user, msg,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                                    .toString(),
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER
+                                    .toString());
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to check user permissions.", e);
             return new IAuthorizedPermissionResponse() {
@@ -415,7 +422,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                 }
 
                 @Override
-                public boolean hasPermission(DataDeliveryPermission permission) {
+                public boolean hasPermission(String permission) {
                     return false;
                 }
             };
@@ -441,7 +448,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
                 boolean site = false;
 
                 if (response
-                        .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE)) {
+                        .hasPermission(DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                                .toString())) {
                     site = true;
                 }
 
@@ -476,7 +484,8 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
                             subscriptionNotificationService
                                     .sendDeniedPendingSubscriptionNotification(
-                                            sub, username, denyMessage);
+                                            sub, username, sub.getName()
+                                                    + ":  " + denyMessage);
                         } catch (RegistryHandlerException e) {
                             statusHandler
                                     .handle(Priority.PROBLEM,
@@ -522,13 +531,12 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
 
             String exceptionMessage = "Unable to update subscription.";
             try {
-                ISubscriptionServiceResult result = subscriptionService
+                SubscriptionServiceResult result = subscriptionService
                         .update(s,
                                 new ApproveSubscriptionForceApplyPromptDisplayText());
                 if (result.hasMessageToDisplay()) {
                     DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Subscription Approved.",
-                            result.getMessageToDisplay());
+                            "Subscription Approved.", result.getMessage());
                 }
 
                 if (!result.isAllowFurtherEditing()) {

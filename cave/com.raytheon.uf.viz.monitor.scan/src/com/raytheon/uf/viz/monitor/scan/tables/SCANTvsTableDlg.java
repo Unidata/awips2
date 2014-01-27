@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANAlarmTimeLimitDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANAttributesDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANColorThreshDlg;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * 
@@ -70,6 +71,12 @@ import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2013 #1945      lvenable    Code cleanup for SCAN performance.
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ * Aug 15, 2013  2143      mpduff      Added some isDisposed() checks.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -127,11 +134,23 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         open();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setTableType()
+     */
     @Override
     protected void setTableType() {
         scanTable = ScanTables.TVS;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#initComponents()
+     */
     @Override
     protected void initComponents() {
         createTopControls();
@@ -143,6 +162,9 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         createRankPopupMenu(rankPopupMenu, rankBtn);
     }
 
+    /**
+     * Create Top Controls.
+     */
     private void createTopControls() {
         SCANConfig scanCfg = SCANConfig.getInstance();
         TvsConfigMgr tvsCfgMgr = (TvsConfigMgr) scanCfg
@@ -233,48 +255,37 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Vertical - tech blocked
+         */
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
+
         vertChk.setSelection(tvsCfgMgr.getScanTvsCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
+        vertChk.setEnabled(false);
 
         /*
-         * The vertical table is a techblocked DR. This selection listener will
-         * be commented out until it is needed.
+         * Tool tips
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         tipsChk.setSelection(tvsCfgMgr.getScanTvsCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                System.out.println(tipsChk.getSelection());
                 SCANConfig.getInstance().setShowTips(scanTable,
                         tipsChk.getSelection());
-                System.out
-                        .println(SCANConfig.getInstance().showTips(scanTable));
-                System.out.println(scanTable.name());
                 scanTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Time
+         */
         gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         gd.widthHint = 160;
         timeLbl = new Label(controlComp, SWT.RIGHT);
@@ -282,6 +293,9 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         timeLbl.setLayoutData(gd);
     }
 
+    /**
+     * Create TVS Table.
+     */
     private void createTvsTable() {
         scanTableComp = new SCANTvsTableComp(shell, tableData, this, site);
     }
@@ -296,6 +310,9 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         rankPopupMenu = new Menu(rankBtn);
     }
 
+    /**
+     * Create File Popup Menu.
+     */
     private void createFilePopupMenu() {
         filePopupMenu = new Menu(fileBtn);
 
@@ -349,6 +366,9 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         fileBtn.setMenu(filePopupMenu);
     }
 
+    /**
+     * Create Configurations Popup Menu.
+     */
     private void createConfigurationsPopupMenu() {
         configPopupMenu = new Menu(configBtn);
 
@@ -379,38 +399,80 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         configBtn.setMenu(configPopupMenu);
     }
 
+    /**
+     * Display Attributes Dialog.
+     */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
-                || (attributeDlg.getParent().isDisposed() == true)) {
+        if ((attributeDlg == null) || (attributeDlg.getParent().isDisposed())) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
+            attributeDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(attributeDlg);
+                    attributeDlg = null;
+                }
+
+            });
             registerDialog(attributeDlg);
             attributeDlg.open();
-            unregisterDialog(attributeDlg);
-            attributeDlg = null;
+        } else {
+            attributeDlg.bringToTop();
         }
     }
 
+    /**
+     * Display Alarm Time Limit Dialog.
+     */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmTimeLimitDlg);
+                    alarmTimeLimitDlg = null;
+                }
+
+            });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
-            unregisterDialog(alarmTimeLimitDlg);
-            alarmTimeLimitDlg = null;
+        } else {
+            alarmTimeLimitDlg.bringToTop();
         }
     }
 
+    /**
+     * Display Color Threshold Dialog.
+     */
     private void displayColorThresholdDialog() {
-        if (colorThresholdDlg == null) {
+        if (colorThresholdDlg == null || colorThresholdDlg.isDisposed()) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(colorThresholdDlg);
+                    colorThresholdDlg = null;
+                }
+
+            });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
-            unregisterDialog(colorThresholdDlg);
-            colorThresholdDlg = null;
+        } else {
+            colorThresholdDlg.bringToTop();
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#handleRankMenuEvent
+     * (org.eclipse.swt.events.SelectionEvent)
+     */
     @Override
     protected void handleRankMenuEvent(SelectionEvent event) {
         String rank = ((MenuItem) event.getSource()).getText();
@@ -427,6 +489,9 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         scanTableComp.sortTableColumnByIndex(colIndex);
     }
 
+    /**
+     * Update Time Label.
+     */
     private void updateTimeLabel() {
         if (currentTime == null) {
             timeLbl.setText("*** NO TIME ***");
@@ -438,10 +503,20 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         timeLbl.setText(dateFmt.format(currentTime));
     }
 
+    /**
+     * Unregister Dialog From Monitor.
+     */
     private void unregisterDialogFromMonitor() {
         this.fireDialogShutdown(this);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeAction
+     * ()
+     */
     @Override
     protected void shellDisposeAction() {
         shell.addDisposeListener(new DisposeListener() {
@@ -459,11 +534,24 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#shellDisposeDialog
+     * ()
+     */
     @Override
     public void shellDisposeDialog() {
-        shell.dispose();
+        close();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#setShellText()
+     */
     @Override
     protected void setShellText() {
         if (!shell.isDisposed()) {
@@ -471,11 +559,25 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#sortedColumn(java
+     * .lang.String)
+     */
     @Override
     public void sortedColumn(String columnName) {
         rankBtn.setText("Rank: " + columnName);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#notify(com.raytheon
+     * .uf.viz.monitor.events.IMonitorEvent)
+     */
     @Override
     public void notify(IMonitorEvent me) {
         if (me.getSource() instanceof IMonitor) {
@@ -520,27 +622,60 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
                 ScanTables.TVS, site, time)));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByIdent(java
+     * .lang.String)
+     */
     @Override
     public void centerByIdent(String ident) {
         fireRecenter(ident, ScanTables.TVS, site);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(
+     * java.lang.String)
+     */
     @Override
     public void centerByStormId(String stormId) {
         fireRecenter(stormId, ScanTables.CELL, site);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData
+     * #getCurrentDate()
+     */
     @Override
     public Date getCurrentDate() {
         return currentTime;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#getTrendSetName()
+     */
     @Override
     public String getTrendSetName() {
         // Not used...
         return null;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IAttributeUpdate#
+     * attributeUpdates(boolean[])
+     */
     @Override
     public void attributeUpdates(boolean[] visibleAttrs) {
         SCANConfig scanCfg = SCANConfig.getInstance();
@@ -550,6 +685,12 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         createRankPopupMenu(rankPopupMenu, rankBtn);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.IThresholdUpdate#
+     * thresholdsUpdated(java.lang.String, double, double, double)
+     */
     @Override
     public void thresholdsUpdated(String attrName, double upper, double mid,
             double lower) {
@@ -560,6 +701,12 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         fireThresholdUpdate(new IMonitorThresholdEvent(this));
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * updateAfterConfigLoad()
+     */
     @Override
     protected void updateAfterConfigLoad() {
         /*
@@ -580,6 +727,12 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * displayTrendSetGraphs(java.lang.String)
+     */
     @Override
     public void displayTrendSetGraphs(String ident) {
         // NOT USED
@@ -607,11 +760,23 @@ public class SCANTvsTableDlg extends AbstractTableDlg implements
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOffAlarm()
+     */
     @Override
     public void turnOffAlarm() {
         mgr.setRing(false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOnAlarm()
+     */
     @Override
     public void turnOnAlarm() {
         mgr.setRing(true);

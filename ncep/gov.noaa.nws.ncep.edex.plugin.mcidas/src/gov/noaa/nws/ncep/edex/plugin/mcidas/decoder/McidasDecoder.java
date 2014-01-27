@@ -912,17 +912,4 @@ public class McidasDecoder extends AbstractDecoder {
         }
         return decode(fileData, null);
     }
-
-    /*
-     * public static void main(String[] args) throws Exception { File infile =
-     * new File(
-     * "/export-3/ncosrvnfs/images/satellite/GOES-W/Full_Disk/IR/IR_20100810_0900"
-     * ); FileInputStream inpt = new FileInputStream(infile);
-     * System.out.println(infile.length()); int size = (int)infile.length();
-     * byte[] payload = new byte[size]; inpt.read(payload); inpt.close();
-     * DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-     * dmtf.scanForPlugins(); McidasDecoder dec = new McidasDecoder();
-     * dec.decode(payload); }
-     */
-
 }

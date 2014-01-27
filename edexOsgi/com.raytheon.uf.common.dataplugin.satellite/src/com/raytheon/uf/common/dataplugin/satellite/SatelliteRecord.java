@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.IDecoderGettable;
@@ -43,7 +44,7 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -85,17 +86,15 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(
-		appliesTo = "satellite",
-		indexes = {
-				@Index(name = "satellite_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
-		}
-)
+@org.hibernate.annotations.Table(appliesTo = "satellite", indexes = { @Index(name = "satellite_refTimeIndex", columnNames = {
+        "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SatelliteRecord extends PersistablePluginDataObject
-        implements ISpatialEnabled {
+public class SatelliteRecord extends PersistablePluginDataObject implements
+        IGridGeometryProvider {
+
+    public static final String PLUGIN_ID = "satellite";
 
     private static final long serialVersionUID = 1L;
 
@@ -150,24 +149,6 @@ public class SatelliteRecord extends PersistablePluginDataObject
     @DynamicSerializeElement
     private String physicalElement;
 
-    /**
-     * Number of logical records in the product. See tables 4.9, 4.11, 4.12,
-     * 4.13, 4.14, 4.16 of the GINI satellite ICD
-     */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer numRecords;
-
-    /**
-     * Size of logical records in bytes for product. See tables 4.9, 4.11, 4.12,
-     * 4.13, 4.14, 4.16 of the GINI satellite ICD
-     */
-    @Column
-    @XmlAttribute
-    @DynamicSerializeElement
-    private Integer sizeRecords;
-
     /** The latitude directly beneath the satellite */
     @Column
     @DynamicSerializeElement
@@ -177,16 +158,6 @@ public class SatelliteRecord extends PersistablePluginDataObject
     @Column
     @DynamicSerializeElement
     private Float satSubPointLon;
-
-    /** The upper right hand latitude */
-    @Column
-    @DynamicSerializeElement
-    private Float upperRightLat;
-
-    /** The upper right hand longitude */
-    @Column
-    @DynamicSerializeElement
-    private Float upperRightLon;
 
     /** Height of the satellite in km */
     @Column
@@ -212,9 +183,27 @@ public class SatelliteRecord extends PersistablePluginDataObject
     @DynamicSerializeElement
     private SatMapCoverage coverage;
 
+    /**
+     * No-arg constructor.
+     */
+    public SatelliteRecord() {
+    }
+
+    /**
+     * Constructs a satellite record from a dataURI
+     * 
+     * @param uri
+     *            The dataURI
+     * @param tableDef
+     *            The table definition associated with this class
+     */
+    public SatelliteRecord(String uri) {
+        super(uri);
+    }
+
     @Override
-    public SatMapCoverage getSpatialObject() {
-        return coverage;
+    public GridGeometry2D getGridGeometry() {
+        return coverage != null ? coverage.getGridGeometry() : null;
     }
 
     public SatMapCoverage getCoverage() {
@@ -239,57 +228,6 @@ public class SatelliteRecord extends PersistablePluginDataObject
 
     public void setSatSubPointLon(Float satSubPointLon) {
         this.satSubPointLon = satSubPointLon;
-    }
-
-    public Float getUpperRightLat() {
-        return upperRightLat;
-    }
-
-    public void setUpperRightLat(Float upperRightLat) {
-        this.upperRightLat = upperRightLat;
-    }
-
-    public Float getUpperRightLon() {
-        return upperRightLon;
-    }
-
-    public void setUpperRightLon(Float upperRightLon) {
-        this.upperRightLon = upperRightLon;
-    }
-
-    /**
-     * No-arg constructor.
-     */
-    public SatelliteRecord() {
-
-    }
-
-    /**
-     * Constructs a satellite record from a dataURI
-     * 
-     * @param uri
-     *            The dataURI
-     * @param tableDef
-     *            The table definition associated with this class
-     */
-    public SatelliteRecord(String uri) {
-        super(uri.replace('_', ' '));
-    }
-
-    public Integer getNumRecords() {
-        return numRecords;
-    }
-
-    public void setNumRecords(Integer numRecords) {
-        this.numRecords = numRecords;
-    }
-
-    public Integer getSizeRecords() {
-        return sizeRecords;
-    }
-
-    public void setSizeRecords(Integer sizeRecords) {
-        this.sizeRecords = sizeRecords;
     }
 
     public Integer getSatHeight() {

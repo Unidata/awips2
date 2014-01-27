@@ -19,13 +19,14 @@
  **/
 package com.raytheon.uf.viz.thinclient.cave.cache;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
@@ -33,57 +34,38 @@ import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.StorageProperties.Compression;
 import com.raytheon.uf.common.datastorage.StorageStatus;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.util.cache.LRUCacheFS;
 
 /**
- * Data store used to cache requests to the filesystem to save bandwidth
+ * Data store which wraps with another {@link IDataStore}. This data store will
+ * always check with its cache before using the delegate and adds all results to
+ * the cache.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 8, 2011             mschenke     Initial creation
- * Feb 12, 2013     #1608  randerso     Added explicit deletes for groups and datasets
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 08, 2011           mschenke    Initial creation
+ * Feb 12, 2013  1608     randerso    Added explicit deletes for groups and
+ *                                    datasets
+ * Sep 18, 2013  2309     bsteffen    Move disk acces to DataStoreCache
+ * Nov 14, 2013  2393     bclement    removed datastore interpolation
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-
-/**
- * TODO Add Description
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 12, 2013            randerso     Initial creation
- * 
- * </pre>
- * 
- * @author randerso
- * @version 1.0
- */
 public class CachingDataStore implements IDataStore {
 
-    // quick byte string to hex conversion
-    private static final String HEXES = "0123456789ABCDEF";
+    private final IDataStore delegate;
 
-    private IDataStore delegate;
+    private DataStoreCache cache;
 
-    private File cacheDir;
-
-    CachingDataStore(IDataStore delegate, File cacheDir) {
+    CachingDataStore(IDataStore delegate, DataStoreCache cache) {
         this.delegate = delegate;
-        this.cacheDir = cacheDir;
+        this.cache = cache;
     }
 
     /*
@@ -95,38 +77,36 @@ public class CachingDataStore implements IDataStore {
     @Override
     public IDataRecord[] retrieve(String group) throws StorageException,
             FileNotFoundException {
-        IDataRecord[] records = null;
-        File cacheFile = getCacheFile(group);
-        if (cacheFile != null && cacheFile.exists()) {
-            records = retrieveFromCache(cacheFile, IDataRecord[].class);
+        String[] datasets = cache.getDatasetNames(group);
+        if (datasets != null) {
+            List<String> datasetGroupPaths = new ArrayList<String>(
+                    datasets.length);
+            List<IDataRecord> records = new ArrayList<IDataRecord>();
+            for (String dataset : datasets) {
+                String datasetGroupPath = toDatasetGroupPath(group, dataset);
+                IDataRecord record = cache.getDataset(datasetGroupPath,
+                        Request.ALL);
+                if (record == null) {
+                    datasetGroupPaths.add(datasetGroupPath);
+                } else {
+                    records.add(record);
+                }
+            }
+            if (!datasetGroupPaths.isEmpty()) {
+                IDataRecord[] newRecords = retrieveDatasets(
+                        datasetGroupPaths.toArray(new String[0]), Request.ALL);
+                for (int i = 0; i < newRecords.length; i += 1) {
+                    cache.cacheDataset(datasetGroupPaths.get(i), newRecords[i],
+                            Request.ALL);
+                }
+                records.addAll(Arrays.asList(newRecords));
+            }
+            return records.toArray(new IDataRecord[0]);
+        } else {
+            IDataRecord[] records = delegate.retrieve(group);
+            cacheDatasets(group, Arrays.asList(records), Request.ALL);
+            return records;
         }
-        if (records == null) {
-            records = delegate.retrieve(group);
-            storeToCache(cacheFile, records);
-        }
-        return records;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.datastorage.IDataStore#retrieve(java.lang.String,
-     * boolean)
-     */
-    @Override
-    public IDataRecord[] retrieve(String group, boolean includeInterpolated)
-            throws StorageException, FileNotFoundException {
-        IDataRecord[] records = null;
-        File cacheFile = getCacheFile(new Object[] { group, includeInterpolated });
-        if (cacheFile != null && cacheFile.exists()) {
-            records = retrieveFromCache(cacheFile, IDataRecord[].class);
-        }
-        if (records == null) {
-            records = delegate.retrieve(group, includeInterpolated);
-            storeToCache(cacheFile, records);
-        }
-        return records;
     }
 
     /*
@@ -139,14 +119,11 @@ public class CachingDataStore implements IDataStore {
     @Override
     public IDataRecord retrieve(String group, String dataset, Request request)
             throws StorageException, FileNotFoundException {
-        IDataRecord record = null;
-        File cacheFile = getCacheFile(new Object[] { group, dataset, request });
-        if (cacheFile != null && cacheFile.exists()) {
-            record = retrieveFromCache(cacheFile, IDataRecord.class);
-        }
+        String datasetGroupPath = toDatasetGroupPath(group, dataset);
+        IDataRecord record = cache.getDataset(datasetGroupPath, request);
         if (record == null) {
             record = delegate.retrieve(group, dataset, request);
-            storeToCache(cacheFile, record);
+            cache.cacheDataset(datasetGroupPath, record, request);
         }
         return record;
     }
@@ -159,18 +136,33 @@ public class CachingDataStore implements IDataStore {
      * .String[], com.raytheon.uf.common.datastorage.Request)
      */
     @Override
-    public IDataRecord[] retrieveDatasets(String[] datasetGroupPath,
+    public IDataRecord[] retrieveDatasets(String[] datasetGroupPaths,
             Request request) throws StorageException, FileNotFoundException {
-        IDataRecord[] records = null;
-        File cacheFile = getCacheFile(new Object[] { datasetGroupPath, request });
-        if (cacheFile != null && cacheFile.exists()) {
-            records = retrieveFromCache(cacheFile, IDataRecord[].class);
+        Map<String, IDataRecord> records = new HashMap<String, IDataRecord>();
+        List<String> toRequest = new ArrayList<String>(datasetGroupPaths.length);
+        for (String datasetGroupPath : datasetGroupPaths) {
+            IDataRecord record = cache.getDataset(datasetGroupPath, request);
+            if (record == null) {
+                toRequest.add(datasetGroupPath);
+            } else {
+                records.put(datasetGroupPath, record);
+            }
         }
-        if (records == null) {
-            records = delegate.retrieveDatasets(datasetGroupPath, request);
-            storeToCache(cacheFile, records);
+        if (!toRequest.isEmpty()) {
+            IDataRecord[] newRecords = delegate.retrieveDatasets(
+                    toRequest.toArray(new String[0]), request);
+            for (int i = 0; i < newRecords.length; i += 1) {
+                String datasetGroupPath = toRequest.get(i);
+                IDataRecord record = newRecords[i];
+                cache.cacheDataset(datasetGroupPath, record, request);
+                records.put(datasetGroupPath, record);
+            }
         }
-        return records;
+        IDataRecord[] result = new IDataRecord[datasetGroupPaths.length];
+        for (int i = 0; i < datasetGroupPaths.length; i += 1) {
+            result[i] = records.get(datasetGroupPaths[i]);
+        }
+        return result;
     }
 
     /*
@@ -183,16 +175,50 @@ public class CachingDataStore implements IDataStore {
     @Override
     public IDataRecord[] retrieveGroups(String[] groups, Request request)
             throws StorageException, FileNotFoundException {
-        IDataRecord[] records = null;
-        File cacheFile = getCacheFile(new Object[] { groups, request });
-        if (cacheFile != null && cacheFile.exists()) {
-            records = retrieveFromCache(cacheFile, IDataRecord[].class);
+        List<String> toRequest = new ArrayList<String>();
+        Map<String, List<IDataRecord>> records = new HashMap<String, List<IDataRecord>>();
+        for (String group : groups) {
+            String[] datasets = cache.getDatasetNames(group);
+            if (datasets != null) {
+                IDataRecord[] cachedRecords = new IDataRecord[datasets.length];
+                for (int i = 0; i < datasets.length; i += 1) {
+                    cachedRecords[i] = cache.getDataset(
+                            toDatasetGroupPath(group, datasets[i]),
+                            request);
+                    if (cachedRecords[i] == null) {
+                        toRequest.add(group);
+                        cachedRecords = null;
+                        break;
+                    }
+                }
+                if (cachedRecords != null) {
+                    records.put(group, Arrays.asList(cachedRecords));
+                }
+            } else {
+                toRequest.add(group);
+            }
         }
-        if (records == null) {
-            records = delegate.retrieveGroups(groups, request);
-            storeToCache(cacheFile, records);
+        if (!toRequest.isEmpty()) {
+            IDataRecord[] newRecords = delegate.retrieveGroups(
+                    toRequest.toArray(new String[0]), request);
+            for (IDataRecord record : newRecords) {
+                String group = getGroup(record);
+                List<IDataRecord> groupRecs = records.get(group);
+                if (groupRecs == null) {
+                    groupRecs = new ArrayList<IDataRecord>();
+                    records.put(group, groupRecs);
+                }
+                groupRecs.add(record);
+            }
+            for (String group : toRequest) {
+                cacheDatasets(group, records.get(group), request);
+            }
         }
-        return records;
+        List<IDataRecord> result = new ArrayList<IDataRecord>();
+        for (String group : groups) {
+            result.addAll(records.get(group));
+        }
+        return result.toArray(new IDataRecord[0]);
     }
 
     /*
@@ -205,96 +231,43 @@ public class CachingDataStore implements IDataStore {
     @Override
     public String[] getDatasets(String group) throws StorageException,
             FileNotFoundException {
-        String[] datasets = null;
-        File cacheFile = getCacheFile(group);
-        if (cacheFile != null && cacheFile.exists()) {
-            datasets = retrieveFromCache(cacheFile, String[].class);
-        }
-
+        String[] datasets = cache.getDatasetNames(group);
         if (datasets == null) {
             datasets = delegate.getDatasets(group);
-            storeToCache(cacheFile, datasets);
+            cache.cacheDatasetNames(group, datasets);
         }
         return datasets;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T retrieveFromCache(File file, Class<T> clazz) {
-        long t0 = System.currentTimeMillis();
-        T rval = null;
-        try {
-            FileInputStream fin = new FileInputStream(file);
-            Object fromFile = DynamicSerializationManager.getManager(
-                    SerializationType.Thrift).deserialize(fin);
-            fin.close();
-            if (clazz.isInstance(fromFile)) {
-                rval = (T) fromFile;
-            }
-        } catch (Throwable e) {
-            System.err.println("Error retreiving object from cache file: "
-                    + e.getLocalizedMessage());
-        }
+    // Caching utility methods
 
-        if (rval != null) {
-            LRUCacheFS.poll(file);
+    /**
+     * Cache all datasets for a group. Both the indivdual datasets and the names
+     * of the datasets are cached.
+     */
+    private void cacheDatasets(String group, List<IDataRecord> records,
+            Request request) {
+        String[] datasets = new String[records.size()];
+        for (int i = 0; i < datasets.length; i += 1) {
+            datasets[i] = records.get(i).getName();
+            cache.cacheDataset(toDatasetGroupPath(group, datasets[i]),
+                    records.get(i), request);
         }
-        System.out.println("Time to retreive from cache = "
-                + (System.currentTimeMillis() - t0) + "ms");
-        return rval;
+        cache.cacheDatasetNames(group, datasets);
     }
 
-    private void storeToCache(File file, Object result) {
-        long t0 = System.currentTimeMillis();
-        if (result != null) {
-            try {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-                FileOutputStream fout = new FileOutputStream(file);
-                DynamicSerializationManager
-                        .getManager(SerializationType.Thrift).serialize(result,
-                                fout);
-                fout.close();
-                LRUCacheFS.poll(file);
-                file.setReadable(true, false);
-                file.setWritable(true, false);
-            } catch (Exception e) {
-                System.err.println("Error storing object to file: "
-                        + e.getLocalizedMessage());
-            }
-        }
-        System.out.println("Time to store to cache = "
-                + (System.currentTimeMillis() - t0) + "ms");
+    private static String getGroup(IDataRecord record) {
+        String group = record.getGroup();
+        /*
+         * TODO this works around a bug in older pypies. Delete it after 14.2.1
+         * is fielded everywhere.
+         */
+        group = group.replaceAll("::", DataStoreFactory.DEF_SEPARATOR);
+        return group;
     }
 
-    private File getCacheFile(Object obj) {
-        long t0 = System.currentTimeMillis();
-        try {
-            byte[] thriftDigest = SerializationUtil.transformToThrift(obj);
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(thriftDigest);
-            String md5sum = toHex(md.digest());
-            return new File(cacheDir, md5sum);
-        } catch (Exception e) {
-            System.err.println("Error getting cache file: "
-                    + e.getLocalizedMessage());
-        } finally {
-            System.out.println("Time to getCacheFile = "
-                    + (System.currentTimeMillis() - t0) + "ms");
-        }
-        return null;
-    }
-
-    private static String toHex(byte[] raw) {
-        if (raw == null) {
-            return null;
-        }
-        final StringBuilder hex = new StringBuilder(2 * raw.length);
-        for (final byte b : raw) {
-            hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(
-                    HEXES.charAt((b & 0x0F)));
-        }
-        return hex.toString();
+    private static String toDatasetGroupPath(String group, String dataset) {
+        return group + DataStoreFactory.DEF_SEPARATOR + dataset;
     }
 
     // Non-caching methods

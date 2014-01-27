@@ -22,8 +22,6 @@ package com.raytheon.uf.common.dataplugin.vaa;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -33,14 +31,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
@@ -50,7 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * 
+ * Record for Volcanic Ash Advisory
  * 
  * <pre>
  * 
@@ -66,6 +59,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  *                                     PluginDataObject.
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
+ * Nov 26, 2013 2582       njensen     Remove dataURI and recordType columns
  * 
  * </pre>
  * 
@@ -75,15 +70,15 @@ import com.vividsolutions.jts.geom.Geometry;
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "vaaseq")
-@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "vaa", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "latitude", "longitude", "stationId", "refTime", "forecastTime",
+        "advisoryNumber" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
 @org.hibernate.annotations.Table(appliesTo = "vaa", indexes = { @Index(name = "vaa_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class VAARecord extends PluginDataObject implements ISpatialEnabled {
 
@@ -91,37 +86,23 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
 
     @Embedded
     @DataURI(position = 1, embedded = true)
-    @XmlElement
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
     /**
      * 
      */
-    @Column(length = 8)
-    @DataURI(position = 2)
-    @XmlElement
-    @DynamicSerializeElement
-    private String recordType;
-
-    /**
-     * 
-     */
     @Column(length = 16)
-    @DataURI(position = 3)
-    @XmlElement
+    @DataURI(position = 2)
     @DynamicSerializeElement
     private String advisoryNumber;
 
     // Correction indicator from wmo header
-    @DataURI(position = 4)
     @Column(length = 8)
-    @XmlElement
     @DynamicSerializeElement
     private String corIndicator;
 
     @Column(length = 32)
-    @XmlElement
     @DynamicSerializeElement
     private String centerId;
 
@@ -129,7 +110,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      * 
      */
     @Column(length = 2048)
-    @XmlElement
     @DynamicSerializeElement
     private String message;
 
@@ -137,7 +117,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      * 
      */
     @Column(length = 512)
-    @XmlElement
     @DynamicSerializeElement
     private String anal00Hr;
 
@@ -145,7 +124,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      * 
      */
     @Column(length = 512)
-    @XmlElement
     @DynamicSerializeElement
     private String fcst06Hr;
 
@@ -153,7 +131,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      * 
      */
     @Column(length = 512)
-    @XmlElement
     @DynamicSerializeElement
     private String fcst12Hr;
 
@@ -161,18 +138,15 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      * 
      */
     @Column(length = 512)
-    @XmlElement
     @DynamicSerializeElement
     private String fcst18Hr;
 
     // Text of the WMO header
     @Column(length = 64)
-    @XmlElement
     @DynamicSerializeElement
     private String wmoHeader = "";
 
     @DynamicSerializeElement
-    @XmlElement
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "parentId", fetch = FetchType.EAGER)
     private Set<VAASubPart> subParts = new HashSet<VAASubPart>();
 
@@ -234,11 +208,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      */
     public void setWmoHeader(String wmoHeader) {
         this.wmoHeader = wmoHeader;
-    }
-
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     @Override
@@ -306,21 +275,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
      */
     public Boolean getLocationDefined() {
         return location.getLocationDefined();
-    }
-
-    /**
-     * @return the recordType
-     */
-    public String getRecordType() {
-        return recordType;
-    }
-
-    /**
-     * @param recordType
-     *            the recordType to set
-     */
-    public void setRecordType(String recordType) {
-        this.recordType = recordType;
     }
 
     /**
@@ -481,13 +435,6 @@ public class VAARecord extends PluginDataObject implements ISpatialEnabled {
     // "\r\r\nSIGNIFICANT CHANGE IN DIRECTION OR SPEED IS" +
     // "\r\r\nANTICIPATED DURING THE NEXT 12 HOURS. ...BALDWIN" +
     // "\r\r\nNXT ADVISORY: WILL BE ISSUED BY 20091104/2315Z" +
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
-    }
 
     @Override
     public String getPluginName() {

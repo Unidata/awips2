@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -59,20 +60,45 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @Entity
-@Table(schema = "ebxml", name = "StringQueryExpression")
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@XmlRootElement
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "StringQueryExpression")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@XmlRootElement(name = "StringQueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "StringQueryExpressionType", propOrder = { "value" })
 @DynamicSerialize
 public class StringQueryExpressionType extends QueryExpressionType {
 
+    private static final long serialVersionUID = 9177009958088269547L;
+
     @XmlElement(name = "Value", required = true)
     @DynamicSerializeElement
     protected String value;
+
+    public StringQueryExpressionType() {
+        super();
+    }
+
+    public StringQueryExpressionType(String queryLanguage, String value) {
+        super(queryLanguage);
+        this.value = value;
+    }
 
     /**
      * Gets the value of the value property.
@@ -93,6 +119,46 @@ public class StringQueryExpressionType extends QueryExpressionType {
      */
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        StringQueryExpressionType other = (StringQueryExpressionType) obj;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("StringQueryExpressionType \n[queryLanguage=");
+        builder.append(queryLanguage);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nvalue=");
+        builder.append(value);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

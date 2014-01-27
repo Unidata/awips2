@@ -22,7 +22,9 @@ package com.raytheon.uf.viz.thinclient.localization;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -32,6 +34,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.viz.core.localization.BundleScanner;
 import com.raytheon.uf.viz.core.localization.CAVELocalizationAdapter;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
@@ -47,7 +50,9 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011            njensen     Initial creation
+ * Aug 9, 2011             njensen     Initial creation
+ * Aug 13, 2013       2033 mschenke    Changed to search all plugins when 
+ *                                     CAVE_STATIC BASE context searched
  * 
  * </pre>
  * 
@@ -106,9 +111,24 @@ public class ThinClientLocalizationAdapter extends CAVELocalizationAdapter
         if (useRemoteFiles) {
             return super.listDirectory(contexts, path, recursive, filesOnly);
         } else {
+
+            Set<LocalizationContext> ctxsToSearch = new LinkedHashSet<LocalizationContext>();
+            for (LocalizationContext context : contexts) {
+                ctxsToSearch.add(context);
+                if (isCaveStaticBase(context)
+                        && context.getContextName() == null) {
+                    for (String bundle : BundleScanner
+                            .getListOfBundles(BUNDLE_LOCALIZATION_DIR)) {
+                        ctxsToSearch.add(new LocalizationContext(context
+                                .getLocalizationType(), context
+                                .getLocalizationLevel(), bundle));
+                    }
+                }
+            }
+
             // TODO: Check for preference to only use locally available files
             List<ListResponse> responses = new ArrayList<ListResponse>();
-            for (LocalizationContext context : contexts) {
+            for (LocalizationContext context : ctxsToSearch) {
                 // Scan local file system for files in directory structure
                 File file = getPath(context, "");
                 if (file == null || file.exists() == false) {

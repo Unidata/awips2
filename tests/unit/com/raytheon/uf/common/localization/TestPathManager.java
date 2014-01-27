@@ -42,6 +42,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Oct 23, 2012 1286       djohnson     Change to find more localization files.
  * Jan 16, 2013 1487       djohnson     Avoid adding new localization files to baseline utility directories.
  * May 31, 2013 1650       djohnson     Fix incorrect merge from vlab branch.
+ * Sep 05, 2013 2307       dgilling     Better handling of directories in getPath().
  * 
  * </pre>
  * 
@@ -104,7 +105,6 @@ public class TestPathManager extends PathManager {
          */
         @Override
         public File getPath(LocalizationContext context, String fileName) {
-
             File foundFile = null;
 
             List<File> utilityDirs = getUtilityDirs();
@@ -120,27 +120,42 @@ public class TestPathManager extends PathManager {
                 // if needed
             }
 
-            final int length = utilityDirs.size();
-            for (int i = 0; i < length; i++) {
-                File baseDir = new File(utilityDirs.get(i), context.toPath());
+            for (File utilityDir : utilityDirs) {
+                File baseDir = new File(utilityDir, context.toPath());
+                File toFind = new File(baseDir, fileName);
 
-                File file = new File(baseDir, fileName);
-                // If it's the final check or if a file exists
-                if (i == (length - 1) || file.exists()) {
-                    foundFile = file;
+                if (toFind.exists()) {
+                    if (!toFind.getAbsolutePath().startsWith(
+                            savedLocalizationFileDir.getAbsolutePath())) {
+                        foundFile = createTestIsolatedVersionOfLocalizationFile(
+                                context, fileName, toFind);
+                    } else {
+                        foundFile = toFind;
+                    }
+                }
+
+                // if we found an actual file, we can be reasonably sure there's
+                // only one file in the whole project with that name and can
+                // stop looking. However, if we found a directory there may be
+                // multiple plugins contributing to that directory and we have
+                // to search the whole collection of directories to be sure
+                // we've got all files that belong in that dir.
+                if (toFind.isFile()) {
                     break;
                 }
             }
 
-            if (foundFile == null
-                    || foundFile.getAbsolutePath().startsWith(
-                            savedLocalizationFileDir.getAbsolutePath())) {
+            if (foundFile != null) {
                 return foundFile;
+            } else {
+                // Have to create a default File and the previous revision's
+                // behavior was just to use the last File in utilityDirs. This
+                // ensures that the path desired gets created as empty.
+                return createTestIsolatedVersionOfLocalizationFile(context,
+                        fileName,
+                        new File(utilityDirs.get(utilityDirs.size() - 1),
+                                fileName));
             }
-
-            File savedFile = createTestIsolatedVersionOfLocalizationFile(
-                    context, fileName, foundFile);
-            return savedFile;
         }
 
         /**

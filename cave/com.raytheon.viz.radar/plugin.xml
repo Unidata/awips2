@@ -56,13 +56,6 @@
       </handler>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="radar"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors">
       <editor
          class="com.raytheon.uf.viz.xy.VizXyEditor"

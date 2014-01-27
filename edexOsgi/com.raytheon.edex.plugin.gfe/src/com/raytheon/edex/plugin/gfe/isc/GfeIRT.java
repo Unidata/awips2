@@ -33,8 +33,8 @@ import jep.JepException;
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
@@ -61,9 +61,10 @@ import com.raytheon.uf.common.util.FileUtil;
  * ------------ ----------  ----------- --------------------------
  * 07/14/09     1995       bphillip    Initial creation
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
+ * 06/13/13     2044       randerso    Refactored to use IFPServer
+ * Sep 05, 2013 2307       dgilling    Use better PythonScript constructor.
  * Oct 16, 2013 2475       dgilling    Move logic previously in IrtServer.py
  *                                     into this class to avoid Jep memory leak.
- * 
  * </pre>
  * 
  * @author bphillip
@@ -116,12 +117,11 @@ public class GfeIRT extends Thread {
      *             If the GFE configuration for the specified site could not be
      *             loaded.
      */
-    public GfeIRT(String mhsid, String siteid) throws GfeConfigurationException {
+    public GfeIRT(String siteid, IFPServerConfig config)
+            throws GfeConfigurationException {
         this.setDaemon(true);
         this.siteID = siteid;
-        this.mhsID = mhsid;
-
-        IFPServerConfig config = IFPServerConfigManager.getServerConfig(siteID);
+        this.mhsID = config.getMhsid();
 
         this.serverHost = config.getServerHost();
         this.serverPort = config.getRpcPort();
@@ -143,8 +143,8 @@ public class GfeIRT extends Thread {
 
         this.parmsWanted = config.requestedISCparms();
         if (this.parmsWanted.isEmpty()) {
-            List<DatabaseID> dbs = GridParmManager.getDbInventory(this.siteID)
-                    .getPayload();
+            List<DatabaseID> dbs = IFPServer.getActiveServer(this.siteID)
+                    .getGridParmMgr().getDbInventory().getPayload();
             for (DatabaseID dbId : dbs) {
                 if ((dbId.getModelName().equals("ISC"))
                         && (dbId.getDbType().equals(""))
@@ -199,11 +199,12 @@ public class GfeIRT extends Thread {
             }
         };
         java.lang.Runtime.getRuntime().addShutdownHook(hook);
-        shutdownHooks.put(mhsid + siteid, hook);
+        shutdownHooks.put(mhsID + siteID, hook);
     }
 
     @Override
     public void run() {
+
         try {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext cx = pathMgr.getContext(

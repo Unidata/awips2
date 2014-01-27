@@ -35,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
-import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -44,7 +43,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * TODO Add Description
+ * Weather Grid Slize
  * 
  * <pre>
  * 
@@ -53,7 +52,10 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 15, 2011            randerso     Initial creation
- * Jan 30, 2013 15719      jdynina      Allowed more than 128 char wx string 
+ * Jan 30, 2013 15719      jdynina      Allowed more than 128 char wx string
+ * Aug 13, 2013  1571      randerso     Removed toString to stop it from hanging the 
+ *                                      debugger when trying to display the grid
+ * Oct 29, 2013  2476      njensen      Updated getNumpy() and added getKeyList()
  * 
  * </pre>
  * 
@@ -168,8 +170,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
         if (gsWeatherGrid != null) {
             Grid2DByte weatherGrid = getWeatherGrid();
-            if (weatherGrid.getXdim() != gsWeatherGrid.getXdim()
-                    || weatherGrid.getYdim() != gsWeatherGrid.getYdim()) {
+            if ((weatherGrid.getXdim() != gsWeatherGrid.getXdim())
+                    || (weatherGrid.getYdim() != gsWeatherGrid.getYdim())) {
                 throw new IllegalArgumentException(
                         "Supplied grid is not of same dimension");
             }
@@ -228,8 +230,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
             return false;
         }
 
-        if (grid.getXdim() != rhsGrid.getXdim()
-                || grid.getYdim() != rhsGrid.getYdim()) {
+        if ((grid.getXdim() != rhsGrid.getXdim())
+                || (grid.getYdim() != rhsGrid.getYdim())) {
             return false;
         }
 
@@ -303,8 +305,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
         Grid2DByte weatherGrid = getWeatherGrid();
         Point gridSize = new Point(weatherGrid.getXdim(), weatherGrid.getYdim());
-        if (editArea.getXdim() != gridSize.x
-                || editArea.getYdim() != gridSize.y) {
+        if ((editArea.getXdim() != gridSize.x)
+                || (editArea.getYdim() != gridSize.y)) {
             return false;
         }
 
@@ -354,8 +356,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
      */
     public boolean assign(WeatherGridSlice gs, Grid2DBit editArea) {
         Grid2DByte weatherGrid = getWeatherGrid();
-        if (editArea.getXdim() != weatherGrid.getXdim()
-                || editArea.getYdim() != weatherGrid.getYdim()) {
+        if ((editArea.getXdim() != weatherGrid.getXdim())
+                || (editArea.getYdim() != weatherGrid.getYdim())) {
             return false;
         }
 
@@ -718,14 +720,6 @@ public class WeatherGridSlice extends AbstractGridSlice {
         return new WeatherGridSlice(aValidTime, aGpi, aHistory, aGrid, aKey);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder rVal = new StringBuilder(super.toString());
-        rVal.append("Weather grid: ").append(getWeatherGrid()).append("\n");
-        rVal.append("Weather keys: ").append(getKeys()).append("\n");
-        return rVal.toString();
-    }
-
     private String checkDims() {
         Grid2DByte weatherGrid = getWeatherGrid();
         if (weatherGrid == null) {
@@ -735,8 +729,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
         int x = weatherGrid.getXdim();
         int y = weatherGrid.getYdim();
 
-        if (x != gridParmInfo.getGridLoc().getNx()
-                || y != gridParmInfo.getGridLoc().getNy()) {
+        if ((x != gridParmInfo.getGridLoc().getNx())
+                || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
                     + x
                     + ","
@@ -756,7 +750,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
      * @return the discrete grid
      */
     public Grid2DByte getWeatherGrid() {
-        if (useCache && cacheId != null) {
+        if (useCache && (cacheId != null)) {
             try {
                 @SuppressWarnings("unchecked")
                 ICache<IGrid2D> diskCache = CacheFactory.getInstance()
@@ -820,16 +814,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     @Override
-    public Object[] getNumPy() {
-        Object[] numpy = new Object[2];
-        numpy[0] = getWeatherGrid().getBuffer().array();
-        List<String> keyList = new ArrayList<String>();
-        for (WeatherKey k : keys) {
-            keyList.add(k.toString());
-        }
-        String pyList = PyUtil.listToList(keyList);
-        numpy[1] = pyList;
-        return numpy;
+    public Object[] getNumpy() {
+        return new Object[] { getWeatherGrid().getBuffer().array() };
     }
 
     @Override
@@ -889,5 +875,13 @@ public class WeatherGridSlice extends AbstractGridSlice {
                     "GFE");
             diskCache.removeFromCache(cacheId);
         }
+    }
+
+    public List<String> getKeyList() {
+        List<String> list = new ArrayList<String>(keys.length);
+        for (WeatherKey k : keys) {
+            list.add(k.toString());
+        }
+        return list;
     }
 }

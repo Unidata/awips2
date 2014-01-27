@@ -19,10 +19,18 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
+import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
 import org.junit.Ignore;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
 /**
  * A plugin subscribed listener.
@@ -34,6 +42,7 @@ import org.junit.Ignore;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 17, 2013 1672       djohnson     Initial creation
+ * 10/20/2013   1682       bphillip     Added synchronous notification delivery
  * 
  * </pre>
  * 
@@ -51,6 +60,16 @@ public class PluginSubscribedListener implements NotificationListener {
     @Override
     public void onNotification(NotificationType notification) {
         this.notified = true;
+    }
+
+    @Override
+    @WebMethod(action = "SynchronousNotification")
+    @WebResult(name = "RegistryResponse", targetNamespace = EbxmlNamespaces.RS_URI, partName = "partRegistryResponse")
+    public RegistryResponseType synchronousNotification(
+            @WebParam(name = "Notification", targetNamespace = EbxmlNamespaces.RIM_URI, partName = "Notification") NotificationType notification)
+            throws MsgRegistryException {
+        this.notified = true;
+        return null;
     }
 
     /**

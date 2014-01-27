@@ -7,7 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.edex.textdb,
- org.apache.commons.logging,
  org.apache.commons.lang,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.text,
@@ -16,4 +15,5 @@ Export-Package: com.raytheon.uf.edex.services,
  com.raytheon.uf.edex.services.textdbimpl,
  com.raytheon.uf.edex.services.textdbsrv
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.message
+Import-Package: com.raytheon.uf.common.message,
+ org.apache.commons.logging

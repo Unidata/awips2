@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.convert.GridCoverageConverter;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -47,9 +48,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 21, 2012           bsteffen    Initial creation
+ * Nov 25, 2013  2574     bsteffen    Add converter to location dataURI
+ *                                    annotation.
  * 
  * </pre>
  * 
@@ -93,7 +96,7 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     /** The spatial information */
     @ManyToOne
     @PrimaryKeyJoinColumn
-    @DataURI(position = 3)
+    @DataURI(position = 3, converter = GridCoverageConverter.class)
     @DynamicSerializeElement
     private GridCoverage location;
 

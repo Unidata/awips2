@@ -39,12 +39,13 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryExceptio
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 10/30/2013   1538        bphillip    Changed REST path
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/search")
+@Path("/search")
 public interface IQueryProtocolRestService {
 
     /**

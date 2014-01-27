@@ -5,8 +5,6 @@ Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.sgwhv
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
- org.eclipse.ui,
- org.eclipse.core.runtime,
  javax.persistence;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.sgwhv;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy

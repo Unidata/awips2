@@ -29,8 +29,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
-import com.raytheon.viz.gfe.procedures.ProcedureJob;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -43,6 +41,8 @@ import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Oct 30, 2012 1298       rferrel     Must be a blocking dialog.
+ * Dec 09, 2013 #2367      dgilling    Remove shutdown of ProcedureJob and
+ *                                     SmartToolJob.
  * 
  * </pre>
  * 
@@ -92,8 +92,6 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
-        ProcedureJob.shutdown();
-        SmartToolJob.shutdown();
         super.stop(context);
     }
 

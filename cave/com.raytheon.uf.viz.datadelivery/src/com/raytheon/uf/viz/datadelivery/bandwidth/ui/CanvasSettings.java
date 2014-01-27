@@ -21,17 +21,18 @@ package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 
 /**
  * Class containing the settings for a canvas.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 6, 2012            lvenable     Initial creation
- *
+ * Nov 06, 2012            lvenable    Initial creation
+ * Nov 19, 2013   1531     mpduff      Made graph resizable.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -63,7 +64,7 @@ public class CanvasSettings {
 
     /**
      * Constructor.
-     *
+     * 
      * @param canvasWidth
      *            Canvas width.
      * @param canvasHeight
@@ -98,7 +99,7 @@ public class CanvasSettings {
 
     /**
      * Get the canvas width.
-     *
+     * 
      * @return The canvas width.
      */
     public int getCanvasWidth() {
@@ -107,7 +108,7 @@ public class CanvasSettings {
 
     /**
      * Get the canvas height.
-     *
+     * 
      * @return The canvas height.
      */
     public int getCanvasHeight() {
@@ -116,7 +117,7 @@ public class CanvasSettings {
 
     /**
      * Get the space buffer for the x coordinate.
-     *
+     * 
      * @return The space buffer for the x coordinate.
      */
     public int getXSpaceBuffer() {
@@ -125,7 +126,7 @@ public class CanvasSettings {
 
     /**
      * Get the space buffer for the y coordinate.
-     *
+     * 
      * @return The space buffer for the y coordinate.
      */
     public int getYSpaceBuffer() {
@@ -190,5 +191,36 @@ public class CanvasSettings {
      */
     public void setDrawHeight(int drawHeight) {
         this.drawHeight = drawHeight;
+    }
+
+    /**
+     * Update canvas size.
+     * 
+     * @param canvasWidth
+     *            The canvas width
+     * @param canvasHeight
+     *            The canvas height
+     * @param imageWidth
+     * @param imageHeight
+     */
+    public void updateCanvas(int canvasWidth, int canvasHeight, int imageWidth,
+            int imageHeight) {
+        this.canvasHeight = canvasHeight;
+        this.canvasWidth = canvasWidth;
+
+        if (imageWidth < canvasWidth) {
+            this.imageWidth = canvasWidth;
+        } else {
+            this.imageWidth = imageWidth;
+        }
+
+        if (imageHeight < canvasHeight) {
+            this.imageHeight = canvasHeight;
+        } else {
+            this.imageHeight = imageHeight;
+        }
+
+        this.drawWidth = canvasWidth - xSpaceBuffer * 2;
+        this.drawHeight = canvasHeight - ySpaceBuffer * 2;
     }
 }

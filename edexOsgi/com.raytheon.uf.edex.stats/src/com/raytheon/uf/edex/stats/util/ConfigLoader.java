@@ -64,6 +64,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Mar 27, 2013 1834       mpduff      Filter for xml files on localization file read, wrap unmarshall and 
  *                                     log error if one occurs
  * May 22, 2013 1917       rjpeter     Updated validate to save typeClass back to StatisticsEventConfig.
+ * Aug 06, 2013 1654       bgonzale    Enable statistics xml config files to reference fields in superclasses.
  * </pre>
  * 
  * @author jsanchez
@@ -235,8 +236,7 @@ public class ConfigLoader {
                         String aggregateField = aggregate.getField();
 
                         try {
-                            Field field = clazz
-                                    .getDeclaredField(aggregateField);
+                            Field field = getField(clazz, aggregateField);
                             if (field.getType().isPrimitive()) {
                                 if (!currentFields.contains(aggregateField)) {
                                     try {
@@ -298,5 +298,38 @@ public class ConfigLoader {
                                 + "' is already defined.  StatisticsEvent being skipped.");
             }
         }
+    }
+
+    /**
+     * Find Field in class. Can be in superclass.
+     * 
+     * @param clazz
+     * @param fieldToFind
+     * @return Field found.
+     * @throws SecurityException
+     * @throws NoSuchFieldException
+     */
+    private static Field getField(Class<?> clazz, String fieldToFind)
+            throws SecurityException, NoSuchFieldException {
+        Class<?> type = clazz;
+        Field field = null;
+        do {
+            Field[] fields = type.getDeclaredFields();
+            for (Field f : fields) {
+                boolean isFieldFound = f.getName().equals(fieldToFind);
+                if (isFieldFound) {
+                    field = type.getDeclaredField(fieldToFind);
+                    break;
+                }
+            }
+            if (field == null) {
+                type = type.getSuperclass();
+                if (type == null) {
+                    throw new NoSuchFieldException(fieldToFind
+                            + " not found in Class " + clazz.getCanonicalName());
+                }
+            }
+        } while (field == null);
+        return field;
     }
 }

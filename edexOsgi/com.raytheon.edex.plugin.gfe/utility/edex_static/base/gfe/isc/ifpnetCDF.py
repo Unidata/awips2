@@ -40,7 +40,7 @@ from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
 from com.raytheon.uf.common.dataplugin.gfe.config import ProjectionData_ProjectionType as ProjectionType
 from com.raytheon.edex.plugin.gfe.smartinit import IFPDB
 from com.raytheon.edex.plugin.gfe.util import CartDomain2D
-from com.raytheon.edex.plugin.gfe.server.database import TopoDatabaseManager
+from com.raytheon.edex.plugin.gfe.server import IFPServer
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
@@ -65,10 +65,13 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    04/23/13        1937          dgilling       Reimplement WECache to match
 #                                                 A1, big perf improvement.
 #    05/23/13        1759          dgilling       Remove unnecessary imports.
+#    06/13/13        2044          randerso       Updated for changes to TopoDatabaseManager
 #    07/25/13        2233          randerso       Improved memory utilization and performance
+#    08/09/2013      1571          randerso       Changed projections to use the Java             
+#                                                 ProjectionType enumeration
 #    09/20/13        2405          dgilling       Clip grids before inserting into cache.
 #    10/22/13        2405          rjpeter        Remove WECache and store directly to cube.
-# 
+#    10/31/2013      2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #
 
 # Original A1 BATCH WRITE COUNT was 10, we found doubling that
@@ -173,15 +176,11 @@ def encodeGridSlice(grid, gridType, clipArea, cube, idx, keyList):
         cube[0][idx] = clipToExtrema(vecGrids[0], clipArea)
         cube[1][idx] = clipToExtrema(vecGrids[1], clipArea)
     elif gridType == "WEATHER" or gridType == "DISCRETE":
-        if gridType == "DISCRETE":
-           keys = grid.getKey()
-        else:
-           keys = grid.getKeys()
+        keys = grid.getKeys()
         gridKeys = []
 
         for theKey in keys:
             gridKeys.append(theKey.toString())
-
         keyList.append(gridKeys)
         cube[idx]= clipToExtrema(grid.__numpy__[0], clipArea)
 
@@ -502,14 +501,13 @@ def storeTopoGrid(client, file, databaseID, invMask, clipArea):
     "Stores the topo grid in the database"
 
     # Get the grid location and projection information
-    gridLoc = IFPServerConfigManager.getServerConfig(DatabaseID(databaseID).getSiteId()).dbDomain()
+    ifpServer = IFPServer.getActiveServer(DatabaseID(databaseID).getSiteId())
+    
+    gridLoc = ifpServer.getConfig().dbDomain()
     pDict = gridLoc.getProjection()
 
     # Get the topo grid
-    topoDB = TopoDatabaseManager.getTopoDatabase(DatabaseID(databaseID).getSiteId())
-    parmId = topoDB.getParmList().getPayload().get(0)
-    tr = topoDB.getGridInventory(parmId).getPayload()
-    topoGrid = topoDB.getGridData(parmId, tr).getPayload().get(0).__numpy__[0]
+    topoGrid = ifpServer.getTopoMgr().getTopoData(gridLoc).getPayload().__numpy__[0]
     topoGrid = clipToExtrema(topoGrid, clipArea)
     topoGrid = numpy.flipud(topoGrid)
     
@@ -660,15 +658,15 @@ def storeProjectionAttributes(var, projectionData):
     setattr(var, "projectionType", projectionType.toString())
 
     # Now store the projection specific attributes
-    if projectionType.toString() == "LAMBERT_CONFORMAL":
+    if ProjectionType.LAMBERT_CONFORMAL.equals(projectionType):
         setattr(var, "latLonOrigin", (projectionData.getLatLonOrigin().x, projectionData.getLatLonOrigin().y))
         setattr(var, "stdParallelOne", projectionData.getStdParallelOne())
         setattr(var, "stdParallelTwo", projectionData.getStdParallelTwo())
 
-    if projectionType.toString() == "POLAR_STEREOGRAPHIC":
+    if ProjectionType.POLAR_STEREOGRAPHIC.equals(projectionType):
         setattr(var, "lonOrigin", projectionData.getLonOrigin())
 
-    if projectionType.toString() == "MERCATOR":
+    if ProjectionType.MERCATOR.equals(projectionType):
         setattr(var, "lonCenter", projectionData.getLonCenter())
 
     return
@@ -765,7 +763,7 @@ def storeScalarWE(we, trList, file, timeRange, databaseID,
     for i in xrange(len(overlappingTimes) -1, -1, -1):
         ot = overlappingTimes[i]
         if not ot in histDict:
-            del overlappingTime[i]
+            del overlappingTimes[i]
             del timeList[i]
         elif we.getGpi().isRateParm():
             durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
@@ -1337,7 +1335,7 @@ def main(outputFilename, parmList, databaseID, startTime,
     maskGrid = clipToExtrema(maskGrid, clipArea)
     clippedGridSize = maskGrid.shape
     validPointCount = float(numpy.add.reduce(numpy.add.reduce(maskGrid)))
-    
+
     #invert the mask grid
     invMask = numpy.logical_not(maskGrid)
     #del maskGrid

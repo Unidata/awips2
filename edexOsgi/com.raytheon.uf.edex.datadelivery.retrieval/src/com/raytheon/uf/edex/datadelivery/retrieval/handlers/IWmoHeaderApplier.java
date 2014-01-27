@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import java.util.Date;
+
 /**
  * Apply a WMO compliant header to text data.
  * 
@@ -29,6 +31,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 04, 2013 1647       djohnson     Initial creation
+ * Aug 07, 2013 1822       bgonzale     Added arguments to applyWmoHeader.
  * 
  * </pre>
  * 
@@ -39,12 +42,21 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 public interface IWmoHeaderApplier {
 
     /**
-     * Apply a WMO compliant header.
+     * Apply the WMO compliant header.
      * 
+     * @param dataProvider
+     *            NOMADS, MADIS, or PDA
+     * @param dataFormat
+     *            Binary Grid(OPENDAP), POINT(MADIS), NetCDF4
+     * @param sourceType
+     *            Model, Observation, Satellite
+     * @param date
+     *            data date
      * @param data
      *            the data
      * @return the data with a WMO compliant header
      */
-    String applyWmoHeader(final String data);
+    String applyWmoHeader(final String dataProvider, final String dataFormat,
+            final String sourceType, final Date date, final String data);
 
 }

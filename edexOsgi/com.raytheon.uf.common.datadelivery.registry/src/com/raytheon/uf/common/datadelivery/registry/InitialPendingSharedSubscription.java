@@ -40,6 +40,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 02, 2013 1841       djohnson    Initial creation
+ * Sept 30, 2013 1797      dhladky     Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff      Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -52,9 +55,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingSharedSubscription extends SharedSubscription
-        implements InitialPendingSubscription {
+        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
+public class InitialPendingSharedSubscription<T extends Time, C extends Coverage>
+        extends SharedSubscription<T, C> implements
+        InitialPendingSubscription<T, C> {
     private static final long serialVersionUID = 2779084460608459754L;
 
     /** ID of the user requesting the change */
@@ -83,8 +88,8 @@ public class InitialPendingSharedSubscription extends SharedSubscription
      * @param user
      *            user
      */
-    public InitialPendingSharedSubscription(SharedSubscription subscription,
-            String user) {
+    public InitialPendingSharedSubscription(
+            SharedSubscription<T, C> subscription, String user) {
         super(subscription);
 
         this.setChangeReqId(user);
@@ -130,7 +135,7 @@ public class InitialPendingSharedSubscription extends SharedSubscription
      * {@inheritDoc}
      */
     @Override
-    public Subscription subscription() {
-        return new SharedSubscription(this);
+    public Subscription<T, C> subscription() {
+        return new SharedSubscription<T, C>(this);
     }
 }

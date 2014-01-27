@@ -53,6 +53,7 @@ import com.raytheon.uf.common.pointdata.IPointData;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -269,7 +270,7 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/" + pluginName + ".xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 statusHandler.error("Unable to load " + pluginName
                         + " Point Data Description", e);
             }
@@ -496,17 +497,17 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
             this.beanMapCache.offer(bm);
         }
     }
-    
+
     protected String generatePointDataFileName(T bean) {
         return this.pluginName
-        + File.separator
-        + this.pathProvider.getHDFPath(this.pluginName,
-                (IPersistable) bean)
-        + File.separator
-        + getPointDataFileName(bean).replace(".h5", "")
-        + DefaultPathProvider.fileNameFormat.get().format(
-                ((PluginDataObject) bean).getDataTime()
-                        .getRefTime()) + ".h5";        
+                + File.separator
+                + this.pathProvider.getHDFPath(this.pluginName,
+                        (IPersistable) bean)
+                + File.separator
+                + getPointDataFileName(bean).replace(".h5", "")
+                + DefaultPathProvider.fileNameFormat.get().format(
+                        ((PluginDataObject) bean).getDataTime().getRefTime())
+                + ".h5";
     }
 
     public abstract T newObject();

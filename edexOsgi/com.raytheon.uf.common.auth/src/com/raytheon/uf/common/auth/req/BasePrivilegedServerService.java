@@ -28,6 +28,7 @@ import com.raytheon.uf.common.serialization.ExceptionWrapper;
 import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Send requests to a privileged service on the server.
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Jan 23, 2013 1643       djohnson     Initial creation.
  * May 20, 2013 1040       mpduff       Add check for UserNotAuthorized.
+ * Jul 26, 2031 2232       mpduff       Improve handling of UserNotAuthorized.
  * 
  * </pre>
  * 
@@ -73,7 +75,13 @@ public class BasePrivilegedServerService<T extends AbstractPrivilegedRequest>
                             .unwrapThrowable(((ServerErrorResponse) object)
                                     .getException()));
         } else if (object instanceof UserNotAuthorized) {
-            return null;
+            UserNotAuthorized na = (UserNotAuthorized) object;
+
+            // Display the not authorized message here, NwsNotAuthHandler cannot
+            // be accessed from here
+            UFStatus.getHandler(UserNotAuthorized.class).handle(
+                    Priority.PROBLEM, na.getMessage());
+            return super.unwrapResponse(responseType, na.getRequest());
         } else {
             statusHandler
                     .warn(String

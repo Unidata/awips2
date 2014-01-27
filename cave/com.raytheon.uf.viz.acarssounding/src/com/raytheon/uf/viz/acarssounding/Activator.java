@@ -22,8 +22,25 @@ package com.raytheon.uf.viz.acarssounding;
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
+
 /**
  * The activator class controls the plug-in life cycle
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 19, 2013 2269       bsteffen    Initial javadoc
+ * Aug 19, 2013 2269       bsteffen    Fix MDCRS data and switch acars to use
+ *                                     nsharp.
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
  */
 public class Activator extends Plugin {
 
@@ -46,6 +63,8 @@ public class Activator extends Plugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+        DataCatalogManager.getDataCatalogManager().addDataCatalog(
+                new AcarsSoundingVbDataCatalog());
 	}
 
 	/*

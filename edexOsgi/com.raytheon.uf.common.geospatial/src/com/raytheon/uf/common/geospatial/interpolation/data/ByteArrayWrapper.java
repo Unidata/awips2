@@ -22,7 +22,7 @@ package com.raytheon.uf.common.geospatial.interpolation.data;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
- * {@link AbstractDataWrapper} implementation for byte array data. 
+ * {@link AbstractDataWrapper} implementation for byte array data.
  * 
  * <pre>
  * 
@@ -113,4 +113,5 @@ public class ByteArrayWrapper extends DataWrapper1D {
     public void setDataValueInternal(double dataValue, int index) {
         array[index] = (byte) dataValue;
     }
+
 }

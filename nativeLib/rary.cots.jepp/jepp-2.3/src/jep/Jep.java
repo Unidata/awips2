@@ -821,7 +821,7 @@ public final class Jep {
         throws JepException;
 
     // added by njensen
-    public void setNumeric(String name, float[] v, int nx, int ny) throws JepException {
+    public void setNumpy(String name, float[] v, int nx, int ny) throws JepException {
 	if(this.closed)
 	    throw new JepException("Jep has been closed.");
 	isValidThread();
@@ -832,7 +832,7 @@ public final class Jep {
     private native void setNumeric(long tstate, String name, float[] v, int nx, int ny)
 	throws JepException;
     // end of added by njensen
-    public void setNumeric(String name, int[] v, int nx, int ny) throws JepException {
+    public void setNumpy(String name, int[] v, int nx, int ny) throws JepException {
         if(this.closed)
             throw new JepException("Jep has been closed.");
         isValidThread();
@@ -843,7 +843,7 @@ public final class Jep {
     private native void setNumeric(long tstate, String name, int[] v, int nx, int ny)
         throws JepException;
     
-    public void setNumeric(String name, byte[] v, int nx, int ny) throws JepException {
+    public void setNumpy(String name, byte[] v, int nx, int ny) throws JepException {
         if(this.closed)
             throw new JepException("Jep has been closed.");
         isValidThread();

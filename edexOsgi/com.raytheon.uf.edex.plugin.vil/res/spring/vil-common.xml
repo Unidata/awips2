@@ -10,7 +10,7 @@
    <bean id="vilProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="vilPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.vil" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.vil.dao.VILDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.vil.VILDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.vil.VILRecord" />
 		<property name="dependencyFQNs">
 		    <list>

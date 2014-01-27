@@ -31,14 +31,13 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.subscription.data.ReplacementRecord;
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
+import com.raytheon.edex.autobldsrv.data.ReplacementRecord;
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.runners.ISubscribeRunner;
 import com.raytheon.edex.subscription.runners.SubscribeRunner;
 import com.raytheon.edex.subscription.util.Tools;
 import com.raytheon.edex.uengine.runners.IMicroEngine;
 import com.raytheon.edex.uengine.runners.MicroEngine;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.message.DataURINotificationMessage;
 import com.raytheon.uf.common.message.Header;
@@ -46,6 +45,7 @@ import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.util.ReflectionUtil;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -261,15 +261,15 @@ public class ScriptRunner {
         } else {
             String path = record.getFilepath();
             String args = record.getArguments();
-            if (Util.isEmptyString(path) && Util.isEmptyString(args)) {
+            if (StringUtil.isEmptyString(path) && StringUtil.isEmptyString(args)) {
                 logger.warn("Unable to execute script for " + record.toString());
                 return;
             }
-            if (!Util.isEmptyString(args)) {
+            if (!StringUtil.isEmptyString(args)) {
                 args = args.replaceAll(TRIGGER_KEY, trigger);
             }
-            script = (Util.isEmptyString(path) ? "" : path) + " "
-                    + (Util.isEmptyString(args) ? "" : args);
+            script = (StringUtil.isEmptyString(path) ? "" : path) + " "
+                    + (StringUtil.isEmptyString(args) ? "" : args);
         }
         IMicroEngine engine = null;
         try {

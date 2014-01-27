@@ -23,11 +23,6 @@
         class="com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.AbstractMetadataAdapter"
         factory-method="getMetadataAdapterRegistry" />
 
-    <bean factory-bean="metadataAdapterRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.grid.GridRecord" />
-        <constructor-arg value="com.raytheon.uf.edex.datadelivery.retrieval.metadata.adapters.GridMetadataAdapter" type="java.lang.Class" />
-    </bean>
-
     <!-- Register service factories -->
     <bean factory-bean="serviceFactoryRegistry" factory-method="register">
         <constructor-arg value="OPENDAP" />
@@ -93,8 +88,7 @@
 
         <route id="dataDeliveryNotify">
             <from uri="direct-vm:dataDeliveryNotify" />
-            <bean ref="toDataURI" method="toDataURI" />
-            <to uri="vm:stageNotification" />
+            <to uri="direct-vm:stageNotification" />
         </route>
     </camelContext>
 

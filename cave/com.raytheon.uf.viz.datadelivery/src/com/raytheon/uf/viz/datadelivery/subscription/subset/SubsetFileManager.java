@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Aug 22, 2012  0743      djohnson   Add TimeXML subclasses.
  * Nov 19, 2012  1289      bgonzale   Added deleteArea(String) method.
  * Jun 04, 2013   223      mpduff     Added PointTimeXML to JaxB context.
+ * Oct 11, 2013   2386     mpduff     Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -72,11 +73,14 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  */
 
 public class SubsetFileManager {
+    /** Singleton instance */
     private static SubsetFileManager instance = new SubsetFileManager();
 
+    /** Area file path */
     private final String AREA_PATH = "dataDelivery" + File.separator + "subset"
             + File.separator + "area" + File.separator;
 
+    /** Subset file path */
     private final String SUBSET_PATH = "dataDelivery" + File.separator
             + "subset" + File.separator;
 
@@ -93,8 +97,12 @@ public class SubsetFileManager {
     /** Unmarshaller object */
     private Unmarshaller unmarshaller;
 
+    /** Array of subset files */
     private LocalizationFile[] subsetFiles;
 
+    /**
+     * Private constructor.
+     */
     private SubsetFileManager() {
         createContext();
     }
@@ -133,6 +141,7 @@ public class SubsetFileManager {
      * @param area
      *            The area xml object to save
      * @param shell
+     *            The calling dialog's shell
      * @return true if save successful
      */
     public boolean saveArea(AreaXML area, Shell shell) {
@@ -202,8 +211,6 @@ public class SubsetFileManager {
     /**
      * Get the AreaXML file
      * 
-     * @param name
-     *            Saved file name
      * @return AreaXML object
      */
     public LocalizationFile[] getAreas() {
@@ -227,7 +234,6 @@ public class SubsetFileManager {
             area = (AreaXML) unmarshaller.unmarshal(file);
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-            e.printStackTrace();
         }
         return area;
     }
@@ -255,6 +261,7 @@ public class SubsetFileManager {
      * @param subset
      *            the object to save
      * @param shell
+     *            The calling dialog's shell
      * @return true if successfully saved
      */
     public boolean saveSubset(SubsetXML subset, Shell shell) {
@@ -279,15 +286,12 @@ public class SubsetFileManager {
         try {
             marshaller.marshal(subset, subsetLocFile.getFile());
             subsetLocFile.save();
-            System.out.println("Saved " + subsetLocFile.getFile().getPath());
 
             return true;
         } catch (JAXBException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-            e.printStackTrace();
         } catch (LocalizationOpFailedException e) {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
-            e.printStackTrace();
         }
 
         return false;
@@ -301,7 +305,7 @@ public class SubsetFileManager {
      * 
      * @return The SubsetXML object
      */
-    public SubsetXML<?> loadSubset(String subsetName) {
+    public SubsetXML loadSubset(String subsetName) {
         // Load the subset files if not already loaded
         if (subsetFiles == null || subsetFiles.length == 0) {
             getSubsets();
@@ -310,7 +314,7 @@ public class SubsetFileManager {
         for (LocalizationFile lf : subsetFiles) {
             if (lf.getFile().getName().equals(subsetName)) {
                 try {
-                    return (SubsetXML<?>) unmarshaller.unmarshal(lf.getFile());
+                    return (SubsetXML) unmarshaller.unmarshal(lf.getFile());
                 } catch (JAXBException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);

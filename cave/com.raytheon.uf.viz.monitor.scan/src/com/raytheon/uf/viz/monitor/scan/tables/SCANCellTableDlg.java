@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.monitor.scan.data.UnwarnedCell;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlertedAlarms;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the CELL table dialog.
@@ -87,11 +88,17 @@ import com.raytheon.viz.ui.EditorUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2009 #3039      lvenable    Initial creation
  * 
- * 03/15/2012	13939	   Mike Duff    For a SCAN Alarms issue
+ * 03/15/2012	13939	   mpduff      For a SCAN Alarms issue
  * Apr 26, 2013 #1945      lvenable    Improved SCAN performance, reworked
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * Jul 24, 2013 #2218      mpduff      Method signature changed.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialogs.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * 
  * </pre>
  * 
@@ -186,7 +193,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     private SCANAlarmsDlg alarmDlg = null;
 
     /** Date format for the time label. */
-    private SimpleDateFormat dateFmt = new SimpleDateFormat(
+    private final SimpleDateFormat dateFmt = new SimpleDateFormat(
             "E MMM dd HH:mm yyyy");
 
     /**
@@ -306,13 +313,11 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
             }
         });
 
-        gd = new GridData();
         configBtn = new Button(controlComp, SWT.PUSH);
         configBtn.setText("Configurations");
         configBtn
                 .setBackground(scanCfg.getScanColor(ScanColors.Configurations));
         configBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        configBtn.setLayoutData(gd);
         configBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -343,12 +348,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(rankBtn);
 
-        gd = new GridData();
         attribBtn = new Button(controlComp, SWT.PUSH);
         attribBtn.setText("Attributes");
         attribBtn.setBackground(scanCfg.getScanColor(ScanColors.Attributes));
         attribBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        attribBtn.setLayoutData(gd);
         attribBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -358,12 +361,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        gd = new GridData();
         tablesBtn = new Button(controlComp, SWT.PUSH);
         tablesBtn.setText("Tables");
         tablesBtn.setBackground(scanCfg.getScanColor(ScanColors.Default));
         tablesBtn.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        tablesBtn.setLayoutData(gd);
         tablesBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -376,55 +377,58 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(tablesBtn);
 
-        gd = new GridData();
-        linkToFrameChk = new Button(controlComp, SWT.CHECK);
-        linkToFrameChk.setText("Link to Frame ");
-        linkToFrameChk.setBackground(scanCfg
-                .getScanColor(ScanColors.LinkToFrame));
-        linkToFrameChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Link to Frame
+         */
+        linkToFrameChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.LinkToFrame),
+                display.getSystemColor(SWT.COLOR_WHITE), "Link to Frame ",
+                true, null);
+
         linkToFrameChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getLinkToFrame());
-        linkToFrameChk.setLayoutData(gd);
+
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleLinkToFrame();
             }
         });
-        setupButtonMouseListeners(linkToFrameChk);
 
+        /*
+         * CWA Filter
+         */
         StringBuilder tipText = new StringBuilder();
         tipText.append("Activate to remove from the SCAN table all cells,\n");
         tipText.append("MESOs, and TVS's that are outside your CWA.\n\n");
         tipText.append("Deactivate to include in the SCAN table all cells,\n");
         tipText.append("MESOs, and TVS's detected by radar.");
 
-        gd = new GridData();
-        cwaFilterChk = new Button(controlComp, SWT.CHECK);
-        cwaFilterChk.setText("CWA Filter ");
-        cwaFilterChk.setBackground(scanCfg.getScanColor(ScanColors.CWAFilter));
-        cwaFilterChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        cwaFilterChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.CWAFilter),
+                display.getSystemColor(SWT.COLOR_WHITE), "CWA Filter ", true,
+                tipText.toString());
+
         cwaFilterChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getFilterOption());
-        cwaFilterChk.setLayoutData(gd);
-        cwaFilterChk.setToolTipText(tipText.toString());
         cwaFilterChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleCWAFilterAction();
             }
         });
-        setupButtonMouseListeners(cwaFilterChk);
 
-        // Uses same back ground color as attributes.
-        gd = new GridData();
-        unwarnedChk = new Button(controlComp, SWT.CHECK);
-        unwarnedChk.setText("Unwarned ");
-        unwarnedChk.setBackground(scanCfg.getScanColor(ScanColors.Attributes));
-        unwarnedChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Unwarned
+         */
+        unwarnedChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Attributes),
+                display.getSystemColor(SWT.COLOR_WHITE), "Unwarned ", true,
+                null);
+
         unwarnedChk.setSelection(cellCfgMgr.getScanCellCfgXML()
                 .getFilterOption());
-        unwarnedChk.setLayoutData(gd);
+
         unwarnedChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -432,41 +436,31 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 displayUnwarnedAlarmDialog();
             }
         });
-        setupButtonMouseListeners(unwarnedChk);
 
         // Create/Recreate the unwarned config data since the ScanConfig is a
-        // singleton
-        // and the data clears out when the CELL table dialog get re-created.
+        // singleton and the data clears out when the CELL table dialog get
+        // re-created.
         scanCfg.createUnwarnedConfig();
 
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Vertical - tech blocked
+         */
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
+
         vertChk.setSelection(cellCfgMgr.getScanCellCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
+        vertChk.setEnabled(false);
 
         /*
-         * The vertical table is a techblocked DR. This selection listener will
-         * be commented out until it is needed.
+         * Tool tips
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
         tipsChk.setSelection(cellCfgMgr.getScanCellCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -474,8 +468,10 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 scanTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Alarm button
+         */
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         gd.widthHint = 75;
         alarmBtn = new Button(controlComp, SWT.PUSH);
@@ -487,11 +483,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         alarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
+                if(alarmDlg==null || alarmDlg.isDisposed()){
                 alarmDlg = new SCANAlarmsDlg(shell, ScanTables.CELL, site);
+                alarmDlg.setCloseCallback(new ICloseCallback(){
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (!alarmBtn.isDisposed()
+                                && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
+                            turnOffAlarm();
+                        }
+                    }
+                    
+                });
                 alarmDlg.open();
-                if (!alarmBtn.isDisposed()
-                        && (mgr.getAlertedAlarmCount(site, scanTable) == 0)) {
-                    turnOffAlarm();
+                } else {
+                    alarmDlg.bringToTop();
                 }
             }
         });
@@ -754,13 +761,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Attributes dialog.
      */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
-                || (attributeDlg.getParent().isDisposed() == true)) {
+        if (attributeDlg == null
+                || attributeDlg.getParent().isDisposed() == true) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
+            attributeDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(attributeDlg);
+                    attributeDlg = null;
+                }
+
+            });
             registerDialog(attributeDlg);
             attributeDlg.open();
-            attributeDlg = null;
-            unregisterDialog(attributeDlg);
+        } else {
+            attributeDlg.bringToTop();
         }
     }
 
@@ -770,10 +786,19 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     private void displayColorThresholdDialog() {
         if (colorThresholdDlg == null) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(colorThresholdDlg);
+                    colorThresholdDlg = null;
+                }
+
+            });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
-            unregisterDialog(colorThresholdDlg);
-            colorThresholdDlg = null;
+        } else {
+            colorThresholdDlg.bringToTop();
         }
     }
 
@@ -781,12 +806,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Storm Cell dialog.
      */
     private void displayStormCellDialog() {
-        if (scidDlg == null) {
+        if (scidDlg == null || scidDlg.isDisposed()) {
             scidDlg = new StormCellIdDisplayDlg(shell, this);
+            scidDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(scidDlg);
+                    scidDlg = null;
+                }
+
+            });
             registerDialog(scidDlg);
             scidDlg.open();
-            unregisterDialog(scidDlg);
-            scidDlg = null;
+        } else {
+            scidDlg.bringToTop();
         }
     }
 
@@ -794,12 +828,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Alarm threshold dialog.
      */
     private void displayAlarmThresholdDialog() {
-        if (alarmThreshDlg == null) {
+        if (alarmThreshDlg == null || alarmThreshDlg.isDisposed()) {
             alarmThreshDlg = new SCANAlarmThreshDlg(site, shell, scanTable);
+            alarmThreshDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmThreshDlg);
+                    alarmThreshDlg = null;
+                }
+            });
             registerDialog(alarmThreshDlg);
             alarmThreshDlg.open();
-            unregisterDialog(alarmThreshDlg);
-            alarmThreshDlg = null;
+
+        } else {
+            alarmThreshDlg.bringToTop();
         }
     }
 
@@ -807,13 +850,22 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Alarm Time Limit dialog.
      */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmTimeLimitDlg);
+                    alarmTimeLimitDlg = null;
+                }
+
+            });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
-            unregisterDialog(alarmTimeLimitDlg);
-            alarmTimeLimitDlg = null;
+        } else {
+            alarmTimeLimitDlg.bringToTop();
         }
     }
 
@@ -821,36 +873,50 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Unwarned Alarm dialog.
      */
     private void displayUnwarnedAlarmDialog() {
-        if (unwarnedAlarmDlg == null) {
+        if (unwarnedAlarmDlg == null || unwarnedAlarmDlg.isDisposed()) {
             unwarnedAlarmDlg = new SCANUnwarnedDlg(shell);
-            registerDialog(unwarnedAlarmDlg);
-            Boolean okSelected = (Boolean) unwarnedAlarmDlg.open();
+            unwarnedAlarmDlg.setCloseCallback(new ICloseCallback() {
 
-            // The check box is a toggle... so capture the toggled state.
-            Boolean isEnabled = unwarnedChk.getEnabled();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    // The check box is a toggle... so capture the toggled
+                    // state.
+                    Boolean isEnabled = unwarnedChk.getEnabled();
+                    if (returnValue instanceof Boolean) {
+                        Boolean okSelected = (Boolean) returnValue;
+                        if (okSelected) {
+                            if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == false)
+                                    && (scanCfg.getUnwarnedConfig()
+                                            .getUnwarnedSvr() == false)) {
+                                unwarnedChk.setSelection(false);
+                            } else {
+                                unwarnedChk.setSelection(true);
+                            }
+                        } else if ((scanCfg.getUnwarnedConfig()
+                                .getUnwarnedTor() == true)
+                                && (scanCfg.getUnwarnedConfig()
+                                        .getUnwarnedSvr() == true)) {
+                            unwarnedChk.setSelection(true);
+                        } else {
+                            // If the checkbox should not change state, reverse
+                            // the effect
+                            // of the toggle behavior inherent to the checkbox.
+                            unwarnedChk.setSelection(!isEnabled);
+                        }
+                    }
+                    unregisterDialog(unwarnedAlarmDlg);
+                    unwarnedAlarmDlg = null;
 
-            if (okSelected == true) {
-                if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == false)
-                        && (scanCfg.getUnwarnedConfig().getUnwarnedSvr() == false)) {
-                    unwarnedChk.setSelection(false);
-                } else {
-                    unwarnedChk.setSelection(true);
+                    IMonitorConfigurationEvent imce = new IMonitorConfigurationEvent(
+                            SCANCellTableDlg.this);
+                    SCANCellTableDlg.this.fireConfigUpdate(imce);
                 }
-            } else if ((scanCfg.getUnwarnedConfig().getUnwarnedTor() == true)
-                    && (scanCfg.getUnwarnedConfig().getUnwarnedSvr() == true)) {
-                unwarnedChk.setSelection(true);
-            } else {
-                // If the checkbox should not change state, reverse the effect
-                // of the toggle behavior inherent to the checkbox.
-                unwarnedChk.setSelection(!isEnabled);
-            }
+            });
 
-            unwarnedAlarmDlg = null;
-            unregisterDialog(unwarnedAlarmDlg);
-
-            IMonitorConfigurationEvent imce = new IMonitorConfigurationEvent(
-                    this);
-            this.fireConfigUpdate(imce);
+            registerDialog(unwarnedAlarmDlg);
+            unwarnedAlarmDlg.open();
+        } else {
+            unwarnedAlarmDlg.bringToTop();
         }
     }
 
@@ -858,13 +924,21 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
      * Display the Create and Edit Trend Set dialog.
      */
     private void displayCreateEditTrendDialog() {
-        if (editTrendDlg == null) {
+        if (editTrendDlg == null || editTrendDlg.isDisposed()) {
             editTrendDlg = new EditCreateTrendDlg(shell, scanTable);
+            editTrendDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    updateDefineActiveTrendMenu();
+                    editTrendDlg = null;
+                    unregisterDialog(editTrendDlg);
+                }
+            });
             registerDialog(editTrendDlg);
             editTrendDlg.open();
-            updateDefineActiveTrendMenu();
-            editTrendDlg = null;
-            unregisterDialog(editTrendDlg);
+        } else {
+            editTrendDlg.bringToTop();
         }
     }
 
@@ -1009,7 +1083,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
     @Override
     public void shellDisposeDialog() {
         killDialog = true;
-        shell.dispose();
+        close();
     }
 
     /**
@@ -1086,8 +1160,7 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
                 // closes the alarm dialog if new data comes in or user switches
                 // frame
                 Date scanMostRecentTime = null;
-                DataTime dataTime = scan.getMostRecent(scan, scanTable.name(),
-                        site);
+                DataTime dataTime = scan.getMostRecent(scanTable.name(), site);
                 if (dataTime != null) {
                     scanMostRecentTime = dataTime.getRefTime();
                 }
@@ -1223,6 +1296,9 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         // nop op
     }
 
+    /* (non-Javadoc)
+     * @see com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(java.lang.String)
+     */
     @Override
     public void centerByStormId(String stormId) {
         fireRecenter(stormId, scanTable, site);
@@ -1280,6 +1356,12 @@ public class SCANCellTableDlg extends AbstractTableDlg implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#
+     * displayTrendSetGraphs(java.lang.String)
+     */
     @Override
     public void displayTrendSetGraphs(String ident) {
         scanTableComp.displayTrendSetGraphFromMap(ident);

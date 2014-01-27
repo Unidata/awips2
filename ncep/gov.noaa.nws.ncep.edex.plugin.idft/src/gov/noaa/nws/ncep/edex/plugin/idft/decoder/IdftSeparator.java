@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 
 public class IdftSeparator extends AbstractRecordSeparator {
@@ -114,7 +114,7 @@ public class IdftSeparator extends AbstractRecordSeparator {
     public byte[] next() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();
@@ -145,7 +145,7 @@ public class IdftSeparator extends AbstractRecordSeparator {
     public byte[] getRecord() {
         try {
             String temp = iterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();
@@ -163,7 +163,7 @@ public class IdftSeparator extends AbstractRecordSeparator {
     public byte[] getBulletin() {
         try {
             String temp = bulIterator.next();
-            if (Util.isEmptyString(temp)) {
+            if (StringUtil.isEmptyString(temp)) {
                 return (byte[]) null;
             } else {
                 return temp.getBytes();

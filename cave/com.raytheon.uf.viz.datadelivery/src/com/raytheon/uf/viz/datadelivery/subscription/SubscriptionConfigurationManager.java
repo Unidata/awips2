@@ -21,10 +21,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -39,6 +36,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -61,7 +59,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.SubColumnNames;
  * Mar 9, 2012    418      jpiatt     Updates for load, save & set default xml.
  * Jun 07, 2012   687      lvenable   Table data refactor.
  * Jan 03, 2013  1437      bgonzale   Put default configuration file code here.
- * 
+ * Jun 21, 2013  2130      mpduff     Fix ordering of columns.
+ * Nov 06, 2013  2358      mpduff     Remove default configuration code.
  * </pre>
  * 
  * @author mpduff
@@ -106,6 +105,9 @@ public class SubscriptionConfigurationManager {
     /** File name */
     String fileName;
 
+    /** Current Configuration File */
+    private LocalizationFile currentConfigFile = null;
+
     /**
      * Private Constructor
      */
@@ -135,7 +137,8 @@ public class SubscriptionConfigurationManager {
     private void readXML() {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+            LocalizationContext context = pm.getContext(
+                    LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
             LocalizationFile locFile = pm
                     .getLocalizationFile(context, fileName);
@@ -144,14 +147,15 @@ public class SubscriptionConfigurationManager {
                 File file = locFile.getFile();
 
                 if (file != null && file.exists()) {
-                    xml = (SubscriptionManagerConfigXML)unmarshaller.unmarshal(file);
-                }
-                else {
+                    xml = (SubscriptionManagerConfigXML) unmarshaller
+                            .unmarshal(file);
+                } else {
                     xml = new SubscriptionManagerConfigXML();
                 }
             }
         } catch (JAXBException e1) {
-            statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
+            statusHandler
+                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
 
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
@@ -169,7 +173,8 @@ public class SubscriptionConfigurationManager {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
-        LocalizationContext context = pm.getContext(LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
         LocalizationFile locFile = pm.getLocalizationFile(context, fileName);
 
         File file = null;
@@ -178,10 +183,8 @@ public class SubscriptionConfigurationManager {
         }
 
         try {
-
             marshaller.marshal(xml, file);
             locFile.save();
-
         } catch (JAXBException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         } catch (Exception e) {
@@ -211,10 +214,11 @@ public class SubscriptionConfigurationManager {
     private void populateAlignmentMap() {
         for (int i = 0; i < SubColumnNames.values().length; i++) {
             if ((i == 2) || (i == 3)) {
-                alignmentMap.put(SubColumnNames.values()[i].toString(), SWT.CENTER);
-            }
-            else {
-                alignmentMap.put(SubColumnNames.values()[i].toString(), SWT.LEFT);
+                alignmentMap.put(SubColumnNames.values()[i].toString(),
+                        SWT.CENTER);
+            } else {
+                alignmentMap.put(SubColumnNames.values()[i].toString(),
+                        SWT.LEFT);
             }
         }
     }
@@ -270,80 +274,75 @@ public class SubscriptionConfigurationManager {
     /**
      * Set the current configuration file.
      * 
-     * @param currentConfigFile
+     * @param configFile
      */
     public void setConfigFile(LocalizationFile configFile) {
         File file = configFile.getFile();
         fileName = configFile.getName();
-        try {
-            xml = (SubscriptionManagerConfigXML) unmarshaller.unmarshal(file);
-        } catch (JAXBException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        this.currentConfigFile = configFile;
+        if (!file.exists()) {
+            if (xml == null) {
+                xml = new SubscriptionManagerConfigXML();
+            }
+        } else {
+            try {
+                xml = (SubscriptionManagerConfigXML) unmarshaller
+                        .unmarshal(file);
+            } catch (JAXBException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
+            }
         }
-    }
-
-    /**
-     * Get the available configuration files to list.
-     * 
-     * @return Map of context:name to LocalizationFile.
-     */
-    public Map<String, LocalizationFile> getConfigFileNameMap() {
-        String[] extensions = new String[] { ".xml" };
-        IPathManager pm = PathManagerFactory.getPathManager();
-        TreeMap<String, LocalizationFile> locFileMap = new TreeMap<String, LocalizationFile>();
-        ArrayList<LocalizationContext> contextList = new ArrayList<LocalizationContext>();
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.BASE));
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.SITE));
-        contextList.add(pm.getContext(LocalizationType.CAVE_STATIC,
-                LocalizationLevel.USER));
-        LocalizationFile[] locFiles = pm.listFiles(contextList
-                .toArray(new LocalizationContext[contextList.size()]),
-                CONFIG_PATH, extensions, false, true);
-
-        if (locFiles == null) {
-            return new TreeMap<String, LocalizationFile>();
-        }
-
-        for (int i = 0; i < locFiles.length; i++) {
-            String locFile = locFiles[i].getName();
-            int idx = locFile.lastIndexOf("/");
-            String newStr = locFile.substring(idx + 1);
-
-            locFileMap.put(locFiles[i].getContext().getLocalizationLevel()
-                    + ":" + newStr, locFiles[i]);
-        }
-        return locFileMap;
     }
 
     /**
      * Set the hidden and visible columns in the configuration.
      * 
      * @param visibleColumns
+     *            List of visible columns
      * @param hiddenColumns
+     *            List of hidden columns
      */
     public void setVisibleAndHidden(String[] visibleColumns,
             String[] hiddenColumns) {
         ArrayList<ColumnXML> columnList = new ArrayList<ColumnXML>();
-        Arrays.sort(visibleColumns);
-        Arrays.sort(hiddenColumns);
-        for (ColumnXML column :xml.getColumnList()) {
-            int visibleIndex = Arrays.binarySearch(visibleColumns, column.getName());
-            if (visibleIndex < 0) {
-                // not in visible, check hidden
-                int hiddenIndex = Arrays.binarySearch(hiddenColumns, column.getName());
-                if (hiddenIndex >= 0) {
-                    column.setVisible(false);
-                    columnList.add(column);
-                }
-            } else {
-                column.setVisible(true);
-                columnList.add(column);
+
+        for (String columnName : visibleColumns) {
+            ColumnXML columnXml = getColumnXml(columnName);
+            if (columnXml == null) {
+                continue;
+            }
+            columnXml.setVisible(true);
+            columnList.add(columnXml);
+        }
+
+        for (String columnName : hiddenColumns) {
+            ColumnXML columnXml = getColumnXml(columnName);
+            if (columnXml == null) {
+                continue;
+            }
+            columnXml.setVisible(false);
+            columnList.add(columnXml);
+        }
+
+        xml.setColumnList(columnList);
+    }
+
+    /**
+     * Get the columnXML object for the provided column name.
+     * 
+     * @param columnName
+     *            The column name
+     * @return the ColumnXML object or null if no column by that name exists
+     */
+    private ColumnXML getColumnXml(String columnName) {
+        for (ColumnXML col : xml.getColumnList()) {
+            if (col.getName().equals(columnName)) {
+                return col;
             }
         }
-        xml.setColumnList(columnList);
-        saveXml();
+
+        return null;
     }
 
     /**
@@ -368,15 +367,91 @@ public class SubscriptionConfigurationManager {
         saveXml();
     }
 
+    /**
+     * Get the localization (config) file path
+     * 
+     * @return
+     */
     public String getLocalizationPath() {
         return CONFIG_PATH;
     }
 
+    /**
+     * Get the default config file's full path
+     * 
+     * @return
+     */
     public String getDefaultXMLConfig() {
         return DEFAULT_CONFIG_XML;
     }
 
+    /**
+     * Get the default config file's name
+     * 
+     * @return
+     */
+    public String getDefaultXMLConfigFileName() {
+        return DEFAULT_CONFIG_XML_FILE;
+    }
+
+    /**
+     * Set the sorted Column
+     * 
+     * @param columnName
+     * @param sortDirection
+     */
     public void setSortedColumn(String columnName, SortDirection sortDirection) {
         xml.setSortColumn(columnName, sortDirection);
+    }
+
+    /**
+     * Unmarshal the file.
+     * 
+     * @param file
+     * @return
+     * @throws JAXBException
+     */
+    public SubscriptionManagerConfigXML unmarshall(File file)
+            throws JAXBException {
+        Object obj = unmarshaller.unmarshal(file);
+        if (obj instanceof SubscriptionManagerConfigXML) {
+            return (SubscriptionManagerConfigXML) obj;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return the currentConfigFile
+     */
+    public LocalizationFile getCurrentConfigFile() {
+        return currentConfigFile;
+    }
+
+    /**
+     * @param currentConfigFile
+     *            the currentConfigFile to set
+     */
+    public void setCurrentConfigFile(LocalizationFile currentConfigFile) {
+        this.currentConfigFile = currentConfigFile;
+    }
+
+    /**
+     * Delete the localization file.
+     * 
+     * @param file
+     *            the file to delete
+     */
+    public void deleteXml(LocalizationFile file) {
+        try {
+            boolean success = file.delete();
+            if (!success) {
+                statusHandler.handle(Priority.WARN,
+                        "Error deleting " + file.getName());
+            }
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error deleting " + file.getName(), e);
+        }
     }
 }

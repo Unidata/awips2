@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource;
+import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource.IAttributesUpdatedListener;
 import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource.IDoubleClickSelectionListener;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
@@ -80,6 +81,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Oct 30, 2012      #1326 randerso    Initial creation
  * Mar 21, 2013       1638 mschenke    Created Pair class internal so no dependencies on GFE
+ * Jul 24, 2013      #1908 randerso    Added support for updating attributes when resource cropped.
+ *                                     Code cleanup
  * 
  * </pre>
  * 
@@ -87,7 +90,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * @version 1.0
  */
 
-public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
+public class AttributeViewer extends CaveJFACEDialog implements RemoveListener,
+        IDoubleClickSelectionListener, IAttributesUpdatedListener {
     private static final String HIGHLIGHT = "HighLight";
 
     private static final String VISIBLE = "Visible";
@@ -100,7 +104,7 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
      * 
      * @param shell
      * @param rsc
-     * @return
+     * @return the attribute viewer
      */
     public static AttributeViewer openDialog(Shell shell, DataStoreResource rsc) {
         AttributeViewer dlg = map.get(rsc);
@@ -213,8 +217,6 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
 
     private Object[][] attributes;
 
-    private Shell parentShell;
-
     private TableViewer viewer;
 
     protected String[] selectedColumns;
@@ -225,7 +227,7 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
 
     private int[] columnWidth;
 
-    private IDoubleClickSelectionListener selectedListener;
+    private Label rowCount;
 
     /**
      * Create an attribute viewer for the specified DataStoreResource
@@ -243,9 +245,6 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
         this.title = rsc.getName();
         this.names = rsc.getAttributeNames();
         this.selectedColumns = this.names;
-        this.parentShell = parentShell;
-
-        // TODO: may need to deep copy this in case it changes out from under us
         this.attributes = rsc.getAttributes();
 
         map.put(rsc, this);
@@ -431,39 +430,22 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
 
         });
 
-        Label label = new Label(composite, SWT.NONE);
-        label.setText(this.attributes.length + " rows");
+        rowCount = new Label(composite, SWT.NONE);
+        rowCount.setText(this.attributes.length + " rows");
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        label.setLayoutData(layoutData);
+        rowCount.setLayoutData(layoutData);
 
         initializeColors();
-
-        selectedListener = new IDoubleClickSelectionListener() {
-
-            @Override
-            public void selectedFeaturesChanged(List<String> selectedIds) {
-                Table table = viewer.getTable();
-                int i = 0;
-                table.deselectAll();
-                for (TableItem item : table.getItems()) {
-                    if (selectedIds.contains(item.getText(0))) {
-                        table.select(i);
-                    }
-                    i++;
-                }
-                if (table.getSelectionCount() > 0) {
-                    table.showItem(table.getSelection()[0]);
-                }
-            }
-        };
 
         table.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                rsc.removeDoubleClickSelectionListener(selectedListener);
+                rsc.removeDoubleClickSelectionListener(AttributeViewer.this);
+                rsc.removeAttributesUpdatedListener(AttributeViewer.this);
             }
         });
-        rsc.addDoubleClickSelectionListener(selectedListener);
+        rsc.addDoubleClickSelectionListener(this);
+        rsc.addAttributesUpdatedListener(this);
 
         return composite;
     }
@@ -471,8 +453,8 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
     private void initializeColors() {
         for (TableItem item : viewer.getTable().getItems()) {
             String id = item.getText(0);
-            item.setData(VISIBLE, rsc.getVisible(id));
-            item.setData(HIGHLIGHT, rsc.getHighlighted(id));
+            item.setData(VISIBLE, rsc.isVisible(id));
+            item.setData(HIGHLIGHT, rsc.isHighlighted(id));
             setColors(item);
         }
     }
@@ -639,5 +621,34 @@ public class AttributeViewer extends CaveJFACEDialog implements RemoveListener {
         } else {
             sortDlg.bringToTop();
         }
+    }
+
+    @Override
+    public void selectedFeaturesChanged(List<String> selectedIds) {
+        Table table = viewer.getTable();
+        int i = 0;
+        table.deselectAll();
+        for (TableItem item : table.getItems()) {
+            if (selectedIds.contains(item.getText(0))) {
+                table.select(i);
+            }
+            i++;
+        }
+        if (table.getSelectionCount() > 0) {
+            table.showItem(table.getSelection()[0]);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResource.
+     * IAttributesUpdatedListener#attributesUpdated()
+     */
+    @Override
+    public void attributesUpdated() {
+        this.attributes = rsc.getAttributes();
+        viewer.setInput(this.attributes);
+        rowCount.setText(this.attributes.length + " rows");
     }
 }

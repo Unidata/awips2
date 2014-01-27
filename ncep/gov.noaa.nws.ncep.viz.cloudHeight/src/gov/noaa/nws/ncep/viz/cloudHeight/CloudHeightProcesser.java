@@ -80,6 +80,8 @@ import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
+import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteBufferWrapper;
 //import com.raytheon.viz.core.gl.dataprep.ByteDataPreparer;
 //import com.raytheon.viz.core.gl.dataprep.GlNumericImageData;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
@@ -845,15 +847,11 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 						                         double tempDbl = Double.NaN;
 						                         if (retriever != null ){
 
-						                        	 /* Wrap the raw data of bytes into a GLByteDataFormat object */
-							                          //TODO? GLColorMapDataFormatFactory bdff = new GLColorMapDataFormatFactory();
-						                        	  //TODO? GLByteDataFormat bdf = bdff.getGLColorMapDataFormat(byteBuffer, retriever, rectangle, new int[] {maxX,maxY});
-						                        	  GLByteDataFormat bdf = new GLByteDataFormat();
-						                        	  ColorMapData cmd = new ColorMapData(byteBuffer, new int[] {maxX,maxY});
-						                        	  GLColorMapData glColorMapData = new GLColorMapData(cmd, bdf);
+						                        	 /* Wrap the raw data of bytes into a ByteBufferWrapper object */
+						                              UnsignedByteBufferWrapper bdf = new UnsignedByteBufferWrapper(byteBuffer, maxX, maxY);
 						                        	  
 						                        	  /*Get the actual pixel value information from the byte array */ 
-						                        	  tempDbl = bdf.getValue( ( int )( outCoord[ 0 ] ), ( int ) ( outCoord[ 1 ] ),  glColorMapData );
+						                        	  tempDbl = bdf.getDataValue( ( int )( outCoord[ 0 ] ), ( int ) ( outCoord[ 1 ] ));
 						                        	  
 						                        	   if ( isSinglePixelNeeded ){
 					                                       pixVal = new Double( (tempDbl) );
@@ -880,7 +878,7 @@ SoundingModelReader sndingMdlRdr = new SoundingModelReader(
 					                                		  /*Generate the NxN array of pixel values*/
 					                                		  for ( int i = 0 ;  i < newArrDimensions ;  i++){
 					                                			  for ( int j = 0 ; j < newArrDimensions ; j++){
-					                                				  arrayOfPixVal[i][j] = bdf.getValue( ( int )( squarePixelArea[i][j].xCoord ), ( int ) ( squarePixelArea[i][j].yCoord ), glColorMapData );
+					                                				  arrayOfPixVal[i][j] = bdf.getDataValue( ( int )( squarePixelArea[i][j].xCoord ), ( int ) ( squarePixelArea[i][j].yCoord ));
 					                                			  }
 					                                		  }  		                           		              
 

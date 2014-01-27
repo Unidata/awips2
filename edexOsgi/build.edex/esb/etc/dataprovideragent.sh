@@ -21,10 +21,10 @@
 
 export INIT_MEM=512 # in Meg
 export MAX_MEM=1536 # in Meg
-
+export MAX_PERM_SIZE=192m
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5010
 export EDEX_JMX_PORT=1621
-export LOG4J_CONF=log4j-dataprovideragent.xml
+export LOG_CONF=logback-dataprovideragent.xml
 export MGMT_PORT=9606
 

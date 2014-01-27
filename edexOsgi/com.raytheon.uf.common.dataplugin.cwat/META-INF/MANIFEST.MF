@@ -4,14 +4,15 @@ Bundle-Name: Cwat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.cwat
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.viz.core
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
- com.raytheon.edex.common;bundle-version="1.11.1",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.geotools;bundle-version="2.5.2",
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.monitor;bundle-version="1.11.5",
- com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.uf.common.dataplugin.cwat,
- com.raytheon.uf.common.dataplugin.cwat.dao
+Export-Package: com.raytheon.uf.common.dataplugin.cwat
+Import-Package: org.apache.commons.logging

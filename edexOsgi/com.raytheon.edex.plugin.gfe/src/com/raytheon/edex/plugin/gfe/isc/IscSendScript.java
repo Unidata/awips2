@@ -35,6 +35,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 25, 2011            dgilling     Initial creation
+ * Sep 05, 2013  #2307     dgilling     Use better PythonScript constructor.
  * 
  * </pre>
  * 
@@ -53,7 +54,7 @@ public class IscSendScript extends PythonScript {
      */
     public IscSendScript(String aFilePath, String anIncludePath)
             throws JepException {
-        super(aFilePath, anIncludePath);
+        super(aFilePath, anIncludePath, IscSendScript.class.getClassLoader());
     }
 
     public Object execute(Map<String, Object> args) throws JepException {

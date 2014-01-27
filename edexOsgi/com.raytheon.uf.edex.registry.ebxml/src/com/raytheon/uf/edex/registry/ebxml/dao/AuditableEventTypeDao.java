@@ -20,27 +20,23 @@
 
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import java.math.BigInteger;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefListType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectListType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
-import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
+
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.ActionTypes;
-import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
-import com.raytheon.uf.common.registry.constants.StatusTypes;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -57,6 +53,11 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 4/9/2013     1802       bphillip    Removed exception catching
  * Apr 17, 2013 1914       djohnson    Use strategy for subscription processing.
  * May 02, 2013 1910       djohnson    Broke out registry subscription notification to a service class.
+ * 7/29/2013    2191       bphillip    Changed method to get expired events
+ * 8/1/2013     1693       bphillip    Moved creation of auditable events to the auditable event service class
+ * 9/11/2013    2354       bphillip    Modified queries to find deleted objects
+ * 10/23/2013   1538       bphillip    Changed send time slot to be DateTimeValue instead of integer
+ * 12/2/2013    1829       bphillip    Changed to use non generic getter of value type
  * 
  * </pre>
  * 
@@ -72,17 +73,36 @@ public class AuditableEventTypeDao extends
      * Query to find events of interest when sending registry replication
      * notifications
      */
-    private static final String EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
+    private static final String FIND_EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
             + "left outer join event.action as action "
             + "left outer join action.affectedObjects as AffectedObjects "
+            + "left outer join action.affectedObjectRefs as AffectedObjectRefs "
             + "left outer join AffectedObjects.registryObject as RegistryObjects "
-            + "where (RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
+            + "left outer join AffectedObjectRefs.objectRef as ObjRefs "
+            + "where (ObjRefs.id in (:ids) OR RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
+
+    /**
+     * Query to find deleted events
+     */
+    private static final String FIND_DELETED_EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
+            + "left outer join event.action as action "
+            + "where action.eventType = :eventType and event.timestamp >= :startTime";
 
     /** Optional end time clause */
     private static final String END_TIME_CLAUSE = " and event.timestamp <= :endTime";
 
     /** Order by clause */
     private static final String ORDER_CLAUSE = " order by event.timestamp asc";
+
+    /** The number of hours to retain auditable events */
+    private static final int AUDITABLE_EVENT_RETENTION_TIME = 48;
+
+    /** Cutoff parameter for the query to get the expired events */
+    private static final String GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER = "cutoff";
+
+    /** Query to get Expired AuditableEvents */
+    private static final String GET_EXPIRED_EVENTS_QUERY = "FROM AuditableEventType event where event.timestamp < :"
+            + GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER;
 
     /**
      * Constructor.
@@ -95,6 +115,23 @@ public class AuditableEventTypeDao extends
     @Override
     public void create(AuditableEventType event) {
         template.save(event);
+    }
+
+    /**
+     * Gets auditable events older than 48 hrs old
+     * 
+     * @throws EbxmlRegistryException
+     *             If errors occur purging auditable events
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<AuditableEventType> getExpiredEvents(int limit)
+            throws EbxmlRegistryException {
+        Calendar cutoffTime = TimeUtil.newGmtCalendar();
+        cutoffTime.add(Calendar.HOUR_OF_DAY, -AUDITABLE_EVENT_RETENTION_TIME);
+        return this.executeHQLQuery(GET_EXPIRED_EVENTS_QUERY, limit,
+                GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER, EbxmlObjectUtil
+                        .getTimeAsXMLGregorianCalendar(cutoffTime
+                                .getTimeInMillis()));
     }
 
     /**
@@ -113,24 +150,34 @@ public class AuditableEventTypeDao extends
     public List<AuditableEventType> getEventsOfInterest(
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
             List<ObjectRefType> objectsOfInterest) {
-        if (objectsOfInterest.isEmpty()) {
-            return Collections.emptyList();
+        String query = FIND_DELETED_EVENTS_OF_INTEREST_QUERY;
+        List<Object> queryParams = new ArrayList<Object>(4);
+        queryParams.add("eventType");
+        queryParams.add(ActionTypes.delete);
+        queryParams.add("startTime");
+        queryParams.add(startTime);
+        if (!CollectionUtil.isNullOrEmpty(objectsOfInterest)) {
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < objectsOfInterest.size(); i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append("'").append(objectsOfInterest.get(i).getId())
+                        .append("'");
+            }
+            query = FIND_EVENTS_OF_INTEREST_QUERY.replaceAll(IDS,
+                    buf.toString());
+
+            if (endTime == null) {
+                query += ORDER_CLAUSE;
+            } else {
+                query += END_TIME_CLAUSE + ORDER_CLAUSE;
+                queryParams.add("endTime");
+                queryParams.add(endTime);
+            }
         }
-        StringBuilder buf = new StringBuilder();
-        for (ObjectRefType objOfInterest : objectsOfInterest) {
-            buf.append(", '").append(objOfInterest.getId()).append("'");
-        }
-        String inString = buf.toString().replaceFirst(",", "");
-        if (endTime == null) {
-            return this.query((EVENTS_OF_INTEREST_QUERY + ORDER_CLAUSE)
-                    .replace(IDS, inString), "startTime", startTime,
-                    "eventType", ActionTypes.delete);
-        } else {
-            return this.query(
-                    (EVENTS_OF_INTEREST_QUERY + END_TIME_CLAUSE + ORDER_CLAUSE)
-                            .replace(IDS, inString), "startTime", startTime,
-                    "eventType", ActionTypes.delete, "endTime", endTime);
-        }
+        return this.query(query,
+                queryParams.toArray(new Object[queryParams.size()]));
     }
 
     /**
@@ -145,10 +192,20 @@ public class AuditableEventTypeDao extends
      *            to the auditable event
      */
     public void persistSendDate(List<AuditableEventType> auditableEvents,
-            String subscriptionId, String deliveryAddress) {
+            String subscriptionId, String deliveryAddress, long sentTime) {
+        String slotName = subscriptionId + deliveryAddress;
         for (AuditableEventType auditableEvent : auditableEvents) {
-            auditableEvent.updateSlot(subscriptionId + deliveryAddress,
-                    (int) TimeUtil.currentTimeMillis());
+            SlotType slot = auditableEvent.getSlotByName(subscriptionId
+                    + deliveryAddress);
+            if (slot == null) {
+                SlotType sentTimeSlot = new SlotType(slotName,
+                        new DateTimeValueType(sentTime));
+                auditableEvent.getSlot().add(sentTimeSlot);
+            } else {
+                DateTimeValueType dateValue = (DateTimeValueType) slot
+                        .getSlotValue();
+                dateValue.setTime(sentTime);
+            }
             this.createOrUpdate(auditableEvent);
         }
     }
@@ -165,101 +222,18 @@ public class AuditableEventTypeDao extends
      *            The delivery address to check
      * @return The last sent date in millis
      */
-    public BigInteger getSendTime(AuditableEventType auditableEvent,
+    public Long getSendTime(AuditableEventType auditableEvent,
             String subscriptionId, String deliveryAddress) {
-        return auditableEvent.getSlotValue(subscriptionId + deliveryAddress);
-    }
-
-    /**
-     * Creates an auditable event from a registry request and object references
-     * 
-     * @param request
-     *            The request that generated the events
-     * @param actionMap
-     *            The actions that occurred
-     * @param currentTime
-     *            The time the event occurred @ * If errors occur while creating
-     *            the event
-     * @throws EbxmlRegistryException
-     */
-    public void createAuditableEventsFromRefs(RegistryRequestType request,
-            Map<String, List<ObjectRefType>> actionMap, long currentTime)
-            throws EbxmlRegistryException {
-        for (String actionType : actionMap.keySet()) {
-            for (ObjectRefType obj : actionMap.get(actionType)) {
-                AuditableEventType event = createEvent(request, currentTime);
-                ActionType action = new ActionType();
-                action.setEventType(actionType);
-                ObjectRefListType refList = new ObjectRefListType();
-                refList.getObjectRef().add(obj);
-                action.setAffectedObjectRefs(refList);
-                event.getAction().add(action);
-                create(event);
-            }
+        SlotType slot = auditableEvent.getSlotByName(subscriptionId
+                + deliveryAddress);
+        if (slot == null) {
+            return 0l;
+        } else {
+            DateTimeValueType dateValue = (DateTimeValueType) slot
+                    .getSlotValue();
+            return dateValue.getDateTimeValue().toGregorianCalendar()
+                    .getTimeInMillis();
         }
-    }
-
-    /**
-     * Creates an auditable event from a registry request and registry objects
-     * 
-     * @param request
-     *            The request that generated the events
-     * @param actionMap
-     *            The actions that occurred
-     * @param currentTime
-     *            The time the event occurred @ * If errors occur while creating
-     *            the event
-     * @throws EbxmlRegistryException
-     */
-    public void createAuditableEventsFromObjects(RegistryRequestType request,
-            Map<String, List<RegistryObjectType>> actionMap, long currentTime)
-            throws EbxmlRegistryException {
-        for (String actionType : actionMap.keySet()) {
-            for (RegistryObjectType obj : actionMap.get(actionType)) {
-                AuditableEventType event = createEvent(request, currentTime);
-                ActionType action = new ActionType();
-                action.setEventType(actionType);
-                RegistryObjectListType regObjList = new RegistryObjectListType();
-                regObjList.getRegistryObject().add(obj);
-                action.setAffectedObjects(regObjList);
-                event.getAction().add(action);
-                create(event);
-            }
-        }
-    }
-
-    /**
-     * Creates and Auditable event from a request
-     * 
-     * @param request
-     *            The request that generated the event
-     * @param currentTime
-     *            The time of the event
-     * @return The AuditableEventType object
-     * @throws EbxmlRegistryException
-     *             @ * If errors occur while creating the event
-     */
-    private AuditableEventType createEvent(RegistryRequestType request,
-            long currentTime) throws EbxmlRegistryException {
-        AuditableEventType event = EbxmlObjectUtil.rimObjectFactory
-                .createAuditableEventType();
-        event.setId(EbxmlObjectUtil.getUUID());
-        event.setLid(EbxmlObjectUtil.getUUID());
-        event.setOwner(RegistryUtil.DEFAULT_OWNER);
-        event.setObjectType(RegistryObjectTypes.AUDITABLE_EVENT);
-        event.setRequestId(request.getId());
-        event.setTimestamp(EbxmlObjectUtil
-                .getTimeAsXMLGregorianCalendar(currentTime));
-        event.setUser("Client");
-        event.setStatus(StatusTypes.APPROVED);
-        event.setVersionInfo(new VersionInfoType());
-        String notificationFrom = request
-                .getSlotValue(EbxmlObjectUtil.HOME_SLOT_NAME);
-        if (notificationFrom != null) {
-            event.addSlot(EbxmlObjectUtil.HOME_SLOT_NAME, notificationFrom);
-        }
-        return event;
-
     }
 
     @Override

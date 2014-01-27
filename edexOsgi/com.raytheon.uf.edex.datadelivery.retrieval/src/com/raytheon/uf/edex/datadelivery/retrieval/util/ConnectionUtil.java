@@ -22,9 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
-import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.uf.common.comm.ProxyConfiguration;
 import com.raytheon.uf.common.comm.ProxyUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -47,7 +45,8 @@ import dods.dap.DConnect;
  * Jun 28, 2012 819        djohnson     Initial creation
  * Apr 01, 2013 1786       mpduff       Pulled proxy settings out to util class.
  * May 12, 2013 753        dhladky      Expanded for use with other connection types
- * 
+ * Aug 30, 2013  2314      mpduff       Added null checks.
+ * Nov 12, 2013  *         dhladky      Fixed copy paste error
  * </pre>
  * 
  * @author djohnson
@@ -55,14 +54,15 @@ import dods.dap.DConnect;
  */
 
 public class ConnectionUtil {
+    
     private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ColorMapManager.class);
+            .getHandler(ConnectionUtil.class);
 
     private static final String PROXY_PROPERTIES_FILE = "datadelivery"
             + File.separator + "proxy.properties";
 
     static ConnectionUtil instance = new ConnectionUtil();
-    
+
     static volatile boolean initialized;
 
     private ProxyConfiguration proxySettings;
@@ -70,6 +70,7 @@ public class ConnectionUtil {
     static void clearSettings() {
         System.clearProperty(ProxyUtil.HTTP_PROXY_HOST);
         System.clearProperty(ProxyUtil.HTTP_PROXY_PORT);
+        System.clearProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS);
         instance = new ConnectionUtil();
         initialized = false;
     }
@@ -109,16 +110,21 @@ public class ConnectionUtil {
         return instance.getProxyInformation();
     }
 
-
-   
     private static synchronized void initialize() {
         ProxyConfiguration proxyInformation = instance.getProxyInformation();
 
         if (proxyInformation != null) {
-            System.setProperty(ProxyUtil.HTTP_PROXY_HOST,
-                    proxyInformation.getHost());
-            System.setProperty(ProxyUtil.HTTP_PROXY_PORT,
-                    proxyInformation.getPortString());
+            if (proxyInformation.getHost() != null
+                    && proxyInformation.getPortString() != null) {
+                System.setProperty(ProxyUtil.HTTP_PROXY_HOST,
+                        proxyInformation.getHost());
+                System.setProperty(ProxyUtil.HTTP_PROXY_PORT,
+                        proxyInformation.getPortString());
+            }
+            if (proxyInformation.getNonProxyHosts() != null) {
+                System.setProperty(ProxyUtil.HTTP_NON_PROXY_HOSTS,
+                        proxyInformation.getNonProxyHosts());
+            }
         }
         initialized = true;
     }

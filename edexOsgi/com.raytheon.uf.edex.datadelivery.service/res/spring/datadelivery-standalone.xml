@@ -7,8 +7,4 @@
     <bean id="registryHandler"
         class="com.raytheon.uf.common.registry.ebxml.ThriftRegistryHandler" />
 
-    <bean name="registryManagerInstanceInitializer" class="com.raytheon.uf.common.registry.RegistryManager">
-        <constructor-arg ref="registryHandler" />
-    </bean>
-
 </beans>

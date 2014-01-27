@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.domain.Durations;
@@ -21,33 +20,29 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
 
 /**
  * 
- * Represents a service interface in ebRIM. Matches interface as defined in WSDL
- * 2.
  * 
- * 
- * <p>
- * Java class for ServiceInterfaceType complex type.
- * 
- * <p>
- * The following schema fragment specifies the expected content contained within
- * this class.
+ * Provider Object
  * 
  * <pre>
- * &lt;complexType name="ServiceInterfaceType">
- *   &lt;complexContent>
- *     &lt;extension base="{urn:oasis:names:tc:ebxml-regrep:xsd:rim:4.0}RegistryObjectType">
- *     &lt;/extension>
- *   &lt;/complexContent>
- * &lt;/complexType>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 16, 2012            dhladky     Initial creation
+ * jun 11, 2013 2101       dhladky     Updated for username/password DPA exchanges
+ * 
  * </pre>
  * 
- * 
+ * @author dhladky
+ * @version 1.0
  */
+
 @XmlRootElement(name = "provider")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "name" })
-public class Provider implements ISerializableObject {
+public class Provider {
 
     /**
      * Service Type
@@ -60,6 +55,8 @@ public class Provider implements ISerializableObject {
      * ------------ ---------- ----------- --------------------------
      * Feb 16, 2012            dhladky     Initial creation
      * Aug 16, 2012 1022       djohnson    Add bytesPerParameterRequest.
+     * Sept 10, 2013 2352      dhladky     Changed default size for point overhead
+     * Nov 20,  2013 2554      dhladky     Changed WFS again, added gzipping compensation
      * 
      * </pre>
      * 
@@ -68,9 +65,9 @@ public class Provider implements ISerializableObject {
      */
     public enum ServiceType {
 
-        // TODO: Only OPENDAP has the correct amounts
-        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(5000,
-                BYTES_IN_FLOAT), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
+        // TODO: Only OPENDAP and WFS have the correct amounts
+        OPENDAP(5000, BYTES_IN_FLOAT), WCS(5000, BYTES_IN_FLOAT), WFS(355862,
+                OneByOneBox), WMS(5000, BYTES_IN_FLOAT), WXXM(5000,
                 BYTES_IN_FLOAT);
 
         private final long requestOverheadInBytes;
@@ -87,9 +84,32 @@ public class Provider implements ISerializableObject {
             return bytesPerParameterRequest * numberOfPoints
                     + requestOverheadInBytes;
         }
+
+        /**
+         * Takes in a WFS request and gives you a nominal byte size based on the
+         * size in lat/lon of the bounding box and the interval in multiples of
+         * 5 min intervals.
+         * 
+         * timeSpan ~ minutes latSpan ~ span in degrees of lat for bounding box
+         * lonSpan ~ span in degrees of lon for bounding box
+         * 
+         * @param latSpan
+         * @param lonSpan
+         * @param timeSpan
+         * @return
+         */
+        public long getRequestBytesPerLatLonBoxAndTime(double latSpan,
+                double lonSpan, int timeSpan) {
+            // increments are in 5 minutes so 5/5 = 1
+            // 30 min increment would be 30/5 = 6 etc.
+            return (long) (latSpan * lonSpan * (timeSpan/5) * requestOverheadInBytes);
+        }
     }
 
     private static final Integer BYTES_IN_FLOAT = Float.SIZE / Byte.SIZE;
+
+    /** a one degree by one degree box **/
+    private static final Integer OneByOneBox = 1;
 
     @XmlAttribute(name = "name", required = true)
     @DynamicSerializeElement
@@ -134,11 +154,11 @@ public class Provider implements ISerializableObject {
 
     @XmlElements({ @XmlElement(name = "projection", type = Projection.class) })
     @DynamicSerializeElement
-    private List<Projection> projection;;
+    private List<Projection> projection;
 
     public Provider() {
 
-    };
+    }
 
     // TODO: Need to add a bunch of things here!
 

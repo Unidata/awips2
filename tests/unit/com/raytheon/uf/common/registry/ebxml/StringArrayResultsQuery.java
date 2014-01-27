@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.raytheon.uf.common.registry.IMultipleResultFormatter;
-
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+
+import com.raytheon.uf.common.registry.IMultipleResultFormatter;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 
 /**
  * Returns an arbitrary number of string results per {@link RegistryObjectType}.
@@ -37,6 +38,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012 0743       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     IResultFormatter instances take the encoder as a method argument.
  * 
  * </pre>
  * 
@@ -72,7 +74,9 @@ public class StringArrayResultsQuery extends AdhocRegistryQuery<String>
     }
 
     @Override
-    public Collection<String> decodeObject(RegistryObjectType registryObjectType) {
+    public Collection<String> decodeObject(
+            RegistryObjectType registryObjectType,
+            IRegistryEncoder encoderStrategy) {
         List<String> results = new ArrayList<String>();
 
         String[] valuesToReturn = resultsToReturn[index++];

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 
 public class StringLookup {
@@ -245,7 +246,8 @@ public class StringLookup {
         BufferedReader input = null;
         StringLookup lookup = new StringLookup(s2nFilename);
         File s2nFile = PathManagerFactory.getPathManager().getStaticFile(
-                StringLookup.plotmodelDir + File.separator + s2nFilename);
+                StringLookup.plotmodelDir + IPathManager.SEPARATOR
+                        + s2nFilename);
         try {
             input = new BufferedReader(new FileReader(s2nFile));
             String line = null;
@@ -297,7 +299,8 @@ public class StringLookup {
         BufferedReader input = null;
         StringLookup lookup = new StringLookup(r2nFilename);
         File r2nFile = PathManagerFactory.getPathManager().getStaticFile(
-                StringLookup.plotmodelDir + File.separator + r2nFilename);
+                StringLookup.plotmodelDir + IPathManager.SEPARATOR
+                        + r2nFilename);
         try {
             input = new BufferedReader(new FileReader(r2nFile));
             String line = null;
@@ -333,18 +336,18 @@ public class StringLookup {
                             if (firstEntry) {
                                 firstEntry = false;
                                 second = Float.parseFloat(lookupValues[1]);
-                                lookup.setRangeEntry(Float
-                                        .parseFloat(lookupValues[0]),
+                                lookup.setRangeEntry(
+                                        Float.parseFloat(lookupValues[0]),
                                         lookupValues[2]);
-                                lookup.setRangeEntry(Float
-                                        .parseFloat(lookupValues[1]),
+                                lookup.setRangeEntry(
+                                        Float.parseFloat(lookupValues[1]),
                                         lookupValues[2]);
 
                             } else {
                                 first = second;
                                 second = Float.parseFloat(lookupValues[1]);
-                                lookup.setRangeEntry(Float
-                                        .parseFloat(lookupValues[1]),
+                                lookup.setRangeEntry(
+                                        Float.parseFloat(lookupValues[1]),
                                         lookupValues[2]);
                             }
                         } catch (Exception e) {

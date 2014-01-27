@@ -28,11 +28,4 @@
             renderingOrderId="IMAGE_LOCAL"
             resourceType="PLAN_VIEW"/>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="vil"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
 </plugin>

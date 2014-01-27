@@ -34,13 +34,14 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 
 /**
- * <p>Java class for gageTableColumnData complex type.
+ * <p>
+ * Java class for gageTableColumnData complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType name="gageTableColumnData">
@@ -56,7 +57,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
+ * </pre>
+ * 
+ * @author bsteffen
+ * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "gageTableColumnData", propOrder = {
@@ -64,7 +76,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
     "width",
     "sort"
 })
-public class GageTableColumnData implements ISerializableObject {
+public class GageTableColumnData {
 
     @XmlElement(required = true)
     protected String name;

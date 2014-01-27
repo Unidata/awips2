@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -33,8 +33,12 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Oct 26, 2012 1286       djohnson     Return list of unscheduled allocations.
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Feb 14, 2013 1596       djohnson     Warn log when unable to find a SubscriptionRetrieval.
- * 3/18/2013    1802       bphillip    Event bus registration is now a post-construct operation to ensure proxy is registered with bus
- * 3/13/2013    1802       bphillip    Moved event bus registration from post-construct to spring static method call
+ * 3/18/2013    1802       bphillip     Event bus registration is now a post-construct operation to ensure proxy is registered with bus
+ * 3/13/2013    1802       bphillip     Moved event bus registration from post-construct to spring static method call
+ * Jun 13, 2013 2095       djohnson     Can schedule any subclass of BandwidthAllocation.
+ * Jun 25, 2013 2106       djohnson     Copy state from another instance, add ability to check for proposed bandwidth throughput changes.
+ * Jul 09, 2013 2106       djohnson     Only needs to unregister from the EventBus when used in an EDEX instance, so handled in EdexBandwidthManager.
+ * Oct 03, 2013 2267       bgonzale     Added check for no retrieval plan matching in the proposed retrieval plans.
  * 
  * </pre>
  * 
@@ -80,8 +84,8 @@ public class RetrievalManager {
      * @return the list of {@link BandwidthAllocation}s that were unable to be
      *         scheduled
      */
-    public List<BandwidthAllocation> schedule(
-            List<BandwidthAllocation> bandwidthAllocations) {
+    public <T extends BandwidthAllocation> List<BandwidthAllocation> schedule(
+            List<T> bandwidthAllocations) {
         List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
 
         for (BandwidthAllocation bandwidthAllocation : bandwidthAllocations) {
@@ -215,7 +219,6 @@ public class RetrievalManager {
      * Shutdown the retrieval manager.
      */
     public void shutdown() {
-        EventBus.unregister(this);
         // From this point forward, only return a poison pill for this retrieval
         // manager, which will cause threads attempting to receive bandwidth
         // allocations to die
@@ -232,6 +235,69 @@ public class RetrievalManager {
         synchronized (notifier) {
             statusHandler.info("Waking up retrieval threads");
             notifier.notifyAll();
+        }
+    }
+
+    /**
+     * @param fromRetrievalManager
+     */
+    public void copyState(RetrievalManager fromRetrievalManager) {
+        for (Entry<Network, RetrievalPlan> entry : fromRetrievalManager.retrievalPlans
+                .entrySet()) {
+            final Network network = entry.getKey();
+            final RetrievalPlan fromPlan = entry.getValue();
+            final RetrievalPlan toPlan = this.retrievalPlans.get(network);
+
+            toPlan.copyState(fromPlan);
+        }
+
+    }
+
+    /**
+     * Check whether a change in the bandwidth throughput is being proposed.
+     * 
+     * @param proposedRetrievalManager
+     *            the other retrieval manager with any proposed changes
+     * @return true if a bandwidth throughput change is being proposed
+     */
+    public boolean isProposingBandwidthChanges(
+            RetrievalManager proposedRetrievalManager) {
+        boolean proposingBandwidthChanges = false;
+
+        // If any retrieval plans have a different value for bandwidth, then
+        // return true
+        for (Entry<Network, RetrievalPlan> entry : this.retrievalPlans
+                .entrySet()) {
+            final RetrievalPlan proposedRetrievalPlan = proposedRetrievalManager.retrievalPlans
+                    .get(entry.getKey());
+            if (proposedRetrievalPlan != null && entry.getValue() != null) {
+                if (proposedRetrievalPlan.getDefaultBandwidth() != entry
+                        .getValue().getDefaultBandwidth()) {
+                    proposingBandwidthChanges = true;
+                    break;
+                }
+            } else {
+                StringBuilder sb = new StringBuilder(
+                        "The ProposedRetrievalPlan, ");
+                sb.append(proposedRetrievalPlan);
+                sb.append(", or the Existing RetrievalPlan, ");
+                sb.append(entry.getKey());
+                sb.append(" : ");
+                sb.append(entry.getValue());
+                sb.append(", is null.  Skipping this check.");
+                statusHandler.info(sb.toString());
+            }
+        }
+
+        return proposingBandwidthChanges;
+    }
+
+    /**
+     * Initializes the retrieval plans.
+     */
+    public void initRetrievalPlans() {
+        for (RetrievalPlan retrievalPlan : this.getRetrievalPlans().values()) {
+            retrievalPlan.init();
         }
     }
 }

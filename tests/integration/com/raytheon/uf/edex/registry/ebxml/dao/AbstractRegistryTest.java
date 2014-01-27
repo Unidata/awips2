@@ -22,13 +22,15 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.LifecycleManager;
@@ -52,6 +54,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
@@ -62,7 +65,6 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl.RETURN_TYPE;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -78,6 +80,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Apr 18, 2013 1693       djohnson     Consolidate reusable methods.
  * Apr 23, 2013 1910       djohnson     Allow sub-classes to pass callables and monitor for fault exceptions.
  * Jun 05, 2013 2038       djohnson     Use TestUtil constant for transactionManager.
+ * 10/8/2013    1682       bphillip     Added submitRegistryObjectsToRegistry
  * 
  * </pre>
  * 
@@ -88,10 +91,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 @ContextConfiguration(locations = { SpringFiles.DATADELIVERY_HANDLERS_XML,
         SpringFiles.DATADELIVERY_HANDLERS_IMPL_XML, SpringFiles.EBXML_XML,
         SpringFiles.EBXML_IMPL_XML, SpringFiles.EBXML_QUERYTYPES_XML,
-        SpringFiles.EBXML_REGISTRY_DAO_XML,
-        SpringFiles.EBXML_REGISTRY_ENCODER_XML,
-        SpringFiles.EBXML_WEBSERVICES_XML, SpringFiles.EBXML_XACML_XML,
-        SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
+        SpringFiles.EBXML_REGISTRY_DAO_XML, SpringFiles.EBXML_WEBSERVICES_XML,
+        SpringFiles.EBXML_XACML_XML, SpringFiles.EBXML_VALIDATOR_PLUGINS_XML,
         SpringFiles.EBXML_SUBSCRIPTION_XML, SpringFiles.EVENTBUS_COMMON_XML,
         SpringFiles.UNIT_TEST_DB_BEANS_XML,
         SpringFiles.UNIT_TEST_EBXML_BEANS_XML,
@@ -106,9 +107,16 @@ public class AbstractRegistryTest {
     protected static final String REGISTRY_OBJECT_TYPE = "myRegistryObjectType";
 
     @Autowired
+    protected SlotTypeDao slotDao;
+
+    @Autowired
+    protected RegistryObjectDao registryObjectDao;
+
+    @Autowired
     protected LifecycleManager lifecycleManager;
 
     @Autowired
+    @Qualifier("queryServiceImpl")
     protected QueryManager queryManager;
 
     @BeforeClass
@@ -139,6 +147,22 @@ public class AbstractRegistryTest {
         final RegistryResponseType submitResponse = lifecycleManager
                 .submitObjects(submitRequest);
         assertSuccessfulResponse(submitResponse);
+    }
+
+    /**
+     * Submits objects to the registry
+     * 
+     * @param registryObjects
+     *            The registry objects to submit
+     * @throws MsgRegistryException
+     *             If errors occur during submission
+     */
+    protected void submitRegistryObjectsToRegistry(
+            final Collection<RegistryObjectType> registryObjects)
+            throws MsgRegistryException {
+        for (RegistryObjectType registryObject : registryObjects) {
+            submitRegistryObjectToRegistry(registryObject);
+        }
     }
 
     /**
@@ -179,13 +203,15 @@ public class AbstractRegistryTest {
             String registryObjectId) {
         final ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
                 .createResponseOptionType();
-        responseOption.setReturnType(RETURN_TYPE.RegistryObject.toString());
+        responseOption
+                .setReturnType(ResponseOptionType.RETURN_TYPE.RegistryObject
+                        .toString());
         responseOption.setReturnComposedObjects(false);
 
         final QueryType queryType = new QueryType();
         queryType
                 .setQueryDefinition("urn:oasis:names:tc:ebxml-regrep:query:GetObjectsByLid");
-        Set<SlotType> slots = new HashSet<SlotType>();
+        List<SlotType> slots = new ArrayList<SlotType>(1);
         final SlotType slot = new SlotType();
         slot.setName(QueryConstants.LID);
         final StringValueType slotValue = new StringValueType();
@@ -262,6 +288,46 @@ public class AbstractRegistryTest {
         assertResponseStatus(
                 "The response did not have a partial success status!",
                 response, RegistryResponseStatus.FAILURE);
+    }
+
+    /**
+     * Asserts that the object with the given ID exists in the registry
+     * 
+     * @param objectId
+     *            The id of the object to check
+     */
+    protected void assertObjectExists(String objectId) {
+        RegistryObjectType result = registryObjectDao.getById(objectId);
+        assertNotNull(result);
+        assertThat(result.getId(), is(equalTo(objectId)));
+    }
+
+    /**
+     * Asserts that the object with the give ID does NOT exist in the registry
+     * 
+     * @param objectId
+     *            The id of the object to check
+     */
+    protected void assertObjectDoesNotExist(String objectId) {
+        RegistryObjectType result = registryObjectDao.getById(objectId);
+        assertNull(result);
+    }
+
+    protected void assertSlotExists(String slotName) {
+        List<SlotType> result = slotDao.executeHQLQuery(
+                "from SlotType slot where slot.name=:slotName", "slotName",
+                slotName);
+        assertNotNull(result);
+        assertThat(result.isEmpty(), is(equalTo(false)));
+        assertThat(result.get(0).getName(), is(equalTo(slotName)));
+    }
+
+    protected void assertSlotDoesNotExist(String slotName) {
+        List<SlotType> result = slotDao.executeHQLQuery(
+                "from SlotType slot where slot.name=:slotName", "slotName",
+                slotName);
+        assertNotNull(result);
+        assertThat(result.isEmpty(), is(equalTo(true)));
     }
 
     /**

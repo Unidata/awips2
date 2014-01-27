@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 18, 2010   6981      lbousaidi   fixed Ok button and prelim problem
  * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
+ * Jul 11, 2013   2088      rferrel     Make dialog non-blocking.
  * 
  * 
  * </pre>
@@ -193,22 +194,35 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     /**
      * Flag indicating if all, below or above Action Stage is selected.
      */
-    private int allFlag= 0;
+    private int allFlag = 0;
+
     /**
      * Crest history data.
      */
     private CrestHistoryData crestHistoryData;
 
+    /**
+     * The currently selected crest data.
+     */
     private CrestData selectedCrest = null;
 
     private DecimalFormat df = new DecimalFormat();
 
+    /**
+     * Valid format for the Date field.
+     */
     private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
+    /**
+     * Valid format for the time field.
+     */
     private SimpleDateFormat stf = new SimpleDateFormat("HH:mm");
 
+    /**
+     * Flag to indicate when certain fields should be enabled.
+     */
     private boolean enabled = false;
-    
+
     /**
      * int that's keeps track of DB mode 0 = none 1 = new 2 = delete
      */
@@ -217,16 +231,25 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     /**
      * text from the remark text box
      */
-    private String currentRemarkText=null;
-    
+    private String currentRemarkText = null;
+
     /**
      * maximum number of character allowed in the remark text box
      */
-    private final int MAX_REMARK_CHAR=80;
-    /**
+    private final int MAX_REMARK_CHAR = 80;
 
     /**
-     * Constructor.
+     * The valid time set by the last call to verifiedTime().
+     */
+    private Date verifiedTime = null;
+
+    /**
+     * The valid date set by the last call to verifiedDate().
+     */
+    private Date verifiedDate = null;
+
+    /**
+     * /** Constructor.
      * 
      * @param parent
      *            Parent shell.
@@ -237,7 +260,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      */
     public CrestHistoryDlg(Shell parent, String lid, String title,
             boolean fullControl) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Crest History" + title);
 
         this.fullControl = fullControl;
@@ -249,8 +272,14 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         df.setGroupingUsed(false);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         stf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -260,20 +289,31 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
 
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
 
         // Initialize all of the controls and layouts
         getCrestData(allFlag);
-        
+
         createLeftSideControls();
         createRightSideControls();
         addSeparator();
@@ -281,11 +321,11 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
 
         if (crestHistoryData != null) {
             sortCrestHistoryList();
-            updateCrestHistoryList();            
+            updateCrestHistoryList();
             crestHistoryList.setSelection(0);
-            if ((crestHistoryData != null) && 
-            		(crestHistoryData.getCrestDataArray().size() >0) ) {
-            	setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
+            if ((crestHistoryData != null)
+                    && (crestHistoryData.getCrestDataArray().size() > 0)) {
+                setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
             }
         }
 
@@ -325,20 +365,21 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                     getCrestData(0);
                 } else if (filterCrestsCbo.getSelectionIndex() == 1) {
                     crestHistCanvas.drawDataAboveActionStage();
-                    getCrestData(1);                    
+                    getCrestData(1);
                 } else if (filterCrestsCbo.getSelectionIndex() == 2) {
                     crestHistCanvas.drawDataBelowActionStage();
-                    getCrestData(2);                    
+                    getCrestData(2);
                 }
-                
+
                 sortCrestHistoryList();
                 updateCrestHistoryList();
                 crestHistoryList.setSelection(0);
-                if ((crestHistoryData != null) && 
-                		(crestHistoryData.getCrestDataArray().size() >0)) {
-                	setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
+                if ((crestHistoryData != null)
+                        && (crestHistoryData.getCrestDataArray().size() > 0)) {
+                    setSelectedCrest(crestHistoryData.getCrestDataArray()
+                            .get(0));
                 } else {
-                	clearData();
+                    clearData();
                 }
             }
         });
@@ -411,11 +452,11 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         crestHistoryList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                double stage = crestHistoryData.getCrestDataArray().get(
-                        crestHistoryList.getSelectionIndex()).getStage();
+                double stage = crestHistoryData.getCrestDataArray()
+                        .get(crestHistoryList.getSelectionIndex()).getStage();
 
-                int year = crestHistoryData.getCrestDataArray().get(
-                        crestHistoryList.getSelectionIndex()).getYear();
+                int year = crestHistoryData.getCrestDataArray()
+                        .get(crestHistoryList.getSelectionIndex()).getYear();
 
                 crestHistCanvas.selectCrestData(stage, year);
                 // sets the selected crest
@@ -527,19 +568,20 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         remarksTF.setLayoutData(gd);
         remarksTF.setTextLimit(MAX_REMARK_CHAR);
 
-        /*Note: use this method to control number of character in remarkTF
-         * because a bug in the Text class. 
-         * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004*/
-        currentRemarkText=remarksTF.getText();
+        /*
+         * Note: use this method to control number of character in remarkTF
+         * because a bug in the Text class. See
+         * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
+         */
+        currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	public void modifyText(ModifyEvent e) {
-        		if (remarksTF.getText().length()>MAX_REMARK_CHAR){
-        			remarksTF.setText(currentRemarkText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentRemarkText=remarksTF.getText();
-        	}
+            public void modifyText(ModifyEvent e) {
+                if (remarksTF.getText().length() > MAX_REMARK_CHAR) {
+                    remarksTF.setText(currentRemarkText);
+                    shell.getDisplay().beep();
+                } else
+                    currentRemarkText = remarksTF.getText();
+            }
         };
 
         remarksTF.addModifyListener(listener);
@@ -584,7 +626,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 function = 3;
                 apply();
-                shell.dispose();
+                close();
             }
         });
 
@@ -616,7 +658,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                 clearData();
                 function = 0;
                 selectedCrest = null;
-                shell.dispose();
+                close();
             }
         });
 
@@ -653,8 +695,6 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                     sb.append(e.getCause() + "\n" + e.getMessage());
                     mb.setMessage(sb.toString());
                     mb.open();
-
-                    e.printStackTrace();
                 }
                 selectedCrest = null;
             }
@@ -727,19 +767,15 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     }
 
     /**
-     * getting the crest data with All/Above/Bellow Action
-	 * Stage flag
+     * getting the crest data with All/Above/Bellow Action Stage flag
      */
-    private void getCrestData(int allFlag) {   
+    private void getCrestData(int allFlag) {
         CrestHistoryDataManager crestManager = CrestHistoryDataManager
                 .getInstance();
-        crestHistoryData = crestManager.getRiverCrestData(lid, fullControl, allFlag);       
-        
-        if (crestHistoryData != null) {
-            setEnabled(true);
-        } else {
-            setEnabled(false);
-        }
+        crestHistoryData = crestManager.getRiverCrestData(lid, fullControl,
+                allFlag);
+
+        setEnabled(crestHistoryData != null);
     }
 
     /**
@@ -759,7 +795,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     private void setSelectedCrest(CrestData selectedCrest) {
 
         this.selectedCrest = selectedCrest;
-        
+
         if (selectedCrest.getStage() == HydroConstants.MISSING_VALUE) {
             stageTF.setText(HydroConstants.MISSING_STRING);
         } else {
@@ -848,65 +884,60 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
              * fourth or fifth character is a colon, then reject. If 00 > hh >
              * 23 or 00 > mm > 59, then reject.
              ***********************************************************/
-            if (!timeTF.getText().equals("") && !verifyTime(timeTF)) {
+            if (!verifyTime(timeTF)) {
                 return;
             }
 
-            String tmpStage = stageTF.getText();
-            String tmpQ = flowTF.getText();
+            String tmpStage = stageTF.getText().trim().toUpperCase();
+            String tmpFlow = flowTF.getText().trim().toUpperCase();
 
             // Checks to see if at least one or the other string has some value
             // in it
-            if (((tmpStage != null) && !isBlank(tmpStage))
-                    || ((tmpQ != null) && !isBlank(tmpQ))) {
-                if (!isBlank(tmpStage)) {
-                    if (!stageTF.getText().equals(HydroConstants.MISSING_STRING)) {
-                        cd.setStage(new Double(stageTF.getText()));
+            if ((tmpStage.length() > 0) && (tmpFlow.length() > 0)) {
+                if (!tmpStage.equals(HydroConstants.MISSING_STRING)) {
+                    try {
+                        cd.setStage(new Double(tmpStage));
+                    } catch (NumberFormatException ex) {
+                        error("Invalid Stage value.\n", null);
+                        return;
                     }
                 }
-                if (!isBlank(tmpQ)) {
-                    if (!flowTF.getText().equals(HydroConstants.MISSING_STRING)) {
-                        cd.setFlow(new Integer(flowTF.getText()));
+                if (!tmpFlow.equals(HydroConstants.MISSING_STRING)
+                        || tmpFlow.equals("UNDEF")) {
+                    try {
+                        cd.setFlow(new Integer(tmpFlow));
+                    } catch (NumberFormatException ex) {
+                        error("Invalid flow value.\n", null);
+                        return;
                     }
                 }
             } else {
-                error(
-                        "You must enter either a stage value or a flow value...\n",
+                error("You must enter either a stage value or a flow value...\n",
                         null);
+                return;
             }
 
             // adding a new crestdata point
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
             // a little fanagling with the dates here...
-            if (!timeTF.getText().equals("UNDEF") 
-            		&& 	(!timeTF.getText().equals(""))) {
-                try {
-                    Calendar calDate = Calendar.getInstance(TimeZone
-                            .getTimeZone("GMT"));
-                    Calendar calTime = Calendar.getInstance(TimeZone
-                            .getTimeZone("GMT"));
-                    Date time = stf.parse(timeTF.getText());
-                    calTime.setTime(time);
-                    calDate.setTimeInMillis(sdf.parse(dateTF.getText())
-                            .getTime());
+            if (verifiedTime != null) {
+                Calendar calDate = Calendar.getInstance(TimeZone
+                        .getTimeZone("GMT"));
+                calDate.setTimeInMillis(verifiedDate.getTime());
+                Calendar calTime = Calendar.getInstance(TimeZone
+                        .getTimeZone("GMT"));
+                calTime.setTime(verifiedTime);
 
-                    cal.set(calDate.get(Calendar.YEAR), calDate
-                            .get(Calendar.MONTH), calDate
-                            .get(Calendar.DAY_OF_MONTH), calTime
-                            .get(Calendar.HOUR_OF_DAY), calTime
-                            .get(Calendar.MINUTE));
-                    cd.setIsTime(true);
-                } catch (ParseException pe) {
-                    pe.printStackTrace();
-                }
+                cal.set(calDate.get(Calendar.YEAR),
+                        calDate.get(Calendar.MONTH),
+                        calDate.get(Calendar.DAY_OF_MONTH),
+                        calTime.get(Calendar.HOUR_OF_DAY),
+                        calTime.get(Calendar.MINUTE));
+                cd.setIsTime(true);
             } else {
-                try {
-                    cal.setTimeInMillis(sdf.parse(dateTF.getText()).getTime());
-                    cd.setIsTime(false);
-                } catch (ParseException pe) {
-                    pe.printStackTrace();
-                }
+                cal.setTimeInMillis(verifiedDate.getTime());
+                cd.setIsTime(false);
             }
             cd.setCrestDate(cal);
             cd.setOldDatum(oldDatumChk.getSelection());
@@ -935,14 +966,12 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                 sb.append(e.getCause() + "\n" + e.getMessage());
                 mb.setMessage(sb.toString());
                 mb.open();
-
-                e.printStackTrace();
             }
-            getCrestData(allFlag);            
+            getCrestData(allFlag);
             sortCrestHistoryList();
             crestHistCanvas.updateCrestHistotryData(crestHistoryData);
             updateCrestHistoryList();
-            
+
         }
     }
 
@@ -966,9 +995,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      * well....used.
      */
     private void create() {
-        // clear the crest window 
-        
-    	stageTF.setText("");
+        // clear the crest window
+
+        stageTF.setText("");
         flowTF.setText("");
         timeTF.setText("");
         dateTF.setText("");
@@ -1005,25 +1034,27 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         updateCrestHistoryList();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
      */
     @Override
     protected void opened() {
-        if ((crestHistoryData.getCrestDataArray() == null) || 
-                (crestHistoryData.getCrestDataArray().size() == 0)) {
+        if ((crestHistoryData.getCrestDataArray() == null)
+                || (crestHistoryData.getCrestDataArray().size() == 0)) {
             return;
         }
-        
-        crestHistoryList.setSelection(0);
-        double stage = crestHistoryData.getCrestDataArray().get(
-                crestHistoryList.getSelectionIndex()).getStage();
 
-        int year = crestHistoryData.getCrestDataArray().get(
-                crestHistoryList.getSelectionIndex()).getYear();
+        crestHistoryList.setSelection(0);
+        double stage = crestHistoryData.getCrestDataArray()
+                .get(crestHistoryList.getSelectionIndex()).getStage();
+
+        int year = crestHistoryData.getCrestDataArray()
+                .get(crestHistoryList.getSelectionIndex()).getYear();
 
         crestHistCanvas.selectCrestData(stage, year);
-        
+
         // sets the selected crest
         setSelectedCrest(crestHistoryData.getCrestDataArray().get(
                 crestHistoryList.getSelectionIndex()));
@@ -1049,66 +1080,37 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             } else {
                 MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
                 mb.setText("Unable to Save");
-                mb
-                        .setMessage("Data for the location must be added via the River Gauge dialog first.");
+                mb.setMessage("Data for the location must be added via the River Gauge dialog first.");
                 mb.open();
             }
         } catch (VizException e) {
             // don't care, just return false
-            e.printStackTrace();
         }
 
         return rval;
     }
 
     /**
-     * Verify validity of input
+     * Verify validity of time input. Set verfiedTime when field parses to valid
+     * time string otherwise it is null.
      * 
      * @param field
-     */
-    private boolean verifyDouble(Text field) {
-        // verify input parameters in text fields.
-        try {
-            df.parse(field.getText()).doubleValue();
-        } catch (ParseException pe) {
-            // fire a dialog here
-            error("Invalid Stage Format, numbers or decimals required", field);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Verify validity of input
-     * 
-     * @param field
-     */
-    private boolean verifyInt(Text field) {
-        // verify input parameters in text fields.
-        try {
-            df.parse(field.getText()).intValue();
-        } catch (ParseException pe) {
-            // fire a dialog here
-            error("Invalid Flow Format, whole numbers required", field);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Verify validity of input
-     * 
-     * @param field
+     * @return true when file is "MSG", "UNDEF" or parses to valid time.
      */
     private boolean verifyTime(Text field) {
         // verify input parameters in time field.
+        verifiedTime = null;
         try {
-            if (field.getText().equalsIgnoreCase("MSG")
-                    || field.getText().equalsIgnoreCase("UNDEF")) {
+            String time = field.getText().trim().toUpperCase();
+            if (time.length() == 0) {
+                time = "UNDEF";
+            }
+            field.setText(time);
+            if (time.equals("MSG") || time.equals("UNDEF")) {
                 return true;
             }
 
-            stf.parse(field.getText());
+            verifiedTime = stf.parse(time);
         } catch (ParseException pe) {
             // fire a dialog here
             error("Invalid Time Format, required: hh:mm", field);
@@ -1118,14 +1120,16 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Verify validity of input
+     * Verify validity of date input. Sets verifiedDate when field parses to a
+     * valid date otherwise set to null.
      * 
      * @param field
      */
     private boolean verifyDate(Text field) {
         // verify input parameters in date field.
+        verifiedDate = null;
         try {
-            sdf.parse(field.getText());
+            verifiedDate = sdf.parse(field.getText());
         } catch (ParseException pe) {
             // fire a dialog here
             error("Invalid Date Format, required: mm/dd/yyyy", field);
@@ -1175,22 +1179,6 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             }
         }
         return i;
-    }
-
-    /**
-     * Checks the string to see if it is blank.
-     * 
-     * @param value
-     *            The String to check
-     * @return True if value is blank
-     */
-    private boolean isBlank(String value) {
-        boolean isBlank = false;
-        if (value.trim().length() == 0) {
-            isBlank = true;
-        }
-
-        return isBlank;
     }
 
     /**

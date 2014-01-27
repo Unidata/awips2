@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.LockOptions;
 import org.hibernate.Query;
@@ -42,15 +41,18 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
 import com.raytheon.edex.db.dao.DefaultPluginDao;
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmStorageInfo;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.LockNotification;
 import com.raytheon.uf.common.dataplugin.gfe.util.GfeUtil;
@@ -60,6 +62,7 @@ import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -93,19 +96,29 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 05/22/13     #2025      dgilling    Re-implement functions needed by 
  *                                     GetLatestDbTimeRequest and GetLatestModelDbIdRequest.
  * 05/20/13     #2127      rjpeter     Set session's to read only and switched to stateless where possible.
+ * 06/13/13     #2044      randerso    Refactored to use IFPServer, code cleanup
+ * 07/30/13     #2057      randerso    Added support marking and eventually purging obsolete databases
  * 08/08/13     DR16485    ryu         Remove call to getDatabaseId() from getMaxInsertTimeByDbId()
  *                                     so new GFE databases aren't accidentally created.
+ * 08/05/13     #1571      randerso    Added support for storing GridLocation and ParmStorageInfo in database
  * 09/30/2013   #2147      rferrel     Changes to archive hdf5 files.
- * 11/13/2013   #2517      randerso    Added ORDER BY clause to getOverlappingTimes
+ * 10/15/2013   #2446      randerso    Added ORDER BY clause to getOverlappingTimes
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class GFEDao extends DefaultPluginDao {
+    /** Removed DB purge time in days */
+    public static final int REMOVED_DB_PURGE_TIME = 7;
+
     // Number of retries on insert of a new DatabaseID
     private static final int QUERY_RETRY = 2;
 
+    /**
+     * @throws PluginException
+     */
     public GFEDao() throws PluginException {
         super("gfe");
         this.pathProvider = new GFEPathProvider();
@@ -113,6 +126,8 @@ public class GFEDao extends DefaultPluginDao {
 
     /**
      * Creates a new GFE Dao
+     * 
+     * @param pluginName
      * 
      * @throws PluginException
      */
@@ -126,7 +141,8 @@ public class GFEDao extends DefaultPluginDao {
      * the row will be created.
      * 
      * @param dbId
-     * @return
+     * @return a DatabaseID with id field initialized
+     * @throws DataAccessLayerException
      */
     public DatabaseID getDatabaseId(DatabaseID dbId)
             throws DataAccessLayerException {
@@ -211,14 +227,13 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
-     * Retrieves all known parm ids for the given database id.
+     * Retrieves ParmStorageInfo for all known ParmIDs for the given DatabaseID.
      * 
      * @param dbId
-     * @return
+     * @return the list of ParmStorageInfo for the database
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
-    public List<ParmID> getParmIds(final DatabaseID dbId)
+    public List<ParmStorageInfo> getParmStorageInfo(final DatabaseID dbId)
             throws DataAccessLayerException {
         Session sess = null;
         Transaction tx = null;
@@ -233,10 +248,17 @@ public class GFEDao extends DefaultPluginDao {
             // relations
             sess.buildLockRequest(LockOptions.NONE).lock(dbId);
 
-            Query query = sess.createQuery("FROM ParmID WHERE dbId = ?");
+            Query query = sess
+                    .createQuery("FROM ParmStorageInfo WHERE gridParmInfo.parmID.dbId = ?");
             query.setParameter(0, dbId);
-            List<ParmID> list = query.list();
+            @SuppressWarnings("unchecked")
+            List<ParmStorageInfo> list = query.list();
             tx.commit();
+
+            // initialize the grid location objects
+            for (ParmStorageInfo psi : list) {
+                psi.getGridParmInfo().getGridLoc().init();
+            }
             return list;
         } catch (Exception e) {
             if (tx != null) {
@@ -248,8 +270,102 @@ public class GFEDao extends DefaultPluginDao {
             }
 
             throw new DataAccessLayerException(
-                    "Unable to look up parm id inventory for database id "
+                    "Unable to retrieve ParmStorageInfos for DatabaseID: "
                             + dbId, e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Stores a list of ParmStorageInfo
+     * 
+     * @param psiList
+     * @throws DataAccessLayerException
+     */
+    public void saveParmStorageInfo(List<ParmStorageInfo> psiList)
+            throws DataAccessLayerException {
+
+        if (psiList.isEmpty()) {
+            return;
+        }
+
+        StatelessSession sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+
+            for (ParmStorageInfo psi : psiList) {
+                sess.insert(psi);
+            }
+
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to save ParmStorageInfos for "
+                            + psiList.get(0).getParmID().getDbId(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Update a ParmStorageInfo
+     * 
+     * @param psi
+     * @throws DataAccessLayerException
+     */
+    public void updateParmStorageInfo(ParmStorageInfo psi)
+            throws DataAccessLayerException {
+
+        StatelessSession sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory()
+                    .openStatelessSession();
+            tx = sess.beginTransaction();
+            sess.update(psi);
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to update ParmStorageInfos for " + psi.getParmID(),
+                    e);
         } finally {
             if (sess != null) {
                 try {
@@ -266,8 +382,9 @@ public class GFEDao extends DefaultPluginDao {
      * Returns the database row for the passed parmId. If the row does not
      * exist, the row will be created.
      * 
-     * @param dbId
-     * @return
+     * @param parmId
+     * @return the ParmID from the database with id field initialized
+     * @throws DataAccessLayerException
      */
     public ParmID getParmId(final ParmID parmId)
             throws DataAccessLayerException {
@@ -344,7 +461,7 @@ public class GFEDao extends DefaultPluginDao {
      * transaction.
      * 
      * @param sess
-     * @param dbId
+     * @param parmId
      * @return
      */
     private ParmID getParmId(Session sess, ParmID parmId) {
@@ -358,21 +475,22 @@ public class GFEDao extends DefaultPluginDao {
 
     @Override
     public void purgeExpiredData() throws PluginException {
-        Set<String> sites = GFESiteActivation.getInstance().getActiveSites();
-        for (String siteID : sites) {
+        List<IFPServer> ifpServers = IFPServer.getActiveServers();
+        for (IFPServer ifpServer : ifpServers) {
             List<GridUpdateNotification> gridNotifcations = new ArrayList<GridUpdateNotification>();
             List<LockNotification> lockNotifications = new ArrayList<LockNotification>();
 
             try {
-                GridParmManager.versionPurge(siteID);
-                GridParmManager.gridsPurge(gridNotifcations, lockNotifications,
-                        siteID);
+                GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
+                gridParmMgr.versionPurge();
+                gridParmMgr.gridsPurge(gridNotifcations, lockNotifications);
                 PurgeLogger.logInfo(
                         "Purging Expired pending isc send requests...", "gfe");
                 int requestsPurged = new IscSendRecordDao()
                         .purgeExpiredPending();
                 PurgeLogger.logInfo("Purged " + requestsPurged
                         + " expired pending isc send requests.", "gfe");
+                purgeRemovedDbs();
             } catch (DataAccessLayerException e) {
                 throw new PluginException(
                         "Error purging expired send ISC records!", e);
@@ -383,9 +501,49 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
+    private void purgeRemovedDbs() throws DataAccessLayerException {
+        List<DatabaseID> removed = null;
+        try {
+            removed = txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
+                        @Override
+                        public List<DatabaseID> doInTransaction(
+                                TransactionStatus status) {
+                            Date purgeDate = new Date(
+                                    System.currentTimeMillis()
+                                            - (REMOVED_DB_PURGE_TIME * TimeUtil.MILLIS_PER_DAY));
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> removed = getHibernateTemplate()
+                                    .find("FROM DatabaseID where removedDate < ?",
+                                            purgeDate);
+
+                            return removed;
+                        }
+                    });
+        } catch (Exception e) {
+            throw new DataAccessLayerException(
+                    "Error purging removed databases", e);
+        }
+
+        if (removed != null) {
+            for (DatabaseID dbId : removed) {
+                IFPGridDatabase.deleteDatabase(dbId);
+                PurgeLogger.logInfo("Purging removed database: " + dbId, "gfe");
+            }
+        }
+
+    }
+
+    /**
+     * Purge all DatabaseIDs for a site
+     * 
+     * @param siteID
+     * @return number of rows purged
+     * @throws DataAccessLayerException
+     */
     public int purgeDatabaseForSite(final String siteID)
             throws DataAccessLayerException {
-        return (Integer) txTemplate.execute(new TransactionCallback() {
+        return txTemplate.execute(new TransactionCallback<Integer>() {
             @Override
             public Integer doInTransaction(TransactionStatus status) {
                 return getHibernateTemplate().bulkUpdate(
@@ -397,20 +555,12 @@ public class GFEDao extends DefaultPluginDao {
     /**
      * 
      * @param records
-     * @return
+     * @throws DataAccessLayerException
      */
     public void save(final Collection<GFERecord> records)
             throws DataAccessLayerException {
         // validate fields
         for (GFERecord rec : records) {
-            if (rec.getIdentifier() == null) {
-                try {
-                    rec.constructDataURI();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
             if (rec.getInsertTime() == null) {
                 rec.setInsertTime(Calendar.getInstance());
             }
@@ -461,6 +611,7 @@ public class GFEDao extends DefaultPluginDao {
      * the record, update all existing histories, and insert all new histories.
      * 
      * @param existingRecords
+     * @throws DataAccessLayerException
      */
     public void update(final Collection<GFERecord> existingRecords)
             throws DataAccessLayerException {
@@ -546,19 +697,22 @@ public class GFEDao extends DefaultPluginDao {
      * 
      * @return The list of all database IDs currently being stored in the
      *         database
+     * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<DatabaseID> getDatabaseInventory(final String siteId)
             throws DataAccessLayerException {
-        // TODO: Should this be done from GridParmManager?
         try {
-            return (List<DatabaseID>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate().find(
-                                    "FROM DatabaseID WHERE siteId = ?", siteId);
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> result = getHibernateTemplate()
+                                    .find("FROM DatabaseID WHERE siteId = ? AND removeddate is null",
+                                            siteId);
+
+                            return result;
                         }
                     });
         } catch (Exception e) {
@@ -577,7 +731,6 @@ public class GFEDao extends DefaultPluginDao {
      * @throws DataAccessLayerException
      *             If errors occur during the query
      */
-    @SuppressWarnings("unchecked")
     public List<GFERecord> queryByParmID(final ParmID parmId)
             throws DataAccessLayerException {
         Session sess = null;
@@ -594,6 +747,7 @@ public class GFEDao extends DefaultPluginDao {
 
             Query query = sess.createQuery("FROM GFERecord WHERE parmId = ?");
             query.setParameter(0, parmId);
+            @SuppressWarnings("unchecked")
             List<GFERecord> list = query.list();
             tx.commit();
             return list;
@@ -621,10 +775,11 @@ public class GFEDao extends DefaultPluginDao {
     }
 
     /**
+     * Get all GFERecords whose time ranges overlap the specificed time range
      * 
      * @param parmId
      * @param tr
-     * @return
+     * @return map of TimeRanges to GFERecords
      * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
@@ -771,18 +926,19 @@ public class GFEDao extends DefaultPluginDao {
      * @return The list of times for a given parm name and level
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<TimeRange> getTimes(final ParmID parmId)
             throws DataAccessLayerException {
         try {
-            return (List<TimeRange>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<TimeRange>>() {
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate()
+                            @SuppressWarnings("unchecked")
+                            List<TimeRange> result = getHibernateTemplate()
                                     .find("SELECT dataTime.validPeriod FROM GFERecord WHERE parmId = ? ORDER BY dataTime.validPeriod.start",
                                             parmId);
+                            return result;
                         }
                     });
         } catch (Exception e) {
@@ -802,15 +958,15 @@ public class GFEDao extends DefaultPluginDao {
      * @return The list of times for a given parm name and level
      * @throws DataAccessLayerException
      */
-    @SuppressWarnings("unchecked")
     public List<TimeRange> getOverlappingTimes(final ParmID parmId,
             final TimeRange tr) throws DataAccessLayerException {
         try {
-            return (List<TimeRange>) txTemplate
-                    .execute(new TransactionCallback() {
+            return txTemplate
+                    .execute(new TransactionCallback<List<TimeRange>>() {
                         @Override
                         public List<TimeRange> doInTransaction(
                                 TransactionStatus status) {
+                            @SuppressWarnings("unchecked")
                             List<TimeRange> rval = getHibernateTemplate()
                                     .find("SELECT dataTime.validPeriod"
                                             + " FROM GFERecord WHERE parmId = ?"
@@ -903,13 +1059,17 @@ public class GFEDao extends DefaultPluginDao {
         return history;
     }
 
+    /**
+     * Remove all GFE records for a particular DatabaseID
+     * 
+     * @param dbId
+     */
     public void purgeGFEGrids(final DatabaseID dbId) {
         delete(dbId);
     }
 
     /**
-     * Removes GridParmInfo from the HDF5 file and any data associated with that
-     * info
+     * Removes all grids associated with a parm
      * 
      * @param parmId
      *            The parm to delete data for
@@ -917,20 +1077,8 @@ public class GFEDao extends DefaultPluginDao {
      *             If errors occur
      */
     public void removeParmData(ParmID parmId) throws DataAccessLayerException {
-
-        try {
-            IDataStore ds = DataStoreFactory.getDataStore(GfeUtil
-                    .getGridParmHdf5File(GridDatabase.gfeBaseDataDir,
-                            parmId.getDbId()));
-            ds.deleteDatasets("/GridParmInfo/" + parmId.getCompositeName(),
-                    "/GridParmStorageInfo/" + parmId.getCompositeName());
-        } catch (Exception e1) {
-            throw new DataAccessLayerException("Error deleting data from HDF5",
-                    e1);
-        }
         List<TimeRange> trs = this.getTimes(parmId);
         this.deleteRecords(parmId, trs);
-        // TODO: Remove all Locks??
     }
 
     /**
@@ -1010,7 +1158,8 @@ public class GFEDao extends DefaultPluginDao {
      * @param parmId
      * @param tr
      * @param sentTime
-     * @return
+     * @return the histories that were updated
+     * @throws DataAccessLayerException
      */
     @SuppressWarnings("unchecked")
     public Map<TimeRange, List<GridDataHistory>> updateSentTime(
@@ -1088,6 +1237,13 @@ public class GFEDao extends DefaultPluginDao {
         return history;
     }
 
+    /**
+     * Delete a list of records from the database
+     * 
+     * @param records
+     * @return number of records deleted
+     * @throws DataAccessLayerException
+     */
     public int deleteRecords(Collection<GFERecord> records)
             throws DataAccessLayerException {
         List<Integer> ids = new ArrayList<Integer>(records.size());
@@ -1129,7 +1285,13 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Return the latest insert time for a database
+     * 
+     * @param dbId
+     * @return latest insert time or null if no database has no records
+     * @throws DataAccessLayerException
+     */
     public Date getMaxInsertTimeByDbId(final DatabaseID dbId)
             throws DataAccessLayerException {
         DatabaseQuery query = new DatabaseQuery(this.daoClass);
@@ -1145,6 +1307,7 @@ public class GFEDao extends DefaultPluginDao {
         query.addOrder("insertTime", false);
         query.setMaxResults(1);
 
+        @SuppressWarnings("unchecked")
         List<Calendar> result = (List<Calendar>) this.queryByCriteria(query);
         if (!result.isEmpty()) {
             return result.get(0).getTime();
@@ -1153,21 +1316,31 @@ public class GFEDao extends DefaultPluginDao {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Find DatabaseID of latest model run
+     * 
+     * @param siteId
+     * @param modelName
+     *            the name of the desired model
+     * @return the DatabaseID or null if none found
+     * @throws DataAccessLayerException
+     */
     public DatabaseID getLatestDbIdByModelName(final String siteId,
             final String modelName) throws DataAccessLayerException {
         // TODO: Should this be done from GridParmManager?
         List<DatabaseID> results = Collections.emptyList();
         try {
             final String[] queryParams = { siteId, modelName };
-            results = (List<DatabaseID>) txTemplate
-                    .execute(new TransactionCallback() {
+            results = txTemplate
+                    .execute(new TransactionCallback<List<DatabaseID>>() {
                         @Override
                         public List<DatabaseID> doInTransaction(
                                 TransactionStatus status) {
-                            return getHibernateTemplate()
+                            @SuppressWarnings("unchecked")
+                            List<DatabaseID> result = getHibernateTemplate()
                                     .find("FROM DatabaseID WHERE siteId = ? AND modelName = ? ORDER BY modelTime DESC LIMIT 1",
-                                            queryParams);
+                                            (Object[]) queryParams);
+                            return result;
                         }
                     });
         } catch (Exception e) {
@@ -1180,6 +1353,105 @@ public class GFEDao extends DefaultPluginDao {
             return results.get(0);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Set the database removed date
+     * 
+     * @param dbId
+     *            databaseID to be updated
+     * @param removedDate
+     *            date database was removed or null if not removed (restored)
+     * @throws DataAccessLayerException
+     */
+    public void setDatabaseRemovedDate(DatabaseID dbId, Date removedDate)
+            throws DataAccessLayerException {
+
+        dbId.setRemovedDate(removedDate);
+        Session sess = null;
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            int tries = 0;
+            Transaction tx = null;
+            try {
+                tx = sess.beginTransaction();
+                sess.update(dbId);
+                tx.commit();
+
+            } catch (ConstraintViolationException e) {
+                if (tx != null) {
+                    try {
+                        tx.rollback();
+                    } catch (Exception e1) {
+                        logger.error("Error occurred rolling back transaction",
+                                e1);
+                    }
+                }
+
+                // database may have been inserted on another process, redo
+                // the look up
+                if (tries < 2) {
+                    logger.info("Constraint violation on save, attempting to look up database id again");
+                } else {
+                    throw new DataAccessLayerException(
+                            "Unable to look up DatabaseID: " + dbId.toString(),
+                            e);
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessLayerException("Unable to look up DatabaseID: "
+                    + dbId.toString(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Save or update a GridLocation object
+     * 
+     * @param gloc
+     *            the GridLocation object
+     * @throws DataAccessLayerException
+     */
+    public void saveOrUpdateGridLocation(GridLocation gloc)
+            throws DataAccessLayerException {
+        Session sess = null;
+        Transaction tx = null;
+
+        try {
+            sess = getHibernateTemplate().getSessionFactory().openSession();
+            tx = sess.beginTransaction();
+            sess.saveOrUpdate(gloc);
+            tx.commit();
+            return;
+        } catch (Exception e) {
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (Exception e1) {
+                    logger.error("Error occurred rolling back transaction", e1);
+                }
+            }
+
+            throw new DataAccessLayerException(
+                    "Unable to save GridLocation for " + gloc.getSiteId(), e);
+        } finally {
+            if (sess != null) {
+                try {
+                    sess.close();
+                } catch (Exception e) {
+                    statusHandler.error(
+                            "Error occurred closing database session", e);
+                }
+            }
         }
     }
 }

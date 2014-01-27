@@ -26,10 +26,11 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -42,6 +43,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -70,33 +72,43 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "Map")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MapType", propOrder = { "entry" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Map")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Map")
 public class MapType implements Serializable {
 
     private static final long serialVersionUID = 5533297201296624269L;
 
     @Id
-    @SequenceGenerator(name = "MapTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Map_sequence")
+    @SequenceGenerator(name = "MapTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".Map_sequence")
     @GeneratedValue(generator = "MapTypeGenerator")
     @XmlTransient
-    protected Integer key;
-
-    public Integer getKey() {
-        return key;
-    }
+    protected Integer id;
 
     @XmlElement(name = "Entry")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false, referencedColumnName = "id")
     protected List<EntryType> entry;
 
     public MapType() {
@@ -141,6 +153,14 @@ public class MapType implements Serializable {
         this.entry = entry;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -169,6 +189,11 @@ public class MapType implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "MapType [id=" + id + ", entry=" + entry + "]";
     }
 
 }

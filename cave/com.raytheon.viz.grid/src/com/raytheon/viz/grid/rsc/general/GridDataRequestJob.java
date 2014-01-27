@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Mar 16, 2011            bsteffen    Initial creation
  * Jun 04, 2013 2041       bsteffen    Improve exception handing in grid
  *                                     resources.
+ * Jun 24, 2013 2140       randerso    Moved safe name code into AbstractVizResource
  * 
  * </pre>
  * 
@@ -84,7 +85,7 @@ class GridDataRequestJob extends Job {
         }
 
         public boolean shouldRequest() {
-            return gridData == null && exception == null;
+            return (gridData == null) && (exception == null);
         }
 
     }
@@ -145,15 +146,15 @@ class GridDataRequestJob extends Job {
                     itr.remove();
                     if (r.gridData != null) {
                         return r.gridData;
-                    } else if (r.pdos == null && pdos == null) {
+                    } else if ((r.pdos == null) && (pdos == null)) {
                         request = r;
-                    } else if (r.pdos != null && r.pdos.equals(pdos)) {
+                    } else if ((r.pdos != null) && r.pdos.equals(pdos)) {
                         request = r;
                     }
                 }
             }
             requests.add(0, request);
-            if (request.exception != null && !request.exceptionHandled) {
+            if ((request.exception != null) && !request.exceptionHandled) {
                 handleExceptions();
             }
         }
@@ -169,7 +170,7 @@ class GridDataRequestJob extends Job {
                 requests.size());
         synchronized (requests) {
             for (GridDataRequest request : requests) {
-                if (request.exception != null && !request.exceptionHandled) {
+                if ((request.exception != null) && !request.exceptionHandled) {
                     failedRequests.add(request);
                 }
             }
@@ -177,14 +178,7 @@ class GridDataRequestJob extends Job {
         if (failedRequests.isEmpty()) {
             return;
         }
-        String safeResourceName = "Grid Resource";
-        try {
-            safeResourceName = resource.getName();
-        } catch (Throwable e) {
-            // This means they just won't get
-             // as useful of a message.
-            statusHandler.handle(Priority.DEBUG, e.getLocalizedMessage(), e);
-        }
+        String safeResourceName = resource.getSafeName();
         boolean multiple = failedRequests.size() > 1;
         GridDataRequest request = failedRequests.get(0);
         // Only log one message as a PROBLEM

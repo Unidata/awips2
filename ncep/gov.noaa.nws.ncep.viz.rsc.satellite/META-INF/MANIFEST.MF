@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.ui,
  javax.media.opengl,
  com.raytheon.uf.viz.derivparam;bundle-version="1.11.31",
  gov.noaa.nws.ncep.common.dataplugin.mcidas;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0"
+ com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.satellite,

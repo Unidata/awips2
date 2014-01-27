@@ -40,8 +40,8 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.edex.colormap.ColorMapManager;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.util.GridUtil;
 
 /**
  * GribMap task derived from original uEngine GribMap task. Maps grid data to an
@@ -163,7 +163,7 @@ public class GribMap extends ScriptTask {
         int pixels = gribData.length;
 
         for (int i = 0; i < pixels; i++) {
-            if (gribData[i] != Util.GRID_FILL_VALUE) {
+            if (gribData[i] != GridUtil.GRID_FILL_VALUE) {
                 if (max < gribData[i]) {
                     max = gribData[i];
                 }

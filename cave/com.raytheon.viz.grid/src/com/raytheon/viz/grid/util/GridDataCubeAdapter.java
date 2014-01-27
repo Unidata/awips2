@@ -35,7 +35,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -53,7 +52,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -411,17 +409,20 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
      * 
      * @see
      * com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#getData(java
-     * .util.List)
+     * .util.Map, com.raytheon.uf.common.time.DataTime[], java.util.List)
      */
     @Override
-    protected List<Object> getData(LayerProperty property,
-            List<AbstractRequestableData> requesters) throws VizException {
-        List<Object> results = new ArrayList<Object>(requesters.size());
+    protected List<PluginDataObject> getData(
+            Map<String, RequestConstraint> constraints,
+            DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
+            throws VizException {
+        List<PluginDataObject> results = new ArrayList<PluginDataObject>(
+                requesters.size());
         for (AbstractRequestableData requester : requesters) {
             List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
             if (requester.getDataTime() == null
                     || requester.getTimeAndSpace().isTimeAgnostic()) {
-                DataTime[] entryTime = property.getSelectedEntryTime();
+                DataTime[] entryTime = selectedTimes;
                 if (entryTime != null && entryTime.length > 0) {
                     List<DataTime> entryTimes = new ArrayList<DataTime>(
                             Arrays.asList(entryTime));
@@ -429,21 +430,15 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                         RequestableDataRecord rec = new RequestableDataRecord(
                                 requester);
                         rec.setDataTime(time.clone());
-                        try {
-                            rec.setDataURI(null);
-                            rec.constructDataURI();
-                        } catch (PluginException e) {
-                            throw new VizException(e);
-                        }
-                        boolean n = true;
-                        for (Object result : results) {
-                            if (((GridRecord) result).getDataURI().equals(
-                                    rec.getDataURI())) {
-                                n = false;
+                        rec.setDataURI(null);
+                        boolean newRecord = true;
+                        for (PluginDataObject result : results) {
+                            if (result.getDataURI().equals(rec.getDataURI())) {
+                                newRecord = false;
                                 break;
                             }
                         }
-                        if (n) {
+                        if (newRecord) {
                             records.add(rec);
                         }
                     }
@@ -467,12 +462,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                         for (GridCoverage coverage : coverages) {
                             record = new RequestableDataRecord(record);
                             record.setLocation(coverage);
-                            try {
-                                record.setDataURI(null);
-                                record.constructDataURI();
-                            } catch (PluginException e) {
-                                throw new VizException(e);
-                            }
+                            record.setDataURI(null);
                             spaceRecords.add(record);
                         }
                     }
@@ -481,10 +471,9 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             }
             results.addAll(records);
         }
-        if (property.getEntryQueryParameters(false).containsKey(
-                GridInventory.ENSEMBLE_QUERY)) {
-            String ensemble = property.getEntryQueryParameters(false)
-                    .get(GridInventory.ENSEMBLE_QUERY).getConstraintValue();
+        if (constraints.containsKey(GridInventory.ENSEMBLE_QUERY)) {
+            String ensemble = constraints.get(GridInventory.ENSEMBLE_QUERY)
+                    .getConstraintValue();
             if (ensemble != null) {
                 for (Object rec : results) {
                     ((GridRecord) rec).setEnsembleId(ensemble);
