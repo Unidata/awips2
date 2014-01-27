@@ -62,6 +62,18 @@
       </sourceProvider>
    </extension>
 
+   <extension
+          point="com.raytheon.uf.viz.localization.localizationpath">
+       	<path
+             application="NCEP"
+             localizationType="CAVE_STATIC"
+             name="Color Bars"
+             recursive="true"
+             value="ncep/ColorBars"
+	         extensionFilter=".xml">
+       </path>
+    </extension>
+
 <!--  Example Mouse actions from core/d2d
 <extension
       point="com.raytheon.uf.viz.ui.mouse.action">

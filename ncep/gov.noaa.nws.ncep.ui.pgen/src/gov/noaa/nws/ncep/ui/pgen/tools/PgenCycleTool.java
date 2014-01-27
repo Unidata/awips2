@@ -188,9 +188,8 @@ public class PgenCycleTool extends AbstractPgenDrawingTool {
 	}
 
 	public static void updateTitle(){
-		String title = " -- Day/Cycle:  " + pad(cycleDay) + "/" + pad(cycleHour) + "Z ";
+		String title = "Day/Cycle:  " + pad(cycleDay) + "/" + pad(cycleHour) + "Z ";
 		title += isRoutine? "Routine": "Update";
-//		NmapUiUtils.setCaveTitle(title);
 		PgenUtil.setCaveTitle(title);
 	}
 
