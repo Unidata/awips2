@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
 import com.raytheon.uf.edex.pointdata.PointDataDbDescription;
@@ -159,7 +160,7 @@ public class ObsDao extends PointDataPluginDao<MetarRecord> {
                 hdf5DataDescription = PointDataDescription.fromStream(this
                         .getClass().getResourceAsStream(
                                 "/res/pointdata/metar.xml"));
-            } catch (JAXBException e) {
+            } catch (SerializationException e) {
                 logger.error("Unable to load metar Point Data Description", e);
             }
         }

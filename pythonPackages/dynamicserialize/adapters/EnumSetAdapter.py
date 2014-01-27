@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    07/28/11                      dgilling       Initial Creation.
+#    12/02/13        2537          bsteffen       Serialize empty enum sets.
 #    
 # 
 #
@@ -42,20 +43,15 @@ ClassAdapter = ['java.util.EnumSet', 'java.util.RegularEnumSet']
 def serialize(context, set):
     setSize = len(set)
     context.writeI32(setSize)
-    if setSize > 0:
-        context.writeString(set.getEnumClass())
-        for val in set:
-            context.writeString(val)
+    context.writeString(set.getEnumClass())
+    for val in set:
+        context.writeString(val)
+    
 
 def deserialize(context):
     setSize = context.readI32()
-    retVal = None
-    
-    if setSize > 0:
-        enumClassName = context.readString()
-        valList = []
-        for i in xrange(setSize):
-            valList.append(context.readString())
-        retVal = EnumSet(enumClassName, valList)
-        
-    return retVal
+    enumClassName = context.readString()
+    valList = []
+    for i in xrange(setSize):
+        valList.append(context.readString())
+    return EnumSet(enumClassName, valList)     

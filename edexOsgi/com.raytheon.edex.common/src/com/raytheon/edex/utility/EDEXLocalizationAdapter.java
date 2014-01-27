@@ -58,6 +58,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * ------------ ----------  ----------- --------------------------
  * Jul 11, 2008 1250        jelkins     Initial creation
  * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
+ * Nov 03, 2013 2511        mnash       Fix issue where if name occurs in path
+ *                                      file won't be returned correctly
  * </pre>
  * 
  * @author jelkins
@@ -231,7 +233,12 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         entry.isDirectory = file.isDirectory();
         entry.context = ctx;
         String fullPath = file.getAbsolutePath();
-        entry.fileName = fullPath.substring(fullPath.indexOf(basePath));
+        String path = getUtilityDir() + File.separator + ctx.toPath()
+                + File.separator;
+        entry.fileName = fullPath.replaceFirst(path, "");
+        if (entry.fileName.startsWith(File.separator)) {
+            entry.fileName = entry.fileName.substring(1);
+        }
         entry.date = new Date(file.lastModified());
 
         entry.protectedLevel = ProtectedFiles.getProtectedLevel(null,

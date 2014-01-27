@@ -28,11 +28,11 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.viz.core.style.image.ImagePreferences;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 
 /**
  * provides static utility method for getting the correct units for radar data.
@@ -85,7 +85,7 @@ public class DataUtilities {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error processing radar data Unit from Style Rules", e);
 

@@ -22,22 +22,24 @@ package com.raytheon.uf.viz.core.localization;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.osgi.framework.Bundle;
 
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.viz.core.Activator;
 
 /**
  * Allows files to be present in UNPACKED bundles.
  * 
  * Hopefully in the future, we can add the capability to leave the files packed
- * in the jar.
+ * in the jar. Path separation should use {@link IPathManager#SEPARATOR}
  * 
  * 
  * <pre>
@@ -45,7 +47,9 @@ import com.raytheon.uf.viz.core.Activator;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 26, 2009            chammack     Initial creation
+ * Mar 26, 2009            chammack    Initial creation
+ * Aug 13, 2013       2033 mschenke    Generalized bundle scanner instead of
+ *                                     CAVE_STATIC vs CAVE_CONFIG
  * 
  * </pre>
  * 
@@ -55,67 +59,78 @@ import com.raytheon.uf.viz.core.Activator;
 
 public class BundleScanner {
 
-    private static Map<String, Bundle> CAVE_STATIC_BUNDLES;
+    private static Map<String, BundleScanner> scanners = new HashMap<String, BundleScanner>();
 
-    private static Map<String, Bundle> CAVE_BUNDLES;
-
-    static {
-        scan();
-    }
-
-    private static synchronized void scan() {
-        if (CAVE_STATIC_BUNDLES != null) {
-            return;
+    private static BundleScanner getBundleScanner(String path) {
+        if (path == null) {
+            path = IPathManager.SEPARATOR;
         }
-
-        CAVE_STATIC_BUNDLES = new HashMap<String, Bundle>();
-        CAVE_BUNDLES = new HashMap<String, Bundle>();
-
-        Bundle[] bndls = Activator.getDefault().getContext().getBundles();
-        for (Bundle bndl : bndls) {
-            CAVE_BUNDLES.put(bndl.getSymbolicName(), bndl);
-            URL url = FileLocator.find(bndl, new Path("localization"), null);
-            if (url != null) {
-                CAVE_STATIC_BUNDLES.put(bndl.getSymbolicName(), bndl);
+        path = path.trim();
+        if (path.isEmpty() || ".".equals(path)) {
+            path = IPathManager.SEPARATOR;
+        }
+        BundleScanner scanner;
+        synchronized (scanners) {
+            scanner = scanners.get(path);
+            if (scanner == null) {
+                scanner = new BundleScanner(path);
+                scanners.put(path, scanner);
             }
         }
-
+        return scanner;
     }
 
-    public static Set<String> getListOfBundles() {
-        return getListOfBundles(true);
+    private final String basePath;
+
+    private Map<String, Bundle> bundles = new LinkedHashMap<String, Bundle>();
+
+    public BundleScanner(String basePath) {
+        this.basePath = basePath;
+        Path path = new Path(basePath);
+        Bundle[] bundles = Activator.getDefault().getContext().getBundles();
+        for (Bundle bundle : bundles) {
+            String bundleName = bundle.getSymbolicName();
+            URL url = FileLocator.find(bundle, path, null);
+            if (url != null) {
+                this.bundles.put(bundleName, bundle);
+            }
+        }
     }
 
-    public static Set<String> getListOfBundles(boolean caveStaticOnly) {
-        return Collections.unmodifiableSet(caveStaticOnly ? CAVE_STATIC_BUNDLES
-                .keySet() : CAVE_BUNDLES.keySet());
+    public Collection<String> getContributingBundles() {
+        return new ArrayList<String>(bundles.keySet());
     }
 
-    public static File searchInBundle(String bundleToSearch,
-            String pathToLookFor) {
-        return searchInBundle(bundleToSearch, "localization", pathToLookFor,
-                CAVE_STATIC_BUNDLES);
+    public Bundle getBundle(String symbolicName) {
+        return bundles.get(symbolicName);
     }
 
-    public static File searchInBundle(String bundleToSearch, String basePath,
-            String pathToLookFor) {
-        return searchInBundle(bundleToSearch, basePath, pathToLookFor,
-                CAVE_BUNDLES);
+    public File searchInBundles(String path) {
+        for (String bundle : bundles.keySet()) {
+            File file = searchInBundle(bundle, path);
+            if (file != null) {
+                return file;
+            }
+        }
+        return null;
     }
 
-    public static File searchInBundle(String bundleToSearch, String basePath,
-            String pathToLookFor, Map<String, Bundle> toSearch) {
+    public File searchInBundle(String bundleToSearch, String pathToLookFor) {
         File file = null;
-        Bundle b = toSearch.get(bundleToSearch);
-        if (b != null && b.getState() != Bundle.UNINSTALLED) {
-            URL url = FileLocator.find(b, new Path(basePath + File.separator
-                    + pathToLookFor), null);
+        Bundle bundle = getBundle(bundleToSearch);
+        if (bundle != null && bundle.getState() != Bundle.UNINSTALLED) {
+            String path = basePath;
+            if (pathToLookFor != null
+                    && pathToLookFor.trim().isEmpty() == false) {
+                path += IPathManager.SEPARATOR + pathToLookFor;
+            }
+            URL url = FileLocator.find(bundle, new Path(path), null);
             if (url != null) {
                 URL resolvedURL = null;
                 try {
                     resolvedURL = FileLocator.toFileURL(url);
                 } catch (IOException e) {
-
+                    
                 }
                 if (resolvedURL != null) {
                     file = new File(resolvedURL.getPath());
@@ -124,4 +139,40 @@ public class BundleScanner {
         }
         return file;
     }
+
+    /**
+     * Gets a list of all bundles
+     * 
+     * @return
+     */
+    public static Collection<String> getListOfBundles() {
+        return getListOfBundles(IPathManager.SEPARATOR);
+    }
+
+    /**
+     * Gets the bundles that contain the path passed in in their bundle. Null,
+     * empty string, ".", or "/" will return all bundles.
+     * 
+     * @param path
+     * @return
+     */
+    public static Collection<String> getListOfBundles(String path) {
+        BundleScanner scanner = getBundleScanner(path);
+        return scanner.getContributingBundles();
+    }
+
+    /**
+     * Search in the specified bundle for the pathToLookFor relative to basePath
+     * 
+     * @param bundleToSearch
+     * @param basePath
+     * @param pathToLookFor
+     * @return
+     */
+    public static File searchInBundle(String bundleToSearch, String basePath,
+            String pathToLookFor) {
+        BundleScanner scanner = getBundleScanner(basePath);
+        return scanner.searchInBundle(bundleToSearch, pathToLookFor);
+    }
+
 }

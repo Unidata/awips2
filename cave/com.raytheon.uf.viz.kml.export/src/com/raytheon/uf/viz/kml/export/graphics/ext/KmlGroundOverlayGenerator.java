@@ -20,13 +20,8 @@
 package com.raytheon.uf.viz.kml.export.graphics.ext;
 
 import java.awt.image.RenderedImage;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -41,6 +36,7 @@ import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -62,7 +58,8 @@ import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 14, 2012            bsteffen     Initial creation
+ * Jun 14, 2012            bsteffen    Initial creation
+ * Jul 17, 2013 2185       bsteffen    Cache computed grid reprojections.
  * 
  * </pre>
  * 
@@ -71,8 +68,6 @@ import de.micromata.opengis.kml.v_2_2_0.LatLonBox;
  */
 
 public abstract class KmlGroundOverlayGenerator extends KmlFeatureGenerator {
-
-    private static Map<MultiKey, Reference<GridReprojection>> reprojCache = new HashMap<MultiKey, Reference<GridReprojection>>();
 
     protected final double alpha;
 
@@ -133,27 +128,7 @@ public abstract class KmlGroundOverlayGenerator extends KmlFeatureGenerator {
     }
 
     protected GridReprojection getReprojection(GridGeometry2D src,
-            GridGeometry2D dest) throws FactoryException, TransformException {
-        MultiKey key = new MultiKey(src, dest);
-        GridReprojection reproj = null;
-        boolean needsCompute = false;
-        synchronized (reprojCache) {
-            Reference<GridReprojection> reprojRef = reprojCache.get(key);
-            if (reprojRef != null) {
-                reproj = reprojRef.get();
-            }
-            if (reproj == null) {
-                reproj = new GridReprojection(src, dest);
-                needsCompute = true;
-                reprojCache.put(key,
-                        new SoftReference<GridReprojection>(reproj));
-            }
-        }
-        synchronized (reproj) {
-            if (needsCompute) {
-                reproj.computeTransformTable();
-            }
-        }
-        return reproj;
+            GridGeometry2D dest) throws TransformException {
+        return PrecomputedGridReprojection.getReprojection(src, dest);
     }
 }

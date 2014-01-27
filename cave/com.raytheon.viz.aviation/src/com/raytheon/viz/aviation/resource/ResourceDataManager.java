@@ -54,6 +54,11 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  * Feb  7, 1011 7783       rferrel      setTextEditorFontAndReverseColors no 
  *                                      longer reverses highlighted text's
  *                                      foreground color
+ * 16 Aug 2013  #2256      lvenable     Fixed font array out of bounds issue that may
+ *                                      occasionally occur.
+ * 30 Aug 2013  #2164      bkowal       Add default case statement for MSFT Windows
+ *                                      Java. Replaced platform-dependent code with
+ *                                      code that is not platform-dependent.
  * 
  * </pre>
  * 
@@ -315,8 +320,20 @@ public class ResourceDataManager {
          */
         String fontStr = resourceCB.getResourceAsString(ResourceTag.Font);
         String[] stringArray = fontStr.split("-");
-        defaultFont = new Font(display, new FontData(stringArray[0],
-                Integer.valueOf(stringArray[1]), getStyleInt(stringArray[2])));
+
+        /*
+         * If the font back from the resource is null or doesn't have the
+         * correct font data then create the default font with a system font.
+         */
+        if (stringArray == null || stringArray.length < 3) {
+            FontData fd = display.getSystemFont().getFontData()[0];
+            defaultFont = new Font(display, new FontData(fd.getName(),
+                    fd.getHeight(), fd.getStyle()));
+        } else {
+            defaultFont = new Font(display, new FontData(stringArray[0],
+                    Integer.valueOf(stringArray[1]),
+                    getStyleInt(stringArray[2])));
+        }
 
         RGB colorRGB = RGBColors.getRGBColor(resourceCB
                 .getResourceAsString(ResourceTag.Foreground));
@@ -824,9 +841,10 @@ public class ResourceDataManager {
 
         case EntryFont:
             return entryFont;
-        }
 
-        return null;
+        default:
+            return null;
+        }
     }
 
     public Color getAlertLevel0Color() {

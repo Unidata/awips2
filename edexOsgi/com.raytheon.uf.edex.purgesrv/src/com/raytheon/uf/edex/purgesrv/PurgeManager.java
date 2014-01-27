@@ -22,13 +22,10 @@ package com.raytheon.uf.edex.purgesrv;
 import java.lang.Thread.State;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -84,6 +81,8 @@ import com.raytheon.uf.edex.purgesrv.PurgeJob.PURGE_JOB_TYPE;
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2012 #470       bphillip    Initial creation
  * Apr 11, 2013 #1959      dhladky     Added method that only processes running plugins
+ * Aug 18, 2013 #2280      dhladky     Made OGC method of only purging active plugins the standard practice
+ * 
  * 
  * </pre>
  * 
@@ -149,34 +148,19 @@ public class PurgeManager {
 	protected PurgeManager() {
 	    
 	}
-
+    
     /**
-     * Executes the purge routine
+     * Executes the purge only on available plugins that are registered with
+     * camel.  This works better for our system instances that will be running it.
+     * They aren't required to purge data from plugins that aren't registerd to 
+     * their JVM which would be highly wasteful in this instance.
      */
     public void executePurge() {
-
-        // Gets the list of plugins in ascending order by the last time they
-        // were purged
-        List<String> pluginList = dao.getPluginsByPurgeTime();
-
-        // check for any new plugins or database being purged and needing
-        // entries recreated
-        Set<String> availablePlugins = new HashSet<String>(PluginRegistry
+        // check only for active plugins
+        List<String> availablePlugins = new ArrayList<String>(PluginRegistry
                 .getInstance().getRegisteredObjects());
 
-        // Merge the lists
-        availablePlugins.removeAll(pluginList);
-
-        if (availablePlugins.size() > 0) {
-            // generate new list with them at the beginning
-            List<String> newSortedPlugins = new ArrayList<String>(
-                    availablePlugins);
-            Collections.sort(newSortedPlugins);
-            newSortedPlugins.addAll(pluginList);
-            pluginList = newSortedPlugins;
-        }
-
-        purgeRunner(pluginList);
+        purgeRunner(availablePlugins);
     }
 
     /**

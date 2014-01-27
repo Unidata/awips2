@@ -96,10 +96,6 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="ohd*/**"/>
                 </copy>
-        		<echo message="meteolib.*/**"/>
-        		<copy todir="${buildDirectory}/plugins">
-        			<fileset dir="${buildDirectory}/../../../" includes="meteolib.*/**"/>
-        		</copy>
         		<echo message="javax.*/**"/>
                 <copy todir="${buildDirectory}/plugins">
                         <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
@@ -120,6 +116,11 @@
             	<echo message="de.*/**"/>
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="de.*/**"/>
+                </copy>
+
+                <echo message="ch.*/**"/>
+                <copy todir="${buildDirectory}/plugins">
+                    <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
                 </copy>
                 <antcall target="getBaseComponents" />
         </target>
@@ -194,9 +195,6 @@
         		update="true">
         	
         		<fileset dir="${buildDirectory}/../../static/win32.x86" 
-        			excludes="alertviz/**" />
-        		<!-- Include cave/etc in the win32 CAVE zip -->
-        		<fileset dir="${buildDirectory}/../../static/common"
         			excludes="alertviz/**" />
         	</zip>
         </target>
@@ -413,7 +411,7 @@
 			<xmlproperty file="${builder}/memorySettings.xml" 
 				collapseAttributes="true"/>
 			
-			<property name="caveXmx" value="2048M" />
+			<property name="caveXmx" value="3072M" />
 			<property name="caveMaxPermSize" value="256m" />
 			
 			<update.ini

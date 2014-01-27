@@ -33,7 +33,6 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.common.collect.Sets;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -45,7 +44,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 21, 2012    754         dhladky     Initial creation
+ * Aug 21, 2012    754      dhladky     Initial creation
+ * Sept 11, 2013  2351      dhladky     Added more point intervals
+ * Sept 17, 2013  2383      bgonzale    Use end or start time when times are
+ *                                      null because times are not always set.
+ * Sept 30, 2013  1797      dhladky     separation of gridded time from time
+ * Oct 10, 2013   1797      bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -56,8 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PointTime extends Time implements ISerializableObject,
-        Serializable {
+public class PointTime extends Time implements Serializable {
 
     private static final long serialVersionUID = 234624356321L;
 
@@ -68,12 +71,29 @@ public class PointTime extends Time implements ISerializableObject,
     @XmlElements({ @XmlElement(name = "times", type = Date.class) })
     @DynamicSerializeElement
     private List<Date> times;
+    
+    /**
+     * Intervals for point request
+     */
+    public static final SortedSet<Integer> INTERVALS = Sets.newTreeSet(Arrays.asList(5, 10, 15, 20, 30, 60));
 
     /**
      * Default Constructor.
      */
     public PointTime() {
 
+    }
+    
+    /**
+     * Clone constructor.
+     * 
+     * @param the
+     *            {@link PointTime} to clone
+     */
+    public PointTime(PointTime toCopy) {
+        super(toCopy);
+        this.times = toCopy.times;
+        this.interval = toCopy.interval;
     }
 
     public void setTimes(List<Date> times) {
@@ -86,32 +106,40 @@ public class PointTime extends Time implements ISerializableObject,
 
     /**
      * gets the most recent date
+     * 
      */
     @Override
-    public Date getEndDate() {
-        for (Date time : getTimes()) {
-            if (endDate == null) {
-                endDate = time;
-            } else if (endDate.before(time)) {
-                endDate = time;
+    public Date getEnd() {
+        List<Date> timesList = getTimes();
+        if (timesList != null) {
+            for (Date time : timesList) {
+                if (end == null) {
+                    end = time;
+                } else if (end.before(time)) {
+                    end = time;
+                }
             }
         }
-        return endDate;
+        return super.getEnd();
     }
 
     /**
      * gets the earliest date
+     * 
      */
     @Override
-    public Date getStartDate() {
-        for (Date time : getTimes()) {
-            if (startDate == null) {
-                startDate = time;
-            } else if (startDate.after(time)) {
-                startDate = time;
+    public Date getStart() {
+        List<Date> timesList = getTimes();
+        if (timesList != null) {
+            for (Date time : timesList) {
+                if (start == null) {
+                    start = time;
+                } else if (start.after(time)) {
+                    start = time;
+                }
             }
         }
-        return startDate;
+        return super.getStart();
     }
 
     /**
@@ -136,6 +164,6 @@ public class PointTime extends Time implements ISerializableObject,
      * @return the allowed refresh intervals
      */
     public static SortedSet<Integer> getAllowedRefreshIntervals() {
-        return Sets.newTreeSet(Arrays.asList(5, 10, 15, 30));
+        return INTERVALS;
     }
 }

@@ -24,6 +24,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -46,13 +47,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.request.RequestBuilder;
  *                                      make immutable, use StringBuilder instead of StringBuffer.
  * Dec 10, 2012 1259        bsteffen    Switch Data Delivery from LatLon to referenced envelopes.
  * May 12, 2013 753         dhladky     address field
+ * Sept 25, 2013 1797       dhladky     separated time from gridded time
  * 
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
-class OpenDAPRequestBuilder extends RequestBuilder {
+class OpenDAPRequestBuilder<T extends Time, C extends Coverage> extends RequestBuilder<T, C> {
 
     private final String openDAPURL;
 
@@ -62,7 +64,7 @@ class OpenDAPRequestBuilder extends RequestBuilder {
      * @param prXML
      */
     OpenDAPRequestBuilder(OpenDAPRetrievalAdapter adapter,
-            RetrievalAttribute ra) {
+            RetrievalAttribute<T, C> ra) {
         super(ra);
 
         // Create URL
@@ -78,7 +80,7 @@ class OpenDAPRequestBuilder extends RequestBuilder {
         // process time second
         buffer.append(processTime(getRetrievalAttribute().getTime()));
         // process the coverage, w/levels
-        buffer.append(processCoverage());
+        buffer.append(processCoverage(ra.getCoverage()));
 
         this.openDAPURL = buffer.toString().trim();
     }
@@ -122,19 +124,20 @@ class OpenDAPRequestBuilder extends RequestBuilder {
     public String processTime(Time time) {
 
         StringBuilder buf = new StringBuilder();
+        GriddedTime gtime = (GriddedTime)time;
 
-        if (time.getNumTimes() == 1) {
+        if (gtime.getNumTimes() == 1) {
             // only one time available
             buf.append("[0]");
         } else {
             // a particular time selected from the list
-            if (time.getRequestStart().equals(time.getRequestEnd())) {
-                buf.append("[" + (time.getRequestStartTimeAsInt()) + "]");
+            if (gtime.getRequestStart().equals(gtime.getRequestEnd())) {
+                buf.append("[" + (gtime.getRequestStartTimeAsInt()) + "]");
             }
             // a range of times selected from the list
             else {
-                buf.append("[" + (time.getRequestStartTimeAsInt()) + ":1:"
-                        + (time.getRequestEndTimeAsInt()) + "]");
+                buf.append("[" + (gtime.getRequestStartTimeAsInt()) + ":1:"
+                        + (gtime.getRequestEndTimeAsInt()) + "]");
             }
         }
 
@@ -142,11 +145,10 @@ class OpenDAPRequestBuilder extends RequestBuilder {
     }
 
     @Override
-    public String processCoverage() {
+    public String processCoverage(C coverage) {
         
         StringBuilder sb = new StringBuilder();
 
-        Coverage coverage = getRetrievalAttribute().getCoverage();
         if (coverage instanceof GriddedCoverage) {
             // manage the vertical levels
             sb.append(processDAPLevels(getRetrievalAttribute()
@@ -237,7 +239,7 @@ class OpenDAPRequestBuilder extends RequestBuilder {
     }
 
     @Override
-    public RetrievalAttribute getAttribute() {
+    public RetrievalAttribute<T, C> getAttribute() {
         return getRetrievalAttribute();
     }
 

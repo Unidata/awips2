@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="tearoffperspective" name="tearoffperspective" schema="schema/tearoffperspective.exsd"/>
+   <extension-point id="com.raytheon.uf.viz.ui.menus.contribItemProvider" name="contribItemProvider" schema="schema/com.raytheon.uf.viz.ui.menus.contribItemProvider.exsd"/>
    <extension
          point="com.raytheon.uf.viz.localization.localizationpath">
       <path

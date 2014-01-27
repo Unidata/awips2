@@ -52,7 +52,8 @@ import com.raytheon.viz.pointdata.rsc.retrieve.AbstractDbPlotInfoRetriever;
  * 11/04/2012    #944      ghull       rm FcsPlotResource
  * 12/19/2012    #947      ghull       save ConditionalFilter object to the RBD.
  * 04/15/2013    #864      ghull       rm isForecastResource()
- *                           
+ * Sep 05, 2013  2316      bsteffen    Unify pirep and ncpirep.
+ * 
  * </pre>
  * 
  * @author njensen
@@ -119,8 +120,8 @@ INatlCntrsResourceData {
         pluginNames.add("sfcobs");
         pluginNames.add("ncuair");
         pluginNames.add("ncscd");
-        pluginNames.add("ncairep");
-        pluginNames.add("ncpirep");
+        pluginNames.add("airep");
+        pluginNames.add("pirep");
         pluginNames.add("nctaf");
         pluginNames.add("ncpafm");
         pluginNames.add("modelsounding");
@@ -141,8 +142,8 @@ INatlCntrsResourceData {
         sfcPlugins.add("obs");
         sfcPlugins.add("sfcobs");
         sfcPlugins.add("ncscd");
-        sfcPlugins.add("ncairep");
-        sfcPlugins.add("ncpirep");
+        sfcPlugins.add("airep");
+        sfcPlugins.add("pirep");
         sfcPlugins.add("nctaf");
         sfcPlugins.add("ncpafm");
         sfcPlugins.add("bufrmosLAMP");

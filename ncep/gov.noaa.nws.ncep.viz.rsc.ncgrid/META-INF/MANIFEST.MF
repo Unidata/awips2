@@ -4,7 +4,7 @@ Bundle-Name: Ncgrid Plug-in
 Bundle-SymbolicName: gov.noaa.nws.ncep.viz.rsc.ncgrid;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: gov.noaa.nws.ncep.viz.rsc.ncgrid.Activator
-Eclipse-RegisterBuddy: gov.noaa.nws.ncep.viz.resources, org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: gov.noaa.nws.ncep.viz.resources, org.apache.velocity, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status, com.raytheon.viz.ui, com.raytheon.viz.core, com.raytheon.uf.viz.core
 Eclipse-BuddyPolicy: ext, global
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -26,33 +26,18 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.viz.localization;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1161",
  gov.noaa.nws.ncep.common.log;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.gempak;bundle-version="1.0.0",
- gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0"
+ gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.localization,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.status,
- com.raytheon.viz.core.contours.rsc.displays,
- com.raytheon.viz.core.style.contour,
- com.raytheon.viz.grid.rsc,
- com.raytheon.viz.grid.xml,
- com.sun.jna,
- com.sun.jna.ptr,
- gov.noaa.nws.ncep.edex.gempak.jna,
- gov.noaa.nws.ncep.viz.resourceManager.ui,
- gov.noaa.nws.ncep.viz.resources,
- gov.noaa.nws.ncep.viz.common.inv,
- javax.measure.unit
 Export-Package: gov.noaa.nws.ncep.viz.rsc.ncgrid,
  gov.noaa.nws.ncep.viz.rsc.ncgrid.contours,
  gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc
-Import-Package: com.raytheon.edex.meteoLib,
+Import-Package: com.raytheon.viz.core.contours.util,
  com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.derivparam.tree,

@@ -85,6 +85,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
  * Nov 21, 2009 3576        rjpeter     Refactored DerivParamDesc.
  * Jun 04, 2013 2041        bsteffen    Switch derived parameters to use
  *                                      concurrent python for threading.
+ * Nov 19, 2013 2361        njensen     Only shutdown if initialized
  * </pre>
  * 
  * @author brockwoo
@@ -128,7 +129,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
     private String extension = null;
 
     private Job notifyJob = new Job("Notify Derived Parameter Listeners") {
-        
+
         @Override
         protected IStatus run(IProgressMonitor arg0) {
             Collection<DerivParamUpdateListener> l = null;
@@ -142,7 +143,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
         }
 
     };
-    
+
     public static synchronized DerivedParameterGenerator getInstance() {
         if (instance == null) {
             instance = new DerivedParameterGenerator();
@@ -251,7 +252,7 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
             for (LocalizationFile file : xmlFiles) {
                 try {
                     DerivParamDesc desc = (DerivParamDesc) jaxbMan
-                            .jaxbUnmarshalFromXmlFile(file.getFile());
+                            .unmarshalFromXmlFile(file.getFile());
                     if (derParLibrary.containsKey(desc.getAbbreviation())) {
                         DerivParamDesc oldDesc = derParLibrary.get(desc
                                 .getAbbreviation());
@@ -330,7 +331,9 @@ public class DerivedParameterGenerator implements ILocalizationFileObserver {
     }
 
     public static void shutdown() {
-        getInstance().adapter.shutdown();
+        if (instance != null) {
+            getInstance().adapter.shutdown();
+        }
     }
 
 }

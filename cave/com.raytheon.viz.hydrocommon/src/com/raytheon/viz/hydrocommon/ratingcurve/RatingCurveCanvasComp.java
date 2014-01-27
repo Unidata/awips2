@@ -19,9 +19,11 @@
  **/
 package com.raytheon.viz.hydrocommon.ratingcurve;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -43,6 +45,8 @@ import org.eclipse.swt.widgets.Composite;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
+ * Jul 15, 2013 2088        rferrel     Code clean part of non-blocking dialogs.
+ * 09 Sep 2013  #2349       lvenable    Fixed Font memory leak.
  * 
  * </pre>
  * 
@@ -54,7 +58,7 @@ public class RatingCurveCanvasComp extends Canvas {
      * Parent composite.
      */
     private Composite parent;
-    
+
     /**
      * Reference back to parent dialog.
      */
@@ -123,8 +127,8 @@ public class RatingCurveCanvasComp extends Canvas {
     /**
      * Minimum stage value in feet.
      */
-    private double minStageFeet = 0.0; 
-    
+    private double minStageFeet = 0.0;
+
     /**
      * Maximum flow KCFS value.
      */
@@ -134,10 +138,11 @@ public class RatingCurveCanvasComp extends Canvas {
      * Minimum flow KCFS value.
      */
     private double minFlowKcfs = 0.0;
+
     /**
      * Divisor for the flow value.
      */
-    private double FLOW_DIVISOR = 10000.0; 
+    private double FLOW_DIVISOR = 10000.0;
 
     /**
      * Flood value.
@@ -152,7 +157,7 @@ public class RatingCurveCanvasComp extends Canvas {
     /**
      * Array of curve data.
      */
-    private ArrayList<RatingCurveData> curveDataArray;
+    private List<RatingCurveData> curveDataArray;
 
     /**
      * Number of hashes on the vertical graph line.
@@ -163,9 +168,9 @@ public class RatingCurveCanvasComp extends Canvas {
      * Maximum stage feet label value.
      */
     int maxStageFeetLabelVal = 0;
-    
+
     private double minStageFeetLabelVal = 0;
-    
+
     /**
      * Number of hashes on the horizontal graph line.
      */
@@ -210,7 +215,7 @@ public class RatingCurveCanvasComp extends Canvas {
      * Current Y location of mouse pointer.
      */
     int currentY;
-    
+
     /**
      * Shift amount
      */
@@ -229,7 +234,7 @@ public class RatingCurveCanvasComp extends Canvas {
      *            Record value.
      */
     public RatingCurveCanvasComp(Composite parent, RatingCurveDlg parentDlg,
-            ArrayList<RatingCurveData> curveDataArray, double floodVal,
+            List<RatingCurveData> curveDataArray, double floodVal,
             double recordDbl, double shiftAmount) {
         super(parent, SWT.DOUBLE_BUFFERED);
 
@@ -252,7 +257,7 @@ public class RatingCurveCanvasComp extends Canvas {
      * @param floodVal
      * @param recordDbl
      */
-    public void updateCurveData(ArrayList<RatingCurveData> curveDataArray,
+    public void updateCurveData(List<RatingCurveData> curveDataArray,
             double floodVal, double recordDbl, double shiftAmount) {
         floodValDbl = floodVal;
         recordValDbl = recordDbl;
@@ -277,6 +282,15 @@ public class RatingCurveCanvasComp extends Canvas {
         calcMaxStageMaxFlow();
         calcPixelsPerIncrement();
         setupCanvas();
+
+        parent.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (canvasFont != null) {
+                    canvasFont.dispose();
+                }
+            }
+        });
     }
 
     /**
@@ -330,7 +344,6 @@ public class RatingCurveCanvasComp extends Canvas {
         maxFlowKcfs = 0.0;
         minStageFeet = 0.0;
         minFlowKcfs = 0.0;
-        
 
         if (curveDataArray != null) {
             for (RatingCurveData curveData : curveDataArray) {
@@ -341,11 +354,11 @@ public class RatingCurveCanvasComp extends Canvas {
                 if (curveData.getDischarge() > maxFlowKcfs) {
                     maxFlowKcfs = curveData.getDischarge();
                 }
-                
+
                 if (curveData.getStage() < minStageFeet) {
                     minStageFeet = curveData.getStage();
                 }
-                
+
                 if (curveData.getDischarge() < minFlowKcfs) {
                     minFlowKcfs = curveData.getDischarge();
                 }
@@ -355,11 +368,11 @@ public class RatingCurveCanvasComp extends Canvas {
             if (maxStageFeet < floodValDbl) {
                 maxStageFeet = floodValDbl;
             }
-            
+
             if (maxStageFeet < recordValDbl) {
                 maxStageFeet = recordValDbl;
             }
-            
+
             if (maxFlowKcfs > 100000) {
                 FLOW_DIVISOR = 100000;
             } else if (maxFlowKcfs > 10000) {
@@ -368,16 +381,18 @@ public class RatingCurveCanvasComp extends Canvas {
                 FLOW_DIVISOR = 1000;
             }
             maxFlowKcfs /= FLOW_DIVISOR;
-            
+
             if (minStageFeet >= 0) {
                 minStageFeetLabelVal = 0;
             } else {
                 minStageFeetLabelVal = Math.round((minStageFeet - 5) / 10) * 10;
             }
         }
-        
-        vNumHashs = Math.round((((maxStageFeet - minStageFeetLabelVal) / 10) + 0.5d));
-        maxStageFeetLabelVal = (int) ((vNumHashs * 10) - Math.abs(minStageFeetLabelVal));
+
+        vNumHashs = Math
+                .round((((maxStageFeet - minStageFeetLabelVal) / 10) + 0.5d));
+        maxStageFeetLabelVal = (int) ((vNumHashs * 10) - Math
+                .abs(minStageFeetLabelVal));
     }
 
     /**
@@ -385,9 +400,10 @@ public class RatingCurveCanvasComp extends Canvas {
      * lines.
      */
     private void calcPixelsPerIncrement() {
-        vPixelsPerInc = VLINE_LENGTH / (maxStageFeetLabelVal - minStageFeetLabelVal);
-        vPixelsPerIncBase10 = (VLINE_LENGTH/vNumHashs);
-        
+        vPixelsPerInc = VLINE_LENGTH
+                / (maxStageFeetLabelVal - minStageFeetLabelVal);
+        vPixelsPerIncBase10 = (VLINE_LENGTH / vNumHashs);
+
         hNumHashs = Math.round(((maxFlowKcfs - minFlowKcfs) + 0.5d));
         maxKcfsLabelVal = (int) (hNumHashs * 10);
         hPixelsPerIncBase10 = HLINE_LENGTH / hNumHashs;
@@ -473,8 +489,9 @@ public class RatingCurveCanvasComp extends Canvas {
                         yCoord);
 
                 // draw label
-                gc.drawString(String.format("%5.1f", minStageFeetLabelVal + (x * 10)),
-                            STAGE_FEET_HASH_LABEL_X, yCoord - fontHeightMid, true);
+                gc.drawString(
+                        String.format("%5.1f", minStageFeetLabelVal + (x * 10)),
+                        STAGE_FEET_HASH_LABEL_X, yCoord - fontHeightMid, true);
             }
         }
 
@@ -494,7 +511,8 @@ public class RatingCurveCanvasComp extends Canvas {
                 gc.drawLine(xCoord, HLINE_YCOORD, xCoord, HLINE_YCOORD
                         + HASH_MARK);
 
-                kcfsStr = String.format("%5.1f", (float) (x * FLOW_DIVISOR / 1000));
+                kcfsStr = String.format("%5.1f",
+                        (float) (x * FLOW_DIVISOR / 1000));
                 gc.drawString(kcfsStr, xCoord
                         - ((kcfsStr.length() * fontAveWidth) / 2)
                         - fontAveWidth, HLINE_YCOORD + HASH_MARK * 2, true);
@@ -519,18 +537,13 @@ public class RatingCurveCanvasComp extends Canvas {
                     .getDischarge() / FLOW_DIVISOR) * 10) * hPixelsPerInc)));
 
             int yCoord = 0;
-//          Math.round((i - 9) / 10) * 10
             if (shiftAmount < 0) {
-                yCoord = (int) (HLINE_YCOORD - Math
-                        .round(((curveData.getStage() - minStageFeetLabelVal) * vPixelsPerInc)));
-//                yCoord = (int) (HLINE_YCOORD - Math
-//                        .round(((curveData.getStage() - shiftAmount) * vPixelsPerInc)));
+                yCoord = (int) (HLINE_YCOORD - Math.round(((curveData
+                        .getStage() - minStageFeetLabelVal) * vPixelsPerInc)));
             } else {
-                yCoord = (int) (HLINE_YCOORD - Math
-                      .round(((curveData.getStage()) * vPixelsPerInc)));
+                yCoord = (int) (HLINE_YCOORD - Math.round(((curveData
+                        .getStage()) * vPixelsPerInc)));
             }
-//            int yCoord = (int) (HLINE_YCOORD - Math
-//                    .round(((curveData.getStage() - shiftAmount) * vPixelsPerInc))); // TODO Add the shift back in
 
             if (firstTime) {
                 oldX = xCoord;
@@ -538,9 +551,7 @@ public class RatingCurveCanvasComp extends Canvas {
                 firstTime = false;
             }
 
-            gc
-                    .setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_CYAN));
+            gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_CYAN));
             gc.drawLine(oldX, oldY, xCoord, yCoord);
 
             gc.setForeground(parent.getDisplay().getSystemColor(
@@ -548,8 +559,6 @@ public class RatingCurveCanvasComp extends Canvas {
 
             gc.drawOval(xCoord - circleWidth / 2, yCoord - circleHeight / 2,
                     circleWidth, circleHeight);
-            
-//            Region r = new Region();
 
             oldX = xCoord;
             oldY = yCoord;
@@ -557,10 +566,10 @@ public class RatingCurveCanvasComp extends Canvas {
     }
 
     /**
-     * Draw the cross hairs on the graph when the left
-     * mouse button is clicked.
+     * Draw the cross hairs on the graph when the left mouse button is clicked.
      * 
-     * @param gc  The current GC
+     * @param gc
+     *            The current GC
      */
     private void drawCrossHairs(GC gc) {
         if ((currentX > VLINE_XCOORD)
@@ -599,21 +608,24 @@ public class RatingCurveCanvasComp extends Canvas {
     }
 
     /**
-     * Update the Stage and KCFS labels when moving 
-     * mouse and left mouse button is pressed.
+     * Update the Stage and KCFS labels when moving mouse and left mouse button
+     * is pressed.
      */
     private void updateLabels() {
         if ((currentX > VLINE_XCOORD)
                 && (currentX < VLINE_XCOORD + HLINE_LENGTH)
                 && (currentY > HLINE_YCOORD - VLINE_LENGTH)
                 && (currentY < HLINE_YCOORD)) {
-            double q = (((currentX - VLINE_XCOORD)/(hPixelsPerInc * 100) * FLOW_DIVISOR))/100;
-            double stage = (((currentY - (minStageFeetLabelVal*vPixelsPerInc) - HLINE_YCOORD)/vPixelsPerInc * -1));
-            parentDlg.getStageDataLbl().setText(String.valueOf(String.format("%5.1f", stage)));
-            parentDlg.getKcfsDataLbl().setText(String.valueOf(String.format("%5.1f", q)));
+            double q = (((currentX - VLINE_XCOORD) / (hPixelsPerInc * 100) * FLOW_DIVISOR)) / 100;
+            double stage = (((currentY - (minStageFeetLabelVal * vPixelsPerInc) - HLINE_YCOORD)
+                    / vPixelsPerInc * -1));
+            parentDlg.getStageDataLbl().setText(
+                    String.valueOf(String.format("%5.1f", stage)));
+            parentDlg.getKcfsDataLbl().setText(
+                    String.valueOf(String.format("%5.1f", q)));
         }
     }
-    
+
     private void handleMouseDownEvent(MouseEvent e) {
         isMouseDown = true;
     }
@@ -622,7 +634,7 @@ public class RatingCurveCanvasComp extends Canvas {
         isMouseDown = false;
         redraw();
         parentDlg.getStageDataLbl().setText("");
-        parentDlg.getKcfsDataLbl().setText("");       
+        parentDlg.getKcfsDataLbl().setText("");
     }
 
     private void handleMouseMoveEvent(MouseEvent e) {

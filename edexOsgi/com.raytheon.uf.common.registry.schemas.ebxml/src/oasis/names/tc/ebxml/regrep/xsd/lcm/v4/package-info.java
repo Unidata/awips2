@@ -18,6 +18,8 @@
  * further licensing information.
  **/
 
-@javax.xml.bind.annotation.XmlSchema(namespace = "urn:oasis:names:tc:ebxml-regrep:xsd:lcm:4.0", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@javax.xml.bind.annotation.XmlSchema(namespace = EbxmlNamespaces.LCM_URI, elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
+
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 

@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.dataplugin.ncwf.BUFRncwf;
+import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;

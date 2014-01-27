@@ -25,9 +25,7 @@ import java.util.concurrent.Executors;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.core.EDEXUtil;
 
 /**
  * Creates asynchronous Google event buses.
@@ -41,6 +39,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Dec 11, 2012 1286       djohnson     Initial creation
  * Feb 06, 2013 1543       djohnson     Changes to correspond with EventBus changes.
  * May 28, 2013 1650       djohnson     Changes to match functionality in general event bus handling.
+ * Jul 09, 2013 2106       djohnson     No Spring required to get thread pool sizes, remove subscriptionBus.
  * 
  * </pre>
  * 
@@ -48,31 +47,25 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * @version 1.0
  */
 public class BandwidthAsyncEventBusFactory implements BandwidthEventBusFactory {
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(BandwidthAsyncEventBusFactory.class);
-
     private final AsyncEventBus dataSetBus;
-
-    private final AsyncEventBus subscriptionBus;
 
     private final AsyncEventBus retrievalBus;
 
     public BandwidthAsyncEventBusFactory() {
-        BandwidthEventBusConfig config = (BandwidthEventBusConfig) EDEXUtil
-                .getESBComponent("BandwidthEventBusConfig");
-        // If no bean was defined, use the defaults defined in the
-        // class.
-        if (config == null) {
-            statusHandler
-                    .info("No BandwidthEventBusConfig defined.  Using defaults.");
-            config = new BandwidthEventBusConfig();
-        }
-        dataSetBus = new AsyncEventBus(Executors.newFixedThreadPool(config
-                .getDataSetMetaDataPoolSize()));
-        subscriptionBus = new AsyncEventBus(Executors.newFixedThreadPool(config
-                .getSubscriptionPoolSize()));
-        retrievalBus = new AsyncEventBus(Executors.newFixedThreadPool(config
-                .getRetrievalPoolSize()));
+        BandwidthEventBusConfig config = new BandwidthEventBusConfig();
+
+        final int dataSetMetaDataPoolSize = config.getDataSetMetaDataPoolSize();
+        final int retrievalPoolSize = config.getRetrievalPoolSize();
+
+        UFStatus.getHandler(BandwidthAsyncEventBusFactory.class)
+                .info(String
+                        .format("Creating event bus with dataSetMetaDataPoolSize [%s] retrievalPoolSize [%s].",
+                                dataSetMetaDataPoolSize, retrievalPoolSize));
+
+        dataSetBus = new AsyncEventBus(
+                Executors.newFixedThreadPool(dataSetMetaDataPoolSize));
+        retrievalBus = new AsyncEventBus(
+                Executors.newFixedThreadPool(retrievalPoolSize));
     }
 
     /**
@@ -81,14 +74,6 @@ public class BandwidthAsyncEventBusFactory implements BandwidthEventBusFactory {
     @Override
     public EventBus getDataSetBus() {
         return dataSetBus;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public EventBus getSubscriptionBus() {
-        return subscriptionBus;
     }
 
     /**
@@ -104,8 +89,7 @@ public class BandwidthAsyncEventBusFactory implements BandwidthEventBusFactory {
      */
     @Override
     public List<EventBus> getEventBuses() {
-        return Arrays.<EventBus> asList(dataSetBus, retrievalBus,
-                subscriptionBus);
+        return Arrays.<EventBus> asList(dataSetBus, retrievalBus);
     }
 
 }

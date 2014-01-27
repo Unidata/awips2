@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.ghg.monitor;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -45,8 +44,10 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.osgi.framework.Bundle;
 
-import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.viz.ghg.Activator;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
@@ -66,6 +67,7 @@ import com.raytheon.viz.ghg.monitor.listener.GhgMonitorZoneSelectionListener;
  * 25 MAR 2008  N/A        lvenable    Initial creation 
  * 19Jun2008    1157       MW Fegan    Added banner popup for alerts.
  * 27Mar2009    1881       wldougher   Enhance performance
+ * 27Aug2013    2301       dgilling    Fix Image loading for icons.
  * 
  * </pre>
  * 
@@ -99,17 +101,17 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
     /**
      * ArrayList of table columns.
      */
-    private ArrayList<TableColumn> tableColumns;
+    private List<TableColumn> tableColumns;
 
     /**
      * ArrayList of the rows of data in the table.
      */
-    private ArrayList<GhgTableRowData> ghgTableRowArray;
+    private List<GhgTableRowData> ghgTableRowArray;
 
     /**
      * Previous ArrayList of the rows of data in the table.
      */
-    private ArrayList<GhgTableRowData> lastGhgTableRowArray = new ArrayList<GhgTableRowData>();
+    private List<GhgTableRowData> lastGhgTableRowArray = new ArrayList<GhgTableRowData>();
 
     /**
      * The current selected column.
@@ -154,8 +156,10 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      */
     private void init() {
         Display display = getParent().getDisplay();
-        upImage = new Image(display, loadUpGif());
-        downImage = new Image(display, loadDownGif());
+
+        Bundle bundle = Activator.getDefault().getBundle();
+        upImage = IconUtil.getImage(bundle, "sortUp.gif", display);
+        downImage = IconUtil.getImage(bundle, "sortDown.gif", display);
 
         // Get the Font Data for the Table
         originalTableFont = new Font(display, "Monospace", 10, SWT.NORMAL);
@@ -177,6 +181,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
         initializeComponents();
 
         addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent arg0) {
                 disposeItems();
             }
@@ -459,6 +464,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      * 
      * @return Table column index.
      */
+    @Override
     public int getSelectedColumn() {
         return selectedColumn;
     }
@@ -468,6 +474,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
      * 
      * @return Indexes of the visible columns.
      */
+    @Override
     public List<Integer> getVisibleColumnIndexes() {
         ArrayList<Integer> intArray = new ArrayList<Integer>();
         TableColumn tc;
@@ -505,18 +512,6 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn,
             ghgTableRowArray.get(i).regenerateTableItem();
         }
         packColumns();
-    }
-
-    public static String loadUpGif() {
-        String config = VizApp.getBaseDir() + "etc" + File.separatorChar
-                + "ghg" + File.separatorChar + "sortUp.gif";
-        return config;
-    }
-
-    public static String loadDownGif() {
-        String config = VizApp.getBaseDir() + "etc" + File.separatorChar
-                + "ghg" + File.separatorChar + "sortDown.gif";
-        return config;
     }
 
     public Table getGhgTable() {

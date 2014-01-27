@@ -95,6 +95,7 @@ jclass JBOOLEAN_ARRAY_TYPE = NULL;
 jclass JDOUBLE_ARRAY_TYPE = NULL;
 jclass JFLOAT_ARRAY_TYPE = NULL;
 jclass JBYTE_ARRAY_TYPE = NULL;
+jclass JSHORT_ARRAY_TYPE = NULL;
 
 // cached methodids
 jmethodID objectToString     = 0;
@@ -905,6 +906,15 @@ int cache_primitive_classes(JNIEnv *env) {
         (*env)->DeleteLocalRef(env, clazz);
     }
 
+    if(JSHORT_ARRAY_TYPE == NULL) {
+        clazz = (*env)->FindClass(env, "[S");
+        if((*env)->ExceptionOccurred(env))
+            return 0;
+
+        JSHORT_ARRAY_TYPE = (*env)->NewGlobalRef(env, clazz);
+        (*env)->DeleteLocalRef(env, clazz);
+    }
+
     return 1;
 }
 
@@ -985,6 +995,11 @@ void unref_cache_primitive_classes(JNIEnv *env) {
             (*env)->DeleteGlobalRef(env, JDOUBLE_ARRAY_TYPE);
             JDOUBLE_ARRAY_TYPE = NULL;
         }
+    if(JSHORT_ARRAY_TYPE != NULL) {
+            (*env)->DeleteGlobalRef(env, JSHORT_ARRAY_TYPE);
+            JSHORT_ARRAY_TYPE = NULL;
+        }
+
 }
 
 
@@ -1385,23 +1400,24 @@ PyObject* convert_jobject(JNIEnv *env, jobject val, int typeid) {
 }
 
 
-// added by njensen, had to go separate from convert_pyarg_jvalue to delete
-// the local references
+// added by njensen, this converts a numpy array to a java primitive array
+// Returns    null if the python object is a pyjarray
+//            null and error indicator if the object can't be transformed to a java primitive array
+//            a java primitive array corresponding to the numpy array
 jvalue convert_pynumpyarg_jvalue(JNIEnv *env,
                             PyObject *param,
                             jclass paramType,
                             int paramTypeId,
                             int pos) {
     jvalue ret;
-	jarray arr;
-	jclass arrclazz;
+    jarray arr;
+    jclass arrclazz;
 
     ret.l = NULL;
-	arr = NULL;
+    arr = NULL;
 
 	if(param != Py_None && !pyjarray_check(param)) {
-		// this pyarray -> jarray added by njensen
-		initUtil();
+		initNumpy();
 
 		if(PyArray_Check(param))
 		{
@@ -1506,7 +1522,8 @@ jvalue convert_pyarg_jvalue(JNIEnv *env,
             ;
         else {
             PyJarray_Object *ar;
-            // njensen shifted this code
+            // njensen changed this code to try and convert it from a numpy array,
+            // it will return null if the parameter is already a pyjarray
             ret = convert_pynumpyarg_jvalue(env, param, paramType, paramTypeId, pos);
             if(ret.l != NULL)
             {
@@ -1578,7 +1595,7 @@ jvalue convert_pyarg_jvalue(JNIEnv *env,
         }
         else {
         	//added by njensen
-        	initUtil();
+        	initNumpy();
         	if(PyArray_Check(param))
         	{
         		ret.l = numpyToJavaArray(env, param, NULL);
@@ -1721,7 +1738,7 @@ jarray numpyToJavaArray(JNIEnv* env, PyObject *param, jclass desiredType)
 	PyArrayObject *pa = NULL;
 	int minDim = 0;
 	int maxDim = 0;
-	initUtil();
+	initNumpy();
 	sz  = PyArray_Size(param);
 
 	if(desiredType == NULL)
@@ -1730,6 +1747,8 @@ jarray numpyToJavaArray(JNIEnv* env, PyObject *param, jclass desiredType)
 			desiredType = JBOOLEAN_ARRAY_TYPE;
 		else if(((PyArrayObject *) param)->descr->type_num == NPY_BYTE)
 			desiredType = JBYTE_ARRAY_TYPE;
+                else if(((PyArrayObject *) param)->descr->type_num == NPY_INT16)
+                        desiredType = JSHORT_ARRAY_TYPE;
 		else if(((PyArrayObject *) param)->descr->type_num == NPY_INT32)
 			desiredType = JINT_ARRAY_TYPE;
 		else if(((PyArrayObject *) param)->descr->type_num == NPY_INT64)
@@ -1760,6 +1779,15 @@ jarray numpyToJavaArray(JNIEnv* env, PyObject *param, jclass desiredType)
 			pa = (PyArrayObject *) nvalue;
 			(*env)->SetByteArrayRegion(env, arr, 0, sz, (const jbyte *)pa->data);
 		}
+                else if((*env)->IsSameObject(env, desiredType, JSHORT_ARRAY_TYPE)
+                                 && (((PyArrayObject *) param)->descr->type_num == NPY_INT16))
+                {
+                        arr = (*env)->NewShortArray(env, sz);
+                        nobj = PyArray_ContiguousFromObject(param, NPY_INT16, minDim, maxDim);
+                        nvalue = (PyObject *)PyArray_Cast((PyArrayObject *)nobj, NPY_INT16);
+                        pa = (PyArrayObject *) nvalue;
+                        (*env)->SetShortArrayRegion(env, arr, 0, sz, (const jshort *)pa->data);
+                }
 		else if((*env)->IsSameObject(env, desiredType, JINT_ARRAY_TYPE)
 				&& (((PyArrayObject *) param)->descr->type_num == NPY_INT32))
 		{
@@ -1806,6 +1834,75 @@ jarray numpyToJavaArray(JNIEnv* env, PyObject *param, jclass desiredType)
 	return arr;
 }
 
+// added by njensen
+PyObject* javaToNumpyArray(JNIEnv* env, jobject jo, npy_intp *dims)
+{
+    PyObject *pyjob = NULL;
+    int ysize, xsize;
+    ysize = dims[0];
+    xsize = dims[1];
+    initNumpy(); 
+    
+    if((*env)->IsInstanceOf(env, jo, JBOOLEAN_ARRAY_TYPE))
+    {
+        jboolean *dataBool = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_BOOL);
+        dataBool = (*env)->GetBooleanArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataBool, ysize * xsize * 1);
+        (*env)->ReleaseBooleanArrayElements(env, jo, dataBool, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JBYTE_ARRAY_TYPE))
+    {
+        jbyte *dataByte = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_BYTE);
+        dataByte = (*env)->GetByteArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataByte, ysize * xsize * 1);
+        (*env)->ReleaseByteArrayElements(env, jo, dataByte, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JSHORT_ARRAY_TYPE))
+    {
+        jshort *dataShort = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_INT16);
+        dataShort = (*env)->GetShortArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataShort, ysize * xsize * 2);
+        (*env)->ReleaseShortArrayElements(env, jo, dataShort, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JINT_ARRAY_TYPE))
+    {
+        jint *dataInt = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_INT32);
+        dataInt = (*env)->GetIntArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataInt, ysize * xsize * 4);
+        (*env)->ReleaseIntArrayElements(env, jo, dataInt, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JLONG_ARRAY_TYPE))
+    {
+        jlong *dataLong = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_INT64);
+        dataLong = (*env)->GetLongArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataLong, ysize * xsize * 8);
+        (*env)->ReleaseLongArrayElements(env, jo, dataLong, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JFLOAT_ARRAY_TYPE))
+    {
+        jfloat *dataFloat = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_FLOAT32);
+        dataFloat = (*env)->GetFloatArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataFloat, ysize * xsize * 4);
+        (*env)->ReleaseFloatArrayElements(env, jo, dataFloat, 0);
+    }
+    else if((*env)->IsInstanceOf(env, jo, JDOUBLE_ARRAY_TYPE))
+    {
+        jdouble *dataDouble = NULL;
+        pyjob = PyArray_SimpleNew(2, dims, NPY_FLOAT64);
+        dataDouble = (*env)->GetDoubleArrayElements(env, jo, 0);
+        memcpy(((PyArrayObject *)pyjob)->data, dataDouble, ysize * xsize * 8);
+        (*env)->ReleaseDoubleArrayElements(env, jo, dataDouble, 0);
+    }
+
+    return pyjob;
+}
+
 // added by njensen, code from brockwoo
 jarray pylistToJStringList(JNIEnv* env, PyObject* plist)
 {
@@ -1825,12 +1922,12 @@ jarray pylistToJStringList(JNIEnv* env, PyObject* plist)
 }
 
 // added by njensen
-static void initUtil(void)
+static void initNumpy(void)
 {
-    if (!utilInit)
+    if (!numpyInited)
     {
         import_array();
-        utilInit = 1;
+        numpyInited = 1;
     }
 }
 

@@ -27,8 +27,8 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import com.raytheon.uf.common.dataplugin.ncwf.BUFRncwf;
-import com.raytheon.uf.common.dataplugin.ncwf.NCWFFeature;
+import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
+import com.raytheon.uf.common.dataplugin.bufrncwf.NCWFFeature;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;

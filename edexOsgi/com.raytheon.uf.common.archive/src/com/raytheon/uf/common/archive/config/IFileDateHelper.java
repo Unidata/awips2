@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
-import java.util.Calendar;
 
 /**
  * Helper to get a file last modification date.
@@ -33,7 +32,8 @@ import java.util.Calendar;
  * ------------ ---------- ----------- --------------------------
  * Jun 21, 2013            bgonzale     Initial creation
  * Aug 28, 2013 2299       rferrel     Change getFileDate argument.
- * 
+ * Dec 04, 2013 2603       rferrel     Changes to improve archive purging.
+ * Dec 17, 2013 2603       rjpeter     Clean up imports.
  * </pre>
  * 
  * @author bgonzale
@@ -48,6 +48,6 @@ public interface IFileDateHelper {
      * @param file
      * @return calendar
      */
-    public Calendar getFileDate(File file);
+    public DataSetStatus getFileDate(File file);
 
 }

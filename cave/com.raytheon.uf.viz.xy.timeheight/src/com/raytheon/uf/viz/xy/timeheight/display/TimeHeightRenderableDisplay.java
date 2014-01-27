@@ -39,10 +39,10 @@ import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.viz.core.imagery.ImageCombiner;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.core.slice.request.HeightScales;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest;
 
 /**
  * TODO Add Description
@@ -63,6 +63,7 @@ import com.raytheon.viz.core.slice.request.VerticalPointRequest;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeHeightRenderableDisplay.class);
 
@@ -106,8 +107,8 @@ public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
         getDescriptor().setHeightScale(scale);
     }
 
-    public void setTimeDirection(VerticalPointRequest.TimeDirection direction) {
-        ((TimeHeightDescriptor) getDescriptor()).setTimeDirection(direction);
+    public void setTimeDirection(TimeDirection direction) {
+        getDescriptor().setTimeDirection(direction);
     }
 
     @Override

@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorTypeManag
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2/13/12      184        bphillip     Initial creation
+ * 12/2/2013    1829       bphillip     Changed generic call on AnyValueType
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ public class ExtensibleObjectTypeValidator implements IRegistryValidator {
             ValueType slotValue = slot.getSlotValue();
             if (slotValue instanceof AnyValueType) {
                 ValidatorTypeManager.getInstance().validateObject(
-                        ((AnyValueType) slotValue).getAny(), response);
+                        ((AnyValueType) slotValue).getAnyValue(), response);
             }
         }
     }

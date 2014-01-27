@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
+ * Nov 08, 2013 2506       bgonzale     Added constructors.
  * 
  * </pre>
  * 
@@ -48,6 +49,27 @@ public abstract class RegistryEvent extends Event {
 
     public enum Action {
         UPDATE, DELETE, INSERT
+    }
+
+    /**
+     * Default Constructor.
+     */
+    public RegistryEvent() {
+    }
+
+    /**
+     * Initialization Constructor.
+     * 
+     * @param id
+     * @param lid
+     * @param objectType
+     * @param action
+     */
+    public RegistryEvent(String id, String lid, String objectType, Action action) {
+        super(id);
+        this.lid = lid;
+        this.objectType = objectType;
+        this.action = action;
     }
 
     @DynamicSerializeElement

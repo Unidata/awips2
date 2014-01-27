@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,6 @@ import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetWithFiltersQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.ebxml.UnresolvedReferenceException;
@@ -56,6 +56,8 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Nov 19, 2012 1166      djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259      bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 04, 2013  223      mpduff       Added datatype to the filter.
+ * Jun 24, 2013 2106      djohnson     Now composes a registryHandler.
+ * Oct 09, 2013 2267      bgonzale     Fix Collection cast to List error.
  * 
  * </pre>
  * 
@@ -146,7 +148,8 @@ public class DataSetHandler extends
                 // referenced by
                 // their RegistryObject ids...
                 Map<String, Parameter> remap = new HashMap<String, Parameter>();
-                for (Parameter parm : obj.getParameters().values()) {
+                for (Parameter parm : (Collection<Parameter>) obj
+                        .getParameters().values()) {
                     try {
                         remap.put(RegistryUtil.getRegistryObjectKey(parm), parm);
                     } catch (Throwable e1) {
@@ -211,8 +214,8 @@ public class DataSetHandler extends
         query.setDataSetName(name);
         query.setProviderName(providerName);
 
-        RegistryQueryResponse<DataSet> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<DataSet> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByNameAndProvider");
 
@@ -252,8 +255,8 @@ public class DataSetHandler extends
             query.setEnvelope(envelope);
         }
 
-        RegistryQueryResponse<DataSet> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<DataSet> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByFilters");
 

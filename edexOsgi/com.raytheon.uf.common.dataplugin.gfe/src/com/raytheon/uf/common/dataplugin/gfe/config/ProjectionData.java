@@ -22,11 +22,11 @@ package com.raytheon.uf.common.dataplugin.gfe.config;
 import java.awt.Point;
 import java.util.HashMap;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Transient;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -39,11 +39,10 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
-import com.raytheon.uf.common.serialization.adapters.PointAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -56,91 +55,119 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/13/08     #1030      randerso    Initial port
  * 04/24/08     #1047      randerso    Made all fields private and created getters
  * 04/24/13     #1935      randerso    Fixed date line spanning issue
+ * 08/06/13     #1571      randerso    Added hibernate annotations
+ *                                     Removed constructor with int for ProjectionType
+ * 10/22/13     #2361      njensen     Remove XML annotations
  * 
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
+@Embeddable
 @DynamicSerialize
-public class ProjectionData implements ISerializableObject {
+public class ProjectionData {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ProjectionData.class);
 
     private static float COMPARISON_THRESHOLD = 0.005f;
 
+    /**
+     * Enumeration of supported map projections
+     */
     public static enum ProjectionType {
-        NONE, LAMBERT_CONFORMAL, MERCATOR, POLAR_STEREOGRAPHIC, LATLON
+        /** Undefined map projection */
+        NONE,
+
+        /** Lambert Conformal map projection */
+        LAMBERT_CONFORMAL,
+
+        /** MERCATOR map projection */
+        MERCATOR,
+
+        /** North polar stereographic map projection */
+        POLAR_STEREOGRAPHIC,
+
+        /** Lat/Lon (implemented as Equidistant Cylindrical) map projection */
+        LATLON
     };
 
-    @XmlAttribute
+    @Column(length = 32, nullable = false)
     @DynamicSerializeElement
     private String projectionID;
 
-    @XmlAttribute
+    @Column(length = 20, nullable = false)
+    @Enumerated(EnumType.STRING)
     @DynamicSerializeElement
     private ProjectionType projectionType;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Coordinate latLonLL;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Coordinate latLonUR;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(value = CoordAdapter.class)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Coordinate latLonOrigin;
 
-    @XmlAttribute
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double stdParallelOne;
 
-    @XmlAttribute
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double stdParallelTwo;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(value = PointAdapter.class)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Point gridPointLL;
 
-    @XmlElement
-    @XmlJavaTypeAdapter(value = PointAdapter.class)
+    @Column(nullable = false)
     @DynamicSerializeElement
     private Point gridPointUR;
 
-    @XmlAttribute
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double latIntersect;
 
-    @XmlAttribute
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double lonCenter;
 
-    @XmlAttribute
+    @Column(nullable = false)
     @DynamicSerializeElement
     private double lonOrigin;
 
+    @Transient
     private CoordinateReferenceSystem crs;
 
+    @Transient
     private GridGeometry2D gridGeometry;
 
+    @Transient
     private MathTransform crsToLatLon;
 
+    @Transient
     private MathTransform latLonToCrs;
 
+    @Transient
     private HashMap<PixelOrientation, MathTransform> gridToLatLon;
 
+    @Transient
     private HashMap<PixelOrientation, MathTransform> latLonToGrid;
 
+    @Transient
     private HashMap<PixelOrientation, MathTransform> gridToCrs;
 
+    @Transient
     private boolean initialized;
 
+    /**
+     * Default constructor
+     */
     public ProjectionData() {
         latLonLL = new Coordinate();
         latLonUR = new Coordinate();
@@ -155,17 +182,34 @@ public class ProjectionData implements ISerializableObject {
         initialized = false;
     }
 
-    public ProjectionData(String projID, int projType, Coordinate latLonLL,
-            Coordinate latLonUR, Coordinate latLonOrig, float stdPar1,
-            float stdPar2, Point gridLL, Point gridUR, float latInt,
-            float lonCenter, float lonOrig) {
-        this(projID, ProjectionType.values()[projType], latLonLL, latLonUR,
-                latLonOrig, stdPar1, stdPar2, gridLL, gridUR, latInt,
-                lonCenter, lonOrig);
-
-        init();
-    }
-
+    /**
+     * Constructor
+     * 
+     * @param projID
+     *            name associated with this projection
+     * @param projType
+     *            projection type
+     * @param latLonLL
+     *            lat/lon of lower left corner
+     * @param latLonUR
+     *            lat/lon of upper right corner
+     * @param latLonOrig
+     *            lat/lon of origin (Lambert)
+     * @param stdPar1
+     *            standard parallel one (Lambert, Mercator)
+     * @param stdPar2
+     *            standard parallel two (Lambert)
+     * @param gridLL
+     *            coordinates of lower left grid cell, typically (1,1)
+     * @param gridUR
+     *            coordinates of upper right grid cell, typically (nX,nY)
+     * @param latInt
+     *            lat intersect (unused, preserved for A1 compatibility)
+     * @param lonCenter
+     *            lon center (Mercator, LatLon)
+     * @param lonOrig
+     *            lon origin (Lambert, Polar Stereographic)
+     */
     public ProjectionData(String projID, ProjectionType projType,
             Coordinate latLonLL, Coordinate latLonUR, Coordinate latLonOrig,
             float stdPar1, float stdPar2, Point gridLL, Point gridUR,
@@ -188,7 +232,10 @@ public class ProjectionData implements ISerializableObject {
         init();
     }
 
-    private void init() {
+    /**
+     * Initialize the object. Must be called after database retrieval
+     */
+    public void init() {
         if (initialized) {
             return;
         }
@@ -259,6 +306,11 @@ public class ProjectionData implements ISerializableObject {
         return result;
     }
 
+    /**
+     * Retrieve the Coordinate Reference System (CRS) of this projection
+     * 
+     * @return the CRS
+     */
     public synchronized CoordinateReferenceSystem getCrs() {
         if (crs == null) {
 
@@ -310,20 +362,20 @@ public class ProjectionData implements ISerializableObject {
             return false;
         }
 
-        if (Math.abs(this.latLonLL.y - rhs.latLonLL.y) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonUR.y - rhs.latLonUR.y) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD) {
+        if ((Math.abs(this.latLonLL.y - rhs.latLonLL.y) > COMPARISON_THRESHOLD)
+                || (Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD)
+                || (Math.abs(this.latLonUR.y - rhs.latLonUR.y) > COMPARISON_THRESHOLD)
+                || (Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD)) {
             return false;
         }
 
         // specific projection comparisons
         switch (this.projectionType) {
         case LAMBERT_CONFORMAL:
-            return (Math.abs(this.latLonOrigin.y - rhs.latLonOrigin.y) < COMPARISON_THRESHOLD
-                    || Math.abs(this.latLonOrigin.x - rhs.latLonOrigin.x) < COMPARISON_THRESHOLD
-                    || Math.abs(this.stdParallelOne - rhs.stdParallelOne) < COMPARISON_THRESHOLD || Math
-                    .abs(this.stdParallelTwo - rhs.stdParallelTwo) < COMPARISON_THRESHOLD);
+            return ((Math.abs(this.latLonOrigin.y - rhs.latLonOrigin.y) < COMPARISON_THRESHOLD)
+                    || (Math.abs(this.latLonOrigin.x - rhs.latLonOrigin.x) < COMPARISON_THRESHOLD)
+                    || (Math.abs(this.stdParallelOne - rhs.stdParallelOne) < COMPARISON_THRESHOLD) || (Math
+                    .abs(this.stdParallelTwo - rhs.stdParallelTwo) < COMPARISON_THRESHOLD));
         case POLAR_STEREOGRAPHIC:
             return (Math.abs(this.lonOrigin - rhs.lonOrigin) < COMPARISON_THRESHOLD);
         case MERCATOR:
@@ -335,6 +387,15 @@ public class ProjectionData implements ISerializableObject {
         }
     }
 
+    /**
+     * Return the lat/lon of the specified corner or center of a grid cell
+     * 
+     * @param gridCoord
+     *            coordinates of the grid cell
+     * @param orientation
+     *            desired corner or center
+     * @return the lat/lon
+     */
     public Coordinate gridCoordinateToLatLon(Coordinate gridCoord,
             PixelOrientation orientation) {
         Coordinate latLon = new Coordinate();
@@ -354,51 +415,40 @@ public class ProjectionData implements ISerializableObject {
             latLon.x = output[0];
             latLon.y = output[1];
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error(
+                    "Error computing grid coordinate to lat/lon transform", e);
         }
         return latLon;
     }
 
-    public Coordinate latLonToGridCoordinate(Coordinate latLon,
-            PixelOrientation orientation) {
-        Coordinate gridCoord = new Coordinate();
-        MathTransform mt = latLonToGrid.get(orientation);
-        try {
-            if (mt == null) {
-                init();
-                DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-                mt = dmtf.createConcatenatedTransform(latLonToCrs, gridGeometry
-                        .getGridToCRS(orientation).inverse());
-                latLonToGrid.put(orientation, mt);
-            }
-
-            double[] output = new double[2];
-            mt.transform(new double[] { latLon.x, latLon.y }, 0, output, 0, 1);
-            gridCoord.x = output[0];
-            gridCoord.y = output[1];
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return gridCoord;
-    }
-
+    /**
+     * Return the math transform from grid coordinate to the specified corner or
+     * center lat/lon
+     * 
+     * @param orientation
+     *            desired corner or center
+     * @return the transform
+     */
     public MathTransform getGridToCrs(PixelOrientation orientation) {
         MathTransform mt = gridToCrs.get(orientation);
-        try {
-            if (mt == null) {
-                init();
-                mt = gridGeometry.getGridToCRS(orientation);
-                gridToCrs.put(orientation, mt);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (mt == null) {
+            init();
+            mt = gridGeometry.getGridToCRS(orientation);
+            gridToCrs.put(orientation, mt);
         }
         return mt;
     }
 
+    /**
+     * Convert a grid cell coordinate to the native CRS coordinate of this
+     * projection
+     * 
+     * @param gridCoord
+     *            grid cell coordinate
+     * @param orientation
+     *            desired corner or center of the grid cell
+     * @return native CRS coordinate
+     */
     public Coordinate gridCoordinateToCrs(Coordinate gridCoord,
             PixelOrientation orientation) {
         Coordinate crsCoordinate = new Coordinate();
@@ -410,114 +460,204 @@ public class ProjectionData implements ISerializableObject {
             crsCoordinate.x = output[0];
             crsCoordinate.y = output[1];
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error(
+                    "Error computing grid coordinate to CRS transform", e);
         }
         return crsCoordinate;
     }
 
+    /**
+     * @return the projectionID
+     */
     public String getProjectionID() {
         return projectionID;
     }
 
+    /**
+     * @return the projectionType
+     */
     public ProjectionType getProjectionType() {
         return projectionType;
     }
 
+    /**
+     * @return the latLonLL
+     */
     public Coordinate getLatLonLL() {
         return latLonLL;
     }
 
+    /**
+     * @return the latLonUR
+     */
     public Coordinate getLatLonUR() {
         return latLonUR;
     }
 
+    /**
+     * @return the latLonOrigin
+     */
     public Coordinate getLatLonOrigin() {
         return latLonOrigin;
     }
 
+    /**
+     * @return the stdParallelOne
+     */
     public double getStdParallelOne() {
         return stdParallelOne;
     }
 
+    /**
+     * @return the stdParallelTwo
+     */
     public double getStdParallelTwo() {
         return stdParallelTwo;
     }
 
+    /**
+     * @return the gridPointLL
+     */
     public Point getGridPointLL() {
         return gridPointLL;
     }
 
+    /**
+     * @return the gridPointUR
+     */
     public Point getGridPointUR() {
         return gridPointUR;
     }
 
+    /**
+     * @return the latIntersect
+     */
     public double getLatIntersect() {
         return latIntersect;
     }
 
+    /**
+     * @return the lonCenter
+     */
     public double getLonCenter() {
         return lonCenter;
     }
 
+    /**
+     * @return the lonOrigin
+     */
     public double getLonOrigin() {
         return lonOrigin;
     }
 
+    /**
+     * @param projectionID
+     *            the projectionID to set
+     */
     public void setProjectionID(String projectionID) {
         this.projectionID = projectionID;
     }
 
+    /**
+     * @param projectionType
+     *            the projectionType to set
+     */
     public void setProjectionType(ProjectionType projectionType) {
         this.projectionType = projectionType;
     }
 
+    /**
+     * @param latLonLL
+     *            the latLonLL to set
+     */
     public void setLatLonLL(Coordinate latLonLL) {
         this.latLonLL = latLonLL;
     }
 
+    /**
+     * @param latLonUR
+     *            the latLonUR to set
+     */
     public void setLatLonUR(Coordinate latLonUR) {
         this.latLonUR = latLonUR;
     }
 
+    /**
+     * @param latLonOrigin
+     *            the latLonOrigin to set
+     */
     public void setLatLonOrigin(Coordinate latLonOrigin) {
         this.latLonOrigin = latLonOrigin;
     }
 
+    /**
+     * @param stdParallelOne
+     *            the stdParallelOne to set
+     */
     public void setStdParallelOne(double stdParallelOne) {
         this.stdParallelOne = stdParallelOne;
     }
 
+    /**
+     * @param stdParallelTwo
+     *            the stdParallelTwo to set
+     */
     public void setStdParallelTwo(double stdParallelTwo) {
         this.stdParallelTwo = stdParallelTwo;
     }
 
+    /**
+     * @param gridPointLL
+     *            the gridPointLL to set
+     */
     public void setGridPointLL(Point gridPointLL) {
         this.gridPointLL = gridPointLL;
     }
 
+    /**
+     * @param gridPointUR
+     *            the gridPointUR to set
+     */
     public void setGridPointUR(Point gridPointUR) {
         this.gridPointUR = gridPointUR;
     }
 
+    /**
+     * @param latIntersect
+     *            the latIntersect to set
+     */
     public void setLatIntersect(double latIntersect) {
         this.latIntersect = latIntersect;
     }
 
+    /**
+     * @param lonCenter
+     *            the lonCenter to set
+     */
     public void setLonCenter(double lonCenter) {
         this.lonCenter = lonCenter;
     }
 
+    /**
+     * @param lonOrigin
+     *            the lonOrigin to set
+     */
     public void setLonOrigin(double lonOrigin) {
         this.lonOrigin = lonOrigin;
     }
 
+    /**
+     * @return the width of the projection in grid cells
+     */
     public Integer getNx() {
-        return this.gridPointUR.x - this.gridPointLL.x + 1;
+        return (this.gridPointUR.x - this.gridPointLL.x) + 1;
     }
 
+    /**
+     * @return the height of the projection in grid cells
+     */
     public Integer getNy() {
-        return this.gridPointUR.y - this.gridPointLL.y + 1;
+        return (this.gridPointUR.y - this.gridPointLL.y) + 1;
     }
 
 }

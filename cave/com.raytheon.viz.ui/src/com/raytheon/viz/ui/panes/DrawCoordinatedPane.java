@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.ui.panes;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.ui.IEditorPart;
@@ -46,7 +46,9 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2009            bgonzale     Initial creation
+ * Aug 5, 2009             bgonzale    Initial creation
+ * Aug 2, 2013        2190 mschenke    Made displayPanes Set a LinkedHashSet to ensure
+ *                                     rendered in order added
  * 
  * </pre>
  * 
@@ -54,7 +56,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * @version 1.0
  */
 
-public class DrawCoordinatedPane implements Comparable<DrawCoordinatedPane> {
+public class DrawCoordinatedPane {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DrawCoordinatedPane.class);
 
@@ -67,14 +69,13 @@ public class DrawCoordinatedPane implements Comparable<DrawCoordinatedPane> {
     /**
      * Multiple gl display panes can be registered with each container.
      */
-    private Set<VizDisplayPane> displayPanes = new HashSet<VizDisplayPane>();
+    private Set<VizDisplayPane> displayPanes = new LinkedHashSet<VizDisplayPane>();
 
     private boolean editor = false;
 
     private boolean dead = false;
 
-    public DrawCoordinatedPane(IDisplayPaneContainer container,
-            VizDisplayPane pane) {
+    public DrawCoordinatedPane(IDisplayPaneContainer container) {
         this.container = container;
         editor = container instanceof IEditorPart;
         if (container instanceof IWorkbenchPart) {
@@ -83,7 +84,6 @@ public class DrawCoordinatedPane implements Comparable<DrawCoordinatedPane> {
         } else {
             containerWindow = manager.getCurrentWindow();
         }
-        displayPanes.add(pane);
     }
 
     public synchronized void add(VizDisplayPane pane) {
@@ -154,18 +154,6 @@ public class DrawCoordinatedPane implements Comparable<DrawCoordinatedPane> {
             handleException(e);
             return false;
         }
-    }
-
-    /*
-     * Note, this implementation of compareTo is inconsistent with equals.
-     * ManagedPanes are identified by the IDisplayPaneContainer object member
-     * attribute. (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    @Override
-    public int compareTo(DrawCoordinatedPane other) {
-        return (this.container.hashCode() - other.container.hashCode());
     }
 
     public synchronized void draw(boolean actualDraw) {

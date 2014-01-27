@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -33,7 +35,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointDataTimingSubsetView;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
 
 /**
  * Point Time Subset Tab. Sets the data retrieval interval.
@@ -45,7 +47,9 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointData
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013    223     mpduff      Initial creation.
- * Jun 06, 2013 2038       djohnson    Place refresh intervals into PointTime so BandwidthManager has access.
+ * Jun 06, 2013   2038     djohnson    Place refresh intervals into PointTime so BandwidthManager has access.
+ * Jun 13, 2013   2108     mpduff      Update data set size on change.
+ * Oct 11, 2013   2386     mpduff      Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -53,8 +57,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IPointData
  * @version 1.0
  */
 
-public class PointTimeSubsetTab extends DataTimingSubsetTab implements
-        IPointDataTimingSubsetView {
+public class PointTimeSubsetTab extends DataTimingSubsetTab {
 
     /** Data Retrieval Intervals */
     private final String[] INTERVALS;
@@ -84,18 +87,11 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
         }
         INTERVALS = allowedRefreshIntervals
                 .toArray(new String[allowedRefreshIntervals.size()]);
+
+        init();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.datadelivery.subscription.subset.DataTimingSubsetTab
-     * #init()
-     */
-    @Override
-    public void init() {
-        super.init();
+    private void init() {
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(2, false);
@@ -112,12 +108,20 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
         intervalCombo.setLayoutData(comboData);
         intervalCombo.setItems(INTERVALS);
         intervalCombo.select(0);
+        intervalCombo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleSelection();
+            }
+        });
     }
 
     /**
-     * {@inheritDoc}
+     * Set the data retrieval interval
+     * 
+     * @param interval
+     *            the retrieval interval
      */
-    @Override
     public void setDataRetrievalInterval(int interval) {
         int idx = 0;
         for (String s : INTERVALS) {
@@ -130,11 +134,30 @@ public class PointTimeSubsetTab extends DataTimingSubsetTab implements
     }
 
     /**
-     * {@inheritDoc}
+     * Get the data retrieval interval
+     * 
+     * @return the retrieval interval
      */
-    @Override
     public int getDataRetrievalInterval() {
         return Integer.parseInt(intervalCombo.getItem(intervalCombo
                 .getSelectionIndex()));
+    }
+
+    /**
+     * Handle a selection change.
+     */
+    private void handleSelection() {
+        selectionChanged();
+    }
+
+    /**
+     * Get the tab's save information.
+     * 
+     * @return The PointTimeXML data object
+     */
+    public PointTimeXML getSaveInfo() {
+        PointTimeXML ptx = new PointTimeXML();
+        ptx.setDataRetrievalInterval(getDataRetrievalInterval());
+        return ptx;
     }
 }

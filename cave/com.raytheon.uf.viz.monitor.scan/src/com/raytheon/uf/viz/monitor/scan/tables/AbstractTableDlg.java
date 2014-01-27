@@ -24,13 +24,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
@@ -40,8 +39,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -65,6 +66,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.IRequestTrendGraphData;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg;
 import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogType;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Abstract dialog class used for the CALL, DND, MESO, and TVS table dialogs.
@@ -78,23 +81,25 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.LoadSaveConfigDlg.DialogTy
  * Apr 26, 2013 #1945      lvenable    Some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added convenience method to alert the user to use the clear
  *                                     button if they want to close the dialog.
+ * Jul 24, 2013 #2218      mpduff      Changed method signature.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialog.
+ * Aug 15, 2013 #2143      mpduff      Change how the dialogs close to prevent ConcurrentModificationException.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  */
-public abstract class AbstractTableDlg extends Dialog implements IMonitor,
-        IMonitorListener, IMonitorControlListener, ITableAction,
+public abstract class AbstractTableDlg extends CaveSWTDialog implements
+        IMonitor, IMonitorListener, IMonitorControlListener, ITableAction,
         IRequestTrendGraphData {
     /**
      * The display object.
      */
     protected Display display;
-
-    /**
-     * Shell object.
-     */
-    protected Shell shell;
 
     /**
      * Array listening monitors
@@ -143,6 +148,10 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
     protected SCANAlarmAlertManager mgr = null;
 
+    private LoadSaveConfigDlg loadDlg = null;
+
+    private LoadSaveConfigDlg saveDlg = null;
+
     /**
      * Abstract constructor.
      * 
@@ -150,36 +159,47 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
      *            Parent shell.
      */
     public AbstractTableDlg(Shell parentShell) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
 
         scanCfg = SCANConfig.getInstance();
     }
 
-    /**
-     * Open the dialog.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
-    protected void open() {
-        Shell parent = getParent();
-        display = parent.getDisplay();
-
-        /*
-         * The shell is being created off of the display
-         */
-        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.RESIZE);
-        parent.addDisposeListener(new DisposeListener() {
-            @Override
-            public void widgetDisposed(DisposeEvent e) {
-                shell.dispose();
-            }
-        });
+    @Override
+    protected Layout constructShellLayout() {
 
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 0;
         mainLayout.marginWidth = 2;
         mainLayout.verticalSpacing = 2;
-        shell.setLayout(mainLayout);
-        shell.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        return (mainLayout);
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
+     */
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell parentShell) {
+        display = shell.getDisplay();
         initData();
 
         setShellText();
@@ -187,9 +207,6 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         setTableType();
         initComponents();
         shellDisposeAction();
-
-        shell.pack();
-        shell.setVisible(true);
     }
 
     /**
@@ -260,11 +277,15 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
 
         // Loop and close all of the open dialogs;
         Set<ICommonDialogAction> keys = dialogsMap.keySet();
-
+        List<ICommonDialogAction> toClose = new ArrayList<ICommonDialogAction>(
+                keys.size());
         for (ICommonDialogAction icda : keys) {
-            icda.closeDialog();
+            toClose.add(icda);
         }
 
+        for (ICommonDialogAction icda : toClose) {
+            icda.closeDialog();
+        }
         dialogsMap.clear();
 
         return true;
@@ -297,21 +318,26 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
             return;
         }
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.OPEN, scanTable);
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
-
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN, scanTable);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        scanCfg.loadNewConfigFileName(scanTable, fileName
+                                .getFile().getName());
+                        updateAfterConfigLoad();
+                        updateFileButton();
+                    } else {
+                        return;
+                    }
+                }
+            });
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
         }
-
-        scanCfg.loadNewConfigFileName(scanTable, fileName.getFile().getName());
-
-        System.out.println(fileName.getFile().getAbsolutePath());
-
-        updateAfterConfigLoad();
-        updateFileButton();
     }
 
     /**
@@ -358,34 +384,41 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
          * 
          * do not need to update the display...
          */
-        String defCfgName = scanCfg.getDefaultConfigName(scanTable);
+        if (saveDlg == null || saveDlg.isDisposed()) {
+            saveDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS,
+                    scanTable);
+            saveDlg.setCloseCallback(new ICloseCallback() {
 
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, scanTable);
-        LocalizationFile fileName = (LocalizationFile) loadDlg.open();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        String defCfgName = scanCfg
+                                .getDefaultConfigName(scanTable);
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        if (defCfgName.compareTo(fileName.getFile().getName()) == 0) {
+                            MessageBox mb = new MessageBox(shell,
+                                    SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+                            mb.setText("Overwrite");
+                            mb.setMessage("The Save As name is the same as the default configuration name.  Saving "
+                                    + "will overwrite the default configuration.\n"
+                                    + "Do you wish to continue?");
+                            int result = mb.open();
 
-        if (fileName == null) {
-            System.out.println("FileName is null...");
-            return;
+                            // If the user selected Cancel then return.
+                            if (result == SWT.CANCEL) {
+                                return;
+                            }
+                        }
+                        scanCfg.saveConfigurationFileAs(scanTable, fileName
+                                .getFile().getName());
+                    }
+                    updateFileButton();
+                }
+            });
+            saveDlg.open();
+        } else {
+            saveDlg.bringToTop();
         }
-
-        if (defCfgName.compareTo(fileName.getFile().getName()) == 0) {
-            MessageBox mb = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK
-                    | SWT.CANCEL);
-            mb.setText("Overwrite");
-            mb.setMessage("The Save As name is the same as the default configuration name.  Saving "
-                    + "will overwrite the default configuration.\n"
-                    + "Do you wish to continue?");
-            int result = mb.open();
-
-            // If the user selected Cancel then return.
-            if (result == SWT.CANCEL) {
-                return;
-            }
-        }
-
-        scanCfg.saveConfigurationFileAs(scanTable, fileName.getFile().getName());
-        updateFileButton();
     }
 
     protected void resetButtonForegroundColor(Button btn) {
@@ -487,8 +520,7 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         if (getLinkToFrame(scanTable.name())) {
             time = scanMonitor.getScanTime(scanTable, site);
         } else {
-            DataTime dt = scanMonitor.getMostRecent(scanMonitor,
-                    scanTable.name(), site);
+            DataTime dt = scanMonitor.getMostRecent(scanTable.name(), site);
 
             if (dt != null) {
                 time = dt.getRefTime();
@@ -640,6 +672,62 @@ public abstract class AbstractTableDlg extends Dialog implements IMonitor,
         // TODO: What needs to be done here is to grab the current selected
         // trend set and fire a trend set for the passed in ID and table
         // this will mean firing a get graphData Event back to the monitor
+    }
+
+    /**
+     * This is a method that will create a composite that contains a checkbox
+     * with no text and a label. Since the upgrade to Redhat 6, a checkbox that
+     * has its foreground and background color changed can cause the check in
+     * the checkbox to become invisible if the foreground color is too light.
+     * This method creates an ordinary checkbox with the label and composite
+     * background being colored.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param bgColor
+     *            Background color.
+     * @param fgColor
+     *            Foreground color.
+     * @param labelText
+     *            Text for the label.
+     * @param colorComposite
+     *            Flag indicating if the composite background color should be
+     *            set.
+     * @param toolTipText
+     *            Set the toolTipText
+     * @return The checkbox control that is created.
+     */
+    protected final Button createCheckLabelComposite(Composite parentComp,
+            Color bgColor, Color fgColor, String labelText,
+            boolean colorComposite, String toolTipText) {
+
+        GridData gd = new GridData();
+        GridLayout gl = new GridLayout(2, false);
+        gl.marginHeight = 2;
+        gl.marginWidth = 2;
+        gl.horizontalSpacing = 0;
+
+        Composite chkLblComp = new Composite(parentComp, SWT.NONE);
+        chkLblComp.setLayout(gl);
+        chkLblComp.setLayoutData(gd);
+
+        if (colorComposite) {
+            chkLblComp.setBackground(bgColor);
+        }
+
+        gd = new GridData(18, SWT.DEFAULT);
+        Button chkBox = new Button(chkLblComp, SWT.CHECK);
+        chkBox.setLayoutData(gd);
+
+        Label lbl = new Label(chkLblComp, SWT.NONE);
+        lbl.setBackground(bgColor);
+        lbl.setForeground(fgColor);
+        lbl.setText(" " + labelText);
+
+        chkBox.setToolTipText(toolTipText);
+        lbl.setToolTipText(toolTipText);
+
+        return chkBox;
     }
 
     @Override

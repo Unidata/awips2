@@ -17,4 +17,4 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
- com.raytheon.edex.ingestsrv;bundle-version="1.12.1174"
+ com.raytheon.uf.edex.ingest;bundle-version="1.12.1174"

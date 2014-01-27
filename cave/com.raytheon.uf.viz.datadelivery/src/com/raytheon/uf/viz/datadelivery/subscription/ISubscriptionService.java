@@ -38,7 +38,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Nov 7, 2012  1286      djohnson     Initial creation
  * Nov 20, 2012 1286      djohnson     Use IDisplay to display yes/no prompt.
  * Nov 28, 2012 1286      djohnson     Consolidate more notifications.
- * 
+ * Jul 18, 2013 1653      mpduff       Added SubscriptionStatusSummary to ISubscriptionServiceResult
+ * Oct 25, 2013 2292      mpduff       Move overlap checks to edex.
  * </pre>
  * 
  * @author djohnson
@@ -46,35 +47,6 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  */
 
 public interface ISubscriptionService {
-
-    /**
-     * Contract for the return object of subscription service actions.
-     */
-    public static interface ISubscriptionServiceResult {
-        /**
-         * Check whether further editing should occur.
-         * 
-         * @return true if the UI should not be closed, and the user should be
-         *         allowed to resubmit their action
-         */
-        boolean isAllowFurtherEditing();
-
-        /**
-         * Check whether there is a message to display.
-         * 
-         * @return true if there is a message to display
-         */
-        boolean hasMessageToDisplay();
-
-        /**
-         * Return the message to display. Should not be called unless
-         * {@link #hasMessageToDisplay()} returns true.
-         * 
-         * @return the message to display
-         */
-        String getMessageToDisplay();
-    }
-
     /**
      * Store the subscription.
      * 
@@ -84,7 +56,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    ISubscriptionServiceResult store(Subscription subscription,
+    SubscriptionServiceResult store(Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -96,7 +68,7 @@ public interface ISubscriptionService {
      * @param displayTextStrategy
      * @return the result object
      */
-    ISubscriptionServiceResult update(Subscription subscription,
+    SubscriptionServiceResult update(Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -109,7 +81,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    ISubscriptionServiceResult update(List<Subscription> subscriptions,
+    SubscriptionServiceResult update(List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -122,7 +94,7 @@ public interface ISubscriptionService {
      * @return the result
      * @throws RegistryHandlerException
      */
-    ISubscriptionServiceResult updateWithPendingCheck(
+    SubscriptionServiceResult updateWithPendingCheck(
             List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
@@ -138,7 +110,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    public ISubscriptionServiceResult store(AdhocSubscription sub,
+    public SubscriptionServiceResult store(AdhocSubscription sub,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 }

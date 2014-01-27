@@ -5,7 +5,6 @@ Bundle-SymbolicName: org.geotools
 Bundle-Version: 2.6.4
 Bundle-ClassPath: common-2.2.1.jar,
  commons-beanutils-1.7.0.jar,
- commons-codec-1.2.jar,
  commons-collections-3.1.jar,
  commons-dbcp-1.2.2.jar,
  commons-jxpath-1.2.jar,
@@ -330,9 +329,8 @@ Export-Package: com.vividsolutions.jts,
  org.opengis.webservice.feature
 Require-Bundle: javax.vecmath;bundle-version="1.3.1",
  javax.measure;bundle-version="1.0.0",
- org.apache.commons.logging,
- org.apache.log4j,
- org.postgres;bundle-version="1.0.0"
+ org.postgres;bundle-version="1.0.0",
+ org.slf4j;bundle-version="1.7.5"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Eclipse-BuddyPolicy: registered, ext, global
 Bundle-ActivationPolicy: lazy

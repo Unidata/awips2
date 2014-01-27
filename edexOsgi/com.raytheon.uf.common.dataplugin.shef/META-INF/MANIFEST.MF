@@ -3,11 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Shef
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.shef
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: javax.persistence,
- com.raytheon.edex.common,
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.dataplugin.shef.tables,
  com.raytheon.uf.common.dataplugin.shef.util

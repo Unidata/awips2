@@ -21,12 +21,14 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.Random;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverageFixture;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderFixture;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.registry.SubscriptionBundle;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -49,6 +51,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.MockOpenDapServiceFac
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
  * Feb 15, 2013 1543       djohnson     Set coverage on retrieval attributes.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -72,12 +76,13 @@ public class RetrievalRequestRecordFixture extends
      */
     @Override
     public RetrievalRequestRecord getInstance(long seedValue, Random random) {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get(seedValue);
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get(
+                seedValue, DataType.GRID);
         final Provider provider = ProviderFixture.INSTANCE.get(seedValue);
 
         SubscriptionBundle bundle = new SubscriptionBundle();
         bundle.setBundleId(subscription.getSubscriptionId());
-        bundle.setPriority(1);
+        bundle.setPriority(SubscriptionPriority.HIGH);
         bundle.setProvider(provider);
         bundle.setConnection(provider.getConnection());
         bundle.setSubscription(subscription);
@@ -112,5 +117,4 @@ public class RetrievalRequestRecordFixture extends
 
         return rec;
     }
-
 }

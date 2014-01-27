@@ -26,16 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.apache.commons.lang.Validate;
 
 import com.raytheon.uf.common.serialization.IDeserializationContext;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.ISerializationContext;
 import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -69,6 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2007            chammack    Initial Creation.
  * Jul 14, 2008 1250       jelkins     EDEX LocalizationAdapter additions.
+ * Oct 01, 2013 2361       njensen     Removed XML annotations and methods
  * 
  * </pre>
  * 
@@ -76,8 +70,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class LocalizationContext implements ISerializableObject, Cloneable {
+public class LocalizationContext implements Cloneable {
 
     /**
      * NOTE: When making changes to LocalizationLevelSerializationAdapter, you
@@ -86,13 +79,8 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
      * LocalizationLevelSerializationAdapter.py
      * 
      */
-    public static class LocalizationLevelSerializationAdapter extends
-            XmlAdapter<String, LocalizationLevel> implements
+    public static class LocalizationLevelSerializationAdapter implements
             ISerializationTypeAdapter<LocalizationLevel> {
-
-        private static final String separator = "||";
-
-        private static final String split = "[|][|]";
 
         /*
          * (non-Javadoc)
@@ -127,37 +115,6 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
             return level;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.bind.annotation.adapters.XmlAdapter#marshal(java.lang.Object
-         * )
-         */
-        @Override
-        public String marshal(LocalizationLevel v) throws Exception {
-            String rval = v.text + separator + Integer.toString(v.order)
-                    + separator + v.systemLevel + separator;
-            return rval;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.bind.annotation.adapters.XmlAdapter#unmarshal(java.lang
-         * .Object)
-         */
-        @Override
-        public LocalizationLevel unmarshal(String v) throws Exception {
-            String[] parts = v.split(split);
-            int i = 0;
-            LocalizationLevel level = LocalizationLevel.createLevel(parts[i++],
-                    Integer.parseInt(parts[i++]),
-                    Boolean.parseBoolean(parts[i++]));
-            return level;
-        }
-
     }
 
     /**
@@ -167,8 +124,7 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
      * LocalizationTypeSerializationAdapter.py
      * 
      */
-    public static class LocalizationTypeSerializationAdapter extends
-            XmlAdapter<String, LocalizationType> implements
+    public static class LocalizationTypeSerializationAdapter implements
             ISerializationTypeAdapter<LocalizationType> {
 
         /*
@@ -198,30 +154,6 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
             return LocalizationType.valueOf(deserializer.readString());
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.bind.annotation.adapters.XmlAdapter#unmarshal(java.lang
-         * .Object)
-         */
-        @Override
-        public LocalizationType unmarshal(String v) throws Exception {
-            return LocalizationType.valueOf(v);
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * javax.xml.bind.annotation.adapters.XmlAdapter#marshal(java.lang.Object
-         * )
-         */
-        @Override
-        public String marshal(LocalizationType v) throws Exception {
-            return v.text;
-        }
-
     }
 
     private static final char CONTEXT_SEPARATOR = '.';
@@ -237,7 +169,6 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
      */
     @DynamicSerialize
     @DynamicSerializeTypeAdapter(factory = LocalizationTypeSerializationAdapter.class)
-    @XmlJavaTypeAdapter(value = LocalizationTypeSerializationAdapter.class)
     public static class LocalizationType {
 
         private static Map<String, LocalizationType> typeMap = new HashMap<String, LocalizationType>();
@@ -324,7 +255,6 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
      */
     @DynamicSerialize
     @DynamicSerializeTypeAdapter(factory = LocalizationLevelSerializationAdapter.class)
-    @XmlJavaTypeAdapter(value = LocalizationLevelSerializationAdapter.class)
     public static class LocalizationLevel implements
             Comparable<LocalizationLevel> {
 
@@ -486,15 +416,12 @@ public class LocalizationContext implements ISerializableObject, Cloneable {
         BUNDLE, PLUGIN, COLORMAPS, CONFIG, PYTHON, SMARTINIT, GRID, SHAPEFILES, TEXTPRODUCTS
     };
 
-    @XmlAttribute
     @DynamicSerializeElement
     private LocalizationType localizationType;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private LocalizationLevel localizationLevel;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private String contextName;
 

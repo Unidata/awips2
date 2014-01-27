@@ -10,7 +10,7 @@
    <bean id="qpfProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="qpfPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.qpf" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.qpf.dao.QPFDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.qpf.QPFDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.qpf.QPFRecord" />
 		<property name="dependencyFQNs">
 		    <list>

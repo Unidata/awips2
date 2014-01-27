@@ -35,9 +35,11 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 02/01/11     6320        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 01, 2011  6320     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
+ * 
  * 
  * </pre>
  * 
@@ -59,12 +61,6 @@ public class RTMAGribPostProcessor implements IDecoderPostProcessor {
             newDataTime.setValidPeriod(new TimeRange(time, time));
             record.setDataTime(newDataTime);
             record.setDataURI(null);
-            try {
-                record.constructDataURI();
-            } catch (Exception e) {
-                throw new GribException(
-                        "Error creating new dataURI for RTMA data!", e);
-            }
         }
         return new GridRecord[] { record };
     }

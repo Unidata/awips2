@@ -43,7 +43,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * ------------ ---------- ----------- --------------------------
  * Aug 6, 2013  #2224      rferrel     Initial creation
  * Oct 02, 2013 #2147      rferrel     Allow Date to ignore hour in time stamp.
- * 
+ * Dec 10, 2013 #2624      rferrel     Added Julian date.
+ * Dec 17, 2013 2603       rjpeter     Clear low order time fields on time generation.
  * </pre>
  * 
  * @author rferrel
@@ -52,22 +53,26 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "dataSet")
 public class CategoryDataSet {
-    public static final int YEAR_INDEX = 0;
+    private static final int YEAR_INDEX = 0;
 
-    public static final int MONTH_INDEX = 1;
+    private static final int MONTH_INDEX = 1;
 
-    public static final int DAY_INDEX = 2;
+    private static final int DAY_OF_YEAR_INDEX = 1;
 
-    public static final int HOUR_INDEX = 3;
+    private static final int DAY_INDEX = 2;
 
-    public static final int TIMESTAMP_INDEX = 0;
+    private static final int JULIAN_HOUR_INDEX = 2;
+
+    private static final int HOUR_INDEX = 3;
+
+    private static final int TIMESTAMP_INDEX = 0;
 
     /**
      * Types of times and the number of indices for getting the time stamp from
      * patterns.
      */
     public static enum TimeType {
-        Date(4), EpochSec(1), EpochMS(1), File(0);
+        Date(4), EpochSec(1), EpochMS(1), File(0), Julian(3);
 
         private final int numIndices;
 
@@ -199,7 +204,8 @@ public class CategoryDataSet {
      * @return true when only the dirPatterns should be used.
      */
     public boolean isDirOnly() {
-        return filePattern == null || filePattern.equals(".*");
+        return (filePattern == null) || (filePattern.length() == 0)
+                || ".*".equals(filePattern);
     }
 
     /**
@@ -249,6 +255,7 @@ public class CategoryDataSet {
             }
 
             fileCal.set(year, month, day, hour, 0, 0);
+            fileCal.set(Calendar.MILLISECOND, 0);
             fileTime = fileCal.getTimeInMillis();
             break;
         case EpochMS:
@@ -263,6 +270,42 @@ public class CategoryDataSet {
         case File:
             fileTime = null;
             break;
+        case Julian:
+            Calendar julainCal = TimeUtil.newGmtCalendar();
+            int jYear = Integer.parseInt(matcher
+                    .group(timeIndices[CategoryDataSet.YEAR_INDEX]));
+            int jDay = Integer.parseInt(matcher
+                    .group(timeIndices[CategoryDataSet.DAY_OF_YEAR_INDEX]));
+
+            // When two digit year determine century.
+            if (jYear < 100) {
+                int cYear = julainCal.get(Calendar.YEAR);
+                jYear += (cYear - (cYear % 100));
+                julainCal.add(Calendar.YEAR, 1);
+                int nextYear = julainCal.get(Calendar.YEAR);
+
+                // If date too far into the future back up a century.
+                if ((jYear > nextYear) || ((jYear == nextYear) && (jDay > 31))) {
+                    jYear -= 100;
+                }
+            }
+
+            julainCal.set(Calendar.YEAR, jYear);
+            julainCal.set(Calendar.DAY_OF_YEAR, jDay);
+
+            // Default to last hour of the day.
+            int jHour = 23;
+            if (timeIndices[CategoryDataSet.JULIAN_HOUR_INDEX] >= 0) {
+                jHour = Integer.parseInt(matcher
+                        .group(timeIndices[CategoryDataSet.JULIAN_HOUR_INDEX]));
+            }
+            julainCal.set(Calendar.HOUR_OF_DAY, jHour);
+            julainCal.set(Calendar.MINUTE, 0);
+            julainCal.set(Calendar.SECOND, 0);
+            julainCal.set(Calendar.MILLISECOND, 0);
+            fileTime = julainCal.getTimeInMillis();
+            break;
+
         default:
             fileTime = null;
             break;

@@ -49,6 +49,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ----------  ----------- --------------------------
  * 08/21/09      1995       bphillip    Initial port
  * 09/22/09      3058       rjpeter     Converted to IRequestHandler
+ * 09/05/13      2307       dgilling    Use better PythonScript constructor.
  * </pre>
  * 
  * @author bphillip
@@ -75,7 +76,8 @@ public class IscGetRequestXmlHandler implements
                     .getCommonPythonIncludePath(), GfePyIncludeUtil
                     .getIscScriptsIncludePath(), GfePyIncludeUtil
                     .getGfeConfigIncludePath(request.getSiteID()));
-            script = new PythonScript(scriptFile, includePath);
+            script = new PythonScript(scriptFile, includePath, this.getClass()
+                    .getClassLoader());
             Map<String, Object> args = new HashMap<String, Object>();
             args.put("xml", request.getXml());
             args.put("selectedServers", request.getSelectedServers());

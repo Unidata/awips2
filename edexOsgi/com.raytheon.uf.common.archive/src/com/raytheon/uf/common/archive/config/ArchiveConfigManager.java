@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +87,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Jul 24, 2013 2221       rferrel     Changes for select configuration.
  * Aug 06, 2013 2224       rferrel     Changes to use DataSet.
  * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns the number of files purged.
+ * Dec 04, 2013 2603       rferrel     Changes to improve archive purging.
+ * Dec 17, 2013 2603       rjpeter     Fix directory purging.
  * </pre>
  * 
  * @author rferrel
@@ -189,23 +190,31 @@ public class ArchiveConfigManager {
         String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
         SelectConfig selections = loadSelection(fileName);
         if ((selections != null) && !selections.isEmpty()) {
-            try {
-                for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
-                    ArchiveConfig archiveConfig = archiveMap.get(archiveSelect
-                            .getName());
-                    for (CategorySelect categorySelect : archiveSelect
-                            .getCategorySelectList()) {
-                        CategoryConfig categoryConfig = archiveConfig
-                                .getCategory(categorySelect.getName());
-                        categoryConfig.setSelectedDisplayNames(categorySelect
-                                .getSelectList());
-                    }
+            for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
+                String archiveName = archiveSelect.getName();
+                ArchiveConfig archiveConfig = archiveMap.get(archiveName);
+                if (archiveConfig == null) {
+                    statusHandler.handle(Priority.WARN,
+                            "Archive Configuration [" + archiveName
+                                    + "] not found. Skipping selections.");
+                    continue;
                 }
-            } catch (NullPointerException ex) {
-                statusHandler
-                        .handle(Priority.ERROR,
-                                "Retention selection and Archive configuration no longer in sync: ",
-                                ex);
+
+                for (CategorySelect categorySelect : archiveSelect
+                        .getCategorySelectList()) {
+                    String categoryname = categorySelect.getName();
+                    CategoryConfig categoryConfig = archiveConfig
+                            .getCategory(categoryname);
+                    if (categoryConfig == null) {
+                        statusHandler.handle(Priority.WARN,
+                                "Archive Configuration [" + archiveName
+                                        + "] Category [" + categoryname
+                                        + "] not found. Skipping selections.");
+                        continue;
+                    }
+                    categoryConfig.setSelectedDisplayNames(categorySelect
+                            .getSelectSet());
+                }
             }
         }
         return archiveMap.values();
@@ -285,7 +294,8 @@ public class ArchiveConfigManager {
 
     /**
      * Purge the Files that fall outside of the time frame constraints for the
-     * Archive.
+     * archive. This will always leave the archive's top level directories even
+     * when they are empty.
      * 
      * @param archive
      * @return purgeCount
@@ -293,106 +303,243 @@ public class ArchiveConfigManager {
     public int purgeExpiredFromArchive(ArchiveConfig archive) {
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
-
-        String[] topLevelDirs = archiveRootDir.list();
-
-        List<String> topLevelDirsNotPurged = new ArrayList<String>();
         int purgeCount = 0;
 
-        if (topLevelDirs != null) {
-            topLevelDirsNotPurged.addAll(Arrays.asList(topLevelDirs));
-            topLevelDirs = null;
+        if (!archiveRootDir.isDirectory()) {
+            statusHandler.error(archiveRootDir.getAbsolutePath()
+                    + " not a directory.");
+            return purgeCount;
         }
 
+        if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+            statusHandler.info("Purging directory: \""
+                    + archiveRootDir.getAbsolutePath() + "\".");
+        }
+
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            String message = String.format(
+                    "Start setup of category date helpers for archive: %s.",
+                    archive.getName());
+            statusHandler.debug(message);
+        }
+
+        Map<CategoryConfig, CategoryFileDateHelper> helperMap = new HashMap<CategoryConfig, CategoryFileDateHelper>();
         for (CategoryConfig category : archive.getCategoryList()) {
-            Calendar purgeTime = calculateExpiration(archive, category);
-            CategoryFileDateHelper helper = new CategoryFileDateHelper(
-                    category, archive.getRootDir());
-            IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
-                    .fileFileFilter(), new FileDateFilter(null, purgeTime,
-                    helper));
-
-            // Remove the directory associated with this category from the not
-            // purged list since it is being purged.
-            for (Iterator<String> iter = topLevelDirsNotPurged.iterator(); iter
-                    .hasNext();) {
-                String dirName = iter.next();
-                if (helper.isCategoryDirectory(dirName)) {
-                    iter.remove();
-                    break;
-                }
-            }
-            for (DisplayData display : getDisplayData(archive.getName(),
-                    category.getName(), true)) {
-                List<File> displayFiles = getDisplayFiles(display, null,
-                        purgeTime);
-                for (File file : displayFiles) {
-                    purgeCount += purgeFile(file, fileDateFilter);
-                }
-            }
+            CategoryFileDateHelper helper = new CategoryFileDateHelper(category);
+            helperMap.put(category, helper);
         }
 
-        // check for other expired in top level directories not covered
-        // by the categories in the archive.
-        Calendar defaultPurgeTime = calculateExpiration(archive, null);
-        IOFileFilter fileDateFilter = FileFilterUtils.and(FileFilterUtils
-                .fileFileFilter(), new FileDateFilter(null, defaultPurgeTime));
-        for (String topDirName : topLevelDirsNotPurged) {
-            File topLevelDir = new File(archiveRootDir, topDirName);
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            String message = String.format(
+                    "End setup of category date helpers for archive: %s.",
+                    archive.getName());
+            statusHandler.debug(message);
+        }
 
-            // Keep both top level hidden files and hidden directories.
-            if (!topLevelDir.isHidden()) {
-                purgeCount += purgeFile(topLevelDir, fileDateFilter);
+        final Calendar minPurgeTime = calculateExpiration(archive, null);
+
+        IOFileFilter defaultTimeFilter = new IOFileFilter() {
+
+            @Override
+            public boolean accept(File dir, String name) {
+                File file = new File(dir, name);
+                return accept(file);
+            }
+
+            @Override
+            public boolean accept(File file) {
+                Calendar time = TimeUtil.newGmtCalendar();
+                time.setTimeInMillis(file.lastModified());
+                return time.compareTo(minPurgeTime) < 0;
+            }
+        };
+
+        File[] topLevelFiles = archiveRootDir.listFiles();
+        for (File topFile : topLevelFiles) {
+            // In top level directory ignore all hidden files and directories.
+            if (!topFile.isHidden()) {
+                if (topFile.isDirectory()) {
+                    boolean isInCategory = false;
+                    for (CategoryConfig category : archive.getCategoryList()) {
+                        CategoryFileDateHelper helper = helperMap.get(category);
+
+                        if (helper.isCategoryDirectory(topFile.getName())) {
+                            isInCategory = true;
+                            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                                String message = String
+                                        .format("Start purge of category %s - %s, directory \"%s\".",
+                                                archive.getName(),
+                                                category.getName(),
+                                                topFile.getAbsolutePath());
+                                statusHandler.info(message);
+                            }
+
+                            final Calendar extPurgeTime = calculateExpiration(
+                                    archive, category);
+                            int pc = purgeDir(topFile, defaultTimeFilter,
+                                    minPurgeTime, extPurgeTime, helper,
+                                    category);
+                            purgeCount += pc;
+                            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                                String message = String
+                                        .format("End purge of category %s - %s, directory \"%s\", deleted %d files and directories.",
+                                                archive.getName(),
+                                                category.getName(),
+                                                topFile.getAbsolutePath(), pc);
+                                statusHandler.info(message);
+                            }
+                            break;
+                        }
+                    }
+                    if (isInCategory == false) {
+                        if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                            String message = String.format(
+                                    "Start purge of directory: \"%s\".",
+                                    topFile.getAbsolutePath());
+                            statusHandler.info(message);
+                        }
+                        int pc = purgeDir(topFile, defaultTimeFilter);
+                        purgeCount += pc;
+                        if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                            String message = String
+                                    .format("End purge of directory: \"%s\", deleted %d files and directories.",
+                                            topFile.getAbsolutePath(), pc);
+                            statusHandler.info(message);
+                        }
+                    }
+                } else {
+                    if (defaultTimeFilter.accept(topFile)) {
+                        purgeCount += deleteFile(topFile);
+                    }
+                }
             }
         }
         return purgeCount;
     }
 
     /**
-     * Recursive method for purging files. Never pass in a directory you do not
-     * want deleted when purging makes it an empty directory.
+     * Purge the contents of a directory of expired data leaving a possibly
+     * empty directory.
      * 
-     * @param fileToPurge
-     * @param filter
-     * @return purgeCount number of files and directories purged
+     * @param dir
+     * @param defaultTimeFilter
+     * @param minPurgeTime
+     * @param extPurgeTime
+     * @param helper
+     * @return purgerCount
      */
-    private int purgeFile(File fileToPurge, IOFileFilter filter) {
+    private int purgeDir(File dir, IOFileFilter defaultTimeFilter,
+            Calendar minPurgeTime, Calendar extPurgeTime,
+            CategoryFileDateHelper helper, CategoryConfig category) {
         int purgeCount = 0;
 
-        if (fileToPurge.isFile() && filter.accept(fileToPurge)) {
-            if (fileToPurge.delete()) {
-                ++purgeCount;
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler.debug("Purged file: \""
-                            + fileToPurge.getAbsolutePath() + "\"");
-                }
-            } else {
-                statusHandler.warn("Failed to purge file: "
-                        + fileToPurge.getAbsolutePath());
-            }
-        } else if (fileToPurge.isDirectory() && !fileToPurge.isHidden()) {
-            // Purge only visible directories.
-            File[] expiredFilesInDir = fileToPurge.listFiles();
-
-            for (File dirFile : expiredFilesInDir) {
-                purgeCount += purgeFile(dirFile, filter);
-            }
-
-            // Attempt to delete empty directory.
-            if ((purgeCount >= expiredFilesInDir.length)
-                    && (fileToPurge.list().length == 0)) {
-                if (!fileToPurge.delete()) {
-                    statusHandler.warn("Failed to purge directory: "
-                            + fileToPurge.getAbsolutePath());
-                } else {
-                    ++purgeCount;
-                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                        statusHandler.debug("Purged directory: \""
-                                + fileToPurge.getAbsolutePath()
-                                + File.separator + "\"");
+        for (File file : dir.listFiles()) {
+            if (!file.isHidden()) {
+                DataSetStatus status = helper.getFileDate(file);
+                if (status.isInDataSet()) {
+                    Collection<String> labels = category
+                            .getSelectedDisplayNames();
+                    boolean isSelected = false;
+                    for (String label : status.getDisplayLabels()) {
+                        if (labels.contains(label)) {
+                            isSelected = true;
+                            break;
+                        }
                     }
+
+                    Calendar checkTime = (isSelected ? extPurgeTime
+                            : minPurgeTime);
+                    Calendar fileTime = status.getTime();
+                    boolean purge = fileTime.compareTo(checkTime) < 0;
+
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        String message = String
+                                .format("%s [%s] category [%s] %s retention [%s] checkTime [%s] = %s.",
+                                        (file.isDirectory() ? "Directory"
+                                                : "File"), file
+                                                .getAbsoluteFile(), category
+                                                .getName(), (isSelected ? "ext"
+                                                : "min"), TimeUtil
+                                                .formatCalendar(checkTime),
+                                        TimeUtil.formatCalendar(fileTime),
+                                        (purge ? "purge" : "retain"));
+                        statusHandler.debug(message);
+                    }
+
+                    if (purge) {
+                        if (file.isDirectory()) {
+                            purgeCount += purgeDir(file,
+                                    FileFilterUtils.trueFileFilter());
+                            if (file.list().length == 0) {
+                                purgeCount += purgeDir(file,
+                                        FileFilterUtils.trueFileFilter());
+                            }
+                        } else {
+                            purgeCount += deleteFile(file);
+                        }
+                    }
+                } else if (file.isDirectory()) {
+                    purgeCount += purgeDir(file, defaultTimeFilter,
+                            minPurgeTime, extPurgeTime, helper, category);
+                    if (file.list().length == 0) {
+                        purgeCount += deleteFile(file);
+                    }
+                } else if (defaultTimeFilter.accept(file)) {
+                    purgeCount += deleteFile(file);
                 }
             }
+        }
+
+        return purgeCount;
+    }
+
+    /**
+     * Recursively purge the contents of a directory based on the filter. The
+     * directory in the initial call is not deleted. This may result in an empty
+     * directory which is the desired result for top level directories.
+     * 
+     * 
+     * @param dir
+     * @param fileDataFilter
+     * @return purgeCount
+     */
+    private int purgeDir(File dir, IOFileFilter fileDataFilter) {
+        int purgeCount = 0;
+        for (File file : dir.listFiles()) {
+            if (!file.isHidden()) {
+                if (file.isDirectory()) {
+                    purgeCount += purgeDir(file, fileDataFilter);
+                    if (file.list().length == 0) {
+                        purgeCount += deleteFile(file);
+                    }
+                } else if (fileDataFilter.accept(file)) {
+                    purgeCount += deleteFile(file);
+                }
+            }
+        }
+        return purgeCount;
+    }
+
+    /**
+     * Delete a file or directory.
+     * 
+     * @param file
+     * @return purgeCount
+     */
+    private int deleteFile(File file) {
+        int purgeCount = 0;
+        boolean isDir = file.isDirectory();
+        if (file.delete()) {
+            ++purgeCount;
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler
+                        .debug(String.format("Purged %s: \"%s\"",
+                                (isDir ? "directory" : "file"),
+                                file.getAbsolutePath()));
+            }
+        } else {
+            statusHandler.warn(String.format("Failed to purge %s: \"%s\"",
+                    (isDir ? "directory" : "file"), file.getAbsolutePath()));
         }
         return purgeCount;
     }
@@ -644,39 +791,60 @@ public class ArchiveConfigManager {
      * @param categoryConfig
      * @return dirs
      */
-    private List<File> getDirs(File rootFile, CategoryDataSet dataSet) {
-        List<File> resultDirs = new ArrayList<File>();
+    private Map<CategoryDataSet, List<File>> getDirs(File rootFile,
+            CategoryConfig categoryConfig) {
+        List<File> resultDirs = null;
         List<File> dirs = new ArrayList<File>();
         List<File> tmpDirs = new ArrayList<File>();
         List<File> swpDirs = null;
+        List<CategoryDataSet> dataSets = categoryConfig.getDataSetList();
+        Map<CategoryDataSet, List<File>> rval = new HashMap<CategoryDataSet, List<File>>(
+                dataSets.size(), 1);
 
-        for (String dirPattern : dataSet.getDirPatterns()) {
-            String[] subExpr = dirPattern.split(File.separator);
-            dirs.clear();
-            dirs.add(rootFile);
-            tmpDirs.clear();
+        // keep an in memory map since some of the categories cause the same
+        // directories to be listed over and over
+        Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
 
-            for (String regex : subExpr) {
-                Pattern subPattern = Pattern.compile("^" + regex + "$");
-                IOFileFilter filter = FileFilterUtils
-                        .makeDirectoryOnly(new RegexFileFilter(subPattern));
+        for (CategoryDataSet dataSet : dataSets) {
+            resultDirs = new LinkedList<File>();
 
-                for (File dir : dirs) {
-                    File[] list = dir.listFiles();
-                    if (list != null) {
-                        List<File> dirList = Arrays.asList(list);
-                        tmpDirs.addAll(Arrays.asList(FileFilterUtils.filter(
-                                filter, dirList)));
-                    }
-                }
-                swpDirs = dirs;
-                dirs = tmpDirs;
-                tmpDirs = swpDirs;
+            for (String dirPattern : dataSet.getDirPatterns()) {
+                String[] subExpr = dirPattern.split(File.separator);
+                dirs.clear();
+                dirs.add(rootFile);
                 tmpDirs.clear();
+
+                for (String regex : subExpr) {
+                    Pattern subPattern = Pattern.compile("^" + regex + "$");
+                    IOFileFilter filter = FileFilterUtils
+                            .makeDirectoryOnly(new RegexFileFilter(subPattern));
+
+                    for (File dir : dirs) {
+                        List<File> dirList = polledDirs.get(dir);
+                        if (dirList == null) {
+                            File[] list = dir.listFiles();
+                            dirList = Arrays.asList(list);
+                            polledDirs.put(dir, dirList);
+                        }
+
+                        if (dirList != null) {
+                            tmpDirs.addAll(FileFilterUtils.filterList(filter,
+                                    dirList));
+                        }
+                    }
+
+                    swpDirs = dirs;
+                    dirs = tmpDirs;
+                    tmpDirs = swpDirs;
+                    tmpDirs.clear();
+                }
+
+                resultDirs.addAll(dirs);
             }
-            resultDirs.addAll(dirs);
+            rval.put(dataSet, resultDirs);
         }
-        return resultDirs;
+
+        return rval;
     }
 
     /**
@@ -701,10 +869,11 @@ public class ArchiveConfigManager {
                 categoryName);
         File rootFile = new File(rootDirName);
         TreeMap<String, DisplayData> displays = new TreeMap<String, DisplayData>();
+        Map<CategoryDataSet, List<File>> dirMap = getDirs(rootFile,
+                categoryConfig);
         for (CategoryDataSet dataSet : categoryConfig.getDataSetList()) {
             List<String> dataSetDirPatterns = dataSet.getDirPatterns();
-
-            List<File> dirs = getDirs(rootFile, dataSet);
+            List<File> dirs = dirMap.get(dataSet);
 
             int beginIndex = rootFile.getAbsolutePath().length() + 1;
             List<Pattern> patterns = new ArrayList<Pattern>(

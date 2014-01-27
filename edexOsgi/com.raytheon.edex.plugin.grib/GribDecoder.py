@@ -21,27 +21,17 @@
 import grib2
 import numpy
 from math import pow
-import time, os, sys, math
-import LogStream
-import tempfile
+import logging
+import UFStatusHandler
 from matplotlib.mlab import griddata
 
 from java.lang import Float
-from java.lang import Double
 from java.lang import Integer
 
-from java.util import Calendar
-from java.util import Date
 from java.util import GregorianCalendar
-
-from javax.measure.unit import SI
-from javax.measure.unit import NonSI
-from javax.measure.unit import Unit
 
 from com.raytheon.uf.common.time import DataTime
 from com.raytheon.uf.common.time import TimeRange
-from com.raytheon.uf.common.geospatial import MapUtil
-from com.raytheon.uf.common.serialization import SerializationUtil
 
 from com.raytheon.uf.common.dataplugin.grid import GridRecord
 
@@ -51,7 +41,6 @@ from com.raytheon.uf.common.gridcoverage import MercatorGridCoverage
 from com.raytheon.uf.common.gridcoverage import PolarStereoGridCoverage 
 from com.raytheon.uf.common.gridcoverage.lookup import GridCoverageLookup
 
-from com.raytheon.uf.common.gridcoverage import Corner 
 from com.raytheon.edex.plugin.grib.util import GribModelLookup
 
 from com.raytheon.uf.common.dataplugin.level.mapping import LevelMapper
@@ -61,8 +50,6 @@ from com.raytheon.uf.common.dataplugin.level import LevelFactory
 from com.raytheon.edex.plugin.grib.spatial import GribSpatialCache 
 from com.raytheon.edex.util.grib import GribTableLookup
 from com.raytheon.edex.util import Util
-
-from com.raytheon.edex.plugin.grib import Grib1Decoder
 
 from com.raytheon.edex.util.grib import GribParamTranslator
 
@@ -75,8 +62,6 @@ PARAMETER_TABLE = "4.2"
 GENPROCESS_TABLE = "A"
 LEVELS_TABLE = "4.5"
 DOT = "."
-DASH = "-"
-SPACE = " "
 MISSING = "Missing"
 
 # Static values for converting forecast times to seconds
@@ -117,31 +102,44 @@ THINNED_GRID_PT_MAP = {0:73, 1.25:73, 2.50:73, 3.75:73, 5.0:73, 6.25:73, 7.50:73
 
 THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 
+logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "EDEX")
+
 #
 #  Python implementation of the grib decoder.  This decoder uses the python ctypes
 #  library to access the NCEP grib decoder for extracting data
 #
 #    
-#     SOFTWARE HISTORY
+# SOFTWARE HISTORY
 #    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    04/7/09         #1994         bphillip       Initial Creation.
-#    Mar 25, 2013    1821          bsteffen       Reshape grib data arrays in
-#                                                 place to improve performance.
-#    Sep 04, 2013    2298          rjpeter        Removed setPluginName call
+# Date          Ticket#  Engineer    Description
+# ------------- -------- ----------- --------------------------
+# Apr 07, 2009  1994     bphillip    Initial Creation.
+# Mar 25, 2013  1821     bsteffen    Reshape grib data arrays in place to
+#                                    improve performance.
+# Sep 04, 2013  2298     rjpeter     Removed setPluginName call
+# Sep 06, 2013  2336     bsteffen    Switch from logstream to logging with
+#                                    UFStatusHandler.
+# Sep 06, 2013  2402     bsteffen    Switch to use file extents for multipart
+#                                    grib files.
 class GribDecoder():
 
     ##
     # Initializes the grib decoder
     #
-    # @param text: Unused
     # @param filePath: The file to decode
+    # @param startPosition: The start position of the grib message
+    # @param messageLength: The length of the grib message
     ##
-    def __init__(self, text=None, filePath=None):  
+    def __init__(self, filePath, startPosition, messageLength):  
         # Assign public file name
         self.fileName = filePath
-        
+        self.startPosition = startPosition
+        self.messageLength = messageLength
+
+
+        self.log = logging.getLogger("GribDecoder")
+        self.log.addHandler(logHandler)    
+
 
     ##
     # Decodes the grib file
@@ -152,114 +150,59 @@ class GribDecoder():
     def decode(self):
         # The GribRecords to be returned back to Java
         records = []
-        
-        #tokens = self.fileName.rsplit("/")
-        #if tokens[len(tokens) - 1].startswith("H"):
-        #    return records
-        
-        filePointer = 0;
-        version = -1;
-        decodeFile = None        
-        if version == 1:
-              grib1Decoder = Grib1Decoder()
-              return grib1Decoder.decode(self.fileName)
-        else:
-              decodeFile = self.fileName
-        if decodeFile == None:
-            LogStream.logProblem("Could not get final filename to decode: [", self.fileName, "]")
-            return records
-        gribFile = open(decodeFile, "rb")
 
-        # Define some basic navigation variable for extracting grib records
-        recordIndex = 0
-        fieldIndex = 0
-        numFields = 1
-        
+        gribDictList = []
+        gribFile = open(self.fileName, "rb")        
         try:
-                # Iterate over and decode each record in the file
-            while numFields != -1:
-    
-                while fieldIndex < numFields:
-                    # Extract the metadata to the metadata array
-                    metadataResults = grib2.getMetadata(gribFile, recordIndex, fieldIndex + 1, 0)
-                    numFields = metadataResults['numFields']
-                    fieldIndex = fieldIndex + 1
-                    if numFields != -1:
-                        metadata = metadataResults['metadata']
-                        record = self._getData(gribFile, metadata, recordIndex, fieldIndex)
-                        if record != None:
-                            records.append(record)
-    
-                recordIndex = recordIndex + 1
-                fieldIndex = 0
+            # This structure is a list of dicts for each field. For more
+            # information on what keys are available see the documentation on
+            # the gribfield struct in g2clib-1.1.8/grib2c.doc
+            gribDictList = grib2.decode(gribFile, self.startPosition, self.messageLength)
         except:
-            LogStream.logProblem("Error processing file [", self.fileName, "]: ", LogStream.exc())
+            self.log.exception("Error processing file [" + self.fileName + "]: ")
         finally:
-            gribFile.close()       
+            gribFile.close()   
+        for gribDict in gribDictList:
+            record = self._getData(gribDict)
+            if record != None:
+                records.append(record)
                 
         return records
 
     ##
     # Decodes a single record contained in the grib file
     #
-    # @param fptr: The C file pointer to the file
-    # @param metadata: The extracted metadata
-    # @param recordIndex: The index of the record being decoded in the file
-    # @param fieldIndex: The index of the field of the record in the file
-    # @return: Decoded GribRecord object
-    # @rtype: GribRecord
+    # @param gribDict: a single gribDict from the grib2 module decoder.
+    # @return: Decoded GridRecord object
+    # @rtype: GridRecord
     ##
-    def _getData(self, fptr, metadata, recordIndex, fieldIndex):
-
-        # Extracts data from grib record via C call to getData
-        dataResults = grib2.getData(fptr, recordIndex, fieldIndex)
-        
-        data = dataResults['data']
-        localSectionValues = None
-        bitMap = None
-        
-        # Extracts data from the ID section
-        idSectionValues = self._decodeIdSection(dataResults['idSection'])
-        self.id = dataResults['idSection']
-        
-        # Extracts data from the Local section
-        if 'localSection' in dataResults:
-            localSectionValues = self._decodeLocalSection(dataResults['localSection'])
-        
-        # Extracts data from the gds template
-        gdsSectionValues = self._decodeGdsSection(metadata, dataResults['gdsTemplate'])
-        
-        self.gds = dataResults['gdsTemplate']
-        
-        # Extracts data from the pds template
-        pdsSectionValues = self._decodePdsSection(metadata, dataResults['idSection'], dataResults['pdsTemplate'])
-        self.pds = dataResults['pdsTemplate']
-        
-        if 'bitmap' in dataResults:
-            bitMap = dataResults['bitmap']
+    def _getData(self, gribDict):  
+        self._decodeIdSection(gribDict)
+        self._decodeGdsSection(gribDict)       
+        self._decodePdsSection(gribDict)
         
         # Construct the DataTime object
-        if pdsSectionValues['endTime'] is None:
-            dataTime = DataTime(idSectionValues['refTime'], pdsSectionValues['forecastTime'])
-        else:
+        refTime = gribDict['refTime']
+        if 'endTime' in gribDict:
+            endTime = gribDict['endTime']
             # endTime defines forecast time based on the difference to refTime since forecastTime is the start of the valid period
-            timeRange = TimeRange(idSectionValues['refTime'].getTimeInMillis() + (pdsSectionValues['forecastTime'] * 1000), pdsSectionValues['endTime'].getTimeInMillis())
-            forecastTime = int(float(pdsSectionValues['endTime'].getTimeInMillis() - idSectionValues['refTime'].getTimeInMillis()) / 1000)
-            dataTime = DataTime(idSectionValues['refTime'], forecastTime, timeRange)
-                                     
-        hybridCoordList = None
-        if 'coordList' in dataResults:
-            hybridCoordList = numpy.resize(coordList, (1, coordList.size))
-
+            timeRange = TimeRange(refTime.getTimeInMillis() + (gribDict['forecastTime'] * 1000), endTime.getTimeInMillis())
+            forecastTime = int(float(endTime.getTimeInMillis() - refTime.getTimeInMillis()) / 1000)
+            dataTime = DataTime(refTime, forecastTime, timeRange)
+        elif 'forecastTime' in gribDict:
+            dataTime = DataTime(refTime, gribDict['forecastTime'])
+        else:
+            dataTime = DataTime(refTime, 0)
+        
+        data = gribDict['fld']
         
         numpyDataArray = None
-        thinnedPts = None
-        thinnedGrid = gdsSectionValues['thinned']
         
         # Special case for thinned grids.
         # Map the thinned grid on to a square lat/lon grid
-        if thinnedGrid:
-            optValues = dataResults['listOps']
+        if 'thinned' in gribDict:
+            thinnedGrid = gribDict['thinned']
+            optValues = gribDict['list_opt']
             optList = numpy.zeros(len(optValues), numpy.int32)
             for i in range(0, len(optValues)):
                 optList[i] = optValues[i]
@@ -294,28 +237,31 @@ class GribDecoder():
             
             
         # Apply the bitmap if one is provided and set masked values to missing value
-        if metadata[18] == 0:
+        if gribDict['ibmap'] == 0:
+            bitMap = gribDict['bmap']
             data = numpy.where(bitMap == 0, -999999, data)
             
         # Check for fill value provided if complex packing is used
-        drs = dataResults['drsTemplate']
-        if metadata[14] == 2 or metadata[14] == 3:
-            primaryFill = Float.intBitsToFloat(drs[7])
-            secondaryFill = Float.intBitsToFloat(drs[8])
+        drsTemplateNumber =  gribDict['idrtnum']
+        if drsTemplateNumber in [2, 3]:
+            drs = gribDict['idrtmpl']
+            primaryFill = Float.intBitsToFloat(int(drs[7]))
+            secondaryFill = Float.intBitsToFloat(int(drs[8]))
             if drs[6] == 1:
                 data = numpy.where(data == primaryFill, -999999, data)
             elif drs[6] == 2:
                 data = numpy.where(data == primaryFill, -999999, data)
                 data = numpy.where(data == secondaryFill, -999999, data)
              
-        nx = gdsSectionValues['coverage'].getNx().intValue()
-        ny = gdsSectionValues['coverage'].getNy().intValue()
+        gridCoverage = gribDict['coverage']
+        nx = gridCoverage.getNx().intValue()
+        ny = gridCoverage.getNy().intValue()
 
         # Correct the data according to the scan mode found in the gds section.
-        scanMode = gdsSectionValues['scanMode']
+        scanMode = gribDict['scanMode']
         if scanMode is not None:
             
-            if not thinnedGrid:
+            if 'thinned' not in gribDict:
                 numpyDataArray = numpy.reshape(data, (ny, nx))
                     
             # Check if rows are scanned in opposite direction.  If so, we need to flip them around 
@@ -347,16 +293,14 @@ class GribDecoder():
             if scanMode & 128 == 128:
                 numpyDataArray = numpy.fliplr(numpyDataArray)
                 
-        else:
-            if not thinnedGrid:
+        elif 'thinned' not in gribDict:
                 numpyDataArray = data
-               
-        origCoverage = gdsSectionValues['coverage']
                         
+        modelName = self._createModelName(gribDict, gridCoverage)
+        #check if forecast used flag needs to be removed
+        self._checkForecastFlag(gribDict, gridCoverage, dataTime) 
         # check sub gridding
-        modelName = self._createModelName(pdsSectionValues, origCoverage)
         spatialCache = GribSpatialCache.getInstance()
-        gridCoverage = gdsSectionValues['coverage']
         subCoverage = spatialCache.getSubGridCoverage(modelName, gridCoverage)
 
         if subCoverage is not None:
@@ -383,123 +327,75 @@ class GribDecoder():
             # update the number of points
             nx = subnx
             ny = subny
-            metadata[4] = nx * ny
+            gribDict['ngrdpts'] = nx * ny
 
             # set the new coverage
-            gdsSectionValues['coverage'] = subCoverage
+            gridCoverage = subCoverage
 
-        numpyDataArray = numpy.reshape(numpyDataArray, (1, metadata[4]))        
+        numpyDataArray = numpy.reshape(numpyDataArray, (1, gribDict['ngrdpts']))        
         
-        newAbbr = GribParamTranslator.getInstance().translateParameter(2, pdsSectionValues['parameterAbbreviation'], pdsSectionValues['centerid'], pdsSectionValues['subcenterid'], pdsSectionValues['genprocess'], dataTime, gridCoverage)
+        parameterAbbreviation = gribDict['parameterAbbreviation']
+        newAbbr = GribParamTranslator.getInstance().translateParameter(2, parameterAbbreviation, gribDict['center'], gribDict['subcenter'], gribDict['genprocess'], dataTime, gridCoverage)
         
         if newAbbr is None:
-            if pdsSectionValues['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
-                pdsSectionValues['parameterAbbreviation'] = pdsSectionValues['parameterAbbreviation'] + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
+            if gribDict['parameterName'] != MISSING and dataTime.getValidPeriod().getDuration() > 0:
+               parameterAbbreviation = parameterAbbreviation + str(dataTime.getValidPeriod().getDuration() / 3600000) + "hr"
         else:
-            pdsSectionValues['parameterAbbreviation'] = newAbbr
-        pdsSectionValues['parameterAbbreviation'] = pdsSectionValues['parameterAbbreviation'].replace('_', '-')  
+            parameterAbbreviation = newAbbr
+        parameterAbbreviation = parameterAbbreviation.replace('_', '-')  
         
         # Construct the GribRecord
         record = GridRecord()
         record.setDataTime(dataTime)
         record.setMessageData(numpyDataArray)
-        record.setLocation(gdsSectionValues['coverage'])
-        record.setLevel(pdsSectionValues['level'])
+        record.setLocation(gridCoverage)
+        record.setLevel(gribDict['level'])
         record.setDatasetId(modelName)
-        record.addExtraAttribute("centerid", Integer(pdsSectionValues['centerid']))
-        record.addExtraAttribute("subcenterid", Integer(pdsSectionValues['subcenterid']))
-        record.addExtraAttribute("genprocess", Integer(pdsSectionValues['genprocess']))
-        record.addExtraAttribute("backGenprocess", Integer(pdsSectionValues['backGenprocess']))
-        record.addExtraAttribute("pdsTemplate", Integer(pdsSectionValues['pdsTemplateNumber']))
-        record.addExtraAttribute("gridid", origCoverage.getName())
-        if "numForecasts" in pdsSectionValues:
-            record.addExtraAttribute("numForecasts", pdsSectionValues['numForecasts'])
-        record.setEnsembleId(pdsSectionValues['ensembleId'])
-        param = Parameter(pdsSectionValues['parameterAbbreviation'], pdsSectionValues['parameterName'], pdsSectionValues['parameterUnit'])
+            
+        if "ensembleId" in gribDict:
+            record.setEnsembleId(gribDict['ensembleId']) 
+        param = Parameter(parameterAbbreviation, gribDict['parameterName'], gribDict['parameterUnit'])
         GribParamTranslator.getInstance().getParameterNameAlias(modelName, param)
-        record.setParameter(param)        # record.setResCompFlags(Integer(gdsSectionValues['resCompFlags']))
+        record.setParameter(param)
         
-        #check if forecast used flag needs to be removed
-        self._checkForecastFlag(pdsSectionValues, origCoverage, record.getDataTime()) 
+        # TODO this can be removed when grib table is removed.
+        record.addExtraAttribute("centerid", Integer(gribDict['center']))
+        record.addExtraAttribute("subcenterid", Integer(gribDict['subcenter']))
+        record.addExtraAttribute("genprocess", Integer(gribDict['genprocess']))
+        record.addExtraAttribute("backGenprocess", Integer(gribDict['backGenprocess']))
+        record.addExtraAttribute("pdsTemplate", Integer(gribDict['ipdtnum']))
+        record.addExtraAttribute("gridid", gridCoverage.getName())
+        if "numForecasts" in gribDict:
+            record.addExtraAttribute("numForecasts", gribDict['numForecasts'])
               
         return record
     
     ##
-    # Decodes the values from the id section into a dictionary
-    # @param idSectionData: The values of the ID section of the grib file
-    # @return: A dictionary containing the values of the ID section
-    # @rtype: dictionary
+    # Decodes the values from the id section. Decoded values are added to the gribDict
+    # @param gribDict: a single gribDict from the grib2 module decoder.
     ##
-    def _decodeIdSection(self, idSectionData):
+    def _decodeIdSection(self, gribDict):
+        idSection = gribDict['idsect']
         
-        # Map to hold the values
-        idSection = {}
+        gribDict['center'] = int(idSection[0])
+        gribDict['subcenter'] = int(idSection[1])
         
-        # GRIB master tables version number (currently 2) (see table 1.0)
-        idSection['masterTableVersion'] = idSectionData[2]
-        
-        # Version number of GRIB local tables used to augment Master Table (see Table 1.1)
-        idSection['localTableVersion'] = idSectionData[3]
-        
-        # Significance of reference time (See table 1.2)
-        idSection['sigRefTime'] = idSectionData[4]
-        
-        # The reference time as a java.util.GregorianCalendar object
-        idSection['refTime'] = GregorianCalendar(idSectionData[5], idSectionData[6] - 1, idSectionData[7], idSectionData[8], idSectionData[9], idSectionData[10])
-        
-        # Production Status of Processed Data in the GRIB message (see table 1.3)
-        idSection['productionStatus'] = idSectionData[11]
-        
-        # Type of processed data in this GRIB message (See table 1.4)
-        idSection['typeProcessedData'] = idSectionData[12]
-        
-        return idSection
+        #gribDict['masterTableVersion'] = int(idSection[2])
+        #gribDict['localTableVersion'] = int(idSection[3])
+        #gribDict['sigRefTime'] = int(idSection[4])
+        gribDict['refTime'] = self._convertToCalendar(idSection, 5)
+        #gribDict['productionStatus'] = int(idSection[11])
+        #gribDict['typeProcessedData'] = int(idSection[12])
     
     ##
-    # Extracts the local section into a numpy array
-    # @param localSectionData: the values of the local section of the grib file
-    # @return: The local section as a numpy array if present, else None is returned
-    # @rtype: numpy array else None if local section not present
+    # Decodes the values from the pds section. Decoded values are added to the gribDict
+    # @param gribDict: a single gribDict from the grib2 module decoder.
     ##
-    def _decodeLocalSection(self, localSectionData):
-      
-        # Extract the local section and resize into a numpy array
-        if len(localSectionData) > 0:
-            localData = numpy.zeros(len(localSectionData),numpy.int32)
-            for i in range(0,len(localSectionData)):
-                localData[i] = localSectionData[i]
-            return localData
-        # Return None if local section is not present
-        return None
-    
-    ##
-    # Decodes the values in the PDS template
-    #
-    # @param metadata: The metadata information
-    # @param idSection: The ID section values
-    # @param pdsTemplate: The PDS template values 
-    # @return: Dictionary of PDS information
-    # @rtype: Dictionary
-    ##  
-    def _decodePdsSection(self, metadata, idSection, pdsTemplate):    
-        
-        # Dictionary to hold information extracted from PDS template
-        pdsFields = {}
-        endTime = None
-        forecastTime = 0
-        duration = 0
-        
-        centerID = idSection[0]
-        subcenterID = idSection[1]
-
-        pdsTemplateNumber = metadata[10]
-        
-        # Default to null
-        pdsFields['ensembleId'] = None
-        pdsFields['pdsTemplateNumber'] = pdsTemplateNumber
-
-        # default to UNKNOWN
-        pdsFields['level'] = LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0));
+    def _decodePdsSection(self, gribDict):    
+        pdsTemplate = gribDict['ipdtmpl']
+        pdsTemplateNumber = gribDict['ipdtnum']
+        centerID = gribDict['center']
+        subcenterID = gribDict['subcenter']
 
         # Templates 0-11 are ordered the same for the most part and can therefore be processed the same
         # Exception cases are handled accordingly
@@ -508,42 +404,39 @@ class GribDecoder():
             
             # Get the basic level and parameter information
             if (pdsTemplate[0] == 255):
-                parameterName = MISSING
+                gribDict['parameterName'] = MISSING
                 parameterAbbreviation = MISSING
-                parameterUnit = MISSING
+                gribDict['parameterUnit'] = MISSING
             else:
-                metadata19 = metadata[19]
-                pds0 = pdsTemplate[0]
-                tableName = PARAMETER_TABLE + DOT + str(metadata19) + DOT + str(pds0)
-                parameter = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, tableName, pdsTemplate[1])
+                discipline = gribDict['discipline']
+                tableName = PARAMETER_TABLE + DOT + str(discipline) + DOT + str(pdsTemplate[0])
+                parameter = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, tableName, int(pdsTemplate[1]))
 
                 if parameter is not None:
-                    parameterName = parameter.getName()
+                    gribDict['parameterName'] = parameter.getName()
 
                     if parameter.getD2dAbbrev() is not None:
                         parameterAbbreviation = parameter.getD2dAbbrev()
                     else:
                         parameterAbbreviation = parameter.getAbbreviation()
-                    parameterUnit = parameter.getUnit()
+                    gribDict['parameterUnit'] = parameter.getUnit()
                 else:
-                    LogStream.logEvent("No parameter information for center[" + str(centerID) + "], subcenter[" +
+                    self.log.info("No parameter information for center[" + str(centerID) + "], subcenter[" +
                                           str(subcenterID) + "], tableName[" + tableName +
                                           "], parameter value[" + str(pdsTemplate[1]) + "]");
-                    parameterName = MISSING
+                    gribDict['parameterName'] = MISSING
                     parameterAbbreviation = MISSING
-                    parameterUnit = MISSING
+                    gribDict['parameterUnit'] = MISSING
                 
-            genprocess = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, GENPROCESS_TABLE+"center"+str(centerID), pdsTemplate[4])
-
             levelName = None;
             levelUnit = None;
-            gribLevel = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, LEVELS_TABLE, pdsTemplate[9])
+            gribLevel = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, LEVELS_TABLE, int(pdsTemplate[9]))
 
             if gribLevel is not None:
                levelName = gribLevel.getAbbreviation();
                levelUnit = gribLevel.getUnit()
             else:
-               LogStream.logEvent("No level information for center[" + str(centerID) + "], subcenter[" +
+               self.log.info("No level information for center[" + str(centerID) + "], subcenter[" +
                                      str(subcenterID) + "], tableName[" + LEVELS_TABLE + "], level value[" +
                                      str(pdsTemplate[9]) + "]");
 
@@ -551,7 +444,7 @@ class GribDecoder():
                 levelName = LevelFactory.UNKNOWN_LEVEL
 
             # Convert the forecast time to seconds
-            forecastTime = self._convertToSeconds(pdsTemplate[8], pdsTemplate[7])
+            gribDict['forecastTime'] = self._convertToSeconds(pdsTemplate[8], pdsTemplate[7])
             
             # Scale the level one value if necessary
             if pdsTemplate[10] == 0 or pdsTemplate[11] == 0:
@@ -578,29 +471,30 @@ class GribDecoder():
             if levelName=='EATM':
                 levelOneValue=float(0)
                 levelTwoValue=float(Level.getInvalidLevelValue())
-                
+              
+            durationSecs = None
+              
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
-                typeEnsemble = Integer(pdsTemplate[15]).intValue()
-                perturbationNumber = Integer(pdsTemplate[16]).intValue()
-                pdsFields['numForecasts'] = Integer(pdsTemplate[17])
+                typeEnsemble = Integer(int(pdsTemplate[15])).intValue()
+                perturbationNumber = Integer(int(pdsTemplate[16])).intValue()
+                gribDict['numForecasts'] = Integer(int(pdsTemplate[17]))
                 if(typeEnsemble == 0):
-                     pdsFields['ensembleId'] = "ctlh" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "ctlh" + str(perturbationNumber);
                 elif(typeEnsemble == 1):
-                     pdsFields['ensembleId'] = "ctll" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "ctll" + str(perturbationNumber);
                 elif(typeEnsemble == 2):
-                     pdsFields['ensembleId'] = "n" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "n" + str(perturbationNumber);
                 elif(typeEnsemble == 3):
-                     pdsFields['ensembleId'] = "p" + str(perturbationNumber);
+                     gribDict['ensembleId'] = "p" + str(perturbationNumber);
                 else:
-                    pdsFields['ensembleId'] = str(typeEnsemble) + "." + str(perturbationNumber);
+                    gribDict['ensembleId'] = str(typeEnsemble) + "." + str(perturbationNumber);
                 
                 if pdsTemplateNumber == 11:
-                    endTime = GregorianCalendar(pdsTemplate[18], pdsTemplate[19] - 1, pdsTemplate[20], pdsTemplate[21], pdsTemplate[22], pdsTemplate[23])
-
-                    numTimeRanges = pdsTemplate[24]
-                    numMissingValues = pdsTemplate[25]
-                    statisticalProcess = pdsTemplate[26]
+                    gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 18)
+                    #numTimeRanges = pdsTemplate[24]
+                    #numMissingValues = pdsTemplate[25]
+                    #statisticalProcess = pdsTemplate[26]
 
             elif pdsTemplateNumber == 2 or pdsTemplateNumber == 12:
                 derivedForecast = pdsTemplate[15]
@@ -610,19 +504,16 @@ class GribDecoder():
                 elif (derivedForecast == 2 or derivedForecast == 3 or derivedForecast == 4 ):
                     parameterAbbreviation= parameterAbbreviation+"sprd"
                 
-                pdsFields['typeEnsemble'] = Integer(pdsTemplate[15])
-                pdsFields['numForecasts'] = Integer(pdsTemplate[16])
+                gribDict['numForecasts'] = Integer(int(pdsTemplate[16]))
                 
                 if(pdsTemplateNumber == 12):
-                    endTime = GregorianCalendar(pdsTemplate[17], pdsTemplate[18] - 1, pdsTemplate[19], pdsTemplate[20], pdsTemplate[21], pdsTemplate[22])
-                    numTimeRanges = pdsTemplate[23]
-                    numMissingValues = pdsTemplate[24]
-                    statisticalProcess = pdsTemplate[25]
-                
-                
+                    gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 17)
+                    #numTimeRanges = pdsTemplate[23]
+                    #numMissingValues = pdsTemplate[24]
+                    #statisticalProcess = pdsTemplate[25]
                 
             elif pdsTemplateNumber == 5 or pdsTemplateNumber == 9:
-                parameterUnit = "%"
+                gribDict['parameterUnit'] = "%"
                 probabilityNumber = pdsTemplate[15]
                 forecastProbabilities = pdsTemplate[16]
                 probabilityType = pdsTemplate[17]
@@ -632,52 +523,64 @@ class GribDecoder():
                 scaledValueUL = pdsTemplate[21]
                 
                 if(pdsTemplateNumber == 9):
-                    endTime = GregorianCalendar(pdsTemplate[22], pdsTemplate[23] - 1, pdsTemplate[24], pdsTemplate[25], pdsTemplate[26], pdsTemplate[27])
-                    numTimeRanges = pdsTemplate[28]
-                    numMissingValues = pdsTemplate[29]
-                    statisticalProcess = pdsTemplate[30]
-                
+                    gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 22)
+                    #numTimeRanges = pdsTemplate[28]
+                    #numMissingValues = pdsTemplate[29]
+                    #statisticalProcess = pdsTemplate[30]
+                    
+                    durationSecs = self._convertToSeconds(pdsTemplate[33], pdsTemplate[32])
+                            
+                scaledValue = None 
                 if(probabilityType == 1 or probabilityType ==2):
-                    if(scaleFactorUL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)+"E"+str(scaleFactorUL)
-                elif(probabilityType == 0):
-                    if(scaleFactorLL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)+"E"+str(scaleFactorLL)
+                    scaledValue = self._convertScaledValue(scaledValueUL, scaleFactorUL)
+                else:
+                    scaledValue = self._convertScaledValue(scaledValueLL, scaleFactorLL)
+                parameterAbbreviation = parameterAbbreviation + str(scaledValue) + "m"
+
                 
             elif pdsTemplateNumber == 8:
-                endTime = GregorianCalendar(pdsTemplate[15], pdsTemplate[16] - 1, pdsTemplate[17], pdsTemplate[18], pdsTemplate[19], pdsTemplate[20])
+                gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 15)
                 
-                numTimeRanges = pdsTemplate[21]
-                numMissingValues = pdsTemplate[22]
-                statisticalProcess = pdsTemplate[23]
+                #numTimeRanges = pdsTemplate[21]
+                #numMissingValues = pdsTemplate[22]
+                #statisticalProcess = pdsTemplate[23]
 
             elif pdsTemplateNumber == 10:
-                endTime = GregorianCalendar(pdsTemplate[16], pdsTemplate[17] - 1, pdsTemplate[18], pdsTemplate[19], pdsTemplate[20], pdsTemplate[21])
+                parameterAbbreviation = parameterAbbreviation + str(pdsTemplate[15]) + "pct"
+                gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 16)
 
-                numTimeRanges = pdsTemplate[22]
-                numMissingValues = pdsTemplate[23]
-                statisticalProcess = pdsTemplate[24]
+                #numTimeRanges = pdsTemplate[22]
+                #numMissingValues = pdsTemplate[23]
+                #statisticalProcess = pdsTemplate[24]
+                
+                durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
+                
+            if durationSecs is not None:
+                # This only applies for templates 9 and 10 which are not
+                # commonly used templates. For all other data the duration is
+                # ignored and it is assumed that reftime, forecast time, and 
+                # endtime will define the duration. For Template 9 and 10 this
+                # will cause forecast time to be ignored so duration is correct.
+
+                # The decoder assumes reftime + forecastTime equals 
+                # endTime - duration, however for some models 
+                # reftime + forecasttime instead equals endTime. This reassigns
+                # forecastTime as endTime - refTime - duration so that
+                # duration is correctly calculated.
+                refToEndSecs = (gribDict['endTime'].getTimeInMillis() - gribDict['refTime'].getTimeInMillis())/ 1000
+                gribDict['forecastTime'] = refToEndSecs - durationSecs
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
                 
             parameterAbbreviation = ParameterMapper.getInstance().lookupBaseName(parameterAbbreviation, "grib");
             # Constructing the GribModel object
-            pdsFields['centerid'] = centerID
-            pdsFields['subcenterid'] = subcenterID
-            pdsFields['backGenprocess'] = pdsTemplate[3]
-            pdsFields['genprocess'] = pdsTemplate[4]
-            pdsFields['parameterName'] = parameterName
-            pdsFields['parameterAbbreviation'] = parameterAbbreviation
-            pdsFields['parameterUnit'] = parameterUnit
+            gribDict['backGenprocess'] = int(pdsTemplate[3])
+            gribDict['genprocess'] = int(pdsTemplate[4])
+            gribDict['parameterAbbreviation'] = parameterAbbreviation
 
             # Constructing the Level object
-            level = LevelMapper.getInstance().lookupLevel(levelName, 'grib', levelOneValue, levelTwoValue, levelUnit)
-            pdsFields['level'] = level
+            gribDict['level'] = LevelMapper.getInstance().lookupLevel(levelName, 'grib', levelOneValue, levelTwoValue, levelUnit)
 
             
         
@@ -738,64 +641,49 @@ class GribDecoder():
         
         #Temporary fix to prevent invalid values getting persisted 
         #to the database until the grib decoder is fully implemented
-        if pdsTemplateNumber >= 13:
-            pdsFields['parameterName'] ="Unknown"
-            pdsFields['parameterAbbreviation'] ="Unknown"
-            pdsFields['parameterUnit'] ="Unknown"
+        if 'parameterAbbreviation' not in gribDict:
+            gribDict['parameterAbbreviation'] ="Unknown"
+        if 'parameterName' not in gribDict:
+            gribDict['parameterName'] ="Unknown"
+        if 'parameterUnit' not in gribDict:
+            gribDict['parameterUnit'] ="Unknown"
         
-        # endtime needs to be used to calculate forecastTime and forecastTime should be used for startTime of interval
-        pdsFields['forecastTime'] = forecastTime
-        pdsFields['endTime'] = endTime
-        
-        return pdsFields
+        if 'level' not in gribDict:
+            gribDict['level'] = LevelFactory.getInstance().getLevel(LevelFactory.UNKNOWN_LEVEL, float(0));
 
     ##
-    # Decodes spatial information from the GDS template
-    # @param metadata: The metadata information
-    # @param gdsTemplate: The GDS Template values
-    # @return: Dictionary of GDS information
-    # @rtype: Dictionary
+    # Decodes the values from the gds section. Decoded values are added to the gribDict
+    # @param gribDict: a single gribDict from the grib2 module decoder.
     ##
-    def _decodeGdsSection(self, metadata, gdsTemplate):
-
-        # Dictionary to hold information extracted from PDS template
-        gdsFields = {}
-        coverage = None
-        scanMode = None
-        resCompFlags = None
-        thinned = False
-        gdsTemplateNumber = metadata[7]
+    def _decodeGdsSection(self, gribDict):
+        gdsTemplate = gribDict['igdtmpl']
+        gdsTemplateNumber = gribDict['igdtnum']
 
         # Latitude/Longitude projection
         if gdsTemplateNumber == 0:
-
             coverage = LatLonGridCoverage()
             majorAxis, minorAxis = self._getEarthShape(gdsTemplate)
-            # la1 = self._correctLat(self._divideBy10e6(gdsTemplate[11]))
-            # lo1 = self._correctLon(self._divideBy10e6(gdsTemplate[12]))
-            # la2 = self._correctLat(self._divideBy10e6(gdsTemplate[14]))
-            # lo2 = self._correctLon(self._divideBy10e6(gdsTemplate[15]))
             la1 = self._divideBy10e6(gdsTemplate[11])
             lo1 = self._divideBy10e6(gdsTemplate[12])
             la2 = self._divideBy10e6(gdsTemplate[14])
             lo2 = self._divideBy10e6(gdsTemplate[15])
-            scanMode = gdsTemplate[18]
-            resCompFlags = gdsTemplate[13]
+            gribDict['scanMode'] = int(gdsTemplate[18])
+            # gribDict['resCompFlags'] = gdsTemplate[13]
             
 
             # Check for quasi-regular grid
-            if metadata[5] > 0:
+            if gribDict['numoct_opt'] > 0:
                 # Quasi-regular grid detected
-                thinned = True
+                gribDict['thinned'] = True
                 nx = THINNED_GRID_PTS
                 ny = THINNED_GRID_PTS
                 dx = THINNED_GRID_SPACING
                 dy = THINNED_GRID_SPACING
-                metadata[4] = THINNED_GRID_REMAPPED_SIZE
+                gribDict['ngrdpts'] = THINNED_GRID_REMAPPED_SIZE
             else:
                 # Not a quasi-regular grid
-                nx = gdsTemplate[7]
-                ny = gdsTemplate[8]
+                nx = int(gdsTemplate[7])
+                ny = int(gdsTemplate[8])
                 dx = self._divideBy10e6(gdsTemplate[16])
                 dy = self._divideBy10e6(gdsTemplate[17])
 
@@ -818,10 +706,9 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            corner = GribSpatialCache.determineFirstGridPointCorner(gribDict['scanMode'])
             coverage.setFirstGridPointCorner(corner)
-            
-            coverage = self._getGrid(coverage)
+            gribDict['coverage'] = self._getGrid(coverage)
             
         # Rotated Latitude/Longitude projection
         elif gdsTemplateNumber == 1:
@@ -837,11 +724,10 @@ class GribDecoder():
         
         # Mercator projection
         elif gdsTemplateNumber == 10:
-
             coverage = MercatorGridCoverage()
             majorAxis, minorAxis = self._getEarthShape(gdsTemplate)
-            nx = gdsTemplate[7]
-            ny = gdsTemplate[8]
+            nx = int(gdsTemplate[7])
+            ny = int(gdsTemplate[8])
             la1 = self._correctLat(self._divideBy10e6(gdsTemplate[9]))
             lo1 = self._correctLon(self._divideBy10e6(gdsTemplate[10]))
             latin = self._correctLat(self._divideBy10e6(gdsTemplate[12]))
@@ -849,8 +735,8 @@ class GribDecoder():
             lo2 = self._correctLon(self._divideBy10e6(gdsTemplate[14]))
             dx = self._divideBy10e6(gdsTemplate[17])
             dy = self._divideBy10e6(gdsTemplate[18])
-            scanMode = gdsTemplate[15]
-            resCompFlags = gdsTemplate[11]
+            gribDict['scanMode'] = int(gdsTemplate[15])
+            # gribDict['resCompFlags'] = gdsTemplate[11]
             
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT)
             coverage.setMajorAxis(majorAxis)
@@ -862,26 +748,25 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            corner = GribSpatialCache.determineFirstGridPointCorner(gribDict['scanMode'])
             coverage.setFirstGridPointCorner(corner)
             
-            coverage = self._getGrid(coverage)
+            gribDict['coverage'] = self._getGrid(coverage)
             
         # Polar Stereographic projection
         elif gdsTemplateNumber == 20:
-
             coverage = PolarStereoGridCoverage()
             majorAxis, minorAxis = self._getEarthShape(gdsTemplate)
-            nx = gdsTemplate[7]
-            ny = gdsTemplate[8]
+            nx = int(gdsTemplate[7])
+            ny = int(gdsTemplate[8])
             la1 = self._correctLat(self._divideBy10e6(gdsTemplate[9]))
             lo1 = self._correctLon(self._divideBy10e6(gdsTemplate[10]))
             lov = self._correctLon(self._divideBy10e6(gdsTemplate[13]))
             lad = self._correctLat(self._divideBy10e6(gdsTemplate[12]))
             dx = self._divideBy10e6(gdsTemplate[14])
             dy = self._divideBy10e6(gdsTemplate[15])
-            scanMode = gdsTemplate[17]
-            resCompFlags = gdsTemplate[11]
+            gribDict['scanMode'] = int(gdsTemplate[17])
+            # gribDict['resCompFlags'] = gdsTemplate[11]
             
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT)
             coverage.setMajorAxis(majorAxis)
@@ -894,18 +779,18 @@ class GribDecoder():
             coverage.setLo1(lo1)
             coverage.setDx(dx)
             coverage.setDy(dy)
-            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            corner = GribSpatialCache.determineFirstGridPointCorner(gribDict['scanMode'])
             coverage.setFirstGridPointCorner(corner)
             
-            coverage = self._getGrid(coverage)
+            gribDict['coverage'] = self._getGrid(coverage)
 
         # Lambert Conformal projection
         elif gdsTemplateNumber == 30:
 
             coverage = LambertConformalGridCoverage()
             majorAxis, minorAxis = self._getEarthShape(gdsTemplate)
-            nx = gdsTemplate[7]
-            ny = gdsTemplate[8]
+            nx = int(gdsTemplate[7])
+            ny = int(gdsTemplate[8])
             la1 = self._correctLat(self._divideBy10e6(gdsTemplate[9]))
             lo1 = self._correctLon(self._divideBy10e6(gdsTemplate[10]))
             lov = self._correctLon(self._divideBy10e6(gdsTemplate[13]))
@@ -913,8 +798,8 @@ class GribDecoder():
             dy = self._divideBy10e6(gdsTemplate[15])
             latin1 = self._correctLat(self._divideBy10e6(gdsTemplate[18]))
             latin2 = self._correctLat(self._divideBy10e6(gdsTemplate[19]))
-            scanMode = gdsTemplate[17]
-            resCompFlags = gdsTemplate[11]
+            gribDict['scanMode'] = int(gdsTemplate[17])
+            # gribDict['resCompFlags'] = gdsTemplate[11]
             
             coverage.setSpacingUnit(DEFAULT_SPACING_UNIT)
             coverage.setMajorAxis(majorAxis)
@@ -928,10 +813,10 @@ class GribDecoder():
             coverage.setDy(dy)
             coverage.setLatin1(latin1)
             coverage.setLatin2(latin2)
-            corner = GribSpatialCache.determineFirstGridPointCorner(scanMode)
+            corner = GribSpatialCache.determineFirstGridPointCorner(gribDict['scanMode'])
             coverage.setFirstGridPointCorner(corner)
             
-            coverage = self._getGrid(coverage)
+            gribDict['coverage'] = self._getGrid(coverage)
             
         # Albers Equal Area projection
         elif gdsTemplate == 31:
@@ -1008,12 +893,6 @@ class GribDecoder():
         # Missing
         elif gdsTemplate == 65535:
             pass
-            
-        gdsFields['scanMode'] = scanMode
-        gdsFields['coverage'] = coverage
-        gdsFields['thinned'] = thinned
-        gdsFields['resCompFlags'] = resCompFlags
-        return gdsFields
         
     ##
     # Gets a grid from the cache.  If not found, one is created and stored to the cache
@@ -1026,7 +905,7 @@ class GribDecoder():
         # Check the cache first
         grid = GribSpatialCache.getInstance().getGrid(temp)
 
-        # If not found, create a new GribCoverage and store in the cache
+        # If not found, create a new GridCoverage and store in the cache
         if grid is None:
             grid = GridCoverageLookup.getInstance().getCoverage(temp, True)
 
@@ -1084,7 +963,7 @@ class GribDecoder():
             
         return lon
     
-        ##
+    ##
     # Corrects a latitude to fall within the geotools required bounds of -90 and 90
     #
     # @param lat: The latitude to be corrected
@@ -1130,7 +1009,7 @@ class GribDecoder():
             minorAxis = self._convertScaledValue(gdsTemplate[2], gdsTemplate[1])
             majorAxis = minorAxis
             if majorAxis < 6000000.0 or minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis,minorAxis = " + str(majorAxis) + "," + str(minorAxis) + " defaulting to 6367470.0,6367470.0")
+                self.log.info("Invalid earth shape majorAxis,minorAxis = " + str(majorAxis) + "," + str(minorAxis) + " defaulting to 6367470.0,6367470.0")
                 minorAxis = majorAxis = 6367470.0
             
         # Earth assumed oblate spheriod with size as determined by IAU in 1965
@@ -1143,12 +1022,12 @@ class GribDecoder():
         elif number == 3:
             minorAxis = self._convertScaledValue(gdsTemplate[4], gdsTemplate[3]) * 1000
             if minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
                 minorAxis = MINOR_AXIS_DEFAULT
                 
             majorAxis = self._convertScaledValue(gdsTemplate[6], gdsTemplate[5]) * 1000
             if majorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
                 majorAxis = MAJOR_AXIS_DEFAULT
                 
         # Earth assumed oblate spheriod as defined in IAG-GRS80 model
@@ -1171,12 +1050,12 @@ class GribDecoder():
         elif number == 7:
             minorAxis = self._convertScaledValue(gdsTemplate[4], gdsTemplate[3])
             if minorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape minorAxis = " + str(minorAxis) + " defaulting to " + MINOR_AXIS_DEFAULT)
                 minorAxis = MINOR_AXIS_DEFAULT
                 
             majorAxis = self._convertScaledValue(gdsTemplate[6], gdsTemplate[5])
             if majorAxis < 6000000.0:
-                LogStream.logEvent("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
+                self.log.info("Invalid earth shape majorAxis = " + str(majorAxis) + " defaulting to " + MAJOR_AXIS_DEFAULT)
                 majorAxis = MAJOR_AXIS_DEFAULT
                 
         # Earth model assumed spherical with radius 6,371,200 m,
@@ -1191,6 +1070,25 @@ class GribDecoder():
         
         return float(majorAxis), float(minorAxis)
     
+    ##
+    # Converts some numeric values from a grib section to a java Calendar.
+    # The date should consist of 6 int values ordered as follows:
+    # year, month, day, hour, minute, second.
+    #
+    # @param section: numpy int array containing date
+    # @param start: the start index in section to read the date.
+    # @return: java Calendar object
+    # @rtype: Calendar
+    ##
+    def _convertToCalendar(self, section, start):
+        year = int(section[start])
+        month = int(section[start + 1] - 1)
+        day = int(section[start + 2])
+        hour = int(section[start + 3])
+        minute = int(section[start + 4])
+        second = int(section[start + 5]);
+        return GregorianCalendar(year, month, day, hour, minute, second)
+
     ##
     # Converts a value in the specified unit (according to table 4.4) to seconds
     #
@@ -1247,25 +1145,25 @@ class GribDecoder():
         elif fromUnit == 12:
             retVal = value * 12 * SECONDS_PER_HOUR
             
-        return retVal
+        return int(retVal)
 
-    def _getGridModel(self, pdsSectionValues, grid):
-        center = pdsSectionValues['centerid']
-        subcenter = pdsSectionValues['subcenterid']
+    def _getGridModel(self, gribDict, grid):
+        center = gribDict['center']
+        subcenter = gribDict['subcenter']
 
-        process = pdsSectionValues['genprocess']
+        process = gribDict['genprocess']
         gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process)
         return gridModel
     
-    def _createModelName(self, pdsSectionValues, grid):
-        center = pdsSectionValues['centerid']
-        subcenter = pdsSectionValues['subcenterid']
+    def _createModelName(self, gribDict, grid):
+        center = gribDict['center']
+        subcenter = gribDict['subcenter']
 
-        process = pdsSectionValues['genprocess']
+        process = gribDict['genprocess']
         return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process)
         
-    def _checkForecastFlag(self, pdsSectionValues, grid, dataTime):
-        gridModel = self._getGridModel(pdsSectionValues, grid)
+    def _checkForecastFlag(self, gribDict, grid, dataTime):
+        gridModel = self._getGridModel(gribDict, grid)
         if gridModel is None:
             return
         else:

@@ -28,8 +28,8 @@ import java.util.Set;
 
 import javax.xml.bind.JAXB;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.app.launcher.bundle.Entity;
 import com.raytheon.uf.viz.app.launcher.bundle.Launcher;
 import com.raytheon.uf.viz.app.launcher.exception.AppLauncherException;
@@ -176,7 +176,7 @@ public final class AppLauncherUtilities {
         } catch (Exception e) {
             throw new AppLauncherException(
                     "Unable to import App Launcher bundle "
-                            + Util.printString(bundleLocation), e);
+                            + StringUtil.printString(bundleLocation), e);
         }
     }
 }

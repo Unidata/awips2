@@ -1,4 +1,5 @@
 package com.raytheon.uf.common.monitor.scan;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -18,87 +19,100 @@ package com.raytheon.uf.common.monitor.scan;
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
 
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+/**
+ * A report of lightning
+ * 
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/----                          Initial Creation
+ * Oct 02, 2013 2361       njensen     Removed XML annotations
+ * </pre>
+ * 
+ * 
+ */
+
 @DynamicSerialize
-public class LightningReport implements ISerializableObject {
-	
-    @XmlElement
+public class LightningReport {
+
     @DynamicSerializeElement
-	private int totalPosStrikes = 0;
-    @XmlElement
+    private int totalPosStrikes = 0;
+
     @DynamicSerializeElement
-	private int totalCGStrikes = 0;
-    @XmlElement
+    private int totalCGStrikes = 0;
+
     @DynamicSerializeElement
-	private int cgRate = 0;
-    @XmlElement
+    private int cgRate = 0;
+
     @DynamicSerializeElement
-	private double percentPos = 0.0;
-    @XmlElement
+    private double percentPos = 0.0;
+
     @DynamicSerializeElement
-	private double lat = 0.0;
-    @XmlElement
+    private double lat = 0.0;
+
     @DynamicSerializeElement
-	private double lon = 0.0;
- 
-	public LightningReport()  {
-   
+    private double lon = 0.0;
+
+    public LightningReport() {
+
     }
-	
-	public LightningReport(Coordinate location)  {
-		this.lat = location.y;
-		this.lon = location.x;
-	}
-		
-	public void setLat(double lat) {
-		this.lat = lat;
-	}
-	
-	public double getLat() {
-		return lat;
-	}
-	
-	public void setLon(double lon) {
-		this.lon = lon;
-	}
-	
-	public double getLon() {
-		return lon;
-	}
-	
-	public int getTotalPosStrikes() {
-		return totalPosStrikes;
-	}
-	public void setTotalPosStrikes(int totalPosStrikes) {
-		this.totalPosStrikes = totalPosStrikes;
-	}
-	public int getTotalCGStrikes() {
-		return totalCGStrikes;
-	}
-	public void setTotalCGStrikes(int totalCGStrikes) {
-		this.totalCGStrikes = totalCGStrikes;
-	}
-	public int getCgRate() {
-		return cgRate;
-	}
-	public void setCgRate(int cgRate) {
-		this.cgRate = cgRate;
-	}
-	public double getPercentPos() {
-		return percentPos;
-	}
-	public void setPercentPos(double percentPos) {
-		this.percentPos = percentPos;
-	}
+
+    public LightningReport(Coordinate location) {
+        this.lat = location.y;
+        this.lon = location.x;
+    }
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public double getLon() {
+        return lon;
+    }
+
+    public int getTotalPosStrikes() {
+        return totalPosStrikes;
+    }
+
+    public void setTotalPosStrikes(int totalPosStrikes) {
+        this.totalPosStrikes = totalPosStrikes;
+    }
+
+    public int getTotalCGStrikes() {
+        return totalCGStrikes;
+    }
+
+    public void setTotalCGStrikes(int totalCGStrikes) {
+        this.totalCGStrikes = totalCGStrikes;
+    }
+
+    public int getCgRate() {
+        return cgRate;
+    }
+
+    public void setCgRate(int cgRate) {
+        this.cgRate = cgRate;
+    }
+
+    public double getPercentPos() {
+        return percentPos;
+    }
+
+    public void setPercentPos(double percentPos) {
+        this.percentPos = percentPos;
+    }
 }

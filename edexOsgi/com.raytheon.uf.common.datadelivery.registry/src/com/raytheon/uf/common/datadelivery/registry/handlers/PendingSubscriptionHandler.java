@@ -53,6 +53,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * 4/9/2013     1802      bphillip   Using constant values from constants package instead of RegistryUtil
  * May 28, 2013 1650       djohnson     Add getByNames.
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -147,11 +148,13 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public Set<String> getSubscribedToDataSetNames()
+    public Set<String> getSubscribedToDataSetNames(String siteId)
             throws RegistryHandlerException {
         Set<String> names = Sets.newHashSet();
-        names.addAll(siteSubscriptionHandler.getSubscribedToDataSetNames());
-        names.addAll(sharedSubscriptionHandler.getSubscribedToDataSetNames());
+        names.addAll(siteSubscriptionHandler
+                .getSubscribedToDataSetNames(siteId));
+        names.addAll(sharedSubscriptionHandler
+                .getSubscribedToDataSetNames(siteId));
         return names;
     }
 

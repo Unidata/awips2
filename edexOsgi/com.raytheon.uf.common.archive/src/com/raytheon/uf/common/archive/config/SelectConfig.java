@@ -20,7 +20,9 @@
 package com.raytheon.uf.common.archive.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,6 +42,7 @@ import com.raytheon.uf.common.archive.config.select.CategorySelect;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 19, 2013 2221       rferrel     Initial creation
+ * Dec 11, 2013 2603       rferrel     Make selections a set.
  * 
  * </pre>
  * 
@@ -113,24 +116,24 @@ public class SelectConfig {
     }
 
     /**
-     * Get a list of selected display names for the archive and its category.
+     * Get a set of selected display names for the archive and its category.
      * 
      * @param archiveName
      * @param categoryName
      * @return displayLabelList may be an empty list.
      */
-    public List<String> getSelectedList(String archiveName, String categoryName) {
+    public Set<String> getSelectedSet(String archiveName, String categoryName) {
         ArchiveSelect archiveSelect = getArchive(archiveName);
         if (archiveSelect == null || archiveSelect.isEmpty()) {
-            return new ArrayList<String>(0);
+            return new HashSet<String>(0);
         }
         CategorySelect categorySelect = getCategorySelect(categoryName,
                 archiveSelect);
         if (categorySelect == null || categorySelect.isEmpty()) {
-            return new ArrayList<String>(0);
+            return new HashSet<String>(0);
         }
 
-        List<String> selected = categorySelect.getSelectList();
+        Set<String> selected = categorySelect.getSelectSet();
 
         return selected;
     }

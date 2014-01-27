@@ -81,6 +81,7 @@ import com.raytheon.viz.gfe.textformatter.TextFmtParserUtil;
  * 26 Sep 2012  15423      ryu         Avoid resetting text when possible.
  * 03 Dec 2012  15620      ryu         Unlock framed cities list for editing.
  * 30 APR 2013  16095      ryu         Modified updateTextStyle() to not lock edited text.
+ * 29 AUG 2013  #2250      dgilling    Better error handling for parseProductText().
  * 04 SEP 2013  16534      ryu         Fixed word wrap to not insert duplicate text; refactor.
  * 20 DEC 2013  16854      ryu         Force re-parsing of text on type change.
  * 
@@ -117,6 +118,8 @@ public class StyledTextComp extends Composite {
     private static final String EMPTY = "";
 
     private static final String SPC = " ";
+
+    private static final String PRODUCT_PARSE_ERROR = "An unhandled exception was encountered trying to parse your text product. Please cancel and run your formatter again.";
 
     /**
      * Parent composite.
@@ -329,13 +332,17 @@ public class StyledTextComp extends Composite {
         newProduct = true;
         textEditorST.setText(EMPTY);
         textEditorST.setStyleRange(null);
-        parseProductText(text);
-        textEditorST.setText(text);
 
-        lockText();
-        findFramingCodes();
-        textEditorST.getVerticalBar().setSelection(0);
-        newProduct = false;
+        try {
+            parseProductText(text);
+            textEditorST.setText(text);
+            lockText();
+            findFramingCodes();
+            textEditorST.getVerticalBar().setSelection(0);
+            newProduct = false;
+        } catch (JepException e) {
+            statusHandler.error(PRODUCT_PARSE_ERROR, e);
+        }
     }
 
     /**
@@ -489,8 +496,11 @@ public class StyledTextComp extends Composite {
      * Parse the product text string.
      * 
      * @param productText
+     *            Complete product text.
+     * @throws JepException
+     *             If python throws an Error trying to parse the product.
      */
-    private void parseProductText(String productText) {
+    private void parseProductText(String productText) throws JepException {
         HashMap<String, Object> fmtResult = TextFmtParserUtil
                 .parseText(productText);
         prodDataStruct = new ProductDataStruct(fmtResult, productText);
@@ -1046,11 +1056,14 @@ public class StyledTextComp extends Composite {
             _text += "\n \n";
         }
 
-        // parseProductText(textEditorST.getText());
-        parseProductText(_text);
-        findFramingCodes();
-        lockText();
-        dirty = false;
+        try {
+            parseProductText(_text);
+            findFramingCodes();
+            lockText();
+            dirty = false;
+        } catch (JepException e) {
+            statusHandler.error(PRODUCT_PARSE_ERROR, e);
+        }
     }
 
     protected boolean isUpperCase(final String word) {

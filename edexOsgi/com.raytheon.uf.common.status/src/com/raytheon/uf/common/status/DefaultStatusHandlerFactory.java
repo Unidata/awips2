@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.common.status;
 
+
 /**
  * TODO Add Description
  * 
@@ -29,6 +30,7 @@ package com.raytheon.uf.common.status;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 15, 2011            randerso     Initial creation
+ * Oct 23, 2013 2303       bgonzale     Merged VizStatusHandler and SysErrStatusHandler into StatusHandler.
  * 
  * </pre>
  * 
@@ -36,12 +38,14 @@ package com.raytheon.uf.common.status;
  * @version 1.0
  */
 
-public class DefaultStatusHandlerFactory extends AbstractHandlerFactory {
-    private static final IUFStatusHandler handler = new SysErrStatusHandler(
+public class DefaultStatusHandlerFactory extends
+        AbstractHandlerFactory {
+    private static final IUFStatusHandler handler = new StatusHandler(
             DefaultStatusHandlerFactory.class.getPackage().getName(),
             "DEFAULT", "DEFAULT");
 
     private static final String CATEGORY = "DEFAULT";
+
 
     public DefaultStatusHandlerFactory() {
         super(CATEGORY);
@@ -90,7 +94,8 @@ public class DefaultStatusHandlerFactory extends AbstractHandlerFactory {
     @Override
     protected IUFStatusHandler createInstance(String pluginId, String category,
             String source) {
-        return new SysErrStatusHandler(pluginId, category, source);
+        return new StatusHandler(category, source,
+                pluginId);
     }
 
     @Override
@@ -101,7 +106,8 @@ public class DefaultStatusHandlerFactory extends AbstractHandlerFactory {
     @Override
     public IUFStatusHandler createInstance(AbstractHandlerFactory factory,
             String pluginId, String category) {
-        return new SysErrStatusHandler(pluginId, category, CATEGORY);
+        return new StatusHandler(category, CATEGORY,
+                pluginId);
     }
 
 }

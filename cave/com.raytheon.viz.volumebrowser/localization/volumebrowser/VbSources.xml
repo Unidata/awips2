@@ -80,7 +80,6 @@
 	<vbSource key="HI-RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HPCqpfNDFD" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
-	<vbSource key="HPCGuide-2.5km" category="SfcGrid" views="PLANVIEW TIMESERIES" />	
 	<vbSource key="HPCqpf" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HPE" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="MPE-Local" category="SfcGrid" views="PLANVIEW TIMESERIES" />
@@ -102,6 +101,7 @@
 	<vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="TPCSurgeProb" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="PHISH" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="TPCWindProb" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="WCwave10" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="WCwave4" category="SfcGrid" views="PLANVIEW TIMESERIES" />

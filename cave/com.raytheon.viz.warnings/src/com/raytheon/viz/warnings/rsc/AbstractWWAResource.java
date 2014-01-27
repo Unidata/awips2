@@ -35,7 +35,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -47,7 +46,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
@@ -85,6 +83,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Jul 22, 2013   2176   jsanchez       Updated the wire frame and text for EMERGENCY warnings.
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
  * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
+ * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
  * </pre>
  * 
  * @author jsanchez
@@ -409,7 +408,7 @@ public abstract class AbstractWWAResource extends
                                 .getDefaultFont().getFontName(), 11,
                                 new IFont.Style[0]);
                         emergencyFont = target.getDefaultFont().deriveWithSize(
-                                11);
+                                14);
                     }
                     // DR14992: reverse the textToPrint array to plot the
                     // strings in correct order
@@ -432,12 +431,14 @@ public abstract class AbstractWWAResource extends
                     // Draws the string again to have it appear bolder
                     if (EmergencyType.isEmergency(record.getRawmessage())) {
                         // moves over text to add EMER in a different font
-                        textToPrintReversed[2] = String.format("%1$-21" + "s",
+                        textToPrintReversed[2] = String.format("%1$-23" + "s",
                                 textToPrintReversed[2]);
                         params.setText(textToPrintReversed, color);
 
                         DrawableString emergencyString = new DrawableString(
                                 params);
+                        emergencyString.setCoordinates(d[0],
+                                d[1] + (paintProps.getZoomLevel()) * 90);
                         emergencyString.font = emergencyFont;
                         emergencyString.setText(new String[] { "", "",
                                 " " + EmergencyType.EMER, "" }, color);
@@ -586,21 +587,8 @@ public abstract class AbstractWWAResource extends
 
         earliestRequested = earliest;
 
-        LayerProperty property = new LayerProperty();
-        property.setDesiredProduct(ResourceType.PLAN_VIEW);
-        property.setEntryQueryParameters(map, false);
-        property.setNumberOfImages(9999);
-
-        Object[] resp = null;
-        resp = DataCubeContainer.getData(property, 60000).toArray(
-                new Object[] {});
-        PluginDataObject[] arr = new PluginDataObject[resp.length];
-        int i = 0;
-        for (Object o : resp) {
-            arr[i] = (PluginDataObject) o;
-            i++;
-        }
-        addRecord(sort(arr));
+        PluginDataObject[] pdos = DataCubeContainer.getData(map);
+        addRecord(sort(pdos));
     }
 
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {

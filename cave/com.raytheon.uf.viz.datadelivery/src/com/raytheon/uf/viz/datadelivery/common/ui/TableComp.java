@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Aug 30, 2012  1120      jpiatt       Added clickSort flag.
  * Jan 07, 2013  1437      bgonzale     updateSortDirection method now returns direction.
  * Apr 10, 2013  1891      djohnson     Fix sorting.
+ * Sep 16, 2013  2375      mpduff       Fix sorting.
  * 
  * </pre>
  * 
@@ -247,37 +248,27 @@ public abstract class TableComp extends Composite implements
      * @return SortDirection returns the determined sort direction.
      */
     public SortDirection updateSortDirection(TableColumn tc,
-            ISortTable tableData,
-            boolean clickSort) {
+            ISortTable tableData, boolean clickSort) {
         SortDirection sortDirection = SortDirection.ASCENDING;
 
-        if (!configChange) {
-            if (sortedColumn != null
-                    && tc.getText().equals(sortedColumn.getText())) {
+        if (sortedColumn != null && tc.getText().equals(sortedColumn.getText())) {
+            if (sortDirectionMap.containsKey(sortedColumn.getText())) {
+                sortDirection = sortDirectionMap.get(sortedColumn.getText());
 
-                if (sortDirectionMap.containsKey(sortedColumn.getText())) {
-                    sortDirection = sortDirectionMap
-                            .get(sortedColumn.getText());
-
-                    if (clickSort) {
-                        sortDirection = sortDirection.reverse();
-                    }
-                }
-
-                sortDirectionMap.put(sortedColumn.getText(), sortDirection);
-                tableData.setSortDirection(sortDirection);
-            } else {
-                if (sortDirectionMap.containsKey(tc.getText())) {
-                    tableData.setSortDirection(sortDirectionMap.get(tc
-                            .getText()));
-                } else {
-                    sortDirectionMap.put(sortedColumn.getText(), sortDirection);
-                    tableData.setSortDirection(sortDirection);
+                if (clickSort) {
+                    sortDirection = sortDirection.reverse();
                 }
             }
+
+            sortDirectionMap.put(sortedColumn.getText(), sortDirection);
+            tableData.setSortDirection(sortDirection);
+            tableData.setSortColumn(sortedColumn.getText());
+        } else {
+            sortDirectionMap.put(sortedColumn.getText(), sortDirection);
         }
 
         sortedColumn = tc;
+        tableData.setSortDirection(sortDirection);
         tableData.setSortColumn(sortedColumn.getText());
         return sortDirection;
     }

@@ -48,6 +48,7 @@ import javax.persistence.Table;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
  * 
  * </pre>
  * 
@@ -56,46 +57,35 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "counties")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Counties extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable, com.raytheon.uf.common.serialization.ISerializableObject {
+public class Counties extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private CountiesId id;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Wfo wfoByPrimaryBack;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private State state;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Wfo wfoBySecondaryBack;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Wfo wfoByWfo;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String countynum;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Location> locations = new HashSet<Location>(0);
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Nwrtransmitter> nwrtransmitters = new HashSet<Nwrtransmitter>(0);
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Location> locations_1 = new HashSet<Location>(0);
 

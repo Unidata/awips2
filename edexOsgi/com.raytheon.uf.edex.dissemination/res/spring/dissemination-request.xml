@@ -50,7 +50,7 @@
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to
-						uri="log-showbody:manual?level=ERROR" />
+						uri="log:manual?level=ERROR&amp;showBody=true" />
 				</doCatch>
 			</doTry>
 		</route>

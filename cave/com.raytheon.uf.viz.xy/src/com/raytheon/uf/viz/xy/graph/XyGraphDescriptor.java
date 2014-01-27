@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -43,9 +42,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 29, 2009            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 29, 2009           mschenke    Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -54,7 +55,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class XyGraphDescriptor extends AbstractDescriptor implements
-        RemoveListener, ISerializableObject {
+        RemoveListener {
 
     protected int verticalFrameCount = 0;
 

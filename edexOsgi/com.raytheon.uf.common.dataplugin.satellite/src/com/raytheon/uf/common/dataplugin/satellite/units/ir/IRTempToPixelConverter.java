@@ -26,13 +26,14 @@ import javax.measure.converter.UnitConverter;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * Converts a temperature value in Kelvin to a pixel value from 0 to 255
+ * Converts a temperature value in Kelvin to a pixel value.
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 29, 2007            njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 29, 2007           njensen     Initial creation
+ * Nov 20, 2013  2492     bsteffen    Make conversion unbounded.
  * 
  * </pre>
  * 
@@ -40,45 +41,39 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  */
 public class IRTempToPixelConverter extends UnitConverter {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Override
-	public double convert(double aTemperature) throws ConversionException {
-		double result = 0.0;
+    @Override
+    public double convert(double aTemperature) throws ConversionException {
+        double result = 0.0;
 
-		if (aTemperature < 238.15) {
-			result = 418.15 - aTemperature;
-		} else {
-			result = 656.3 - (2.0 * aTemperature);
-		}
+        if (aTemperature < 238.15) {
+            result = 418.15 - aTemperature;
+        } else {
+            result = 656.3 - (2.0 * aTemperature);
+        }
 
-		if (result < 0) {
-			result = 0.0;
-		} else if (result > 255) {
-			result = 255.0;
-		}
+        return result;
+    }
 
-		return result;
-	}
+    @Override
+    public boolean equals(Object aConverter) {
+        return (aConverter instanceof IRTempToPixelConverter);
+    }
 
-	@Override
-	public boolean equals(Object aConverter) {
-		return (aConverter instanceof IRTempToPixelConverter);
-	}
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
+    @Override
+    public UnitConverter inverse() {
+        return new IRPixelToTempConverter();
+    }
 
-	@Override
-	public UnitConverter inverse() {
-		return new IRPixelToTempConverter();
-	}
-
-	@Override
-	public boolean isLinear() {
-		return false;
-	}
+    @Override
+    public boolean isLinear() {
+        return false;
+    }
 
 }

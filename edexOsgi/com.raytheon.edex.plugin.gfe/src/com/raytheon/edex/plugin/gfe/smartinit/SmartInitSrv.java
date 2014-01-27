@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.gfe.smartinit;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ import jep.JepException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.raytheon.edex.plugin.gfe.config.GFESiteActivation;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -55,6 +56,8 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Jul 28, 2010   #6725  	jdynina		Manual init support
  * Aug 27, 2010   #3688     wkwock      Find model class for a model
  * Aug 24, 2013   #1949     rjpeter     Updated start up logic
+ * Jun 13, 2013   #2044     randerso    Refactored to use IFPServer, 
+ *                                      added support to run init for all valid times
  * </pre>
  * 
  * @author njensen
@@ -92,7 +95,7 @@ public class SmartInitSrv {
         // default of 2 minutes
         private int pendingInitMinTimeMillis = 120000;
 
-        private int runningInitTimeOutMillis = 300000;
+        private int runningInitTimeOutMillis = 600000;
 
         private int threadSleepInterval = 30000;
 
@@ -142,10 +145,13 @@ public class SmartInitSrv {
                     String init = record.getSmartInit();
                     String dbName = record.getDbName()
                             + (record.isManual() ? ":1" : ":0");
+                    Date validTime = record.getId().getValidTime();
+                    if (SmartInitRecord.ALL_TIMES.equals(validTime)) {
+                        validTime = null;
+                    }
 
                     DatabaseID db = new DatabaseID(record.getDbName());
-                    if (GFESiteActivation.getInstance().getActiveSites()
-                            .contains(db.getSiteId())) {
+                    if (IFPServer.getActiveSites().contains(db.getSiteId())) {
                         try {
                             long id = Thread.currentThread().getId();
                             initScript = cachedInterpreters.get(id);
@@ -186,8 +192,7 @@ public class SmartInitSrv {
                             HashMap<String, Object> argMap = new HashMap<String, Object>();
                             argMap.put("dbName", dbName);
                             argMap.put("model", init);
-                            argMap.put("validTime", record.getId()
-                                    .getValidTime());
+                            argMap.put("validTime", validTime);
 
                             initScript.execute(argMap);
                         } catch (Throwable e) {

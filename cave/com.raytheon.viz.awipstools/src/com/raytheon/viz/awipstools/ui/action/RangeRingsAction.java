@@ -19,38 +19,33 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
 import com.raytheon.viz.awipstools.ui.layer.RangeRingsLayer;
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
- * Handles the RangeRing Tools Action.
+ * Loads a {@link RangeRingsLayer} from the bundles/tools/RangeRings.xml
+ * localization file.
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *  10-21-09     #717       bsteffen    Refactor to common MovableTool model
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1.0
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/RangeRings.xml".
  */
+@Deprecated
+public class RangeRingsAction extends LoadBundleHandler {
 
-public class RangeRingsAction extends AbstractGenericToolAction<RangeRingsLayer> {
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
-    @Override
-    protected GenericToolsResourceData<RangeRingsLayer> getResourceData() {
-        return new GenericToolsResourceData<RangeRingsLayer>(
-                RangeRingsLayer.DEFAULT_NAME, RangeRingsLayer.class);
-
+    public RangeRingsAction() {
+        super("bundles/tools/RangeRings.xml");
     }
 
 }

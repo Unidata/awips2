@@ -39,6 +39,11 @@ import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -53,13 +58,8 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 29, 2007            njensen     Initial creation
  * 02/17/09                njensen     Refactored to new rsc architecture
+ * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error getting contour style rule", e);
         }
@@ -152,8 +153,13 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
         // change
         ColorMapParameters prevParams = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        ColorMapParameters colorMapParams = ColorMapParameterFactory.build(
-                floatData, resourceData.getParameter(), getUnit(), null);
+        ColorMapParameters colorMapParams;
+        try {
+            colorMapParams = ColorMapParameterFactory.build(floatData,
+                    resourceData.getParameter(), getUnit(), null);
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         if (prevParams != null) {
             colorMapParams.setColorMap(prevParams.getColorMap());
             colorMapParams.setColorMapName(prevParams.getColorMapName());
@@ -288,13 +294,15 @@ public class CrossSectionImageResource extends AbstractCrossSectionResource
 
         IExtent extent = descriptor.getGraph(this).getExtent();
 
+
         double val = Double.NaN;
-        if (extent.contains(new double[] { coord.getObject().x,
-                coord.getObject().y })) {
+        double[] worldCoord = descriptor.pixelToWorld(new double[] {
+                coord.getObject().x, coord.getObject().y });
+        if (extent.contains(worldCoord)) {
             try {
 
-                DirectPosition2D dp = new DirectPosition2D(coord.getObject().x,
-                        coord.getObject().y);
+                DirectPosition2D dp = new DirectPosition2D(worldCoord[0],
+                        worldCoord[1]);
                 descriptor.getGridGeometry().getGridToCRS().transform(dp, dp);
                 val = reproj.reprojectedGridCell(sampler, (int) dp.x,
                         (int) dp.y);

@@ -173,35 +173,6 @@
         </rim:RegistryObject>
 
         <!--
-    Parameterized Query to export an Object and its descendent tree.
-    Used by tree structures such as RegistryPackage, TaxonomyElement, Organization
-    -->
-        <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:ExportObject" id="urn:oasis:names:tc:ebxml-regrep:query:ExportObject">
-            <rim:Name>
-                <rim:LocalizedString value="Export Object"/>
-            </rim:Name>
-            <rim:Description>
-                <rim:LocalizedString value="Export an Object and its descendent tree. Used by tree structures such as RegistryPackage, TaxonomyElement, Organization."/>
-            </rim:Description>
-            <rim:Parameter parameterName="id" dataType="string" minOccurs="1">
-                <rim:Name>
-                    <rim:LocalizedString value="ID"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="ID of desired object. Use '%' and '_' as wildcard to match multiple and single characters respectively."/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="depth" dataType="integer" minOccurs="0" defaultValue="0">
-                <rim:Name>
-                    <rim:LocalizedString value="Depth"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Specifies the depth or number of levels of children to fetch. A depth of 0 (default) indicates that the server MUST return only those objects that match the id parameter (root objects). A depth of N where N is greater that 0 indicates that the server MUST also return objects that are descendants of root objects upto N levels. A depth of -1 indicates that the server MUST return all descendent objects as well. Descendents MUST be returned using the nested syntax supported by objects capable of having children."/>
-                </rim:Description>
-            </rim:Parameter>
-        </rim:RegistryObject>
-
-        <!--
     Parameterized Query to get a list of RegistryObjects by their parent id.
     -->
         <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:GetChildrenByParentId" id="urn:oasis:names:tc:ebxml-regrep:query:GetChildrenByParentId">
@@ -269,18 +240,6 @@
                     <rim:LocalizedString value="ID of parent taxonomy element. No wildcards allowed."/>
                 </rim:Description>
             </rim:Parameter>
-        </rim:RegistryObject>
-
-        <!--
-    Parameterized Query to find all objects belonging to caller.
-    -->
-        <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:FindAllMyObjects" id="urn:oasis:names:tc:ebxml-regrep:query:FindAllMyObjects">
-            <rim:Name>
-                <rim:LocalizedString value="Find All My Objects"/>
-            </rim:Name>
-            <rim:Description>
-                <rim:LocalizedString value="Finds all objects owned by the user"/>
-            </rim:Description>
         </rim:RegistryObject>
 
         <!--
@@ -373,84 +332,7 @@
                 </rim:Description>
             </rim:Parameter>
         </rim:RegistryObject>
-        <!--
-    BsicQuery extension for ExtrinsicObjects.
-    Adds mimeTypes parameter.
-    -->
-        <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:ExtrinsicObjectQuery" id="urn:oasis:names:tc:ebxml-regrep:query:ExtrinsicObjectQuery">
-            <rim:Name>
-                <rim:LocalizedString value="ExtrinsicObject Query"/>
-            </rim:Name>
-            <rim:Description>
-                <rim:LocalizedString value="Finds ExtrinsicObjects by their mimeType, name, description, type, status and classifications"/>
-            </rim:Description>
-            <rim:Parameter parameterName="matchOnAnyParameter" dataType="boolean" minOccurs="0" defaultValue="false">
-                <rim:Name>
-                    <rim:LocalizedString value="Match on ANY Parameter"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="True if you wish to match objects when any of the supplied parameters match. False if you wish to match objects only when ALL supplied parameters match."/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="name" dataType="string" minOccurs="0">
-                <rim:Name>
-                    <rim:LocalizedString value="Name"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Name of desired object. Use '%' and '_' as wildcard to match multiple and single characters respectively."/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="description" dataType="string" minOccurs="0">
-                <rim:Name>
-                    <rim:LocalizedString value="Description"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Description of desired object. Use '%' and '_' as wildcard to match multiple and single characters respectively."/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="status" dataType="taxonomyElement" minOccurs="0">
-                <rim:Slot name="domain">
-                    <rim:SlotValue xsi:type="rim:StringValueType">
-                        <rim:Value>urn:oasis:names:tc:ebxml-regrep:classificationScheme:StatusType</rim:Value>
-                    </rim:SlotValue>
-                </rim:Slot>
-                <rim:Name>
-                    <rim:LocalizedString value="Status"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Status of desired object."/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="objectType" dataType="taxonomyElement" minOccurs="0">
-                <rim:Slot name="domain">
-                    <rim:SlotValue xsi:type="rim:StringValueType">
-                        <rim:Value>urn:oasis:names:tc:ebxml-regrep:classificationScheme:ObjectType</rim:Value>
-                    </rim:SlotValue>
-                </rim:Slot>
-                <rim:Name>
-                    <rim:LocalizedString value="Object Type"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Object Type of desired object"/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="classifications" dataType="string" minOccurs="0" maxOccurs="100">
-                <rim:Name>
-                    <rim:LocalizedString value="Classification"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="A Classification for desired object"/>
-                </rim:Description>
-            </rim:Parameter>
-            <rim:Parameter parameterName="mimeTypes" dataType="string" minOccurs="0" maxOccurs="100">
-                <rim:Name>
-                    <rim:LocalizedString value="Mime Type"/>
-                </rim:Name>
-                <rim:Description>
-                    <rim:LocalizedString value="Mime type for desired ExtrinsicObject"/>
-                </rim:Description>
-            </rim:Parameter>
-        </rim:RegistryObject>
+        
         <rim:RegistryObject xsi:type="rim:QueryDefinitionType" id="urn:oasis:names:tc:ebxml-regrep:query:FindAssociations" lid="urn:oasis:names:tc:ebxml-regrep:query:FindAssociations">
             <rim:Name>
                 <rim:LocalizedString value="Find Associations"/>
@@ -706,5 +588,21 @@
                 </rim:Description>
             </rim:Parameter>
         </rim:RegistryObject>    
+        <rim:RegistryObject xsi:type="rim:QueryDefinitionType" lid="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject" id="urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject">
+            <rim:Name>
+                <rim:LocalizedString value="Get Referenced Object"/>
+            </rim:Name>
+            <rim:Description>
+                <rim:LocalizedString value="Gets Registry Object referenced"/>
+            </rim:Description>
+            <rim:Parameter parameterName="objectReference" dataType="string" minOccurs="0" maxOccurs="1">
+                <rim:Name>
+                    <rim:LocalizedString value="Object reference"/>
+                </rim:Name>
+                <rim:Description>
+                    <rim:LocalizedString value="ID of the object referenced"/>
+                </rim:Description>
+            </rim:Parameter>
+        </rim:RegistryObject> 
     </rim:RegistryObjectList>
 </SubmitObjectsRequest>

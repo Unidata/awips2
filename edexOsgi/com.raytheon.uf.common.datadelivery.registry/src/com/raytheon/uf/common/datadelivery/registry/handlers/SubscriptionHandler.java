@@ -57,6 +57,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 28, 2013 1650       djohnson     Add getByNames.
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
+ * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -206,11 +207,12 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public Set<String> getSubscribedToDataSetNames()
+    public Set<String> getSubscribedToDataSetNames(String siteId)
             throws RegistryHandlerException {
         Set<String> set = Sets.newHashSet();
-        set.addAll(siteSubscriptionHandler.getSubscribedToDataSetNames());
-        set.addAll(sharedSubscriptionHandler.getSubscribedToDataSetNames());
+        set.addAll(siteSubscriptionHandler.getSubscribedToDataSetNames(siteId));
+        set.addAll(sharedSubscriptionHandler
+                .getSubscribedToDataSetNames(siteId));
 
         return set;
     }

@@ -1,12 +1,11 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.util;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -52,6 +51,8 @@ import com.raytheon.uf.common.time.DataTime;
  *                                     objects.
  * Jan 30, 2013 1543       djohnson    Log exception stacktrace.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sept 25, 2013 1797      dhladky     separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale    Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -91,7 +92,7 @@ public class ResponseProcessingUtilities {
      * @param time
      * @return
      */
-    public static int getOpenDAPGridNumTimes(Time time) {
+    public static int getOpenDAPGridNumTimes(GriddedTime time) {
 
         int start = time.getRequestStartTimeAsInt();
         int end = time.getRequestEndTimeAsInt();
@@ -122,7 +123,7 @@ public class ResponseProcessingUtilities {
      * @param time
      * @return
      */
-    public static ArrayList<DataTime> getOpenDAPGridDataTimes(Time time) {
+    public static ArrayList<DataTime> getOpenDAPGridDataTimes(GriddedTime time) {
 
         ArrayList<DataTime> dt = new ArrayList<DataTime>();
 
@@ -133,13 +134,9 @@ public class ResponseProcessingUtilities {
 
             int increment = time.findForecastStepUnit() * reqStartInt;
             DataTime dataTime = null;
-            try {
-                dataTime = new DataTime(time.getStartDate(), increment);
-                dt.add(dataTime);
-                reqStartInt++;
-            } catch (ParseException e) {
-                statusHandler.error("Date failed to parse! " + e.getMessage());
-            }
+            dataTime = new DataTime(time.getStart(), increment);
+            dt.add(dataTime);
+            reqStartInt++;
         }
 
         return dt;

@@ -5,6 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.common.status
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Eclipse-BuddyPolicy: ext, registered, global
+Eclipse-RegisterBuddy: ch.qos.logback
 Export-Package: com.raytheon.uf.common.status
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.apache.log4j;bundle-version="1.0.0"
+Require-Bundle: org.slf4j;bundle-version="1.7.5",
+ ch.qos.logback;bundle-version="1.0.13"

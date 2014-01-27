@@ -83,6 +83,7 @@ import com.raytheon.viz.gfe.core.griddata.IGridData;
  * 02/12/13     #1597      randerso    Made save threshold a configurable value. Added detailed
  *                                     logging for save performance
  * 04/23/13     #1949      rjpeter     Added logging of number of records.
+ * 06/26/13     #2044      randerso    Fixed error message priority
  * </pre>
  * 
  * @author chammack
@@ -313,8 +314,8 @@ public class DbParm extends Parm {
 
         // failure
         else {
-            statusHandler.handle(Priority.EVENTA, "Unable to get grid for "
-                    + getParmID() + " tr=" + grid.getGridTime()
+            statusHandler.error("Unable to get grid for " + getParmID()
+                    + " tr=" + grid.getGridTime()
                     + ". Temporarily using default data");
             IGridData g = makeEmptyGrid();
             g.changeValidTime(grid.getGridTime(), false);

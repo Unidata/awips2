@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * XML for Source datakey contributions in FFMPRunConfig
  * 
@@ -44,7 +42,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class SourceIngestConfigXML implements ISerializableObject {
+public class SourceIngestConfigXML {
 
     @XmlAttribute(name = "name")
     protected String sourceName;
