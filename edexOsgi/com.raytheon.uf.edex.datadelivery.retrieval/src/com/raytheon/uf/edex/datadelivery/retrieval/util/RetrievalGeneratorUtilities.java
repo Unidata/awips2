@@ -68,13 +68,17 @@ public class RetrievalGeneratorUtilities {
     public static boolean findDuplicateUri(String dataUri, String plugin) {
 
         boolean isDuplicate = false;
-        String sql = "select id from " + plugin + " where datauri = '"
-                + dataUri + "'";
+        try {
+            String sql = "select id from " + plugin + " where datauri = '"
+                    + dataUri + "'";
 
-        CoreDao dao = new CoreDao(DaoConfig.forDatabase("metadata"));
-        Object[] results = dao.executeSQLQuery(sql);
-        if (results.length > 0) {
-            isDuplicate = true;
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase("metadata"));
+            Object[] results = dao.executeSQLQuery(sql);
+            if (results.length > 0) {
+                isDuplicate = true;
+            }
+        } catch (Exception e) {
+            statusHandler.error("Couldn't determine duplicate status! ", e);
         }
 
         return isDuplicate;
