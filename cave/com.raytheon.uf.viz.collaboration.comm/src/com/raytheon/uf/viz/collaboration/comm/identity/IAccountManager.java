@@ -24,6 +24,7 @@ import java.util.Map;
 import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Chat server account management interface
@@ -45,6 +46,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionRespo
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
+ * Jan 27, 2014 2700       bclement    reworked responder methods
+ *                                     added method to send presence without updating status
  * 
  * </pre>
  * 
@@ -54,24 +57,25 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionRespo
 
 public interface IAccountManager {
 
-    /**
-     * Disable automatically accepting subscribe requests
-     */
-    public void disableAutoSubscribe();
 
     /**
-     * @return true if automatically accepts subscribe requests
+     * @return true if there is a request responder set to handle subscription
+     *         requests and events. If there is not a responder set, the default
+     *         action is to accept all requests.
      */
-    public boolean autoSubscribeEnabled();
+    public boolean isSubscriptionRequestResponderSet();
 
     /**
+     * Set a responder to handle subscription requests and events (ie prompt
+     * user for authorization)
      * 
      * @param responder
      */
     public void setSubscriptionRequestResponder(ISubscriptionResponder responder);
 
     /**
-     * Removes the current subscription request responder.
+     * Removes the current subscription request responder. The default action
+     * without a responder is to accept all requests.
      */
     public void removeSubscriptionRequestResponder();
 
@@ -121,4 +125,15 @@ public interface IAccountManager {
      * @throws CollaborationException
      */
     public void sendPresence(Presence presence) throws CollaborationException;
+
+    /**
+     * Send presence packet directly to user. This does not affect the account's
+     * current presence.
+     * 
+     * @param toId
+     * @param userPresence
+     * @throws CollaborationException
+     */
+    public void sendPresence(UserId toId, Presence userPresence)
+            throws CollaborationException;
 }
