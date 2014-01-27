@@ -115,6 +115,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 13, 2014 2679       dhladky      Small Point data updates.   
  * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
+ * Jan 24, 2013 2709       bgonzale     Changed parameter to shouldScheduleForTime to a Calendar.
  * 
  * </pre>
  * 
@@ -312,25 +313,19 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 // TODO Check if we need to set sub to "OFF" state and save to
                 // registry
                 if (((RecurringSubscription<T, C>) subscription)
-                        .shouldScheduleForTime(next.getTime())) {
+                        .shouldScheduleForTime(next)) {
 
                     // Since subscriptions are based on cycles in a day, add
-                    // one
-                    // day
-                    // to the
-                    // completed BandwidthSubscription to get the next days
-                    // retrieval.
+                    // one day to the completed BandwidthSubscription to get
+                    // the next days retrieval.
 
                     // Now check if that BandwidthSubscription has already
-                    // been
-                    // scheduled.
+                    // been scheduled.
                     BandwidthSubscription a = bandwidthDao
                             .getBandwidthSubscription(dao.getRegistryId(), next);
                     if (a == null) {
                         // Create the new BandwidthSubscription record with
-                        // the
-                        // next
-                        // time..
+                        // the next time..
                         a = bandwidthDao.newBandwidthSubscription(subscription,
                                 next);
 
