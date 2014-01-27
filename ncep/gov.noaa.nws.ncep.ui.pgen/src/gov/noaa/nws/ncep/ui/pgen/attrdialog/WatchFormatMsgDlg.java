@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 03/12		#703		B. Yin		Create SEL, SAW, WOU, etc.
  * 05/12		#772		B. Yin		Close dialog after done format.
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 12/13		TTR 800		B. Yin		Added original county list
  * </pre>
  * 
  * @author B. Yin
@@ -179,8 +180,12 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 
         // if ( PgenUtil.checkFileStatus(fname) ){
 
+        //set issue flag
         wfd.getWatchBox().setIssueFlag(1);
-
+        
+        //Make a copy of original county list
+    	wfd.getWatchBox().makeOriginalCountyList( wfd.getWatchBox().getCountyList() );
+    	
         // re-draw watch
         wfd.getWbDlg().drawingLayer.resetElement(wfd.getWatchBox());
         wfd.getWbDlg().mapEditor.refresh();
@@ -225,6 +230,7 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 
         wfd.close();
         WatchBoxAttrDlg.getInstance(null).close();
+        PgenUtil.setSelectingMode();
         super.okPressed();
         // }
     }
@@ -241,6 +247,7 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
         // close the format dialog
         wfd.close();
         WatchBoxAttrDlg.getInstance(null).close();
+        PgenUtil.setSelectingMode();
         super.cancelPressed();
 
     }
@@ -363,7 +370,9 @@ public class WatchFormatMsgDlg extends CaveJFACEDialog {
 
         Product defaultProduct = new Product();
         defaultProduct.addLayer(defaultLayer);
-
+        defaultProduct.setName( "WatchBox" );
+        defaultProduct.setType("WatchBox");
+        
         ArrayList<Product> prds = new ArrayList<Product>();
         prds.add(defaultProduct);
         Products fileProduct = ProductConverter.convert(prds);

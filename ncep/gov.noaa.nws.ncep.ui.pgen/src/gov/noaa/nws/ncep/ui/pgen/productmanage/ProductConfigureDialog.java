@@ -88,6 +88,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  * 07/12  		#822        J. Wu    	Synchronize with the presence of PGEN Palette
  * 08/12  		#822        J. Wu    	Make this dialog "APPLICATION_MODAL"
  * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * 
  * </pre>
  * 
@@ -177,6 +178,7 @@ public class ProductConfigureDialog extends ProductDialog {
     private Text currentSettingsTxt = null;
     private Text settingsTxt = null;
     
+    private Text metaTxt;
     /*
      * Product "Save" tab attributes
      */
@@ -1640,6 +1642,19 @@ public class ProductConfigureDialog extends ProductDialog {
 	    layerFillBtn = new Button( dispComp, SWT.CHECK );
 	    layerFillBtn.setText( "Filled" );
 	    
+	    Composite metaComp = new Composite( layerEditGrp, SWT.NONE );
+        GridLayout glMeta = new GridLayout( 2, false );
+        glMeta.marginWidth = 3;
+        metaComp.setLayout( glMeta );
+	    
+        Label metaLbl = new Label( metaComp, SWT.LEFT );
+        metaLbl.setText("Meta-Info:");
+        
+        metaTxt = new Text( metaComp,  SWT.SINGLE | SWT.BORDER );                        
+        metaTxt.setLayoutData( new GridData( 190, 15 ) );
+        metaTxt.setEditable( true );   
+        metaTxt.setText( "" );
+        
 	    // Create a composite for layer input file name
 /*        Composite infileComp = new Composite( layerEditGrp, SWT.NONE );
         GridLayout gl2 = new GridLayout( 3, false );
@@ -2409,6 +2424,7 @@ public class ProductConfigureDialog extends ProductDialog {
 			pgenlyr.setMonoColor( layerMonoBtn.getSelection());
 			pgenlyr.setName( inputName );
 			pgenlyr.setOnOff(layerOnOffBtn.getSelection() );
+			pgenlyr.setMetaInfo(metaTxt.getText());
 
 			//Add or replace using the new PgenLayer	    	     	   	   	    	       	        		    
 			ProductType oldType = getCurrentPrdTyp();
@@ -2721,6 +2737,12 @@ public class ProductConfigureDialog extends ProductDialog {
 					 layerFillBtn.setSelection( pgenlyr.isFilled() );
 					 layerMonoBtn.setSelection( pgenlyr.isMonoColor() );
 					 layerOnOffBtn.setSelection( pgenlyr.isOnOff());
+					 if (pgenlyr.getMetaInfo() != null) {
+						 metaTxt.setText(pgenlyr.getMetaInfo());
+					 }
+					 else {
+						 metaTxt.setText("");
+					 }
 /*					 if ( pgenlyr.getInputFile() != null ) {
 					     inputFileTxt.setText( pgenlyr.getInputFile());
 					 }
@@ -2769,7 +2791,7 @@ public class ProductConfigureDialog extends ProductDialog {
 			    new RGB( layerClr.getRed(), layerClr.getGreen(), layerClr.getBlue()) );
 			
 		layerFillBtn.setSelection( false );
-			
+		metaTxt.setText("");	
 //		inputFileTxt.setText("");
 //		outputFileTxt.setText("");
 		
