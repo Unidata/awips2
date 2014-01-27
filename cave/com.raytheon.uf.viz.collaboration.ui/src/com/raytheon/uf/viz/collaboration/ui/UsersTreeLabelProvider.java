@@ -42,7 +42,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
@@ -60,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
+ * Jan 27, 2014 2700       bclement    pass roster entries directly to userLabelProvider
  * 
  * </pre>
  * 
@@ -103,8 +103,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof UserId) {
             return userLabelProvider.getImage(element);
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getImage(IDConverter
-                    .convertFrom((RosterEntry) element));
+            return userLabelProvider.getImage((RosterEntry) element);
         } else if (element instanceof RosterGroup) {
             key = "roster_group";
         } else if (element instanceof SharedGroup) {
@@ -128,8 +127,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         } else if (element instanceof SharedGroup) {
             return ((SharedGroup) element).getName();
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getText(IDConverter
-                    .convertFrom((RosterEntry) element));
+            return userLabelProvider.getText((RosterEntry) element);
         } else if (element instanceof SessionGroupContainer) {
             return "Active Sessions";
         } else if (element instanceof UserId) {
@@ -185,8 +183,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         if (element instanceof UserId) {
             return userLabelProvider.getToolTipText(element);
         } else if (element instanceof RosterEntry) {
-            return userLabelProvider.getToolTipText(IDConverter
-                    .convertFrom((RosterEntry) element));
+            return userLabelProvider.getToolTipText((RosterEntry) element);
         }
         // builds the tooltip text for the session group
         // portion of the view

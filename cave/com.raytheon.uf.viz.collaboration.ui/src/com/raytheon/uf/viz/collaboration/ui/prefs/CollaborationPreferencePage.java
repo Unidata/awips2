@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * ------------ ---------- ----------- --------------------------
  * Apr 27, 2012            mnash     Initial creation
  * Jan 14, 2014 2630       bclement     added away on idle
+ * Jan 27, 2014 2700       bclement     added auto accept subscribe
  * 
  * </pre>
  * 
@@ -90,6 +91,12 @@ public class CollaborationPreferencePage extends FieldEditorPreferencePage
                 CollabPrefConstants.AWAY_TIMEOUT,
                 "Minutes Before Becoming Idle:", getFieldEditorParent());
         this.addField(awayTimeOut);
+        FieldEditor autoSubscribe = new BooleanFieldEditor(
+                CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE,
+                "Automatically Accept Contact Requests",
+                getFieldEditorParent());
+
+        this.addField(autoSubscribe);
     }
 
     /*

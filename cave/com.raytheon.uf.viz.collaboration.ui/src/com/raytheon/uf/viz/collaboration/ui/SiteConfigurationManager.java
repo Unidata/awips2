@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
  * Jun 12, 2012            mnash     Initial creation
  * Jan 08, 2014 2563       bclement    duplicate code elimination
  *                                     added methods to partially modify user config
+ * Jan 27, 2014 2700       bclement    fixed null list from jaxb object
  * 
  * </pre>
  * 
@@ -470,10 +471,12 @@ public class SiteConfigurationManager {
      */
     public static List<String> getSubscribeList(String site) {
         List<String> subscribed = new ArrayList<String>();
-        for (SiteConfig config : instance.getConfig()) {
-            if (config.getSite().equals(site)) {
-                subscribed = Arrays.asList(config.getSubscribedSites());
-                break;
+        if (instance.getConfig() != null) {
+            for (SiteConfig config : instance.getConfig()) {
+                if (config.getSite().equals(site)) {
+                    subscribed = Arrays.asList(config.getSubscribedSites());
+                    break;
+                }
             }
         }
         return subscribed;
@@ -491,7 +494,7 @@ public class SiteConfigurationManager {
             if (userInstance == null) {
                 readUserSiteConfigInformation();
             }
-            if (userInstance != null) {
+            if (userInstance != null && userInstance.getConfig() != null) {
                 for (SiteConfig config : userInstance.getConfig()) {
                     if (config.getSubscribedSites() != null) {
                         subscribed = new ArrayList<String>();
