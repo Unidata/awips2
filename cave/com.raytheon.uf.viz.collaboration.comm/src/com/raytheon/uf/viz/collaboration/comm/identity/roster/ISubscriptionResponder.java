@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import org.jivesoftware.smack.packet.Presence;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Interface for handling subscription invitation events from other users
@@ -33,6 +31,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
+ * Jan 27, 2014 2700       bclement    handle subscribe request returns a boolean
+ *                                     all methods take user id instead of qualified id
  * 
  * </pre>
  * 
@@ -43,22 +43,25 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 public interface ISubscriptionResponder {
 
     /**
+     * Triggered when a contact requests a presence subscription
      * 
      * @param fromID
-     * @return The response that should be returned to the subscriber.
+     * @return true if the subscribe request is accepted.
      */
-    public Presence.Type handleSubscribeRequest(IQualifiedID fromID);
+    public boolean handleSubscribeRequest(UserId fromID);
 
     /**
+     * Triggered when a contact subscribes to user
      * 
      * @param fromID
      */
-    public void handleSubscribed(IQualifiedID fromID);
+    public void handleSubscribed(UserId fromID);
 
     /**
+     * Triggered when a contact unsubscribes to user
      * 
      * @param fromID
      */
-    public void handleUnsubscribed(IQualifiedID fromID);
+    public void handleUnsubscribed(UserId fromID);
 
 }
