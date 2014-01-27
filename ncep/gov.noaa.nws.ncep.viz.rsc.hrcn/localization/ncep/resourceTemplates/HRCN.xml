@@ -6,6 +6,11 @@
 			isMapLayer="false" isHoverOn="false" isVisible="true" />
 		<resourceData xsi:type="NC-HrcnResourceData"
 			isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="false">
+         <timeMatchMethod>${timeMatchMethod}</timeMatchMethod>       
+         <timelineGenMethod>${timelineGenMethod}</timelineGenMethod> 
+         <frameSpan>${frameSpan}</frameSpan>
+         <dfltNumFrames>${dfltNumFrames}</dfltNumFrames>
+         <dfltTimeRange>${dfltTimeRange}</dfltTimeRange>
 			<hurricaneEnable>${hurricaneEnable}</hurricaneEnable>
 			<hurricaneColor>${hurricaneColor}</hurricaneColor>
 			<hurricaneSymbolWidth>${hurricaneSymbolWidth}</hurricaneSymbolWidth>
