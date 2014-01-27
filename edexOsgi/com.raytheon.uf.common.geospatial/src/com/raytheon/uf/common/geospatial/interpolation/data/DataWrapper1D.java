@@ -32,6 +32,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2012            bsteffen     Initial creation
+ * Nov 19, 2013  2393      bclement     added abstract method for primitive array
  * 
  * </pre>
  * 
@@ -61,5 +62,12 @@ public abstract class DataWrapper1D extends AbstractDataWrapper {
     protected abstract double getDataValueInternal(int index);
 
     protected abstract void setDataValueInternal(double dataValue, int index);
+
+    /**
+     * Get the backing 1D primitive array
+     * 
+     * @return null if array isn't available
+     */
+    public abstract Object getArray();
 
 }

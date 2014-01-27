@@ -40,6 +40,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104      djohnson     Initial creation
+ * Sept 30, 2013 1797     dhladky      Generics
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ public class OpenDapGriddedDataSetFixture extends
         obj.setCollectionName("collectionName-" + seedValue);
         // TODO: CoverageFixture
         // obj.setCoverage(CoverageFixture.INSTANCE.get(seedValue));
-        obj.setCycles(new TreeSet<Integer>(Arrays.asList(TimeFixture.getCycleForSeed(seedValue))));
+        obj.setCycles(new TreeSet<Integer>(Arrays.asList(GriddedTimeFixture.getCycleForSeed(seedValue))));
         Map<Integer, String> cyclesToUrls = new HashMap<Integer, String>();
         for (Integer cycle : obj.getCycles()) {
             cyclesToUrls.put(cycle, "http://someurl");
@@ -77,7 +78,7 @@ public class OpenDapGriddedDataSetFixture extends
         obj.setDataSetName("dataSetName" + seedValue);
         obj.setDataSetType(DataType.GRID);
         obj.setForecastHours(CollectionUtil.asSet(0));
-        obj.setTime(TimeFixture.INSTANCE.get(seedValue));
+        obj.setTime(GriddedTimeFixture.INSTANCE.get(seedValue));
         // TODO: ParameterFixture
         obj.setParameters(Collections.<String, Parameter> emptyMap());
         obj.setProviderName(ProviderFixture.INSTANCE.get(seedValue).getName());

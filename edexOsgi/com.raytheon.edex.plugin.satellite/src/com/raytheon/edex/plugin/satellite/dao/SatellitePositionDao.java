@@ -20,7 +20,7 @@
 
 package com.raytheon.edex.plugin.satellite.dao;
 
-import com.raytheon.edex.util.satellite.SatellitePosition;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 

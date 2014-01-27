@@ -23,7 +23,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -48,6 +47,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.DcpData;
 import com.raytheon.viz.hydrocommon.data.HydroDBData;
@@ -69,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10/6/2008    1555        grichard    Support data sources.
  * 12/16/2008   1782        grichard    Refreshed Data Sources.
  * 1/11/2008    1802        askripsk    Comlete HydroBase implementation.
+ * 07/15/2013   2088        rferrel     Make dialog non-blocking
  * 
  * </pre>
  * 
@@ -76,6 +80,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class DataSourcesDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataSourcesDlg.class);
 
     /**
      * Control font.
@@ -366,15 +372,21 @@ public class DataSourcesDlg extends CaveSWTDialog {
      */
     public DataSourcesDlg(Shell parent, String titleInfo, String lid,
             boolean fullControls) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Data Sources" + titleInfo);
 
         this.lid = lid;
         this.fullControls = fullControls;
 
         isoDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -383,11 +395,23 @@ public class DataSourcesDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -1014,7 +1038,7 @@ public class DataSourcesDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -1060,7 +1084,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
             loadList("type", "telmtype", telemetryList);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to load static data: ", e);
         }
 
     }
@@ -1125,6 +1150,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         updateDisplay();
     }
 
+    /**
+     * Load DCP data from the manager.
+     */
     private void getDCPData() {
         DcpData seedData = new DcpData();
         seedData.setLid(lid);
@@ -1140,12 +1168,16 @@ public class DataSourcesDlg extends CaveSWTDialog {
                 dcpData = null;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.ERROR, "Unable to load DCP data: ", e);
         }
 
         updateDCPDisplay();
     }
 
+    /**
+     * Load observation data from the manager.
+     */
     private void getObsData() {
         ObserverData seedData = new ObserverData();
         seedData.setLid(lid);
@@ -1161,12 +1193,16 @@ public class DataSourcesDlg extends CaveSWTDialog {
                 obsData = null;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to load Observation data: ", e);
         }
 
         updateObsDisplay();
     }
 
+    /**
+     * Load Telemetry data from the manager.
+     */
     private void getTelemData() {
         TelemData seedData = new TelemData();
         seedData.setLid(lid);
@@ -1182,7 +1218,8 @@ public class DataSourcesDlg extends CaveSWTDialog {
                 telemData = null;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to load Telemetry data: ", e);
         }
 
         updateTelemDisplay();
@@ -1210,6 +1247,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * This handles updating the DCP display.
+     */
     private void updateDCPDisplay() {
         clearDCPInformation();
 
@@ -1233,6 +1273,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Update the Observation display.
+     */
     private void updateObsDisplay() {
         clearObsInformation();
 
@@ -1304,6 +1347,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Update the Telemetry display.
+     */
     private void updateTelemDisplay() {
         clearTelemInformation();
 
@@ -1328,7 +1374,10 @@ public class DataSourcesDlg extends CaveSWTDialog {
 
     // --------------------------------------------
     // Save
-    // --------------------------------------------
+    // --------------------------------------------\
+    /**
+     * Save DCP, Obs and Telemetry records.
+     */
     private void saveRecord() {
         if (typeCbo.getSelectionIndex() == 0) {
             saveDCPRecord();
@@ -1339,6 +1388,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Save the DCP Record.
+     */
     private void saveDCPRecord() {
         DcpData newData = new DcpData();
 
@@ -1364,11 +1416,12 @@ public class DataSourcesDlg extends CaveSWTDialog {
             mb.setText("Unable to Save");
             mb.setMessage("An error occurred while trying to save");
             mb.open();
-
-            e.printStackTrace();
         }
     }
 
+    /**
+     * Save the observation record.
+     */
     private void saveObsRecord() {
         ObserverData newData = new ObserverData();
 
@@ -1390,8 +1443,6 @@ public class DataSourcesDlg extends CaveSWTDialog {
                 mb.setText("Invalid Date");
                 mb.setMessage("Please enter a Service Date in the form: YYYY-MM-DD");
                 mb.open();
-
-                e.printStackTrace();
 
                 return;
             }
@@ -1441,11 +1492,12 @@ public class DataSourcesDlg extends CaveSWTDialog {
             mb.setText("Unable to Save");
             mb.setMessage("An error occurred while trying to save");
             mb.open();
-
-            e.printStackTrace();
         }
     }
 
+    /**
+     * Save the Telemetry record.
+     */
     private void saveTelemRecord() {
         TelemData newData = new TelemData();
 
@@ -1481,14 +1533,15 @@ public class DataSourcesDlg extends CaveSWTDialog {
             mb.setText("Unable to Save");
             mb.setMessage("An error occurred while trying to save");
             mb.open();
-
-            e.printStackTrace();
         }
     }
 
     // --------------------------------------------
     // Delete
     // --------------------------------------------
+    /**
+     * Delete the DCP, OBS and Telemetry records.
+     */
     private void deleteRecord() {
         if (typeCbo.getSelectionIndex() == 0) {
             deleteDataSourceRecord(dcpData);
@@ -1508,6 +1561,11 @@ public class DataSourcesDlg extends CaveSWTDialog {
         }
     }
 
+    /**
+     * Confirm and delete the record.
+     * 
+     * @param currData
+     */
     private <T extends HydroDBData> void deleteDataSourceRecord(T currData) {
         if (currData != null) {
             MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
@@ -1528,8 +1586,6 @@ public class DataSourcesDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         }
@@ -1538,6 +1594,11 @@ public class DataSourcesDlg extends CaveSWTDialog {
     // --------------------------------------------
     // Update display
     // --------------------------------------------
+    /**
+     * Update the enable state of the delete button.
+     * 
+     * @param currState
+     */
     private void updateDialogState(DialogStates currState) {
         if (fullControls == true) {
             switch (currState) {
@@ -1558,7 +1619,6 @@ public class DataSourcesDlg extends CaveSWTDialog {
     /**
      * Clears the dialog of information
      */
-
     private void clearDCPInformation() {
         goesIdTF.setText("");
         reportingTimeTF.setText("");
@@ -1573,6 +1633,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         randomReportChk.setSelection(false);
     }
 
+    /**
+     * Clear the fields of the OBS record.
+     */
     private void clearObsInformation() {
         // Name
         firstNameTF.setText("");
@@ -1624,6 +1687,9 @@ public class DataSourcesDlg extends CaveSWTDialog {
         recipList.select(0);
     }
 
+    /**
+     * Clear the Telemetry fields.
+     */
     private void clearTelemInformation() {
         telemetryList.select(0);
         telemOwnerList.select(0);
@@ -1686,6 +1752,12 @@ public class DataSourcesDlg extends CaveSWTDialog {
         return rval;
     }
 
+    /**
+     * Get the dataList selection or empty string when non selection.
+     * 
+     * @param dataList
+     * @return
+     */
     private String getSelectedValue(Combo dataList) {
         String rval = "";
 
@@ -1696,12 +1768,16 @@ public class DataSourcesDlg extends CaveSWTDialog {
         return rval;
     }
 
+    /**
+     * Determine if DOS time should be updated to current simulated time or the
+     * date in the database.
+     */
     private void updateDosDate() {
         // If the Checkbox is checked, set the Date to the
-        // current date
+        // current simulated time.
         // Else load the date from the database
-        Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
         if (dosChk.getSelection()) {
+            Date now = SimulatedTime.getSystemTime().getTime();
             dosTF.setText(isoDate.format(now));
         } else if (obsData != null) {
             dosTF.setText((obsData.getDateOfService() != null) ? isoDate

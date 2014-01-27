@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.ncwf.BUFRncwf;
+import com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;

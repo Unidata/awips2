@@ -29,10 +29,10 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -46,7 +46,9 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 24, 2012            dgilling     Initial creation
+ * Jul 24, 2012            dgilling    Initial creation
+ * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
+ * Sep 30, 2013       2361 njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -62,9 +64,9 @@ public class ReferenceMgr {
     private static final String EDIT_AREAS_DIR = FileUtil.join("gfe",
             "editAreas");
 
-    IPathManager pathMgr;
+    private IPathManager pathMgr;
 
-    GridLocation dbGridLocation;
+    private GridLocation dbGridLocation;
 
     public ReferenceMgr(final IFPServerConfig config) {
         this.pathMgr = PathManagerFactory.getPathManager();
@@ -78,9 +80,10 @@ public class ReferenceMgr {
      */
     public ServerResponse<List<ReferenceID>> getInventory() {
         List<ReferenceID> refIDs = new ArrayList<ReferenceID>();
-        LocalizationFile[] contents = PathManagerFactory.getPathManager()
-                .listStaticFiles(EDIT_AREAS_DIR, new String[] { ".xml" },
-                        false, true);
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationFile[] contents = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
+                EDIT_AREAS_DIR, new String[] { ".xml" }, false, true);
         if (contents != null) {
             for (LocalizationFile lf : contents) {
                 String s = LocalizationUtil.extractName(lf.getName());
@@ -126,8 +129,8 @@ public class ReferenceMgr {
             // open and read the file
             ReferenceData refData = null;
             try {
-                refData = (ReferenceData) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(lf.getFile().getPath());
+                refData = ReferenceData.getJAXBManager()
+                        .unmarshalFromXmlFile(lf.getFile().getPath());
             } catch (Exception e) {
                 sr.addMessage("Unable to read reference data [" + id + "]");
                 data = Collections.emptyList();

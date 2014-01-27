@@ -32,7 +32,6 @@
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
-        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <!-- Pick up SBN retrievals from the drop-off point -->
@@ -54,13 +53,9 @@
             </bean>
         </constructor-arg>
         <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalResponseCompleter">
-                <constructor-arg ref="subNotifyTask" />
-                <constructor-arg ref="retrievalDao" />
-            </bean>
+            <util:constant
+                static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
         </constructor-arg>
-        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <util:list id="retrievalTaskList"

@@ -20,38 +20,43 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.util.Collection;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
-import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -77,9 +82,21 @@ import com.raytheon.uf.common.status.UFStatus;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "ExtensibleObject")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExtensibleObjectType", propOrder = { "slot" })
 @XmlSeeAlso({ PostalAddressType.class, TelephoneNumberType.class,
@@ -89,88 +106,45 @@ import com.raytheon.uf.common.status.UFStatus;
         QueryExpressionType.class, RegistryExceptionType.class,
         RegistryResponseType.class, RegistryRequestType.class })
 @DynamicSerialize
-@MappedSuperclass
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-public abstract class ExtensibleObjectType {
+@Entity
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ExtensibleObject")
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+public abstract class ExtensibleObjectType implements Serializable,
+        IPersistableDataObject<String> {
 
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ExtensibleObjectType.class);
+    private static final long serialVersionUID = 785780260533569469L;
 
-    @BatchSize(size = 500)
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(schema = "ebxml", inverseJoinColumns = @JoinColumn(name = "child_slot_key"))
+    @Id
+    @Column(length = 1024)
+    @DynamicSerializeElement
+    @XmlTransient
+    protected String id;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", nullable = false, referencedColumnName = "id")
     @XmlElement(name = "Slot")
     @DynamicSerializeElement
-    protected Set<SlotType> slot;
+    protected List<SlotType> slot;
 
-    private static final Map<Class<?>, Class<?>> SLOT_VALUE_TYPE_MAP;
-
-    static {
-        Map<Class<?>, Class<?>> map = new HashMap<Class<?>, Class<?>>();
-        map.put(String.class, StringValueType.class);
-        map.put(Integer.class, IntegerValueType.class);
-        map.put(Float.class, FloatValueType.class);
-        SLOT_VALUE_TYPE_MAP = Collections.unmodifiableMap(map);
-
+    public ExtensibleObjectType() {
+        super();
+        this.id = UUID.randomUUID().toString();
     }
 
-    protected ExtensibleObjectType() {
-
+    public ExtensibleObjectType(String id) {
+        this.id = id;
     }
 
-    protected ExtensibleObjectType(Collection<SlotType> slots) {
-        if (slots != null) {
-            getSlot().addAll(slots);
-        }
-    }
-
-    protected ExtensibleObjectType(Object... slotNameValues) {
-        if (slotNameValues.length % 2 != 0) {
-            throw new IllegalArgumentException(
-                    "Incorrect number of arguments submitted to ExtensibleObjectType constructor");
-        }
-        for (int i = 0; i < slotNameValues.length; i += 2) {
-            addSlot((String) slotNameValues[i], slotNameValues[i + 1]);
-        }
-    }
-
-    public SlotType createSlot(String slotName, Object slotValue) {
-        SlotType slot = new SlotType();
-        slot.setName(slotName);
-        Class<?> slotValueTypeClass = SLOT_VALUE_TYPE_MAP.get(slotValue
-                .getClass());
-        ValueType slotValueObject = null;
-        if (slotValueTypeClass != null) {
-            try {
-                slotValueObject = (ValueType) slotValueTypeClass.newInstance();
-            } catch (Exception e) {
-                statusHandler.error("Error instantiating slot value!", e);
-            }
-        } else {
-            throw new IllegalArgumentException(
-                    "Unable to create slot for type: " + slotValue.getClass());
-        }
-        slotValueObject.setValue(slotValue);
-        slot.setSlotValue(slotValueObject);
-        return slot;
-    }
-
-    public void addSlot(String slotName, Object slotValue) {
-        getSlot().add(createSlot(slotName, slotValue));
-    }
-
-    public void updateSlot(String slotName, Object slotValue) {
-        SlotType slot = getSlotByName(slotName);
-        if (slot == null) {
-            addSlot(slotName, slotValue);
-        } else {
-            slot.getSlotValue().setValue(slotValue);
-        }
+    public ExtensibleObjectType(String id, List<SlotType> slot) {
+        super();
+        this.id = id;
+        this.slot = slot;
     }
 
     public SlotType getSlotByName(String slotName) {
         for (SlotType slot : getSlot()) {
-            if (slot.getName().equals(slotName)) {
+            if (slot.getName() != null && slot.getName().equals(slotName)) {
                 return slot;
             }
         }
@@ -199,14 +173,14 @@ public abstract class ExtensibleObjectType {
      * 
      * 
      */
-    public Set<SlotType> getSlot() {
+    public List<SlotType> getSlot() {
         if (slot == null) {
-            slot = new HashSet<SlotType>();
+            slot = new ArrayList<SlotType>();
         }
         return this.slot;
     }
 
-    public void setSlot(Set<SlotType> slot) {
+    public void setSlot(List<SlotType> slot) {
         this.slot = slot;
     }
 
@@ -220,6 +194,28 @@ public abstract class ExtensibleObjectType {
             }
         }
         return (T) retVal;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getSlotValueAsList(String slotName) {
+        List<T> retVal = new ArrayList<T>();
+        for (SlotType slot : getSlot()) {
+            if (slot.getName().equals(slotName)) {
+                retVal.add((T) slot.getSlotValue().getValue());
+            }
+        }
+        return retVal;
+    }
+
+    public Map<String, Object> getSlotNameValues() {
+        if (this.getSlot().isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String, Object> map = new HashMap<String, Object>(slot.size());
+        for (SlotType slot : this.getSlot()) {
+            map.put(slot.getName(), slot.getSlotValue().getValue());
+        }
+        return map;
     }
 
     /*
@@ -260,6 +256,30 @@ public abstract class ExtensibleObjectType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ExtensibleObjectType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append("]");
+        return builder.toString();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return id;
     }
 
 }

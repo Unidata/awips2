@@ -60,6 +60,8 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Feb 21, 2008 862        jkorman     Initial Coding.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Jul 26, 2013 1051       bsteffen    Discard bufrmos data with invalid
+ *                                     location.
  * </pre>
  * 
  * @author jkorman
@@ -192,8 +194,8 @@ public class BufrMOSDataAdapter {
                 Calendar baseTime = null;
                 // Ensure that we have all of the time info and create the
                 // date-time and datatime info.
-                if ((year > 0) && (month > 0) && (day > 0) && (hour >= 0)
-                        && (fcstHour >= 0)) {
+                if (location.isValid() && (year > 0) && (month > 0)
+                        && (day > 0) && (hour >= 0) && (fcstHour >= 0)) {
                     baseTime = TimeTools.getBaseCalendar(year, month, day);
                     baseTime.set(Calendar.HOUR_OF_DAY, hour);
 
@@ -226,6 +228,8 @@ public class BufrMOSDataAdapter {
                     }
 
                     fcstData.setPointDataView(pdv);
+                } else {
+                    fcstData = null;
                 }
                 dataSection += (System.currentTimeMillis() - startTime);
             }

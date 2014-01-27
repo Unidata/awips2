@@ -19,6 +19,10 @@
  **/
 package com.raytheon.viz.hydrocommon.textreport;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+
 /**
  * generic print menu for reports.
  * 
@@ -47,6 +52,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 11, 2012 13781      wkwock     Initial creation
+ * Jul 16, 2013 2088       rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -58,7 +64,6 @@ public class PrintTextReportDlg extends CaveSWTDialog {
     /**
      * Text viewer.
      */
-
     protected TextReport report;
 
     /* Vars used in the printing methods */
@@ -80,21 +85,34 @@ public class PrintTextReportDlg extends CaveSWTDialog {
 
     private int index, end;
 
-    private StringBuffer wordBuffer;
+    private final StringBuilder wordBuffer = new StringBuilder();
 
     private GC gc;
-    
 
-	protected PrintTextReportDlg(Shell parentShell,TextReport report) {
-		super(parentShell);
-		this.report=report;
-	}
+    /**
+     * A non-blocking modal constructor so user cannot change report while
+     * dialog is open.
+     * 
+     * @param parentShell
+     * @param report
+     */
+    protected PrintTextReportDlg(Shell parentShell, TextReport report) {
+        super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
+                CAVE.DO_NOT_BLOCK);
+        this.report = report;
+    }
 
-	@Override
-	protected void initializeComponents(Shell shell) {
-		// TODO Auto-generated method stub
-		createBottomButtons();
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
+    @Override
+    protected void initializeComponents(Shell shell) {
+        createBottomButtons();
+    }
 
     /**
      * Send the text to the printer
@@ -109,20 +127,17 @@ public class PrintTextReportDlg extends CaveSWTDialog {
             Rectangle clientArea = printer.getClientArea();
             Rectangle trim = printer.computeTrim(0, 0, 0, 0);
             Point dpi = printer.getDPI();
-            leftMargin = dpi.x + trim.x; // one inch from left side of paper
+            // one inch from left side of paper
+            leftMargin = dpi.x + trim.x;
             // one inch from right side of paper
             rightMargin = clientArea.width - dpi.x + trim.x + trim.width;
-            topMargin = dpi.y + trim.y; // one inch from top edge of paper
+            // one inch from top edge of paper
+            topMargin = dpi.y + trim.y;
             // one inch from bottom edge of paper
             bottomMargin = clientArea.height - dpi.y + trim.y + trim.height;
 
-            /* Create a buffer for computing tab width. */
-            int tabSize = 4; // is tab width a user setting in your UI?
-            StringBuffer tabBuffer = new StringBuffer(tabSize);
-            for (int i = 0; i < tabSize; i++) {
-                tabBuffer.append(' ');
-            }
-            String tabs = tabBuffer.toString();
+            // Create a buffer for computing tab with width of 4.
+            String tabs = "    ";
 
             /*
              * Create printer GC, and create and set the printer font &
@@ -163,7 +178,7 @@ public class PrintTextReportDlg extends CaveSWTDialog {
      */
     private void printText(String text) {
         printer.startPage();
-        wordBuffer = new StringBuffer();
+        wordBuffer.setLength(0);
         x = leftMargin;
         y = topMargin;
         index = 0;
@@ -196,6 +211,7 @@ public class PrintTextReportDlg extends CaveSWTDialog {
             printer.endPage();
         }
     }
+
     /**
      * Word buffer for formating lines on the printed page
      */
@@ -209,7 +225,7 @@ public class PrintTextReportDlg extends CaveSWTDialog {
             }
             gc.drawString(word, x, y, false);
             x += wordWidth;
-            wordBuffer = new StringBuffer();
+            wordBuffer.setLength(0);
         }
     }
 
@@ -227,15 +243,16 @@ public class PrintTextReportDlg extends CaveSWTDialog {
             }
         }
     }
-    
+
     /**
      * Get data for selected contents for printing
+     * 
      * @return
      */
-    protected String getPrintData () {
-    	return "";
+    protected String getPrintData() {
+        return "";
     }
-    
+
     /**
      * Create the buttons at the bottom of the display.
      */
@@ -254,7 +271,7 @@ public class PrintTextReportDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -282,15 +299,18 @@ public class PrintTextReportDlg extends CaveSWTDialog {
                      * Do the printing in a background thread so that spooling
                      * does not freeze the UI.
                      */
-                    Thread printingThread = new Thread("PrintTable") {
+                    Job job = new Job("PrintTable") {
+
                         @Override
-                        public void run() {
+                        protected IStatus run(IProgressMonitor monitor) {
                             print(printer, text);
                             printer.dispose();
+                            printer = null;
+                            return Status.OK_STATUS;
                         }
-                    };
-                    printingThread.start();
 
+                    };
+                    job.schedule();
                 }
             }
         });

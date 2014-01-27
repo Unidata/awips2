@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetGridDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
@@ -37,15 +36,18 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * 04/18/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
-public class GetGridDataHandler implements IRequestHandler<GetGridDataRequest> {
+public class GetGridDataHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<GetGridDataRequest> {
     @Override
     public ServerResponse<List<IGridSlice>> handleRequest(
             GetGridDataRequest request) throws Exception {
-        return GridParmManager.getGridData(request.getRequests());
+        return getIfpServer(request).getGridParmMgr().getGridData(
+                request.getRequests());
     }
 }

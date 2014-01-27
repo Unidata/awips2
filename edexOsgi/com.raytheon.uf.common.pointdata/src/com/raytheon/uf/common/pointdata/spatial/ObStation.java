@@ -50,7 +50,9 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip    Initial Check in
+ * Jul 24, 2007 353         bphillip    Initial Check in
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
  * 
  * </pre>
  * 
@@ -197,15 +199,15 @@ public class ObStation extends PersistableDataObject implements ISpatialObject {
 	private String rbsnIndicator;
 
 	/** The upper air geometry information */
-	@Column(name = "upperairgeom", columnDefinition = "geometry")
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "upperairgeom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
 	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
 	@DynamicSerializeElement
 	private Point upperAirGeometry;
 
 	/** The station location */
-	@Column(name = "the_geom", columnDefinition = "geometry")
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
 	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
 	@DynamicSerializeElement
 	private Point location;

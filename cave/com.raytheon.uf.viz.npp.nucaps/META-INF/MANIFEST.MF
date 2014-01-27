@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: NUCAPS Viz Plugin
-Bundle-SymbolicName: com.raytheon.uf.viz.npp.nucaps
+Bundle-SymbolicName: com.raytheon.uf.viz.npp.nucaps;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.npp.nucaps.Activator
 Bundle-Vendor: RAYTHEON
@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.d2d.nsharp;bundle-version="1.0.0",
  gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
- meteolib.jni;bundle-version="1.0.0"
+ com.raytheon.uf.viz.sounding;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: gov.noaa.nws.ncep.edex.common.sounding
+Import-Package: com.raytheon.viz.core.map,
+ gov.noaa.nws.ncep.edex.common.sounding

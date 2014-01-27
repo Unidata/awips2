@@ -19,25 +19,27 @@
  **/
 package com.raytheon.uf.common.registry.ebxml;
 
-import com.raytheon.uf.common.registry.IResultFormatter;
-
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.registry.IResultFormatter;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
+
 /**
- * TODO Add Description
+ * {@link IResultFormatter} that returns a {@link String}.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 15, 2012            djohnson     Initial creation
- *
+ * Jun 24, 2013 2106       djohnson     IResultFormatter instances take the encoder as a method argument.
+ * 
  * </pre>
- *
+ * 
  * @author djohnson
- * @version 1.0	
+ * @version 1.0
  */
 
 public class StringResultsQuery extends AdhocRegistryQuery<String> implements
@@ -67,7 +69,8 @@ public class StringResultsQuery extends AdhocRegistryQuery<String> implements
     }
 
     @Override
-    public String decodeObject(RegistryObjectType registryObjectType) {
+    public String decodeObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoderStrategy) {
         return resultsToReturn[index++];
     }
 }

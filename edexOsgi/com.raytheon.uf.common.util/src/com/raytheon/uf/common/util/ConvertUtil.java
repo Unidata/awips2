@@ -37,6 +37,7 @@ import org.apache.commons.beanutils.Converter;
  * Mar 19, 2009            njensen     Initial creation
  * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
  *                                     ConvertUtil and also fix date parsing.
+ * Jun 11, 2013 2091       bclement    added getFields utility/javadoc
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ public class ConvertUtil {
      *             If the string value cannot be converted to the desired class
      *             type
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Object convertObject(String value, Class<?> desiredClass) {
         if (value == null || value.equals("null")) {
             return null;
@@ -94,12 +95,36 @@ public class ConvertUtil {
         return ConvertUtils.convert(obj);
     }
 
+    /**
+     * Convert value to same class as field of entity.
+     * 
+     * @param value
+     *            string representation of object
+     * @param entity
+     * @param fieldName
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchFieldException
+     */
     public static Object convertAsType(String value, Class<?> entity,
             String fieldName) throws SecurityException, NoSuchFieldException {
         Field field = getField(fieldName, entity);
         return convertObject(value, field.getType());
     }
 
+    /**
+     * Convert value to same class as addressed field of entity.
+     * 
+     * @param value
+     *            string representation of object
+     * @param entity
+     * @param fieldPath
+     *            path that addresses the target field for conversion. First
+     *            field name on path is a field of entity.
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchFieldException
+     */
     public static Object convertAsType(String value, Class<?> entity,
             String[] fieldPath) throws SecurityException, NoSuchFieldException {
         Field f = getField(fieldPath[0], entity);
@@ -109,7 +134,39 @@ public class ConvertUtil {
         return convertObject(value, f.getType());
     }
 
-    protected static Field getField(String fieldName, Class<?> c)
+    /**
+     * Get array of Field objects for nested field path.
+     * 
+     * @param entity
+     * @param fieldPath
+     *            name of fields in each nested object starting with a field in
+     *            entity
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchFieldException
+     */
+    public static Field[] getFields(Class<?> entity, String[] fieldPath)
+            throws SecurityException, NoSuchFieldException {
+        Field[] rval = new Field[fieldPath.length];
+        rval[0] = getField(fieldPath[0], entity);
+        for (int i = 1; i < fieldPath.length; ++i) {
+            rval[i] = getField(fieldPath[i], rval[i - 1].getType());
+        }
+        return rval;
+    }
+
+    /**
+     * Recursive method to get Field object from class.
+     * 
+     * @param fieldName
+     *            name of field in c
+     * @param c
+     *            entity that has field
+     * @return
+     * @throws SecurityException
+     * @throws NoSuchFieldException
+     */
+    public static Field getField(String fieldName, Class<?> c)
             throws SecurityException, NoSuchFieldException {
         Field rval;
         try {

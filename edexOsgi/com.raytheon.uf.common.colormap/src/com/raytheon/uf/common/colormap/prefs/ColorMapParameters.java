@@ -22,7 +22,9 @@ package com.raytheon.uf.common.colormap.prefs;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
@@ -35,9 +37,8 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.colormap.AbstractColorMap;
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.IColorMap;
-import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
+import com.raytheon.uf.common.colormap.image.Colormapper;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Colormap Parameters
@@ -54,15 +55,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *    Feb 14, 2013 1616        bsteffen    Add option for interpolation of
  *                                         colormap parameters, disable colormap
  *                                         interpolation by default.
- *    Jun 14, 2013	DR 16070	jgerth		Utilize data mapping
- * 
+ *    Jun 14, 2013 DR 16070    jgerth      Utilize data mapping
+ *    Aug  2, 2013 2211        mschenke    Backed out 16070 changes, made 
+ *                                         dataUnit/imageUnit properly commutative.
+ *    Nov  4, 2013 2492        mschenke    Cleaned up variable naming to make purpose
+ *                                         clear (image->colormap)
  * </pre>
  * 
  * @author chammack
  * @version 1
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class ColorMapParameters implements Cloneable, ISerializableObject {
+public class ColorMapParameters {
 
     @XmlAccessorType(XmlAccessType.NONE)
     public static class PersistedParameters {
@@ -122,13 +126,14 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
 
     protected Set<IColorMapParametersListener> listeners = new HashSet<IColorMapParametersListener>();
 
-    /** Units of the colormap parameters (min/max) */
+    /** Units colormapping should be displayed in */
     protected Unit<?> displayUnit;
 
-    /** Units of the image pixel values */
-    protected Unit<?> imageUnit;
+    /** Units colormapping will occur in */
+    protected Unit<?> colorMapUnit;
 
-    /** Units of the data values */
+    /** Units of the data values to colormap */
+    @Deprecated
     protected Unit<?> dataUnit;
 
     /** The maximum value used to apply the colormap */
@@ -138,9 +143,11 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     protected float colorMapMin;
 
     /** The maximum (usually theoretical) value of the data */
+    @Deprecated
     protected float dataMax;
 
     /** The minimum (usually theoretical) value of the data */
+    @Deprecated
     protected float dataMin;
 
     /** The intervals upon which to apply labeling to the color bar */
@@ -157,23 +164,27 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     @XmlAttribute
     protected String colorMapName;
 
-    /** The converter that converts data values to display values * */
+    /** The converter that converts data values to {@link #displayUnit} * */
+    @Deprecated
     protected UnitConverter dataToDisplayConverter;
 
-    /** The converter that converts display values to data values * */
+    /** The converter that converts display values to {@link #dataUnit} * */
+    @Deprecated
     protected UnitConverter displayToDataConverter;
 
-    /** The converter that converts data values to image pixels */
-    protected UnitConverter dataToImageConverter;
+    /** The converter that converts data values to {@link #colorMapUnit} */
+    @Deprecated
+    protected UnitConverter dataToColorMapConverter;
 
-    /** The converter that converts image pixels to data values */
-    protected UnitConverter imageToDataConverter;
+    /** The converter that converts color map unit values to {@link #dataUnit} */
+    @Deprecated
+    protected UnitConverter colorMapToDataConverter;
 
-    /** The converter that converts image pixels to display values */
-    protected UnitConverter imageToDisplayConverter;
+    /** The converter that converts color map unit values to {@link #displayUnit} */
+    protected UnitConverter colorMapToDisplayConverter;
 
-    /** The converter that converts display values to image pixels */
-    protected UnitConverter displayToImageConverter;
+    /** The converter that converts display values to {@link #colorMapUnit} */
+    protected UnitConverter displayToColorMapConverter;
 
     protected DataMappingPreferences dataMapping;
 
@@ -200,7 +211,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     /** Specify whether the colormap should be interpolated */
     protected boolean interpolate = false;
 
-    public static class LabelEntry {
+    public static class LabelEntry implements Comparable<LabelEntry> {
         private float location;
 
         private String text;
@@ -257,8 +268,25 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
             return true;
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see java.lang.Comparable#compareTo(java.lang.Object)
+         */
+        @Override
+        public int compareTo(LabelEntry o) {
+            return Double.compare(getLocation(), o.getLocation());
+        }
+
     }
 
+    /**
+     * Creates a {@link UnitConverter} converting the from unit to the to unit.
+     * 
+     * @param from
+     * @param to
+     * @return The unit converter or null of units are not compatible
+     */
     private UnitConverter constructConverter(Unit<?> from, Unit<?> to) {
         UnitConverter converter = null;
 
@@ -269,22 +297,34 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         return converter;
     }
 
-    private void addLabel(float dispValue, String s) {
-        float index = getIndexByValue(dispValue);
+    /**
+     * Adds a label for a {@link #displayUnit} value
+     * 
+     * @param colorMapValue
+     * @param s
+     */
+    private void addDisplayValueLabel(float dispValue, String s) {
+        float colorMapValue = dispValue;
+        UnitConverter displayToColorMap = getDisplayToColorMapConverter();
+        if (displayToColorMap != null) {
+            colorMapValue = (float) displayToColorMap.convert(dispValue);
+        }
+        addColorMapValueLabel(colorMapValue, s);
+    }
+
+    /**
+     * Adds a label for a {@link #colorMapUnit} value
+     * 
+     * @param colorMapValue
+     * @param s
+     */
+    private void addColorMapValueLabel(float colorMapValue, String s) {
+        double index = Colormapper.getColorMappingIndex(colorMapValue, this);
         if (index > 1.0 || index < 0.0) {
             return;
         }
 
-        labels.add(new LabelEntry(s, index));
-    }
-
-    private void addLabel(int pixelValue, String s) {
-        float location = (float) pixelValue / 255;
-        if (location > 1.0 || location < 0.0) {
-            return;
-        }
-
-        labels.add(new LabelEntry(s, location));
+        labels.add(new LabelEntry(s, (float) index));
     }
 
     private void computeLabels() {
@@ -297,7 +337,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
             if (colorMapRange != 0.0) {
                 for (float label : colorBarIntervals) {
                     String s = format.format(label);
-                    addLabel(label, s);
+                    addDisplayValueLabel(label, s);
                 }
             }
         } else if (dataMapping != null) {
@@ -308,14 +348,15 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
                     if (s == null) {
                         s = format.format(dispValue);
                     }
-                    addLabel(dispValue, s);
+                    addDisplayValueLabel(dispValue, s);
                 } else if (entry.getPixelValue() != null
                         && !"NO DATA".equals(s)) {
-                    double pixelValue = entry.getPixelValue();
-                    addLabel((int) pixelValue, s);
+                    float pixelValue = entry.getPixelValue().floatValue();
+                    addColorMapValueLabel(pixelValue, s);
                 }
             }
         }
+        Collections.sort(labels);
         recomputeLabels = false;
     }
 
@@ -356,22 +397,26 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
-     * @return the unit
+     * Returns the display unit
+     * 
+     * @return The unit colormapping should be displayed in
      */
     public Unit<?> getDisplayUnit() {
         return displayUnit;
     }
 
     /**
+     * Sets the display units
+     * 
      * @param unit
-     *            the unit to set
+     *            The unit colormapping should be displayed in
      */
     public void setDisplayUnit(Unit<?> unit) {
         this.displayUnit = unit;
         recomputeLabels = true;
 
-        displayToImageConverter = null;
-        imageToDisplayConverter = null;
+        displayToColorMapConverter = null;
+        colorMapToDisplayConverter = null;
 
         displayToDataConverter = null;
         dataToDisplayConverter = null;
@@ -379,25 +424,32 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
-     * @return the colorMapMax
+     * Returns the maximum range value the colormapping occurs over
+     * 
+     * @return the maximum range value in {@link #colorMapUnit}
      */
     public float getColorMapMax() {
         return colorMapMax;
     }
 
     /**
+     * Sets the maximum range value the colormapping occurs over
+     * 
      * @param colorMapMax
-     *            the colorMapMax to set
+     *            the maximum range value in {@link #colorMapUnit}
      */
     public void setColorMapMax(float colorMapMax) {
         setColorMapMax(colorMapMax, false);
     }
 
     /**
+     * Sets the maximum range value the colormapping occurs over
+     * 
      * @param colorMapMax
-     *            the colorMapMax to set
+     *            the maximum range value in {@link #colorMapUnit}
      * @param persist
-     *            specifies whether to persist this value when saved
+     *            true indicates colorMapMax should be persisted through
+     *            serialization
      */
     public void setColorMapMax(float colorMapMax, boolean persist) {
         this.colorMapMax = colorMapMax;
@@ -409,25 +461,32 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
-     * @return the colorMapMin
+     * Returns the minimum range value the colormapping occurs over
+     * 
+     * @return the minimum range value in {@link #colorMapUnit}
      */
     public float getColorMapMin() {
         return colorMapMin;
     }
 
     /**
+     * Sets the minimum range value the colormapping occurs over
+     * 
      * @param colorMapMin
-     *            the colorMapMin to set
+     *            the minimum range value in {@link #colorMapUnit}
      */
     public void setColorMapMin(float colorMapMin) {
         setColorMapMin(colorMapMin, false);
     }
 
     /**
+     * Sets the minimum range value the colormapping occurs over
+     * 
      * @param colorMapMin
-     *            the colorMapMin to set
+     *            the minimum range value in {@link #colorMapUnit}
      * @param persist
-     *            specifies whether to persist this value when saved
+     *            true indicates colorMapMin should be persisted through
+     *            serialization
      */
     public void setColorMapMin(float colorMapMin, boolean persist) {
         this.colorMapMin = colorMapMin;
@@ -439,32 +498,40 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
+     * @deprecated data max is not important for general colormapping use
      * @return the dataMax
      */
+    @Deprecated
     public float getDataMax() {
         return dataMax;
     }
 
     /**
+     * @deprecated data max is not important for general colormapping use
      * @param dataMax
      *            the dataMax to set
      */
+    @Deprecated
     public void setDataMax(float dataMax) {
         this.dataMax = dataMax;
         notifyListener();
     }
 
     /**
+     * @deprecated data min is not important for general colormapping use
      * @return the dataMin
      */
+    @Deprecated
     public float getDataMin() {
         return dataMin;
     }
 
     /**
+     * @deprecated data min is not important for general colormapping use
      * @param dataMin
      *            the dataMin to set
      */
+    @Deprecated
     public void setDataMin(float dataMin) {
         this.dataMin = dataMin;
         notifyListener();
@@ -509,25 +576,33 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
+     * Returns the unit data values to be colormapped are in
+     * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the dataUnit
      */
+    @Deprecated
     public Unit<?> getDataUnit() {
         return dataUnit;
     }
 
     /**
+     * Sets the unit data values to be colormapped are in
+     * 
+     * @deprecated data unit is not important for general colormapping use
      * @param dataUnit
      *            the dataUnit to set
      */
+    @Deprecated
     public void setDataUnit(Unit<?> dataUnit) {
         this.dataUnit = dataUnit;
 
-        if (imageUnit == null) {
-            setImageUnit(dataUnit);
+        if (dataUnit != null && colorMapUnit == null) {
+            setColorMapUnit(dataUnit);
         }
 
-        dataToImageConverter = null;
-        imageToDataConverter = null;
+        dataToColorMapConverter = null;
+        colorMapToDataConverter = null;
 
         dataToDisplayConverter = null;
         displayToDataConverter = null;
@@ -536,8 +611,13 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
+     * Returns the {@link UnitConverter} from {@link #dataUnit} to
+     * {@link #displayUnit}
+     * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the dataToDisplayConverter
      */
+    @Deprecated
     public UnitConverter getDataToDisplayConverter() {
         if (dataToDisplayConverter == null) {
             dataToDisplayConverter = constructConverter(dataUnit, displayUnit);
@@ -549,8 +629,13 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
+     * Returns the {@link UnitConverter} from {@link #displayUnit} to
+     * {@link #dataUnit}
+     * 
+     * @deprecated data unit is not important for general colormapping use
      * @return the displayToDataConverter
      */
+    @Deprecated
     public UnitConverter getDisplayToDataConverter() {
         if (displayToDataConverter == null) {
             displayToDataConverter = constructConverter(displayUnit, dataUnit);
@@ -561,7 +646,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         return displayToDataConverter;
     }
 
-    public java.util.List<LabelEntry> getLabels() {
+    public List<LabelEntry> getLabels() {
         if (recomputeLabels) {
             computeLabels();
             notifyListener();
@@ -569,10 +654,22 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         return labels;
     }
 
+    /**
+     * Returns true if the colormapping is logarithmically scaled from
+     * {@link #colorMapMin} to {@link #colorMapMax}
+     * 
+     * @return
+     */
     public boolean isLogarithmic() {
         return logarithmic;
     }
 
+    /**
+     * Set to true if the colormapping should logarithmically scaled from
+     * {@link #colorMapMin} to {@link #colorMapMax}
+     * 
+     * @param logarithmic
+     */
     public void setLogarithmic(boolean logarithmic) {
         recomputeLabels = recomputeLabels | this.logarithmic != logarithmic;
         this.logarithmic = logarithmic;
@@ -580,78 +677,166 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
     }
 
     /**
-     * @return the dataToImageConverter
+     * @deprecated Use {@link #getDataToColorMapConverter()} instead
+     * 
+     * @return the dataToColorMapConverter
      */
+    @Deprecated
     public UnitConverter getDataToImageConverter() {
-        if (dataToImageConverter == null) {
-            dataToImageConverter = constructConverter(dataUnit, imageUnit);
-            if (dataToImageConverter != null) {
-                notifyListener();
-            }
-        }
-        return dataToImageConverter;
+        return getDataToColorMapConverter();
     }
 
     /**
-     * @return the imageToDisplayConverter
+     * Returns a {@link UnitConverter} converting {@link #dataUnit} values to
+     * the {@link #colorMapUnit} if compatible or null otherwise
+     * 
+     * @deprecated data unit is not important for general colormapping use
+     * @return
      */
+    @Deprecated
+    public UnitConverter getDataToColorMapConverter() {
+        if (dataToColorMapConverter == null) {
+            dataToColorMapConverter = constructConverter(dataUnit, colorMapUnit);
+            if (dataToColorMapConverter != null) {
+                notifyListener();
+            }
+        }
+        return dataToColorMapConverter;
+    }
+
+    /**
+     * @deprecated Use {@link #getColorMapToDisplayConverter()} instead
+     * 
+     * @return the colorMapToDisplayConverter
+     */
+    @Deprecated
     public UnitConverter getImageToDisplayConverter() {
-        if (imageToDisplayConverter == null) {
-            imageToDisplayConverter = constructConverter(imageUnit, displayUnit);
-            if (imageToDisplayConverter != null) {
+        return getColorMapToDisplayConverter();
+    }
+
+    /**
+     * Returns a {@link UnitConverter} converting {@link #colorMapUnit} values
+     * to the {@link #displayUnit} if compatible or null otherwise
+     * 
+     * @return
+     */
+    public UnitConverter getColorMapToDisplayConverter() {
+        if (colorMapToDisplayConverter == null) {
+            colorMapToDisplayConverter = constructConverter(colorMapUnit,
+                    displayUnit);
+            if (colorMapToDisplayConverter != null) {
                 notifyListener();
             }
         }
-        return imageToDisplayConverter;
+        return colorMapToDisplayConverter;
     }
 
     /**
-     * @return the imageUnit
+     * @deprecated Use {@link #getColorMapUnit()} instead
+     * 
+     * @return the colorMapUnit
      */
+    @Deprecated
     public Unit<?> getImageUnit() {
-        return imageUnit;
+        return getColorMapUnit();
     }
 
     /**
-     * @param imageUnit
-     *            the imageUnit to set
+     * Returns the unit colormapping will occur in
+     * 
+     * @return
      */
+    public Unit<?> getColorMapUnit() {
+        return colorMapUnit;
+    }
+
+    /**
+     * @deprecated Use {@link #setColorMapUnit(Unit)} instead
+     * 
+     * @param imageUnit
+     *            the colorMapUnit to set
+     */
+    @Deprecated
     public void setImageUnit(Unit<?> imageUnit) {
-        this.imageUnit = imageUnit;
+        setColorMapUnit(imageUnit);
+    }
+
+    /**
+     * Sets the unit colormapping will occur in. {@link #colorMapMin} and
+     * {@link #colorMapMax} are expected to be in this unit
+     * 
+     * @param colorMapUnit
+     */
+    public void setColorMapUnit(Unit<?> colorMapUnit) {
+        this.colorMapUnit = colorMapUnit;
+
+        if (colorMapUnit != null && dataUnit == null) {
+            setDataUnit(colorMapUnit);
+        }
+
         recomputeLabels = true;
 
-        imageToDataConverter = null;
-        dataToImageConverter = null;
+        colorMapToDataConverter = null;
+        dataToColorMapConverter = null;
 
-        imageToDisplayConverter = null;
-        displayToImageConverter = null;
+        colorMapToDisplayConverter = null;
+        displayToColorMapConverter = null;
         notifyListener();
     }
 
     /**
-     * @return the imageToDataConverter
+     * @deprecated Use {@link #getColorMapToDataConverter()} instead
+     * 
+     * @return the colorMapToDataConverter
      */
+    @Deprecated
     public UnitConverter getImageToDataConverter() {
-        if (imageToDataConverter == null) {
-            imageToDataConverter = constructConverter(imageUnit, dataUnit);
-            if (imageToDataConverter != null) {
-                notifyListener();
-            }
-        }
-        return imageToDataConverter;
+        return getColorMapToDataConverter();
     }
 
     /**
-     * @return the displayToImageConverter
+     * Returns a {@link UnitConverter} converting {@link #colorMapUnit} values
+     * to the {@link #dataUnit} if compatible or null otherwise
+     * 
+     * @deprecated data unit is not important for general colormapping use
+     * @return
      */
-    public UnitConverter getDisplayToImageConverter() {
-        if (displayToImageConverter == null) {
-            displayToImageConverter = constructConverter(displayUnit, imageUnit);
-            if (displayToImageConverter != null) {
+    @Deprecated
+    public UnitConverter getColorMapToDataConverter() {
+        if (colorMapToDataConverter == null) {
+            colorMapToDataConverter = constructConverter(colorMapUnit, dataUnit);
+            if (colorMapToDataConverter != null) {
                 notifyListener();
             }
         }
-        return displayToImageConverter;
+        return colorMapToDataConverter;
+    }
+
+    /**
+     * @deprecated Use {@link #getDisplayToColorMapConverter()} instead
+     * 
+     * @return the displayToColorMapConverter
+     */
+    @Deprecated
+    public UnitConverter getDisplayToImageConverter() {
+        return getDisplayToColorMapConverter();
+    }
+
+    /**
+     * Returns a {@link UnitConverter} converting {@link #displayUnit} values to
+     * the {@link #colorMapUnit} if compatible or null otherwise
+     * 
+     * @return
+     */
+    public UnitConverter getDisplayToColorMapConverter() {
+        if (displayToColorMapConverter == null) {
+            displayToColorMapConverter = constructConverter(displayUnit,
+                    colorMapUnit);
+            if (displayToColorMapConverter != null) {
+                notifyListener();
+            }
+        }
+        return displayToColorMapConverter;
     }
 
     /**
@@ -662,7 +847,7 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         this.dataMapping = dataMapping;
         recomputeLabels = true;
         if (dataMapping != null && displayUnit != null) {
-            setImageUnit(dataMapping.getImageUnit(displayUnit));
+            setColorMapUnit(dataMapping.getImageUnit(displayUnit));
         }
         notifyListener();
     }
@@ -701,12 +886,12 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         cmp.dataMax = dataMax;
         cmp.dataMin = dataMin;
         cmp.dataToDisplayConverter = dataToDisplayConverter;
-        cmp.dataToImageConverter = dataToImageConverter;
+        cmp.dataToColorMapConverter = dataToColorMapConverter;
         cmp.dataUnit = dataUnit;
         cmp.formatString = formatString;
-        cmp.imageToDataConverter = imageToDataConverter;
-        cmp.imageToDisplayConverter = imageToDisplayConverter;
-        cmp.imageUnit = imageUnit;
+        cmp.colorMapToDataConverter = colorMapToDataConverter;
+        cmp.colorMapToDisplayConverter = colorMapToDisplayConverter;
+        cmp.colorMapUnit = colorMapUnit;
         cmp.labels = labels;
         cmp.recomputeLabels = recomputeLabels;
         cmp.persisted = persisted.clone();
@@ -773,207 +958,19 @@ public class ColorMapParameters implements Cloneable, ISerializableObject {
         return mirror;
     }
 
-    public static void main(String[] args) {
-        float[] testValues = { -3.622782E-10f, -1.6778468E-8f, -3.3110254E-8f,
-                -3.7973948E-8f, -2.7633986E-8f, -9.904648E-9f, -7.5229956E-10f,
-                7.5189455E-10f, 1.20609505E-8f, 2.9364383E-8f, 2.7346168E-8f,
-                1.3699442E-10f, -2.9937E-8f, -3.6884128E-8f, -1.6217847E-8f,
-                1.1931893E-8f, 2.252287E-8f, 1.3290519E-8f, -2.4843547E-9f,
-                -1.0386745E-8f, -6.1300884E-9f, 3.266153E-9f, 1.078073E-8f,
-                1.2696603E-8f, 4.315502E-9f, -7.2422215E-9f, -1.2054819E-8f,
-                -9.100724E-9f, -2.2520505E-9f, 4.031535E-9f, 6.908326E-9f,
-                4.5536255E-9f, 5.3565863E-10f, -6.767242E-11f, 1.7508048E-9f,
-                1.2594312E-9f, -3.5915362E-9f, -6.42762E-9f, -6.295979E-9f,
-                -3.857202E-9f, -2.2052171E-9f, 6.51567E-10f, 3.1020404E-9f,
-                3.2179108E-9f, 2.080211E-9f, 2.5326197E-10f, -2.181367E-9f,
-                -3.2126295E-9f, -2.2162419E-9f, -5.682299E-10f, 7.367537E-11f,
-                1.7393351E-9f, 3.2000091E-9f, 2.82146E-9f, 1.9214115E-9f,
-                1.2637547E-9f, 1.1449517E-9f, 9.570286E-10f, 2.4719807E-10f,
-                7.4189294E-11f, -1.9902982E-10f, -1.6482227E-9f, -2.645924E-9f,
-                -1.4331059E-9f, -2.6336155E-10f, -1.5215194E-9f,
-                -1.5059594E-9f, 2.014035E-10f, 3.565288E-10f, -1.5582429E-9f,
-                -1.3200975E-9f, 1.2632209E-10f, 1.0882992E-9f, 1.5682087E-9f,
-                4.24027E-9f, 3.1678654E-10f, -3.9073598E-9f, -3.4730894E-9f,
-                -9.989449E-10f, -4.0364423E-9f, -6.3506116E-9f, -2.8335263E-9f,
-                -3.1253768E-9f, -1.1271912E-9f, -3.0793168E-10f, 2.2091975E-9f,
-                4.9031823E-9f, 1.0454194E-8f, 1.6462849E-8f, 1.339688E-8f,
-                6.4451755E-9f, 3.820775E-9f, 1.7874671E-9f, -4.5423043E-9f,
-                -4.7599173E-9f, -3.718451E-9f, 2.086526E-10f, 4.4792867E-9f,
-                -5.1967337E-9f, -1.0332604E-8f };
-
-        ColorMapParameters colorMapParameters = new ColorMapParameters();
-        float min = -2.6945168e-7f;
-        float max = 2.1146788e-7f;
-        colorMapParameters.setColorMapMin(-2.6945168e-7f);
-        colorMapParameters.setColorMapMax(2.1146788e-7f);
-        colorMapParameters.setLogarithmic(true);
-        DecimalFormat format = new DecimalFormat("0.###");
-        int i = 0;
-        for (float dispValue : testValues) {
-            String s = format.format(dispValue);
-            colorMapParameters.addLabel(dispValue, s);
-            if (dispValue > max) {
-                System.out.println(colorMapParameters.labels.get(i).location
-                        + "to high");
-            } else if (dispValue < min) {
-                System.out.println(colorMapParameters.labels.get(i).location
-                        + "to low");
-            } else {
-                System.out.println(colorMapParameters.labels.get(i).location);
-            }
-            i++;
-        }
-    }
-
-    private float getIndexByValue(float dispValue) {
-        UnitConverter displayToImage = getDisplayToImageConverter();
-        float colorMapRange;
-        if (logarithmic) {
-            // float colorMapMin = this.colorMapMin * 1.25f;
-            // float colorMapMax = this.colorMapMax * 1.25f;
-            if (displayToImage != null) {
-                dispValue = (float) displayToImage.convert(dispValue);
-            }
-            float index = 0.0f;
-            // is this strictly negative, strictly positive or neg to pos
-            // scaling?
-            if (colorMapMin >= 0.0 && colorMapMax >= 0.0 && !isMirror()) {
-                // simple calculation
-                index = ((float) Math.log(dispValue) - (float) Math
-                        .log(colorMapMin))
-                        / (float) Math.abs((float) Math.log(colorMapMax)
-                                - (float) Math.log(colorMapMin));
-            } else if (colorMapMin <= 0.0 && colorMapMax <= 0.0 && !isMirror()) {
-                index = ((float) (Math.log(dispValue) - (float) Math
-                        .log(colorMapMax)) / (float) Math.abs((float) Math
-                        .log(colorMapMin) - (float) Math.log(colorMapMax)));
-            } else {
-                // special case, neg to pos:
-                float cmapMin = colorMapMin;
-                float cmapMax = colorMapMax;
-                float zeroVal = (float) Math.max(cmapMax,
-                        (float) Math.abs(cmapMin)) * 0.0001f;
-                ;
-
-                if (isMirror() && (cmapMin > 0 || cmapMax < 0)) {
-                    if (cmapMax < 0) {
-                        cmapMax = -cmapMax;
-                        dispValue = -dispValue;
-                        zeroVal = -cmapMin;
-                    } else {
-                        zeroVal = cmapMin;
-                    }
-                    cmapMin = -cmapMax;
-
-                }
-                float leftZero = 0;
-                float rightZero = 0;
-                float absLogZeroVal = (float) Math.abs((float) Math
-                        .log(zeroVal));
-
-                rightZero = absLogZeroVal + (float) Math.log(cmapMax);
-
-                float cmapMax2 = -1 * cmapMin;
-
-                leftZero = absLogZeroVal + (float) Math.log(cmapMax2);
-
-                float zeroIndex = leftZero / (leftZero + rightZero);
-
-                // figure out index for texture val
-                float absTextureColor = (float) Math.abs(dispValue);
-                if (dispValue == 0) {
-                    index = zeroIndex;
-                } else if (absTextureColor <= zeroVal) {
-                    index = (float) zeroIndex;
-                } else if (dispValue > 0.0) {
-                    // positive texture color value, find index from 0 to
-                    // cmapMax:
-                    float logTexColor = absLogZeroVal
-                            + (float) Math.log(dispValue);
-
-                    float texIndex = logTexColor / rightZero;
-                    index = (float) (zeroIndex + ((1.0 - zeroIndex) * texIndex));
-                } else {
-                    // negative texture color value, find index from 0 to
-                    // cmapMax:
-                    float logTexColor = absLogZeroVal
-                            + (float) Math.log(absTextureColor);
-
-                    float texIndex = logTexColor / leftZero;
-                    index = (zeroIndex - (zeroIndex * texIndex));
-                }
-            }
-
-            return index;
-        } else {
-            colorMapRange = colorMapMax - colorMapMin;
-
-            if (colorMapRange != 0.0) {
-                double pixelValue;
-                // START DR 16070 fix
-                if (this.dataMapping != null)
-                	if (this.dataMapping.getEntries() != null)
-                		if (this.dataMapping.getEntries().get(0) != null)
-                			if (this.dataMapping.getEntries().get(0).getOperator() != null)
-                				if (this.dataMapping.getEntries().get(0).getOperator().equals("i")) {
-                					Double dValue = this.dataMapping.getDataValueforNumericValue(dispValue);
-                						if (dValue != null)
-                							return (dValue.floatValue() - colorMapMin) / colorMapRange;
-                	}
-                // END fix
-            	if (displayToImage != null) {
-                    pixelValue = displayToImage.convert(dispValue);
-                } else {
-                    pixelValue = dispValue;
-                }
-                float location;
-                if (logarithmic) {
-                    location = (float) ((Math.log(pixelValue) - Math
-                            .log(colorMapMin)) / colorMapRange);
-                } else {
-
-                    location = ((float) pixelValue - colorMapMin)
-                            / colorMapRange;
-                }
-                return location;
-            } else {
-                return 0.0f;
-            }
-        }
-    }
-
     /**
      * Get the Color object of the value
      * 
      * @param value
+     *            value to get Color for in {@link #displayUnit}
      * @return
      */
     public Color getColorByValue(float value) {
-        float index = getIndexByValue(value);
-        if (index < 0.0f) {
-            index = 0.0f;
-        } else if (index > 1.0f) {
-            index = 1.0f;
+        UnitConverter displayToColorMap = getDisplayToColorMapConverter();
+        if (displayToColorMap != null) {
+            value = (float) displayToColorMap.convert(value);
         }
-        if (isInterpolate()) {
-            index = 0.5f;
-            index = (index * (colorMap.getSize() - 1));
-            int lowIndex = (int) Math.floor(index);
-            int highIndex = (int) Math.ceil(index);
-            float lowWeight = highIndex - index;
-            float highWeight = 1.0f - lowWeight;
-            Color low = colorMap.getColors().get(lowIndex);
-            Color high = colorMap.getColors().get(highIndex);
-            float r = lowWeight * low.getRed() + highWeight * high.getRed();
-            float g = lowWeight * low.getGreen() + highWeight * high.getGreen();
-            float b = lowWeight * low.getBlue() + highWeight * high.getBlue();
-            float a = lowWeight * low.getAlpha() + highWeight * high.getAlpha();
-            return new Color(r, g, b, a);
-        } else {
-            return colorMap.getColors().get(
-                    (int) (index * (colorMap.getSize() - 1)));
-
-        }
+        return Colormapper.getColorByValue(value, this);
     }
 
     /**

@@ -1,11 +1,7 @@
 package com.raytheon.uf.viz.alertviz.ui.dialogs;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
@@ -37,14 +33,13 @@ public class MonitorToolTip {
      * 17Jan2011    5150       cjeanbap    Adjusted tooltip location and fix IllegalArgumentException.
      * 18Jan2011    5449       cjeanbap    Fixed NullPointerException.
      * 24Jan 2011   1978       cjeanbap    Removed unused variables.
+     * 23Oct 2011   2303       bgonzale    Old patch to fix tool tip layout.
      * 
      * </pre>
      * 
      * @author cjeanbap
      * @version 1.0
      */
-
-    private Pattern LinePattern = Pattern.compile("^(.*)$", Pattern.MULTILINE);
 
     private Display display;
 
@@ -54,7 +49,7 @@ public class MonitorToolTip {
 
     public static final String tooltipTextKey = "tooltiptext";
 
-    private boolean useBorderWidth = true;
+    private boolean ignoreDisplayPos = true;
 
     public MonitorToolTip(Control control) {
         this.control = control;
@@ -62,7 +57,7 @@ public class MonitorToolTip {
 
     public MonitorToolTip(Control control, boolean ignoreDisplayPos) {
         this.control = control;
-        this.useBorderWidth = ignoreDisplayPos;
+        this.ignoreDisplayPos = ignoreDisplayPos;
     }
 
     /**
@@ -144,33 +139,7 @@ public class MonitorToolTip {
                         }
                         label.addListener(SWT.MouseExit, labelListener);
                         label.addListener(SWT.MouseDown, labelListener);
-                        Point size = tip.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-                        Rectangle rect = Display.getCurrent().getBounds();
-                        Point pt = Display.getCurrent()
-                                .map(control, null, 0, 0);
-
-                        final int borderEstimate = (useBorderWidth ? (control
-                                .getBorderWidth() * 2 + 1) : 9);
-                        String labelText = label.getText();
-                        GC gc = new GC(control);
-                        int fontHeight = gc.getFontMetrics().getHeight();
-                        gc.dispose();
-                        Matcher m = LinePattern.matcher(labelText);
-                        int numberOfTextLines = 0; // m.groupCount();
-                        while (m.find()) {
-                            ++numberOfTextLines;
-                        }
-                        numberOfTextLines = numberOfTextLines > 1 ? numberOfTextLines + 1
-                                : numberOfTextLines;
-                        int yAdj = fontHeight * numberOfTextLines
-                                + borderEstimate + (useBorderWidth ? 4 : 0);
-                        if (pt.y + yAdj + fontHeight > rect.height) {
-                            pt.y -= yAdj;
-                        } else {
-                            pt.y += control.getSize().y + borderEstimate;
-                        }
-
-                        tip.setBounds(pt.x, pt.y, size.x, size.y);
+                        setToolTipBounds(label, tip);
                         tip.setVisible(true);
                         textFont.dispose();
                     }
@@ -184,4 +153,28 @@ public class MonitorToolTip {
         ctrl.addListener(SWT.MouseExit, tableListener);
         ctrl.addListener(SWT.Paint, tableListener);
     }
+    
+    private void setToolTipBounds(Label label, Shell tip) {
+        // size of tool tip
+        Point tipSize = tip.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        // bounds of the current display
+        Rectangle displayBounds = Display.getCurrent().getBounds();
+        // x screen coordinate
+        int xCoord = Display.getCurrent().map(control, null, 0, 0).x;
+        // y coordinate of widget that the tool tip is next to
+        Control widget = ignoreDisplayPos ? control : control.getParent();
+        int widgetYCoord = Display.getCurrent().map(widget, null, 0, 0).y;
+        Point widgetSize = widget.computeSize(SWT.DEFAULT,
+                SWT.DEFAULT);
+
+        int yCoord = widgetYCoord;
+        // check if the tip extends past the end of the display
+        if (yCoord + widgetSize.y + tipSize.y > displayBounds.height) {
+            yCoord = yCoord - tipSize.y - control.getParent().getBorderWidth();
+        } else {
+            yCoord = yCoord + widgetSize.y;
+        }
+        tip.setBounds(xCoord, yCoord, tipSize.x, tipSize.y);
+    }
+
 }

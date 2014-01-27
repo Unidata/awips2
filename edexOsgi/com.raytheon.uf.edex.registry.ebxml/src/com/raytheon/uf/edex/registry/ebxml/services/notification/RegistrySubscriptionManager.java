@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
@@ -27,36 +26,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.ws.wsaddressing.W3CEndpointReference;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.NotificationListener;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
-import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DeliveryInfoType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.NotificationType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.registry.constants.DeliveryMethodTypes;
-import com.raytheon.uf.common.registry.constants.Namespaces;
-import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
@@ -66,8 +53,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
-import com.raytheon.uf.edex.registry.ebxml.services.query.QueryManagerImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
 /**
@@ -85,6 +72,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 5/21/2013    2022        bphillip    Made logging less verbose. added running boolean so subscriptions are not process on every single
  *                                      event.
  * 6/4/2013     2022        bphillip    Changed slot type of subscription last run time. Longs were being truncated when casting to ints
+ * 9/5/2013     1538        bphillip    Changed processing of each subscription to be in their own transaction. Subscriptions are now loaded on startup
+ * 9/11/2013    2354        bphillip    Added handling of deleted objects
+ * 9/30/2013    2191        bphillip    Fixing federated replication
+ * 10/8/2013    1682        bphillip    Moved getObjectsOfInterest into RegistryNotificationManager
+ * 10/23/2013   1538        bphillip    Removed debug code and added a change to properly update subscription run time
+ *                                      to not create duplicate slots on objects
+ * 11/20/2013   2534        bphillip    Moved method to get notification destinations to utility
+ * 12/9/2013    2613        bphillip    Setting last run time of subscription now occurs before notification is sent
  * </pre>
  * 
  * @author bphillip
@@ -93,7 +88,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 @Transactional
 @Component
 public class RegistrySubscriptionManager implements
-        IRegistrySubscriptionManager {
+        IRegistrySubscriptionManager, ApplicationContextAware,
+        RegistryInitializedListener {
 
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -146,14 +142,8 @@ public class RegistrySubscriptionManager implements
     /** The XML endpointType tag */
     public static final String ENDPOINT_TAG = "endpointType";
 
-    /** Status of whether subscriptions are being processed */
-    private boolean subscriptionProcessingEnabled;
-
     /** The notification manager */
     private RegistryNotificationManager notificationManager;
-
-    /** The local query manager */
-    private QueryManagerImpl queryManager;
 
     /** Data access object for subscription objects */
     private SubscriptionDao subscriptionDao;
@@ -162,13 +152,26 @@ public class RegistrySubscriptionManager implements
 
     private final ConcurrentMap<String, SubscriptionNotificationListeners> listeners = new ConcurrentHashMap<String, SubscriptionNotificationListeners>();
 
+    private ApplicationContext applicationContext;
+
     public RegistrySubscriptionManager() {
 
     }
 
-    public RegistrySubscriptionManager(boolean subscriptionProcessingEnabled)
-            throws JAXBException {
-        this.subscriptionProcessingEnabled = subscriptionProcessingEnabled;
+    @Override
+    public void executeAfterRegistryInit() throws EbxmlRegistryException {
+        for (SubscriptionType subscription : subscriptionDao.eagerLoadAll()) {
+            statusHandler.info("Adding Subscription: " + subscription.getId());
+            addSubscriptionListener(subscription);
+        }
+    }
+
+    private void addSubscriptionListener(SubscriptionType subscription)
+            throws EbxmlRegistryException {
+        final List<NotificationListenerWrapper> subscriptionListeners = getNotificationListenersForSubscription(subscription);
+        listeners.put(subscription.getId(),
+                new SubscriptionNotificationListeners(subscription,
+                        subscriptionListeners));
     }
 
     /**
@@ -183,9 +186,8 @@ public class RegistrySubscriptionManager implements
             try {
                 final SubscriptionType subscription = subscriptionDao
                         .eagerGetById(id);
-                final List<NotificationListenerWrapper> subscriptionListeners = getNotificationListenersForSubscription(subscription);
-                listeners.put(id, new SubscriptionNotificationListeners(
-                        subscription, subscriptionListeners));
+                addSubscriptionListener(subscription);
+
             } catch (EbxmlRegistryException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -219,7 +221,8 @@ public class RegistrySubscriptionManager implements
         try {
             List<NotificationListenerWrapper> listeners = Lists.newArrayList();
             // Get the list of destinations for the notifications
-            final List<NotificationDestination> destinations = getNotificationDestinations(subscription);
+            final List<NotificationDestination> destinations = EbxmlObjectUtil
+                    .getNotificationDestinations(subscription);
             if (destinations.isEmpty()) {
                 statusHandler.warn("No destinations found for notification!");
             } else {
@@ -240,61 +243,10 @@ public class RegistrySubscriptionManager implements
     }
 
     /**
-     * Extracts where the notifications are to be sent from the subscription
-     * object
-     * 
-     * @param subscription
-     *            The subscriptions to get the delivery information from
-     * @return The list of destinations for the notifications
-     * @throws Exception
-     *             If errors occur while extracting the destinations
-     */
-    public List<NotificationDestination> getNotificationDestinations(
-            final SubscriptionType subscription) throws EbxmlRegistryException {
-        List<NotificationDestination> addresses = new ArrayList<NotificationDestination>();
-
-        List<DeliveryInfoType> deliveryInfos = subscription.getDeliveryInfo();
-        try {
-            for (DeliveryInfoType deliveryInfo : deliveryInfos) {
-                W3CEndpointReference endpointReference = deliveryInfo
-                        .getNotifyTo();
-                DOMResult dom = new DOMResult();
-                endpointReference.writeTo(dom);
-                Document doc = (Document) dom.getNode();
-                NodeList nodes = doc.getElementsByTagNameNS(
-                        Namespaces.ADDRESSING_NAMESPACE,
-                        RegistrySubscriptionManager.ADDRESS_TAG);
-                Node addressNode = nodes.item(0);
-                String serviceAddress = addressNode.getTextContent().trim();
-                String endpointType = addressNode
-                        .getAttributes()
-                        .getNamedItemNS(Namespaces.EBXML_RIM_NAMESPACE_URI,
-                                RegistrySubscriptionManager.ENDPOINT_TAG)
-                        .getNodeValue();
-                final NotificationDestination destination = new NotificationDestination(
-                        endpointType, serviceAddress);
-                if (endpointType.equals(DeliveryMethodTypes.EMAIL)) {
-                    destination
-                            .setEmailNotificationFormatter((String) deliveryInfo
-                                    .getSlotValue(EbxmlObjectUtil.EMAIL_NOTIFICATION_FORMATTER_SLOT));
-                }
-                addresses.add(destination);
-            }
-        } catch (Exception e) {
-            throw new EbxmlRegistryException(
-                    "Error getting destinations from subscription!", e);
-        }
-        return addresses;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public void processSubscriptions() {
-        if (!subscriptionProcessingEnabled) {
-            return;
-        }
         if (!running.compareAndSet(false, true)) {
             return;
         }
@@ -305,31 +257,19 @@ public class RegistrySubscriptionManager implements
                     .values();
 
             for (SubscriptionNotificationListeners subNotificationListener : subs) {
-                SubscriptionType sub = subNotificationListener.subscription;
-                try {
-                    if (subscriptionShouldRun(sub)) {
-                        try {
-                            processSubscription(subNotificationListener);
-                        } catch (EbxmlRegistryException e) {
-                            statusHandler.error(
-                                    "Errors occurred while processing subscription ["
-                                            + sub.getId() + "]", e);
-                        } catch (MsgRegistryException e) {
-                            statusHandler.error(
-                                    "Errors occurred while processing subscription ["
-                                            + sub.getId() + "]", e);
-                        }
-                    } else {
-                        statusHandler
-                                .info("Skipping subscription ["
-                                        + sub.getId()
-                                        + "]. Required notification frequency interval has not elapsed.");
-                    }
-                } catch (EbxmlRegistryException e) {
-                    statusHandler.error(
-                            "Error processing subscription [" + sub.getId()
-                                    + "]", e);
+                if (subscriptionDao
+                        .getById(subNotificationListener.subscription.getId()) == null) {
+                    statusHandler
+                            .info("Registry subscription removed. Cancelling processing of subscription: "
+                                    + subNotificationListener.subscription
+                                            .getId());
+                    continue;
                 }
+                RegistrySubscriptionManager myself = (RegistrySubscriptionManager) applicationContext
+                        .getBean("RegistrySubscriptionManager");
+                myself.processSubscription(subNotificationListener.subscription
+                        .getId());
+
             }
             if (!subs.isEmpty()) {
                 statusHandler.info("Registry subscriptions processed in "
@@ -386,7 +326,9 @@ public class RegistrySubscriptionManager implements
                         new DateTimeValueType(time));
                 subscription.getSlot().add(lastRunTimeSlot);
             } else {
-                lastRunTimeSlot.setSlotValue(new DateTimeValueType(time));
+                DateTimeValueType dateTime = (DateTimeValueType) lastRunTimeSlot
+                        .getSlotValue();
+                dateTime.setTime(time);
             }
         } catch (Exception e) {
             throw new EbxmlRegistryException(
@@ -425,52 +367,35 @@ public class RegistrySubscriptionManager implements
      * @throws MsgRegistryException
      * @throws EbxmlRegistryException
      */
-    private void processSubscription(
-            final SubscriptionNotificationListeners subscriptionNotificationsListeners)
-            throws MsgRegistryException, EbxmlRegistryException {
-        updateLastRunTime(subscriptionNotificationsListeners.subscription,
-                TimeUtil.currentTimeMillis());
-        SubscriptionType subscription = subscriptionNotificationsListeners.subscription;
-        statusHandler.info("Processing subscription [" + subscription.getId()
-                + "]...");
-
-        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscriptionNotificationsListeners.subscription);
-        if (!objectsOfInterest.isEmpty()) {
-            notificationManager.sendNotifications(
-                    subscriptionNotificationsListeners, objectsOfInterest);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processSubscription(final String subscriptionName) {
+        try {
+            SubscriptionType subscription = subscriptionDao
+                    .getById(subscriptionName);
+            if (subscription == null) {
+                statusHandler
+                        .info("Registry subscription removed. Cancelling processing of subscription: "
+                                + subscriptionName);
+                return;
+            }
+            if (!subscriptionShouldRun(subscription)) {
+                statusHandler
+                        .info("Skipping subscription ["
+                                + subscription.getId()
+                                + "]. Required notification frequency interval has not elapsed.");
+                return;
+            }
+            statusHandler.info("Processing subscription [" + subscriptionName
+                    + "]...");
+            updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
+            notificationManager.sendNotifications(listeners
+                    .get(subscriptionName));
+        } catch (Throwable e) {
+            statusHandler.error(
+                    "Errors occurred while processing subscription ["
+                            + subscriptionName + "]", e);
         }
 
-    }
-
-    public NotificationType getOnDemandNotification(String address,
-            String subscriptionId, XMLGregorianCalendar startTime)
-            throws MsgRegistryException, EbxmlRegistryException {
-        SubscriptionNotificationListeners subscriptionListener = listeners
-                .get(subscriptionId);
-        SubscriptionType subscription = subscriptionListener.subscription;
-        List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
-        List<AuditableEventType> eventsOfInterest = notificationManager
-                .getEventsOfInterest(startTime, null, objectsOfInterest);
-        NotificationType notification = notificationManager.getNotification(
-                subscription, address, objectsOfInterest, eventsOfInterest);
-        notificationManager.saveNotification(notification);
-        return notification;
-    }
-
-    private List<ObjectRefType> getObjectsOfInterest(
-            SubscriptionType subscription) throws MsgRegistryException {
-        // Get objects that match selector query
-        QueryType selectorQuery = subscription.getSelector();
-        ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
-                .createResponseOptionType();
-        responseOption.setReturnType(QueryReturnTypes.OBJECT_REF);
-        QueryResponse queryResponse = queryManager.executeQuery(responseOption,
-                selectorQuery);
-        return queryResponse.getObjectRefList().getObjectRef();
-    }
-
-    public void setQueryManager(QueryManagerImpl queryManager) {
-        this.queryManager = queryManager;
     }
 
     public void setSubscriptionDao(SubscriptionDao subscriptionDao) {
@@ -497,4 +422,11 @@ public class RegistrySubscriptionManager implements
             INotificationListenerFactory notificationListenerFactory) {
         this.notificationListenerFactory = notificationListenerFactory;
     }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
 }

@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 9, 2009             askripsky   Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -42,12 +43,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 @DynamicSerialize
 public class CorrelatedShearPacket extends MesocyclonePacket {
-    private static final int CORRELATEDSHEAR_PACKET11 = 11;
-
-    static {
-        PacketFactory.registerPacketType(CorrelatedShearPacket.class,
-                CORRELATEDSHEAR_PACKET11);
-    }
 
     public CorrelatedShearPacket(int packetId, DataInputStream in)
             throws IOException {

@@ -25,7 +25,6 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.widgets.Composite;
 
@@ -37,6 +36,7 @@ import org.eclipse.swt.widgets.Composite;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
+ * 12 Aug 2013  #2256      lvenable    Moved getCigVisDistImage() to parent class.
  * 
  * </pre>
  * 
@@ -185,10 +185,8 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
             "VRB", "C " };
 
     /**
-     * A copy of the image CigVisDist image to save to file.
+     * By Wing tab composite.
      */
-    private Image image;
-
     private CigVisByWindDirTabComp tabComp;
 
     /**
@@ -645,13 +643,13 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(vlifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(vlifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(vlifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(vlifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -682,13 +680,13 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(lifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(lifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(lifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(lifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -720,13 +718,13 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(ifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(ifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(ifrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(ifrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -757,13 +755,13 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
                 }
 
                 gc.fillRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(mvfrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(mvfrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 gc.drawRectangle(cellWidth * x + graphXCoord + barOffset,
-                        yStartPos, barWidth, (int) Math.round(mvfrArray[x]
-                                * pixelPerInc)
+                        yStartPos, barWidth,
+                        (int) Math.round(mvfrArray[x] * pixelPerInc)
                                 - barLengthOffset);
 
                 if (yStartPos == graphYCoord) {
@@ -776,21 +774,6 @@ public class CigVisByWindDirCanvasComp extends CigVisCanvasComp {
             // Reset the Y coordinate position
             yStartPos = graphYCoord + graphHeight;
         }
-    }
-
-    public Image getCigVisDistImage() {
-        if (image != null) {
-            image.dispose();
-        }
-
-        image = new Image(parent.getDisplay(), CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        GC gc = new GC(image);
-        drawCanvas(gc);
-
-        gc.dispose();
-
-        return image;
     }
 
     @Override

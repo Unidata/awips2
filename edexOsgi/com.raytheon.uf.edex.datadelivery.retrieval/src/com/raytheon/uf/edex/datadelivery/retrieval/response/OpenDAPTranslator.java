@@ -27,6 +27,7 @@ import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -53,6 +54,7 @@ import dods.dap.PrimitiveVector;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2011            dhladky     Initial creation
  * Feb 07, 2013 1543       djohnson    Allow package-level construction with explicit PDO class name.
+ * Sept 25, 2013 1797      dhladky     Separate time from gridded time
  * 
  * </pre>
  * 
@@ -216,7 +218,7 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     @Override
     protected int getSubsetNumTimes() {
 
-        return ResponseProcessingUtilities.getOpenDAPGridNumTimes(attXML
+        return ResponseProcessingUtilities.getOpenDAPGridNumTimes((GriddedTime)attXML
                 .getTime());
     }
 
@@ -236,7 +238,7 @@ public class OpenDAPTranslator extends RetrievalTranslator {
     @Override
     protected ArrayList<DataTime> getTimes() {
 
-        return ResponseProcessingUtilities.getOpenDAPGridDataTimes(attXML
+        return ResponseProcessingUtilities.getOpenDAPGridDataTimes((GriddedTime)attXML
                 .getTime());
     }
 

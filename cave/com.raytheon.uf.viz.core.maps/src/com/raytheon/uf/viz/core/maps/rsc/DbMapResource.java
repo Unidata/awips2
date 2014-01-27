@@ -27,9 +27,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import org.apache.commons.lang.StringUtils;
@@ -75,6 +77,7 @@ import com.raytheon.viz.core.spatial.GeometryCache;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.TopologyException;
 import com.vividsolutions.jts.io.WKBReader;
 
 /**
@@ -85,8 +88,12 @@ import com.vividsolutions.jts.io.WKBReader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 19, 2009            randerso     Initial creation
- * Sep 18, 2012      #1019 randerso     improved error handling
+ * Feb 19, 2009            randerso    Initial creation
+ * Sep 18, 2012 1019       randerso    improved error handling
+ * Aug 12, 2013 1133       bsteffen    Better error handling for invalid
+ *                                     polygons in map resource.
+ * Nov 06, 2013 2361       njensen     Prepopulate fields in initInternal
+ *                                     instead of constructor for speed
  * 
  * </pre>
  * 
@@ -290,9 +297,10 @@ public class DbMapResource extends
                             fields.add(column.toString());
                         }
                     }
+                    double[] lev = getLevels();
                     QueryResult mappedResult = DbMapQueryFactory.getMapQuery(
                             resourceData.getTable(),
-                            getGeomField(levels[levels.length - 1]))
+                            getGeomField(lev[lev.length - 1]))
                             .queryWithinEnvelope(req.envelope, fields,
                                     constraints);
                     Map<Integer, Geometry> gidMap = new HashMap<Integer, Geometry>(
@@ -383,6 +391,9 @@ public class DbMapResource extends
 
                     List<Geometry> resultingGeoms = new ArrayList<Geometry>(
                             mappedResult.getResultCount());
+
+                    Set<String> unlabelablePoints = new HashSet<String>(0);
+
                     int numPoints = 0;
                     for (int i = 0; i < mappedResult.getResultCount(); ++i) {
                         if (canceled) {
@@ -426,11 +437,19 @@ public class DbMapResource extends
                             });
 
                             for (Geometry poly : gList) {
-                                Point point = poly.getInteriorPoint();
-                                if (point.getCoordinate() != null) {
-                                    LabelNode node = new LabelNode(label,
-                                            point, req.target);
-                                    newLabels.add(node);
+                                try {
+                                    Point point = poly.getInteriorPoint();
+                                    if (point.getCoordinate() != null) {
+                                        LabelNode node = new LabelNode(label,
+                                                point, req.target);
+                                        newLabels.add(node);
+                                    }
+                                } catch (TopologyException e) {
+                                    statusHandler.handle(Priority.VERBOSE,
+                                            "Invalid geometry cannot be labeled: "
+                                                    + label,
+                                                    e);
+                                    unlabelablePoints.add(label);
                                 }
                             }
                         }
@@ -443,6 +462,12 @@ public class DbMapResource extends
                                         req.shadingField.toLowerCase()));
                             }
                         }
+                    }
+
+                    if (!unlabelablePoints.isEmpty()) {
+                        statusHandler.handle(Priority.WARN,
+                                "Invalid geometries cannot be labeled: "
+                                        + unlabelablePoints.toString());
                     }
 
                     newOutlineShape.allocate(numPoints);
@@ -511,7 +536,7 @@ public class DbMapResource extends
 
     protected Map<Object, RGB> colorMap;
 
-    protected double[] levels;
+    private double[] levels;
 
     protected double lastSimpLev;
 
@@ -521,16 +546,11 @@ public class DbMapResource extends
 
     private MapQueryJob queryJob;
 
-    protected String geometryType;
+    private String geometryType;
 
     public DbMapResource(DbMapResourceData data, LoadProperties loadProperties) {
         super(data, loadProperties);
         queryJob = new MapQueryJob();
-
-        // Prepopulate fields
-        getGeometryType();
-        getLabelFields();
-        getLevels();
     }
 
     @Override
@@ -549,6 +569,13 @@ public class DbMapResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
+
+        // Prepopulate fields in initInternal since this is not on the UI
+        // thread
+        getGeometryType();
+        getLabelFields();
+        getLevels();
+
         getCapability(ShadeableCapability.class).setAvailableShadingFields(
                 getLabelFields().toArray(new String[0]));
     }

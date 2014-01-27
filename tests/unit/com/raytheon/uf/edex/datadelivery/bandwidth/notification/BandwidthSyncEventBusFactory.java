@@ -35,6 +35,7 @@ import com.google.common.eventbus.EventBus;
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Initial creation
  * May 28, 2013 1650       djohnson     Add getEventBuses.
+ * Jul 10, 2013 2106       djohnson     Remove subscriptionBus.
  * 
  * </pre>
  * 
@@ -46,17 +47,7 @@ public class BandwidthSyncEventBusFactory implements BandwidthEventBusFactory {
 
     private final EventBus dataSetBus = new EventBus();
 
-    private final EventBus subscriptionBus = new EventBus();
-
     private final EventBus retrievalBus = new EventBus();
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public EventBus getSubscriptionBus() {
-        return subscriptionBus;
-    }
 
     /**
      * {@inheritDoc}
@@ -79,7 +70,6 @@ public class BandwidthSyncEventBusFactory implements BandwidthEventBusFactory {
      */
     @Override
     public List<EventBus> getEventBuses() {
-        return Arrays.<EventBus> asList(dataSetBus, retrievalBus,
-                subscriptionBus);
+        return Arrays.<EventBus> asList(dataSetBus, retrievalBus);
     }
 }

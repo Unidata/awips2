@@ -35,12 +35,12 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
-import com.raytheon.uf.common.dataplugin.svrwx.dao.SvrWxRecordDao;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**

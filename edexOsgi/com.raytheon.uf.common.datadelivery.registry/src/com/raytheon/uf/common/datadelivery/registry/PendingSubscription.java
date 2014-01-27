@@ -29,6 +29,7 @@ package com.raytheon.uf.common.datadelivery.registry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 04, 2013 1841      djohnson      Initial creation
+ * Sept 30, 2013 1797     dhladky       Some Generics
  * 
  * </pre>
  * 
@@ -36,6 +37,6 @@ package com.raytheon.uf.common.datadelivery.registry;
  * @version 1.0
  */
 
-public interface PendingSubscription extends InitialPendingSubscription {
+public interface PendingSubscription<T extends Time, C extends Coverage> extends InitialPendingSubscription<T, C> {
 
 }

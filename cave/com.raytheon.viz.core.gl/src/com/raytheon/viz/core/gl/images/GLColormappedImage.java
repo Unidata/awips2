@@ -19,15 +19,14 @@
  **/
 package com.raytheon.viz.core.gl.images;
 
+import javax.measure.unit.Unit;
 import javax.media.opengl.GL;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.sun.opengl.util.texture.TextureCoords;
 
 /**
  * 
@@ -39,46 +38,25 @@ import com.sun.opengl.util.texture.TextureCoords;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 27, 2009            mschenke     Initial creation
+ * Jul 27, 2009            mschenke    Initial creation
  * Mar 21, 2013 1806       bsteffen    Update GL mosaicing to use dynamic data
  *                                     format for offscreen textures.
+ * Oct 16, 2013 2333       mschenke    Moved shared logic into base class
  * 
  * </pre>
  * 
  * @author mschenke
  */
-public class GLColormappedImage extends AbstractGLImage implements
-        IColormappedImage {
+public class GLColormappedImage extends AbstractGLColormappedImage {
 
-    protected ColorMapParameters colorMapParameters;
-
-    protected GLCMTextureData data;
+    protected GLRetrievableCMTextureData data;
 
     public GLColormappedImage(IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters params,
             Class<? extends IImagingExtension> extensionClass) {
-        super(extensionClass);
-        this.data = GLCMTextureData.getGlTextureId(dataCallback);
-        this.colorMapParameters = params;
-        if (data.isLoaded()) {
-            setStatus(Status.LOADED);
-        } else if (data.isStaged()) {
-            setStatus(Status.STAGED);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#stageTexture()
-     */
-    @Override
-    public boolean stageTexture() throws VizException {
-        if (data == null) {
-            throw new VizException(
-                    "Cannot stage texture, image has been disposed");
-        }
-        return data.stageTexture();
+        super(GLRetrievableCMTextureData.getGlTextureId(dataCallback), params,
+                extensionClass);
+        this.data = (GLRetrievableCMTextureData) super.data;
     }
 
     /*
@@ -90,115 +68,13 @@ public class GLColormappedImage extends AbstractGLImage implements
      */
     @Override
     public void loadTexture(GL gl) throws VizException {
-        if (data.loadTexture(gl)) {
-            // Add to texture cache
-            setStatus(Status.LOADED);
-            data.disposeTextureData();
-        } else {
-            setStatus(Status.FAILED);
-            data.disposeTextureData();
-        }
-    }
-
-    /**
-     * Return the texture's data type
-     * 
-     * Example: GL.GL_FLOAT
-     * 
-     * @return the data type of the texture
-     * 
-     */
-    public int getTextureType() {
-        return data.getTextureType();
+        super.loadTexture(gl);
+        // No need to keep around texture data after loading
+        data.disposeTextureData();
     }
 
     public ColorMapDataType getColorMapDataType() {
         return data.getColorMapDataType();
-    }
-
-    /**
-     * Return the texture's format
-     * 
-     * Example: GL.GL_LUMINANCE
-     * 
-     * @return the texture format
-     */
-    public int getTextureFormat() {
-        return data.getTextureFormat();
-    }
-
-    /**
-     * Return the texture's internal format
-     * 
-     * This is the format of the texture after driver manipulation
-     * 
-     * Example: GL.GL_LUMINANCE8
-     * 
-     * @return the texture internal format
-     */
-    public int getTextureInternalFormat() {
-        return data.getTextureInternalFormat();
-    }
-
-    /**
-     * @return the textureid
-     */
-    public int getTextureid() {
-        return data.getTexId();
-    }
-
-    /**
-     * the absolute minimum value of a pixel in this image. {@link Double#NaN}
-     * if no absolute minimum exists
-     * 
-     * @return
-     */
-    public double getDataMin() {
-        return data.getDataMin();
-    }
-
-    /**
-     * the absolute maximum value of a pixel in this image. {@link Double#NaN}
-     * if no absolute maximum exists
-     * 
-     * @return
-     */
-    public double getDataMax() {
-        return data.getDataMax();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IColormappedImage#getColorMapParameters()
-     */
-    @Override
-    public ColorMapParameters getColorMapParameters() {
-        return this.colorMapParameters;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IColormappedImage#setColorMapParameters
-     * (com.raytheon.viz.core.drawables.ColorMapParameters)
-     */
-    @Override
-    public void setColorMapParameters(ColorMapParameters params) {
-        this.colorMapParameters = params;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.gl.internal.images.GLImage#getTextureStorageType()
-     */
-    @Override
-    public int getTextureStorageType() {
-        return data.getTextureStorageType();
     }
 
     @Override
@@ -210,33 +86,10 @@ public class GLColormappedImage extends AbstractGLImage implements
         return val;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.internal.images.GLImage#getHeight()
-     */
-    @Override
-    public int getHeight() {
-        return data.getDimensionSize(1);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.internal.images.GLImage#getWidth()
-     */
-    @Override
-    public int getWidth() {
-        return data.getDimensionSize(0);
-    }
-
     @Override
     public void dispose() {
         super.dispose();
-        if (data != null) {
-            data.dispose();
-            data = null;
-        }
+        data = null;
     }
 
     /*
@@ -250,46 +103,12 @@ public class GLColormappedImage extends AbstractGLImage implements
         super.usaAsFrameBuffer();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#getStatus()
-     */
     @Override
-    public Status getStatus() {
-        Status status = super.getStatus();
-        if (data == null) {
-            if (status != Status.UNLOADED) {
-                setStatus(Status.UNLOADED);
-            }
-        } else if (data.isLoaded()) {
-            if (status != Status.LOADED) {
-                setStatus(Status.LOADED);
-            }
-        } else if (data.isStaged()) {
-            if (status != Status.STAGED) {
-                setStatus(Status.STAGED);
-            }
-        } else if (data.isLoaded() == false && status == Status.LOADED) {
-            if (data.isStaged()) {
-                setStatus(Status.STAGED);
-            } else {
-                setStatus(Status.UNLOADED);
-            }
-        } else if (data.isStaged() == false && status == Status.STAGED) {
-            setStatus(Status.UNLOADED);
+    public Unit<?> getDataUnit() {
+        if (data != null && data.getDataUnit() != null) {
+            return data.getDataUnit();
         }
-        return super.getStatus();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.gl.images.AbstractGLImage#getTextureCoords()
-     */
-    @Override
-    public TextureCoords getTextureCoords() {
-        return new TextureCoords(0, 1, 1, 0);
+        return getColorMapParameters().getDataUnit();
     }
 
 }

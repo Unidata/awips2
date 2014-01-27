@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.pointdata.rsc;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.RequestableMetadataMarshaller;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -51,11 +51,15 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 17, 2009            njensen     Initial creation
- * Jun 29, 2009 2538       jsanchez    Implemented Metars.
- * May 14, 2013 1869       bsteffen    Get plots working without dataURI
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 17, 2009           njensen     Initial creation
+ * Jun 29, 2009  2538     jsanchez    Implemented Metars.
+ * May 14, 2013  1869     bsteffen    Get plots working without dataURI
+ * Aug 09, 2013  2033     mschenke    Switched File.separator to 
+ *                                    IPathManager.SEPARATOR
+ * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
+ * 
  * 
  * </pre>
  * 
@@ -66,7 +70,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
 @XmlAccessorType(XmlAccessType.NONE)
 public class PlotResourceData extends AbstractRequestableResourceData {
 
-    public static final String PLOT_DIR = "plotModels" + File.separator;
+    public static final String PLOT_DIR = "plotModels" + IPathManager.SEPARATOR;
 
     public static class PluginPlotProperties {
 
@@ -147,10 +151,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          * These use the original PlotResource, whoever can convert these gets
          * to delete thousands of lines of code, it will be amazing.
          */
-        pluginProps.put("pirep", new PluginPlotProperties(false, false));
-        pluginProps.put("airep", new PluginPlotProperties(false, false));
         pluginProps.put("acars", new PluginPlotProperties(false, false));
-
 
         /*
          * These have a dependency on dataURI because they don't set stationId,
@@ -190,6 +191,9 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
+        pluginProps.put("madis", new PluginPlotProperties());
+        pluginProps.put("pirep", new PluginPlotProperties());
+        pluginProps.put("airep", new PluginPlotProperties());
 
         ParsedURL.registerHandler(new LocalizationParsedURLHandler());
     }
@@ -480,10 +484,12 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         return result;
     }
 
-    public static PluginPlotProperties getPluginProperties(Map<String,RequestConstraint> metadataMap){
+    public static PluginPlotProperties getPluginProperties(
+            Map<String, RequestConstraint> metadataMap) {
         RequestConstraint rc = metadataMap.get("pluginName");
         if (rc == null || rc.getConstraintType() != ConstraintType.EQUALS) {
-            throw new IllegalArgumentException("Cannot find plugin properties because metadataMap does not specify a plugin.");
+            throw new IllegalArgumentException(
+                    "Cannot find plugin properties because metadataMap does not specify a plugin.");
         }
         return getPluginProperties(rc.getConstraintValue());
     }

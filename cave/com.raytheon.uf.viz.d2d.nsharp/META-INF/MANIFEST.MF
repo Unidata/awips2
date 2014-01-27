@@ -9,21 +9,20 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
- org.eclipse.core.commands;bundle-version="3.6.0",
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
- org.eclipse.swt;bundle-version="3.6.1",
  org.eclipse.ui;bundle-version="3.6.1",
- org.geotools;bundle-version="2.6.4",
  gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.topo;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.ui;bundle-version="1.12.1174",
- com.raytheon.viz.core.graphing;bundle-version="1.12.1174"
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.viz.pointdata;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ com.raytheon.uf.common.sounding;bundle-version="1.12.1174",
+ com.raytheon.uf.common.wxmath;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.d2d.nsharp,

@@ -1,5 +1,6 @@
 com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord
 com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK
+com.raytheon.uf.edex.datadelivery.retrieval.db.ProviderKeyRecord
 com.raytheon.uf.edex.datadelivery.retrieval.Link
 com.raytheon.uf.edex.datadelivery.retrieval.LinkStore
 

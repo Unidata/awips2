@@ -36,6 +36,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.CountiesData;
 import com.raytheon.viz.hydrocommon.data.EligZoneData;
@@ -53,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 8, 2008				lvenable	Initial creation
  * Jan 8, 2008  1802        askripsk    Connect to DB.
+ * Jun 11, 2013 2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -60,6 +64,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class StatesCountiesZonesDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(StatesCountiesZonesDlg.class);
 
     /**
      * Control font.
@@ -210,7 +216,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
      *            Parent shell.
      */
     public StatesCountiesZonesDlg(Shell parent) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("States/Counties/Zones");
     }
 
@@ -604,7 +610,7 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -662,7 +668,8 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             stateData = HydroDBDataManager.getInstance().getData(
                     StateData.class);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load state data ", e);
         }
 
         updateStateDisplay();
@@ -673,7 +680,8 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             countyData = HydroDBDataManager.getInstance().getData(
                     CountiesData.class);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to load counties data ", e);
         }
 
         updateCountyDisplay();
@@ -684,7 +692,8 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             zoneData = HydroDBDataManager.getInstance().getData(
                     EligZoneData.class);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to load zone data ",
+                    e);
         }
 
         updateZoneDisplay();
@@ -801,8 +810,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while trying to save the State");
                 mb.open();
-
-                e.printStackTrace();
             }
         } else {
             missingValueMessage("State");
@@ -839,8 +846,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while trying to save the County");
                 mb.open();
-
-                e.printStackTrace();
             }
         }
 
@@ -867,8 +872,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                 mb.setText("Unable to Save");
                 mb.setMessage("An error occurred while trying to save the Zone");
                 mb.open();
-
-                e.printStackTrace();
             }
         }
 
@@ -908,8 +911,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete the State");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         } else {
@@ -942,8 +943,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete the County");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         } else {
@@ -976,8 +975,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
                     mb.setText("Unable to Delete");
                     mb.setMessage("An error occurred while trying to delete the Zone");
                     mb.open();
-
-                    e.printStackTrace();
                 }
             }
         } else {
@@ -1088,7 +1085,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
             }
         } catch (VizException e) {
             // don't care, just return false
-            e.printStackTrace();
         }
 
         return rval;
@@ -1116,7 +1112,6 @@ public class StatesCountiesZonesDlg extends CaveSWTDialog {
 
         } catch (VizException e) {
             // don't care, just return false
-            e.printStackTrace();
         }
 
         return rval;

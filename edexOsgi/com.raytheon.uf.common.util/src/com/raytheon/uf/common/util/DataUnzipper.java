@@ -37,6 +37,8 @@ import java.util.zip.ZipInputStream;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2012            mschenke     Initial creation
+ * Aug 16, 2013 2169       bkowal       Added a method to determine if data is gzipped
+ *                                      using the magic number verification.
  * 
  * </pre>
  * 
@@ -45,6 +47,21 @@ import java.util.zip.ZipInputStream;
  */
 
 public class DataUnzipper {
+    public static boolean isGzipped(byte[] data) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+
+        int b = bais.read();
+        if (b == -1) {
+            throw new IOException("Unexpected end of input stream encountered!");
+        }
+        int x = bais.read();
+        if (x == -1) {
+            throw new IOException("Unexpected end of input stream encountered!");
+        }
+        int magic = ((int) x << 8) | b;
+
+        return magic == GZIPInputStream.GZIP_MAGIC;
+    }
 
     /**
      * Uses ZLIB decompression to unzip the data

@@ -41,51 +41,100 @@ import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.monitor.scan.xml.ScanAlarmXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * 
  * Dialog to change the time limits for CELL, DMD, MESO, and/or TVS.
- *
+ * 
+ * <pre>
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2010            lvenable     Initial creation
- *
+ * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialogs.
+ * Aug 15, 2013 2143       mpduff       Remove resize.
+ * Oct 17, 2013 2361       njensen      Use JAXBManager for XML
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
 public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
-    private ScanTables scanTable;
+    private static final SingleTypeJAXBManager<ScanAlarmXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ScanAlarmXML.class);
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SCANAlarmTimeLimitDlg.class);
+
+    /**
+     * Scan Tables
+     */
+    private final ScanTables scanTable;
+
+    /**
+     * Cell Spinner
+     */
     private Spinner cellSpnr;
 
+    /**
+     * Meso Spinner
+     */
     private Spinner mesoSpnr;
 
+    /**
+     * TVS Spinner
+     */
     private Spinner tvsSpnr;
 
+    /**
+     * DMD Spinner
+     */
     private Spinner dmdSpnr;
 
-    private int labelWidth = 80;
+    /**
+     * Label Width
+     */
+    private final int labelWidth = 80;
 
-    private int spinnerWidth = 70;
-    
+    /**
+     * Width Spinner
+     */
+    private final int spinnerWidth = 70;
+
+    /**
+     * SCAN Alarm XML
+     */
     private ScanAlarmXML dataXML;
 
+    /**
+     * Constructor
+     * 
+     * @param parentShell
+     * @param scanTable
+     * @param site
+     */
     public SCANAlarmTimeLimitDlg(Shell parentShell, ScanTables scanTable,
             String site) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Alarm Time Limit for: " + site);
 
         this.scanTable = scanTable;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -95,14 +144,21 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        
+
         /*
          * Read in the alarm data from XML
          */
         readAlarmData();
-        
+
         // Initialize all of the controls and layouts
         if (scanTable == ScanTables.CELL || scanTable == ScanTables.MESO
                 || scanTable == ScanTables.TVS) {
@@ -114,6 +170,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         createBottomButtons();
     }
 
+    /**
+     * Create CELL, MESO, TVS Controls.
+     */
     private void createCellMesoTvsControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
@@ -186,15 +245,17 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         Label tvsMinLbl = new Label(controlComp, SWT.NONE);
         tvsMinLbl.setText("min");
         tvsMinLbl.setLayoutData(gd);
-        
-        if (dataXML != null)
-        {
+
+        if (dataXML != null) {
             cellSpnr.setSelection(dataXML.getCellAlarmTime());
             mesoSpnr.setSelection(dataXML.getMesoAlarmTime());
             tvsSpnr.setSelection(dataXML.getTvsAlarmTime());
         }
     }
 
+    /**
+     * Create DMD Controls
+     */
     private void createDmdControls() {
         Composite controlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(3, false);
@@ -224,13 +285,15 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         Label dmdMinLbl = new Label(controlComp, SWT.NONE);
         dmdMinLbl.setText("min");
         dmdMinLbl.setLayoutData(gd);
-        
-        if (dataXML != null)
-        {
+
+        if (dataXML != null) {
             dmdSpnr.setSelection(dataXML.getDmdAlarmTime());
         }
     }
 
+    /**
+     * Create Bottom Buttons.
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, true));
@@ -245,9 +308,9 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                
+
                 saveAlarmData();
-                shell.dispose();
+                close();
             }
         });
 
@@ -259,78 +322,82 @@ public class SCANAlarmTimeLimitDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
-    private void readAlarmData()
-    {
-        try
-        {
+    /**
+     * Read Alarm Data.
+     */
+    private void readAlarmData() {
+        try {
             dataXML = null;
             IPathManager pm = PathManagerFactory.getPathManager();
-            String path = pm.getStaticFile(getFullPathAndFileName()).getAbsolutePath();         
-            
-            dataXML = (ScanAlarmXML) SerializationUtil.jaxbUnmarshalFromXmlFile(path);
-        }
-        catch (Exception e)
-        {
-//            e.printStackTrace();
-            System.out.println("*** ScanAlarms.xml not available.");
+            String path = pm.getStaticFile(getFullPathAndFileName())
+                    .getAbsolutePath();
+
+            dataXML = jaxb.unmarshalFromXmlFile(path);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Scan Alarms not available (ScanAlarms.xml).", e);
             dataXML = null;
-        } 
+        }
     }
-    
-    private void saveAlarmData()
-    {
-        if (dataXML == null)
-        {
+
+    /**
+     * Save Alarm Data.
+     */
+    private void saveAlarmData() {
+        if (dataXML == null) {
             return;
         }
-        
+
         if (scanTable == ScanTables.CELL || scanTable == ScanTables.MESO
                 || scanTable == ScanTables.TVS) {
-            dataXML.setCellAlarmTime(cellSpnr.getSelection());            
+            dataXML.setCellAlarmTime(cellSpnr.getSelection());
             dataXML.setMesoAlarmTime(mesoSpnr.getSelection());
             dataXML.setTvsAlarmTime(tvsSpnr.getSelection());
         } else {
             dataXML.setDmdAlarmTime(dmdSpnr.getSelection());
         }
-        
+
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        LocalizationFile locFile = pm.getLocalizationFile(context, getFullPathAndFileName());        
-        
-        if (locFile.getFile().getParentFile().exists() == false)
-        {
-            System.out.println("Creating new directory");
-            
-            if (locFile.getFile().getParentFile().mkdirs() == false)
-            {
-                System.out.println("Could not create new directory...");
-            }
+        LocalizationFile locFile = pm.getLocalizationFile(context,
+                getFullPathAndFileName());
+
+        if (!locFile.getFile().getParentFile().exists()) {
+            locFile.getFile().getParentFile().mkdirs();
         }
 
-        try
-        {            
-            SerializationUtil.jaxbMarshalToXmlFile(dataXML, locFile.getFile().getAbsolutePath());
+        try {
+            jaxb.marshalToXmlFile(dataXML, locFile.getFile().getAbsolutePath());
             locFile.save();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR,
+                    "Error saving configuration file", e);
         }
     }
-    
-    public String getFullPathAndFileName()
-    {
+
+    /**
+     * Get Full Path And File Name.
+     * 
+     * @return file name
+     */
+    public String getFullPathAndFileName() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
 

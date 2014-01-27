@@ -31,78 +31,118 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Provides a transform from PointDataContainer to FSSObsRecord.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 8, 2011            skorolev     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author skorolev
- * @version 1.0	
+ * @version 1.0
  */
 
 public class FSSObsRecordTransform {
-	private static final String DATA_URI = "dataURI";
-	private static final String LONGITUDE = "longitude";
-	private static final String LATITUDE = "latitude";
-	private static final String ELEVATION = "elevation";
+    private static final String DATA_URI = "dataURI";
+
+    private static final String LONGITUDE = "longitude";
+
+    private static final String LATITUDE = "latitude";
+
+    private static final String ELEVATION = "elevation";
+
     private static final String CEILING = "ceiling";
+
     private static final String DEWPOINT = "dewpoint";
+
     private static final String DEWPOINT_DEPR = "dewpointDepr";
+
     private static final String FROSTBITE_TIME = "frostbiteTime";
+
     private static final String HORIZONTAL_VIS = "horzVisibility";
+
     private static final String HOURLY_PRECIP = "hourlyPrecip";
+
     private static final String MAX_WIND_SPEED = "maxWindSpeed";
+
     private static final String PLATFORM_ID = "platformId";
+
     private static final String PRES_WEATHER = "presWeather";
+
     private static final String PRESS_CHANGE3_HOUR = "pressChange3Hour";
+
     private static final String PRESS_CHANGE_CHAR = "pressChangeChar";
+
     private static final String PRESS_ALTIMETER = "pressureAltimeter";
+
     private static final String PRI_SWELL_WV_DIR = "primarySwellWaveDir";
+
     private static final String PRI_SWELL_WV_HGT = "primarySwellWaveHeight";
+
     private static final String PRI_SWELL_WV_PD = "primarySwellWavePeriod";
+
     private static final String RAW_MESSAGE = "rawMessage";
+
     private static final String REL_HUMIDITY = "relativeHumidity";
+
     private static final String SEA_LEVEL_PRESS = "seaLevelPress";
+
     private static final String SEA_SFC_TEMP = "seaSurfaceTemp";
+
     private static final String SEC_SWELL_WV_DIR = "secondarySwellWaveDir";
+
     private static final String SEC_SWELL_WV_HGT = "secondarySwellWaveHeight";
+
     private static final String SEC_SWELL_WV_PD = "secondarySwellWavePeriod";
+
     private static final String SKY_COVER = "skyCover";
+
     private static final String SNOW_INC_HOURLY = "snincrHourly";
+
     private static final String SNOW_INC_TOTAL = "snincrTotal";
+
     private static final String SNOW_DEPTH = "snowDepth";
+
     private static final String STATION_NAME = "stnName";
+
     private static final String TEMPERATURE = "temperature";
+
     private static final String TIME_OBS = "timeObs";
 
     private static final String REF_HOUR = "refHour";
+
     private static final String CLOUD_AMOUNT_TOT = "totCloudAmount";
+
     private static final String VISIBILITY = "visibility";
-	private static final String WAVE_HEIGHT = "highResWaveHeight";
+
+    private static final String WAVE_HEIGHT = "highResWaveHeight";
+
     private static final String WV_HGT = "waveHeight";
+
     private static final String WV_PD = "wavePeriod";
+
     private static final String WV_STEEPNESS = "waveSteepness";
+
     private static final String WIND_DIR = "windDir";
+
     private static final String WIND_GUST = "windGust";
+
     private static final String WIND_SPEED = "windSpeed";
-    
-	private static final String[] FSSOBS_PARAMS = { DATA_URI, LONGITUDE,
-			LATITUDE, ELEVATION, CEILING, DEWPOINT, DEWPOINT_DEPR,
-			FROSTBITE_TIME, HORIZONTAL_VIS, HOURLY_PRECIP, MAX_WIND_SPEED,
-			PLATFORM_ID, PRES_WEATHER, PRESS_CHANGE3_HOUR, PRESS_CHANGE_CHAR,
-			PRESS_ALTIMETER, PRI_SWELL_WV_DIR, PRI_SWELL_WV_HGT,
-			PRI_SWELL_WV_PD, RAW_MESSAGE, REL_HUMIDITY, SEA_LEVEL_PRESS,
-			SEA_SFC_TEMP, SEC_SWELL_WV_DIR, SEC_SWELL_WV_HGT, SEC_SWELL_WV_PD,
-			SKY_COVER, SNOW_INC_HOURLY, SNOW_INC_TOTAL, SNOW_DEPTH,
+
+    public static final String[] FSSOBS_PARAMS = { DATA_URI, LONGITUDE,
+            LATITUDE, ELEVATION, CEILING, DEWPOINT, DEWPOINT_DEPR,
+            FROSTBITE_TIME, HORIZONTAL_VIS, HOURLY_PRECIP, MAX_WIND_SPEED,
+            PLATFORM_ID, PRES_WEATHER, PRESS_CHANGE3_HOUR, PRESS_CHANGE_CHAR,
+            PRESS_ALTIMETER, PRI_SWELL_WV_DIR, PRI_SWELL_WV_HGT,
+            PRI_SWELL_WV_PD, RAW_MESSAGE, REL_HUMIDITY, SEA_LEVEL_PRESS,
+            SEA_SFC_TEMP, SEC_SWELL_WV_DIR, SEC_SWELL_WV_HGT, SEC_SWELL_WV_PD,
+            SKY_COVER, SNOW_INC_HOURLY, SNOW_INC_TOTAL, SNOW_DEPTH,
             STATION_NAME, TEMPERATURE, TIME_OBS, REF_HOUR, CLOUD_AMOUNT_TOT,
-            VISIBILITY,
-			WAVE_HEIGHT, WV_HGT, WV_PD, WV_STEEPNESS, WIND_DIR, WIND_GUST,
-			WIND_SPEED };
-    
+            VISIBILITY, WAVE_HEIGHT, WV_HGT, WV_PD, WV_STEEPNESS, WIND_DIR,
+            WIND_GUST, WIND_SPEED };
+
     public static final String FSSOBS_PARAMS_LIST;
 
     static {
@@ -119,7 +159,6 @@ public class FSSObsRecordTransform {
         FSSOBS_PARAMS_LIST = sb.toString();
     }
 
-    
     /**
      * 
      * @param container
@@ -139,20 +178,20 @@ public class FSSObsRecordTransform {
         }
         return records.toArray(new FSSObsRecord[records.size()]);
     }
-    
+
     private static FSSObsRecord toFSSObsRecord(PointDataView pdv) {
         FSSObsRecord obs = null;
         if (pdv != null) {
-			// String uri = pdv.getString(DATA_URI);
-			obs = new FSSObsRecord();
-			obs.setDataURI(pdv.getString(DATA_URI));
-			SurfaceObsLocation loc = new SurfaceObsLocation(
-					pdv.getString(PLATFORM_ID));
-			Double lat = pdv.getNumber(LATITUDE).doubleValue();
-			Double lon = pdv.getNumber(LONGITUDE).doubleValue();
-			loc.assignLocation(lat, lon);
-			loc.setElevation(pdv.getNumber(ELEVATION).intValue());
-			obs.setLocation(loc);
+            // String uri = pdv.getString(DATA_URI);
+            obs = new FSSObsRecord();
+            obs.setDataURI(pdv.getString(DATA_URI));
+            SurfaceObsLocation loc = new SurfaceObsLocation(
+                    pdv.getString(PLATFORM_ID));
+            Double lat = pdv.getNumber(LATITUDE).doubleValue();
+            Double lon = pdv.getNumber(LONGITUDE).doubleValue();
+            loc.assignLocation(lat, lon);
+            loc.setElevation(pdv.getNumber(ELEVATION).intValue());
+            obs.setLocation(loc);
             obs.setCeiling(pdv.getFloat(CEILING));
             obs.setDewpoint(pdv.getNumber(DEWPOINT).floatValue());
             obs.setDewpointDepr(pdv.getFloat(DEWPOINT_DEPR));
@@ -162,19 +201,26 @@ public class FSSObsRecordTransform {
             obs.setMaxWindSpeed(pdv.getFloat(MAX_WIND_SPEED));
             obs.setPlatformId(pdv.getString(PLATFORM_ID));
             obs.setPresWeather(pdv.getStringAllLevels(PRES_WEATHER));
-            obs.setPressChange3Hour(pdv.getNumber(PRESS_CHANGE3_HOUR).floatValue());
+            obs.setPressChange3Hour(pdv.getNumber(PRESS_CHANGE3_HOUR)
+                    .floatValue());
             obs.setPressChangeChar(pdv.getString(PRESS_CHANGE_CHAR));
             obs.setPressureAltimeter(pdv.getFloat(PRESS_ALTIMETER));
-            obs.setPrimarySwellWaveDir(pdv.getNumber(PRI_SWELL_WV_DIR).doubleValue());
-            obs.setPrimarySwellWaveHeight(pdv.getNumber(PRI_SWELL_WV_HGT).doubleValue());
-            obs.setPrimarySwellWavePeriod(pdv.getNumber(PRI_SWELL_WV_PD).intValue());
+            obs.setPrimarySwellWaveDir(pdv.getNumber(PRI_SWELL_WV_DIR)
+                    .doubleValue());
+            obs.setPrimarySwellWaveHeight(pdv.getNumber(PRI_SWELL_WV_HGT)
+                    .doubleValue());
+            obs.setPrimarySwellWavePeriod(pdv.getNumber(PRI_SWELL_WV_PD)
+                    .intValue());
             obs.setRawMessage(pdv.getString(RAW_MESSAGE));
             obs.setRelativeHumidity(pdv.getFloat(REL_HUMIDITY));
             obs.setSeaLevelPress(pdv.getFloat(SEA_LEVEL_PRESS));
             obs.setSeaSurfaceTemp(pdv.getFloat(SEA_SFC_TEMP));
-            obs.setSecondarySwellWaveDir(pdv.getNumber(SEC_SWELL_WV_DIR).doubleValue());
-            obs.setSecondarySwellWaveHeight(pdv.getNumber(SEC_SWELL_WV_HGT).doubleValue());
-            obs.setSecondarySwellWavePeriod(pdv.getNumber(SEC_SWELL_WV_PD).intValue());
+            obs.setSecondarySwellWaveDir(pdv.getNumber(SEC_SWELL_WV_DIR)
+                    .doubleValue());
+            obs.setSecondarySwellWaveHeight(pdv.getNumber(SEC_SWELL_WV_HGT)
+                    .doubleValue());
+            obs.setSecondarySwellWavePeriod(pdv.getNumber(SEC_SWELL_WV_PD)
+                    .intValue());
             obs.setSkyCover(pdv.getStringAllLevels(SKY_COVER));
             obs.setSnincrHourly(pdv.getFloat(SNOW_INC_HOURLY));
             obs.setSnincrTotal(pdv.getFloat(SNOW_INC_TOTAL));
@@ -187,7 +233,7 @@ public class FSSObsRecordTransform {
             obs.setRefHour(TimeTools.newCalendar(rh));
             obs.setTotCloudAmount(pdv.getNumber(CLOUD_AMOUNT_TOT).intValue());
             obs.setVisibility(pdv.getNumber(VISIBILITY).floatValue());
-			obs.setHighResWaveHeight(pdv.getFloat(WAVE_HEIGHT));
+            obs.setHighResWaveHeight(pdv.getFloat(WAVE_HEIGHT));
             obs.setWaveHeight(pdv.getNumber(WV_HGT).doubleValue());
             obs.setWavePeriod(pdv.getNumber(WV_PD).intValue());
             obs.setWindDir(pdv.getNumber(WIND_DIR).floatValue());

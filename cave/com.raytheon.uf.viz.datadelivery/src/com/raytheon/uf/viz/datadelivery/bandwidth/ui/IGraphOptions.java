@@ -22,9 +22,10 @@ package com.raytheon.uf.viz.datadelivery.bandwidth.ui;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthImageMgr.GraphSection;
 
 /**
- * TODO Add Description
+ * Graph options interface.
  * 
  * <pre>
  * 
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * ------------ ---------- ----------- --------------------------
  * Dec 4, 2012     1269    mpduff      Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
+ * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * 
  * </pre>
  * 
@@ -109,4 +111,24 @@ public interface IGraphOptions {
      *            RGB color.
      */
     void setPriorityColor(SubscriptionPriority priority, RGB rgb);
+
+    /**
+     * Get the RGB color associated with the specified percentage.
+     * 
+     * @param percentString
+     *            The percent string
+     * @return RGB color.
+     */
+    RGB getPercentColor(GraphSection section);
+
+    /**
+     * Set the color associated with the specified percentage.
+     * 
+     * @param section
+     *            The GraphSection
+     * 
+     * @param rgb
+     *            RGB color.
+     */
+    void setPercentColor(GraphSection section, RGB rgb);
 }

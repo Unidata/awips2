@@ -36,7 +36,9 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.contexts.IContextService;
 
+import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager;
@@ -49,9 +51,12 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/1/06                   chammack    Initial Creation.
- * Mar 5, 2013  1753        njensen     Added shutdown printout
+ * Jul 01, 2006             chammack    Initial Creation.
+ * Mar 05, 2013 1753        njensen     Added shutdown printout
  * May 28, 2013 1967        njensen     Remove unused subnode preferences
+ * Jul 16, 2013 2158        bsteffen    Allow VizGlobalsManager to work without
+ *                                      accessing UI thread.
+ * Oct 15, 2013 2361        njensen     Added startupTimer
  * 
  * </pre>
  * 
@@ -63,6 +68,8 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
     protected CloseNonRestorableDetachedViewsListener detachedViewsListener;
 
     private boolean createdMenus = false;
+
+    protected ITimer startupTimer;
 
     public VizWorkbenchAdvisor() {
         detachedViewsListener = new CloseNonRestorableDetachedViewsListener();
@@ -85,6 +92,7 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         customizeAppearance();
         PlatformUI.getWorkbench().addWindowListener(
                 VizWorkbenchManager.getInstance());
+        VizGlobalsManager.startForWorkbench(PlatformUI.getWorkbench());
     }
 
     /**
@@ -312,6 +320,13 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         IContextService service = (IContextService) PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         service.activateContext("com.raytheon.uf.viz.application.cave");
+
+        if (startupTimer != null) {
+            startupTimer.stop();
+            System.out.println("Workbench startup time: "
+                    + startupTimer.getElapsedTime() + " ms");
+        }
+
     }
 
     /**
@@ -320,6 +335,10 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
      */
     protected void createDynamicMenus() {
         DiscoverMenuContributions.discoverContributions();
+    }
+
+    public void setStartupTimer(ITimer startupTimer) {
+        this.startupTimer = startupTimer;
     }
 
 }

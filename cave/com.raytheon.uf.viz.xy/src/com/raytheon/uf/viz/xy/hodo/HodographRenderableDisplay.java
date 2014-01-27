@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2011            bsteffen     Initial creation
+ * 06/24/2013   2140       randerso    Changed to use standardized paint error handling
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class HodographRenderableDisplay extends AbstractRenderableDisplay
 
     private void addResource(ResourcePair rp) {
         AbstractVizResource<?, ?> rsc = rp.getResource();
-        if (rsc != null && rsc instanceof IHodographResource) {
+        if ((rsc != null) && (rsc instanceof IHodographResource)) {
             resources.add((IHodographResource) rsc);
         }
     }
@@ -113,10 +114,10 @@ public class HodographRenderableDisplay extends AbstractRenderableDisplay
             if (pair.getResource() == null) {
                 continue;
             }
-            pair.getResource().paint(target, paintProps);
+            paintResource(pair, target, paintProps);
         }
         for (IHodographResource rsc : resources) {
-            if (rsc instanceof AbstractVizResource
+            if ((rsc instanceof AbstractVizResource)
                     && !((AbstractVizResource<?, ?>) rsc).getProperties()
                             .isVisible()) {
                 continue;

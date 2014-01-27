@@ -19,6 +19,12 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.jdbc.Work;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013 1650       djohnson     Initial creation
+ * 8/15/2013    1682       bphillip     Added additional actions to initDb
  * 
  * </pre>
  * 
@@ -46,7 +53,30 @@ public class HsqlEbxmlDbInit extends DbInit {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void initDb() throws Exception {
-        populateDB();
+        AnnotationConfiguration aConfig = this.getAnnotationConfiguration();
+        try {
+            dropTables(aConfig);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        createSchema();
+        createTables(aConfig);
+        // populateDB();
+    }
+
+    private void createSchema() {
+        final Work work = new Work() {
+            @Override
+            public void execute(Connection connection) throws SQLException {
+                Statement stmt = connection.createStatement();
+                stmt.execute("create schema IF NOT EXISTS ebxml;");
+                connection.commit();
+                stmt.close();
+
+            }
+        };
+
+        executeWork(work);
     }
 
 }

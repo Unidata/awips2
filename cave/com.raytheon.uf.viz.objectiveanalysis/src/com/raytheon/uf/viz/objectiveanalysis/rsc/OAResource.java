@@ -40,7 +40,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -50,8 +49,16 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
@@ -72,18 +79,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -92,12 +92,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov  5, 2009            randerso    Initial creation
- * Jan  8, 2010  4205      jelkins     add equals checking for OA resources
- * Aug 27, 2013  2287      randerso    Added new parameters to GriddedVectorDisplay
- *                                     constructor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 05, 2009           randerso    Initial creation
+ * Jan 08, 2010  4205     jelkins     add equals checking for OA resources
+ * Aug 27, 2013  2287     randerso    Added new parameters to
+ *                                    GriddedVectorDisplay constructor
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -112,6 +113,9 @@ public class OAResource extends
             .getHandler(OAResource.class);
 
     private static final int GRID_SIZE = 300;
+
+    /* Unknown source, seems to be provide acceptable density. */
+    private static final double VECTOR_DENSITY_FACTOR = 1.875;
 
     private class OAUpateJob extends Job {
 
@@ -410,7 +414,7 @@ public class OAResource extends
                             .getConverterTo(prefs.getDisplayUnits());
 
                     for (int i = 0; i < grid.length; i++) {
-                        if (grid[i] != Util.GRID_FILL_VALUE) {
+                        if (grid[i] != GridUtil.GRID_FILL_VALUE) {
                             grid[i] = (float) converter.convert(grid[i]);
                         }
                     }
@@ -427,10 +431,10 @@ public class OAResource extends
                 FloatBuffer mag = data;
                 data.position(transformer.getNx() * transformer.getNy());
                 FloatBuffer dir = data.slice();
-                VectorGraphicsRenderableFactory factory = new VectorGraphicsRenderableFactory();
                 GriddedVectorDisplay vector = new GriddedVectorDisplay(mag,
-                        dir, descriptor, transformer.getGridGeom(), 80, 0.75,
-                        true, displayType, factory);
+                        dir, descriptor, transformer.getGridGeom(),
+                        VECTOR_DENSITY_FACTOR,
+                        true, displayType, new VectorGraphicsConfig());
 
                 renderableMap.put(dataTime, vector);
                 break;
@@ -471,7 +475,7 @@ public class OAResource extends
                             .getPreferences();
                     this.parameterUnitString = prefs.getDisplayUnitLabel();
                 }
-            } catch (VizStyleException e) {
+            } catch (StyleException e) {
                 statusHandler.handle(Priority.VERBOSE, e.getLocalizedMessage(),
                         e);
             }
@@ -502,7 +506,7 @@ public class OAResource extends
                 GriddedImageDisplay image = (GriddedImageDisplay) renderable;
                 double value = ((FloatBuffer) image.getData()).get(index);
 
-                if (value == Util.GRID_FILL_VALUE) {
+                if (value == GridUtil.GRID_FILL_VALUE) {
                     return "NO DATA";
                 }
 
@@ -531,22 +535,22 @@ public class OAResource extends
                 double val22 = sliceData[y2 * transformer.getNx() + x2];
                 double val = 0.0;
                 boolean data = false;
-                if (val11 != Util.GRID_FILL_VALUE) {
+                if (val11 != GridUtil.GRID_FILL_VALUE) {
                     val += (x2 - x) * (y2 - y) * val11
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val21 != Util.GRID_FILL_VALUE) {
+                if (val21 != GridUtil.GRID_FILL_VALUE) {
                     val += (x - x1) * (y2 - y) * val21
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val12 != Util.GRID_FILL_VALUE) {
+                if (val12 != GridUtil.GRID_FILL_VALUE) {
                     val += (x2 - x) * (y - y1) * val12
                             / ((x2 - x1) * (y2 - y1));
                     data = true;
                 }
-                if (val22 != Util.GRID_FILL_VALUE) {
+                if (val22 != GridUtil.GRID_FILL_VALUE) {
                     val += (x - x1) * (y - y1) * val22
                             / ((x2 - x1) * (y2 - y1));
                     data = true;

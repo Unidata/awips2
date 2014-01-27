@@ -23,7 +23,6 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
@@ -42,6 +41,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Jan 30, 2013 1543       djohnson     Constrain to the network retrievals are pulled for.
  * Feb 15, 2013 1543       djohnson     Using xml for retrievals now.
  * Mar 05, 2013 1647       djohnson     Change no retrievals found message to debug.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Removed request parameter and IRetrievalDao field.
  * 
  * </pre>
  * 
@@ -61,18 +62,15 @@ public class RetrievalTask implements Runnable {
 
     private final IRetrievalsFinder retrievalDataFinder;
 
-    private final IRetrievalDao retrievalDao;
 
     public RetrievalTask(Network network,
             IRetrievalsFinder retrievalDataFinder,
             IRetrievalPluginDataObjectsProcessor retrievedDataProcessor,
-            IRetrievalResponseCompleter retrievalCompleter,
-            IRetrievalDao retrievalDao) {
+            IRetrievalResponseCompleter retrievalCompleter) {
         this.network = network;
         this.retrievalDataFinder = retrievalDataFinder;
         this.retrievedDataProcessor = retrievedDataProcessor;
         this.retrievalCompleter = retrievalCompleter;
-        this.retrievalDao = retrievalDao;
     }
 
     @Override
@@ -97,10 +95,8 @@ public class RetrievalTask implements Runnable {
                         return;
                     }
 
-                    request = retrievalDao.getById(retrievalPluginDataObject
-                            .getRequestRecord());
                     success = retrievalPluginDataObject.isSuccess();
-                    retrievedDataProcessor
+                    request = retrievedDataProcessor
                             .processRetrievedPluginDataObjects(retrievalPluginDataObject);
                 } catch (Exception e) {
                     statusHandler.error(

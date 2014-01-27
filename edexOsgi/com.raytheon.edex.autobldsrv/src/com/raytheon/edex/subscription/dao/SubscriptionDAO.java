@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.hibernate.Query;
 
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataquery.db.QueryParam;
 import com.raytheon.uf.common.message.Property;
@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 14Nov2008    1709       MW Fegan    Initial creation.
  * 14Apr2011	5163	   cjeanbap	   NWRWAVES Setting AFOS text triggers in AWIPS II
  * 04/24/13     1949       rjpeter     Removed @Override on delete.
+ * Nov 08, 2013 2361       njensen     Chaged method signature of saveOrUpdate(Object)
  * </pre>
  * 
  * @author mfegan
@@ -127,9 +128,10 @@ public class SubscriptionDAO extends CoreDao {
     }
 
     @Override
-    public void saveOrUpdate(PersistableDataObject obj) {
+    public void saveOrUpdate(Object obj) {
         super.saveOrUpdate(obj);
-        sendSubscriptionNotifyMessage(String.valueOf(obj.getIdentifier()));
+        sendSubscriptionNotifyMessage(String
+                .valueOf(((PersistableDataObject) obj).getIdentifier()));
     }
 
     @Override

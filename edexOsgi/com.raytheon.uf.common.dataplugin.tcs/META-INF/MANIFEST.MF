@@ -3,19 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tcs Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.tcs
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.16",
+Require-Bundle: com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.pointdata,
  org.geotools,
- org.apache.commons.logging,
  javax.persistence,
- javax.measure
-Import-Package: com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time
+ javax.measure,
+ com.raytheon.uf.common.dataplugin
+Import-Package: com.raytheon.uf.common.geospatial
 Export-Package: com.raytheon.uf.common.dataplugin.tcs,
- com.raytheon.uf.common.dataplugin.tcs.util,
- com.raytheon.uf.common.dataplugin.tcs.dao
+ com.raytheon.uf.common.dataplugin.tcs.util

@@ -21,11 +21,6 @@ package com.raytheon.uf.common.dataplugin.poessounding;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20080303           1026 jkorman     Initial implementation.
+ * 20131022           2361 njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -44,20 +40,16 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class POESSoundingLevel implements Serializable, ISerializableObject {
+public class POESSoundingLevel implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer pressure;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private Double temperature;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private Double mixingRatio;
 

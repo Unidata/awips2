@@ -45,7 +45,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2012            bsteffen     Initial creation
+ * Dec  5, 2012            bsteffen    Initial creation.
+ * Jun 21, 2013   2132     mpduf       createSubEnvelopeFromLatLon now uses East/West direction.
  * 
  * </pre>
  * 
@@ -285,6 +286,9 @@ public class EnvelopeUtils {
         try {
             ReferencedEnvelope e = new ReferencedEnvelope(crs);
 
+            latLon1 = normalizeLongitude(e, latLon1);
+            latLon2 = normalizeLongitude(e, latLon2);
+
             DirectPosition2D dp1 = new DirectPosition2D(latLon1.x, latLon1.y);
             DirectPosition2D dp2 = new DirectPosition2D(latLon2.x, latLon2.y);
             MathTransform transform = MapUtil.getTransformFromLatLon(crs);
@@ -319,10 +323,11 @@ public class EnvelopeUtils {
      * @return
      */
     public static ReferencedEnvelope createSubenvelopeFromLatLon(
-            Envelope envelope, Coordinate latLon1,
-            Coordinate latLon2) {
-        ReferencedEnvelope result = createEnvelopeFromLatLon(envelope.getCoordinateReferenceSystem(), latLon1, latLon2);
-        return new ReferencedEnvelope(result.intersection(reference(envelope)), envelope.getCoordinateReferenceSystem());
+            Envelope envelope, Coordinate latLon1, Coordinate latLon2) {
+        ReferencedEnvelope result = createEnvelopeFromLatLon(
+                envelope.getCoordinateReferenceSystem(), latLon1, latLon2);
+        return new ReferencedEnvelope(result.intersection(reference(envelope)),
+                envelope.getCoordinateReferenceSystem());
     }
 
     /**

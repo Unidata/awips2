@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlElement;
 import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIFieldConverter;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
@@ -116,7 +117,29 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PluginDataObject.class);
 
+    public static final class DataTimeURIConverter implements
+            DataURIFieldConverter {
+        @Override
+        public String toString(Object field) {
+            if (field instanceof DataTime) {
+                return ((DataTime) field).getURIString();
+            }
+            return null;
+        }
+
+        @Override
+        public Object fromString(String string) {
+            return new DataTime(string);
+        }
+    }
+
     private static final long serialVersionUID = 1L;
+
+    public static final String PLUGIN_NAME_ID = "pluginName";
+
+    public static final String DATATIME_ID = "dataTime";
+
+    public static final String DATAURI_ID = "dataURI";
 
     public static final String ID_GEN = "idgen";
 
@@ -128,7 +151,7 @@ public abstract class PluginDataObject extends PersistableDataObject implements
     @Embedded
     @XmlElement
     @DynamicSerializeElement
-    @DataURI(position = 0)
+    @DataURI(position = 0, converter = DataTimeURIConverter.class)
     protected DataTime dataTime;
 
     /** The timestamp denoting when this record was inserted into the database */

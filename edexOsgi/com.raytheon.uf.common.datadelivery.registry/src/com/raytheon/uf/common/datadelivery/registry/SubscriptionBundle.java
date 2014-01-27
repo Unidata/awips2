@@ -2,7 +2,7 @@ package com.raytheon.uf.common.datadelivery.registry;
 
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -18,6 +18,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
  * Mar 29, 2013 1841       djohnson    Remove JAXB annotations.
+ * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority.
  * 
  * </pre>
  * 
@@ -25,7 +26,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class SubscriptionBundle implements ISerializableObject {
+public class SubscriptionBundle {
 
     public SubscriptionBundle() {
 
@@ -45,7 +46,7 @@ public class SubscriptionBundle implements ISerializableObject {
     private String bundleId;
 
     @DynamicSerializeElement
-    private Integer priority;
+    private SubscriptionPriority priority;
 
     @DynamicSerializeElement
     private Connection connection;
@@ -77,11 +78,11 @@ public class SubscriptionBundle implements ISerializableObject {
         this.bundleId = bundleId;
     }
 
-    public Integer getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(Integer priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 

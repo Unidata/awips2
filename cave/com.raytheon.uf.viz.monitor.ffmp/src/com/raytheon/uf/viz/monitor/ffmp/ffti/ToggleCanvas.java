@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.monitor.ffmp.ffti;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
@@ -31,6 +33,24 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * 
+ * Toggle canvas to emulate toggle switches.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ????????????            lvenable    Initial creation
+ * Oct 10, 2013 #2464      lvenable    Fix font memory leak.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
 public class ToggleCanvas {
     private Composite parentComp;
 
@@ -63,10 +83,32 @@ public class ToggleCanvas {
      */
     SettingComp ownerComp = null;
 
+    /**
+     * Constructor.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param text
+     *            Label text.
+     * @param toggleState
+     *            Toggle state (on/off)
+     */
     public ToggleCanvas(Composite parentComp, String text, boolean toggleState) {
         this(parentComp, text, toggleState, 1);
     }
 
+    /**
+     * Constructor.
+     * 
+     * @param parentComp
+     *            Parent composite.
+     * @param text
+     *            Label text.
+     * @param toggleState
+     *            Toggle state (on/off)
+     * @param horizontalSpan
+     *            How many columns to span.
+     */
     public ToggleCanvas(Composite parentComp, String text, boolean toggleState,
             int horizontalSpan) {
         this.parentComp = parentComp;
@@ -83,6 +125,13 @@ public class ToggleCanvas {
 
     private void init() {
         labelFont = new Font(display, "Monospaced", 10, SWT.BOLD);
+
+        parentComp.addDisposeListener(new DisposeListener() {
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                labelFont.dispose();
+            }
+        });
     }
 
     private void createCanvas() {
@@ -113,10 +162,6 @@ public class ToggleCanvas {
                     canvas.redraw();
                     ownerComp.qpfSrcToggled(toggleState);
                 }
-                // QPE toggle self only at Accum button is on
-//                else if (ownerComp != null && text.equals("QPE")) {
-//                    ownerComp.qpeSrcToggled(toggleState);
-//                }
             }
         });
     }

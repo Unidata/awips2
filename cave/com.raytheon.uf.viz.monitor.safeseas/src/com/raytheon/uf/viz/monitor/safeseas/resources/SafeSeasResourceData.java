@@ -19,7 +19,6 @@
  */
 package com.raytheon.uf.viz.monitor.safeseas.resources;
 
-import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +35,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -55,8 +53,8 @@ import com.raytheon.uf.viz.monitor.safeseas.SafeSeasMonitor;
  *   
  *    Date             Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
- *    July 21, 2010    4891        skorolev    Initial Creation.
- * 
+ *    Jul 21, 2010 4891        skorolev    Initial Creation.
+ *    Sep 11, 2013 2277        mschenke    Got rid of ScriptCreator references
  * </pre>
  * 
  * @author skorolev
@@ -71,21 +69,20 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SafeSeasResourceData.class);
 
-	@XmlAttribute
-	protected String plotSource = "SAFESEAS Table";
+    @XmlAttribute
+    protected String plotSource = "SAFESEAS Table";
 
-	public FogRecord[] records;
+    public FogRecord[] records;
 
     public Map<Date, FogRecord> dataObjectMap;
 
-	protected SafeSeasMonitor monitor;
+    protected SafeSeasMonitor monitor;
 
     public HashMap<Date, Boolean> plotted;
 
-	protected FogAlgorithmMgr fogAlgMgr;
+    protected FogAlgorithmMgr fogAlgMgr;
 
-	protected SSFogThreat fogThreatSS;
-
+    protected SSFogThreat fogThreatSS;
 
     /*
      * (non-Javadoc)
@@ -96,15 +93,15 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
      * com.raytheon.uf.viz.core.drawables.IDescriptor)
      */
     @Override
-	protected AbstractVizResource<?, ?> constructResource(
-			LoadProperties loadProperties, PluginDataObject[] objects) {
+    protected AbstractVizResource<?, ?> constructResource(
+            LoadProperties loadProperties, PluginDataObject[] objects) {
 
-		records = new FogRecord[objects.length];
+        records = new FogRecord[objects.length];
         dataObjectMap = new HashMap<Date, FogRecord>();
         plotted = new HashMap<Date, Boolean>();
 
-		for (int i = 0; i < objects.length; i++) {
-			records[i] = (FogRecord) objects[i];
+        for (int i = 0; i < objects.length; i++) {
+            records[i] = (FogRecord) objects[i];
             try {
                 records[i] = populateRecord(records[i]);
             } catch (VizException e) {
@@ -115,12 +112,11 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
             }
             dataObjectMap.put(records[i].getRefHour().getTime(), records[i]);
             plotted.put(records[i].getRefHour().getTime(), new Boolean(false));
-		}
+        }
 
-		SafeSeasResource ssRes = new SafeSeasResource(this,
-                loadProperties);
-		getSafeSeasMonitor().addSSResourceListener(ssRes);
-		return ssRes;
+        SafeSeasResource ssRes = new SafeSeasResource(this, loadProperties);
+        getSafeSeasMonitor().addSSResourceListener(ssRes);
+        return ssRes;
     }
 
     /**
@@ -132,7 +128,6 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
         }
         return monitor;
     }
-
 
     /*
      * (non-Javadoc)
@@ -147,87 +142,72 @@ public class SafeSeasResourceData extends AbstractRequestableResourceData {
 
     }
 
-	/**
-	 * @return the records
-	 */
-	public FogRecord[] getRecords() {
-		return records;
-	}
+    /**
+     * @return the records
+     */
+    public FogRecord[] getRecords() {
+        return records;
+    }
 
-	/**
-	 * @param records
-	 *            the records to set
-	 */
-	public void setRecords(FogRecord[] records) {
-		this.records = records;
-	}
+    /**
+     * @param records
+     *            the records to set
+     */
+    public void setRecords(FogRecord[] records) {
+        this.records = records;
+    }
 
-	/**
-	 * populate Fog Record
-	 * 
-	 * @param record
-	 */
-	public FogRecord populateRecord(FogRecord record) throws VizException {
-		IDataStore dataStore = getDataStore(record);
-		record.retrieveFromDataStore(dataStore);
-		return record;
-	}
+    /**
+     * populate Fog Record
+     * 
+     * @param record
+     */
+    public FogRecord populateRecord(FogRecord record) throws VizException {
+        IDataStore dataStore = getDataStore(record);
+        record.retrieveFromDataStore(dataStore);
+        return record;
+    }
 
-	/**
-	 * Get the data store
-	 * 
-	 * @param record
-	 * @return
-	 */
-	private IDataStore getDataStore(FogRecord record) {
-		IDataStore dataStore = null;
-		try {
-			Map<String, Object> vals = new HashMap<String, Object>();
-			vals.put("dataURI", record.getDataURI());
-			vals.put("pluginName", record.getPluginName());
+    /**
+     * Get the data store
+     * 
+     * @param record
+     * @return
+     */
+    private IDataStore getDataStore(FogRecord record) {
+        return DataStoreFactory.getDataStore(HDF5Util.findHDF5Location(record));
+    }
 
-			record = (FogRecord) Loader.loadData(vals);
+    /** Get the Fog Algorithm manager **/
+    protected FogAlgorithmMgr getAlgorithmManager() {
 
-			File loc = HDF5Util.findHDF5Location(record);
-			dataStore = DataStoreFactory.getDataStore(loc);
+        if (fogAlgMgr == null) {
+            fogAlgMgr = FogAlgorithmMgr.getInstance();
+        }
+        return fogAlgMgr;
+    }
 
-		} catch (VizException e) {
-			e.printStackTrace();
-		}
+    /**
+     * Gets the fog Threat generator
+     * 
+     * @return
+     */
+    protected SSFogThreat getSSFogThreat() {
+        if (fogThreatSS == null) {
+            fogThreatSS = new SSFogThreat(getAlgorithmManager()
+                    .getAlgorithmXML());
+        }
+        return fogThreatSS;
+    }
 
-		return dataStore;
-	}
+    /** Get the SafeSeasMonitor monitor **/
+    protected SafeSeasMonitor getFogMonitor() {
+        if (monitor == null) {
+            monitor = SafeSeasMonitor.getInstance();
+        }
+        return monitor;
+    }
 
-	/** Get the Fog Algorithm manager **/
-	protected FogAlgorithmMgr getAlgorithmManager() {
-
-		if (fogAlgMgr == null) {
-			fogAlgMgr = FogAlgorithmMgr.getInstance();
-		}
-		return fogAlgMgr;
-	}
-
-	/**
-	 * Gets the fog Threat generator
-	 * 
-	 * @return
-	 */
-	protected SSFogThreat getSSFogThreat() {
-		if (fogThreatSS == null) {
-			fogThreatSS = new SSFogThreat(getAlgorithmManager()
-					.getAlgorithmXML());
-		}
-		return fogThreatSS;
-	}
-
-	/** Get the SafeSeasMonitor monitor **/
-	protected SafeSeasMonitor getFogMonitor() {
-		if (monitor == null) {
-			monitor = SafeSeasMonitor.getInstance();
-		}
-		return monitor;
-	}
-	
     /**
      * @return plotSource
      */

@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.common.registry.constants;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 
  * Registry canonical query types
@@ -30,6 +33,8 @@ package com.raytheon.uf.common.registry.constants;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 4/9/2013     1802        bphillip    Initial implementation
+ * 9/18/2013    1705        bphillip    Added GetReferencedObject canonical query
+ * 11/7/2013    1678        bphillip    Added list of all canonical query types
  * </pre>
  * 
  * @author bphillip
@@ -49,19 +54,13 @@ public class CanonicalQueryTypes {
 
     public static final String GET_CLASSIFICATION_SCHEMES_BY_ID = "urn:oasis:names:tc:ebxml-regrep:query:GetClassificationSchemesById";
 
-    public static final String EXPORT_OBJECT = "urn:oasis:names:tc:ebxml-regrep:query:ExportObject";
-
     public static final String GET_CHILDREN_BY_PARENT_ID = "urn:oasis:names:tc:ebxml-regrep:query:GetChildrenByParentId";
 
     public static final String GET_REGISTRY_PACKAGES_BY_MEMBER_ID = "urn:oasis:names:tc:ebxml-regrep:query:GetRegistryPackagesByMemberId";
 
-    public static final String FIND_ALL_MY_OBJECTS = "urn:oasis:names:tc:ebxml-regrep:query:FindAllMyObjects";
-
     public static final String GARBAGE_COLLECTOR = "urn:oasis:names:tc:ebxml-regrep:query:GarbageCollector";
 
     public static final String BASIC_QUERY = "urn:oasis:names:tc:ebxml-regrep:query:BasicQuery";
-
-    public static final String EXTRINSIC_OBJECT_QUERY = "urn:oasis:names:tc:ebxml-regrep:query:ExtrinsicObjectQuery";
 
     public static final String FIND_ASSOCIATIONS = "urn:oasis:names:tc:ebxml-regrep:query:FindAssociations";
 
@@ -76,5 +75,18 @@ public class CanonicalQueryTypes {
     public static final String CLASSIFICATION_SCHEME_SELECTOR = "urn:oasis:names:tc:ebxml-regrep:query:ClassificationSchemeSelector";
 
     public static final String GET_NOTIFICATION = "urn:oasis:names:tc:ebxml-regrep:query:GetNotification";
+
+    public static final String GET_REFERENCED_OBJECT = "urn:oasis:names:tc:ebxml-regrep:query:GetReferencedObject";
+
+    public static final List<String> CANONICAL_QUERY_TYPES = Arrays
+            .asList(new String[] { GET_OBJECT_BY_ID, GET_OBJECTS_BY_LID,
+                    GET_AUDIT_TRAIL_BY_LID, GET_AUDIT_TRAIL_BY_TIME_INTERVAL,
+                    GET_AUDIT_TRAIL_BY_ID, GET_CLASSIFICATION_SCHEMES_BY_ID,
+                    GET_CHILDREN_BY_PARENT_ID,
+                    GET_REGISTRY_PACKAGES_BY_MEMBER_ID, GARBAGE_COLLECTOR,
+                    BASIC_QUERY, FIND_ASSOCIATIONS, FIND_ASSOCIATED_OBJECTS,
+                    ADHOC_QUERY, KEYWORD_SEARCH, REGISTRY_PACKAGE_SELECTOR,
+                    CLASSIFICATION_SCHEME_SELECTOR, GET_NOTIFICATION,
+                    GET_REFERENCED_OBJECT });
 
 }

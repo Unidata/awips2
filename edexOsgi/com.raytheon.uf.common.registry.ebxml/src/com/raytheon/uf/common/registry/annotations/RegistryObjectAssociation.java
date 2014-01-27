@@ -6,7 +6,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryObjectResolver;
 

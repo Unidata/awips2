@@ -21,7 +21,9 @@ package com.raytheon.uf.viz.datadelivery.system;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
@@ -30,9 +32,13 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
+import com.raytheon.uf.common.datadelivery.service.subscription.GridSubscriptionOverlapConfig;
+import com.raytheon.uf.common.datadelivery.service.subscription.PointSubscriptionOverlapConfig;
+import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapConfig;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -70,6 +76,9 @@ import com.raytheon.uf.viz.datadelivery.utils.TypeOperationItems;
  * Jan 04, 2013   1420      mpduff     Move rules into a single file.
  * Jan 25, 2013   1528      djohnson   Subscription priority is now an enum.
  * Jun 04, 2013    223      mpduff     Implement point data types.
+ * Jul 11, 2013   2106      djohnson   setAvailableBandwidth service now returns names of subscriptions.
+ * Oct 03, 2013   2386      mpduff     Add overlap rules.
+ * Nov 19, 2013   2387      skorolev   Add system status refresh listeners.
  * 
  * </pre>
  * 
@@ -90,6 +99,14 @@ public class SystemRuleManager {
 
     /** Priority rule file */
     private final String PRIORITY_RULE_FILE = RULE_PATH + "priorityRules.xml";
+
+    /** Point overlap rule file */
+    private final String POINT_SUB_RULE_FILE = RULE_PATH
+            + "POINTSubscriptionOverlapRules.xml";
+
+    /** Grid overlap rule file */
+    private final String GRID_SUB_RULE_FILE = RULE_PATH
+            + "GRIDSubscriptionOverlapRules.xml";
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
@@ -119,7 +136,14 @@ public class SystemRuleManager {
     /** Priority Rules XML object */
     private PriorityRulesXML priorityRules;
 
+    /** Map of DataType -> Rules config xml object */
+    private Map<DataType, SubscriptionOverlapConfig> overlapRulesMap;
+
+    /** List of listeners */
     private final List<IRulesUpdateListener> listeners = new ArrayList<IRulesUpdateListener>();
+
+    /** List of system refresh listeners */
+    private final List<ISystemStatusListener> refListeners = new ArrayList<ISystemStatusListener>();
 
     /**
      * Constructor.
@@ -145,7 +169,10 @@ public class SystemRuleManager {
         Class[] classes = new Class[] { RuleXML.class, PriorityRuleXML.class,
                 LatencyRuleXML.class, LatencyRulesXML.class,
                 PriorityRulesXML.class, RulesXML.class, OperatorTypes.class,
-                TypeOperationItems.class, NameOperationItems.class };
+                TypeOperationItems.class, NameOperationItems.class,
+                SubscriptionOverlapConfig.class,
+                GridSubscriptionOverlapConfig.class,
+                PointSubscriptionOverlapConfig.class };
 
         try {
             jax = JAXBContext.newInstance(classes);
@@ -161,7 +188,6 @@ public class SystemRuleManager {
      * Get the names of the priority rules
      * 
      * @return String[] of names
-     * @throws JAXBException
      */
     public List<String> getPriorityRuleNames() {
         return getPriorityRules(false).getRuleNames();
@@ -207,10 +233,21 @@ public class SystemRuleManager {
      * Get latency file names
      * 
      * @return String[] Array of latency rule names
-     * @throws JAXBException
      */
     public List<String> getLatencyRuleNames() {
         return getLatencyRules(false).getRuleNames();
+    }
+
+    /**
+     * Get the subscription overlap rules for the provided data type.
+     * 
+     * @param dataType
+     *            The data type
+     * @return The Subscription overlap config object
+     */
+    public SubscriptionOverlapConfig getSubscriptionOverlapRules(
+            DataType dataType) {
+        return getSubscriptionOverlapRules(false).get(dataType);
     }
 
     /**
@@ -459,10 +496,28 @@ public class SystemRuleManager {
     }
 
     /**
+     * Get the overlap rules
+     * 
+     * @param reread
+     *            true to reread the file from disk
+     * 
+     * @return The overlap rules xml object
+     */
+    private Map<DataType, SubscriptionOverlapConfig> getSubscriptionOverlapRules(
+            boolean reread) {
+        if (overlapRulesMap == null || reread) {
+            loadSubscriptionOverlapRules();
+        }
+
+        return overlapRulesMap;
+    }
+
+    /**
      * Get the default latency value given the cycleTimes.
      * 
      * @param cycleTimes
-     * @return
+     *            list of cycle times
+     * @return the default latency value
      */
     public int getDefaultLatency(List<Integer> cycleTimes) {
         DataSetFrequency freq = DataSetFrequency.fromCycleTimes(cycleTimes);
@@ -509,7 +564,7 @@ public class SystemRuleManager {
      *            The subscription
      * @param cycleTimes
      *            The available cycle times
-     * @return
+     * @return the latency value
      */
     public int getLatency(Subscription sub, Set<Integer> cycleTimes) {
         LatencyRulesXML rulesXml = this.getLatencyRules(false);
@@ -567,8 +622,10 @@ public class SystemRuleManager {
      * Return the lowest priority value defined by the rules.
      * 
      * @param sub
+     *            The subscription
      * @param cycleTimes
-     * @return
+     *            the cycle times
+     * @return the priority
      */
     public SubscriptionPriority getPriority(Subscription sub,
             Set<Integer> cycleTimes) {
@@ -625,9 +682,9 @@ public class SystemRuleManager {
      * @param bandwidth
      *            the available bandwidth
      * @return empty list if successfully applied, otherwise the set of
-     *         subscriptions that would be unscheduled
+     *         subscription names that would be unscheduled
      */
-    public static Set<Subscription> setAvailableBandwidth(Network network,
+    public static Set<String> setAvailableBandwidth(Network network,
             int bandwidth) {
         return getInstance().bandwidthService
                 .proposeBandwidthForNetworkInKilobytes(network, bandwidth);
@@ -671,6 +728,58 @@ public class SystemRuleManager {
     }
 
     /**
+     * Load the overlap rules.
+     */
+    private void loadSubscriptionOverlapRules() {
+        overlapRulesMap = new HashMap<DataType, SubscriptionOverlapConfig>();
+        IPathManager pm = PathManagerFactory.getPathManager();
+
+        for (DataType dt : DataType.values()) {
+            LocalizationFile lf = null;
+            switch (dt) {
+            case GRID:
+                lf = pm.getStaticLocalizationFile(this.GRID_SUB_RULE_FILE);
+                if (lf != null && lf.exists()) {
+                    GridSubscriptionOverlapConfig config;
+                    try {
+                        config = (GridSubscriptionOverlapConfig) unmarshaller
+                                .unmarshal(lf.getFile());
+                        overlapRulesMap.put(dt, config);
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+                break;
+            case POINT:
+                lf = pm.getStaticLocalizationFile(this.POINT_SUB_RULE_FILE);
+                if (lf != null && lf.exists()) {
+                    PointSubscriptionOverlapConfig config;
+                    try {
+                        config = (PointSubscriptionOverlapConfig) unmarshaller
+                                .unmarshal(lf.getFile());
+                        overlapRulesMap.put(dt, config);
+                    } catch (Exception e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+                }
+                break;
+
+            case PDA:
+                // Not yet implemented
+                break;
+
+            default:
+                break;
+            }
+            if (lf != null && lf.exists()) {
+                addSubscriptionOverlapRulesFileObserver(lf);
+            }
+        }
+    }
+
+    /**
      * Add a file observer to the latency rules file to get notified when the
      * file changes.
      */
@@ -701,6 +810,22 @@ public class SystemRuleManager {
     }
 
     /**
+     * Add a file observer to the provided localization file.
+     * 
+     * @param lf
+     *            The localization file
+     */
+    private void addSubscriptionOverlapRulesFileObserver(LocalizationFile lf) {
+        lf.addFileUpdatedObserver(new ILocalizationFileObserver() {
+            @Override
+            public void fileUpdated(FileUpdatedMessage message) {
+                loadSubscriptionOverlapRules();
+                fireUpdates();
+            }
+        });
+    }
+
+    /**
      * Notify the listeners the files changed.
      */
     private void fireUpdates() {
@@ -728,6 +853,95 @@ public class SystemRuleManager {
     public void deregisterAsListener(IRulesUpdateListener listener) {
         if (listeners.contains(listener)) {
             listeners.remove(listener);
+        }
+    }
+
+    /**
+     * Save the overlap rules.
+     * 
+     * @param config
+     *            The data to save
+     * @param dataType
+     *            The dataType
+     * @return true if saved correctly
+     */
+    public boolean saveOverlapRule(SubscriptionOverlapConfig config,
+            DataType dataType) {
+        if (dataType == null) {
+            throw new IllegalArgumentException("Invalid dataType, null");
+        }
+
+        final IPathManager pathManager = PathManagerFactory.getPathManager();
+        LocalizationContext context = pathManager.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
+
+        String fileName = null;
+
+        if (dataType == DataType.POINT) {
+            fileName = this.POINT_SUB_RULE_FILE;
+            overlapRulesMap.put(dataType, config);
+        } else if (dataType == DataType.GRID) {
+            fileName = this.GRID_SUB_RULE_FILE;
+            overlapRulesMap.put(dataType, config);
+        } else {
+            throw new IllegalArgumentException(config.getClass()
+                    + " Doesn't have any implementation in use");
+        }
+
+        final LocalizationFile configFile = pathManager.getLocalizationFile(
+                context, fileName);
+
+        try {
+            marshaller.marshal(config, configFile.getFile());
+            return configFile.save();
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } catch (LocalizationOpFailedException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+
+        return false;
+    }
+
+    /**
+     * Notify the listeners the system status change.
+     */
+    public void fireStatusChangeListener() {
+        for (ISystemStatusListener listener : refListeners) {
+            listener.statusRefresh();
+        }
+
+    }
+
+    /**
+     * Notify the listeners the time change.
+     */
+    public void fireTimeChangeListener() {
+        for (ISystemStatusListener listener : refListeners) {
+            listener.timeLabelRefresh();
+        }
+
+    }
+
+    /**
+     * Register as a listener for status refresh.
+     * 
+     * @param listener
+     */
+    public void registerAsRefreshListener(ISystemStatusListener listener) {
+        if (!refListeners.contains(listener)) {
+            refListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregister as a listener for status refresh.
+     * 
+     * @param listener
+     */
+    public void deregisterAsRefreshListener(ISystemStatusListener listener) {
+        if (refListeners.contains(listener)) {
+            refListeners.remove(listener);
         }
     }
 }

@@ -24,12 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.ui.IWindowListener;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -42,7 +43,9 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 26, 2009            mschenke     Initial creation
+ * Oct 26, 2009            mschenke    Initial creation
+ * Jul 16, 2013 2158       bsteffen    Allow VizGlobalsManager to work without
+ *                                     accessing UI thread.
  * 
  * </pre>
  * 
@@ -60,6 +63,8 @@ public class VizGlobalsManager {
 
     private static Map<String, List<IGlobalChangedListener>> listeners = new HashMap<String, List<IGlobalChangedListener>>();
 
+    private static WorkbenchWindowListener windowListener = new WorkbenchWindowListener();
+
     private VizGlobalsManager(IWorkbenchWindow window) {
         globals = new HashMap<String, Object>();
         globals.put(VizConstants.FRAMES_ID, new Integer(12));
@@ -70,19 +75,15 @@ public class VizGlobalsManager {
     }
 
     public static VizGlobalsManager getCurrentInstance() {
-        final IWorkbenchWindow[] window = new IWorkbenchWindow[1];
+        IWorkbenchWindow window = null;
         if (PlatformUI.isWorkbenchRunning()) {
-            VizApp.runSync(new Runnable() {
-                @Override
-                public void run() {
-                    window[0] = PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow();
-                }
-            });
-        } else {
-            window[0] = null;
+            // This returns null when used off the UI thread.
+            window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            if (window == null) {
+                window = windowListener.getActiveWindow();
+            }
         }
-        return getInstance(window[0]);
+        return getInstance(window);
     }
 
     public static synchronized VizGlobalsManager getInstance(
@@ -93,6 +94,20 @@ public class VizGlobalsManager {
             instanceMap.put(window, instance);
         }
         return instance;
+    }
+
+    /**
+     * Must be called once during workbench startup to enable using globals for
+     * the active window off the UI thread.
+     * 
+     * @param workbench
+     */
+    public static void startForWorkbench(IWorkbench workbench) {
+        workbench.addWindowListener(windowListener);
+        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+        if (window != null) {
+            windowListener.windowOpened(window);
+        }
     }
 
     public synchronized Map<String, Object> cloneGlobals() {
@@ -181,5 +196,40 @@ public class VizGlobalsManager {
             globals.put(VizConstants.LOOPING_ID, looping);
             updateChanges(globals);
         }
+    }
+
+    /**
+     * Listener for tracking the active window when not on the UI thread.
+     */
+    private static class WorkbenchWindowListener implements IWindowListener {
+
+        private IWorkbenchWindow activeWindow = null;
+
+        public IWorkbenchWindow getActiveWindow() {
+            return activeWindow;
+        }
+
+        @Override
+        public void windowActivated(IWorkbenchWindow window) {
+            activeWindow = window;
+        }
+
+        @Override
+        public void windowDeactivated(IWorkbenchWindow window) {
+            ;
+        }
+
+        @Override
+        public void windowClosed(IWorkbenchWindow window) {
+            if (window == activeWindow) {
+                activeWindow = null;
+            }
+        }
+
+        @Override
+        public void windowOpened(IWorkbenchWindow window) {
+            activeWindow = window;
+        }
+
     }
 }

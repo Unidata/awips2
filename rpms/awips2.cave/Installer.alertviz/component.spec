@@ -137,8 +137,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/alertviz/alertviz.ini
 %dir /awips2/alertviz/configuration
 /awips2/alertviz/configuration/*
-%dir /awips2/alertviz/etc
-/awips2/alertviz/etc/*
 %dir /awips2/alertviz/features
 /awips2/alertviz/features/*
 %doc /awips2/alertviz/*.pdf

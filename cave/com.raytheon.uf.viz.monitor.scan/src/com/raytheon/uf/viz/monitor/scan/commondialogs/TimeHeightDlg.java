@@ -41,6 +41,7 @@ import com.raytheon.uf.common.monitor.scan.config.SCANConfig;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Time-Height Graph dialog.
@@ -53,6 +54,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 10, 2010            lvenable     Initial creation
  * Dec 23, 2011	13608	   mgamazay		Updated populateIdentCombo so the drop down menu
  * 										shows the current feature ident instead of being blank.
+ * 24 Jul 2013  #2143      skorolev     Changes for non-blocking dialogs.
+ * Aug 15, 2013  2143      mpduff       Remove resize.
  * 
  * </pre>
  * 
@@ -119,23 +122,23 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
     /**
      * Scan table identifier.
      */
-    private ScanTables scanTable;
+    private final ScanTables scanTable;
 
     /**
      * Time-Height graph data.
      */
-    private TreeMap<Long, DMDTableDataRow> graphData;
+    private final TreeMap<Long, DMDTableDataRow> graphData;
 
     /**
      * Callback to request time height data.
      */
-    private IRequestTimeHeightData timeHeightCB;
+    private final IRequestTimeHeightData timeHeightCB;
 
     /**
      * List of attributes that can display time-height data.
      */
     private ArrayList<String> attrList;
-    
+
     private TimeHeightMsgBox msgBox = null;
 
     /**
@@ -156,9 +159,11 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * @param timeHeightCB
      *            Callback to request time height data.
      */
-    public TimeHeightDlg(Shell parentShell, ScanTables scanTable, String ident, String attrName, String[] identArray,
-            TreeMap<Long, DMDTableDataRow> graphData, IRequestTimeHeightData timeHeightCB) {
-        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
+    public TimeHeightDlg(Shell parentShell, ScanTables scanTable, String ident,
+            String attrName, String[] identArray,
+            TreeMap<Long, DMDTableDataRow> graphData,
+            IRequestTimeHeightData timeHeightCB) {
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("DMD Time-Height Trend");
 
         this.scanTable = scanTable;
@@ -169,11 +174,23 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         this.timeHeightCB = timeHeightCB;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         return new GridLayout(1, false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         createTopControls();
@@ -278,7 +295,7 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -294,19 +311,19 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * Populate the ident combo control.
      */
     private void populateIdentCombo() {
-        
-        if ( Arrays.asList(identArray).contains(ident) ) {
-        	for (String str : identArray) {
+
+        if (Arrays.asList(identArray).contains(ident)) {
+            for (String str : identArray) {
                 identCbo.add(str);
             }
-        	identCbo.select(identCbo.indexOf(ident));
+            identCbo.select(identCbo.indexOf(ident));
         }
-        
+
         else {
-        	identCbo.add(ident);
-        	identCbo.select(identCbo.indexOf(ident));
+            identCbo.add(ident);
+            identCbo.select(identCbo.indexOf(ident));
         }
-        
+
     }
 
     /**
@@ -316,7 +333,8 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         attrList = new ArrayList<String>();
 
         SCANConfig scanCfg = SCANConfig.getInstance();
-        LinkedHashMap<String, String> trendAttrNames = scanCfg.getTimeHeightAttributeUnits(scanTable);
+        LinkedHashMap<String, String> trendAttrNames = scanCfg
+                .getTimeHeightAttributeUnits(scanTable);
 
         for (String name : trendAttrNames.keySet()) {
             attrList.add(name);
@@ -334,9 +352,11 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         ident = identCbo.getItem(identCbo.getSelectionIndex());
         attrName = attrList.get(attrCbo.getSelectionIndex());
 
-        SCANConfigEnums.DMDTable tableCol = SCANConfigEnums.DMDTable.valueOf(attrName.toUpperCase());
+        SCANConfigEnums.DMDTable tableCol = SCANConfigEnums.DMDTable
+                .valueOf(attrName.toUpperCase());
 
-        TreeMap<Long, DMDTableDataRow> data = timeHeightCB.requestTimeHeightData(tableCol, ident);
+        TreeMap<Long, DMDTableDataRow> data = timeHeightCB
+                .requestTimeHeightData(tableCol, ident);
 
         this.setGraphData(data);
     }
@@ -380,7 +400,8 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * @return The attribute (table column).
      */
     public SCANConfigEnums.DMDTable getTableColumn() {
-        SCANConfigEnums.DMDTable tableCol = SCANConfigEnums.DMDTable.valueOf(attrName.toUpperCase());
+        SCANConfigEnums.DMDTable tableCol = SCANConfigEnums.DMDTable
+                .valueOf(attrName.toUpperCase());
         return tableCol;
     }
 
@@ -394,7 +415,8 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * @param attribute
      *            Selected attribute (table column).
      */
-    public void setGraphData(TreeMap<Long, DMDTableDataRow> data, String ident, String attribute) {
+    public void setGraphData(TreeMap<Long, DMDTableDataRow> data, String ident,
+            String attribute) {
         this.ident = ident;
         identCbo.select(identCbo.indexOf(this.ident));
 
@@ -409,24 +431,36 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
      * 
      * @param data
      */
-    public void setGraphData(TreeMap<Long, DMDTableDataRow> data) {  
+    public void setGraphData(TreeMap<Long, DMDTableDataRow> data) {
         timeHeightGraph.setGraphData(data);
     }
-    
+
     /**
-     * Display a Close Dialog message when cell
-     * is no longer valid.
+     * Display a Close Dialog message when cell is no longer valid.
      */
     public void displayMessage() {
-        if (this.msgBox == null) {
+        if (this.msgBox == null || msgBox.isDisposed()) {
             msgBox = new TimeHeightMsgBox(getShell(), this.ident);
-            Object action = msgBox.open();
-            if (action.toString().equalsIgnoreCase("OK")) {
-                shell.dispose();
-            }
-            msgBox = null;
+            msgBox.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof String) {
+                        if (returnValue.equals("OK")) {
+                            close();
+                        } else {
+                            return;
+                        }
+                    }
+                    msgBox = null;
+                }
+
+            });
+            msgBox.open();
+        } else {
+            msgBox.bringToTop();
         }
-     }
+    }
 
     /**
      * Check if the shell is disposed.
@@ -444,7 +478,7 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
     public String getCurrentAttribute() {
         return attrName;
     }
-    
+
     /**
      * Force the graph to redraw.
      */
@@ -455,7 +489,8 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
     }
 
     /**
-     * @param identArray the identArray to set
+     * @param identArray
+     *            the identArray to set
      */
     public void setIdentArray(String[] identArray) {
         this.identArray = identArray;
@@ -463,8 +498,12 @@ public class TimeHeightDlg extends CaveSWTDialog implements ITimeHeightInfo {
         populateIdentCombo();
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ITimeHeightInfo#getDialogTime()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.commondialogs.ITimeHeightInfo#getDialogTime
+     * ()
      */
     @Override
     public Date getDialogTime() {

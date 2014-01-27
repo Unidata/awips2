@@ -42,6 +42,7 @@ import javax.persistence.TemporalType;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
  * 
  * </pre>
  * 
@@ -50,46 +51,35 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "fpprevprod")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Fpprevprod extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable, com.raytheon.uf.common.serialization.ISerializableObject {
+public class Fpprevprod extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private FpprevprodId id;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String productId;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String prodCateg;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String officeId;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Double obsvalue;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Date obstime;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Double maxFcstvalue;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Date validtime;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Date basistime;
 

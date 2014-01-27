@@ -25,9 +25,11 @@ import java.util.Map;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -37,13 +39,17 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -64,6 +70,8 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.util.ReprojectionUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * 
@@ -73,16 +81,19 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 09, 2011            bsteffen    Initial creation
- * Feb 25, 2013 1659       bsteffen    Add PDOs to D2DGridResource in
- *                                     constructor to avoid duplicate data
- *                                     requests.
- * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013 2287       randerso    Removed 180 degree adjustment required by error
- *                                     in Maputil.rotation
- * Sep 24, 2013 DR 15972   D. Friedman Make reprojection of grids configurable.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2011           bsteffen    Initial creation
+ * Feb 25, 2013  1659     bsteffen    Add PDOs to D2DGridResource in
+ *                                    constructor to avoid duplicate data
+ *                                    requests.
+ * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
+ *                                    error in Maputil.rotation
+ * Sep 12, 2013  2309     bsteffen    Request subgrids whenever possible.
+ * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
+ * Nov 19, 2013  2532     bsteffen    Special handling of grids larger than the
+ *                                    world.
  * 
  * </pre>
  * 
@@ -94,7 +105,13 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGridResource.class);
 
-    private boolean reprojectedData = false;
+    /*
+     * Flag indicating if the resource is displaying the full unaltered data or
+     * if some of the data has been modified for the descriptor(such as
+     * modification. If modification has occurred then a reproject will require
+     * requesting the data again so it can be reformatted for the new display.
+     */
+    private boolean dataModified = false;
 
     private Boolean lastInterpolationState = null;
 
@@ -108,8 +125,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             addDataObject(record);
         }
         if (this.hasCapability(ImagingCapability.class)) {
-            lastInterpolationState = this.getCapability(ImagingCapability.class)
-                        .isInterpolationState();
+            lastInterpolationState = this
+                    .getCapability(ImagingCapability.class)
+                    .isInterpolationState();
         }
     }
 
@@ -141,46 +159,88 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     protected GeneralGridData getData(GridRecord gridRecord)
             throws VizException {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
-        // Reqest data for tilts if this is Std Env sampling.
+        GridCoverage location = gridRecord.getLocation();
+        /*
+         * Detect a special case. Several of the D2D specific "enhancements" do
+         * not handle grids larger than the world. Since this is a rare edge
+         * case, and fixing it would be very complicated just don't apply the
+         * "enhancements".
+         */
+        boolean gridLargerThanWorld = location instanceof LatLonGridCoverage
+                && location.getNx() * location.getDx() > 360;
+        GridGeometry2D gridGeometry = location.getGridGeometry();
+
+        /* Request data for tilts if this is Std Env sampling. */
         IDataRecord[] dataRecs = GridResourceData.getDataRecordsForTilt(
                 gridRecord, descriptor);
         if (dataRecs == null) {
-            dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+            GridGeometry2D subGridGeometry = gridGeometry;
+            if (!gridLargerThanWorld) {
+                subGridGeometry = calculateSubgrid(gridGeometry);
+            }
+            if (subGridGeometry == null) {
+                return null;
+            } else if (subGridGeometry.equals(gridGeometry)) {
+                dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+            } else if (subGridGeometry != null) {
+                /* transform subgrid envelope into a slab request. */
+                GridEnvelope2D subGridRange = subGridGeometry.getGridRange2D();
+                int[] min = { subGridRange.getLow(0), subGridRange.getLow(1) };
+                int[] max = { subGridRange.getHigh(0) + 1,
+                        subGridRange.getHigh(1) + 1 };
+                Request request = Request.buildSlab(min, max);
+                dataRecs = DataCubeContainer.getDataRecord(gridRecord, request,
+                        null);
+                /*
+                 * gridGeometries used in renderables are expected to have min
+                 * x,y be 0.
+                 */
+                subGridRange.x = 0;
+                subGridRange.y = 0;
+                gridGeometry = new GridGeometry2D(subGridRange,
+                        subGridGeometry.getEnvelope());
+                dataModified = true;
+            }
             if (dataRecs == null) {
                 return null;
             }
         }
+
+        GeneralGridData data = getData(dataRecs, gridGeometry, dataUnit);
         // For some grids, we may reproject (e.g., world-wide lat/lon grids),
         // this is done to match A1, but it also makes the wind barbs look
         // more evenly spaced near the pole.
-        GridCoverage location = gridRecord.getLocation();
-        GeneralGridData data = getData(dataRecs, location.getGridGeometry(),
-                dataUnit);
-        if (ReprojectionUtil.shouldReproject(gridRecord,
+        if (ReprojectionUtil.shouldReproject(gridRecord, gridGeometry,
                 getDisplayType(), descriptor.getGridGeometry())) {
-            data = reprojectData(data);
+            if (!gridLargerThanWorld
+                    || GridGeometryWrapChecker.checkForWrapping(gridGeometry) != -1) {
+                data = reprojectData(data);
+            }
         }
-        // Wind Direction(and possibly others) can be set so that we rotate the
-        // direction to be relative to the north pole instead of grid relative.
-        if (stylePreferences != null
+        /*
+         * Wind Direction(and possibly others) can be set so that we rotate the
+         * direction to be relative to the north pole instead of grid relative.
+         */
+        if ((stylePreferences != null)
                 && stylePreferences.getDisplayFlags()
                         .hasFlag("RotateVectorDir")) {
-            GridGeometry2D geom = GridGeometry2D.wrap(location
-                    .getGridGeometry());
-            MathTransform grid2crs = geom.getGridToCRS();
+            GridEnvelope2D gridRange = gridGeometry.getGridRange2D();
+            MathTransform grid2crs = gridGeometry.getGridToCRS();
             try {
-                MathTransform crs2ll = MapUtil.getTransformToLatLon(geom
-                        .getCoordinateReferenceSystem());
-                for (int i = 0; i < geom.getGridRange2D().width; i++) {
-                    for (int j = 0; j < geom.getGridRange2D().height; j++) {
-                        int index = i + j * geom.getGridRange2D().width;
+                MathTransform crs2ll = MapUtil
+                        .getTransformToLatLon(gridGeometry
+                                .getCoordinateReferenceSystem());
+                for (int i = 0; i < gridRange.width; i++) {
+                    for (int j = 0; j < gridRange.height; j++) {
+                        int index = i + (j * gridRange.width);
                         float dir = data.getScalarData().get(index);
                         if (dir > -9999) {
                             DirectPosition2D dp = new DirectPosition2D(i, j);
                             grid2crs.transform(dp, dp);
                             crs2ll.transform(dp, dp);
                             Coordinate ll = new Coordinate(dp.x, dp.y);
-                            float rot = (float) MapUtil.rotation(ll, geom);
+                            float rot = (float) MapUtil.rotation(ll,
+                                    gridGeometry);
                             dir = (dir + rot) % 360;
                             data.getScalarData().put(index, dir);
                         }
@@ -197,6 +257,53 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         return data;
     }
 
+    protected GridGeometry2D calculateSubgrid(GridGeometry2D dataGeometry) {
+        try {
+            CoordinateReferenceSystem dataCRS = dataGeometry
+                    .getCoordinateReferenceSystem();
+            org.opengis.geometry.Envelope descEnv = descriptor
+                    .getGridGeometry().getEnvelope();
+            Envelope2D dataEnv = dataGeometry.getEnvelope2D();
+            int dataWidth = dataGeometry.getGridRange2D().width;
+            int dataHeight = dataGeometry.getGridRange2D().height;
+            /*
+             * Use grid spacing to determine a threshold for
+             * EnvelopeIntersection. This guarantees the result is within one
+             * grid cell.
+             */
+            double dx = dataEnv.width / dataWidth;
+            double dy = dataEnv.height / dataHeight;
+            double threshold = Math.max(dx, dy);
+            Geometry geom = EnvelopeIntersection.createEnvelopeIntersection(
+                    descEnv, dataEnv, threshold, dataWidth, dataHeight);
+            /* Convert from jts envelope to geotools envelope. */
+            Envelope env = geom.getEnvelopeInternal();
+            Envelope2D subEnv = new Envelope2D(dataCRS, env.getMinX(),
+                    env.getMinY(), env.getWidth(), env.getHeight());
+            GridEnvelope2D subRange = dataGeometry.worldToGrid(subEnv);
+            /* Add a 1 pixel border so interpolation near the edges is nice */
+            subRange.grow(1, 1);
+            /* Make sure not to grow bigger than original grid. */
+            subRange = new GridEnvelope2D(subRange.intersection(dataGeometry
+                    .getGridRange2D()));
+            if (subRange.isEmpty()) {
+                return null;
+            }
+            return new GridGeometry2D(subRange, dataGeometry.getGridToCRS(),
+                    dataCRS);
+        } catch (FactoryException e) {
+            /* Not a big deal, just request all data. */
+            statusHandler.handle(Priority.DEBUG, "Unable to request subgrid.",
+                    e);
+        } catch (TransformException e) {
+            /* Not a big deal, just request all data. */
+            /* Java 7 multiple exception catches are going to be amazing! */
+            statusHandler.handle(Priority.DEBUG, "Unable to request subgrid.",
+                    e);
+        }
+        return dataGeometry;
+    }
+
     public GeneralGridData reprojectData(GeneralGridData data) {
         if (descriptor == null) {
             return data;
@@ -205,7 +312,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             GeneralGridGeometry targetGeometry = MapUtil.reprojectGeometry(data
                     .getGridGeometry(), descriptor.getGridGeometry()
                     .getEnvelope(), true, 2);
-            reprojectedData = true;
+            dataModified = true;
             Interpolation interpolation = null;
             if (this.hasCapability(ImagingCapability.class)
                     && !this.getCapability(ImagingCapability.class)
@@ -254,7 +361,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
         }
 
-        if (legendParams.unit == null || legendParams.unit.isEmpty()) {
+        if ((legendParams.unit == null) || legendParams.unit.isEmpty()) {
             if (record.getParameter().getUnit().equals(Unit.ONE)) {
                 legendParams.unit = "";
             } else {
@@ -264,7 +371,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         List<DisplayType> displayTypes = FieldDisplayTypesFactory.getInstance()
                 .getDisplayTypes(record.getParameter().getAbbreviation());
         DisplayType displayType = getDisplayType();
-        if (displayTypes != null && !displayTypes.isEmpty()
+        if ((displayTypes != null) && !displayTypes.isEmpty()
                 && displayTypes.get(0).equals(displayType)) {
             // The default type does not display in the legend
             legendParams.type = "";
@@ -317,8 +424,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        if (reprojectedData) {
+        if (dataModified) {
             clearRequestedData();
+            dataModified = false;
         }
         super.project(crs);
     }
@@ -327,12 +435,13 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     protected void resourceDataChanged(ChangeType type, Object updateObject) {
         super.resourceDataChanged(type, updateObject);
         if (type == ChangeType.CAPABILITY) {
-            if (updateObject instanceof ImagingCapability && reprojectedData) {
+            if ((updateObject instanceof ImagingCapability) && dataModified) {
                 ImagingCapability capability = (ImagingCapability) updateObject;
-                if (lastInterpolationState == null
-                        || capability.isInterpolationState() != lastInterpolationState) {
+                if ((lastInterpolationState == null)
+                        || (capability.isInterpolationState() != lastInterpolationState)) {
                     lastInterpolationState = capability.isInterpolationState();
                     clearRequestedData();
+                    dataModified = false;
                 }
             }
         }

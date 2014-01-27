@@ -69,7 +69,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonEval;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -103,6 +102,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Mar 28, 2013     #1837   dgilling    Better error reporting if a map table
  *                                      from localMaps.py could not be found,
  *                                      warnings clean up.
+ * Sep 30, 2013     #2361   njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -359,7 +359,8 @@ public class MapManager {
         d = new File(FileUtil.join(commonStaticConfigDir, SAMPLE_SETS_DIR));
 
         if (d.exists()) {
-            final FilenameFilter filter = FilenameFilters.byFilePrefix("ISC_Marker_Set");
+            final FilenameFilter filter = FilenameFilters
+                    .byFilePrefix("ISC_Marker_Set");
             for (File file : FileUtil.listFiles(d, filter, false)) {
                 file.delete();
             }
@@ -457,7 +458,7 @@ public class MapManager {
                         sampleId.getName() + ".xml"));
                 if (!path.exists()) {
                     try {
-                        SerializationUtil.jaxbMarshalToXmlFile(sd,
+                        SampleData.getJAXBManager().marshalToXmlFile(sd,
                                 path.getAbsolutePath());
                     } catch (Exception e) {
                         statusHandler.error(
@@ -567,6 +568,7 @@ public class MapManager {
         if (!areaDir.exists()) {
             areaDir.mkdirs();
         }
+
         if (areaDir.isDirectory() && areaDir.canWrite()) {
             for (ReferenceData ref : data) {
                 ref.getPolygons(CoordinateType.LATLON);
@@ -577,8 +579,8 @@ public class MapManager {
                     // old one, write a warning to the log.
                     ReferenceData other = null;
                     try {
-                        other = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                                ReferenceData.class, path);
+                        other = ReferenceData.getJAXBManager()
+                                .unmarshalFromXmlFile(path);
                     } catch (Exception e) {
                         statusHandler.error("Error reading edit area file "
                                 + path.getAbsolutePath(), e);
@@ -595,8 +597,8 @@ public class MapManager {
                 } else {
                     // Write the new edit area file.
                     try {
-                        SerializationUtil.jaxbMarshalToXmlFile(ref,
-                                path.getAbsolutePath());
+                        ReferenceData.getJAXBManager().marshalToXmlFile(
+                                ref, path.getAbsolutePath());
                     } catch (Exception e) {
                         statusHandler.error("Error writing edit area to file "
                                 + path.getAbsolutePath(), e);

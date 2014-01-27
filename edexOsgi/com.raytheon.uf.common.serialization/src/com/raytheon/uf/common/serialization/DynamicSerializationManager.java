@@ -28,8 +28,6 @@ import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,10 +54,8 @@ import com.raytheon.uf.common.serialization.BuiltInTypeSupport.CalendarSerialize
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.DateSerializer;
 import com.raytheon.uf.common.serialization.BuiltInTypeSupport.TimestampSerializer;
 import com.raytheon.uf.common.serialization.adapters.BufferAdapter;
-import com.raytheon.uf.common.serialization.adapters.ByteBufferAdapter;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.common.serialization.adapters.EnumSetAdapter;
-import com.raytheon.uf.common.serialization.adapters.FloatBufferAdapter;
 import com.raytheon.uf.common.serialization.adapters.GeometryTypeAdapter;
 import com.raytheon.uf.common.serialization.adapters.GridGeometry2DAdapter;
 import com.raytheon.uf.common.serialization.adapters.GridGeometryAdapter;
@@ -95,6 +91,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                      serialization adapter is encoded
  *                                      in serialization stream.
  * Nov 02, 2012 1302        djohnson    Remove field level adapters, they break python serialization.
+ * Aug 06, 2013 2228        njensen     Added deserialize(byte[])
  * 
  * </pre>
  * 
@@ -150,9 +147,6 @@ public class DynamicSerializationManager {
         registerAdapter(QName.class, new BuiltInTypeSupport.QNameSerializer());
         registerAdapter(Throwable.class,
                 new BuiltInTypeSupport.ThrowableSerializer());
-        // These two are OBE by BufferAdapter and should be deleted sometime
-        registerAdapter(ByteBuffer.class, new ByteBufferAdapter());
-        registerAdapter(FloatBuffer.class, new FloatBufferAdapter());
         registerAdapter(Buffer.class, new BufferAdapter());
     }
 
@@ -263,7 +257,6 @@ public class DynamicSerializationManager {
         Object obj = deserialize(ctx);
         ctx.readMessageEnd();
         return obj;
-
     }
 
     /**
@@ -278,6 +271,22 @@ public class DynamicSerializationManager {
     public Object deserialize(IDeserializationContext ctx)
             throws SerializationException {
         return ((ThriftSerializationContext) ctx).deserializeMessage();
+    }
+
+    /**
+     * Deserialize an object from a byte[]
+     * 
+     * @param data
+     * @return
+     * @throws SerializationException
+     */
+    public Object deserialize(byte[] data) throws SerializationException {
+        IDeserializationContext ctx = this.builder.buildDeserializationContext(
+                data, this);
+        ctx.readMessageStart();
+        Object obj = deserialize(ctx);
+        ctx.readMessageEnd();
+        return obj;
     }
 
     public static <T> void registerAdapter(Class<? extends T> clazz,

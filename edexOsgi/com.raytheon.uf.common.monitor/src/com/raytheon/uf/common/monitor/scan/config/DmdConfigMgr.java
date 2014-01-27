@@ -25,11 +25,10 @@ import java.util.LinkedHashMap;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
 
@@ -38,25 +37,25 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANConfigDmdXML;
  * Configuration manager for the DMD table.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 2, 2009  #3039      lvenable     Initial creation
- *
+ * Dec 2, 2009  #3039      lvenable    Initial creation
+ * Oct 2, 2013  2361       njensen     Use JAXBManager for XML
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
-public class DmdConfigMgr extends AbsConfigMgr
-{
+public class DmdConfigMgr extends AbsConfigMgr {
     /**
      * DMD configuration manager XML.
      */
     private SCANConfigDmdXML dmdCfgXML;
-    
+
     /**
      * Default configuration file name.
      */
@@ -65,26 +64,21 @@ public class DmdConfigMgr extends AbsConfigMgr
     /**
      * Constructor.
      */
-    public DmdConfigMgr()
-    {        
+    public DmdConfigMgr() {
         super();
-    }    
-    
+    }
+
     /**
      * Initialize method.
      */
     @Override
-    protected void init()
-    {
+    protected void init() {
         currentConfigFileName = defaultConfigFileName;
         loadDefaultConfig();
-        
-        if (dmdCfgXML == null)
-        {
+
+        if (dmdCfgXML == null) {
             System.out.println("dmdCfgXML is null");
-        }
-        else
-        {
+        } else {
             System.out.println("--- " + dmdCfgXML.getDefaultRank());
         }
     }
@@ -93,8 +87,7 @@ public class DmdConfigMgr extends AbsConfigMgr
      * Get the attributes XML.
      */
     @Override
-    public ArrayList<SCANAttributesXML> getAttributes()
-    {
+    public ArrayList<SCANAttributesXML> getAttributes() {
         return dmdCfgXML.getAttributesData();
     }
 
@@ -102,10 +95,9 @@ public class DmdConfigMgr extends AbsConfigMgr
      * Load the default configuration.
      */
     @Override
-    public void loadDefaultConfig()
-    {
+    public void loadDefaultConfig() {
         currentConfigFileName = defaultConfigFileName;
-        dmdCfgXML = (SCANConfigDmdXML)readDefaultConfig();
+        dmdCfgXML = (SCANConfigDmdXML) readDefaultConfig();
         createAttributeMap(getAttributes());
     }
 
@@ -113,78 +105,70 @@ public class DmdConfigMgr extends AbsConfigMgr
      * Load a new configuration.
      */
     @Override
-    public void loadNewConfig(String newCfgName)
-    {
+    public void loadNewConfig(String newCfgName) {
         currentConfigFileName = newCfgName;
-        dmdCfgXML = (SCANConfigDmdXML)readExistingConfig();
-        createAttributeMap(getAttributes());        
+        dmdCfgXML = (SCANConfigDmdXML) readExistingConfig();
+        createAttributeMap(getAttributes());
     }
 
     /**
      * Save the current configuration.
      */
     @Override
-    public void saveConfig()
-    {
+    public void saveConfig() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
         String newFileName = getExistingConfigFilePath();
         LocalizationFile locFile = pm.getLocalizationFile(context, newFileName);
-        
-        if (locFile.getFile().getParentFile().exists() == false)
-        {
+
+        if (locFile.getFile().getParentFile().exists() == false) {
             System.out.println("Creating new directory");
-            
-            if (locFile.getFile().getParentFile().mkdirs() == false)
-            {
+
+            if (locFile.getFile().getParentFile().mkdirs() == false) {
                 System.out.println("Could not create new directory...");
             }
         }
 
-        try
-        {            
-            System.out.println("Saving -- " + locFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(dmdCfgXML, locFile.getFile().getAbsolutePath());
+        try {
+            System.out.println("Saving -- "
+                    + locFile.getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(dmdCfgXML, locFile.getFile()
+                    .getAbsolutePath());
             locFile.save();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-        }        
+        }
     }
-    
+
     /**
      * Check if the tips should be shown.
      */
     @Override
-    public boolean showTips()
-    {
+    public boolean showTips() {
         return dmdCfgXML.getTipsOption();
     }
-    
+
     /**
      * Set the show tips flag.
      */
     @Override
-    public void setShowTips(boolean showFlag)
-    {
+    public void setShowTips(boolean showFlag) {
         dmdCfgXML.setTipsOption(showFlag);
     }
-    
+
     /**
      * Get the path to the configuration files.
      */
     @Override
-    public String getConfigPath()
-    {
+    public String getConfigPath() {
         String fs = String.valueOf(File.separatorChar);
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("scan").append(fs);
         sb.append("config").append(fs);
-        sb.append("dmdTableConfig").append(fs);        
-        
+        sb.append("dmdTableConfig").append(fs);
+
         return sb.toString();
     }
 
@@ -192,8 +176,7 @@ public class DmdConfigMgr extends AbsConfigMgr
      * Get the full default configuration file name.
      */
     @Override
-    public String getFullDefaultConfigName()
-    {        
+    public String getFullDefaultConfigName() {
         return getConfigPath() + "SCANconfig_dmdTable.xml";
     }
 
@@ -201,75 +184,69 @@ public class DmdConfigMgr extends AbsConfigMgr
      * Get the default configuration name.
      */
     @Override
-    public String getDefaultConfigName()
-    {
+    public String getDefaultConfigName() {
         return defaultConfigFileName;
     }
-    
+
     /**
      * Get the clutter control attribute name.
+     * 
      * @return The clutter control attribute name.
      */
-    public String getClutterControl()
-    {
+    public String getClutterControl() {
         return dmdCfgXML.getClutterControl();
     }
-    
+
     /**
      * Get the radius interpolation.
+     * 
      * @return The radius interpolation.
      */
-    public String getRadVar()
-    {
+    public String getRadVar() {
         return dmdCfgXML.getRadVar();
     }
-    
+
     /**
      * Get a linked map of clutter control attribute and the associated units.
-     * @return A linked map of clutter control attribute and the associated units.
+     * 
+     * @return A linked map of clutter control attribute and the associated
+     *         units.
      */
-    public LinkedHashMap<String, String> getClutterAttributes()
-    {
+    public LinkedHashMap<String, String> getClutterAttributes() {
         LinkedHashMap<String, String> attrUnitsMap = new LinkedHashMap<String, String>();
-        ArrayList<SCANAttributesXML> attrArray =  getAttributes();
-        
-        for (SCANAttributesXML attrXML : attrArray)
-        {
-            if (attrXML.getClutter() == true)
-            {
+        ArrayList<SCANAttributesXML> attrArray = getAttributes();
+
+        for (SCANAttributesXML attrXML : attrArray) {
+            if (attrXML.getClutter() == true) {
                 attrUnitsMap.put(attrXML.getAttrName(), attrXML.getUnits());
             }
         }
-        
+
         return attrUnitsMap;
     }
-    
+
     /**
      * Get the SCAN DMD configuration data.
+     * 
      * @return SCAN DMD configuration data.
      */
-    public SCANConfigDmdXML getScanDmdCfgXML()
-    {
+    public SCANConfigDmdXML getScanDmdCfgXML() {
         return this.dmdCfgXML;
     }
-    
-    public void setAlarmsDisabled(boolean flag)
-    {
+
+    public void setAlarmsDisabled(boolean flag) {
         dmdCfgXML.setAlarmsDisabled(flag);
     }
-    
-    public boolean getAlarmsDisabled()
-    {
+
+    public boolean getAlarmsDisabled() {
         return dmdCfgXML.getAlarmsDisabled();
     }
-    
-    public void setAlarmBell(boolean flag)
-    {
+
+    public void setAlarmBell(boolean flag) {
         dmdCfgXML.setAlarmBell(flag);
     }
-    
-    public boolean getAlarmBell()
-    {
+
+    public boolean getAlarmBell() {
         return dmdCfgXML.getAlarmBell();
     }
 }

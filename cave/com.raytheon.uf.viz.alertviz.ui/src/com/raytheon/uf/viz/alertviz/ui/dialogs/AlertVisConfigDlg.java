@@ -27,6 +27,8 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -96,6 +98,8 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
  * 07 Feb 2013	 15292	   Xiaochuan   Confirmation message is not necessary when source 
  * 									   item update;	
  * 07 Feb 2013	 15490	   Xiaochuan   Past this object to LayoutControlsComp.
+ * 26 Aug 2013   #2293     lvenable    Fixed color memory leak and cleaned up some code.
+ * 23 Oct 2013   2303      bgonzale    Old patch to fix tool tip layout.
  * 
  * </pre>
  * 
@@ -106,17 +110,15 @@ import com.raytheon.uf.viz.alertviz.ui.dialogs.ConfigurationFileDlg.Function;
 public class AlertVisConfigDlg extends Dialog implements
         IConfigurationChangedListener, INeedsSaveListener {
 
-    private static final String TITLE = "Alert Visualization Configuration";
+    private final String CONFIG_LABEL = "Current Config: ";
 
-    private static final String CONFIG_LABEL = "Current Config: ";
+    private Color omittedColor = null;
 
-    private static final RGB OMITTED_RGB = new RGB(255, 255, 100);
+    private Color includedColor = null;
 
-    private static final RGB INCLUDED_RGB = new RGB(175, 238, 238);
+    private Color notmonitorColor = null;
 
-    private static final RGB NOTMONITOR_RGB = new RGB(190, 190, 190);
-
-    private static final RGB RED_RGB = new RGB(155, 0, 0);
+    private Color redColor = null;
 
     /**
      * Dialog shell.
@@ -220,9 +222,9 @@ public class AlertVisConfigDlg extends Dialog implements
 
     /** Configuration list dialog */
     private ConfigurationFileDlg configurationDialog;
-    
+
     private boolean fetchLog;
-    
+
     /**
      * Label default configuration.
      */
@@ -308,7 +310,7 @@ public class AlertVisConfigDlg extends Dialog implements
         display = parent.getDisplay();
         shell = new Shell(display, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE
                 | SWT.MAX);
-        shell.setText(TITLE);
+        shell.setText("Alert Visualization Configuration");
 
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(2, false);
@@ -333,6 +335,10 @@ public class AlertVisConfigDlg extends Dialog implements
                 controlFont.dispose();
                 ConfigurationManager.getInstance().removeListener(
                         AlertVisConfigDlg.this);
+                omittedColor.dispose();
+                includedColor.dispose();
+                notmonitorColor.dispose();
+                redColor.dispose();
             }
         });
         shell.pack();
@@ -345,6 +351,14 @@ public class AlertVisConfigDlg extends Dialog implements
      * Initialize the data.
      */
     private void initalizeData() {
+
+        // Colors
+        omittedColor = new Color(shell.getDisplay(), new RGB(255, 255, 100));
+        includedColor = new Color(shell.getDisplay(), new RGB(175, 238, 238));
+        notmonitorColor = new Color(shell.getDisplay(), new RGB(190, 190, 190));
+        redColor = new Color(shell.getDisplay(), new RGB(155, 0, 0));
+
+        // Fonts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
         labelFont = new Font(shell.getDisplay(), "Monospace", 14, SWT.NORMAL);
 
@@ -379,7 +393,13 @@ public class AlertVisConfigDlg extends Dialog implements
                 getLayoutToolTipText());
 
         mttLayout = new MonitorToolTip(layoutGroup, true);
-		layoutControls = new LayoutControlsComp(layoutGroup, configData, this, this);
+        layoutControls = new LayoutControlsComp(layoutGroup, configData, this,
+                this);
+        layoutGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttLayout.open();
+            }
+        });
     }
 
     /**
@@ -397,12 +417,11 @@ public class AlertVisConfigDlg extends Dialog implements
 
         mttCommonSetting = new MonitorToolTip(commonSettingsGroup, true);
 
-        // commonSettingsGroup.addMouseTrackListener(new MouseTrackAdapter() {
-        // public void mouseHover(MouseEvent e) {
-        // mttCommonSetting.open();
-        // }
-        // });
-
+        commonSettingsGroup.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttCommonSetting.open();
+            }
+        });
         createCommonSettingsControls(commonSettingsGroup);
     }
 
@@ -428,8 +447,8 @@ public class AlertVisConfigDlg extends Dialog implements
         showPriorityChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();  
-            	saveNeeded(true);
+                setNewConfig();
+                saveNeeded(true);
             }
         });
 
@@ -438,9 +457,9 @@ public class AlertVisConfigDlg extends Dialog implements
         showSourceKeyChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            	
+                setNewConfig();
+                saveNeeded(true);
+
             }
         });
 
@@ -449,9 +468,9 @@ public class AlertVisConfigDlg extends Dialog implements
         showCategoryChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            	
+                setNewConfig();
+                saveNeeded(true);
+
             }
         });
 
@@ -469,9 +488,9 @@ public class AlertVisConfigDlg extends Dialog implements
         expandPopupChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            	
+                setNewConfig();
+                saveNeeded(true);
+
             }
         });
 
@@ -492,9 +511,9 @@ public class AlertVisConfigDlg extends Dialog implements
         msgLengthSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            
+                setNewConfig();
+                saveNeeded(true);
+
             }
         });
 
@@ -515,9 +534,9 @@ public class AlertVisConfigDlg extends Dialog implements
         blinkDurSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            	
+                setNewConfig();
+                saveNeeded(true);
+
             }
         });
 
@@ -538,9 +557,8 @@ public class AlertVisConfigDlg extends Dialog implements
         audioDurSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-            	setNewConfig();
-            	saveNeeded(true);
-            	
+                setNewConfig();
+                saveNeeded(true);
 
             }
         });
@@ -583,17 +601,17 @@ public class AlertVisConfigDlg extends Dialog implements
         Label label = new Label(comp, SWT.LEFT);
         label.setLayoutData(gd);
         label.setText("Regular");
-        label.setBackground(new Color(display, NOTMONITOR_RGB));
+        label.setBackground(notmonitorColor);
 
         label = new Label(comp, SWT.LEFT);
         label.setLayoutData(gd);
         label.setText("Monitor");
-        label.setBackground(new Color(display, INCLUDED_RGB));
+        label.setBackground(includedColor);
 
         label = new Label(comp, SWT.LEFT);
         label.setLayoutData(gd);
         label.setText("Omitted Monitor");
-        label.setBackground(new Color(display, OMITTED_RGB));
+        label.setBackground(omittedColor);
     }
 
     /**
@@ -611,13 +629,13 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesLbl.setData(MonitorToolTip.tooltipTextKey,
                 getSourcesToolTipText());
 
-        mttSource = new MonitorToolTip(sourcesLbl, true);
+        mttSource = new MonitorToolTip(sourcesLbl, false);
 
-        // sourcesLbl.addMouseTrackListener(new MouseTrackAdapter() {
-        // public void mouseHover(MouseEvent e) {
-        // mttSource.open();
-        // }
-        // });
+        sourcesLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttSource.open();
+            }
+        });
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 125;
@@ -634,7 +652,7 @@ public class AlertVisConfigDlg extends Dialog implements
         sourcesList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                    handleSourceSelection();
+                handleSourceSelection();
             }
         });
 
@@ -680,7 +698,7 @@ public class AlertVisConfigDlg extends Dialog implements
                     @Override
                     public void widgetSelected(SelectionEvent ev) {
                         try {
-							save();
+                            save();
                         } catch (Exception e) {
                             Container
                                     .logInternal(
@@ -737,7 +755,7 @@ public class AlertVisConfigDlg extends Dialog implements
                                 setSourceColor(s, item);
                                 sourcesList.update();
                                 setNewConfig();
-                                
+
                             } catch (Exception e) {
                                 Container
                                         .logInternal(
@@ -791,14 +809,14 @@ public class AlertVisConfigDlg extends Dialog implements
                     .getMonitorMetadata();
             if (mm.getOmit()) {
                 // lighter yellow
-                item.setBackground(new Color(display, OMITTED_RGB));
+                item.setBackground(omittedColor);
             } else {
                 // lighter blue
-                item.setBackground(new Color(display, INCLUDED_RGB));
+                item.setBackground(includedColor);
             }
         } else {
             // gray
-            item.setBackground(new Color(display, NOTMONITOR_RGB));
+            item.setBackground(notmonitorColor);
         }
     }
 
@@ -843,13 +861,13 @@ public class AlertVisConfigDlg extends Dialog implements
         priorityLbl.setData(MonitorToolTip.tooltipTextKey,
                 getPrioritiesToolTipText());
 
-        mttPriorities = new MonitorToolTip(priorityLbl, true);
+        mttPriorities = new MonitorToolTip(priorityLbl, false);
 
-        // priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
-        // public void mouseHover(MouseEvent e) {
-        // mttPriorities.open();
-        // }
-        // });
+        priorityLbl.addMouseTrackListener(new MouseTrackAdapter() {
+            public void mouseHover(MouseEvent e) {
+                mttPriorities.open();
+            }
+        });
 
         // ---------------------------------------------------------
         // Put the priority canvases on the display
@@ -874,7 +892,7 @@ public class AlertVisConfigDlg extends Dialog implements
         textLbl.setLayoutData(gd);
 
         for (int i = 0; i < 6; i++) {
-        	priorityControls.get(i).createTextCheckbox();
+            priorityControls.get(i).createTextCheckbox();
         }
 
         addSeparator(prioritiesComp);
@@ -888,8 +906,8 @@ public class AlertVisConfigDlg extends Dialog implements
         blinkLbl.setLayoutData(gd);
 
         for (int i = 0; i < 6; i++) {
-        	priorityControls.get(i).createBlinkCheckbox();
-            
+            priorityControls.get(i).createBlinkCheckbox();
+
         }
 
         addSeparator(prioritiesComp);
@@ -1036,8 +1054,8 @@ public class AlertVisConfigDlg extends Dialog implements
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-            	close();
-           
+                close();
+
             }
         });
 
@@ -1065,7 +1083,7 @@ public class AlertVisConfigDlg extends Dialog implements
         saveLbl = new Label(buttonComp, SWT.BOLD);
         gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
         gd.widthHint = 10;
-        saveLbl.setForeground(new Color(display, RED_RGB));
+        saveLbl.setForeground(redColor);
         saveLbl.setText("");
         saveLbl.setLayoutData(gd);
 
@@ -1259,7 +1277,7 @@ public class AlertVisConfigDlg extends Dialog implements
         uci = selectedSource.getConfigurationItem();
 
         for (Priority pri : Priority.values()) {
-        	amd = uci.lookup(pri);
+            amd = uci.lookup(pri);
             priorityControls.get(pri.ordinal()).setAlertMetadata(amd);
         }
     }
@@ -1276,7 +1294,7 @@ public class AlertVisConfigDlg extends Dialog implements
         } else {
             selectedItem = sourcesList.getItem(index);
         }
-        
+
         sourcesList.removeAll();
         java.util.List<String> keys = new ArrayList<String>(sourceMap.keySet());
         Collections.sort(keys);
@@ -1289,7 +1307,7 @@ public class AlertVisConfigDlg extends Dialog implements
         }
 
         if (selectedItem != null) {
-        	sourcesList.select(index);
+            sourcesList.select(index);
         } else {
             sourcesList.select(0);
         }
@@ -1339,10 +1357,12 @@ public class AlertVisConfigDlg extends Dialog implements
      * 
      */
     public void setNewConfig() {
-    	updateGlobalConfiguration();
-        ConfigurationManager.getInstance().setNewConfiguration(configContext, configData);
-        
+        updateGlobalConfiguration();
+        ConfigurationManager.getInstance().setNewConfiguration(configContext,
+                configData);
+
     }
+
     /**
      * Get the source key associated with the selected source in the source list
      * control.
@@ -1447,9 +1467,9 @@ public class AlertVisConfigDlg extends Dialog implements
 
     @Override
     public void configurationChanged() {
-    	configData = ConfigurationManager.getInstance()
-        		.getCurrentConfiguration();
-    	configContext = ConfigurationManager.getInstance().getCurrentContext();
+        configData = ConfigurationManager.getInstance()
+                .getCurrentConfiguration();
+        configContext = ConfigurationManager.getInstance().getCurrentContext();
         sourceMap = configData.getSources();
         layoutControls.reloadConfig(configData);
 
@@ -1460,7 +1480,6 @@ public class AlertVisConfigDlg extends Dialog implements
         populateSourceList();
         populatePriorityControls();
 
-        shell.setText(TITLE);
         defaultConLbl.setText(CONFIG_LABEL + configContext);
         save.setEnabled(!this.configContext.isBaseOrConfiguredLevel());
         saveNeeded(false);

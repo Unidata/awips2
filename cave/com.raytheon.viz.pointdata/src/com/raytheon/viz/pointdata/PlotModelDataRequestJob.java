@@ -273,7 +273,7 @@ public class PlotModelDataRequestJob extends Job {
                 if (pdc == null) {
                     // Datacube didn't have proper plugin; going
                     // directly to the data store
-                    pdc = PointDataRequest.requestPointDataAllLevels(null,
+                    pdc = PointDataRequest.requestPointDataAllLevels(
                             this.plugin,
                             params.toArray(new String[params.size()]), null,
                             map);

@@ -9,7 +9,7 @@
 	<bean id="sfcobsProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="sfcobsPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.sfcobs" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.sfcobs.dao.SfcObsDao" />
+		<property name="dao" value="com.raytheon.edex.plugin.sfcobs.SfcObsDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon" />
 	</bean>
 	

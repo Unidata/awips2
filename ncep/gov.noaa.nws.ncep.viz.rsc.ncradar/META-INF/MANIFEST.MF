@@ -23,11 +23,11 @@ Require-Bundle: org.apache.batik;bundle-version="1.6.0",
  gov.noaa.nws.ncep.viz.localization,
  com.raytheon.viz.ui,
  com.raytheon.viz.pointdata,
- com.raytheon.uf.common.units;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.localization,
@@ -40,7 +40,6 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.viz.awipstools.capabilities,
  com.raytheon.viz.awipstools.capabilityInterfaces,
  com.raytheon.viz.awipstools.common,
- com.raytheon.viz.core.drawables,
  com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.util,
  com.raytheon.viz.radar,

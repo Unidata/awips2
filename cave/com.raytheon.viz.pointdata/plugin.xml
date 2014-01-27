@@ -20,25 +20,14 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
-      <extension
+      <!-- Re-enabled when base/site/user permissions are set up -->
+      <!-- <extension
          point="com.raytheon.viz.ui.contextualMenu">
-
       <contextualMenu
-            actionClass="com.raytheon.viz.pointdata.ui.cmenu.EnableDisableMetarAction"
-            capabilityInterface="com.raytheon.uf.viz.core.rsc.capabilities.IPlotDataResource"
-            name="MetarAction"
-            sortID="113"/>
-      <contextualMenu
-            actionClass="com.raytheon.viz.pointdata.ui.cmenu.EnableDisableMesowestAction"
-            capabilityInterface="com.raytheon.uf.viz.core.rsc.capabilities.IPlotDataResource"
-            name="MesowestAction"
-            sortID="114"/>
-            <!-- Re-enabled when base/site/user permissions are set up -->
-      <!-- <contextualMenu
             actionClass="com.raytheon.viz.pointdata.ui.cmenu.ViewPlotModelAction"
             name="Edit Plot Model"
-            sortID="115"/> -->
-   </extension>
+            sortID="115"/>
+      </extension> -->
       <extension
             point="com.raytheon.uf.viz.core.resource">
          <resource
@@ -66,66 +55,6 @@
                resourceType="PLAN_VIEW">
          </resource>
       </extension>
-      <extension
-            point="com.raytheon.uf.viz.core.scriptTemplate">
-         <scriptTemplate
-               pluginName="obs"
-               scriptLibrary="ObsRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="sfcobs"
-               scriptLibrary="SfcObsRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="fssobs"
-               scriptLibrary="FSSObsRequest">
-         </scriptTemplate>         
-         <scriptTemplate
-               pluginName="bufrua"
-               scriptLibrary="UARequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="bufrssmi"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="goessounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="poessounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="acarssounding"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="pirep"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="bufrhdw"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="airep"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="acars"
-               scriptLibrary="BaseRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="profiler"
-               scriptLibrary="ProfilerRequest">
-         </scriptTemplate>
-         <scriptTemplate
-               pluginName="pointdata"
-               scriptTemplateFile="scriptTemplates/pointData.vm">
-         </scriptTemplate>
-      </extension>
-      
  	<extension
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path

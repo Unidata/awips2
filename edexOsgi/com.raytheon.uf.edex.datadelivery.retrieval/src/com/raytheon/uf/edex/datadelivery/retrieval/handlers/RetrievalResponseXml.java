@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Nov 04, 2013 2506       bgonzale     Added constructor.
  * 
  * </pre>
  * 
@@ -69,6 +70,15 @@ public class RetrievalResponseXml {
      * Constructor.
      */
     public RetrievalResponseXml() {
+    }
+
+    /**
+     * Constructor.
+     */
+    public RetrievalResponseXml(RetrievalResponseXml other) {
+        this.requestRecord = other.requestRecord;
+        this.retrievalAttributePluginDataObjects = other.retrievalAttributePluginDataObjects;
+        this.success = other.success;
     }
 
     /**

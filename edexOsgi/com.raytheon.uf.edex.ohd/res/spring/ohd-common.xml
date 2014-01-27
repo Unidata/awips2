@@ -4,8 +4,10 @@
   
   	<!--  IHFS Database Configuration-->
   	<bean id="ihfsDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+  	    <property name="classFinder" ref="dbClassFinder" />
         <property name="includes">
            <list>
+                <value>com.raytheon.uf.common.dataplugin.shef</value>
                 <value>com.raytheon.edex.plugin.shef</value>
            </list>
         </property>
@@ -36,9 +38,18 @@
 	<bean id="damTxManager"
 		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
 		<property name="sessionFactory" ref="damSessionFactory" />
-	</bean>  	
-	
+	</bean>
+
 	<bean id="mpeFieldGenService" class="com.raytheon.uf.edex.ohd.pproc.MpeFieldGenSrv" />
-	
-  
+
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg value="dpa" />
+    </bean>
+
+    <bean factory-bean="manualProc"
+        factory-method="registerSecondaryPlugin">
+        <constructor-arg value="dhr" />
+    </bean>
+
  </beans>

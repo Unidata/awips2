@@ -24,12 +24,10 @@ import static org.junit.Assert.assertNotNull;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.registry.MockRegistryObject;
-import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders;
 import com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -46,6 +44,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * ------------ ---------- ----------- --------------------------
  * Aug 22, 2012 0743       djohnson     Initial creation
  * Sep 07, 2012 1102       djohnson     Setup the registry encoder.
+ * Jun 24, 2013 2106       djohnson     RegistryUtil no longer holds the encoder instance.
  * 
  * </pre>
  * 
@@ -55,22 +54,6 @@ import com.raytheon.uf.common.util.ReflectionException;
 
 public class RegistryUtilTest {
 
-    /**
-     * Allows tests to set a specific registry encoding type to use.
-     * 
-     * @param type
-     *            the type
-     */
-    public static void setEncoderStrategy(IRegistryEncoder encoder) {
-        RegistryUtil.ENCODER_STRATEGY = encoder;
-    }
-
-    @BeforeClass
-    public static void classSetup() {
-        RegistryUtilTest.setEncoderStrategy(RegistryEncoders
-                .ofType(Type.DYNAMIC_SERIALIZE));
-    }
-
     @Test
     public void newRegistryObjectCanConvertEnumValues()
             throws ReflectionException, SerializationException {
@@ -78,7 +61,8 @@ public class RegistryUtilTest {
         registryObject.setDataType(DataType.GRID);
         
         RegistryObjectType type = RegistryUtil
-                .newRegistryObject(registryObject);
+                .newRegistryObject(registryObject,
+                        RegistryEncoders.ofType(Type.DYNAMIC_SERIALIZE));
 
         SlotType slotToCheck = null;
         for (SlotType slot : type.getSlot()) {

@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.gisdatastore.rsc;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +44,6 @@ import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -56,9 +56,13 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.util.WorldWrapCorrector;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
@@ -91,6 +95,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
@@ -106,6 +111,8 @@ import com.vividsolutions.jts.geom.Point;
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012      #1326 randerso     Initial creation
  * Feb 22, 2013      #1641 randerso     Moved ID_ATTRIBUTE_NAME to package scope
+ * Jul 24, 2013      #1907 randerso     Fixed sampling when cropped
+ * Jul 24, 2013      #1908 randerso     Update attributes when cropped
  * 
  * </pre>
  * 
@@ -116,6 +123,9 @@ import com.vividsolutions.jts.geom.Point;
 public class DataStoreResource extends
         AbstractVizResource<DataStoreResourceData, MapDescriptor> implements
         IPropertyChangeListener, IResourceDataChanged {
+    private static final IPerformanceStatusHandler perfLog = PerformanceStatus
+            .getHandler("GIS:");
+
     static final String ID_ATTRIBUTE_NAME = "Feature.ID";
 
     private static final int CLICK_TOLERANCE = 3;
@@ -129,20 +139,28 @@ public class DataStoreResource extends
      */
     private static final double RECENTER_TOLERANCE = 0.8;
 
+    /** Property Key for highlight color */
     public static final String HIGHLIGHT_COLOR_KEY = "HighlightColor";
 
+    /** Default value for highlight color */
     public static final String HIGHLIGHT_COLOR_DEFAULT = "HotPink";
 
+    /** Property Key for highlight style */
     public static final String HIGHLIGHT_STYLE_KEY = "HighlightStyle";
 
+    /** Default value for highlight style */
     public static final String HIGHLIGHT_STYLE_DEFAULT = "SOLID";
 
+    /** Property Key for highlight width */
     public static final String HIGHLIGHT_WIDTH_KEY = "HighlightWidth";
 
+    /** Default value for highlight width */
     public static final String HIGHLIGHT_WIDTH_DEFAULT = "2";
 
+    /** Property Key for product opacity */
     public static final String PRODUCT_OPACITY_KEY = "ProductOpacity";
 
+    /** Default value for product opacity */
     public static final String PRODUCT_OPACITY_DEFAULT = "0.35";
 
     protected static final double EXPANSION_FACTOR = 0.25;
@@ -296,7 +314,7 @@ public class DataStoreResource extends
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
             if (rubberBandExtent != null) {
-                if (mouseButton == 1 && inDrag) {
+                if ((mouseButton == 1) && inDrag) {
                     IDisplayPaneContainer container = getResourceContainer();
                     Coordinate c = container.translateClick(x, y);
                     if (c != null) {
@@ -319,7 +337,7 @@ public class DataStoreResource extends
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (rubberBandExtent != null) {
-                if (mouseButton == 1 && inDrag) {
+                if ((mouseButton == 1) && inDrag) {
                     IDisplayPaneContainer container = getResourceContainer();
                     Coordinate c = container.translateClick(x, y);
                     if (c != null) {
@@ -368,12 +386,40 @@ public class DataStoreResource extends
         }
     }
 
+    /**
+     * Interface for listeners to be notified of rubber band selection changes
+     */
     public static interface IRubberBandSelectionListener {
+        /**
+         * Called when rubber band selection changes
+         * 
+         * @param extent
+         *            selected pixel extent
+         */
         public void rubberBandSelectionChanged(PixelExtent extent);
     }
 
+    /**
+     * Interface for listeners to be notified of double click selection
+     */
     public static interface IDoubleClickSelectionListener {
+        /**
+         * Called when double click selection occurs
+         * 
+         * @param selectedIds
+         *            IDs of selected features
+         */
         public void selectedFeaturesChanged(List<String> selectedIds);
+    }
+
+    /**
+     * Interface for listeners to be notified when attributes are updated
+     */
+    public static interface IAttributesUpdatedListener {
+        /**
+         * Called when attributes are updated
+         */
+        public void attributesUpdated();
     }
 
     protected DataStore dataStore;
@@ -438,12 +484,23 @@ public class DataStoreResource extends
 
     private ListenerList doubleClickListeners;
 
+    private ListenerList attributesUpdatedListeners;
+
     private Coordinate dragPromptCoord;
 
     private WorldWrapCorrector worldWrapCorrector;
 
     private String sampleAttribute;
 
+    private Geometry boundingGeom;
+
+    /**
+     * Constructor for DataStoreResource
+     * 
+     * @param data
+     * @param loadProperties
+     * @throws IOException
+     */
     public DataStoreResource(DataStoreResourceData data,
             LoadProperties loadProperties) throws IOException {
         super(data, loadProperties);
@@ -454,6 +511,7 @@ public class DataStoreResource extends
         this.displayName = data.getMapName();
         this.rubberBandListeners = new ListenerList();
         this.doubleClickListeners = new ListenerList();
+        this.attributesUpdatedListeners = new ListenerList();
 
         GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
@@ -500,10 +558,7 @@ public class DataStoreResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
 
-        long t0 = System.currentTimeMillis();
         loadDataStore();
-        System.out.println("loadDataStore took "
-                + (System.currentTimeMillis() - t0) + " ms");
 
         getCapability(LabelableCapability.class).setAvailableLabelFields(
                 this.attributeNames);
@@ -533,6 +588,9 @@ public class DataStoreResource extends
 
     protected void loadDataStore() throws VizException {
         try {
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
+
             schema = dataStore.getSchema(typeName);
             List<AttributeDescriptor> attrDesc = schema
                     .getAttributeDescriptors();
@@ -557,12 +615,16 @@ public class DataStoreResource extends
             displayAttributes = new HashMap<String, DataStoreResource.DisplayAttributes>(
                     (int) Math.ceil(attributeNames.length / 0.75f), 0.75f);
 
+            timer.stop();
+            perfLog.logDuration("loadDataStore", timer.getElapsedTime());
         } catch (Exception e) {
             throw new VizException("Error loading shapefile: ", e);
         }
     }
 
-    private void loadAttributes(Envelope envelope) {
+    private void loadAttributes() {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         DefaultQuery query = new DefaultQuery();
         query.setTypeName(typeName);
 
@@ -571,11 +633,25 @@ public class DataStoreResource extends
 
         String geomField = schema.getGeometryDescriptor().getLocalName();
 
-        ReferencedEnvelope bbox = new ReferencedEnvelope(envelope,
-                MapUtil.LATLON_PROJECTION);
-        Filter bboxFilter = ff.bbox(ff.property(geomField), bbox);
+        IExtent worldExtent = getDescriptor().getRenderableDisplay().getView()
+                .getExtent();
+        Rectangle screenBounds = getResourceContainer().getActiveDisplayPane()
+                .getBounds();
+        double worldToScreenRatio = worldExtent.getWidth() / screenBounds.width;
 
-        query.setFilter(bboxFilter);
+        List<Geometry> geomList = new ArrayList<Geometry>();
+        PixelExtent extent = clipToProjExtent(projExtent);
+        Geometry boundingGeom = buildBoundingGeometry(extent,
+                worldToScreenRatio);
+        flattenGeometry(boundingGeom, geomList);
+
+        List<Filter> filterList = new ArrayList<Filter>(geomList.size());
+        for (Geometry g : geomList) {
+            Filter filter = ff
+                    .intersects(ff.property(geomField), ff.literal(g));
+            filterList.add(filter);
+        }
+        query.setFilter(ff.or(filterList));
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
         Iterator<SimpleFeature> featureIterator = null;
@@ -612,21 +688,19 @@ public class DataStoreResource extends
                 featureCollection.close(featureIterator);
             }
         }
+        timer.stop();
+        perfLog.logDuration("loadAttributes", timer.getElapsedTime());
     }
 
-    private Envelope buildEnvelope(PixelExtent extent) throws VizException {
-        Envelope env = null;
-        try {
-            Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
-
-            ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                    descriptor.getCRS());
-            env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-        } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
+    private void flattenGeometry(Geometry geometry, List<Geometry> geomList) {
+        if (geometry instanceof GeometryCollection) {
+            GeometryCollection collection = (GeometryCollection) geometry;
+            for (int i = 0; i < collection.getNumGeometries(); i++) {
+                flattenGeometry(collection.getGeometryN(i), geomList);
+            }
+        } else {
+            geomList.add(geometry);
         }
-
-        return env;
     }
 
     private Geometry buildBoundingGeometry(PixelExtent extent,
@@ -638,9 +712,9 @@ public class DataStoreResource extends
                 new double[] { 0, -90 });
 
         double[] p = null;
-        if (northPole != null && extent.contains(northPole)) {
+        if ((northPole != null) && extent.contains(northPole)) {
             p = northPole;
-        } else if (southPole != null && extent.contains(southPole)) {
+        } else if ((southPole != null) && extent.contains(southPole)) {
             p = southPole;
         }
 
@@ -664,7 +738,7 @@ public class DataStoreResource extends
 
             List<Geometry> geometries = new ArrayList<Geometry>(4);
             for (PixelExtent ext : quadrant) {
-                if (ext.getWidth() > 0 && ext.getHeight() > 0) {
+                if ((ext.getWidth() > 0) && (ext.getHeight() > 0)) {
                     geometries.add(geometryFromExtent(ext, worldToScreenRatio));
                 }
             }
@@ -703,22 +777,22 @@ public class DataStoreResource extends
         double dx = extent.getWidth() / nx;
         double dy = extent.getHeight() / ny;
 
-        Coordinate[] coordinates = new Coordinate[2 * (nx + ny) + 1];
+        Coordinate[] coordinates = new Coordinate[(2 * (nx + ny)) + 1];
         int i = 0;
         for (int x = 0; x < nx; x++) {
-            coordinates[i++] = new Coordinate(x * dx + extent.getMinX(),
+            coordinates[i++] = new Coordinate((x * dx) + extent.getMinX(),
                     extent.getMinY());
         }
         for (int y = 0; y < ny; y++) {
-            coordinates[i++] = new Coordinate(extent.getMaxX(), y * dy
+            coordinates[i++] = new Coordinate(extent.getMaxX(), (y * dy)
                     + extent.getMinY());
         }
         for (int x = nx; x > 0; x--) {
-            coordinates[i++] = new Coordinate(x * dx + extent.getMinX(),
+            coordinates[i++] = new Coordinate((x * dx) + extent.getMinX(),
                     extent.getMaxY());
         }
         for (int y = ny; y > 0; y--) {
-            coordinates[i++] = new Coordinate(extent.getMinX(), y * dy
+            coordinates[i++] = new Coordinate(extent.getMinX(), (y * dy)
                     + extent.getMinY());
         }
         coordinates[i++] = coordinates[0];
@@ -737,7 +811,7 @@ public class DataStoreResource extends
 
         // determine if we should display in this frame
         DataTime curTime = paintProps.getFramesInfo().getCurrentFrame();
-        if (curTime != null && timeRange != null) {
+        if ((curTime != null) && (timeRange != null)) {
             if (timeRange.isValid()) { // non-zero duration
                 if (!timeRange.contains(curTime.getValidTime().getTime())) {
                     return;
@@ -759,7 +833,7 @@ public class DataStoreResource extends
 
         String shadingField = getCapability(ShadeableCapability.class)
                 .getShadingField();
-        boolean isShaded = isPolygonal() && shadingField != null;
+        boolean isShaded = isPolygonal() && (shadingField != null);
         boolean isProduct = this.timeRange != null;
 
         boolean updateLabels = isLabeled && !labelField.equals(lastLabelField);
@@ -771,15 +845,14 @@ public class DataStoreResource extends
                 updateShading = !shadingField.equals(lastShadingField);
             }
         }
-        boolean updateExtent = lastExtent == null
+        boolean updateExtent = (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
                         clipToProjExtent(screenExtent).getEnvelope());
 
         if (updateHighlights || updateLabels || updateShading || updateExtent) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                // Envelope env = buildEnvelope(expandedExtent);
-                Geometry boundingGeom = buildBoundingGeometry(expandedExtent,
+                boundingGeom = buildBoundingGeometry(expandedExtent,
                         worldToScreenRatio);
 
                 String geomField = schema.getGeometryDescriptor()
@@ -804,26 +877,26 @@ public class DataStoreResource extends
 
         float alpha = paintProps.getAlpha();
 
-        if ((isProduct || isShaded) && shadedShape != null
+        if ((isProduct || isShaded) && (shadedShape != null)
                 && shadedShape.isDrawable()) {
             float opacity = getCapability(ShadeableCapability.class)
                     .getOpacity();
             aTarget.drawShadedShape(shadedShape, alpha * opacity);
         }
 
-        if (outlineShape != null && outlineShape.isDrawable()
+        if ((outlineShape != null) && outlineShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             aTarget.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),
                     getCapability(OutlineCapability.class).getOutlineWidth(),
                     getCapability(OutlineCapability.class).getLineStyle(),
                     alpha);
-        } else if (outlineShape == null
+        } else if ((outlineShape == null)
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             issueRefresh();
         }
 
-        if (highlightShape != null && highlightShape.isDrawable()
+        if ((highlightShape != null) && highlightShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             aTarget.drawWireframeShape(highlightShape, highlightColor,
                     highlightWidth, highlightStyle);
@@ -832,7 +905,7 @@ public class DataStoreResource extends
         double labelMagnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
-        if (labels != null && isLabeled && labelMagnification != 0) {
+        if ((labels != null) && isLabeled && (labelMagnification != 0)) {
             drawLabels(aTarget, paintProps, labelMagnification,
                     worldToScreenRatio);
         }
@@ -906,7 +979,7 @@ public class DataStoreResource extends
                 .getDensity();
         double minScreenDistance = Double.MAX_VALUE;
         if (density > 0) {
-            minScreenDistance = worldToScreenRatio * BASE_DENSITY_MULT
+            minScreenDistance = (worldToScreenRatio * BASE_DENSITY_MULT)
                     / density;
         }
 
@@ -937,7 +1010,7 @@ public class DataStoreResource extends
                     node.location[1]
                             + ((node.rect.getHeight() - node.rect.getY()) * worldToScreenRatio));
 
-            if (lastLabel != null && lastLabel.equals(node.label)) {
+            if ((lastLabel != null) && lastLabel.equals(node.label)) {
                 // check intersection of extents
                 for (IExtent ext : extents) {
                     if (ext.intersects(strExtent)) {
@@ -1114,7 +1187,9 @@ public class DataStoreResource extends
         // sampling is only supported when loaded as product
         if (timeRange != null) {
             if (sampleAttribute != null) {
+                // TODO get the query off the UI thread
                 List<SimpleFeature> features = findFeatures(coord);
+
                 StringBuilder sb = new StringBuilder();
                 for (SimpleFeature f : features) {
                     Object attr;
@@ -1136,32 +1211,32 @@ public class DataStoreResource extends
         return sampleString;
     }
 
+    /**
+     * Set the displayed resource name
+     * 
+     * @param name
+     */
     public void setName(String name) {
-        if (name != null && name.isEmpty()) {
+        if ((name != null) && name.isEmpty()) {
             name = null;
         }
         this.displayName = name;
         this.resourceData.setMapName(name);
     }
 
+    /**
+     * @return the attribute names
+     */
     public String[] getAttributeNames() {
         return attributeNames;
     }
 
+    /**
+     * @return the attributes
+     */
     public Object[][] getAttributes() {
         if (attributes == null) {
-            try {
-                // TODO need to fix this so it doesn't load features that are
-                // outside fully zoomed out window
-                Envelope env = buildEnvelope(projExtent);
-                long t0 = System.currentTimeMillis();
-                loadAttributes(env);
-                System.out.println("loadAttributes took "
-                        + (System.currentTimeMillis() - t0) + " ms");
-            } catch (VizException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
-            }
+            loadAttributes();
         }
         return attributes;
     }
@@ -1178,17 +1253,15 @@ public class DataStoreResource extends
         return schema;
     }
 
+    /**
+     * @param coord
+     * @return
+     * @throws VizException
+     */
     private List<SimpleFeature> findFeatures(ReferencedCoordinate coord)
             throws VizException {
-
-        List<SimpleFeature> features = new ArrayList<SimpleFeature>();
-        Coordinate pix;
-        try {
-            pix = coord.asPixel(getDescriptor().getGridGeometry());
-        } catch (Exception e) {
-            throw new VizException(
-                    "Error transforming sample point to lat/lon ", e);
-        }
+        // ITimer timer = TimeUtil.getTimer();
+        // timer.start();
 
         DefaultQuery query = new DefaultQuery();
         query.setTypeName(typeName);
@@ -1198,48 +1271,79 @@ public class DataStoreResource extends
 
         String geomField = schema.getGeometryDescriptor().getLocalName();
 
-        IExtent worldExtent = getDescriptor().getRenderableDisplay().getView()
-                .getExtent();
-        Rectangle screenBounds = getResourceContainer().getActiveDisplayPane()
-                .getBounds();
-        double worldToScreenRatio = worldExtent.getWidth() / screenBounds.width;
+        boolean polygonal = isPolygonal();
+        Filter clickFilter;
+        try {
+            if (polygonal) {
+                GeometryFactory gf = new GeometryFactory();
+                Point clickPoint = gf.createPoint(coord.asLatLon());
+                clickFilter = ff.contains(ff.property(geomField),
+                        ff.literal(clickPoint));
+            } else {
+                Coordinate pix;
+                pix = coord.asPixel(getDescriptor().getGridGeometry());
 
-        double delta = CLICK_TOLERANCE * worldToScreenRatio;
-        PixelExtent bboxExtent = new PixelExtent(pix.x - delta, pix.x + delta,
-                pix.y - delta, pix.y + delta);
-        Geometry boundingGeom = buildBoundingGeometry(bboxExtent,
-                worldToScreenRatio);
+                IExtent worldExtent = getDescriptor().getRenderableDisplay()
+                        .getView().getExtent();
+                Rectangle screenBounds = getResourceContainer()
+                        .getActiveDisplayPane().getBounds();
+                double worldToScreenRatio = worldExtent.getWidth()
+                        / screenBounds.width;
 
-        List<Filter> filterList = new ArrayList<Filter>(
-                boundingGeom.getNumGeometries());
-        for (int i = 0; i < boundingGeom.getNumGeometries(); i++) {
-            Filter filter = ff.intersects(ff.property(geomField),
-                    ff.literal(boundingGeom.getGeometryN(i)));
-            filterList.add(filter);
+                double delta = CLICK_TOLERANCE * worldToScreenRatio;
+                PixelExtent bboxExtent = new PixelExtent(pix.x - delta, pix.x
+                        + delta, pix.y - delta, pix.y + delta);
+                Geometry clickBox = buildBoundingGeometry(bboxExtent,
+                        worldToScreenRatio);
+                List<Geometry> clickGeomList = new ArrayList<Geometry>();
+                flattenGeometry(clickBox, clickGeomList);
+                List<Filter> clickFilterList = new ArrayList<Filter>(
+                        clickGeomList.size());
+                for (Geometry g : clickGeomList) {
+                    Filter filter = ff.intersects(ff.property(geomField),
+                            ff.literal(g));
+                    clickFilterList.add(filter);
+                }
+                clickFilter = ff.or(clickFilterList);
+            }
+        } catch (Exception e) {
+            throw new VizException(
+                    "Error transforming sample point to lat/lon ", e);
         }
-        query.setFilter(ff.or(filterList));
+
+        // query.setFilter(ff.and(clickFilter, boundingFilter));
+        query.setFilter(clickFilter);
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
         Iterator<SimpleFeature> featureIterator = null;
+        List<SimpleFeature> features;
         try {
             FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
                     .getFeatureSource(typeName);
 
             featureCollection = featureSource.getFeatures(query);
-            int size = featureCollection.size();
-
+            features = new ArrayList<SimpleFeature>(featureCollection.size());
             featureIterator = featureCollection.iterator();
+
             while (featureIterator.hasNext()) {
-                features.add(featureIterator.next());
+                SimpleFeature f = featureIterator.next();
+                Geometry g = (Geometry) f.getDefaultGeometry();
+                if (g.intersects(boundingGeom)) {
+                    features.add(f);
+                }
             }
         } catch (Exception e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
+            features = Collections.emptyList();
         } finally {
             if (featureIterator != null) {
                 featureCollection.close(featureIterator);
             }
         }
+
+        // timer.stop();
+        // perfLog.logDuration("findFeatures", timer.getElapsedTime());
         return features;
     }
 
@@ -1252,6 +1356,14 @@ public class DataStoreResource extends
         return da;
     }
 
+    /**
+     * Make a feature visible/invisible
+     * 
+     * @param id
+     *            ID of feature to change
+     * @param visible
+     *            true for visible, false for invisible
+     */
     public void setVisible(String id, boolean visible) {
         DisplayAttributes da = getDisplayAttributes(id);
         da.setVisible(visible);
@@ -1259,11 +1371,26 @@ public class DataStoreResource extends
         issueRefresh();
     }
 
-    public boolean getVisible(String id) {
+    /**
+     * Determine if a feature is visibile
+     * 
+     * @param id
+     *            ID of feature in question
+     * @return true if visible, false if invisible
+     */
+    public boolean isVisible(String id) {
         DisplayAttributes da = getDisplayAttributes(id);
         return da.isVisible();
     }
 
+    /**
+     * Highlight/Unhighlight a feature
+     * 
+     * @param id
+     *            ID of feature to change
+     * @param highlighted
+     *            true for highlighted, false for unhighlighted
+     */
     public void setHighlighted(String id, boolean highlighted) {
         DisplayAttributes da = getDisplayAttributes(id);
         da.setHighlighted(highlighted);
@@ -1272,11 +1399,24 @@ public class DataStoreResource extends
         issueRefresh();
     }
 
-    public boolean getHighlighted(String id) {
+    /**
+     * Determine if a feature is highlighted
+     * 
+     * @param id
+     *            ID of feature in question
+     * @return true if highlighted, false if unhighlighted
+     */
+    public boolean isHighlighted(String id) {
         DisplayAttributes da = getDisplayAttributes(id);
         return da.isHighlighted();
     }
 
+    /**
+     * Recenter the display on a feature if it is off screen
+     * 
+     * @param id
+     *            ID of feature to be recentered about
+     */
     public void recenter(String id) {
         DisplayAttributes da = getDisplayAttributes(id);
         Point p = da.getCentroid();
@@ -1323,10 +1463,21 @@ public class DataStoreResource extends
         }
     }
 
+    /**
+     * Activate rubber band selection box
+     */
     public void activateRubberBandBox() {
         rubberBandExtent = new PixelExtent(0, 0, 0, 0);
     }
 
+    /**
+     * Update rubber band selection
+     * 
+     * @param start
+     *            starting corner of selection
+     * @param end
+     *            ending corner of selection
+     */
     public void updateRubberBandBox(Coordinate start, Coordinate end) {
         dragPromptCoord = end;
         double minX = Math.min(start.x, end.x);
@@ -1337,8 +1488,12 @@ public class DataStoreResource extends
         issueRefresh();
     }
 
+    /**
+     * Deactivate rubber band selection box
+     */
     public void deactivateRubberBandBox() {
-        if (rubberBandExtent.getWidth() > 0 && rubberBandExtent.getHeight() > 0) {
+        if ((rubberBandExtent.getWidth() > 0)
+                && (rubberBandExtent.getHeight() > 0)) {
             for (Object obj : rubberBandListeners.getListeners()) {
                 IRubberBandSelectionListener listener = (IRubberBandSelectionListener) obj;
                 listener.rubberBandSelectionChanged(rubberBandExtent);
@@ -1350,43 +1505,111 @@ public class DataStoreResource extends
         issueRefresh();
     }
 
+    /**
+     * Add a rubber band selection listener
+     * 
+     * @param listener
+     */
     public void addRubberBandSelectionListener(
             IRubberBandSelectionListener listener) {
         rubberBandListeners.add(listener);
     }
 
+    /**
+     * Remove a rubber band selection listener
+     * 
+     * @param listener
+     */
     public void removeRubberBandSelectionListener(
             IRubberBandSelectionListener listener) {
         rubberBandListeners.remove(listener);
     }
 
+    /**
+     * Add a double click selection listener
+     * 
+     * @param listener
+     */
     public void addDoubleClickSelectionListener(
             IDoubleClickSelectionListener listener) {
         doubleClickListeners.add(listener);
     }
 
+    /**
+     * Remove a double click selection listener
+     * 
+     * @param listener
+     */
     public void removeDoubleClickSelectionListener(
             IDoubleClickSelectionListener listener) {
         doubleClickListeners.remove(listener);
     }
 
+    /**
+     * Add an attributes updated listener
+     * 
+     * @param listener
+     */
+    public void addAttributesUpdatedListener(IAttributesUpdatedListener listener) {
+        attributesUpdatedListeners.add(listener);
+    }
+
+    /**
+     * Remove an attributes updated listener
+     * 
+     * @param listener
+     */
+    public void removeAttributesUpdatedListener(
+            IAttributesUpdatedListener listener) {
+        attributesUpdatedListeners.remove(listener);
+    }
+
+    private void notifyAttributesUpdatedListeners() {
+        for (Object listener : attributesUpdatedListeners.getListeners()) {
+            ((IAttributesUpdatedListener) listener).attributesUpdated();
+        }
+    }
+
+    /**
+     * Crop the displayed features to the selected extent
+     * 
+     * @param extent
+     *            the selected extent
+     */
     public void crop(PixelExtent extent) {
         cropExtent = extent;
         lastExtent = null;
+        attributes = null;
         issueRefresh();
+        notifyAttributesUpdatedListeners();
     }
 
+    /**
+     * Determine if the resource is cropped
+     * 
+     * @return true if cropped
+     */
     public boolean isCropped() {
         return cropExtent != null;
     }
 
+    /**
+     * Uncrop the resource (display all features)
+     */
     public void uncrop() {
         cropExtent = null;
         lastExtent = null;
+        attributes = null;
         issueRefresh();
-
+        notifyAttributesUpdatedListeners();
     }
 
+    /**
+     * Set the time range associated with the resource when displayed as a
+     * product
+     * 
+     * @param timeRange
+     */
     public void setTimeRange(TimeRange timeRange) {
         this.timeRange = timeRange;
     }
@@ -1409,10 +1632,20 @@ public class DataStoreResource extends
         issueRefresh();
     }
 
+    /**
+     * Get the name of the sample attribute
+     * 
+     * @return sample attribute name
+     */
     public String getSampleAttribute() {
         return sampleAttribute;
     }
 
+    /**
+     * Set the sample attribute name
+     * 
+     * @param sampleAttribute
+     */
     public void setSampleAttribute(String sampleAttribute) {
         this.sampleAttribute = sampleAttribute;
     }

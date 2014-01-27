@@ -31,7 +31,8 @@ Developed on the Raytheon Visualization Environment (viz)
 -Dqpid.dest_syntax=BURL
 -Dcom.sun.management.jmxremote.authenticate=false
 -Dcom.sun.management.jmxremote.ssl=false
--Dlog4j.configuration=log4j-alertviz.xml
+-Dlogback.configurationFile=logback-alertviz.xml
+-Dlogback.statusListenerClass=com.raytheon.uf.common.status.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200</vmArgs>
    </launcherArgs>
 

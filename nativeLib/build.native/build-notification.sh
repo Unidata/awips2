@@ -25,17 +25,19 @@ fi
 # Arguments:
 #  1) the workspace
 #  2) the uframe-eclipse
-#  3) the build root (will become the location of the temporary workspace)
+#  3) the location of the temporary workspace
+#  4) the build root
 
 # ensure that there are at least three arguments
-if [ $# -ne 3 ]; then
-   echo "Usage: $0 WORKSPACE UFRAME_ECLIPSE BUILD_ROOT"
+if [ $# -ne 4 ]; then
+   echo "Usage: $0 WORKSPACE UFRAME_ECLIPSE WORKSPACE_LOC BUILD_ROOT"
    exit 0
 fi
 
 WORKSPACE=${1}
 UFRAME_ECLIPSE=${2}
 BUILD_ROOT=${3}
+DESTINATION_ROOT=${4}
 
 # ensure that the workspace directory exists
 if [ ! -d ${WORKSPACE} ]; then
@@ -117,82 +119,73 @@ do
 done
 
 # create the notification sub-directories
-mkdir ${BUILD_ROOT}/awips2/notification/bin
+mkdir ${DESTINATION_ROOT}/awips2/notification/bin
 if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/bin."
+   echo "ERROR: Unable to create directory - ${DESTINATION_ROOT}/workspace_/notification/bin."
    exit 1
 fi
-mkdir ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
+mkdir ${DESTINATION_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/lib."
+   echo "ERROR: Unable to create directory - ${DESTINATION_ROOT}/workspace_/notification/lib."
    exit 1
 fi
-mkdir ${BUILD_ROOT}/awips2/notification/src
+mkdir ${DESTINATION_ROOT}/awips2/notification/src
 if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/src."
+   echo "ERROR: Unable to create directory - ${DESTINATION_ROOT}/workspace_/notification/src."
    exit 1
 fi
-mkdir ${BUILD_ROOT}/awips2/notification/include
+mkdir ${DESTINATION_ROOT}/awips2/notification/include
 if [ $? -ne 0 ]; then
-   echo "ERROR: Unable to create directory - ${BUILD_ROOT}/workspace_/notification/include."
+   echo "ERROR: Unable to create directory - ${DESTINATION_ROOT}/workspace_/notification/include."
    exit 1
 fi
 
 # libedex_com.so -> notification/lib
-if [ -f "${BUILD_ROOT}/workspace_/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" ]; then
-   cp -v "${BUILD_ROOT}/workspace_/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" \
-      ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
+if [ -f "${WORKSPACE}/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" ]; then
+   cp -v "${WORKSPACE}/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" \
+      ${DESTINATION_ROOT}/awips2/notification/${FOSS_LIB_DIR}
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to copy libedex_com.so to its destination."
       exit 1
    fi
 else
-   cp -v "${WORKSPACE}/edex_com/${BUILD_CONFIGURATION}/libedex_com.so" \
-      ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to copy libedex_com.so to its destination."
-      exit 1
-   fi
+   echo "ERROR: Unable to locate the built: libedex_com.so."
+   exit 1
 fi
 # edex_com src -> notification/src
 cp -vf ${BUILD_ROOT}/workspace_/edex_com/src/*.cpp \
-   ${BUILD_ROOT}/awips2/notification/src
+   ${DESTINATION_ROOT}/awips2/notification/src
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the edex_com src to its destination."
    exit 1
 fi
 # edex_com headers -> notification/include
-cp -vf ${BUILD_ROOT}/workspace_/edex_com/src/*.h ${BUILD_ROOT}/awips2/notification/include
+cp -vf ${BUILD_ROOT}/workspace_/edex_com/src/*.h ${DESTINATION_ROOT}/awips2/notification/include
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the edex_com header to its destination."
    exit 1
 fi
 # edex_notify -> notification/bin
-if [ -f "${BUILD_ROOT}/workspace_/edex_notify/${BUILD_CONFIGURATION}/edex_notify" ]; then
-   cp -vf "${BUILD_ROOT}/workspace_/edex_notify/${BUILD_CONFIGURATION}/edex_notify" \
-      ${BUILD_ROOT}/awips2/notification/bin
+if [ -f "${WORKSPACE}/edex_notify/${BUILD_CONFIGURATION}/edex_notify" ]; then
+   cp -vf "${WORKSPACE}/edex_notify/${BUILD_CONFIGURATION}/edex_notify" \
+      ${DESTINATION_ROOT}/awips2/notification/bin
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to copy edex_notify to its destination."
       exit 1
    fi
 else
-   cp -vf "${WORKSPACE}/edex_notify/${BUILD_CONFIGURATION}/edex_notify" \
-      ${BUILD_ROOT}/awips2/notification/bin
-   if [ $? -ne 0 ]; then
-      echo "ERROR: Failed to copy edex_notify to its destination."
-      exit 1
-   fi
+      echo "ERROR: Unable to locate the built: edex_notify."
 fi
 # edex_notify src -> notification/src
 cp -vf ${BUILD_ROOT}/workspace_/edex_notify/src/*.c \
-   ${BUILD_ROOT}/awips2/notification/src
+   ${DESTINATION_ROOT}/awips2/notification/src
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the edex_notify src to its destination."
    exit 1
 fi
 # org.apache.thrift lib -> notification/lib
 cp -vPf ${BUILD_ROOT}/workspace_/org.apache.thrift/${FOSS_LIB_DIR}/* \
-   ${BUILD_ROOT}/awips2/notification/${FOSS_LIB_DIR}
+   ${DESTINATION_ROOT}/awips2/notification/${FOSS_LIB_DIR}
 if [ $? -ne 0 ]; then
    echo "ERROR: Failed to copy the org.apache.thrift lib to its destination."
    exit 1

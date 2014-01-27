@@ -10,7 +10,7 @@
    <bean id="preciprateProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="precipratePluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.preciprate" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.preciprate.dao.PrecipRateDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.preciprate.PrecipRateDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.preciprate.PrecipRateRecord" />
 		<property name="dependencyFQNs">
 		    <list>

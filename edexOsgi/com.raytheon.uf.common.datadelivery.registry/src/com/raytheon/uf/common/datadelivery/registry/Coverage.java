@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.ReferencedEnvelopeAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -57,7 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @XmlSeeAlso({ GriddedCoverage.class, LatLonGridCoverage.class })
-public class Coverage implements ISerializableObject, Serializable {
+public class Coverage implements Serializable {
 
     /**
 	 * 

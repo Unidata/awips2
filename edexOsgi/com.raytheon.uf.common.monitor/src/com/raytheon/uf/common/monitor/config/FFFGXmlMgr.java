@@ -30,7 +30,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.xml.FFFGDataXML;
 import com.raytheon.uf.common.monitor.xml.FFFGSourceItemXML;
 import com.raytheon.uf.common.monitor.xml.FFFGSourceXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * 
@@ -42,7 +42,8 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 10, 2010 #4517      lvenable     Initial creation
+ * Mar 10, 2010 #4517      lvenable    Initial creation
+ * Oct 02, 2013  2361      njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -50,6 +51,10 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * @version 1.0
  */
 public class FFFGXmlMgr {
+
+    private static final SingleTypeJAXBManager<FFFGDataXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(FFFGDataXML.class);
+
     /**
      * Data XML.
      */
@@ -151,8 +156,7 @@ public class FFFGXmlMgr {
                     .getAbsolutePath();
             // System.out.println("*** reading XML path = " + path);
 
-            dataXML = (FFFGDataXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(path);
+            dataXML = jaxb.unmarshalFromXmlFile(path);
             setForcingConfigured();
         } catch (Exception e) {
             // e.printStackTrace();
@@ -196,8 +200,7 @@ public class FFFGXmlMgr {
         try {
             System.out.println("--- Saving XML path = "
                     + locFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(dataXML, locFile.getFile()
-                    .getAbsolutePath());
+            jaxb.marshalToXmlFile(dataXML, locFile.getFile().getAbsolutePath());
             locFile.save();
         } catch (Exception e) {
             e.printStackTrace();

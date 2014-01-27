@@ -49,7 +49,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2009 3039       lvenable     Initial creation.
- * 
+ * 24 Jul 2013 #2143       skorolev     Changes for non-blocking dialog.
+ * Aug 15, 2013  2143      mpduff       Remove resize.
  * </pre>
  * 
  * @author lvenable
@@ -102,12 +103,17 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
      *            Callback that is called when changes are made.
      */
     public DmdDisplayFilterDlg(Shell parentShell, IDisplayFilterUpdate cb) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("DMD Display Filter Control");
 
         displayFilterUpdateCB = cb;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -117,12 +123,24 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         lrgLabelFont.dispose();
         smLabelFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
@@ -241,7 +259,7 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 applyAction();
-                shell.dispose();
+                close();
             }
         });
 
@@ -364,9 +382,15 @@ public class DmdDisplayFilterDlg extends CaveSWTDialog implements
         displayFilterUpdateCB.displayFilterUpdated();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
     /**
