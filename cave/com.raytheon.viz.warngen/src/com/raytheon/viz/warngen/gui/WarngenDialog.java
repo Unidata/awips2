@@ -149,6 +149,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *  Aug  6, 2013 2243        jsanchez    Refreshed the follow up list every minute.
  *  Aug 15, 2013 DR 16418    D. Friedman Make dialog visibility match editable state.
  *  Sep 17, 2013 DR 16496    D. Friedman Make editable state more consistent.
+ *  Sep 24, 2013 #2401       lvenable    Fixed font memory leak.
  *  Oct 01, 2013 DR16612 m.gamazaychikov Fixed inconsistencies with track locking and updateListSelected method
  *  Oct 29, 2013 DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the polygon the be used.
  * </pre>
@@ -289,6 +290,9 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     private final IWarngenObserver wed = new WarningSender();
 
+    /** Bullet list font. */
+    private Font bulletListFont = null;
+
     public WarngenDialog(Shell parentShell, WarngenLayer layer) {
         super(parentShell, SWT.CLOSE | SWT.MODELESS | SWT.BORDER | SWT.TITLE,
                 CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
@@ -300,6 +304,10 @@ public class WarngenDialog extends CaveSWTDialog implements
 
     @Override
     protected void disposed() {
+        if (bulletListFont != null) {
+            bulletListFont.dispose();
+        }
+
         timer.cancel();
         updateTimeTask.cancel();
         CurrentWarnings.removeListener(this);
@@ -352,9 +360,10 @@ public class WarngenDialog extends CaveSWTDialog implements
     private void createBulletListAndLabel(Composite mainComposite) {
         bulletList = new List(mainComposite, SWT.MULTI | SWT.V_SCROLL
                 | SWT.H_SCROLL | SWT.BORDER);
-        bulletList.setFont(new Font(getDisplay(), bulletList.getFont()
+        bulletListFont = new Font(getDisplay(), bulletList.getFont()
                 .getFontData()[0].getName(), FONT_HEIGHT, bulletList.getFont()
-                .getFontData()[0].getStyle()));
+                .getFontData()[0].getStyle());
+        bulletList.setFont(bulletListFont);
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         gd.widthHint = BULLET_WIDTH;

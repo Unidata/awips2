@@ -28,12 +28,13 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetFixture;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 
 /**
  * Test {@link BaseSubscriptionVerifier}.
@@ -45,6 +46,7 @@ import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2012 1104       djohnson     Initial creation
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -60,8 +62,7 @@ public class BaseSubscriptionVerifierTest {
             .get();
 
     private final Subscription subscription = SiteSubscriptionFixture.INSTANCE
-            .get();
-
+            .get(DataType.GRID);
 
     @Before
     public void setUp() {

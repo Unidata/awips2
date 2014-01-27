@@ -34,7 +34,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.viz.core.contours.util.IVectorGraphicsRenderableFactory;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -49,22 +49,24 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 22, 2010            bsteffen     Initial creation
- * Feb 07, 2011 7948       bkowal       added a public method to get
- *                                      the direction.
- * Aug 27, 2013 2287       randerso     Added VectorGraphicsRenderable Factory to allow
- *                                      application specific rendering of wind barbs and 
- *                                      arrows.
- *                                      Added densityFactor to allow application specific 
- *                                      adjustment of density.
- *                                      Added gridRelative flag to indicate whether direction
- *                                      data is relative to grid or true north
- * Sep 9, 2013  DR16257    MPorricelli  When setDestinationGeographicPoint fails (which can
- *                                      happen for global lat/lon grid winds displayed on
- *                                      Equidistant Cylindrical map) try again with different
- *                                      pixel location.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 22, 2010           bsteffen    Initial creation
+ * Feb 07, 2011  7948     bkowal      added a public method to get the
+ *                                    direction.
+ * Aug 27, 2013  2287     randerso    Added VectorGraphicsRenderable Factory to
+ *                                    allow application specific rendering of
+ *                                    wind barbs and arrows. Added
+ *                                    densityFactor to allow application
+ *                                    specific adjustment of density. Added
+ *                                    gridRelative flag to indicate whether
+ *                                    direction data is relative to grid or
+ *                                    true north
+ * Sep 09, 2013  16257    MPorricelli When setDestinationGeographicPoint fails (which can
+ *                                    happen for global lat/lon grid winds displayed on
+ *                                    Equidistant Cylindrical map) try again with different
+ *                                    pixel location.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -83,6 +85,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
 
     private IExtent lastExtent;
 
+    private VectorGraphicsConfig vectorConfig;
+
     private VectorGraphicsRenderable vectorRenderable;
 
     private boolean gridRelative;
@@ -90,8 +94,6 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
     private DisplayType displayType;
 
     private GeodeticCalculator gc;
-
-    private IVectorGraphicsRenderableFactory factory;
 
     /**
      * @param magnitude
@@ -109,15 +111,16 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
      */
     public GriddedVectorDisplay(FloatBuffer magnitude, FloatBuffer direction,
             IMapDescriptor descriptor, GeneralGridGeometry gridGeometryOfGrid,
-            int size, double densityFactor, boolean gridRelative,
-            DisplayType displayType, IVectorGraphicsRenderableFactory factory) {
-        super(descriptor, gridGeometryOfGrid, size, densityFactor);
+            double densityFactor, boolean gridRelative,
+            DisplayType displayType, VectorGraphicsConfig config) {
+        super(descriptor, gridGeometryOfGrid, config.getBaseSize(),
+                densityFactor);
         this.magnitude = magnitude;
         this.direction = direction;
         this.gridRelative = gridRelative;
         this.displayType = displayType;
         this.gc = new GeodeticCalculator(descriptor.getCRS());
-        this.factory = factory;
+        this.vectorConfig = config;
     }
 
     @Override
@@ -129,8 +132,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             lastExtent = paintProps.getView().getExtent().clone();
         }
         if (vectorRenderable == null) {
-            vectorRenderable = factory.createRenderable(descriptor, target,
-                    this.size);
+            vectorRenderable = new VectorGraphicsRenderable(descriptor,
+                    target, vectorConfig);
             super.paint(target, paintProps);
         }
         vectorRenderable.setColor(this.color);
@@ -207,15 +210,16 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
         }
 
         dir = (float) Math.toRadians(dir);
+        vectorConfig.setSizeScaler(adjSize / size);
         switch (displayType) {
         case ARROW:
-            vectorRenderable.paintArrow(plotLoc, adjSize, spd, dir);
+            vectorRenderable.paintArrow(plotLoc, spd, dir);
             break;
         case BARB:
-            vectorRenderable.paintBarb(plotLoc, adjSize, spd, dir);
+            vectorRenderable.paintBarb(plotLoc, spd, dir);
             break;
         case DUALARROW:
-            vectorRenderable.paintDualArrow(plotLoc, adjSize, spd, dir);
+            vectorRenderable.paintDualArrow(plotLoc, spd, dir);
             break;
         default:
             throw new VizException("Unsupported disply type: " + displayType);

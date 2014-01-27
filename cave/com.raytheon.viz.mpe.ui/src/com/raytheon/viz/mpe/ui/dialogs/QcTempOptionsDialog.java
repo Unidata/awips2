@@ -63,6 +63,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 12, 2008            snaples     Initial creation
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -375,7 +376,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = new Cursor(Display.getDefault(),
+        final Cursor waitCursor = Display.getDefault().getSystemCursor(
                 SWT.CURSOR_WAIT);
 
         // Create a container to hold the label and the combo box.

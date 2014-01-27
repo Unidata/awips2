@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXB;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -39,8 +41,6 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -55,8 +55,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 26, 2011            mpduff     Initial creation
+ * Jan 26, 2011            mpduff      Initial creation
  * Dec 07, 2012 1353       rferrel     Make non-blocking dialog.
+ * Aug 09, 2013 2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
+ * Nov 04, 2013 2361       njensen     Use JAXB instead of SerializationUtil
  * 
  * </pre>
  * 
@@ -68,7 +70,7 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SHEFAppsDefaultsDlg.class);
 
-    private final String CONFIG_FILE_NAME = "hydro" + File.separatorChar
+    private final String CONFIG_FILE_NAME = "hydro" + IPathManager.SEPARATOR
             + "shefGadTokens.xml";
 
     /**
@@ -169,17 +171,14 @@ public class SHEFAppsDefaultsDlg extends CaveSWTDialog {
         IPathManager pm = PathManagerFactory.getPathManager();
         System.out.println("Searching for " + CONFIG_FILE_NAME);
         File file = pm.getStaticFile(this.CONFIG_FILE_NAME);
-        String configPath = null;
         if (file != null) {
-            configPath = file.getAbsolutePath();
             try {
-                SHEFAppsDefaultsXML xml = SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(SHEFAppsDefaultsXML.class,
-                                configPath);
+                SHEFAppsDefaultsXML xml = JAXB.unmarshal(file,
+                        SHEFAppsDefaultsXML.class);
                 for (String token : xml.getTokenList()) {
                     tokenList.add(token);
                 }
-            } catch (SerializationException e) {
+            } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getMessage(), e);
             }
         } else {

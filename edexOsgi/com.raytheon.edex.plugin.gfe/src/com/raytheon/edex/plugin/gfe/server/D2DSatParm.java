@@ -20,13 +20,18 @@
 package com.raytheon.edex.plugin.gfe.server;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
+import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -35,13 +40,14 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.GridUpdateNotification;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
-import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -63,6 +69,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Mar 25, 2013  1823      dgilling     Disassociate data from Source and
  *                                      CreatingEntity metadata, rely only
  *                                      on SectorId and PhysicalElement as in A1.
+ * Jun 13, 2013  2044      randerso     Fixed satellite time matching
  * 
  * </pre>
  * 
@@ -70,13 +77,11 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * @version 1.0
  */
 
-public class D2DSatParm extends GridParm {
+public class D2DSatParm {
 
-    /** The log handler */
+    /** The statusHandler */
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DSatParm.class);
-
-    private static final long TIME_MATCH_FACTOR = 3 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** The ParmID associated with this D2DSatParm */
     private ParmID pid;
@@ -93,6 +98,10 @@ public class D2DSatParm extends GridParm {
     /** The physical element for this satellite data */
     private String physicalElement;
 
+    private ConcurrentSkipListSet<TimeRange> inventory;
+
+    private SatelliteDao satDao;
+
     /**
      * Creates a new D2DSatParm
      * 
@@ -104,18 +113,27 @@ public class D2DSatParm extends GridParm {
      *            The databaseID of the satellite database
      * @param parmName
      *            The parm name
+     * @throws GfeException
      */
     public D2DSatParm(IFPServerConfig config, String productURI,
-            DatabaseID dbId, String parmName) {
+            DatabaseID dbId, String parmName) throws GfeException {
         this.config = config;
         this.pid = new ParmID(parmName, dbId);
-        if (productURI != null && productURI.contains("/")) {
+        try {
+            this.satDao = (SatelliteDao) PluginFactory.getInstance()
+                    .getPluginDao("satellite");
+        } catch (PluginException e) {
+            throw new GfeException("Unable to create SatelliteDao", e);
+        }
+
+        if ((productURI != null) && productURI.contains("/")) {
             if (productURI.startsWith("/")) {
                 productURI = productURI.substring(1);
             }
             String[] tokens = productURI.split("/");
             sectorID = tokens[0];
             physicalElement = tokens[1];
+            this.inventory = getDbInventory();
         }
     }
 
@@ -128,49 +146,51 @@ public class D2DSatParm extends GridParm {
         return this.pid;
     }
 
-    @Override
-    public boolean isValid() {
-        return true;
-    }
-
     /**
-     * @return
+     * @return ServerResponse containing list of available time ranges if
+     *         successful
      */
-    @Override
     public ServerResponse<List<TimeRange>> getGridInventory() {
         ServerResponse<List<TimeRange>> sr = new ServerResponse<List<TimeRange>>();
-        List<TimeRange> inventory = new ArrayList<TimeRange>();
-        List<Date> satInventory = new ArrayList<Date>();
-
-        SatelliteDao satDao = null;
-        try {
-            satDao = (SatelliteDao) PluginFactory.getInstance().getPluginDao(
-                    "satellite");
-
-            satInventory = satDao.getSatelliteInventory(null, null, sectorID,
-                    physicalElement);
-        } catch (Exception e) {
-            statusHandler.error("Error getting inventory for sectorID ["
-                    + sectorID + "] and physicalElement [" + physicalElement
-                    + "].  " + e.getLocalizedMessage());
-            sr.addMessage("Error getting inventory for sectorID [" + sectorID
-                    + "] and physicalElement [" + physicalElement + "].  "
-                    + e.getLocalizedMessage());
-            return sr;
-        }
-
-        for (Date d : satInventory) {
-            inventory.add(new TimeRange(d, tc.getDuration() * 1000));
-        }
-        sr.setPayload(inventory);
+        sr.setPayload(new ArrayList<TimeRange>(this.inventory));
         return sr;
     }
 
     /**
      * @return
-     * 
+     * @throws GfeException
      */
-    @Override
+    private ConcurrentSkipListSet<TimeRange> getDbInventory()
+            throws GfeException {
+        List<Date> satInventory = new ArrayList<Date>();
+        int desiredVersions = config.desiredDbVersions(pid.getDbId());
+
+        try {
+            satInventory = satDao.getSatelliteInventory(null, null, sectorID,
+                    physicalElement, desiredVersions);
+        } catch (Exception e) {
+            throw new GfeException("Error getting inventory for sectorID ["
+                    + sectorID + "] and physicalElement [" + physicalElement
+                    + "].", e);
+        }
+
+        ConcurrentSkipListSet<TimeRange> dbInventory = new ConcurrentSkipListSet<TimeRange>();
+        for (Date d : satInventory) {
+            Date start = truncateSeconds(d);
+            dbInventory.add(new TimeRange(start, tc.getDuration() * 1000));
+        }
+        return dbInventory;
+    }
+
+    private Date truncateSeconds(Date date) {
+        // truncate seconds
+        return new Date((date.getTime() / TimeUtil.MILLIS_PER_MINUTE)
+                * TimeUtil.MILLIS_PER_MINUTE);
+    }
+
+    /**
+     * @return the grid parm info
+     */
     public ServerResponse<GridParmInfo> getGridParmInfo() {
         ServerResponse<GridParmInfo> gpi = new ServerResponse<GridParmInfo>();
         GridParmInfo info = new GridParmInfo(pid, config.dbDomain(),
@@ -181,9 +201,9 @@ public class D2DSatParm extends GridParm {
     }
 
     /**
-     * @return
+     * @param inventory
+     * @return map of time ranges to lists of grid histories
      */
-    @Override
     public ServerResponse<Map<TimeRange, List<GridDataHistory>>> getGridHistory(
             List<TimeRange> inventory) {
         ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = new ServerResponse<Map<TimeRange, List<GridDataHistory>>>();
@@ -200,27 +220,25 @@ public class D2DSatParm extends GridParm {
     }
 
     /**
-     * @return
+     * @param getRequest
+     * @param badDataTimes
+     * @return ServerResponse containing list of grid slices if successful
      */
-    @Override
     public ServerResponse<List<IGridSlice>> getGridData(
             GetGridRequest getRequest, List<TimeRange> badDataTimes) {
         List<TimeRange> timeRanges = getRequest.getTimes();
         ServerResponse<List<IGridSlice>> sr = new ServerResponse<List<IGridSlice>>();
-        List<TimeRange> inventory = getGridInventory().getPayload();
         List<IGridSlice> gridSlices = new ArrayList<IGridSlice>();
-
-        List<TimeRange> matchedTimes = matchRequestTimes(timeRanges, inventory);
 
         SatelliteDao dao = null;
         try {
             dao = (SatelliteDao) PluginFactory.getInstance().getPluginDao(
                     "satellite");
-            List<SatelliteRecord> satRecords = dao.getSatelliteData(null, null,
-                    sectorID, physicalElement, rangesToDates(matchedTimes));
+            List<SatelliteRecord> satRecords = dao.getSatelliteData(sectorID,
+                    physicalElement, timeRanges);
             for (int i = 0; i < satRecords.size(); i++) {
-                GridLocation satGridLoc = satMapCoverageToGridLocation(satRecords
-                        .get(i).getCoverage());
+                GridLocation satGridLoc = new GridLocation(this.pid.toString(),
+                        satRecords.get(i));
                 ByteDataRecord hdf5Record = (ByteDataRecord) satRecords.get(i)
                         .getMessageData();
                 Grid2DByte rawData = new Grid2DByte(
@@ -253,31 +271,6 @@ public class D2DSatParm extends GridParm {
     }
 
     /**
-     * @param reqTimeRanges
-     * @param inventory
-     * @return
-     */
-    private List<TimeRange> matchRequestTimes(List<TimeRange> reqTimeRanges,
-            List<TimeRange> inventory) {
-        List<TimeRange> retVal = new ArrayList<TimeRange>(reqTimeRanges.size());
-
-        for (TimeRange tr : reqTimeRanges) {
-            TimeRange matchRange = new TimeRange(tr.getStart().getTime()
-                    - TIME_MATCH_FACTOR, tr.getEnd().getTime()
-                    + TIME_MATCH_FACTOR);
-
-            for (TimeRange invTR : inventory) {
-                if (matchRange.contains(invTR)) {
-                    retVal.add(invTR);
-                    break;
-                }
-            }
-        }
-
-        return retVal;
-    }
-
-    /**
      * Utility function to convert byte data to floats
      * 
      * @param rawBytes
@@ -297,36 +290,87 @@ public class D2DSatParm extends GridParm {
     }
 
     /**
-     * Converts satellite map coverage data to GFE compatible coverage for use
-     * with RemapGrid
+     * Update inventory based on uri notification
      * 
-     * @param coverage
-     *            The satellite map coverage to be converted
-     * @return The GFE compatible version of the satellite map coverage
+     * @param record
+     * @return GridUpdateNotification to be sent if inventory updated or null
      */
-    private GridLocation satMapCoverageToGridLocation(SatMapCoverage coverage) {
-        GridLocation location = new GridLocation();
-        location.setCrsObject(coverage.getCrs());
-        location.setGeometry(coverage.getGeometry());
-        location.setNx(coverage.getNx());
-        location.setNy(coverage.getNy());
-        return location;
+    public GridUpdateNotification update(SatelliteRecord record) {
+        GridUpdateNotification notify = null;
 
+        Date validTime = record.getDataTime().getValidPeriod().getStart();
+        Date start = truncateSeconds(validTime);
+        TimeRange tr = new TimeRange(start, tc.getDuration() * 1000);
+        if (!inventory.contains(tr)) {
+            this.inventory.add(tr);
+            notify = new GridUpdateNotification(pid, tr, getGridHistory(
+                    Arrays.asList(tr)).getPayload(), null, pid.getDbId()
+                    .getSiteId());
+        }
+        return notify;
     }
 
     /**
-     * Extracts the start times from a list of time ranges and places them in a
-     * list
+     * Update inventory from database and return GridUpdateNotifications
      * 
-     * @param ranges
-     *            The timeranges to extract the start times from
-     * @return The list of start time Dates
+     * @return the list of GridUpdateNotifications
      */
-    private List<Date> rangesToDates(List<TimeRange> ranges) {
-        List<Date> dates = new ArrayList<Date>();
-        for (TimeRange range : ranges) {
-            dates.add(range.getStart());
+    public List<GridUpdateNotification> updateFromDb() {
+        List<GridUpdateNotification> notifs;
+
+        try {
+            ConcurrentSkipListSet<TimeRange> newInventory = getDbInventory();
+
+            List<TimeRange> adds = new ArrayList<TimeRange>(newInventory);
+            adds.removeAll(inventory);
+
+            List<TimeRange> deletes = new ArrayList<TimeRange>(inventory);
+            deletes.removeAll(newInventory);
+
+            this.inventory = newInventory;
+
+            notifs = new ArrayList<GridUpdateNotification>(adds.size()
+                    + deletes.size());
+            for (TimeRange tr : adds) {
+                notifs.add(new GridUpdateNotification(pid, tr, getGridHistory(
+                        Arrays.asList(tr)).getPayload(), null, pid.getDbId()
+                        .getSiteId()));
+            }
+
+            // empty histories map for deletes
+            Map<TimeRange, List<GridDataHistory>> histories = Collections
+                    .emptyMap();
+            for (TimeRange tr : deletes) {
+                notifs.add(new GridUpdateNotification(pid, tr, histories, null,
+                        pid.getDbId().getSiteId()));
+            }
+        } catch (GfeException e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            notifs = Collections.emptyList();
         }
-        return dates;
+
+        return notifs;
+    }
+
+    /**
+     * Update inventory from GridUpdateNotification
+     * 
+     * @param gun
+     *            the GridUpdateNotification
+     */
+    public void update(GridUpdateNotification gun) {
+        TimeRange replace = gun.getReplacementTimeRange();
+
+        Iterator<TimeRange> iter = inventory.iterator();
+        while (iter.hasNext()) {
+            TimeRange tr = iter.next();
+            if (replace.contains(tr)) {
+                iter.remove();
+            }
+        }
+
+        for (TimeRange tr : gun.getHistories().keySet()) {
+            inventory.add(tr);
+        }
     }
 }

@@ -33,7 +33,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -44,9 +43,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 3, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 3, 2010            bsteffen    Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -56,7 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "upperTextSet")
-public class UpperTextSet implements ISerializableObject {
+public class UpperTextSet {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(UpperTextSet.class);
 

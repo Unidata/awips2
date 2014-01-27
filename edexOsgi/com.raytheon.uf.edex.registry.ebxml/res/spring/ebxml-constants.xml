@@ -6,10 +6,6 @@
 		<constructor-arg value="${EBXML_REGISTRY_FEDERATION_ENABLED}" />
 	</bean>
 
-	<bean id="ebxmlSubscriptionsEnabled" class="java.lang.Boolean">
-		<constructor-arg value="${EBXML_REGISTRY_SUBSCRIPTIONS_ENABLED}" />
-	</bean>
-
 	<bean id="ebxmlEmailEnabled" class="java.lang.Boolean">
 		<constructor-arg value="${ebxml-email.enabled}" />
 	</bean>

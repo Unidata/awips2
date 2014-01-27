@@ -27,10 +27,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
@@ -47,10 +43,12 @@ import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -69,13 +67,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Mar 07, 2013 1771        bsteffen    make subgridding deterministic.
- * 
- * 1/4/13		DR 15653	M.Porricelli Shift subgrid domain
- *                                       westward like AWIPSI
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ --------------------------
+ * Apr 07, 2009  1994     bphillip     Initial Creation
+ * Mar 07, 2013  1771     bsteffen     make subgridding deterministic.
+ * Jan 04, 2013  15653    M.Porricelli Shift subgrid domain westward like
+ *                                     AWIPSI
+ * Oct 15, 2013  2473     bsteffen     Rewrite deprecated code.
  * 
  * </pre>
  * 
@@ -85,7 +83,17 @@ import com.vividsolutions.jts.geom.Coordinate;
 public class GribSpatialCache {
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribSpatialCache.class);
+
+    private static final SingleTypeJAXBManager<GridCoverage> GRID_COVERAGE_JAXB = SingleTypeJAXBManager
+            .createWithoutException(GridCoverage.class);
+
+    private static final SingleTypeJAXBManager<SubGridDef> SUB_GRID_DEF_JAXB = SingleTypeJAXBManager
+            .createWithoutException(SubGridDef.class);
+
+    private static final SingleTypeJAXBManager<DefaultSubGridCenterPoint> SUB_GRID_CENTER_JAXB = SingleTypeJAXBManager
+            .createWithoutException(DefaultSubGridCenterPoint.class);
 
     /** The singleton instance */
     private static GribSpatialCache instance;
@@ -285,7 +293,8 @@ public class GribSpatialCache {
                         .getModelByName(subGridDef.getReferenceModel())
                         .getGrid();
                 if (referenceGrid == null) {
-                    logger.error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
+                    statusHandler
+                            .error("Failed to generate sub grid, Unable to determine coverage for referenceModel ["
                             + subGridDef.getReferenceModel() + "]");
                     return false;
                 }
@@ -294,7 +303,8 @@ public class GribSpatialCache {
             GridCoverage referenceCoverage = getGridByName(referenceGrid
                     .toString());
             if (referenceCoverage == null) {
-                logger.error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
+                statusHandler
+                        .error("Failed to generate sub grid, Unable to determine coverage for referenceGrid ["
                         + referenceGrid + "]");
                 return false;
             }
@@ -365,7 +375,7 @@ public class GribSpatialCache {
                     return trim(modelName, coverage, lowerLeftPosition,
                             upperRightPosition);
                 } catch (GridCoverageException e) {
-                    logger.error(
+                    statusHandler.error(
                             "Failed to generate sub grid for world wide grid: "
                                     + modelName, e);
                     return false;
@@ -405,7 +415,7 @@ public class GribSpatialCache {
             try {
                 subGridCoverage = insert(subGridCoverage);
             } catch (Exception e) {
-                logger.error(e.getLocalizedMessage(), e);
+                statusHandler.error(e.getLocalizedMessage(), e);
                 return false;
             }
             subGridCoverageMap.put(subGridKey(modelName, coverage),
@@ -429,8 +439,7 @@ public class GribSpatialCache {
 
         if (f.length() > 0) {
             try {
-                JAXBManager manager = new JAXBManager(SubGridDef.class);
-                rval = (SubGridDef) manager.jaxbUnmarshalFromXmlFile(f);
+                rval = SUB_GRID_DEF_JAXB.unmarshalFromXmlFile(f);
                 if ((rval.getReferenceModel() == null && rval
                         .getReferenceGrid() == null)
                         || (rval.getModelNames() == null)
@@ -449,9 +458,8 @@ public class GribSpatialCache {
                     }
                 }
             } catch (SerializationException e) {
-                logger.error("Failed reading sub grid file: " + filePath, e);
-            } catch (JAXBException e) {
-                logger.error("Failed reading sub grid file: " + filePath, e);
+                statusHandler.error(
+                        "Failed reading sub grid file: " + filePath, e);
             }
         }
 
@@ -484,7 +492,7 @@ public class GribSpatialCache {
     }
 
     private void initializeGrids(FileDataList fdl) {
-        logger.info("Initializing grib grid coverages");
+        statusHandler.info("Initializing grib grid coverages");
         long startTime = System.currentTimeMillis();
         ClusterTask ct = null;
         Map<Integer, Set<String>> gridNameMap = new HashMap<Integer, Set<String>>();
@@ -497,8 +505,8 @@ public class GribSpatialCache {
         try {
             for (FileData fd : fdl.getCoverageFileList()) {
                 try {
-                    GridCoverage grid = (GridCoverage) SerializationUtil
-                            .jaxbUnmarshalFromXmlFile(fd.getFilePath());
+                    GridCoverage grid = GRID_COVERAGE_JAXB
+                            .unmarshalFromXmlFile(fd.getFilePath());
                     String name = grid.getName();
                     grid = insert(grid);
                     spatialNameMap.put(name, grid);
@@ -510,7 +518,7 @@ public class GribSpatialCache {
                     names.add(name);
                 } catch (Exception e) {
                     // Log error but do not throw exception
-                    logger.error(
+                    statusHandler.error(
                             "Unable to read default grids file: "
                                     + fd.getFilePath(), e);
                 }
@@ -520,7 +528,8 @@ public class GribSpatialCache {
             try {
                 defaultCenterPoint = getDefaultSubGridCenterPoint();
             } catch (Exception e) {
-                logger.error(
+                statusHandler
+                        .error(
                         "Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
                         e);
             }
@@ -536,7 +545,7 @@ public class GribSpatialCache {
                     }
                 } catch (Exception e) {
                     // Log error but do not throw exception
-                    logger.error(
+                    statusHandler.error(
                             "Unable to read default grids file: "
                                     + fd.getFilePath(), e);
                 }
@@ -551,7 +560,8 @@ public class GribSpatialCache {
             ClusterLockUtils.unlock(ct, false);
         }
         long endTime = System.currentTimeMillis();
-        logger.info("Grib grid coverages initialized: " + (endTime - startTime)
+        statusHandler.info("Grib grid coverages initialized: "
+                + (endTime - startTime)
                 + "ms");
     }
 
@@ -587,30 +597,30 @@ public class GribSpatialCache {
     private Coordinate getDefaultSubGridCenterPoint() throws Exception {
         Coordinate defaultCenterPoint = null;
         IPathManager pm = PathManagerFactory.getPathManager();
-        File defaultSubGridLocationFile = pm
-                .getStaticFile("/grib/defaultSubGridCenterPoint.xml");
+        LocalizationFile defaultSubGridLocationFile = pm
+                .getStaticLocalizationFile("/grib/defaultSubGridCenterPoint.xml");
         if ((defaultSubGridLocationFile != null)
                 && defaultSubGridLocationFile.exists()) {
             try {
-                // only used here, just create own manager
-                JAXBManager mgr = new JAXBManager(
-                        DefaultSubGridCenterPoint.class);
-                DefaultSubGridCenterPoint defaultSubGridLocation = (DefaultSubGridCenterPoint) mgr
-                        .jaxbUnmarshalFromXmlFile(defaultSubGridLocationFile);
+                DefaultSubGridCenterPoint defaultSubGridLocation = defaultSubGridLocationFile
+                        .jaxbUnmarshal(DefaultSubGridCenterPoint.class,
+                                SUB_GRID_CENTER_JAXB);
                 if ((defaultSubGridLocation != null)
                         && (defaultSubGridLocation.getCenterLatitude() != null)
                         && (defaultSubGridLocation.getCenterLongitude() != null)) {
                     defaultCenterPoint = new Coordinate(
                             defaultSubGridLocation.getCenterLongitude(),
                             defaultSubGridLocation.getCenterLatitude());
-                    logger.info("Default sub grid location is overriden as ["
+                    statusHandler
+                            .info("Default sub grid location is overriden as ["
                             + defaultCenterPoint.y + "/" + defaultCenterPoint.x
                             + "]");
                 }
             } catch (Exception e) {
-                logger.error(
+                statusHandler.error(
                         "Unable to load default sub grid location from file: "
-                                + defaultSubGridLocationFile.getAbsolutePath(),
+                                + defaultSubGridLocationFile.getFile()
+                                        .getAbsolutePath(),
                         e);
             }
         }
@@ -621,7 +631,8 @@ public class GribSpatialCache {
             GetWfoCenterPoint centerPointRequest = new GetWfoCenterPoint(wfo);
             defaultCenterPoint = new GetWfoCenterHandler()
                     .handleRequest(centerPointRequest);
-            logger.info("Default sub grid location is wfo center point ["
+            statusHandler
+                    .info("Default sub grid location is wfo center point ["
                     + defaultCenterPoint.y + "/" + defaultCenterPoint.x + "]");
             /* If we are getting the WFO center as the center point, it means that
             // the site has not defined its own center in the site file

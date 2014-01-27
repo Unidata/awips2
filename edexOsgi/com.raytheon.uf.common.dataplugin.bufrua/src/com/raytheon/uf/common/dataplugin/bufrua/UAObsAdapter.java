@@ -36,12 +36,14 @@ import com.raytheon.uf.common.sounding.adapter.AbstractVerticalSoundingAdapter;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Adapter for convertung UAObs data into Vertical Soundings.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
  * 
  * 
  * </pre>
@@ -181,7 +183,7 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
             sounding.setDisplayFormat(icao);
             sounding.setName(icao);
 
-            sounding.setObsTime(obsData.getValidTime());
+            sounding.setObsTime(obsData.getDataTime().getRefTimeAsCalendar());
             sounding.setDataTime(obsData.getDataTime());
 
             List<SoundingLayer> layers = interleave(obsData);
@@ -651,10 +653,10 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
                     String key = getKey(obs);
                     if (obsMap.containsKey(key)) {
                         UAObs mapped = obsMap.get(key);
-                        
+
                         // if compare(mapped,obs) < 0 then mapped has newer data
                         int c = UAObs.getCorComparator().compare(mapped, obs);
-                        if(c < 0) {
+                        if (c < 0) {
                             obsMap.put(key, obs);
                         }
                     } else {
@@ -668,18 +670,19 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
     }
 
     /**
-     * Create a key for a UAObs by concatenating the station identifier,
-     * report type code and the valid time in milliseconds.
-     * @param data A UAObs instance to key.
+     * Create a key for a UAObs by concatenating the station identifier, report
+     * type code and the valid time in milliseconds.
+     * 
+     * @param data
+     *            A UAObs instance to key.
      * @return The generated key, returns null if the UAObs reference is null.
      */
     private static String getKey(UAObs data) {
         String key = null;
         if (data != null) {
-            key = String
-                    .format("%s:%4d:%d", data.getStationId(), data
-                            .getReportType(), data.getValidTime()
-                            .getTimeInMillis());
+            key = String.format("%s:%4d:%d", data.getStationId(),
+                    data.getReportType(), data.getDataTime().getRefTime()
+                            .getTime());
         }
         return key;
     }
@@ -803,14 +806,12 @@ public class UAObsAdapter extends AbstractVerticalSoundingAdapter {
         SurfaceObsLocation loc = new SurfaceObsLocation("72558");
         UAObs[] obs = new UAObs[2];
         obs[0] = new UAObs();
-        obs[0].setValidTime(TimeTools.copy(c));
         obs[0].setLocation(loc);
         obs[0].setReportType(2020);
         obs[0].setCorIndicator(null);
 
         loc = new SurfaceObsLocation("72558");
         obs[1] = new UAObs();
-        obs[1].setValidTime(TimeTools.copy(c));
         obs[1].setLocation(loc);
         obs[1].setReportType(2020);
         obs[1].setCorIndicator("CCA");

@@ -35,10 +35,13 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension;
 import com.raytheon.uf.viz.truecolor.gl.image.GLTrueColorImage;
 import com.raytheon.viz.core.gl.ext.GLOffscreenRenderingExtension;
+import com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension;
+import com.raytheon.viz.core.gl.ext.imaging.GLDataMappingFactory.GLDataMapping;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
+import com.raytheon.viz.core.gl.images.AbstractGLColormappedImage;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
 
 /**
  * GL implementation of the {@link ITrueColorImagingExtension}
@@ -49,7 +52,8 @@ import com.raytheon.viz.core.gl.images.GLColormappedImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2012            mschenke     Initial creation
+ * Aug  6, 2012            mschenke    Initial creation
+ * Nov  4, 2013 2492       mschenke    Reworked to use GLSL Data mapping
  * 
  * </pre>
  * 
@@ -63,9 +67,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     private AbstractGLImage writeToImage;
 
     private Channel renderingChannel;
-
-    /** The current rendering bit mask, specifies what bands we rendered */
-    private int currentMask = 0;
 
     private Map<ColorMapParameters, Object> parameters = new IdentityHashMap<ColorMapParameters, Object>();
 
@@ -111,13 +112,12 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             GLTrueColorImage trueColorImage = (GLTrueColorImage) image;
             if (trueColorImage.isRepaint()) {
                 // Reset current bit mask
-                currentMask = 0;
                 parameters.clear();
                 writeToImage = trueColorImage;
                 GLOffscreenRenderingExtension extension = target
                         .getExtension(GLOffscreenRenderingExtension.class);
                 try {
-                    extension.renderOffscreen(trueColorImage,
+                    extension.beginOffscreenRendering(trueColorImage,
                             trueColorImage.getImageExtent());
                     boolean allPainted = true;
                     for (Channel channel : Channel.values()) {
@@ -125,9 +125,6 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                         DrawableImage[] imagesToDraw = trueColorImage
                                 .getImages(channel);
                         if (imagesToDraw != null && imagesToDraw.length > 0) {
-                            // Mark the channel bit in the current bit mask
-                            currentMask |= (1 << channel.ordinal());
-
                             // Make sure images are staged before we mosaic them
                             ImagingSupport.prepareImages(target, imagesToDraw);
 
@@ -145,7 +142,8 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                         }
                     }
                 } catch (VizException e) {
-                    extension.renderOnscreen();
+                    // Exception: end rendering now instead of postImageRender
+                    extension.endOffscreenRendering();
                     throw e;
                 }
                 renderingChannel = null;
@@ -159,12 +157,17 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                                 imageCoverage));
                 return null;
             }
-        } else {
+        } else if (image instanceof AbstractGLColormappedImage) {
             GL gl = target.getGl();
+
+            GLColormappedImageExtension.setupDataMapping(gl,
+                    (AbstractGLColormappedImage) image, GL.GL_TEXTURE2,
+                    GL.GL_TEXTURE3);
             // bind on GL_TEXTURE1 as 0 is channel image
             writeToImage.bind(gl, GL.GL_TEXTURE1);
             return image;
         }
+        return null;
     }
 
     /*
@@ -180,7 +183,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             AbstractGLImage image, Object data) throws VizException {
         if (image instanceof GLTrueColorImage) {
             target.getExtension(GLOffscreenRenderingExtension.class)
-                    .renderOnscreen();
+                    .endOffscreenRendering();
             target.drawRasters(paintProps, new DrawableImage(
                     ((GLTrueColorImage) image).getWrappedImage(),
                     (PixelCoverage) data));
@@ -189,6 +192,13 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
             // Unbind the writeToImage from GL_TEXTURE1
             gl.glActiveTexture(GL.GL_TEXTURE1);
             gl.glBindTexture(writeToImage.getTextureStorageType(), 0);
+
+            // Unbind the data mapped textures
+            gl.glActiveTexture(GL.GL_TEXTURE2);
+            gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
+
+            gl.glActiveTexture(GL.GL_TEXTURE3);
+            gl.glBindTexture(GL.GL_TEXTURE_1D, 0);
         }
     }
 
@@ -205,36 +215,40 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
     public void loadShaderData(GLShaderProgram program, IImage image,
             PaintProperties paintProps) throws VizException {
         if (image instanceof GLTrueColorImage) {
+            GLTrueColorImage glImage = (GLTrueColorImage) image;
             program.setUniform("band", -1);
-            program.setUniform("rawTex", 0);
-            program.setUniform("expectedMask", currentMask);
+            program.setUniform("trueColorTexture", 0);
+            program.setUniform("expectedMask", glImage.getColorMask());
         } else {
-            if (image instanceof GLColormappedImage == false) {
+            if (image instanceof AbstractGLColormappedImage == false) {
                 throw new VizException(
                         "Can only render colormapped images in true color");
             }
 
-            GLColormappedImage cmapImage = (GLColormappedImage) image;
+            AbstractGLColormappedImage cmapImage = (AbstractGLColormappedImage) image;
             ColorMapParameters colorMapParameters = cmapImage
                     .getColorMapParameters();
-            parameters.put(colorMapParameters, null);
-            int textureType = cmapImage.getTextureType();
 
-            // Set the band image data
-            program.setUniform("rawTex", 0);
-            program.setUniform("naturalMin", colorMapParameters.getDataMin());
-            program.setUniform("naturalMax", colorMapParameters.getDataMax());
-            program.setUniform("cmapMin", colorMapParameters.getColorMapMin());
-            program.setUniform("cmapMax", colorMapParameters.getColorMapMax());
-            program.setUniform("isFloat", textureType == GL.GL_FLOAT
-                    || textureType == GL.GL_HALF_FLOAT_ARB ? 1 : 0);
-            program.setUniform("noDataValue",
-                    colorMapParameters.getNoDataValue());
+            parameters.put(colorMapParameters, null);
+
+            GLSLStructFactory.createDataTexture(program, "rawData", 0,
+                    cmapImage);
+
+            int numMappingValues = 0;
+            GLDataMapping mapping = cmapImage.getDataMapping();
+            if (mapping != null && mapping.isValid()) {
+                numMappingValues = mapping.getNumMappingValues();
+            }
+            GLSLStructFactory.createDataMapping(program, "dataMapping", 2, 3,
+                    numMappingValues);
+
+            GLSLStructFactory.createColorMapping(program, "colorMapping", -1,
+                    -1, colorMapParameters);
 
             // Set the composite image data
             program.setUniform("trueColorTexture", 1);
-            program.setUniform("width", writeToImage.getWidth());
-            program.setUniform("height", writeToImage.getHeight());
+            program.setUniform("width", (float) writeToImage.getWidth());
+            program.setUniform("height", (float) writeToImage.getHeight());
 
             // Set the band we are rendering to
             program.setUniform("band", renderingChannel.ordinal());

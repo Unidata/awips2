@@ -20,6 +20,9 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedSet;
@@ -29,15 +32,18 @@ import org.hibernate.jdbc.Work;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
@@ -55,6 +61,12 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 11, 2013 1543       djohnson     Use Spring transactions.
  * Feb 13, 2013 1543       djohnson     Converted into a service, created new DAOs as required.
  * Jun 03, 2013 2038       djohnson     Add method to get subscription retrievals by provider, dataset, and status.
+ * Jun 13, 2013 2095       djohnson     Implement ability to store a collection of subscriptions.
+ * Jun 24, 2013 2106       djohnson     Implement new methods.
+ * Jul 18, 2013 1653       mpduff       Added getSubscriptionStatusSummary.
+ * Aug 28, 2013 2290       mpduff       Check for no subscriptions.
+ * Oct 2,  2013 1797       dhladky      Generics
+ * Dec 17, 2013 2636       bgonzale     Added method to get a BandwidthAllocation.
  * 
  * </pre>
  * 
@@ -63,7 +75,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  */
 @Transactional
 @Service
-public class HibernateBandwidthDao implements IBandwidthDao {
+public class HibernateBandwidthDao<T extends Time, C extends Coverage> implements IBandwidthDao<T, C> {
 
     private IBandwidthAllocationDao bandwidthAllocationDao;
 
@@ -72,6 +84,8 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     private IBandwidthSubscriptionDao bandwidthSubscriptionDao;
 
     private IBandwidthDataSetUpdateDao bandwidthDataSetUpdateDao;
+
+    private ISubscriptionRetrievalAttributesDao<T, C> subscriptionRetrievalAttributesDao;
 
     /**
      * Constructor.
@@ -166,7 +180,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public List<BandwidthSubscription> getBandwidthSubscription(
-            Subscription subscription) {
+            Subscription<T, C> subscription) {
         return bandwidthSubscriptionDao.getBySubscription(subscription);
     }
 
@@ -252,7 +266,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthDataSetUpdate newBandwidthDataSetUpdate(
-            DataSetMetaData dataSetMetaData) {
+            DataSetMetaData<T> dataSetMetaData) {
 
         BandwidthDataSetUpdate entity = BandwidthUtil
                 .newDataSetMetaDataDao(dataSetMetaData);
@@ -266,8 +280,7 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      */
     @Override
     public BandwidthSubscription newBandwidthSubscription(
-            Subscription subscription, Calendar baseReferenceTime)
-            throws SerializationException {
+            Subscription<T, C> subscription, Calendar baseReferenceTime) {
         BandwidthSubscription entity = BandwidthUtil
                 .getSubscriptionDaoForSubscription(subscription,
                         baseReferenceTime);
@@ -302,6 +315,11 @@ public class HibernateBandwidthDao implements IBandwidthDao {
     public void remove(BandwidthSubscription subscriptionDao) {
         List<SubscriptionRetrieval> bandwidthReservations = subscriptionRetrievalDao
                 .getBySubscriptionId(subscriptionDao.getIdentifier());
+        for (SubscriptionRetrieval retrieval : bandwidthReservations) {
+            subscriptionRetrievalAttributesDao
+                    .delete(subscriptionRetrievalAttributesDao
+                            .getBySubscriptionRetrieval(retrieval));
+        }
         subscriptionRetrievalDao.deleteAll(bandwidthReservations);
         bandwidthSubscriptionDao.delete(subscriptionDao);
     }
@@ -320,9 +338,17 @@ public class HibernateBandwidthDao implements IBandwidthDao {
      * {@inheritDoc}
      */
     @Override
-    @Transactional
     public void store(BandwidthSubscription subscriptionDao) {
         bandwidthSubscriptionDao.create(subscriptionDao);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeBandwidthSubscriptions(
+            Collection<BandwidthSubscription> newSubscriptions) {
+        bandwidthSubscriptionDao.persistAll(newSubscriptions);
     }
 
     /**
@@ -431,4 +457,136 @@ public class HibernateBandwidthDao implements IBandwidthDao {
         this.bandwidthDataSetUpdateDao = bandwidthDataSetUpdateDao;
     }
 
+    /**
+     * @return the subscriptionRetrievalAttributesDao
+     */
+    public ISubscriptionRetrievalAttributesDao<T, C> getSubscriptionRetrievalAttributesDao() {
+        return subscriptionRetrievalAttributesDao;
+    }
+
+    /**
+     * @param subscriptionRetrievalAttributesDao
+     *            the subscriptionRetrievalAttributesDao to set
+     */
+    public void setSubscriptionRetrievalAttributesDao(
+            ISubscriptionRetrievalAttributesDao<T, C> subscriptionRetrievalAttributesDao) {
+        this.subscriptionRetrievalAttributesDao = subscriptionRetrievalAttributesDao;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<SubscriptionRetrieval> getSubscriptionRetrievals() {
+        return subscriptionRetrievalDao.getAll();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<BandwidthAllocation> getBandwidthAllocationsForNetworkAndBucketStartTime(
+            Network network, long bucketStartTime) {
+        return bandwidthAllocationDao.getByNetworkAndBucketStartTime(network,
+                bucketStartTime);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void store(SubscriptionRetrievalAttributes<T, C> attributes) {
+        subscriptionRetrievalAttributesDao.create(attributes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void storeSubscriptionRetrievalAttributes(
+            List<SubscriptionRetrievalAttributes<T, C>> retrievalAttributes) {
+        subscriptionRetrievalAttributesDao.persistAll(retrievalAttributes);
+    }
+
+    @Override
+    public void update(SubscriptionRetrievalAttributes<T, C> attributes) {
+        subscriptionRetrievalAttributesDao.update(attributes);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionRetrievalAttributes<T, C> getSubscriptionRetrievalAttributes(
+            SubscriptionRetrieval retrieval) {
+        return subscriptionRetrievalAttributesDao
+                .getBySubscriptionRetrieval(retrieval);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SubscriptionStatusSummary getSubscriptionStatusSummary(
+            Subscription<T, C> sub) {
+        SubscriptionStatusSummary summary = new SubscriptionStatusSummary();
+
+        List<BandwidthSubscription> bandwidthSubList = this
+                .getBandwidthSubscription(sub);
+
+        if (bandwidthSubList != null && !bandwidthSubList.isEmpty()) {
+            Collections.sort(bandwidthSubList,
+                    new Comparator<BandwidthSubscription>() {
+                        @Override
+                        public int compare(BandwidthSubscription o1,
+                                BandwidthSubscription o2) {
+                            Calendar date1 = o1.getBaseReferenceTime();
+                            Calendar date2 = o2.getBaseReferenceTime();
+                            if (date1.before(date2)) {
+                                return -1;
+                            } else if (date1.after(date2)) {
+                                return 1;
+                            }
+
+                            return 0;
+                        }
+                    });
+
+            List<SubscriptionRetrieval> subRetrievalList = this
+                    .querySubscriptionRetrievals(bandwidthSubList.get(0));
+            Collections.sort(subRetrievalList,
+                    new Comparator<SubscriptionRetrieval>() {
+                        @Override
+                        public int compare(SubscriptionRetrieval o1,
+                                SubscriptionRetrieval o2) {
+                            Calendar date1 = o1.getStartTime();
+                            Calendar date2 = o2.getStartTime();
+                            if (date1.before(date2)) {
+                                return -1;
+                            } else if (date1.after(date2)) {
+                                return 1;
+                            }
+
+                            return 0;
+                        }
+
+                    });
+
+            summary.setStartTime(subRetrievalList.get(0).getStartTime()
+                    .getTimeInMillis());
+            summary.setEndTime(subRetrievalList
+                    .get(subRetrievalList.size() - 1).getEndTime()
+                    .getTimeInMillis());
+        }
+
+        summary.setDataSize(sub.getDataSetSize());
+        summary.setLatency(sub.getLatencyInMinutes());
+
+        return summary;
+    }
+
+    @Override
+    public BandwidthAllocation getBandwidthAllocation(long id) {
+        return bandwidthAllocationDao.getById(id);
+    }
 }

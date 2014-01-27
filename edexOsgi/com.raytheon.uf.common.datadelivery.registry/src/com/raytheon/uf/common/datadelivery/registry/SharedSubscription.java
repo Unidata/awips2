@@ -38,6 +38,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Mar 27, 2013 1841       djohnson    Initial creation
  * May 15, 2013 1040       mpduff      Added addOfficeId.
  * May 29, 2013 1650       djohnson    Add setOwner() so reflection works.
+ * Sept 30, 2013 1797      dhladky     Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -48,9 +51,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
-        Subscription.OWNER_SLOT })
+        Subscription.OWNER_SLOT, Subscription.ORIGINATING_SITE_SLOT,
+        Subscription.SUBSCRIPTION_TYPE_SLOT })
 @DynamicSerialize
-public class SharedSubscription extends RecurringSubscription {
+public class SharedSubscription<T extends Time, C extends Coverage> extends
+        RecurringSubscription<T, C> {
 
     private static final long serialVersionUID = -7221500266253493273L;
 
@@ -66,14 +71,14 @@ public class SharedSubscription extends RecurringSubscription {
     /**
      * @param sharedSubscription
      */
-    public SharedSubscription(Subscription sub) {
+    public SharedSubscription(Subscription<T, C> sub) {
         super(sub);
     }
 
     /**
      * @param sharedSubscription
      */
-    public SharedSubscription(SharedSubscription sub, String newName) {
+    public SharedSubscription(SharedSubscription<T, C> sub, String newName) {
         super(sub, newName);
     }
 
@@ -101,32 +106,32 @@ public class SharedSubscription extends RecurringSubscription {
      * {@inheritDoc}
      */
     @Override
-    public SharedSubscription copy() {
-        return new SharedSubscription(this);
+    public SharedSubscription<T, C> copy() {
+        return new SharedSubscription<T, C>(this);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SharedSubscription copy(String newName) {
-        return new SharedSubscription(this, newName);
+    public SharedSubscription<T, C> copy(String newName) {
+        return new SharedSubscription<T, C>(this, newName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InitialPendingSubscription initialPending(String currentUser) {
-        return new InitialPendingSharedSubscription(this, currentUser);
+    public InitialPendingSubscription<T, C> initialPending(String currentUser) {
+        return new InitialPendingSharedSubscription<T, C>(this, currentUser);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PendingSubscription pending(String currentUser) {
-        return new PendingSharedSubscription(this, currentUser);
+    public PendingSubscription<T, C> pending(String currentUser) {
+        return new PendingSharedSubscription<T, C>(this, currentUser);
     }
 
     /**

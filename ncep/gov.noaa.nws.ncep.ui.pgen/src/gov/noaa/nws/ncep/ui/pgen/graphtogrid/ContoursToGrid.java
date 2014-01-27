@@ -29,8 +29,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.File;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.util.GridUtil;
+import com.raytheon.viz.core.contours.util.ContourContainer;
+import com.raytheon.viz.core.contours.util.FortConBuf;
+import com.raytheon.viz.core.contours.util.FortConConfig;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -59,6 +61,8 @@ import org.eclipse.ui.PlatformUI;
  * 											a GEMPAK grid file
  * 09/10		#215		J. Wu   	Checked working directory and PATH.
  * 11/10		#345		J. Wu   	Added support for circle.
+ * 11/10        #345        J. Wu       Added support for circle.
+ * Aug 27, 2013 2262        bsteffen    Convert to use new FortConBuf.
  * 
  * </pre>
  * 
@@ -585,20 +589,27 @@ public class ContoursToGrid extends GraphToGrid {
         /*
          * Call AWIPS contouring code to generate contour lines
          */
-        Controller.fortconbuf( grid, work, szX, szX, szY, 1, 0,
-        		       contVals.length, contVals, xPoints, yPoints, numPoints,
-        		       smallestContourValue, largestContourValue );
+        float[][] grid2d = new float[szX][szY];
+        int idx = 0;
+        for (int j = 0; j < szY; j += 1) {
+            for (int i = 0; i < szX; i += 1) {
+                grid2d[i][j] = grid[idx];
+                idx += 1;
+            }
+        }
+        FortConConfig config = new FortConConfig();
+        config.mode = contVals.length;
+        config.seed = contVals;
+        config.badlo = smallestContourValue;
+        config.badhi = largestContourValue;
+        config.xOffset = 1f;
+        config.yOffset = 1f;
+        ContourContainer container = FortConBuf.contour(grid2d, config);
         
-        
-        /*
-         *  Find out the number of lines (-99999.0 is the line separator)        
-         */
-        int nContours = 0;
-        for ( int ii = 0; ii < numPoints[0]; ii++ ) {                
-        	if ( xPoints[ ii ] == -99999.0 ) {               
-        		  // start of one contour
-                nContours++;
-        	}
+        int nContours = container.contourVals.size();
+        int numPoints2 = 0;
+        for (float[] line : container.xyContourPoints) {
+            numPoints2 += line.length / 2;
         }
        
         /*
@@ -607,23 +618,18 @@ public class ContoursToGrid extends GraphToGrid {
         int[] nContourPts = new int[ nContours ];                
         float[] contourValue = new float[ nContours ] ;      
         
-        double[] vals = new double[ (numPoints[0] - nContours) * 2 ];
+        double[] vals = new double[numPoints2 * 2];
         int ncnt = 0;
         int npts = 0;
-        for ( int ii = 0; ii < numPoints[0]; ii++ ) {                
-        	if ( xPoints[ ii ] == -99999.0 ) {               
-               	nContourPts[ ncnt ] = 0;
-                contourValue[ ncnt ] = ((int) ( yPoints[ii] * 10) ) / 10.0f;
-                ncnt++;
-        	}
-        	else {
-                nContourPts[ ncnt-1 ]++;
-       		    
-                vals[ npts ] = xPoints[ ii ];
-      		    vals[ npts + 1 ] = yPoints[ ii ];
-        		
-       		    npts = npts + 2;
-        	}
+        for (int ii = 0; ii < nContours; ii++) {
+            float[] line = container.xyContourPoints.get(ii);
+            contourValue[ncnt] = ((int) (container.contourVals.get(ii) * 10)) / 10.0f;
+            nContourPts[ncnt] = line.length / 2;
+            for (int jj = 0; jj < line.length; jj += 1) {
+                vals[npts] = line[jj];
+                npts += 1;
+            }
+            ncnt += 1;
       	}
         
         double[] latlons = gtrans.gridToWorld( vals );

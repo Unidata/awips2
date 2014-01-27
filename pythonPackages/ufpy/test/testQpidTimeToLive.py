@@ -28,6 +28,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/09/11                      njensen       Initial Creation.
+#    08/15/13        2169          bkowal        Decompress data read from the queue
 #    
 # 
 #
@@ -52,7 +53,7 @@ class ListenThread(threading.Thread):
     
     def run(self):
         from ufpy import QpidSubscriber
-        self.qs = QpidSubscriber.QpidSubscriber(self.hostname, self.portNumber)        
+        self.qs = QpidSubscriber.QpidSubscriber(self.hostname, self.portNumber, True)        
         self.qs.topicSubscribe(self.topicName, self.receivedMessage)
     
     def receivedMessage(self, msg):

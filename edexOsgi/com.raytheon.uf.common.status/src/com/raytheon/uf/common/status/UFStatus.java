@@ -21,8 +21,7 @@ package com.raytheon.uf.common.status;
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
-
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The principal mechanism for representing the outcome of an operation. <BR>
@@ -57,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Oct 6, 2008  1433       chammack    Initial creation
  * Apr 17, 2013 1786       mpduff      Allow setting of Handler Factory.
+ * Oct 23, 2013 2303       bgonzale    Fixed setting of Handler Factory.
  * </pre>
  * 
  * @author chammack
@@ -101,23 +101,22 @@ public class UFStatus {
     protected final String message;
 
     /** handler factory */
-    private static IUFStatusHandlerFactory handlerFactory = createHandlerFactory();
+    private static AtomicReference<IUFStatusHandlerFactory> handlerFactoryRef = new AtomicReference<IUFStatusHandlerFactory>();
 
-    private static final IUFStatusHandlerFactory createHandlerFactory() {
+    static {
         ServiceLoader<IUFStatusHandlerFactory> loader = ServiceLoader.load(
                 IUFStatusHandlerFactory.class,
                 IUFStatusHandlerFactory.class.getClassLoader());
         Iterator<IUFStatusHandlerFactory> handlerIterator = loader.iterator();
-        IUFStatusHandlerFactory factory = null;
 
         if (handlerIterator.hasNext()) {
-            factory = handlerIterator.next();
+            UFStatus.setHandlerFactory(handlerIterator.next());
         } else {
-            factory = new DefaultStatusHandlerFactory();
+            UFStatus.setHandlerFactory(new DefaultStatusHandlerFactory());
             Exception e = new RuntimeException("No "
                     + IUFStatusHandlerFactory.class.getName()
                     + " found.\nUsing default handler.");
-            factory.getInstance()
+            UFStatus.getHandler()
                     .handle(Priority.CRITICAL,
                             e.getLocalizedMessage()
                                     + "\nPlease ignore if you are in a unit test environment\n");
@@ -128,7 +127,6 @@ public class UFStatus {
                     + IUFStatusHandlerFactory.class.getName()
                     + " handlers defined");
         }
-        return factory;
     }
 
     /**
@@ -204,14 +202,14 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getHandler() {
-        return handlerFactory.getInstance();
+        return handlerFactoryRef.get().getInstance();
     }
 
     /**
      * @return the handlerfactory
      */
     public static IUFStatusHandlerFactory getHandlerfactory() {
-        return handlerFactory;
+        return handlerFactoryRef.get();
     }
 
     /**
@@ -222,7 +220,7 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getHandler(Class<?> cls) {
-        return handlerFactory.getInstance(cls);
+        return handlerFactoryRef.get().getInstance(cls);
     }
 
     /**
@@ -234,7 +232,7 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getHandler(Class<?> cls, String source) {
-        return handlerFactory.getInstance(cls, source);
+        return handlerFactoryRef.get().getInstance(cls, source);
     }
 
     /**
@@ -246,7 +244,7 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getHandler(String pluginId, String source) {
-        return handlerFactory.getInstance(pluginId, source);
+        return handlerFactoryRef.get().getInstance(pluginId, source);
     }
 
     /**
@@ -261,7 +259,7 @@ public class UFStatus {
      */
     public static IUFStatusHandler getHandler(String pluginId, String category,
             String source) {
-        return handlerFactory.getInstance(pluginId, category, source);
+        return handlerFactoryRef.get().getInstance(pluginId, category, source);
     }
 
     /**
@@ -275,7 +273,7 @@ public class UFStatus {
      */
     public static IUFStatusHandler getHandler(Class<?> cls, String category,
             String source) {
-        return handlerFactory.getInstance(cls, category, source);
+        return handlerFactoryRef.get().getInstance(cls, category, source);
     }
 
     /**
@@ -287,7 +285,7 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getNamedHandler(String name) {
-        return handlerFactory.getInstance(name);
+        return handlerFactoryRef.get().getInstance(name);
     }
 
     /**
@@ -299,7 +297,7 @@ public class UFStatus {
      * @return
      */
     public static IUFStatusHandler getMonitorHandler(Class<?> cls) {
-        return handlerFactory.getMonitorInstance(cls);
+        return handlerFactoryRef.get().getMonitorInstance(cls);
     }
 
     /**
@@ -313,7 +311,7 @@ public class UFStatus {
      */
     public static IUFStatusHandler getMonitorHandler(Class<?> cls,
             String monitorSource) {
-        return handlerFactory.getMonitorInstance(cls, monitorSource);
+        return handlerFactoryRef.get().getMonitorInstance(cls, monitorSource);
     }
 
     /**
@@ -323,6 +321,13 @@ public class UFStatus {
      *            the handler factory
      */
     public static void setHandlerFactory(IUFStatusHandlerFactory factory) {
-        handlerFactory = factory;
+        handlerFactoryRef.set(factory);
     }
+
+    static void log(Priority priority, StatusHandler statusHandler,
+            String message, Throwable throwable) {
+        handlerFactoryRef.get()
+                .log(priority, statusHandler, message, throwable);
+    }
+
 }

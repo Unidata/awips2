@@ -43,6 +43,24 @@
    </requires>
 
    <plugin
+         id="ch.qos.logback"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.slf4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.springframework"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="org.apache.activemq"
          download-size="0"
          install-size="0"
@@ -78,13 +96,6 @@
          id="com.raytheon.uf.viz.core"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.slf4j"
-         download-size="0"
-         install-size="0"
          version="0.0.0"/>
 
    <plugin
@@ -112,12 +123,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.commons.logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.commons.beanutils"
          download-size="0"
          install-size="0"
@@ -130,7 +135,7 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.facebook.thrift"
+         id="org.apache.thrift"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -158,8 +163,7 @@
          id="com.raytheon.uf.viz.alertviz.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.status"
@@ -167,12 +171,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.springframework"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.colormap"
@@ -258,6 +256,12 @@
          version="0.0.0"/>
 
    <plugin
+         id="com.raytheon.uf.common.dataaccess"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="com.raytheon.uf.common.pointdata"
          download-size="0"
          install-size="0"
@@ -311,6 +315,12 @@
          unpack="false"/>
 
    <plugin
+         id="org.javassist"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="org.hibernate"
          download-size="0"
          install-size="0"
@@ -336,12 +346,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.junit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="org.hamcrest.core"
@@ -452,13 +456,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="org.apache.log4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.commons.lang"
          download-size="0"
          install-size="0"
@@ -481,6 +478,31 @@
 
    <plugin
          id="org.quartz"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.apache.derby"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.style"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.guava"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.reflections"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

@@ -38,8 +38,6 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.dialogs.KillJobsOnExitDialog;
 import com.raytheon.viz.gfe.dialogs.SaveParameterDialog;
 import com.raytheon.viz.gfe.gridmanager.GridManager;
-import com.raytheon.viz.gfe.procedures.ProcedureJob;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
 import com.raytheon.viz.ui.DetachedViewListener;
 import com.raytheon.viz.ui.color.BackgroundColor;
 import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
@@ -56,6 +54,7 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
  *                                     adding cancel capability and if error on
  *                                     save then the close is cancelled.
  * 10/30/2012   #1298      rferrel     Must keep blocking dialogs to work with eclipse plugins.
+ * 12/10/2013   #2367      dgilling    Use new ProcedureJobePool and SmartToolJobPool.
  * </pre>
  * 
  * @author dfitch
@@ -138,11 +137,12 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
     @Override
     public int promptToSaveOnClose() {
         // Check for any running/queued jobs.
-        if (ProcedureJob.haveJobs() || SmartToolJob.haveJobs()) {
+        if (dataManager.getProcedureJobPool().isActive()
+                || dataManager.getSmartToolJobPool().isActive()) {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-
-            KillJobsOnExitDialog dialog = new KillJobsOnExitDialog(shell);
+            KillJobsOnExitDialog dialog = new KillJobsOnExitDialog(shell,
+                    dataManager);
             // Must keep modal and blocking in order to work with eclipse
             // plugins.
             dialog.setBlockOnOpen(true);
@@ -187,13 +187,10 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
 
     @Override
     public boolean isDirty() {
-        if ((dataManager != null && dataManager.getParmManager()
-                .getModifiedParms().length > 0)
-                || SmartToolJob.haveJobs()
-                || ProcedureJob.haveJobs()) {
-            return true;
-        }
-        return false;
+        return ((dataManager != null) && (dataManager.getParmManager()
+                .getModifiedParms().length > 0))
+                || dataManager.getProcedureJobPool().isActive()
+                || dataManager.getSmartToolJobPool().isActive();
     }
 
     @Override

@@ -58,6 +58,7 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -81,7 +82,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
 /**
- * TODO Add Description
+ * Saves off geospatial data from the maps database using the warngen
+ * configurations to improve performance of various operations in warngen.
  * 
  * <pre>
  * 
@@ -93,6 +95,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Mar 29, 2012  #14691    Qinglu Lin  Added returned value of getFeArea() of 
  *                                     AreaConfiguration to areaFields List.
  * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
+ * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
  * </pre>
  * 
  * @author rjpeter
@@ -100,8 +103,12 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  */
 
 public class GeospatialDataGenerator {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GeospatialDataGenerator.class);
+
+    private static final SingleTypeJAXBManager<GeospatialTimeSet> jaxb = SingleTypeJAXBManager
+            .createWithoutException(GeospatialTimeSet.class);
 
     public static void generateUniqueGeospatialMetadataGeometries() {
         String mySite = SiteUtil.getSite();
@@ -394,23 +401,27 @@ public class GeospatialDataGenerator {
         // clip against County Warning Area
         if (!areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
             String cwaSource = "cwa";
-            List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
+            List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList(
+                    "wfo", "gid"));
             HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(
                     2);
             cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.LIKE));
-            SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create().query(
-                    cwaSource, cwaAreaFields.toArray(new String[cwaAreaFields.size()]),
-                    null, cwaMap, SearchMode.WITHIN);
+            SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create()
+                    .query(cwaSource,
+                            cwaAreaFields.toArray(new String[cwaAreaFields
+                                    .size()]), null, cwaMap, SearchMode.WITHIN);
             Geometry multiPolygon = null;
             Geometry clippedGeom = null;
             for (int i = 0; i < features.length; i++) {
                 multiPolygon = null;
                 for (int j = 0; j < cwaFeatures.length; j++) {
-                    clippedGeom = features[i].geometry.intersection(cwaFeatures[j].geometry);
+                    clippedGeom = features[i].geometry
+                            .intersection(cwaFeatures[j].geometry);
                     if (clippedGeom instanceof GeometryCollection) {
-                        GeometryCollection gc = (GeometryCollection)clippedGeom;
+                        GeometryCollection gc = (GeometryCollection) clippedGeom;
                         if (multiPolygon != null)
-                            multiPolygon = multiPolygon.union(convertToMultiPolygon(gc));
+                            multiPolygon = multiPolygon
+                                    .union(convertToMultiPolygon(gc));
                         else
                             multiPolygon = convertToMultiPolygon(gc);
                     }
@@ -440,7 +451,8 @@ public class GeospatialDataGenerator {
 
     /**
      * Convert a GeometryCollection to a MultiPolygon.
-     * @param gc 
+     * 
+     * @param gc
      */
     private static MultiPolygon convertToMultiPolygon(GeometryCollection gc) {
         GeometryCollectionIterator iter = new GeometryCollectionIterator(gc);
@@ -451,11 +463,11 @@ public class GeospatialDataGenerator {
             Object o = iter.next();
             if (o instanceof MultiPolygon) {
                 if (mp == null)
-                    mp = (MultiPolygon)o;
+                    mp = (MultiPolygon) o;
                 else
-                    mp = (MultiPolygon)mp.union((MultiPolygon)o);
+                    mp = (MultiPolygon) mp.union((MultiPolygon) o);
             } else if (o instanceof Polygon) {
-                polygons.add((Polygon)o);
+                polygons.add((Polygon) o);
             } else if (o instanceof LineString || o instanceof Point) {
                 LinearRing lr = null;
                 Coordinate[] coords = null;
@@ -463,12 +475,12 @@ public class GeospatialDataGenerator {
                     Coordinate[] cs = ((LineString) o).getCoordinates();
                     if (cs.length < 4) {
                         coords = new Coordinate[4];
-                        for (int j = 0; j< cs.length; j++)
+                        for (int j = 0; j < cs.length; j++)
                             coords[j] = new Coordinate(cs[j]);
                         for (int j = cs.length; j < 4; j++)
-                            coords[j] = new Coordinate(cs[3-j]);
+                            coords[j] = new Coordinate(cs[3 - j]);
                     } else {
-                        coords = new Coordinate[cs.length+1];
+                        coords = new Coordinate[cs.length + 1];
                         for (int j = 0; j < cs.length; j++)
                             coords[j] = new Coordinate(cs[j]);
                         coords[cs.length] = new Coordinate(cs[0]);
@@ -476,14 +488,15 @@ public class GeospatialDataGenerator {
                 } else {
                     coords = new Coordinate[4];
                     for (int i = 0; i < 4; i++)
-                        coords[i] = ((Point)o).getCoordinate();
+                        coords[i] = ((Point) o).getCoordinate();
                 }
-                lr = (((Geometry)o).getFactory()).createLinearRing(coords);
+                lr = (((Geometry) o).getFactory()).createLinearRing(coords);
                 Polygon poly = (new GeometryFactory()).createPolygon(lr, null);
-                polygons.add((Polygon)poly);
+                polygons.add((Polygon) poly);
             } else {
                 statusHandler.handle(Priority.WARN,
-                        "Unprocessed Geometry object: " + o.getClass().getName());
+                        "Unprocessed Geometry object: "
+                                + o.getClass().getName());
             }
         }
         if (mp == null && polygons.size() == 0)
@@ -491,7 +504,8 @@ public class GeospatialDataGenerator {
         if (polygons.size() > 0) {
             Polygon[] p = polygons.toArray(new Polygon[0]);
             if (mp != null)
-                mp = (MultiPolygon)mp.union(new MultiPolygon(p, gc.getFactory()));
+                mp = (MultiPolygon) mp.union(new MultiPolygon(p, gc
+                        .getFactory()));
             else
                 mp = new MultiPolygon(p, gc.getFactory());
         }
@@ -560,7 +574,7 @@ public class GeospatialDataGenerator {
                     .query(timezonePathcastTable,
                             new String[] { timezonePathcastField }, hull, null,
                             false, SearchMode.INTERSECTS);
-                    
+
             rval = new GeospatialData[timeZoneResults.length];
             for (int i = 0; i < timeZoneResults.length; i++) {
                 SpatialQueryResult result = timeZoneResults[i];
@@ -569,7 +583,7 @@ public class GeospatialDataGenerator {
                 data.attributes = result.attributes;
                 rval[i] = data;
             }
-            
+
             // set time zone and area field
             if (timeZoneResults.length == 1) {
                 SpatialQueryResult tz = timeZoneResults[0];
@@ -651,7 +665,7 @@ public class GeospatialDataGenerator {
 
         GeospatialTimeSet set = new GeospatialTimeSet();
         set.setData(new ArrayList<GeospatialTime>(times.values()));
-        String xml = SerializationUtil.marshalToXml(set);
+        String xml = jaxb.marshalToXml(set);
 
         lf = pathMgr.getLocalizationFile(context,
                 GeospatialFactory.METADATA_FILE);

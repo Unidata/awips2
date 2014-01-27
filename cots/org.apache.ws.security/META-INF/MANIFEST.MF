@@ -3,12 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Security
 Bundle-SymbolicName: org.apache.ws.security
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: org.apache.ws.security.Activator
-Require-Bundle: org.eclipse.core.runtime,
- org.apache.commons.logging;bundle-version="1.1.1",
- org.junit;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0",
- org.slf4j;bundle-version="1.6.1"
+Require-Bundle: org.slf4j;bundle-version="1.6.1"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: bcprov-jdk15-1.46.jar,

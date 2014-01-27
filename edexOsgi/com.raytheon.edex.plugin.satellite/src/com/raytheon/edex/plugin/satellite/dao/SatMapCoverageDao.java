@@ -27,7 +27,6 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
-import com.raytheon.uf.edex.database.query.DatabaseQuery;
 
 /**
  * The dao implementation associated with the SatelliteMapCoverage class used
@@ -41,8 +40,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * ------------ ----------  ----------- --------------------------
  * 7/24/07      353         bphillip    Initial Check in    
  * - AWIPS2 Baseline Repository --------
- * 06/27/2012    798        jkorman     Corrected id query type.
- *  
+ * 06/27/2012   798         jkorman     Corrected id query type.
+ * 10/02/2013   2333        mschenke    Removed unused code
+ * 
  * </pre>
  * 
  * @author bphillip
@@ -103,83 +103,6 @@ public class SatMapCoverageDao extends CoreDao {
         values.add(String.valueOf(ny));
 
         return (List<SatMapCoverage>) queryByCriteria(fields, values);
-    }
-
-    /**
-     * Retrieves a map projection based on the given criteria
-     * 
-     * @param mapProjection
-     *            The map projection 1=Mercator 3=Lambert Conformal 5=Polar
-     *            Stereographic
-     * @param nx
-     *            Number of points along the x-axis
-     * @param ny
-     *            Number of points along the y-axis
-     * @param dx
-     *            The horizontal resolution of the grid
-     * @param dy
-     *            The vertical resolution of the grid
-     * @param lov
-     *            The orientation of the grid
-     * @param latin
-     *            The tangent latitude
-     * @param la1
-     *            The latitude of the first grid point
-     * @param lo1
-     *            The longitude of the first grid point
-     * @param la2
-     *            The latitude of the last grid point (only used with Mercator
-     *            projection)
-     * @param lo2
-     *            The longitude of the last grid opint (only used with Mercaotr
-     *            projection)
-     * @return The SatMapCoverage object matching the given criteria
-     */
-    @SuppressWarnings("unchecked")
-    public SatMapCoverage getSatCoverage(Integer mapProjection, Integer nx,
-            Integer ny, Float dx, Float dy, Float lov, Float latin, Float la1,
-            Float lo1, Float la2, Float lo2) throws DataAccessLayerException{
-        List<SatMapCoverage> queryResults = null;
-        List<String> fields = new ArrayList<String>();
-        List<Object> values = new ArrayList<Object>();
-        
-        DatabaseQuery query = new DatabaseQuery(daoClass.getName());
-        query.addQueryParam("projection", mapProjection);
-        query.addQueryParam("nx",nx);
-        query.addQueryParam("ny",ny);
-        query.addQueryParam("dx",dx);
-        query.addQueryParam("dy",dy);
-        query.addQueryParam("lov",lov);
-        query.addQueryParam("latin",latin);
-        query.addQueryParam("la1",la1);
-        query.addQueryParam("lo1",lo1);
-
-        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
-            query.addQueryParam("la2",la2);
-            query.addQueryParam("lo2",lo2);
-        }
-
-        queryResults = (List<SatMapCoverage>) queryByCriteria(query);
-        if (queryResults != null) {
-            if (queryResults.size() > 1) {
-                StringBuffer out = new StringBuffer();
-                out
-                        .append("Multiple map coverages return using the following criteria: [");
-                for (int i = 0; i < fields.size(); i++) {
-                    out.append(fields.get(i)).append("=").append(values.get(i))
-                            .append(" ");
-                }
-                out.append("] -- Using first result");
-                logger.debug(out.toString());
-            }
-            if (queryResults.size() >= 1) {
-                return queryResults.get(0);
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
     }
 
 }

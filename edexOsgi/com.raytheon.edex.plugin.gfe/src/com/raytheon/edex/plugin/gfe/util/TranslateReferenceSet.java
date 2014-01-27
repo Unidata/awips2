@@ -301,7 +301,7 @@ public class TranslateReferenceSet {
                     }
                 }
                 String path = FileUtil.join(dir, fname);
-                jbm.jaxbMarshalToXmlFile(refData, path);
+                jbm.marshalToXmlFile(refData, path);
             }
         }
     }

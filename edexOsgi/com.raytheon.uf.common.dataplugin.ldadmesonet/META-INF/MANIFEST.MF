@@ -9,13 +9,13 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.16",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.16",
- org.apache.commons.logging,
  javax.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
- com.vividsolutions.jts.geom
+ com.vividsolutions.jts.geom,
+ org.apache.commons.logging
 Export-Package: com.raytheon.uf.common.dataplugin.ldadmesonet,
  com.raytheon.uf.common.dataplugin.ldadmesonet.dao

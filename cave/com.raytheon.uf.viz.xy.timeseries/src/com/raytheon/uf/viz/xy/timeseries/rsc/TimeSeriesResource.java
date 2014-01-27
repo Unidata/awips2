@@ -46,6 +46,9 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -62,8 +65,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.labeling.DataTimeLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
@@ -80,7 +81,6 @@ import com.raytheon.viz.core.graphing.xy.XYImageData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
-import com.raytheon.viz.core.style.graph.GraphPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -96,6 +96,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Feb 10, 2011 8244       bkowal      enabled the magnification
  *                                     capability.
  * Feb 14, 2011 8244       bkowal      enabled magnification for wind barbs.
+ * Dec 19, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -160,19 +161,21 @@ public class TimeSeriesResource extends
                         UnitConverter conv = currentUnit.getConverterTo(prefs
                                 .getDisplayUnits());
                         ListIterator<XYData> it = data.getData().listIterator();
-                        while(it.hasNext()) {
+                        while (it.hasNext()) {
                             XYData d = it.next();
-                            if(d instanceof XYWindImageData){
+                            if (d instanceof XYWindImageData) {
                                 XYWindImageData wind = (XYWindImageData) d;
-                                double converted = conv.convert(wind.getWindSpd());
+                                double converted = conv.convert(wind
+                                        .getWindSpd());
                                 it.remove();
-                                if(wind.getImage() != null){
+                                if (wind.getImage() != null) {
                                     wind.getImage().dispose();
                                 }
-                                it.add(new XYWindImageData(wind.getX(), wind.getY(), converted, wind.getWindDir()));
-                            }else{
-                                double converted = conv.convert(((Number) d.getY())
-                                        .doubleValue());
+                                it.add(new XYWindImageData(wind.getX(), wind
+                                        .getY(), converted, wind.getWindDir()));
+                            } else {
+                                double converted = conv.convert(((Number) d
+                                        .getY()).doubleValue());
                                 d.setY(converted);
                             }
                         }
@@ -397,8 +400,8 @@ public class TimeSeriesResource extends
             try {
                 prefs = GraphPrefsFactory.buildPreferences(
                         resourceData.getYParameter().code, adapter.getLevel());
-            } catch (VizStyleException e) {
-                throw e;
+            } catch (StyleException e) {
+                throw new VizException(e.getLocalizedMessage(), e);
             }
         }
 
@@ -495,8 +498,8 @@ public class TimeSeriesResource extends
             sb.append(" ").append(resourceData.getLevelKey());
         }
         sb.append(String.format(" %s %s %s", adapter.getParameterName(),
-                "TSer", units != null && units.equals("") == false ? "(" + units
-                        + ")" : ""));
+                "TSer", units != null && units.equals("") == false ? "("
+                        + units + ")" : ""));
 
         if (secondaryResource != null) {
             return ICombinedResourceData.CombineUtil.getName(sb.toString(),
@@ -580,7 +583,10 @@ public class TimeSeriesResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspect = null;
-        Coordinate c = descriptor.getGraphCoordiante(this, coord.getObject());
+        double[] worldCoord = descriptor.pixelToWorld(
+                new double[] { coord.getObject().x, coord.getObject().y });
+        Coordinate c = descriptor.getGraphCoordiante(this,
+                new Coordinate(worldCoord[0], worldCoord[1]));
         if (c != null && data != null) {
             double[] vals = data.inspectXY(c);
             NumberFormat nf = NumberFormat.getInstance();

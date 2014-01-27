@@ -4,6 +4,7 @@
 <property name="src" value="src"></property>
 <property name="db.mach.name" value="localhost"/>
 <property name="database" value="hd_ob83krf" />
+<property name="database.port" value="5432" />
 
 	
 <target name="runJDbGen">
@@ -12,7 +13,7 @@
 		<pathelement location="./bin"/>
 		<pathelement path="${basedir}/REQUIRED_JARS/postgresql-8.3-603.jdbc3.jar"/>
 		</classpath>
-		<arg value="jdbc:postgresql://${db.mach.name}:5432/${database}?user=awips"/> <!-- connectionURL -->
+		<arg value="jdbc:postgresql://${db.mach.name}:${database.port}/${database}?user=awips"/> <!-- connectionURL -->
 		<arg value="${basedir}/PreferredTableNames.txt"/> <!--preferredTableNameFilePath -->
 		<arg value="${database}"/> <!-- dbName -->
 		<arg value="ohd.hseb.ihfsdb.generated"/> <!-- packageName -->

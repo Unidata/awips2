@@ -35,6 +35,7 @@ import org.junit.Test;
  * Aug 27, 2012 0743       djohnson     Initial creation
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 15, 2013 1040       mpduff       Changed to handle the list of office ids.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -46,7 +47,8 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsOriginalSubNameAsName() {
-        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
 
         PendingSiteSubscription pendingSubscription = new PendingSiteSubscription(
                 subscription, "djohnson");
@@ -57,7 +59,8 @@ public class PendingSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSubscriptionValuesOnPendingSubscription() {
-        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
 
         PendingSiteSubscription copied = new PendingSiteSubscription(
                 subscription, "djohnson");

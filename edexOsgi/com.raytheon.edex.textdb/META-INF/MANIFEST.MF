@@ -7,7 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization,
- org.apache.commons.logging,
  org.apache.commons.lang,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  javax.persistence,
@@ -20,4 +19,5 @@ Export-Package: com.raytheon.edex.textdb.alarms,
  com.raytheon.edex.textdb.fax
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.message,
- com.raytheon.uf.common.serialization.comm
+ com.raytheon.uf.common.serialization.comm,
+ org.apache.commons.logging

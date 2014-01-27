@@ -22,18 +22,14 @@ package com.raytheon.viz.core.gl.ext;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.util.Stack;
 
 import javax.media.opengl.GL;
 
-import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.GraphicsExtension;
@@ -42,11 +38,13 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.dataformat.AbstractGLColorMapDataFormat;
 import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
+import com.raytheon.viz.core.gl.dataformat.GLColorMapData;
 import com.raytheon.viz.core.gl.dataformat.GLColorMapDataFormatFactory;
-import com.raytheon.viz.core.gl.dataformat.IGLColorMapDataFormatProvider;
 import com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension;
+import com.raytheon.viz.core.gl.ext.imaging.GLDefaultImagingExtension;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
+import com.raytheon.viz.core.gl.images.GLImage;
+import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
 import com.raytheon.viz.core.gl.internal.GLView2D;
 
 /**
@@ -97,17 +95,29 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
 
     private ViewInfo currentInfo = null;
 
-    public void renderOffscreen(IImage offscreenImage) throws VizException {
-        renderOffscreen(offscreenImage, target.getView().getExtent());
+    /**
+     * Begins offscreen rendering to the glImage. All rendering after this call
+     * will occur on the image until {@link #endOffscreenRendering()} is called.
+     * Render area will be set to the current view's extent
+     * 
+     * @param glImage
+     * @throws VizException
+     */
+    public void beginOffscreenRendering(AbstractGLImage glImage)
+            throws VizException {
+        beginOffscreenRendering(glImage, target.getView().getExtent());
     }
 
-    public void renderOffscreen(IImage offscreenImage, IExtent offscreenExtent)
-            throws VizException {
-        if (!(offscreenImage instanceof AbstractGLImage)) {
-            throw new VizException(
-                    "Can only use GLImages as offscreen frameBuffer on GLTarget");
-        }
-        AbstractGLImage glImage = (AbstractGLImage) offscreenImage;
+    /**
+     * Begins offscreen rendering to the glImage. All rendering after this call
+     * will occur on the image until {@link #endOffscreenRendering()} is called.
+     * Render area will be set to the offscreenExtent provided
+     * 
+     * @param glImage
+     * @throws VizException
+     */
+    public void beginOffscreenRendering(AbstractGLImage glImage,
+            IExtent offscreenExtent) throws VizException {
         if (glImage.getStatus() == IImage.Status.UNLOADED
                 || glImage.getStatus() == IImage.Status.LOADING) {
             glImage.setStatus(IImage.Status.LOADING);
@@ -129,8 +139,16 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         setCurrentView(new ViewInfo(view, glImage));
     }
 
-    public void renderOnscreen() throws VizException {
-        if (viewStack.size() > 0) {
+    /**
+     * Ends offscreen rendering. Should only be called if a call to
+     * {@link #beginOffscreenRendering(AbstractGLImage)} or
+     * {@link #beginOffscreenRendering(AbstractGLImage, IExtent)} was
+     * successfully called first first
+     * 
+     * @throws VizException
+     */
+    public void endOffscreenRendering() throws VizException {
+        if (viewStack.isEmpty() == false) {
             setCurrentView(viewStack.pop());
         }
     }
@@ -167,60 +185,84 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         return Compatibilty.TARGET_COMPATIBLE;
     }
 
-    public IImage constructOffscreenImage(final int[] dimensions)
+    /**
+     * Creates an RGB based image for use in offscreen rendering
+     * 
+     * @param dimensions
+     * @return
+     * @throws VizException
+     */
+    public AbstractGLImage constructOffscreenImage(final int[] dimensions)
             throws VizException {
-        return target.initializeRaster(new IRenderedImageCallback() {
+        return new GLImage(new IRenderedImageCallback() {
             @Override
             public RenderedImage getImage() throws VizException {
                 return new BufferedImage(dimensions[0], dimensions[1],
                         BufferedImage.TYPE_INT_RGB);
             }
-        });
+        }, GLDefaultImagingExtension.class);
     }
 
-    public GLColormappedImage constructOffscreenImage(
+    /**
+     * Creates a colormapped offscreen image with the specified dataType and
+     * dimensions
+     * 
+     * @param dataType
+     * @param dimensions
+     * @return
+     * @throws VizException
+     */
+    public GLOffscreenColormappedImage constructOffscreenImage(
             ColorMapDataType dataType, int[] dimensions) throws VizException {
         return constructOffscreenImage(dataType, dimensions, null);
     }
 
-    public GLColormappedImage constructOffscreenImage(
+    /**
+     * Creates a colormapped offscreen image with the specified dataType and
+     * dimensions and default colormap parameters
+     * 
+     * @param dataType
+     * @param dimensions
+     * @param parameters
+     * @return
+     * @throws VizException
+     */
+    public GLOffscreenColormappedImage constructOffscreenImage(
             final ColorMapDataType dataType, final int[] dimensions,
             ColorMapParameters parameters) throws VizException {
-        GLColormappedImageExtension cmapExt = target
-                .getExtension(GLColormappedImageExtension.class);
-        if (!supportsLuminance) {
-            return cmapExt.initializeRaster(new NoLuminanceDataCallback(
-                    dimensions, dataType), parameters);
-        } else {
-            GLColormappedImage image = cmapExt.initializeRaster(
-                    new IColorMapDataRetrievalCallback() {
+        AbstractGLColorMapDataFormat format = null;
 
-                        @Override
-                        public ColorMapData getColorMapData()
-                                throws VizException {
-                            return new ColorMapData(dataType, dimensions);
-                        }
-                    }, parameters);
-            if (!checkedLuminance) {
-                checkedLuminance = true;
-                try {
-                    renderOffscreen(image);
-                } catch (VizException e) {
-                    // Log this so it is easy to see in the console logs.
-                    new VizException(
-                            "Graphics card does not support luminance textures.",
-                            e).printStackTrace(System.out);
-                    // assume we don't support luminance
-                    supportsLuminance = false;
-                    // Reconstruct image
-                    image = constructOffscreenImage(dataType, dimensions,
-                            parameters);
-                } finally {
-                    renderOnscreen();
-                }
-            }
-            return image;
+        if (supportsLuminance) {
+            format = GLColorMapDataFormatFactory
+                    .getGLColorMapDataFormat(dataType);
+        } else {
+            format = new NoLuminanceDataFormat(dataType);
         }
+
+        GLOffscreenColormappedImage image = new GLOffscreenColormappedImage(
+                new GLColorMapData(format, dataType, dimensions), parameters,
+                GLColormappedImageExtension.class);
+
+        if (!checkedLuminance) {
+            checkedLuminance = true;
+            try {
+                beginOffscreenRendering(image);
+            } catch (VizException e) {
+                // Log this so it is easy to see in the console logs.
+                new VizException(
+                        "Graphics card does not support luminance textures.", e)
+                        .printStackTrace(System.out);
+                // assume we don't support luminance
+                supportsLuminance = false;
+                // Reconstruct image
+                image = constructOffscreenImage(dataType, dimensions,
+                        parameters);
+            } finally {
+                endOffscreenRendering();
+            }
+        }
+
+        return image;
     }
 
     private static final class NoLuminanceDataFormat extends GLByteDataFormat {
@@ -228,10 +270,11 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
         // Used to get the original min/max which makes signed bytes work and
         // theoretically will give better looking results for other integer data
         // types.
-        private final ColorMapDataType originalType;
+        private final AbstractGLColorMapDataFormat originalFormat;
 
         private NoLuminanceDataFormat(ColorMapDataType originalType) {
-            this.originalType = originalType;
+            this.originalFormat = GLColorMapDataFormatFactory
+                    .getGLColorMapDataFormat(originalType);
         }
 
         @Override
@@ -251,46 +294,14 @@ public class GLOffscreenRenderingExtension extends GraphicsExtension<IGLTarget>
 
         @Override
         public double getDataFormatMin() {
-            return getOriginalGLColorMapDataFormat().getDataFormatMin();
+            return originalFormat.getDataFormatMin();
         }
 
         @Override
         public double getDataFormatMax() {
-            return getOriginalGLColorMapDataFormat().getDataFormatMax();
+            return originalFormat.getDataFormatMax();
         }
 
-        private AbstractGLColorMapDataFormat getOriginalGLColorMapDataFormat() {
-            return GLColorMapDataFormatFactory
-                    .getGLColorMapDataFormat(originalType);
-        }
-
-    }
-
-    private static final class NoLuminanceDataCallback implements
-            IColorMapDataRetrievalCallback, IGLColorMapDataFormatProvider {
-
-        private int[] dimensions;
-
-        private final ColorMapDataType originalType;
-
-        private NoLuminanceDataCallback(int[] dimensions,
-                ColorMapDataType type) {
-            this.dimensions = dimensions;
-            this.originalType = type;
-        }
-
-        @Override
-        public AbstractGLColorMapDataFormat getGLColorMapDataFormat(
-                ColorMapData colorMapData) {
-            return new NoLuminanceDataFormat(originalType);
-        }
-
-        @Override
-        public ColorMapData getColorMapData() throws VizException {
-            Buffer buffer = ByteBuffer.allocate(dimensions[0] * dimensions[1]
-                    * 3);
-            return new ColorMapData(buffer, dimensions, originalType);
-        }
     }
 
 }

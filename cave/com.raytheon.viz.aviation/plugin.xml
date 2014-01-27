@@ -63,13 +63,6 @@
       </handler>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="ccfp"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   <extension
    		point="com.raytheon.uf.viz.core.component">
    		<component key="avnmenu" class="com.raytheon.viz.aviation.AviationComponent"/>
    		<component key="avnsetup" class="com.raytheon.viz.aviation.AvnconfigComponent"/>

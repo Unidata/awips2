@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang.Validate;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -43,9 +42,10 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Sep 5, 2007             chammack    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 05, 2007           chammack    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -54,7 +54,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "pair")
-public class ResourcePair implements ISerializableObject {
+public class ResourcePair {
 
     protected AbstractVizResource<?, ?> resource;
 

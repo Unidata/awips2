@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -56,7 +55,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "WEGroup")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class WEGroup implements ISerializableObject {
+public class WEGroup {
 
     @XmlAttribute
     @DynamicSerializeElement

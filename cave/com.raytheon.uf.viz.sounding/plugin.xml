@@ -20,43 +20,17 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
-   <extension-point id="com.raytheon.uf.viz.sounding.verticalSoundingAdapter" name="VerticalSoundingAdapter" schema="schema/verticalSoundingAdapter.exsd"/>
+   <extension-point id="com.raytheon.uf.viz.sounding.verticalSoundingProvider" name="VerticalSoundingProvider" schema="schema/verticalSoundingProvider.exsd"/>
+
    <extension
-         point="com.raytheon.uf.viz.sounding.verticalSoundingAdapter">
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.sounding.adapters.POESSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.poessounding.POESSounding"
-            name="PoesSoundingAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.sounding.adapters.GOESSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.goessounding.GOESSounding"
-            name="GoesSoundingAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter"
-            class="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
-            name="UAObsAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.sounding.adapters.BufrSoundingAdapter"
-            class="com.raytheon.edex.plugin.modelsounding.common.SoundingSite"
-            name="BufrAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.sounding.adapters.ProfilerSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
-            name="ProfilerSoundingAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.sounding.adapters.VwpSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.radar.RadarRecord"
-            name="VwpSoundingAdapter">
-      </verticalSoundingAdapter>
-      <verticalSoundingAdapter
-            adapter="com.raytheon.uf.viz.acarssounding.AcarsSoundingAdapter"
-            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
-            name="AcarsSoundingAdapter">
-      </verticalSoundingAdapter>
+         point="com.raytheon.uf.viz.sounding.verticalSoundingProvider">
+      <verticalSoundingProvider
+            class="com.raytheon.uf.viz.sounding.providers.BufruaSoundingProvider"
+            type="bufrua">
+      </verticalSoundingProvider>
+      <verticalSoundingProvider
+      		class="com.raytheon.uf.viz.sounding.providers.GridSoundingProvider"
+            type="grid">
+      </verticalSoundingProvider>
    </extension>
 </plugin>

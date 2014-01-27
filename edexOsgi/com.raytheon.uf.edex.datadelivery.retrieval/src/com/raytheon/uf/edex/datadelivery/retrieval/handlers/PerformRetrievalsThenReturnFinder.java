@@ -23,10 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.raytheon.uf.common.datadelivery.event.status.DataDeliverySystemStatusDefinition;
+import com.raytheon.uf.common.datadelivery.event.status.SystemStatusEvent;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
+import com.raytheon.uf.common.event.EventBus;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 07, 2013 1543       djohnson     Expose process() for testing.
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now passed further down the chain.
  * Feb 15, 2013 1543       djohnson     Retrieval responses are now xml.
+ * Jul 16, 2013 1655       mpduff       Send a system status event based on the response from the provider.
  * 
  * </pre>
  * 
@@ -61,8 +65,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * @version 1.0
  */
 
-public class PerformRetrievalsThenReturnFinder implements
-        IRetrievalsFinder {
+public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PerformRetrievalsThenReturnFinder.class);
@@ -86,8 +89,7 @@ public class PerformRetrievalsThenReturnFinder implements
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml findRetrievals()
-            throws Exception {
+    public RetrievalResponseXml findRetrievals() throws Exception {
         RetrievalResponseXml retVal = null;
 
         ITimer timer = TimeUtil.getTimer();
@@ -171,8 +173,7 @@ public class PerformRetrievalsThenReturnFinder implements
                         setCompletionStateFromResponse(requestRecord, response);
 
                         retrievalAttributePluginDataObjects
-                                .add(new RetrievalResponseWrapper(
-                                        response));
+                                .add(new RetrievalResponseWrapper(response));
                     } else {
                         throw new IllegalStateException("No PDO's to store: "
                                 + serviceType + " original: "
@@ -193,6 +194,22 @@ public class PerformRetrievalsThenReturnFinder implements
                 requestRecord.getId(), retrievalAttributePluginDataObjects);
         retrievalPluginDataObject
                 .setSuccess(requestRecord.getState() == State.COMPLETED);
+
+        // Create system status event
+        SystemStatusEvent event = new SystemStatusEvent();
+        event.setName(requestRecord.getProvider());
+        event.setSystemType("Provider");
+        if (requestRecord.getState() == State.COMPLETED
+                || requestRecord.getState() == State.PENDING
+                || requestRecord.getState() == State.RUNNING) {
+            event.setStatus(DataDeliverySystemStatusDefinition.UP);
+        } else if (requestRecord.getState() == State.FAILED) {
+            event.setStatus(DataDeliverySystemStatusDefinition.DOWN);
+        } else {
+            event.setStatus(DataDeliverySystemStatusDefinition.UNKNOWN);
+        }
+
+        EventBus.publish(event);
 
         return retrievalPluginDataObject;
     }

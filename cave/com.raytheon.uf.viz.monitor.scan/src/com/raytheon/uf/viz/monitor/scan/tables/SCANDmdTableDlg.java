@@ -77,6 +77,7 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.SCANColorThreshDlg;
 import com.raytheon.uf.viz.monitor.scan.data.ScanDataGenerator;
 import com.raytheon.uf.viz.monitor.scan.tables.SCANAlarmAlertManager.AlarmType;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Main dialog for the SCAN DMD table.
@@ -93,7 +94,13 @@ import com.raytheon.viz.ui.EditorUtil;
  *                                     some bad code, and some code cleanup.
  * 06 Jun 2013  #2065      lvenable    Added code to alert the user to use the clear
  *                                     button if they want to close the dialog.
- * 
+ * Jul 24, 2013  2218      mpduff      Change method signature.
+ * Jul 26, 2013 #2143      skorolev    Changes for non-blocking dialogs.
+ * Aug 15, 2013  2143      mpduff      Added some isDisposed() checks.
+ * 04 Dec 2013  #2592      lvenable    Update how the checkboxes are handled
+ *                                     (background/foreground colors) since the Redhat
+ *                                     6 upgrade causes the check in the checkbox to be
+ *                                     colored the same as the background.
  * </pre>
  * 
  * @author lvenable
@@ -102,7 +109,7 @@ import com.raytheon.viz.ui.EditorUtil;
 public class SCANDmdTableDlg extends AbstractTableDlg implements
         IAttributeUpdate, IThresholdUpdate, IDisplayFilterUpdate,
         IRequestTimeHeightData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SCANDmdTableDlg.class);
 
     /**
@@ -428,74 +435,66 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         });
         setupButtonMouseListeners(attribBtn);
 
-        gd = new GridData();
-        linkToFrameChk = new Button(controlComp, SWT.CHECK);
-        linkToFrameChk.setText("Link to Frame ");
-        linkToFrameChk.setBackground(scanCfg
-                .getScanColor(ScanColors.LinkToFrame));
-        linkToFrameChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        /*
+         * Link to frame
+         */
+        linkToFrameChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.LinkToFrame),
+                display.getSystemColor(SWT.COLOR_WHITE), "Link to Frame ",
+                true, null);
+
         linkToFrameChk.setSelection(dmdConfigMgr.getScanDmdCfgXML()
                 .getLinkToFrame());
-        linkToFrameChk.setLayoutData(gd);
+
         linkToFrameChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleLinkToFrame();
             }
         });
-        setupButtonMouseListeners(linkToFrameChk);
 
+        /*
+         * CWA Filter
+         */
         StringBuilder tipText = new StringBuilder();
         tipText.append("Activate to remove from the SCAN table all cells and\n");
         tipText.append("DMDs that are outside your CWA.\n\n");
         tipText.append("Deactivate to include in the SCAN table all cells and\n");
         tipText.append("DMDs detected by radar.");
 
-        gd = new GridData();
-        cwaFilterChk = new Button(controlComp, SWT.CHECK);
-        cwaFilterChk.setText("CWA Filter ");
-        cwaFilterChk.setBackground(scanCfg.getScanColor(ScanColors.CWAFilter));
-        cwaFilterChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        cwaFilterChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.CWAFilter),
+                display.getSystemColor(SWT.COLOR_WHITE), "CWA Filter ", true,
+                tipText.toString());
+
         cwaFilterChk.setSelection(dmdConfigMgr.getScanDmdCfgXML()
                 .getFilterOption());
-        cwaFilterChk.setLayoutData(gd);
-        cwaFilterChk.setToolTipText(tipText.toString());
         cwaFilterChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 handleCWAFilterAction();
             }
         });
-        setupButtonMouseListeners(cwaFilterChk);
-
-        // Vertical tables are not supported at this time.
-        gd = new GridData();
-        vertChk = new Button(controlComp, SWT.CHECK);
-        vertChk.setText("Vert ");
-        vertChk.setEnabled(false);
-        vertChk.setBackground(scanCfg.getScanColor(ScanColors.Vert));
-        vertChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
-        vertChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getFilterOption());
-        vertChk.setLayoutData(gd);
 
         /*
-         * The vertical table is a techblocked DR. This will be commented out
-         * until that is addressed.
+         * Vertical - tech blocked
          */
-        // vertChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // }
-        // });
-        setupButtonMouseListeners(vertChk);
+        vertChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Vert),
+                display.getSystemColor(SWT.COLOR_WHITE), "Vert ", true, null);
 
-        gd = new GridData();
-        tipsChk = new Button(controlComp, SWT.CHECK);
-        tipsChk.setText("Tips ");
-        tipsChk.setBackground(scanCfg.getScanColor(ScanColors.Tips));
-        tipsChk.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
+        vertChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getFilterOption());
+        vertChk.setEnabled(false);
+
+        /*
+         * Tool tips
+         */
+        tipsChk = createCheckLabelComposite(controlComp,
+                scanCfg.getScanColor(ScanColors.Tips),
+                display.getSystemColor(SWT.COLOR_WHITE), "Tips ", true, null);
+
         tipsChk.setSelection(dmdConfigMgr.getScanDmdCfgXML().getTipsOption());
-        tipsChk.setLayoutData(gd);
+
         tipsChk.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -504,8 +503,10 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 dmdTableComp.updateColumnTips();
             }
         });
-        setupButtonMouseListeners(tipsChk);
 
+        /*
+         * Alarm button
+         */
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         alarmBtn = new Button(controlComp, SWT.PUSH);
         alarmBtn.setText("Alarm");
@@ -516,15 +517,25 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         alarmBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if ((alarmsDlg != null) && alarmsDlg.isOpen()) {
+                if (alarmsDlg == null || alarmsDlg.isDisposed()) {
+                    alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
+                    alarmsDlg.setCloseCallback(new ICloseCallback() {
+
+                        @Override
+                        public void dialogClosed(Object returnValue) {
+                            if (!alarmBtn.isDisposed()
+                                    && mgr.getAlertedAlarms(site, scanTable)
+                                            .isEmpty()) {
+                                turnOffAlarm();
+                            }
+                        }
+
+                    });
+                    alarmsDlg.open();
+                } else {
                     alarmsDlg.close();
                 }
-                alarmsDlg = new SCANAlarmsDlg(shell, ScanTables.DMD, site);
-                alarmsDlg.open();
-                if (!alarmBtn.isDisposed()
-                        && mgr.getAlertedAlarms(site, scanTable).isEmpty()) {
-                    turnOffAlarm();
-                }
+
             }
         });
 
@@ -689,13 +700,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the Create/Edit trend dialog.
      */
     private void displayCreateEditTrendDialog() {
-        if (editTrendDlg == null) {
+        if (editTrendDlg == null || editTrendDlg.isDisposed()) {
             editTrendDlg = new EditCreateTrendDlg(shell, scanTable);
+            editTrendDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    updateDefineActiveTrendMenu();
+                    unregisterDialog(editTrendDlg);
+                    editTrendDlg = null;
+                }
+            });
             registerDialog(editTrendDlg);
             editTrendDlg.open();
-            updateDefineActiveTrendMenu();
-            unregisterDialog(editTrendDlg);
-            editTrendDlg = null;
+        } else {
+            editTrendDlg.bringToTop();
         }
     }
 
@@ -703,13 +722,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the alert time limit dialog.
      */
     private void displayAlarmTimeLimitDialog() {
-        if (alarmTimeLimitDlg == null) {
+        if (alarmTimeLimitDlg == null || alarmTimeLimitDlg.isDisposed()) {
             alarmTimeLimitDlg = new SCANAlarmTimeLimitDlg(shell, scanTable,
                     this.site);
+            alarmTimeLimitDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmTimeLimitDlg);
+                    alarmTimeLimitDlg = null;
+                }
+
+            });
             registerDialog(alarmTimeLimitDlg);
             alarmTimeLimitDlg.open();
-            unregisterDialog(alarmTimeLimitDlg);
-            alarmTimeLimitDlg = null;
+        } else {
+            alarmTimeLimitDlg.bringToTop();
         }
     }
 
@@ -717,12 +745,20 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the alarm threshold dialog.
      */
     private void displayAlarmThresholdDialog() {
-        if (alarmThreshDlg == null) {
+        if (alarmThreshDlg == null || alarmThreshDlg.isDisposed()) {
             alarmThreshDlg = new SCANAlarmThreshDlg(site, shell, scanTable);
+            alarmThreshDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(alarmThreshDlg);
+                    alarmThreshDlg = null;
+                }
+            });
             registerDialog(alarmThreshDlg);
             alarmThreshDlg.open();
-            unregisterDialog(alarmThreshDlg);
-            alarmThreshDlg = null;
+        } else {
+            alarmThreshDlg.bringToTop();
         }
     }
 
@@ -730,12 +766,20 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the filter dialog.
      */
     private void displayFilterDialog() {
-        if (displayFilterDlg == null) {
+        if (displayFilterDlg == null || displayFilterDlg.isDisposed()) {
             displayFilterDlg = new DmdDisplayFilterDlg(shell, this);
+            displayFilterDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(displayFilterDlg);
+                    displayFilterDlg = null;
+                }
+            });
             registerDialog(displayFilterDlg);
             displayFilterDlg.open();
-            unregisterDialog(displayFilterDlg);
-            displayFilterDlg = null;
+        } else {
+            displayFilterDlg.bringToTop();
         }
     }
 
@@ -860,13 +904,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the attributes dialog.
      */
     private void displayAttributesDialog() {
-        if ((attributeDlg == null)
+        if ((attributeDlg == null || attributeDlg.isDisposed())
                 || (attributeDlg.getParent().isDisposed() == true)) {
             attributeDlg = new SCANAttributesDlg(shell, scanTable, this);
+            attributeDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(attributeDlg);
+                    attributeDlg = null;
+                }
+
+            });
             registerDialog(attributeDlg);
             attributeDlg.open();
-            unregisterDialog(attributeDlg);
-            attributeDlg = null;
+        } else {
+            attributeDlg.bringToTop();
         }
     }
 
@@ -874,12 +927,21 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
      * Display the color threshold dialog.
      */
     private void displayColorThresholdDialog() {
-        if (colorThresholdDlg == null) {
+        if (colorThresholdDlg == null || colorThresholdDlg.isDisposed()) {
             colorThresholdDlg = new SCANColorThreshDlg(shell, scanTable, this);
+            colorThresholdDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    unregisterDialog(colorThresholdDlg);
+                    colorThresholdDlg = null;
+                }
+
+            });
             registerDialog(colorThresholdDlg);
             colorThresholdDlg.open();
-            unregisterDialog(colorThresholdDlg);
-            colorThresholdDlg = null;
+        } else {
+            colorThresholdDlg.bringToTop();
         }
     }
 
@@ -911,7 +973,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
     public void shellDisposeDialog() {
         killDialog = true;
 
-        shell.dispose();
+        close();
         elevationLabelColor.dispose();
     }
 
@@ -974,7 +1036,7 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
 
                 if ((currentTime != null)
                         && (currentElevation != null)
-                        && currentTime.equals(scan.getMostRecent(scan,
+                        && currentTime.equals(scan.getMostRecent(
                                 scanTable.name(), site).getRefTime())
                         && (currentElevation != scan.getDmdTilt(site))) {
                     // do nothing
@@ -1001,23 +1063,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
                 // closes the alarm dialog if new data comes in or user switches
                 // frame
                 if (getLinkToFrame(scanTable.name())
-                        || currentTime.equals(scan.getMostRecent(scan,
+                        || currentTime.equals(scan.getMostRecent(
                                 scanTable.name(), site).getRefTime())) {
                     if ((alarmsDlg != null) && alarmsDlg.isOpen()) {
                         alarmsDlg.close();
                     }
                 }
 
+                Date date = scan.getMostRecent(scanTable.name(), site)
+                        .getRefTime();
                 if ((EditorUtil.getActiveVizContainer() != null)
                         && !(EditorUtil.getActiveVizContainer()
                                 .getLoopProperties().isLooping())
                         && (mgr.getScheduledAlarms(site, scanTable).size() > 0)
-                        && currentTime.equals(scan.getMostRecent(scan,
-                                scanTable.name(), site).getRefTime())
+                        && currentTime.equals(date)
                         && !scanCfg.getAlarmsDisabled(scanTable)) {
-                    dmdTableComp.checkBlink(sdg,
-                            scan.getMostRecent(scan, scanTable.name(), site)
-                                    .getRefTime());
+                    dmdTableComp.checkBlink(sdg, date);
                     if (mgr.getAlertedAlarms(site, scanTable).size() > 0) {
                         alarmBtn.setVisible(true);
                         addAlarmTimer();
@@ -1040,6 +1101,13 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         fireRecenter(ident, scanTable, site);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.ITableAction#centerByStormId(
+     * java.lang.String)
+     */
     @Override
     public void centerByStormId(String stormId) {
         // no op
@@ -1241,11 +1309,22 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         return ScanMonitor.getInstance().getGraphData(type, site, field, ident);
     }
 
+    /**
+     * Alarm Selection
+     * 
+     * @param ident
+     */
     public void alarmSelection(String ident) {
         dmdTableComp.alarmSelection(ident);
 
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOffAlarm()
+     */
     @Override
     public void turnOffAlarm() {
         if (alarmBtn != null && !alarmBtn.isDisposed()) {
@@ -1254,6 +1333,12 @@ public class SCANDmdTableDlg extends AbstractTableDlg implements
         mgr.setRing(false);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.scan.tables.AbstractTableDlg#turnOnAlarm()
+     */
     @Override
     public void turnOnAlarm() {
         if (alarmBtn != null && !alarmBtn.isDisposed()) {

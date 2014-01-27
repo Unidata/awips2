@@ -17,7 +17,8 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.database.cluster,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
- com.raytheon.uf.edex.database.query
+ com.raytheon.uf.edex.database.query,
+ org.apache.commons.logging
 Export-Package: com.raytheon.uf.edex.plugin.grid.dao,
  com.raytheon.uf.edex.plugin.grid.handler
 Require-Bundle: com.raytheon.uf.common.parameter;bundle-version="1.0.0",
@@ -31,5 +32,4 @@ Require-Bundle: com.raytheon.uf.common.parameter;bundle-version="1.0.0",
  org.springframework;bundle-version="2.5.6",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- org.apache.commons.logging;bundle-version="1.1.1",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174"

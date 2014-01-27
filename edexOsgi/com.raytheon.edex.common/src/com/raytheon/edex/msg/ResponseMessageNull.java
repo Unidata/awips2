@@ -19,8 +19,8 @@
  **/
 package com.raytheon.edex.msg;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.message.response.AbstractResponseMessage;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * A response message that allows the &mu;Engine to respond when 
@@ -57,9 +57,9 @@ public class ResponseMessageNull extends AbstractResponseMessage {
      */
     private ResponseMessageNull(String message, String uri, String time) {
         this.fileType="ascii";
-        this.dataURI = Util.isEmptyString(uri)?"":uri;
-        this.time = Util.isEmptyString(time)?"":time;
-        this.message = Util.isEmptyString(message)?"":message;
+        this.dataURI = StringUtil.isEmptyString(uri)?"":uri;
+        this.time = StringUtil.isEmptyString(time)?"":time;
+        this.message = StringUtil.isEmptyString(message)?"":message;
     }
     /**
      * Static method that creates an null Response Message. Uses the

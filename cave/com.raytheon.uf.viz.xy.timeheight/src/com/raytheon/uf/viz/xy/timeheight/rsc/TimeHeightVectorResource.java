@@ -30,6 +30,10 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -44,19 +48,15 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
-import com.raytheon.viz.core.style.arrow.ArrowPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -64,13 +64,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 4, 2007             njensen     Initial creation
- * Feb 20, 2009            njensen     Refactored to new rsc architecture
- * Feb 14, 2011 8244       bkowal      enabled the magnification capability.
- *                                     Get graph in loadInterpolatedData after
- *                                     we ensure that it is not NULL.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 04, 2007           njensen     Initial creation
+ * Feb 20, 2009           njensen     Refactored to new rsc architecture
+ * Feb 14, 2011  8244     bkowal      enabled the magnification capability.
+ *                                    Get graph in loadInterpolatedData after
+ *                                    we ensure that it is not NULL.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -83,11 +84,10 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TimeHeightVectorResource.class);
 
+    /* Unknown source, provides acceptable density. */
+    private static final int VECTOR_SPACING = 60;
+
     private float[] vInterpolatedData;
-
-    private ArrowPreferences arrowPrefs;
-
-    private int imageSize;
 
     private Map<Coordinate, IImage> imageMap = new HashMap<Coordinate, IImage>();
 
@@ -104,12 +104,12 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.ARROW, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         if (sr != null) {
-            prefs = arrowPrefs = (ArrowPreferences) sr.getPreferences();
+            prefs = sr.getPreferences();
         }
         this.getResourceData().addChangeListener(this);
         getCapability(DisplayTypeCapability.class).setAlternativeDisplayTypes(
@@ -160,7 +160,6 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
                 List<XYData> vList = new ArrayList<XYData>(dataList.size());
                 for (XYData xyData : dataList) {
                     XYWindImageData windData = (XYWindImageData) xyData;
-                    imageSize = windData.getDefaultSize()[0];
                     double dir = windData.getWindDir();
                     double spd = windData.getWindSpd();
                     dir = Math.toRadians(dir);
@@ -216,11 +215,6 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         double density = getCapability(DensityCapability.class).getDensity();
         RGB color = getCapability(ColorableCapability.class).getColor();
 
-        int scaledSize = (int) (this.imageSize * magnification);
-
-        VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(
-                this.descriptor, target, this.imageSize, 1.0f);
-
         IExtent graphArea = descriptor.getGraph(this).getExtent();
         if (graphArea == null) {
             return;
@@ -234,11 +228,16 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
         imagePaintProperties.setAlpha(1.0f);
         double ratio = paintProps.getView().getExtent().getWidth()
                 / paintProps.getCanvasBounds().width;
-        int spacing = (int) ((geometry.getGridRange2D().getMaxX() * imageSize
-                * .75 * ratio / Math.min(2.0, density))
+        int spacing = (int) ((geometry.getGridRange2D().getMaxX()
+                * VECTOR_SPACING * ratio / Math.min(2.0, density))
                 / paintProps.getCanvasBounds().width + 1);
         IExtent viewableArea = paintProps.getView().getExtent()
                 .intersection(graphArea);
+
+        VectorGraphicsConfig config = new VectorGraphicsConfig();
+        config.setSizeScaler(magnification * ratio);
+        VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(
+                this.descriptor, target, config);
         for (int i = spacing / 2; i < geometry.getGridRange2D().getMaxX(); i += spacing) {
             for (int j = spacing / 2; j < geometry.getGridRange2D().getMaxY(); j += spacing) {
                 double screenX = graphArea.getMinX() + (i + 0.5) * width;
@@ -258,12 +257,11 @@ public class TimeHeightVectorResource extends AbstractTimeHeightResource
                 double spd = Math.hypot(uudd, vvff);
                 double dir = Math.atan2(-uudd, -vvff);
                 Coordinate plotLoc = new Coordinate(screenX, screenY);
-                double adjSize = scaledSize * ratio;
 
                 if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.ARROW) {
-                    vgr.paintArrow(plotLoc, adjSize, spd, dir);
+                    vgr.paintArrow(plotLoc, spd, dir);
                 } else {
-                    vgr.paintBarb(plotLoc, adjSize, spd, dir);
+                    vgr.paintBarb(plotLoc, spd, dir);
                 }
             }
         }

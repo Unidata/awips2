@@ -34,6 +34,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -60,15 +61,28 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "VocabularyTerm")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "VocabularyTermType")
 @DynamicSerialize
 @Entity
-@Table(schema = "ebxml", name = "VocabularyTerm")
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "VocabularyTerm")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class VocabularyTermType implements Serializable {
 
     private static final long serialVersionUID = -7560901570669843677L;
@@ -123,6 +137,44 @@ public class VocabularyTermType implements Serializable {
      */
     public void setTerm(String value) {
         this.term = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((term == null) ? 0 : term.hashCode());
+        result = prime * result
+                + ((vocabulary == null) ? 0 : vocabulary.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VocabularyTermType other = (VocabularyTermType) obj;
+        if (term == null) {
+            if (other.term != null)
+                return false;
+        } else if (!term.equals(other.term))
+            return false;
+        if (vocabulary == null) {
+            if (other.vocabulary != null)
+                return false;
+        } else if (!vocabulary.equals(other.vocabulary))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "VocabularyTermType [vocabulary=" + vocabulary + ", term="
+                + term + "]";
     }
 
 }

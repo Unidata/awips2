@@ -28,6 +28,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSharedSubscriptionFixture;
@@ -45,7 +46,8 @@ import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 29, 2013 1650       djohnson     Initial creation
+ * May 29, 2013  1650      djohnson    Initial creation
+ * Oct 22, 2013  2292      mpduff      Implement multiple data types.
  * 
  * </pre>
  * 
@@ -59,9 +61,9 @@ public class PendingSubscriptionHandlerTest extends AbstractRegistryTest {
             throws RegistryHandlerException {
 
         final PendingSiteSubscription siteSubscription = PendingSiteSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
         final PendingSharedSubscription sharedSubscription = PendingSharedSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
 
         storeSubscriptionsForPendingAssociations(siteSubscription,
                 sharedSubscription);
@@ -85,9 +87,9 @@ public class PendingSubscriptionHandlerTest extends AbstractRegistryTest {
             throws RegistryHandlerException {
 
         final PendingSiteSubscription siteSubscription = PendingSiteSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
         final PendingSharedSubscription sharedSubscription = PendingSharedSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
 
         storeSubscriptionsForPendingAssociations(siteSubscription,
                 sharedSubscription);

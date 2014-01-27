@@ -74,13 +74,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncccfp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ncscat"
          download-size="0"
          install-size="0"
@@ -186,13 +179,6 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncccfp"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.edex.plugin.ncgrib"
          download-size="0"
          install-size="0"
@@ -256,28 +242,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncairep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncgrib"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.ncpafm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.common.dataplugin.ncpirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -347,21 +312,7 @@
          unpack="false"/>
 
    <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncairep"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="gov.noaa.nws.ncep.edex.plugin.ncpafm"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="gov.noaa.nws.ncep.edex.plugin.ncpirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -427,8 +378,7 @@
          id="gov.noaa.nws.ncep.common.log4j.config"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="0.0.0"/>
 
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.solarimage"

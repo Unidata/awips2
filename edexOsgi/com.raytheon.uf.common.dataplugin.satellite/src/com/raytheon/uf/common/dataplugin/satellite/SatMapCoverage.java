@@ -20,8 +20,9 @@
 
 package com.raytheon.uf.common.dataplugin.satellite;
 
+import java.awt.geom.Rectangle2D;
+
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -32,18 +33,26 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.geotools.coverage.grid.GridEnvelope2D;
+import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.Envelope2D;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.hibernate.annotations.Type;
+import org.opengis.coverage.grid.GridEnvelope;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.serialization.adapters.GeometryAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
@@ -58,9 +67,11 @@ import com.vividsolutions.jts.geom.Polygon;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 7/24/07      353         bphillip   Initial Checkin
- * - AWIPS2 Baseline Repository --------
- * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
+ * Jul 24, 2007 353         bphillip    Initial Checkin
+ * Jul 12, 2012 798         jkorman     Changed projection "magic" numbers
+ * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
+ *                                      spatial
+ * Sep 30, 2013 2333        mschenke    Refactored to store coordinates in CRS space
  * 
  * </pre>
  */
@@ -68,321 +79,349 @@ import com.vividsolutions.jts.geom.Polygon;
 @Table(name = "satellite_spatial")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-@Embeddable
-public class SatMapCoverage extends PersistableDataObject implements
-		ISpatialObject {
+public class SatMapCoverage extends PersistableDataObject<Object> implements
+        IGridGeometryProvider {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public static final int PROJ_MERCATOR = 1;
-
-    public static final int PROJ_LAMBERT = 3;
-
-    public static final int PROJ_POLAR_STEREO = 5;
-
-    public static final int PROJ_CYLIN_EQUIDISTANT = 7;
-    
-	@Id
-	@DynamicSerializeElement
+    @Id
+    @DynamicSerializeElement
     @DataURI(position = 0)
-	private int gid;
+    private int gid;
 
-	/**
-	 * The projection of the map coverage 1=Mercator, 3=Lambert Conformal
-	 * 5=Polar Stereographic
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Integer projection;
+    /**
+     * The projection of the map coverage 1=Mercator, 3=Lambert Conformal
+     * 5=Polar Stereographic
+     * 
+     * @deprecated This field is only useful for GINI satellite format decoding
+     *             and should not be in the coverage object
+     */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Deprecated
+    private Integer projection;
 
-	/** Number of points along the x-axis */
-	@XmlAttribute
-	@DynamicSerializeElement
-	@Column
-	protected Integer nx;
+    /** Minimum x coordinate in crs space */
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Column
+    private double minX;
 
-	/** Number of points along the y-axis */
-	@XmlAttribute
-	@DynamicSerializeElement
-	@Column
-	protected Integer ny;
+    /** Minimum y coordinate in crs space */
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Column
+    private double minY;
 
-	/** The horizontal resolution of the grid */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float dx;
+    /** Number of points along the x-axis */
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Column
+    private Integer nx;
 
-	/** The vertical resolution of the grid */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float dy;
+    /** Number of points along the y-axis */
+    @XmlAttribute
+    @DynamicSerializeElement
+    @Column
+    private Integer ny;
 
-	/**
-	 * The orientation of the grid; i.e, the east longitude value of the
-	 * meridian which is parallel to the y-axis (or columns of the grid) along
-	 * which latitude increases as the y-coordinate increases (Note: the
-	 * orientation longitude may or may not appear withing a particular grid.)
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float lov;
+    /** The horizontal resolution of the grid */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private double dx;
 
-	/**
-	 * The latitude at which the Lambert projection cone is tangent to the
-	 * earth. Polar Stereographic this value is set to 0. For Mercator this is
-	 * The latitude at which the Mercator projection cylinder intersects the
-	 * earth.
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float latin;
+    /** The vertical resolution of the grid */
+    @Column
+    @XmlAttribute
+    @DynamicSerializeElement
+    private double dy;
 
-	/** The latitude of the first grid point */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float la1;
+    @Column(length = 2047)
+    @XmlAttribute
+    @DynamicSerializeElement
+    private String crsWKT;
 
-	/** The longitude of the first grid point */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float lo1;
+    @Transient
+    private CoordinateReferenceSystem crsObject;
 
-	/** The latitude of the last grid point (only used with Mercator projection) */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float la2;
+    /** The map coverage */
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
+    @XmlJavaTypeAdapter(value = GeometryAdapter.class)
+    @DynamicSerializeElement
+    private Geometry location;
 
-	/**
-	 * The longitude of the last grid point (only used with Mercator projection)
-	 */
-	@Column
-	@XmlAttribute
-	@DynamicSerializeElement
-	private Float lo2;
+    public SatMapCoverage() {
+        super();
+    }
 
-	@Column(length = 2047)
-	@XmlAttribute
-	@DynamicSerializeElement
-	private String crsWKT;
+    /**
+     * Constructs a new SatMapCoverage Object
+     * 
+     * @param projection
+     *            the projection id value
+     * @param minX
+     *            minimum x value in crs space
+     * @param minY
+     *            minimum y value in crs space
+     * @param nx
+     *            number of x points in the satellite grid
+     * @param ny
+     *            number of y points in the satellite grid
+     * @param dx
+     *            spacing between grid cells in crs x space
+     * @param dy
+     *            spacing between grid cells in crs y space
+     * @param crs
+     *            the satellite data crs
+     */
+    public SatMapCoverage(int projection, double minX, double minY, int nx,
+            int ny, double dx, double dy, CoordinateReferenceSystem crs) {
+        this(projection, minX, minY, nx, ny, dx, dy, crs, null);
+    }
 
-	@Transient
-	private CoordinateReferenceSystem crsObject;
+    /**
+     * Constructs a new SatMapCoverage Object
+     * 
+     * @param projection
+     *            the projection id value
+     * @param minX
+     *            minimum x value in crs space
+     * @param minY
+     *            minimum y value in crs space
+     * @param nx
+     *            number of x points in the satellite grid
+     * @param ny
+     *            number of y points in the satellite grid
+     * @param dx
+     *            spacing between grid cells in crs x space
+     * @param dy
+     *            spacing between grid cells in crs y space
+     * @param crs
+     *            the satellite data crs
+     * @param latLonGeometry
+     *            A Geometry representing the satellite bounds in lat/lon space
+     */
+    public SatMapCoverage(int projection, double minX, double minY, int nx,
+            int ny, double dx, double dy, CoordinateReferenceSystem crs,
+            Geometry latLonGeometry) {
+        this.projection = projection;
+        this.minX = minX;
+        this.minY = minY;
+        this.nx = nx;
+        this.ny = ny;
+        this.dx = dx;
+        this.dy = dy;
+        this.crsObject = crs;
+        this.gid = hashCode();
+        if (latLonGeometry == null) {
+            try {
+                latLonGeometry = EnvelopeIntersection
+                        .createEnvelopeIntersection(
+                                getGridGeometry().getEnvelope(),
+                                new Envelope2D(DefaultGeographicCRS.WGS84,
+                                        -180, -90, 360, 180), 1.0, 10, 10)
+                        .getEnvelope();
+            } catch (Exception e) {
+                // Ignore exception, null location
+            }
+        }
+        this.location = latLonGeometry;
+    }
 
-	/** The map coverage */
-	@Column(name = "the_geom", columnDefinition = "geometry")
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
-	@XmlJavaTypeAdapter(value = GeometryAdapter.class)
-	@DynamicSerializeElement
-	private Polygon location;
+    /**
+     * @deprecated This field is only useful for GINI satellite format decoding
+     *             and should not be in the coverage object
+     * @return
+     */
+    @Deprecated
+    public Integer getProjection() {
+        return projection;
+    }
 
-	public SatMapCoverage() {
-		super();
-	}
+    /**
+     * @deprecated This field is only useful for GINI satellite format decoding
+     *             and should not be in the coverage object
+     * @param projection
+     */
+    @Deprecated
+    public void setProjection(Integer projection) {
+        this.projection = projection;
+    }
 
-	/**
-	 * Constructs a new SatMapCoverage Object
-	 * 
-	 * @param projection
-	 * @param nx
-	 *            The number of horizontal scan lines
-	 * @param ny
-	 *            The number vertical scan lines
-	 * @param dx
-	 *            The horizontal resolution
-	 * @param dy
-	 *            The vertical resolution
-	 * @param lov
-	 *            The orientation of the grid
-	 * @param latin
-	 *            The tangent latitude
-	 * @param la1
-	 *            The latitude of the first grid point
-	 * @param lo1
-	 *            The longitude of the first grid point
-	 * @param la2
-	 *            The latitude of the last grid point (null for Lambert
-	 *            Conformal or Polar Stereographic)
-	 * @param lo2
-	 *            The longitude of the last grid point (null for Lambert
-	 *            Conformal or Polar Stereographic)
-	 * @param crs
-	 *            The coordinate reference system
-	 * @param geometry
-	 *            The geometry
-	 */
-	public SatMapCoverage(Integer projection, Integer nx, Integer ny, Float dx,
-			Float dy, Float lov, Float latin, Float la1, Float lo1, Float la2,
-			Float lo2, CoordinateReferenceSystem crs, Geometry geometry) {
+    public int getGid() {
+        return gid;
+    }
 
-		this.projection = projection;
-		this.nx = nx;
-		this.ny = ny;
-		this.dx = dx;
-		this.dy = dy;
-		this.lov = lov;
-		this.latin = latin;
-		this.la1 = la1;
-		this.lo1 = lo1;
-		this.la2 = la2;
-		this.lo2 = lo2;
-		this.crsObject = crs;
-		this.crsWKT = crsObject.toWKT();
-		this.location = (Polygon) geometry;
-		gid = this.hashCode();
-	}
+    public void setGid(int gid) {
+        this.gid = gid;
+    }
 
-	public int hashCode() {
-		HashCodeBuilder hashBuilder = new HashCodeBuilder();
-		hashBuilder.append(projection);
-		hashBuilder.append(nx);
-		hashBuilder.append(ny);
-		hashBuilder.append(dx);
-		hashBuilder.append(dy);
-		hashBuilder.append(lov);
-		hashBuilder.append(latin);
-		hashBuilder.append(la1);
-		hashBuilder.append(la2);
-		hashBuilder.append(lo1);
-		hashBuilder.append(lo2);
-		return hashBuilder.toHashCode();
-	}
+    public double getMinX() {
+        return minX;
+    }
 
-	@Override
-	public Polygon getGeometry() {
-		return location;
-	}
+    public void setMinX(double minX) {
+        this.minX = minX;
+    }
 
-	@Override
-	public CoordinateReferenceSystem getCrs() {
-		if (crsObject == null) {
-			try {
-				crsObject = CRSCache.getInstance()
-						.getCoordinateReferenceSystem(crsWKT);
-			} catch (FactoryException e) {
-				crsObject = null;
-			}
-		}
-		return crsObject;
-	}
+    public double getMinY() {
+        return minY;
+    }
 
-	public Float getDx() {
-		return dx;
-	}
+    public void setMinY(double minY) {
+        this.minY = minY;
+    }
 
-	public void setDx(Float dx) {
-		this.dx = dx;
-	}
+    public Integer getNx() {
+        return nx;
+    }
 
-	public Float getDy() {
-		return dy;
-	}
+    public void setNx(Integer nx) {
+        this.nx = nx;
+    }
 
-	public void setDy(Float dy) {
-		this.dy = dy;
-	}
+    public Integer getNy() {
+        return ny;
+    }
 
-	public Float getLov() {
-		return lov;
-	}
+    public void setNy(Integer ny) {
+        this.ny = ny;
+    }
 
-	public void setLov(Float lov) {
-		this.lov = lov;
-	}
+    public double getDx() {
+        return dx;
+    }
 
-	public Float getLatin() {
-		return latin;
-	}
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
 
-	public void setLatin(Float latin) {
-		this.latin = latin;
-	}
+    public double getDy() {
+        return dy;
+    }
 
-	public Float getLa1() {
-		return la1;
-	}
+    public void setDy(double dy) {
+        this.dy = dy;
+    }
 
-	public void setLa1(Float la1) {
-		this.la1 = la1;
-	}
+    public String getCrsWKT() {
+        if (crsWKT == null && crsObject != null) {
+            crsWKT = crsObject.toWKT();
+        }
+        return crsWKT;
+    }
 
-	public Float getLo1() {
-		return lo1;
-	}
+    public void setCrsWKT(String crsWKT) {
+        this.crsWKT = crsWKT;
+        if (crsObject != null) {
+            crsObject = null;
+        }
+    }
 
-	public void setLo1(Float lo1) {
-		this.lo1 = lo1;
-	}
+    public Geometry getLocation() {
+        if (location == null) {
+            location = generateLocation();
+            if (location == null) {
+                // Default to empty MultiPolygon so various Geometry methods
+                // still work
+                location = new GeometryFactory()
+                        .createMultiPolygon(new Polygon[0]);
+            }
+        }
+        return location;
+    }
 
-	public Float getLa2() {
-		return la2;
-	}
+    public void setLocation(Geometry location) {
+        this.location = location;
+    }
 
-	public void setLa2(Float la2) {
-		this.la2 = la2;
-	}
+    /**
+     * Generates the lat/lon bounding geometry for the spatial record
+     * 
+     * @return lat/lon bounding geometry or null if none could be generated
+     */
+    private Geometry generateLocation() {
+        try {
+            return EnvelopeIntersection.createEnvelopeIntersection(
+                    getGridGeometry().getEnvelope(),
+                    new Envelope2D(DefaultGeographicCRS.WGS84, -180, -90, 360,
+                            180), 1.0, 10, 10).getEnvelope();
+        } catch (Exception e) {
+            // Ignore exception, null location
+        }
+        return null;
+    }
 
-	public Float getLo2() {
-		return lo2;
-	}
+    public CoordinateReferenceSystem getCrs() {
+        if (crsObject == null && crsWKT != null) {
+            try {
+                crsObject = CRSCache.getInstance()
+                        .getCoordinateReferenceSystem(crsWKT);
+            } catch (FactoryException e) {
+                crsObject = null;
+            }
+        }
+        return crsObject;
+    }
 
-	public void setLo2(Float lo2) {
-		this.lo2 = lo2;
-	}
+    @Override
+    public GridGeometry2D getGridGeometry() {
+        GridEnvelope gridRange = new GridEnvelope2D(0, 0, getNx(), getNy());
+        Envelope crsRange = new Envelope2D(getCrs(), new Rectangle2D.Double(
+                minX, minY, getNx() * getDx(), getNy() * getDy()));
+        return new GridGeometry2D(gridRange, crsRange);
+    }
 
-	public Integer getProjection() {
-		return projection;
-	}
+    @Override
+    public int hashCode() {
+        HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(projection);
+        builder.append(getCrsWKT());
+        builder.append(minX);
+        builder.append(minY);
+        builder.append(dx);
+        builder.append(dy);
+        builder.append(nx);
+        builder.append(ny);
+        return builder.toHashCode();
+    }
 
-	public void setProjection(Integer projection) {
-		this.projection = projection;
-	}
-
-	public int getGid() {
-		return gid;
-	}
-
-	public void setGid(int gid) {
-		this.gid = gid;
-	}
-
-	public Integer getNx() {
-		return nx;
-	}
-
-	public void setNx(Integer nx) {
-		this.nx = nx;
-	}
-
-	public Integer getNy() {
-		return ny;
-	}
-
-	public void setNy(Integer ny) {
-		this.ny = ny;
-	}
-
-	public String getCrsWKT() {
-		return crsWKT;
-	}
-
-	public void setCrsWKT(String crsWKT) {
-		this.crsWKT = crsWKT;
-	}
-
-	public Polygon getLocation() {
-		return location;
-	}
-
-	public void setLocation(Polygon location) {
-		this.location = location;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        SatMapCoverage other = (SatMapCoverage) obj;
+        if (projection != other.projection)
+            return false;
+        String crsWKT = getCrsWKT();
+        String otherCrsWKT = other.getCrsWKT();
+        if (crsWKT == null) {
+            if (otherCrsWKT != null)
+                return false;
+        } else if (!crsWKT.equals(otherCrsWKT))
+            return false;
+        if (Double.doubleToLongBits(dx) != Double.doubleToLongBits(other.dx))
+            return false;
+        if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy))
+            return false;
+        if (Double.doubleToLongBits(minX) != Double
+                .doubleToLongBits(other.minX))
+            return false;
+        if (Double.doubleToLongBits(minY) != Double
+                .doubleToLongBits(other.minY))
+            return false;
+        if (nx != other.nx)
+            return false;
+        if (ny != other.ny)
+            return false;
+        return true;
+    }
 
 }

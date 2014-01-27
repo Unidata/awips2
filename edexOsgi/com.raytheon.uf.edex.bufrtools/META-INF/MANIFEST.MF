@@ -5,10 +5,12 @@ Bundle-SymbolicName: com.raytheon.uf.edex.bufrtools
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.geotools
+ com.raytheon.uf.edex.decodertools;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.bufrtools
+Import-Package: com.raytheon.edex.esb,
+ org.apache.commons.logging

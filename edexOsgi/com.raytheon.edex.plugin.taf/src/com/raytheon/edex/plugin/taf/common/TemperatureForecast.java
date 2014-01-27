@@ -27,14 +27,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -50,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *   ------------   ----------  ----------- --------------------------
  *   8/30/2006                  bphillip    Initial Creation
  *   6/21/2007      180         bphillip    Updated for use with plugin persistence pattern
+ *   Nov 01, 2013   2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -59,9 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "taf_temperature_forecasts")
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class TemperatureForecast extends PersistableDataObject implements
-        ISerializableObject {
+public class TemperatureForecast extends PersistableDataObject {
 
     @Id
     @GeneratedValue
@@ -79,13 +74,11 @@ public class TemperatureForecast extends PersistableDataObject implements
 
     /** Temperature valid time */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer valid_time;
 
     /** Surface temperature */
     @DynamicSerializeElement
-    @XmlAttribute
     @Column
     private Integer sfc_temp_c;
 

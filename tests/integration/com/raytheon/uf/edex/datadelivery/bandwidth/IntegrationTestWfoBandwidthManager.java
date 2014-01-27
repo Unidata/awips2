@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
+import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.edex.datadelivery.bandwidth.WfoBandwidthManagerCreator.WfoBandwidthManager;
@@ -40,6 +43,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 30, 2012 1286       djohnson     Initial creation
  * Feb 27, 2013 1644       djohnson     Extends WFO bandwidth manager.
  * May 15, 2013 2000       djohnson     Include daos.
+ * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Nov 08, 2013 2506       bgonzale     Added notification service to bandwidth manager.
  * 
  * </pre>
  * 
@@ -66,8 +71,13 @@ public class IntegrationTestWfoBandwidthManager extends WfoBandwidthManager {
      */
     public IntegrationTestWfoBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
-        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
+            BandwidthDaoUtil bandwidthDaoUtil,
+            IDataSetMetaDataHandler dataSetMetaDataHandler,
+            ISubscriptionHandler subscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService) {
+        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+                dataSetMetaDataHandler, subscriptionHandler,
+                subscriptionNotificationService);
     }
 
     /**

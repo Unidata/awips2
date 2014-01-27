@@ -21,7 +21,6 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.ProviderQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -35,7 +34,8 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012  1241      djohnson     Initial creation
+ * Oct 03, 2012 1241       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -56,8 +56,8 @@ public class ProviderHandler extends
         ProviderQuery gQuery = getQuery();
         gQuery.setProviderName(providerName);
 
-        RegistryQueryResponse<Provider> response = RegistryManager
-                .getRegistyObjects(gQuery);
+        RegistryQueryResponse<Provider> response = registryHandler
+                .getObjects(gQuery);
 
         checkResponse(response, "getByName");
 

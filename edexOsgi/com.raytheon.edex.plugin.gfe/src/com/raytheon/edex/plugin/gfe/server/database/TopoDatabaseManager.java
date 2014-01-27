@@ -23,16 +23,14 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
+import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -42,7 +40,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
@@ -73,7 +70,10 @@ import com.raytheon.uf.common.topo.TopoQuery;
  * Jul 10, 2009            njensen     Initial creation
  * May 04, 2012  #574      dgilling    Re-port to better match AWIPS1.
  * Feb 12, 2013  #1608     randerso    Changed to use explicit deleteGroups
- * Feb 15, 2013  1638     mschenke    Deleted topo edex plugin, moved code into common topo
+ * Feb 15, 2013  #1638     mschenke    Deleted topo edex plugin, moved code into common topo
+ * Jun 13, 2013  #2044     randerso    Refactored to use non-singleton GridParmManager, 
+ *                                     code cleanup
+ * Nov 20, 2013  #2331     randerso    Changed return type of getTopoData
  * 
  * </pre>
  * 
@@ -86,31 +86,23 @@ public class TopoDatabaseManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TopoDatabaseManager.class);
 
-    private static Map<String, TopoDatabase> topoDbMap = new HashMap<String, TopoDatabase>();
-
     private final IFPServerConfig config;
 
     private final IDataStore dataStore;
 
-    public static void initializeTopoDatabase(String siteID)
-            throws GfeException {
-        IFPServerConfig config = IFPServerConfigManager.getServerConfig(siteID);
-        new TopoDatabaseManager(config, siteID);
-    }
-
-    public static TopoDatabase getTopoDatabase(String siteID) {
-        return topoDbMap.get(siteID);
-    }
-
-    public static void removeTopoDatabase(String siteID) {
-        topoDbMap.remove(siteID);
-    }
-
-    public static DatabaseID getTopoDbId(String siteID) {
+    private DatabaseID getTopoDbId(String siteID) {
         return new DatabaseID(siteID, DataType.GRID, "EditTopo", "Topo");
     }
 
-    public TopoDatabaseManager(IFPServerConfig config, String siteID) {
+    /**
+     * Constructor
+     * 
+     * @param siteID
+     * @param config
+     * @param gridMgr
+     */
+    public TopoDatabaseManager(String siteID, IFPServerConfig config,
+            GridParmManager gridMgr) {
         this.config = config;
 
         statusHandler.info("Topography Manager started for " + siteID);
@@ -128,7 +120,7 @@ public class TopoDatabaseManager {
         // Add the topo database.
         TopoDatabase tdb = new TopoDatabase(this.config, this);
         if (tdb.databaseIsValid()) {
-            topoDbMap.put(siteID, tdb);
+            gridMgr.addDB(tdb);
         } else {
             statusHandler.error("Invalid Topo database");
         }
@@ -141,11 +133,11 @@ public class TopoDatabaseManager {
      * and the status as a <code>ServerResponse</code>.
      * 
      * @param gloc
-     * @return
+     * @return ServerResponse containing the topo grid slice
      */
-    public ServerResponse<IGridSlice> getTopoData(final GridLocation gloc) {
-        ServerResponse<IGridSlice> sr = new ServerResponse<IGridSlice>();
-        IGridSlice data = new ScalarGridSlice();
+    public ServerResponse<ScalarGridSlice> getTopoData(final GridLocation gloc) {
+        ServerResponse<ScalarGridSlice> sr = new ServerResponse<ScalarGridSlice>();
+        ScalarGridSlice data = new ScalarGridSlice();
         Grid2DFloat grid;
         String cacheGroupName = calcGroupName(gloc);
 
@@ -198,7 +190,7 @@ public class TopoDatabaseManager {
      * @param topoGrid
      * @return
      */
-    private IGridSlice makeGridSlice(final GridLocation gloc,
+    private ScalarGridSlice makeGridSlice(final GridLocation gloc,
             final Grid2DFloat topoGrid) {
         // find the max/min values in the topography data
         float maxValue = -Float.MAX_VALUE;

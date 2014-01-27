@@ -7,7 +7,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Bundle-Vendor: NWS
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging,
  org.geotools,
  javax.measure,
  org.apache.commons.lang,
@@ -22,7 +21,8 @@ Import-Package:
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ org.apache.commons.logging
 Export-Package: gov.noaa.nws.ost.edex.plugin.regionalsat,
  gov.noaa.nws.ost.edex.plugin.regionalsat.decoder;uses:="com.raytheon.edex.plugin,gov.noaa.nws.ost.edex.plugin.regionalsat.dao"
 

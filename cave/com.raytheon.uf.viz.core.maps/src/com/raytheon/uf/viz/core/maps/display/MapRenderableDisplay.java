@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.core.rsc.sampling.SamplingResource;
  * Oct 28, 2009     2354  bsteffen    Moved logic for handling IMiddleClickCapableResource to the input handler so it uses configurable mouse preferences
  * Jul 20, 2010     6187  bkowal      The alpha level will always be reset for every
  *                                    resource when the paint method is called now.
+ * 06/24/2013       2140  randerso    Changed to use standardized paint error handling
  * 
  * </pre>
  * 
@@ -172,13 +173,7 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
                 }
 
                 paintProps = calcPaintDataTime(paintProps, rsc);
-                try {
-                    rsc.paint(target, paintProps);
-                } catch (Throwable e) {
-                    pair.getProperties().setVisible(false);
-                    throw new VizException("Paint error: " + e.getMessage()
-                            + ":: The resource has been disabled.", e);
-                }
+                paintResource(pair, target, paintProps);
             }
         }
         target.clearClippingPlane();

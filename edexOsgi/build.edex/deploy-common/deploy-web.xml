@@ -10,11 +10,9 @@
     <macrodef name="deploy.war">
         <attribute name="web.project.dir" />
         <attribute name="war.name" />
+    	<attribute name="webapps.dir" />
         
-        <sequential>            
-            <property name="webapps.dir" 
-                value="${edex.root.directory}/webapps" />
-        	
+        <sequential>         	
         	<!-- find the web "project" -->
         	<var name="project.dir" value="" />        	
 	 		<for list="${basedirectories}" param="directory"
@@ -41,13 +39,13 @@
             <var name="war.file" value="@{war.name}.war" />
             
             <!-- delete old war file -->
-            <delete dir="${webapps.dir}/@{war.name}" />
-            <delete file="${webapps.dir}/${war.file}" />
-            <mkdir dir="${webapps.dir}" />
+            <delete dir="@{webapps.dir}/@{war.name}" />
+            <delete file="@{webapps.dir}/${war.file}" />
+            <mkdir dir="@{webapps.dir}" />
             
             <!-- build and deploy new war -->
             <echo message="Building and deploying war file" />
-            <war destfile="${webapps.dir}/${war.file}" 
+            <war destfile="@{webapps.dir}/${war.file}" 
             webxml="${project.dir}/web/WEB-INF/web.xml">
                 <fileset dir="${project.dir}/web" 
                     excludes="**/WEB-INF/" />
@@ -56,9 +54,9 @@
                 <webinf file="${project.dir}/web/WEB-INF/dwr.xml" />
             </war>
             
-            <unzip src="${webapps.dir}/${war.file}" 
-                dest="${webapps.dir}/@{war.name}" />
-            <delete file="${webapps.dir}/${war.file}" />
+            <unzip src="@{webapps.dir}/${war.file}" 
+                dest="@{webapps.dir}/@{war.name}" />
+            <delete file="@{webapps.dir}/${war.file}" />
         </sequential>
     </macrodef>
 </project>

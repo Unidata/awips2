@@ -29,7 +29,6 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
-import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
+ * Nov 12, 2013 2506       bgonzale     Refactored out notification service.
  * 
  * </pre>
  * 
@@ -55,17 +55,13 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 public class GroupDefinitionServiceHandler extends
         AbstractPrivilegedRequestHandler<GroupDefinitionServiceRequest> {
 
-    private final ISubscriptionNotificationService notificationService;
-
     /**
      * Constructor.
      * 
      * @param notificationService
      *            the subscription notification service
      */
-    public GroupDefinitionServiceHandler(
-            ISubscriptionNotificationService notificationService) {
-        this.notificationService = notificationService;
+    public GroupDefinitionServiceHandler() {
     }
 
     /**
@@ -104,14 +100,6 @@ public class GroupDefinitionServiceHandler extends
             for (Subscription sub : subsForGroup) {
                 sub.setGroupName(GroupDefinition.NO_GROUP);
                 handler.update(sub);
-
-                // TODO: Would be nice to use a subset of the
-                // SubscriptionService functionality here so we didn't have to
-                // manually send the subscription updated notification
-                String username = user != null ? user.uniqueId().toString()
-                        : "none";
-                notificationService.sendUpdatedSubscriptionNotification(sub,
-                        username);
             }
         }
 

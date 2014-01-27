@@ -74,6 +74,8 @@ import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -104,14 +106,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay.GriddedImagePaintProperties;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.ChangeCombineMode;
@@ -153,15 +154,18 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/01/2008              chammack    Initial Creation.
- * Aug 20, 2008            dglazesk    Update for the ColorMap interface change
- * Nov 23, 2011            mli         set vector lineStyle
- * May 11, 2012            njensen     Allow rsc to be recycled
- * Nov 08, 2012 1298       rferrel     Changes for non-blocking FuzzValueDialog.
- * Mar 04, 2013 1637       randerso    Fix time matching for ISC grids
- * Aug 27, 2013 2287       randerso    Fixed scaling and direction of wind arrows
+ * Date         Ticket#   Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 01, 2008           chammack    Initial Creation.
+ * Aug 20, 2008           dglazesk    Update for the ColorMap interface change
+ * Nov 23, 2011           mli         set vector lineStyle
+ * May 11, 2012           njensen     Allow rsc to be recycled
+ * Nov 08, 2012  1298     rferrel     Changes for non-blocking FuzzValueDialog.
+ * Mar 04, 2013  1637     randerso    Fix time matching for ISC grids
+ * Aug 27, 2013  2287     randerso    Fixed scaling and direction of wind arrows
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Dec 11, 2013  2621     randerso    Removed conditional from getParm so it never returns null
  * 
  * </pre>
  * 
@@ -173,6 +177,16 @@ import com.vividsolutions.jts.geom.Envelope;
 public class GFEResource extends
         AbstractVizResource<GFEResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor, IMessageClient {
+
+    /* arbitrary value chosen to most closely match A1 */
+    private static final double VECTOR_DENSITY_FACTOR = 1.36;
+
+    /* Unknown source, provides acceptable sized barbs. */
+    private static final double BARB_SCALE_FACTOR = 0.4;
+
+    /* Unknown source, provides acceptable sized arrows heads. */
+    private static final double ARROW_HEAD_RATIO = 1.0 / 7.0;
+
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEResource.class);
 
@@ -328,7 +342,7 @@ public class GFEResource extends
      * changed, data appeared/disappeared)
      */
     private void resetFrame(TimeRange timeRange) {
-        if (curTime != null && timeRange.overlaps(curTime.getValidPeriod())) {
+        if ((curTime != null) && timeRange.overlaps(curTime.getValidPeriod())) {
             lastDisplayedTime = null;
             issueRefresh();
         }
@@ -341,11 +355,7 @@ public class GFEResource extends
      * @return Returns the parm associated with the GFE Resource
      */
     public Parm getParm() {
-        Parm retVal = null;
-        if (this.getStatus() != ResourceStatus.DISPOSED) {
-            retVal = this.parm;
-        }
-        return retVal;
+        return this.parm;
     }
 
     /*
@@ -480,7 +490,7 @@ public class GFEResource extends
 
         // hack to get around target.getDefaultFont()-centeredness in
         // contourDisplay.
-        double contourMagnification = magnification * gfeFont.getFontSize()
+        double contourMagnification = (magnification * gfeFont.getFontSize())
                 / target.getDefaultFont().getFontSize();
 
         double density = parm.getDisplayAttributes().getDensity();
@@ -497,7 +507,7 @@ public class GFEResource extends
                 .getValidPeriod());
 
         boolean iscParm = this.parm.isIscParm();
-        if (gd.length == 0 && !dataManager.getParmManager().iscMode()) {
+        if ((gd.length == 0) && !dataManager.getParmManager().iscMode()) {
             return;
         }
 
@@ -507,7 +517,7 @@ public class GFEResource extends
 
         if (!this.curTime.equals(this.lastDisplayedTime)
                 || !visMode.equals(this.lastVisMode)
-                || this.lastIscMode != dataManager.getParmManager().iscMode()) {
+                || (this.lastIscMode != dataManager.getParmManager().iscMode())) {
 
             this.lastDisplayedTime = this.curTime;
             this.lastVisMode = visMode;
@@ -525,7 +535,7 @@ public class GFEResource extends
 
             if (gd != null) {
                 IGridSlice gs = null;
-                if (dataManager.getParmManager().iscMode() && gd.length == 0) {
+                if (dataManager.getParmManager().iscMode() && (gd.length == 0)) {
                     GridParmInfo gpi = this.parm.getGridInfo();
                     GridType gridType = gpi.getGridType();
 
@@ -571,8 +581,8 @@ public class GFEResource extends
                     gs = gd[0].getGridSlice();
                 }
 
-                if (gs instanceof VectorGridSlice
-                        || gs instanceof ScalarGridSlice) {
+                if ((gs instanceof VectorGridSlice)
+                        || (gs instanceof ScalarGridSlice)) {
 
                     if (this.gridDisplay != null) {
                         this.gridDisplay.dispose();
@@ -618,41 +628,54 @@ public class GFEResource extends
                     }
 
                     clearVectorDisplays();
-                    GFEVectorGraphicsRenderableFactory factory;
+                    VectorGraphicsConfig vectorConfig;
                     for (VisualizationType type : visTypes) {
                         switch (type) {
                         case WIND_ARROW:
+                            vectorConfig = new VectorGraphicsConfig();
+                            double size = getVectorSize("WindArrowDefaultSize");
+                            vectorConfig.setBaseSize(size);
+                            vectorConfig.setCalmCircleSizeRatio(vectorConfig
+                                    .getCalmCircleSizeRatio()
+                                    * BARB_SCALE_FACTOR);
+                            vectorConfig
+                                    .setArrowHeadStaffRatio(ARROW_HEAD_RATIO);
+                            vectorConfig.alwaysIncludeCalmCircle();
+                            vectorConfig.alwaysIncludeVector();
                             // get the logFactor
                             double logFactor = prefs.getDouble(parm.getParmID()
                                     .compositeNameUI() + "_arrowScaling");
-                            if (logFactor < 0.0) {
-                                logFactor = 0.0;
+                            double maxVal = parm.getGridInfo().getMaxValue();
+                            if (logFactor <= 0.0) {
+                                vectorConfig.setLinearArrowScaleFactor(size
+                                        / maxVal);
+                            } else {
+                                vectorConfig.setArrowScaler(new LogArrowScalar(
+                                        size, logFactor, maxVal));
                             }
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    logFactor, parm.getGridInfo().getMaxValue());
 
                             this.vectorDisplay.add(new GriddedVectorDisplay(
                                     mag, dir, descriptor, MapUtil
                                             .getGridGeometry(gs.getGridInfo()
                                                     .getGridLoc()),
-                                    getVectorSize("WindArrowDefaultSize"),
-                                    1.36, false, visTypeToDisplayType(type),
-                                    factory));
+                                    VECTOR_DENSITY_FACTOR, false,
+                                    visTypeToDisplayType(type), vectorConfig));
                             break;
 
                         case WIND_BARB:
-                            factory = new GFEVectorGraphicsRenderableFactory(
-                                    0.0, parm.getGridInfo().getMaxValue());
-                            this.vectorDisplay
-                                    .add(new GriddedVectorDisplay(
-                                            mag,
-                                            dir,
-                                            descriptor,
-                                            MapUtil.getGridGeometry(gs
-                                                    .getGridInfo().getGridLoc()),
-                                            getVectorSize("WindBarbDefaultSize"),
-                                            1.36, false,
-                                            visTypeToDisplayType(type), factory));
+                            vectorConfig = new VectorGraphicsConfig();
+                            vectorConfig
+                                    .setBaseSize(getVectorSize("WindBarbDefaultSize")
+                                            * BARB_SCALE_FACTOR);
+                            vectorConfig.alwaysIncludeCalmCircle();
+                            vectorConfig.alwaysIncludeVector();
+                            this.vectorDisplay.add(new GriddedVectorDisplay(
+                                    mag, dir, descriptor, MapUtil
+                                            .getGridGeometry(gs.getGridInfo()
+                                                    .getGridLoc()),
+                                    VECTOR_DENSITY_FACTOR / BARB_SCALE_FACTOR,
+                                    false, visTypeToDisplayType(type),
+                                    vectorConfig));
                             break;
 
                         case IMAGE:
@@ -727,7 +750,7 @@ public class GFEResource extends
                                 gid, true, slice);
                     }
 
-                    for (DiscreteKey discreteKey : slice.getKey()) {
+                    for (DiscreteKey discreteKey : slice.getKeys()) {
 
                         if (discreteKey.isValid()) {
                             outlineShapes.put(discreteKey, target
@@ -1304,9 +1327,9 @@ public class GFEResource extends
             Coordinate gridCoord = MapUtil.latLonToGridCoordinate(coord,
                     PixelOrientation.CENTER, gridLocation);
 
-            if (gridCoord.x < 0 || gridCoord.y < 0
-                    || gridCoord.x >= gridLocation.getNx()
-                    || gridCoord.y >= gridLocation.getNy()) {
+            if ((gridCoord.x < 0) || (gridCoord.y < 0)
+                    || (gridCoord.x >= gridLocation.getNx())
+                    || (gridCoord.y >= gridLocation.getNy())) {
                 return;
             }
 
@@ -1445,21 +1468,21 @@ public class GFEResource extends
 
                 // now see if adjacent grid cells exist containing the
                 // same data.
-                if ((xGrid + xLabelGrid > gridDim.x) || (xGrid - 1 < 0)) {
+                if (((xGrid + xLabelGrid) > gridDim.x) || ((xGrid - 1) < 0)) {
                     continue;
                 }
-                if ((yGrid + yLabelGrid > gridDim.y) || (yGrid - 1 < 0)) {
+                if (((yGrid + yLabelGrid) > gridDim.y) || ((yGrid - 1) < 0)) {
                     continue;
                 }
 
                 byte weatherByteVal = byteData.get(xGrid, yGrid);
 
                 boolean printLabel = true;
-                for (int ii = xGrid - 1; ii < xGrid + xLabelGrid; ii++) {
-                    for (int j = yGrid - 1; j < yGrid + yLabelGrid; j++) {
+                for (int ii = xGrid - 1; ii < (xGrid + xLabelGrid); ii++) {
+                    for (int j = yGrid - 1; j < (yGrid + yLabelGrid); j++) {
                         if (!parm.getDisplayAttributes().getDisplayMask()
                                 .getAsBoolean(ii, j)
-                                || byteData.get(ii, j) != weatherByteVal) {
+                                || (byteData.get(ii, j) != weatherByteVal)) {
                             printLabel = false;
                             break;
                         }
@@ -1524,9 +1547,9 @@ public class GFEResource extends
         for (xpos = gridOffset; xpos < gridDim.x; xpos += gridInterval) {
             yCounter++;
             int xCounter = 0;
-            for (ypos = yCounter % 4 + 1; ypos < gridDim.y - gridOffset; ypos += gridInterval) {
+            for (ypos = (yCounter % 4) + 1; ypos < (gridDim.y - gridOffset); ypos += gridInterval) {
                 xCounter++;
-                int xGrid = xpos + (xCounter % 4 * gridOffset);
+                int xGrid = xpos + ((xCounter % 4) * gridOffset);
                 if (xGrid > gridDim.x) {
                     break;
                 }

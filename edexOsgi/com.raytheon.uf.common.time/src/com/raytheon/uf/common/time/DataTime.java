@@ -24,9 +24,10 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.TimeZone;
+import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +47,7 @@ import org.hibernate.annotations.Type;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.DataTimeComparator.SortKey;
 import com.raytheon.uf.common.time.util.CalendarConverter;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
@@ -56,12 +58,16 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                         Jim Ramer   Original Code
- * Jun 18, 2007            chammack    Partial port to Java
- * Apr 12, 2013 1857       bgonzale    Added Index annotations to getter methods.
- * Mar 02, 2013 1970       bgonzale    Removed Index annotations.
+ * Date          Ticket#  Engineer    Description
+ * ------------  -------- ----------- --------------------------
+ *                        Jim Ramer   Original Code
+ * Jun 18, 2007           chammack    Partial port to Java
+ * Apr 12, 2013  1857     bgonzale    Added Index annotations to getter
+ *                                    methods.
+ * Mar 02, 2013  1970     bgonzale    Removed Index annotations.
+ * Aug 08, 2013  2245     bsteffen    Make all DataTime comparisons consistent.
+ * Oct 14, 2013  2468     bsteffen    Add getValidTimeAsDate() for comparison
+ *                                    performance.
  * 
  * </pre>
  * 
@@ -119,19 +125,22 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      */
     private static final long serialVersionUID = 1L;
 
-    /** Defines possible time sort keys */
-    public static enum SortKey {
-        INITIAL_TIME, FORECAST_TIME, VALID_TIME
+    private static final Comparator<DataTime> DEFAULT_COMPARATOR = new DataTimeComparator(
+            SortKey.VALID_TIME, SortKey.FORECAST_TIME, false);
+
+    /** Data format flag */
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat(
+                    "EEE HH:mm'Z' dd-MMM-yy");
+            sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+            return sdf;
+        }
+
     };
 
-    /** The major sort key */
-    @Transient
-    protected SortKey majorKey = SortKey.VALID_TIME;
-
-    /** The minor sort key */
-    @Transient
-    protected SortKey minorKey = SortKey.FORECAST_TIME;
-    
     /** The reference time */
     @Column(name = "refTime")
     @DynamicSerializeElement
@@ -150,10 +159,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     @XmlElement
     protected TimeRange validPeriod;
 
-    /** Is data to be sorted using match mode */
-    @Transient
-    protected boolean matchMode;
-
     @Transient
     protected boolean visible = true;
 
@@ -161,10 +166,6 @@ public class DataTime implements Comparable<DataTime>, Serializable,
     public enum FLAG {
         NO_VALID_PERIOD, FCST_USED, PERIOD_USED
     };
-
-    /** Data format flag */
-    private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-            "EEE HH:mm'Z' dd-MMM-yy");
 
     /** The set of flags set on the time */
     @Column
@@ -354,7 +355,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return the refTime
      */
     public Calendar getRefTimeAsCalendar() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
         cal.setTime(this.refTime);
         return cal;
     }
@@ -378,10 +379,16 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return the valid time
      */
     public Calendar getValidTime() {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTimeInMillis(refTime.getTime() + (1000 * ((long) fcstTime)));
-
+        Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
+        cal.setTime(getValidTimeAsDate());
         return cal;
+    }
+
+    /**
+     * @return the valid time
+     */
+    public Date getValidTimeAsDate() {
+        return new Date(refTime.getTime() + (1000 * ((long) fcstTime)));
     }
 
     /**
@@ -448,28 +455,8 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         } else {
             return (rt1.equals(rt2) && fcstTime == rhs.fcstTime
                     && validPeriod.equals(rhs.validPeriod) && levelValue
-                    .equals(rhs.levelValue));
+                        .equals(rhs.levelValue));
         }
-    }
-
-    /**
-     * This routine determines which characteristics of a DataTime object,
-     * reference time, valid time, or forecast time, affect how relational
-     * operators >, <, >=, and <= behave. Default is to sort primarily on the
-     * valid time and secondarily on the reference time.
-     * 
-     * @param majorKey
-     *            the major sort key
-     * @param minorKey
-     *            the minor sort key
-     * @param matchMode
-     *            the match mode flag
-     */
-    public void setSortKeys(SortKey majorKey, SortKey minorKey,
-            boolean matchMode) {
-        this.majorKey = majorKey;
-        this.minorKey = minorKey;
-        this.matchMode = matchMode;
     }
 
     /**
@@ -480,99 +467,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @return true if left hand side is greater than
      */
     public boolean greaterThan(DataTime rhs) {
-
-        if (rhs.getRefTime() == null) {
-            return (fcstTime > rhs.getFcstTime());
-
-        } else {
-            if (matchMode) {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getRefTime().getTime() == 0)
-                        return false;
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchValid() > rhs.getMatchValid())
-                        return true;
-                    if (getMatchValid() < rhs.getMatchValid())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                }
-                if (getLevelValue() > rhs.getLevelValue()) {
-                    return true;
-                }
-            } else {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.refTime.getTime())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    if (fcstTime < rhs.fcstTime)
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return true;
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) < rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return false;
-                    if (refTime.getTime() > rhs.getRefTime().getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.getRefTime().getTime())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    break;
-                case VALID_TIME:
-                    if (refTime.getTime() + (((long) fcstTime) * 1000) > rhs.refTime
-                            .getTime() + (((long) rhs.fcstTime) * 1000))
-                        return true;
-                }
-            }
-        }
-        return false;
-
+        return compareTo(rhs) > 0;
     }
 
     /**
@@ -618,7 +513,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         if (fcstTime > 0 || utilityFlags.contains(FLAG.FCST_USED)) {
 
             long fcstTimeInSec = fcstTime;
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar cal = new GregorianCalendar(TimeUtil.GMT_TIME_ZONE);
             cal.setTime(this.refTime);
             String day = nf.format(cal.get(Calendar.DAY_OF_MONTH));
             String hour = nf.format(cal.get(Calendar.HOUR_OF_DAY));
@@ -661,8 +556,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
                 legendBuffer.append("Incl ");
         }
 
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
-        legendBuffer.append(DATE_FORMAT.format(validTime));
+        legendBuffer.append(DATE_FORMAT.get().format(validTime));
 
         this.legend = legendBuffer.toString();
         return this.legend;
@@ -687,13 +581,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     public int compareTo(DataTime o) {
-        if (this.equals(o))
-            return 0;
-
-        if (this.greaterThan(o))
-            return 1;
-
-        return -1;
+        return DEFAULT_COMPARATOR.compare(this, o);
     }
 
     public void setRefTime(Date refTime) {
@@ -739,6 +627,88 @@ public class DataTime implements Comparable<DataTime>, Serializable,
         this.visible = visible;
     }
 
+    private String getReftimeString() {
+        if (refTime != null) {
+            Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
+            cal.setTime(this.refTime);
+            return TimeUtil.formatCalendar(cal);
+        }
+        return null;
+    }
+
+    private String getForecastString() {
+        if (utilityFlags.contains(FLAG.FCST_USED)) {
+            int hrs = fcstTime / 3600;
+            int mins = (fcstTime - hrs * 3600) / 60;
+            if (fcstTime % 3600 == 0) {
+                return "(" + hrs + ")";
+            } else {
+                return "(" + hrs + ":" + mins + ")";
+            }
+        }
+        return null;
+    }
+
+    private String getValidPeriodString() {
+        if (utilityFlags.contains(FLAG.PERIOD_USED)) {
+            return "[" + TimeUtil.formatDate(validPeriod.getStart()) + "--"
+                    + TimeUtil.formatDate(validPeriod.getEnd()) + "]";
+        }
+        return null;
+    }
+
+    /**
+     * Returns the DataTime in a URI formatted way
+     * 
+     * @return
+     */
+    public String getURIString() {
+        StringBuilder builder = new StringBuilder();
+
+        String refTimeStr = getReftimeString();
+        if (refTimeStr != null) {
+            builder.append(refTimeStr);
+        }
+
+        String forecastString = getForecastString();
+        if (forecastString != null) {
+            builder.append("_").append(forecastString);
+        }
+
+        String validPeriodString = getValidPeriodString();
+        if (validPeriodString != null) {
+            builder.append(validPeriodString);
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * Returns the DataTime in a display friendly format
+     * 
+     * @return
+     */
+    public String getDisplayString() {
+        StringBuilder builder = new StringBuilder();
+
+        String refTimeStr = getReftimeString();
+        if (refTimeStr != null) {
+            builder.append(refTimeStr.replaceAll("_", " "));
+        }
+
+        String forecastString = getForecastString();
+        if (forecastString != null) {
+            builder.append(" ").append(forecastString);
+        }
+
+        String validPeriodString = getValidPeriodString();
+        if (validPeriodString != null) {
+            builder.append(validPeriodString.replaceAll("_", " "));
+        }
+
+        return builder.toString();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -746,34 +716,7 @@ public class DataTime implements Comparable<DataTime>, Serializable,
      */
     @Override
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
-
-        if (refTime != null) {
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            cal.setTime(this.refTime);
-            buffer.append(TimeUtil.formatCalendar(cal).replaceAll("_", " "));
-        }
-        if (utilityFlags.contains(FLAG.FCST_USED)) {
-            int hrs = fcstTime / 3600;
-            int mins = (fcstTime - hrs * 3600) / 60;
-            if (fcstTime % 3600 == 0) {
-                buffer.append(" (").append(hrs).append(")");
-            } else {
-                buffer.append(" (").append(hrs).append(":").append(mins)
-                        .append(")");
-            }
-        }
-        if (utilityFlags.contains(FLAG.PERIOD_USED)) {
-            buffer.append("[");
-            buffer.append(TimeUtil.formatDate(validPeriod.getStart())
-                    .replaceAll("_", " "));
-            buffer.append("--");
-            buffer.append(TimeUtil.formatDate(validPeriod.getEnd()).replaceAll(
-                    "_", " "));
-            buffer.append("]");
-
-        }
-        return buffer.toString();
+        return getDisplayString();
     }
 
     /*

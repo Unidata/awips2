@@ -31,6 +31,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataServerRequest;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -42,10 +43,11 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 20, 2009            chammack     Initial creation.
- * 5/27/2009    1982       grichard     Updated stationId key const.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 20, 2009           chammack    Initial creation.
+ * may 27, 2009  1982     grichard    Updated stationId key const.
+ * Nov 26, 2013  2537     bsteffen    Remove unused functionality.
  * 
  * </pre>
  * 
@@ -55,36 +57,32 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 
 public class PointDataRequest {
 
-    private static final String PLUGIN = "pointdata";
-
     private static final String PLUGINNAME_KEY = "pluginName";
 
     private static final String STATIONID_KEY = "location.stationId";
 
     private static final String DATATIME_KEY = "dataTime";
 
-    private static final String REQUESTED_PARAMETERS_KEY = "requestedParameters";
-
-    private static final String RESTRICT_LEVEL = "restrictLevel";
-
-    private static final String RESTRICT_PARAMETER = "restrictParameter";
-
-    private static final String ID = "id";
+    private static final String REFTIME_KEY = DATATIME_KEY + ".refTime";
 
     private PointDataRequest() {
 
     }
 
+    public static PointDataContainer requestPointData(DataTime[] dt,
+            String pluginName, String[] parameters, String[] stationIds,
+            Map<String, RequestConstraint> constraints) throws VizException {
+        return requestPointDataInternal(dt, null, pluginName, parameters,
+                stationIds, constraints);
+    }
+
     /**
-     * Request point data for a set of stations or points, over a given set of
-     * parameters, at a specific point in time.
-     * 
+     * Request all levels for point data for a set of stations or points, over a
+     * given set of parameters
      * 
      * The request can be additionally constrained by optional
      * RequestConstraints.
      * 
-     * @param dt
-     *            the datatime to request the data for (required)
      * @param pluginName
      *            the plugin to use (required)
      * @param parameters
@@ -95,29 +93,11 @@ public class PointDataRequest {
      *            additional constraints (optional)
      * @return
      */
-    public static PointDataContainer requestPointData(DataTime dt,
+    public static PointDataContainer requestPointDataAllLevels(
             String pluginName, String[] parameters, String[] stationIds,
             Map<String, RequestConstraint> constraints) throws VizException {
-        DataTime[] dts = null;
-        if (dt != null) {
-            dts = new DataTime[] { dt };
-        }
-        return requestPointDataInternal(dts, null, pluginName, parameters,
-                stationIds, constraints, false, null, null);
-    }
-
-    public static PointDataContainer requestPointData(TimeRange tr,
-            String pluginName, String[] parameters, String[] stationIds,
-            Map<String, RequestConstraint> constraints) throws VizException {
-        return requestPointDataInternal(null, tr, pluginName, parameters,
-                stationIds, constraints, false, null, null);
-    }
-
-    public static PointDataContainer requestPointData(DataTime[] dt,
-            String pluginName, String[] parameters, String[] stationIds,
-            Map<String, RequestConstraint> constraints) throws VizException {
-        return requestPointDataInternal(dt, null, pluginName, parameters,
-                stationIds, constraints, true, null, null);
+        return requestPointDataInternal(null, null, pluginName, parameters,
+                stationIds, constraints);
     }
 
     /**
@@ -147,7 +127,33 @@ public class PointDataRequest {
             dts = new DataTime[] { dt };
         }
         return requestPointDataInternal(dts, null, pluginName, parameters,
-                stationIds, constraints, true, null, null);
+                stationIds, constraints);
+    }
+
+    /**
+     * Request all levels for point data for a set of stations or points, over a
+     * given set of parameters, over a time range.
+     * 
+     * The request can be additionally constrained by optional
+     * RequestConstraints.
+     * 
+     * @param tr
+     *            the time range to request the data for (required)
+     * @param pluginName
+     *            the plugin to use (required)
+     * @param parameters
+     *            the parameters to request (required)
+     * @param stationIds
+     *            the station IDs to constrain to (optional)
+     * @param constraints
+     *            additional constraints (optional)
+     * @return
+     */
+    public static PointDataContainer requestPointDataAllLevels(TimeRange tr,
+            String pluginName, String[] parameters, String[] stationIds,
+            Map<String, RequestConstraint> constraints) throws VizException {
+        return requestPointDataInternal(null, tr, pluginName, parameters,
+                stationIds, constraints);
     }
 
     public static String[] getParameterNames(String pluginName,
@@ -160,7 +166,9 @@ public class PointDataRequest {
                 rcMap.putAll(constraints);
             }
             rcMap.put(PLUGINNAME_KEY, new RequestConstraint(pluginName));
-            rcMap.put("mode", new RequestConstraint("getParameters"));
+            rcMap.put(PointDataServerRequest.REQUEST_MODE_KEY,
+                    new RequestConstraint(
+                            PointDataServerRequest.REQUEST_MODE_PARAMETERS));
 
             PointDataServerRequest request = new PointDataServerRequest(rcMap);
 
@@ -174,38 +182,9 @@ public class PointDataRequest {
         }
     }
 
-    /**
-     * Request all levels for point data for a set of stations or points, over a
-     * given set of parameters, at a specific point in time.
-     * 
-     * The request can be additionally constrained by optional
-     * RequestConstraints.
-     * 
-     * @param dt
-     *            the datatime to request the data for (required)
-     * @param pluginName
-     *            the plugin to use (required)
-     * @param parameters
-     *            the parameters to request (required)
-     * @param stationIds
-     *            the station IDs to constrain to (optional)
-     * @param constraints
-     *            additional constraints (optional)
-     * @return
-     */
-    public static PointDataContainer requestPointDataAtLevel(DataTime dt,
-            String pluginName, String[] parameters, String[] stationIds,
-            Map<String, RequestConstraint> constraints, String levelParameter,
-            double[] levelValues) throws VizException {
-        return requestPointDataInternal(new DataTime[] { dt }, null,
-                pluginName, parameters, stationIds, constraints, false,
-                levelParameter, levelValues);
-    }
-
     private static PointDataContainer requestPointDataInternal(DataTime[] dt,
             TimeRange tr, String pluginName, String[] parameters,
-            String[] stationIds, Map<String, RequestConstraint> constraints,
-            boolean allLevels, String levelParameter, double[] levelValues)
+            String[] stationIds, Map<String, RequestConstraint> constraints)
             throws VizException {
         try {
             Validate.notNull(pluginName, "Plugin Name is required");
@@ -222,7 +201,7 @@ public class PointDataRequest {
                 first = false;
             }
 
-            rcMap.put(REQUESTED_PARAMETERS_KEY,
+            rcMap.put(PointDataServerRequest.REQUEST_PARAMETERS_KEY,
                     new RequestConstraint(sb.toString()));
 
             if (dt != null && dt.length > 0) {
@@ -240,18 +219,17 @@ public class PointDataRequest {
                 dtConstraint.setConstraintType(ConstraintType.IN);
                 rcMap.put(DATATIME_KEY, dtConstraint);
             } else if (tr != null) {
-                DataTime start = new DataTime(tr.getStart());
-                DataTime end = new DataTime(tr.getEnd());
-
                 RequestConstraint dtConstraint = new RequestConstraint();
-                String[] constraintList = { start.toString(), end.toString() };
+                String[] constraintList = {
+                        TimeUtil.formatToSqlTimestamp(tr.getStart()),
+                        TimeUtil.formatToSqlTimestamp(tr.getEnd()) };
                 dtConstraint.setBetweenValueList(constraintList);
                 dtConstraint.setConstraintType(ConstraintType.BETWEEN);
-                rcMap.put(DATATIME_KEY, dtConstraint);
+                rcMap.put(REFTIME_KEY, dtConstraint);
             }
 
             if (stationIds != null) {
-                RequestConstraint rc = new RequestConstraint();
+                RequestConstraint rc = new RequestConstraint(stationIds);
                 rc.setConstraintValueList(stationIds);
 
                 rcMap.put(STATIONID_KEY, rc);
@@ -259,32 +237,11 @@ public class PointDataRequest {
 
             rcMap.put(PLUGINNAME_KEY, new RequestConstraint(pluginName));
             rcMap.putAll(constraints);
-            String mode = "select";
-            if (allLevels) {
-                mode = "select2d";
-            } else if (levelParameter != null) {
-                mode = "selectSpecific";
-                rcMap.put(RESTRICT_PARAMETER, new RequestConstraint(
-                        levelParameter));
-                StringBuffer sb1 = new StringBuffer();
-                for (int i = 0; i < levelValues.length; i++) {
-                    if (i != 0) {
-                        sb1.append(",");
-                    }
-                    sb1.append(levelValues[i]);
-                }
-                rcMap.put(RESTRICT_LEVEL, new RequestConstraint(sb1.toString()));
-            }
 
-            rcMap.put("mode", new RequestConstraint(mode));
+            rcMap.put(PointDataServerRequest.REQUEST_MODE_KEY,
+                    new RequestConstraint(
+                            PointDataServerRequest.REQUEST_MODE_2D));
 
-            /*
-             * String script = ScriptCreator.createScript(PLUGIN, rcMap, 9999,
-             * mode); long t0 = System.currentTimeMillis();
-             * 
-             * Object[] result = Connector.getInstance().connect(script, null,
-             * 60000);
-             */
 
             PointDataServerRequest request = new PointDataServerRequest(rcMap);
 

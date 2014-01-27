@@ -38,13 +38,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
@@ -52,10 +49,10 @@ import org.junit.Test;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaDataFixture;
-import com.raytheon.uf.common.datadelivery.registry.ParameterFixture;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaDataFixture;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
@@ -67,19 +64,17 @@ import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
-import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
-import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
+import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlanTest;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
@@ -105,6 +100,14 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 29, 2013 1910       djohnson     Always shutdown bandwidth managers in tests.
  * Jun 03, 2013 2038       djohnson     Add support for point data based subscriptions.
+ * Jun 03, 2013 2095       djohnson     Move getPointDataSet to superclass.
+ * Jun 25, 2013 2106       djohnson     Set subscription latency, access bucket allocations through RetrievalPlan.
+ * Jul 09, 2013 2106       djohnson     InMemoryBandwidthManager no longer receives updates from the EventBus.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
+ * Sept 25, 2013 1797      dhladky      separated time from gridded time
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Nov 08, 2013 2506       bgonzale     Added RegistryObjectType to RemoveRegistryEvent.
  * 
  * </pre>
  * 
@@ -153,7 +156,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDataSetMetaDataUpdateSetsSubscriptionRetrievalsToReady()
             throws SerializationException, ParseException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
@@ -184,8 +188,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.subscriptionUpdated(subscription);
 
         final List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
-                .getSubscriptionRetrievals(providerName,
-                        dataSetName);
+                .getSubscriptionRetrievals(providerName, dataSetName);
 
         // We're going to send in a point data update with a time span that
         // bridges these two retrievals
@@ -225,8 +228,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         bandwidthManager.updatePointDataSetMetaData(metadata);
 
         final SortedSet<SubscriptionRetrieval> readyRetrievals = bandwidthDao
-                .getSubscriptionRetrievals(providerName,
-                        dataSetName, RetrievalStatus.READY);
+                .getSubscriptionRetrievals(providerName, dataSetName,
+                        RetrievalStatus.READY);
         assertThat(readyRetrievals, hasSize(2));
         assertThat(readyRetrievals, contains(thirdRetrieval, fourthRetrieval));
     }
@@ -234,16 +237,17 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testDataSetMetaDataUpdateSetsCorrectTimeOnSubscription()
             throws SerializationException, ParseException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         bandwidthManager.subscriptionUpdated(subscription);
 
         OpenDapGriddedDataSetMetaData metadata = OpenDapGriddedDataSetMetaDataFixture.INSTANCE
                 .get();
         // Make the metadata for one day later than the subscription
         ImmutableDate oneDayLater = new ImmutableDate(metadata.getTime()
-                .getStartDate().getTime()
+                .getStart().getTime()
                 + TimeUtil.MILLIS_PER_DAY);
-        metadata.getTime().setStartDate(oneDayLater);
+        metadata.getTime().setStart(oneDayLater);
         metadata.setDate(oneDayLater);
 
         // Send in the update
@@ -257,20 +261,23 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                         subscription.getDataSetName(), cal);
         assertEquals("Didn't find the subscription retrieval as expected!", 1,
                 bandwidthAllocations.size());
+
+        SubscriptionRetrievalAttributes attributes = bandwidthDao
+                .getSubscriptionRetrievalAttributes(bandwidthAllocations
+                        .iterator().next());
         assertEquals(
                 "Didn't find the metadata date on the retrieval's subscription!",
-                metadata.getDate(), bandwidthAllocations.iterator().next()
-                        .getSubscription().getTime().getStartDate());
+                metadata.getDate(), attributes.getSubscription().getTime()
+                        .getStart());
     }
 
     @Test
     public void testDailyProductSubscriptionReceivesTimeAndUrlFromUpdate()
             throws RegistryHandlerException, ParseException,
             SerializationException {
-        RegistryObjectHandlersUtil.initMemory();
-
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -279,7 +286,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         update.setUrl("http://testDailyProductSubscriptionReceivesTimeAndUrlFromUpdate");
         update.setCycle(GriddedDataSetMetaData.NO_CYCLE);
         Time dsmdTime = update.getTime();
-        dsmdTime.setStartDate(new Date(dsmdTime.getStartDate().getTime()
+        dsmdTime.setStart(new Date(dsmdTime.getStart().getTime()
                 + TimeUtil.MILLIS_PER_DAY));
 
         bandwidthManager.updateGriddedDataSetMetaData(update);
@@ -291,23 +298,28 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         assertEquals("Incorrect number of subscription retrievals generated!",
                 1, retrievals.size());
         SubscriptionRetrieval retrieval = retrievals.iterator().next();
-        Subscription retrievalSub = retrieval.getSubscription();
+
+        Subscription retrievalSub = bandwidthDao
+                .getSubscriptionRetrievalAttributes(retrieval)
+                .getSubscription();
+
         assertEquals(
                 "The update's url doesn't seem to have been persisted to the retrieval!",
                 update.getUrl(), retrievalSub.getUrl());
         assertEquals(
                 "The update's time doesn't seem to have been persisted to the retrieval!",
-                dsmdTime.getStartDate(), retrievalSub.getTime().getStartDate());
+                dsmdTime.getStart(), retrievalSub.getTime().getStart());
     }
 
     @Test
     public void testDailyProductSubscriptionIsSetToReadyStatus()
             throws RegistryHandlerException, ParseException {
-        RegistryObjectHandlersUtil.initMemory();
-
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        subscription.getTime().setCycleTimes(Collections.<Integer> emptyList());
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Collections
+                .<Integer> emptyList());
+        subscription.setLatencyInMinutes(3);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
         // The dataset metadata update
@@ -337,10 +349,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Test
     public void testSubscriptionLatencyIsPlacedOnSubscriptionDao()
             throws RegistryHandlerException, ParseException {
-        RegistryObjectHandlersUtil.initMemory();
 
         // Store the original subscription
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
         subscription.setLatencyInMinutes(5);
         DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
 
@@ -375,10 +387,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         Subscription subscription2 = createSubscriptionThatFillsUpABucket();
 
         // subscription2 will not be able to schedule for cycle hour 8
-        subscription.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -422,10 +434,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        subscription.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -441,14 +453,12 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         BandwidthAllocation unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().getPriorityValue(),
-                unscheduledAllocation.getPriority(), 0.0);
+                subscription.getPriority(), unscheduledAllocation.getPriority());
 
         unscheduledAllocation = iter.next();
         assertEquals(
                 "The first subscription with lower priority should have been the one unscheduled.",
-                subscription.getPriority().getPriorityValue(),
-                unscheduledAllocation.getPriority(), 0.0);
+                subscription.getPriority(), unscheduledAllocation.getPriority());
     }
 
     @Test
@@ -462,10 +472,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        subscription.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
@@ -558,10 +568,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        subscription.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .schedule(subscription);
@@ -595,10 +605,10 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
         subscription2.setPriority(SubscriptionPriority.HIGH);
 
         // they conflict for cycle hour 8
-        subscription.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(6), Integer.valueOf(8)));
-        subscription2.getTime().setCycleTimes(
-                Arrays.asList(Integer.valueOf(3), Integer.valueOf(8)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(6), Integer.valueOf(8)));
+        ((GriddedTime) subscription2.getTime()).setCycleTimes(Arrays.asList(
+                Integer.valueOf(3), Integer.valueOf(8)));
 
         bandwidthManager.schedule(subscription);
         bandwidthManager.schedule(subscription2);
@@ -622,7 +632,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         // Subscription starts out too big
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(6)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(6)));
 
         List<BandwidthAllocation> unscheduled = bandwidthManager
                 .subscriptionUpdated(subscription);
@@ -659,7 +670,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws SerializationException {
 
         Subscription subscription = createSubscriptionThatFillsUpTenBuckets();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         int requiredLatency = bandwidthManager
@@ -684,7 +696,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
         // Subscription starts out too big
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays
+                .asList(Integer.valueOf(0)));
         subscription.setLatencyInMinutes(0);
 
         bandwidthManager.subscriptionUpdated(subscription);
@@ -715,108 +728,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     }
 
     /**
-     * Long-running in-memory bandwidth manager proposed schedule operations
-     * were causing {@link ConcurrentModificationException}s to occur when
-     * receiving events from the {@link BandwidthEventBus}.
-     * 
-     * @throws Exception
-     *             on test failure
-     */
-    @Test
-    public void testInMemoryBandwidthManagerCanReceiveDataSetMetaDataUpdates()
-            throws Exception {
-
-        Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(Integer.valueOf(0)));
-
-        bandwidthManager.schedule(subscription);
-        BandwidthManager bwProposed = null;
-        try {
-            bwProposed = bandwidthManager
-                    .startProposedBandwidthManager(BandwidthMap
-                            .load(EdexBandwidthContextFactory
-                                    .getBandwidthMapConfig()));
-            final BandwidthManager proposed = bwProposed;
-
-            final BlockingQueue<Exception> queue = new ArrayBlockingQueue<Exception>(
-                    1);
-
-            final int invocationCount = 10;
-            final CountDownLatch waitForAllThreadsReadyLatch = new CountDownLatch(
-                    invocationCount * 2);
-            final CountDownLatch doneLatch = new CountDownLatch(
-                    invocationCount * 2);
-            for (int i = 0; i < invocationCount; i++) {
-                final int current = i;
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            // Wait for all threads to check in, then they all
-                            // start
-                            // working at once
-                            waitForAllThreadsReadyLatch.countDown();
-                            waitForAllThreadsReadyLatch.await();
-                            proposed.updateGriddedDataSetMetaData(OpenDapGriddedDataSetMetaDataFixture.INSTANCE
-                                    .get(current));
-                        } catch (Exception e) {
-                            queue.offer(e);
-                        }
-                        doneLatch.countDown();
-                    }
-                };
-                thread.start();
-            }
-
-            for (int i = 0; i < invocationCount; i++) {
-                final int current = i;
-                Thread thread = new Thread() {
-                    @Override
-                    public void run() {
-                        try {
-                            final Subscription subscription2 = SiteSubscriptionFixture.INSTANCE
-                                    .get(current);
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(1));
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(2));
-                            subscription2
-                                    .addParameter(ParameterFixture.INSTANCE
-                                            .get(3));
-                            subscription2.getTime().setCycleTimes(
-                                    Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9,
-                                            10, 11, 12, 13, 14, 15, 16, 17));
-                            subscription2.setLatencyInMinutes(current);
-                            // Wait for all threads to check in, then they all
-                            // start
-                            // working at once
-                            waitForAllThreadsReadyLatch.countDown();
-                            waitForAllThreadsReadyLatch.await();
-                            proposed.schedule(subscription2);
-                        } catch (Exception e) {
-                            queue.offer(e);
-                        }
-                        doneLatch.countDown();
-                    }
-                };
-                thread.start();
-            }
-
-            // Wait for all threads to finish
-            doneLatch.await();
-
-            final Exception exception = queue.poll();
-            if (exception != null) {
-                throw exception;
-            }
-        } finally {
-            shutdownBandwidthManager(bwProposed);
-        }
-    }
-
-    /**
      * Subscriptions that are deleted should have all of their bandwidth
      * allocations removed deleted.
      */
@@ -825,7 +736,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         bandwidthManager.schedule(subscription);
 
@@ -854,7 +766,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         bandwidthManager.schedule(subscription);
 
@@ -895,7 +808,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
                 .getDataSetSize()
                 / numberOfSubscriptionsWithSameProviderDataSet);
 
-        templateSubscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) templateSubscription.getTime()).setCycleTimes(Arrays
+                .asList(0, 12));
 
         int lastKnownNumberOfBandwidthAllocations = 0;
         final Subscription[] subscriptions = new Subscription[numberOfSubscriptionsWithSameProviderDataSet];
@@ -961,7 +875,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpABucket();
-        subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
 
         final Network network = subscription.getRoute();
         final List<BandwidthAllocation> bandwidthAllocationsOrig = getRetrievalManagerAllocationsForNetwork(network);
@@ -993,7 +908,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
         subscription.setLatencyInMinutes(0);
 
         final List<BandwidthAllocation> unableToSchedule = bandwidthManager
@@ -1026,7 +942,8 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
             throws Exception {
 
         Subscription subscription = createSubscriptionThatFillsUpTwoBuckets();
-        subscription.getTime().setCycleTimes(Arrays.asList(0, 12));
+        ((GriddedTime) subscription.getTime()).setCycleTimes(Arrays.asList(0,
+                12));
         subscription.setLatencyInMinutes(0);
 
         final List<BandwidthAllocation> unableToSchedule = bandwidthManager
@@ -1070,8 +987,9 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     private void testSubscriptionCyclesAreAllocatedOncePerCyclePerPlanDay(
             List<Integer> cycles) throws SerializationException {
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        subscription.getTime().setCycleTimes(cycles);
+        Subscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
+        ((GriddedTime) subscription.getTime()).setCycleTimes(cycles);
         bandwidthManager.subscriptionUpdated(subscription);
 
         assertEquals("Incorrect number of bandwidth allocations made!",
@@ -1083,7 +1001,7 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
 
     private void sendDeletedSubscriptionEvent(Subscription subscription) {
         RemoveRegistryEvent event = new RemoveRegistryEvent(
-                subscription.getOwner(), subscription.getId());
+                subscription.getOwner(), subscription.getId(), null);
         event.setObjectType(DataDeliveryRegistryObjectTypes.SITE_SUBSCRIPTION);
         bandwidthManager.subscriptionRemoved(event);
     }
@@ -1094,11 +1012,13 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
      */
     private List<BandwidthAllocation> getRetrievalManagerAllocationsForNetwork(
             Network network) {
-        final SortedSet<BandwidthBucket> buckets = retrievalManager.getPlan(
-                network).getBucketsInWindow(Long.MIN_VALUE, Long.MAX_VALUE);
+        final RetrievalPlan retrievalPlan = retrievalManager.getPlan(network);
+        final SortedSet<BandwidthBucket> buckets = retrievalPlan
+                .getBucketsInWindow(Long.MIN_VALUE, Long.MAX_VALUE);
         List<BandwidthAllocation> allocations = new ArrayList<BandwidthAllocation>();
         for (BandwidthBucket bucket : buckets) {
-            allocations.addAll(bucket.getRequests());
+            allocations.addAll(retrievalPlan
+                    .getBandwidthAllocationsForBucket(bucket));
         }
         return allocations;
     }
@@ -1109,24 +1029,6 @@ public class BandwidthManagerIntTest extends AbstractWfoBandwidthManagerIntTest 
     @Override
     protected Network getRouteToUseForSubscription() {
         return Network.OPSNET;
-    }
-
-    /**
-     * Get a point data subscription with the given retrieval interval.
-     * 
-     * @param retrievalInterval
-     *            the retrieval interval
-     * @return
-     */
-    protected Subscription getPointDataSubscription(int retrievalInterval) {
-        final PointTime pointTime = new PointTime();
-        pointTime.setInterval(retrievalInterval);
-
-        Subscription subscription = SiteSubscriptionFixture.INSTANCE.get();
-        subscription.setTime(pointTime);
-        subscription.setDataSetType(DataType.POINT);
-        subscription.setLatencyInMinutes(retrievalInterval);
-        return subscription;
     }
 
 }

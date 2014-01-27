@@ -34,8 +34,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
@@ -61,7 +59,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 14, 2013            mschenke     Initial creation
+ * Jan 14, 2013            mschenke    Initial creation
+ * Aug 02, 2013 2190       mschenke    Moved common npp sounding calculations to
+ *                                     utility class
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -106,18 +107,6 @@ public abstract class AbstractNPPNSharpResourceData extends
             }
         }
     }
-
-    protected static final Unit<?> PRESSURE_UNIT = SI.HECTO(SI.PASCAL);
-
-    protected static final Unit<?> HEIGHT_UNIT = SI.METER;
-
-    protected static final Unit<?> TEMPERATURE_UNIT = SI.CELSIUS;
-
-    protected static final Unit<?> TEMPERATURE_CALC_UNIT = SI.KELVIN;
-
-    protected static final Unit<?> H2O_UNIT = SI.GRAM.divide(SI.KILOGRAM);
-
-    protected static final Unit<?> DEWPOINT_UNIT = SI.CELSIUS;
 
     private final String plugin;
 
@@ -308,32 +297,4 @@ public abstract class AbstractNPPNSharpResourceData extends
         }
     }
 
-    // convert h2o in g/kg and pressure in hPa to dewpoint in kelvin.
-    protected static float convertH2OtoDewpoint(float h2o, float pressure) {
-        double eee = pressure * h2o / (622.0 + 0.378 * h2o);
-        double b = 26.66082 - Math.log(eee);
-        return (float) ((b - Math.sqrt(b * b - 223.1986)) / 0.0182758048);
-    }
-
-    // convert h2o in g/kg and pressure in hPa to relative humidity.
-    protected static float convertH20ToRelativeHumidity(float h20,
-            float temperature, float pressure) {
-        double a = 22.05565;
-        double b = 0.0091379024;
-        double c = 6106.396;
-        double epsilonx1k = 622.0;
-
-        double shxDenom = h20 * 0.378;
-        shxDenom += epsilonx1k;
-
-        double tDenom = -b * temperature;
-        tDenom += a;
-        tDenom -= c / temperature;
-
-        double RH = pressure * h20;
-        RH /= shxDenom;
-        RH /= Math.exp(tDenom);
-
-        return (float) RH;
-    }
 }

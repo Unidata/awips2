@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.gfe.config.ProjectionData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 03/13/08     #1030      randerso    Initial port
+ * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class SimpleServerConfig {
 
     public Map<String, String> netCDFDirs;
 
-    public Map<String, String> satDirs;
+    public Map<String, String> satData;
 
     public boolean allowTopoBelowZero;
 

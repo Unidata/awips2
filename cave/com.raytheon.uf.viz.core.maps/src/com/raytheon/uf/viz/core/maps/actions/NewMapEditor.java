@@ -20,8 +20,6 @@ package com.raytheon.uf.viz.core.maps.actions;
  * further licensing information.
  **/
 
-import java.io.File;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -29,9 +27,9 @@ import org.eclipse.core.commands.ExecutionException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -45,6 +43,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2007            chammack    Initial Creation.
  * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
+ * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
  * 
  * </pre>
  * 
@@ -66,9 +65,9 @@ public class NewMapEditor extends AbstractHandler {
     @Override
     public AbstractEditor execute(ExecutionEvent arg0)
             throws ExecutionException {
-        MapScale editorScale = null;
+        ManagedMapScale editorScale = null;
         String editorId = null;
-        for (MapScale scale : MapScales.getInstance().getScales()) {
+        for (ManagedMapScale scale : MapScalesManager.getInstance().getScales()) {
             for (PartId partId : scale.getPartIds()) {
                 if (partId.isView() == false) {
                     editorScale = scale;
@@ -77,16 +76,19 @@ public class NewMapEditor extends AbstractHandler {
             }
         }
 
-        File bundle = null;
-        try {
-            bundle = editorScale.getFile();
-            Bundle b = Bundle.unmarshalBundle(bundle);
-            return UiUtil.createEditor(editorId, b.getDisplays());
-        } catch (Exception e) {
+        if (editorScale != null) {
+            try {
+                Bundle b = editorScale.getScaleBundle();
+                return UiUtil.createEditor(editorId, b.getDisplays());
+            } catch (Exception e) {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Unable to load bundle for scale, " + editorScale
+                                + " to screen", e);
+            }
+        } else {
             statusHandler.handle(Priority.SIGNIFICANT,
-                    "Unable to load bundle, " + bundle + " to screen", e);
+                    "Unable to find an editor based map scale");
         }
-
         return null;
     }
 }

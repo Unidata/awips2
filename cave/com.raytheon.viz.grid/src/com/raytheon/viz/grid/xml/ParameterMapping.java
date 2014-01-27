@@ -25,10 +25,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * TODO Add Description
+ * Grid parameter name to map various radar product codes
  * 
  * <pre>
  * 
@@ -36,6 +34,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 22, 2010 #4473      rjpeter     Initial creation
+ * Nov 07, 2013  2361      njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -43,7 +42,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class ParameterMapping implements ISerializableObject {
+public class ParameterMapping {
+
     @XmlAttribute
     private String abbrev;
 

@@ -30,9 +30,11 @@
 	<target name="classpath-setup-developer" depends="env-setup" unless="jenkins.build">
 		<path id="test.compile.classpath">
 			<dirset dir="${AWIPS2_BASELINE}" includes="**/bin" />
-			<fileset dir="${AWIPS2_BASELINE}/cots" includes="**/*.jar" excludes="**/ant-*.jar" />
-			<fileset dir="${AWIPS2_BASELINE}/cots/org.junit" includes="**/*.jar" />
+			<fileset dir="${AWIPS2_BASELINE}/cots/org.hamcrest" includes="**/*.jar" />
+			<fileset dir="${AWIPS2_BASELINE}/cots/org.mockito" includes="**/*.jar" />
 			<fileset dir="${AWIPS2_BASELINE}/cots/org.springframework" includes="**/*.jar" />
+			<fileset dir="${AWIPS2_BASELINE}/cots/org.slf4j" includes="**/*.jar" />
+			<fileset dir="${AWIPS2_BASELINE}/cots" includes="**/*.jar" excludes="**/ant-*.jar" />
 			<fileset dir="${PROJECTS.DIR}/cots" includes="**/*.jar" />
 			<dirset dir="${PROJECTS.DIR}" includes="**/bin" />
 			<fileset dir="${basedir}/lib" includes="**/*.jar" />
@@ -57,9 +59,12 @@
 
 		<path id="test.compile.classpath">
 			<fileset dir="${UNZIP.DIR}" includes="**/*.jar" excludes="**/ant-*.jar" />
-			<fileset dir="${PROJECTS.DIR}/org.junit" includes="**/*.jar" />
+			<fileset dir="${PROJECTS.DIR}/org.hamcrest" includes="**/*.jar" />
+			<fileset dir="${PROJECTS.DIR}/org.mockito" includes="**/*.jar" />
 			<fileset dir="${PROJECTS.DIR}/org.springframework" includes="**/*.jar" />
+			<fileset dir="${PROJECTS.DIR}/org.slf4j" includes="**/*.jar" />
 			<fileset dir="${basedir}/lib" includes="**/*.jar" />
+			<fileset dir="${JUNIT}" includes="**/*.jar" />
 		</path>
 
 		<!-- Include resource files provided by projects -->
@@ -111,8 +116,15 @@
 				</batchtest>
 			</junit>
 		</forEachTestType>
+		
+		<antcall target="send.email"/>
 
-		<fail if="tests.failed" message="Received a FAILED status for one or more test results!" />
+		<junitreport todir="${TEST.REPORTS.DIR}">
+		  <fileset dir="${TEST.REPORTS.DIR}">
+		    <include name="TEST-*.xml"/>
+		  </fileset>
+		  <report format="frames" todir="${TEST.REPORTS.DIR}/html"/>
+		</junitreport>
 	</target>
 
 	<macrodef name="forEachTestType" description="Loops over all requested test types, and performs the passed in action">
@@ -126,4 +138,24 @@
 		</sequential>
 	</macrodef>
 
+	<target name="send.email" depends="mail.check" if="send.mail">
+		<mail mailhost="localhost" mailport="25" subject="Unit Test Failures">
+			<from address="jenkins@halfmaen.omaha.us.ray.com" />
+			<replyto address="steven_l_harris@raytheon.com" />
+            <to address="michael.duff@raytheon.com" />
+            <to address="david_j_hladky@raytheon.com" />
+            <to address="bradley_l_gonzales@raytheon.com" />
+            <to address="benjamin_d_phillippe@raytheon.com" />
+			<message>Nightly build has unit test failures.  http://awipscm/junit/</message>
+		</mail>
+	</target>
+	
+	<target name="mail.check">
+		<condition property="send.mail">
+			<and>
+				<isset property="tests.failed" />
+				<isset property="jenkins.build" />
+			</and>
+		</condition>
+	</target>
 </project>

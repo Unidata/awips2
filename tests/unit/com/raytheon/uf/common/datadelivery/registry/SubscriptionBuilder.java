@@ -39,6 +39,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
  * May 15, 2013 1040       mpduff       Office Id now a set.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -94,11 +95,9 @@ public class SubscriptionBuilder {
     public SubscriptionBuilder() {
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public SiteSubscription build() {
-        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(dataType);
         subscription.setActive(active);
         subscription.setActivePeriodStart(activePeriodStart);
         subscription.setActivePeriodEnd(activePeriodEnd);
