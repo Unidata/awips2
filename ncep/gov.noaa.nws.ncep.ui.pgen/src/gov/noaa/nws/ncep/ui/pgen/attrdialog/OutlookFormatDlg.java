@@ -87,6 +87,8 @@ import com.vividsolutions.jts.geom.Polygon;
  * 01/13		#966		B. Yin		Added clipping functions.
  * 08/13		TTR783,773	B. Yin		Order outlook lines when formatting
  * 										Added forecaster drop-down
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
+ * 12/13		TTR800		B. Yin		Use UTC time class.
  *
  * </pre>
  * 
@@ -125,16 +127,16 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	
 	//initial date and time
 	private DateTime initDate;
-	private Text initTime;
+	private UTCTimeText initTime;
 	
 	//expiration check box and date/time widgets
 	private DateTime expDate;
-	private Text expTime;
+	private UTCTimeText expTime;
 	
 	//forecaster name
 	private Combo   forecasterCombo;
 	private static String lastForecaster = "";
-
+	
 	/**
 	 * Protected constructor
 	 */
@@ -201,14 +203,14 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		Composite initDt = new Composite(top, SWT.NONE);
 		initDt.setLayout( new GridLayout(2, false) );
 		initDate = new DateTime(initDt, SWT.BORDER | SWT.DATE );
-		initTime = new Text(initDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+		initTime = new UTCTimeText(initDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
 
 		FormData fd = new FormData();
 		fd.top = new FormAttachment(dayGrp,2, SWT.BOTTOM);
 		fd.left = new FormAttachment(initDate, 5, SWT.RIGHT);
 		initTime.setLayoutData(fd);
-		PgenUtil.setUTCTimeTextField(initDt, initTime,  
-				this.getDefaultInitDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
+		initTime.setUTCTimeTextField(initDt, 
+				this.getDefaultInitDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5, true);
 		
 		setInitDt(this.getDefaultInitDT(this.getDays().replaceAll(" Fire", "")));
 
@@ -218,15 +220,15 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		Composite expDt = new Composite(top, SWT.NONE);
 		expDt.setLayout( new GridLayout(2, false) );
 		expDate = new DateTime(expDt, SWT.BORDER | SWT.DATE );
-		expTime = new Text(expDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+		expTime = new UTCTimeText(expDt, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
 
 		FormData fd2 = new FormData();
-		fd2.top = new FormAttachment(initTime, 2, SWT.BOTTOM);
+		fd2.top = new FormAttachment(initTime.getTextWidget(), 2, SWT.BOTTOM);
 		fd2.left = new FormAttachment(expDate, 5, SWT.RIGHT);
 		expTime.setLayoutData(fd2);
 		
-		PgenUtil.setUTCTimeTextField(expDt, expTime,  
-				this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5);
+		expTime.setUTCTimeTextField(expDt, 
+				this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")),dayGrp, 5, true);
 			
 		setExpDt(this.getDefaultExpDT(this.getDays().replaceAll(" Fire", "")));
 
@@ -299,6 +301,16 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 		contBtn.addSelectionListener(new SelectionAdapter(){
 			
 			public void widgetSelected(SelectionEvent e) {
+				Layer layer = otlkDlg.drawingLayer.getActiveLayer();
+				String fmtFlag = layer.getMetaInfoFromKey(OutlookAttrDlg.OTLK_FORMAT_FLAG_IN_LAYER_META);
+				if ( fmtFlag.equalsIgnoreCase("false")){
+					MessageDialog infoDlg = new MessageDialog( 
+							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+							"Information", null, "This layer is configured not to be formatted.",
+							MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+					infoDlg.open();
+					return;
+				}
 					
 				long mins = (getExpTime().getTime().getTime() - getInitTime().getTime().getTime())/(1000*60);
 				String msg = "The duration of your outlook will be " + (int)Math.floor(mins/60) + "h " +
@@ -350,8 +362,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 
 		Calendar expiration = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		expiration.set(expDate.getYear(), expDate.getMonth(), expDate.getDay(), 
-			    this.getHourFromTextField( expTime ), 
-			    this.getMinuteFromTextField( expTime ), 0); 
+				expTime.getHours( ), 
+				expTime.getMinutes(), 0); 
 		expiration.set(Calendar.MILLISECOND, 0);
 		return expiration;
 	}
@@ -363,8 +375,8 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	public Calendar getInitTime(){
 		Calendar init = Calendar.getInstance( TimeZone.getTimeZone("GMT") );
 		init.set(initDate.getYear(), initDate.getMonth(), initDate.getDay(), 
-				    this.getHourFromTextField(initTime), 
-				    this.getMinuteFromTextField(initTime), 0); 
+				    initTime.getHours(), 
+				    initTime.getMinutes()); 
 
 		init.set(Calendar.MILLISECOND, 0);
 		
@@ -385,85 +397,47 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	}
 	
 	private void otlkAll(){
-		//format hail first
-		for ( Product pd : otlkDlg.drawingLayer.getProducts()){
-			for ( Layer layer : pd.getLayers() ){
-				Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
-				while ( it.hasNext() ){
-					AbstractDrawableComponent adc = it.next();
-					if ( adc.getName().equalsIgnoreCase("Outlook") &&
-							adc.getPgenType().equalsIgnoreCase("hail") ){
-						
-						if ( msgDlg != null ){
-							msgDlg.close();
-						}
-							msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
-									OutlookFormatDlg.this, (Outlook)adc, layer);
-							msgDlg.setBlockOnOpen(true);
-							msgDlg.setMessage(formatOtlk((Outlook)adc, layer));
-
-							int rt = msgDlg.open();
-							
-							if ( rt == Dialog.CANCEL ) return;
-						
-						/*else {
-							msgDlg.setOtlk((Outlook)adc);
-							msgDlg.setLayer( layer);
-						}
-						*/
-						
-						
-						break;
-					}
-				}
-			}
-		}
+		//only format active product
+		//format order: from current layer goes down then goes to the top if necessary
+		Product pd = otlkDlg.drawingLayer.getActiveProduct();
+		int currentLayerIdx = pd.getLayers().indexOf(otlkDlg.drawingLayer.getActiveLayer() );
 		
-		//format other outlooks
-		for ( Product pd : otlkDlg.drawingLayer.getProducts()){
-			for ( Layer layer : pd.getLayers() ){
-				Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
-				Outlook lk = null;
-				boolean hailFound = false;
+		for ( int ii = 0; ii < pd.getLayers().size(); ii++ ){
+			//int jj = (ii+currentLayerIdx)%pd.getLayers().size();
+			Layer fmtLayer = pd.getLayers().get( (ii+currentLayerIdx)%pd.getLayers().size() );
+			String fmtFlag = fmtLayer.getMetaInfoFromKey(OutlookAttrDlg.OTLK_FORMAT_FLAG_IN_LAYER_META);
+			if ( fmtFlag.equalsIgnoreCase("false") ) continue;
+			
+			String otlkType = fmtLayer.getMetaInfoFromKey(OutlookAttrDlg.OTLK_TYPE_IN_LAYER_META);
+			if ( otlkType == null || otlkType.isEmpty() ){
+				otlkType = "OUTLOOK";
+			}
+					
+			//find outlook
+			Iterator<AbstractDrawableComponent> it = fmtLayer.getComponentIterator();
+			Outlook lk = null;
 
-				while ( it.hasNext() ){
-					AbstractDrawableComponent adc = it.next();
-					if ( adc.getName().equalsIgnoreCase("Outlook") &&
-							!adc.getPgenType().equalsIgnoreCase("hail") ){
-						
-						lk = (Outlook)adc;
-						break;
-					}
-					else if (adc.getName().equalsIgnoreCase("Outlook") &&
-						 adc.getPgenType().equalsIgnoreCase("hail") ){
-						hailFound = true;
-						
-					}
-				} // end while loop
-				
-				//skip hail since it's always done first. 
-				if ( hailFound ) continue;
-				
-						if ( msgDlg != null ){
-							msgDlg.close();
-						}
-							msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
-						OutlookFormatDlg.this, lk, layer);
-							msgDlg.setBlockOnOpen(true);
-				msgDlg.setMessage(formatOtlk(lk, layer));
+			while ( it.hasNext() ){
+				AbstractDrawableComponent adc = it.next();
+				if ( adc.getName().equalsIgnoreCase("Outlook") &&
+						((Outlook)adc).getOutlookType().equalsIgnoreCase( otlkType ) ){
+					lk = (Outlook)adc;
+					break;
+				}
+			} // end while loop
+			
+			if ( msgDlg != null ){
+				msgDlg.close();
+			}
+			msgDlg = new OutlookFormatMsgDlg(OutlookFormatDlg.this.getParentShell(),
+					OutlookFormatDlg.this, lk, fmtLayer);
+			msgDlg.setBlockOnOpen(true);
+			msgDlg.setMessage(formatOtlk(lk, fmtLayer));
 
-							int rt = msgDlg.open();
-							
-							if ( rt == Dialog.CANCEL ) return;
-						
-						/*else {
-							msgDlg.setOtlk((Outlook)adc);
-							msgDlg.setLayer( layer);
-						}
-						*/
-						
-			}  // end layer loop
-		} // end product loop
+			int rt = msgDlg.open();
+
+			if ( rt == Dialog.CANCEL ) return;
+		}   //end layer loop
 		
 		cleanup();
 
@@ -499,73 +473,73 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 			String.format("%1$td%1$tH%1$tMZ", getExpTime()) +"\n";
 		}
 		else {
-		Layer defaultLayer = otlkDlg.drawingLayer.getActiveLayer().copy();
-		defaultLayer.clear();
+			Layer defaultLayer = otlkDlg.drawingLayer.getActiveLayer().copy();
+			defaultLayer.clear();
 
-		Product defaultProduct = new Product();
-		defaultProduct.addLayer(defaultLayer);
+			Product defaultProduct = new Product();
+			defaultProduct.addLayer(defaultLayer);
 
-		String pdName = otlkDlg.drawingLayer.getActiveProduct().getType();
-		ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
-		
-		Polygon boundsPoly = null;
-		
-		if ( pt != null && pt.getClipFlag() != null &&  pt.getClipFlag() ) {
-			boundsPoly = getBoundsPoly(pt.getClipBoundsTable(), pt.getClipBoundsName());
-			if ( boundsPoly != null ){
-				processClip( ol, defaultLayer, boundsPoly); 
-			}
-		}
-		
-		if (pt ==null || pt.getClipFlag() == null || !pt.getClipFlag() || boundsPoly == null ) {
-			//add watch collection(box and status line)
-			defaultLayer.addElement(this.issueOutlook(ol));
-		}
-		
-		
-		ArrayList<Product> prds = new ArrayList<Product>();
-		prds.add( defaultProduct );
-		Products fileProduct = ProductConverter.convert( prds );
-		
-		org.w3c.dom.Document sw = null;
-    	
-    	try{
-    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    		dbf.setNamespaceAware(true);
-    		DocumentBuilder db = dbf.newDocumentBuilder();
-    		sw = db.newDocument();
-    		Marshaller mar =  SerializationUtil.getJaxbContext().createMarshaller();
-    		mar.marshal( fileProduct, sw );
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
+			String pdName = otlkDlg.drawingLayer.getActiveProduct().getType();
+			ProductType pt = ProductConfigureDialog.getProductTypes().get( pdName);
 
-    	DOMSource ds = new DOMSource(sw);
-    	
-    	//get style sheet file path
-    	String xsltPath =  PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + File.separator + "xslt" + File.separator + "outlook" + File.separator + "Outlook.xlt";
+			Polygon boundsPoly = null;
 
-		LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(xsltPath);
-		
-		if ( lFile != null ){
-			msg = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
-		}
-		
-		//show warning if there are different types of outlook in the same layer
-		Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
-		while ( it.hasNext() ){
-			AbstractDrawableComponent adc = it.next();
-			if ( adc instanceof Outlook ){
-				if ( !((Outlook)adc).getOutlookType().equalsIgnoreCase(ol.getOutlookType())){
-					MessageDialog warningDlg = new MessageDialog( 
-							PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
-							"Warning!", null, "More than one outlook types are found in one layer!",
-							MessageDialog.INFORMATION, new String[]{"OK"}, 0);
-					warningDlg.open();
-					break;
+			if ( pt != null && pt.getClipFlag() != null &&  pt.getClipFlag() ) {
+				boundsPoly = getBoundsPoly(pt.getClipBoundsTable(), pt.getClipBoundsName());
+				if ( boundsPoly != null ){
+					processClip( ol, defaultLayer, boundsPoly); 
 				}
 			}
-		}
+
+			if (pt ==null || pt.getClipFlag() == null || !pt.getClipFlag() || boundsPoly == null ) {
+				//add watch collection(box and status line)
+				defaultLayer.addElement(this.issueOutlook(ol));
+			}
+
+
+			ArrayList<Product> prds = new ArrayList<Product>();
+			prds.add( defaultProduct );
+			Products fileProduct = ProductConverter.convert( prds );
+
+			org.w3c.dom.Document sw = null;
+
+			try{
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				dbf.setNamespaceAware(true);
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				sw = db.newDocument();
+				Marshaller mar =  SerializationUtil.getJaxbContext().createMarshaller();
+				mar.marshal( fileProduct, sw );
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+
+			DOMSource ds = new DOMSource(sw);
+
+			//get style sheet file path
+			String xsltPath =  PgenStaticDataProvider.getProvider().getPgenLocalizationRoot() + File.separator + "xslt" + File.separator + "outlook" + File.separator + "Outlook.xlt";
+
+			LocalizationFile lFile = PgenStaticDataProvider.getProvider().getStaticLocalizationFile(xsltPath);
+
+			if ( lFile != null ){
+				msg = PgenUtil.applyStyleSheet( ds, lFile.getFile().getAbsolutePath());
+			}
+
+			//show warning if there are different types of outlook in the same layer
+			Iterator<AbstractDrawableComponent> it = layer.getComponentIterator();
+			while ( it.hasNext() ){
+				AbstractDrawableComponent adc = it.next();
+				if ( adc instanceof Outlook ){
+					if ( !((Outlook)adc).getOutlookType().equalsIgnoreCase(ol.getOutlookType())){
+						MessageDialog warningDlg = new MessageDialog( 
+								PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), 
+								"Warning!", null, "More than one outlook types are found in one layer!",
+								MessageDialog.INFORMATION, new String[]{"OK"}, 0);
+						warningDlg.open();
+						break;
+					}
+				}
+			}
 		}
 		return msg;
 	}
@@ -759,11 +733,11 @@ public class OutlookFormatDlg  extends CaveJFACEDialog{
 	public Outlook issueOutlook( Outlook ol ){
 		if ( ol != null ) {
 			reorder(ol);
-		ol.setForecaster(getForecaster().toUpperCase());
-		ol.setDays(getDays().toUpperCase());
-		ol.setIssueTime(getInitTime());
-		ol.setExpirationTime(getExpTime());
-		ol.setLineInfo(generateLineInfo(ol, "new_line"));
+			ol.setForecaster(getForecaster().toUpperCase());
+			ol.setDays(getDays().toUpperCase());
+			ol.setIssueTime(getInitTime());
+			ol.setExpirationTime(getExpTime());
+			ol.setLineInfo(generateLineInfo(ol, "new_line"));
 		}
 		return ol;
 	}
