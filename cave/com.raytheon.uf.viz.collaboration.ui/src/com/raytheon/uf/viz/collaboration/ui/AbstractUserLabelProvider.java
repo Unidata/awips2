@@ -26,12 +26,17 @@ import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.packet.RosterPacket.ItemStatus;
+import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -44,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012            bsteffen     Initial creation
+ * Jan 27, 2014 2700       bclement     added roster entry support
  * 
  * </pre>
  * 
@@ -57,10 +63,14 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getText(Object element) {
-        if (!(element instanceof UserId)) {
+        UserId user;
+        if (element instanceof UserId) {
+            user = (UserId) element;
+        } else if ( element instanceof RosterEntry){
+            user = IDConverter.convertFrom((RosterEntry) element);
+        } else {
             return null;
         }
-        UserId user = (UserId) element;
         StringBuilder name = new StringBuilder();
         name.append(getDisplayName(user));
         Presence presence = getPresence(user);
@@ -80,13 +90,17 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         }
         return name.toString();
     }
-
+    
     @Override
     public Image getImage(Object element) {
-        if (!(element instanceof UserId)) {
+        UserId user;
+        if (element instanceof UserId) {
+            user = (UserId) element;
+        } else if (element instanceof RosterEntry) {
+            user = IDConverter.convertFrom((RosterEntry) element);
+        } else {
             return null;
         }
-        UserId user = (UserId) element;
         Presence presence = getPresence(user);
         String key = "";
         if (presence != null && presence.getType() == Type.available) {
@@ -98,6 +112,11 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         } else {
             key = "contact_disabled";
         }
+        if (element instanceof RosterEntry) {
+            if (ContactsManager.isBlocked((RosterEntry) element)) {
+                key = "blocked";
+            }
+        }
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
         }
@@ -106,16 +125,20 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getToolTipText(Object element) {
-        if (!(element instanceof UserId)) {
+        UserId user;
+        if (element instanceof UserId) {
+            user = (UserId) element;
+        } else if (element instanceof RosterEntry) {
+            user = IDConverter.convertFrom((RosterEntry) element);
+        } else {
             return null;
         }
-        UserId user = (UserId) element;
         Presence presence = getPresence(user);
         StringBuilder text = new StringBuilder();
         text.append("Name: ").append(getDisplayName(user)).append("\n");
         text.append("Status: ");
         if (presence == null || presence.getType() != Type.available) {
-            text.append("Offline\n");
+            text.append("Offline \n");
         } else {
             text.append(CollaborationUtils.formatMode(presence.getMode()))
                     .append("\n");
@@ -128,6 +151,17 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
                 if (value != null && key != null) {
                     text.append(key).append(" : ").append(value).append("\n");
                 }
+            }
+        }
+        if (element instanceof RosterEntry) {
+            RosterEntry entry = (RosterEntry) element;
+            ItemType type = entry.getType();
+            if (type != null) {
+                text.append("Subscription: ").append(type).append("\n");
+            }
+            ItemStatus status = entry.getStatus();
+            if (status != null) {
+                text.append(status).append(" pending\n");
             }
         }
         // delete trailing newline
