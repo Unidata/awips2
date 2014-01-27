@@ -9,6 +9,7 @@
  * ------------ ----------  ----------- --------------------------
  * 10/2009		144			T. Lee		Created
  * 12/2009		144			T. Lee		Migrated to TO11D6
+ * 11/2013      1066        G. Hull     constructCRSfromWKT (from McidasMapCoverage)
  * 
  * </pre>
  * 
@@ -17,6 +18,9 @@
  */
 
 package gov.noaa.nws.ncep.common.dataplugin.mcidas;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import gov.noaa.nws.ncep.common.dataplugin.mcidas.dao.McidasMapCoverageDao;
 
@@ -28,6 +32,7 @@ import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchIdentifierException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -408,6 +413,30 @@ public class McidasSpatialFactory {
         return new String(coded);
     }
 
+    public ProjectedCRS constructCRSfromWKT( String crsWKT) {
+        Pattern p = Pattern.compile("PROJCS\\[\"MCIDAS\\sAREA\\s(.*)\"");
+        Matcher m = p.matcher(crsWKT);
+        m.find();
+        ProjectedCRS crsObject=null;
+        
+        if ( m.groupCount() == 1 ) {
+        	String type = m.group(1);
+        	//System.out.println("FOUND PROJCS:"+m.group(0)+":"+type);
+        	p = Pattern.compile("\\[\"NAV_BLOCK_BASE64\",\\s\"(.*)\"\\]");
+        	m = p.matcher(crsWKT);
+        	boolean found = m.find();
+
+        	//System.out.println(m.group());
+        	//System.out.println(m.groupCount()+m.group(1));
+        	if ( found ) {
+        		String navBlock = m.group(1);
+        		crsObject = McidasSpatialFactory.getInstance().constructCRS(type, navBlock);
+        	}
+        }
+
+        return crsObject;
+    }
+    
     public ProjectedCRS constructCRS(String type, String encoded) {
 
         ParameterValueGroup pvg = null;
