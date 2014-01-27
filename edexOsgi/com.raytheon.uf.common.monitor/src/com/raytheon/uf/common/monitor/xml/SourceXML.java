@@ -43,10 +43,9 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.GUIDANCE_TYPE;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.RATEORACCCUM;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class SourceXML implements ISerializableObject {
+public class SourceXML {
 
     @XmlElement(name = "SourceName")
     protected String sourceName;
@@ -87,9 +86,9 @@ public class SourceXML implements ISerializableObject {
     @XmlElement(name = "interpolatedGuidanceTransition")
     protected boolean interpolatedGuidanceTransition;
 
-    //@XmlElement(name = "unit") // DR 14412
+    // @XmlElement(name = "unit") // DR 14412
     protected String unit;
-    
+
     public static final String UNIT_TXT = "inches"; // DR 14412
 
     @XmlElement(name = "conversion")
@@ -288,8 +287,8 @@ public class SourceXML implements ISerializableObject {
     }
 
     public String getUnit() {
-    	if( unit == null || unit.isEmpty()) // DR 14412
-    		unit = UNIT_TXT;
+        if (unit == null || unit.isEmpty()) // DR 14412
+            unit = UNIT_TXT;
         return unit;
     }
 
@@ -420,31 +419,28 @@ public class SourceXML implements ISerializableObject {
      * @param key
      * @param param
      * @return
-     *//* 2012-04-18: Old version: keep for reference: Gang Zhang
-    private boolean isOverride(String key, String param) {
-        if (sourceOverrideDataMap != null) {
-            if (sourceOverrideDataMap.containsKey(key)) {
-                if (sourceOverrideDataMap.get(key).contains(param)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-*/
-    /**2012-04-18: code is from David Hladky in Omaha 
-     * for DR 14619/14620. Gang Zhang is checked in
-     * Check to see if we are overridden
+     */
+    /*
+     * 2012-04-18: Old version: keep for reference: Gang Zhang private boolean
+     * isOverride(String key, String param) { if (sourceOverrideDataMap != null)
+     * { if (sourceOverrideDataMap.containsKey(key)) { if
+     * (sourceOverrideDataMap.get(key).contains(param)) { return true; } } }
+     * 
+     * return false; }
+     */
+    /**
+     * 2012-04-18: code is from David Hladky in Omaha for DR 14619/14620. Gang
+     * Zhang is checked in Check to see if we are overridden
      * 
      * @param key
      * @param param
      * @return
-     */    
+     */
     private boolean isOverride(String key, String param) {
         if (sourceOverrideDataMap != null) {
             if (sourceOverrideDataMap.containsKey(key)) {
-                for (SourceOverrideParamXML paramx:  sourceOverrideDataMap.get(key)) {
+                for (SourceOverrideParamXML paramx : sourceOverrideDataMap
+                        .get(key)) {
                     if (paramx.getParam().equals(param)) {
                         return true;
                     }
@@ -453,5 +449,5 @@ public class SourceXML implements ISerializableObject {
         }
 
         return false;
-    }    
+    }
 }

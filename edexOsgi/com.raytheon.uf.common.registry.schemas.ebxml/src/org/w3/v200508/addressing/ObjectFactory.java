@@ -32,6 +32,8 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.w3._2005._08.addressing package.
@@ -42,51 +44,63 @@ import javax.xml.namespace.QName;
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRegistry
 public class ObjectFactory {
 
     private final static QName _ProblemIRI_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "ProblemIRI");
+            EbxmlNamespaces.ADDRESSING_URI, "ProblemIRI");
 
     private final static QName _EndpointReference_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "EndpointReference");
+            EbxmlNamespaces.ADDRESSING_URI, "EndpointReference");
 
     private final static QName _ProblemHeaderQName_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "ProblemHeaderQName");
+            EbxmlNamespaces.ADDRESSING_URI, "ProblemHeaderQName");
 
     private final static QName _ReferenceParameters_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "ReferenceParameters");
+            EbxmlNamespaces.ADDRESSING_URI, "ReferenceParameters");
 
     private final static QName _From_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "From");
+            EbxmlNamespaces.ADDRESSING_URI, "From");
 
     private final static QName _ReplyTo_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "ReplyTo");
+            EbxmlNamespaces.ADDRESSING_URI, "ReplyTo");
 
     private final static QName _Action_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "Action");
+            EbxmlNamespaces.ADDRESSING_URI, "Action");
 
     private final static QName _FaultTo_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "FaultTo");
+            EbxmlNamespaces.ADDRESSING_URI, "FaultTo");
 
     private final static QName _RetryAfter_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "RetryAfter");
+            EbxmlNamespaces.ADDRESSING_URI, "RetryAfter");
 
     private final static QName _To_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "To");
+            EbxmlNamespaces.ADDRESSING_URI, "To");
 
     private final static QName _ProblemAction_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "ProblemAction");
+            EbxmlNamespaces.ADDRESSING_URI, "ProblemAction");
 
     private final static QName _RelatesTo_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "RelatesTo");
+            EbxmlNamespaces.ADDRESSING_URI, "RelatesTo");
 
     private final static QName _Metadata_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "Metadata");
+            EbxmlNamespaces.ADDRESSING_URI, "Metadata");
 
     private final static QName _MessageID_QNAME = new QName(
-            "http://www.w3.org/2005/08/addressing", "MessageID");
+            EbxmlNamespaces.ADDRESSING_URI, "MessageID");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of
@@ -165,7 +179,7 @@ public class ObjectFactory {
      * {@link AttributedURIType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "ProblemIRI")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "ProblemIRI")
     public JAXBElement<AttributedURIType> createProblemIRI(
             AttributedURIType value) {
         return new JAXBElement<AttributedURIType>(_ProblemIRI_QNAME,
@@ -177,7 +191,7 @@ public class ObjectFactory {
      * {@link EndpointReferenceType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "EndpointReference")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "EndpointReference")
     public JAXBElement<EndpointReferenceType> createEndpointReference(
             EndpointReferenceType value) {
         return new JAXBElement<EndpointReferenceType>(_EndpointReference_QNAME,
@@ -189,7 +203,7 @@ public class ObjectFactory {
      * {@link AttributedQNameType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "ProblemHeaderQName")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "ProblemHeaderQName")
     public JAXBElement<AttributedQNameType> createProblemHeaderQName(
             AttributedQNameType value) {
         return new JAXBElement<AttributedQNameType>(_ProblemHeaderQName_QNAME,
@@ -201,7 +215,7 @@ public class ObjectFactory {
      * {@link ReferenceParametersType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "ReferenceParameters")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "ReferenceParameters")
     public JAXBElement<ReferenceParametersType> createReferenceParameters(
             ReferenceParametersType value) {
         return new JAXBElement<ReferenceParametersType>(
@@ -214,7 +228,7 @@ public class ObjectFactory {
      * {@link EndpointReferenceType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "From")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "From")
     public JAXBElement<EndpointReferenceType> createFrom(
             EndpointReferenceType value) {
         return new JAXBElement<EndpointReferenceType>(_From_QNAME,
@@ -226,7 +240,7 @@ public class ObjectFactory {
      * {@link EndpointReferenceType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "ReplyTo")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "ReplyTo")
     public JAXBElement<EndpointReferenceType> createReplyTo(
             EndpointReferenceType value) {
         return new JAXBElement<EndpointReferenceType>(_ReplyTo_QNAME,
@@ -238,7 +252,7 @@ public class ObjectFactory {
      * {@link AttributedURIType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "Action")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "Action")
     public JAXBElement<AttributedURIType> createAction(AttributedURIType value) {
         return new JAXBElement<AttributedURIType>(_Action_QNAME,
                 AttributedURIType.class, null, value);
@@ -249,7 +263,7 @@ public class ObjectFactory {
      * {@link EndpointReferenceType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "FaultTo")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "FaultTo")
     public JAXBElement<EndpointReferenceType> createFaultTo(
             EndpointReferenceType value) {
         return new JAXBElement<EndpointReferenceType>(_FaultTo_QNAME,
@@ -261,7 +275,7 @@ public class ObjectFactory {
      * {@link AttributedUnsignedLongType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "RetryAfter")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "RetryAfter")
     public JAXBElement<AttributedUnsignedLongType> createRetryAfter(
             AttributedUnsignedLongType value) {
         return new JAXBElement<AttributedUnsignedLongType>(_RetryAfter_QNAME,
@@ -273,7 +287,7 @@ public class ObjectFactory {
      * {@link AttributedURIType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "To")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "To")
     public JAXBElement<AttributedURIType> createTo(AttributedURIType value) {
         return new JAXBElement<AttributedURIType>(_To_QNAME,
                 AttributedURIType.class, null, value);
@@ -284,7 +298,7 @@ public class ObjectFactory {
      * {@link ProblemActionType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "ProblemAction")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "ProblemAction")
     public JAXBElement<ProblemActionType> createProblemAction(
             ProblemActionType value) {
         return new JAXBElement<ProblemActionType>(_ProblemAction_QNAME,
@@ -296,7 +310,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "RelatesTo")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "RelatesTo")
     public JAXBElement<RelatesToType> createRelatesTo(RelatesToType value) {
         return new JAXBElement<RelatesToType>(_RelatesTo_QNAME,
                 RelatesToType.class, null, value);
@@ -307,7 +321,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "Metadata")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "Metadata")
     public JAXBElement<MetadataType> createMetadata(MetadataType value) {
         return new JAXBElement<MetadataType>(_Metadata_QNAME,
                 MetadataType.class, null, value);
@@ -318,7 +332,7 @@ public class ObjectFactory {
      * {@link AttributedURIType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/2005/08/addressing", name = "MessageID")
+    @XmlElementDecl(namespace = EbxmlNamespaces.ADDRESSING_URI, name = "MessageID")
     public JAXBElement<AttributedURIType> createMessageID(
             AttributedURIType value) {
         return new JAXBElement<AttributedURIType>(_MessageID_QNAME,

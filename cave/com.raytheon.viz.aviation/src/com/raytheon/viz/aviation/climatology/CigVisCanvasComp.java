@@ -27,6 +27,7 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation
+ * 12 Aug 2013  #2256      lvenable    Disposed of image when composite is disposed.
  * 
  * </pre>
  * 
@@ -91,6 +93,11 @@ abstract public class CigVisCanvasComp extends Composite {
     private Canvas cigVisCanvas;
 
     /**
+     * A copy of the image to save to file.
+     */
+    private Image image;
+
+    /**
      * Constructor.
      * 
      * @param parent
@@ -125,6 +132,9 @@ abstract public class CigVisCanvasComp extends Composite {
                 largeFont.dispose();
                 mediumFont.dispose();
                 smallFont.dispose();
+                if (image != null) {
+                    image.dispose();
+                }
             }
         });
     }
@@ -315,6 +325,21 @@ abstract public class CigVisCanvasComp extends Composite {
         gc.drawString("VLIFR", legendXCoord + legendXOffset * 2
                 + legendBarWidth, legendYCoord + legendYOffset * 4
                 + legendBarHeight * 3, true);
+    }
+
+    public Image getCigVisDistImage() {
+        if (image != null) {
+            image.dispose();
+        }
+
+        image = new Image(parent.getDisplay(), CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        GC gc = new GC(image);
+        drawCanvas(gc);
+
+        gc.dispose();
+
+        return image;
     }
 
     /**

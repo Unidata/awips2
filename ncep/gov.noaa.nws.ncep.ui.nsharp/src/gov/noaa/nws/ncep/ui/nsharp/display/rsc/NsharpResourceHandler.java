@@ -11,6 +11,7 @@
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 04/30/2012	229			Chin Chen	Initial coding
+ * 08/20/2013   2259        bsteffen    Delete old skewt plugin.
  *
  * </pre>
  * 
@@ -68,7 +69,6 @@ import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.sounding.SoundingParams;
 import com.raytheon.viz.core.graphing.LineStroke;
 import com.raytheon.viz.core.graphing.WGraphics;
 import com.raytheon.viz.core.graphing.WindBarbFactory;
@@ -132,8 +132,6 @@ public class NsharpResourceHandler {
 	public static final float INVALID_DATA = NsharpNativeConstants.NSHARP_NATIVE_INVALID_DATA;
     protected static final double BARB_LENGTH = 3.5;
     private String soundingType= null;
-
-    protected Map<Date, SoundingParams> soundingMap;
 
     protected DataTime displayedSounding;
     
@@ -2452,7 +2450,6 @@ public class NsharpResourceHandler {
 	public NsharpResourceHandler(IRenderableDisplay[] displayArray, NsharpEditor editor) {
     	//System.out.println("NsharpResourceHandler constructed");
 		//myNsharpEditor = editor;
-        this.soundingMap = new HashMap<Date, SoundingParams>();
         elementColorMap.put(NsharpConstants.ActState.CURRENT.name(),NsharpConstants.color_green); 
         elementColorMap.put(NsharpConstants.ActState.ACTIVE.name(),NsharpConstants.color_yellow);
         elementColorMap.put(NsharpConstants.ActState.INACTIVE.name(),NsharpConstants.color_white);
@@ -2492,7 +2489,6 @@ public class NsharpResourceHandler {
     }
 	public void disposeInternal() {
 		//System.out.println("NsharpResourceHandler disposeInternal called");
-	    soundingMap= null;
 	    listenerList=null;
 	    soundingLys = null;
 		previousSoundingLys = null;

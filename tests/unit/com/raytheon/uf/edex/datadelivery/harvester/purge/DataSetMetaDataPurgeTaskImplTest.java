@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2012  1102       djohnson     Initial creation
  * Dec 12, 2012 1041       dhladky      Updated for multi provider purging.
+ * Sept 30, 2013 1797      dhladky      Generics
  *
  * </pre>
  *
@@ -91,6 +92,7 @@ public class DataSetMetaDataPurgeTaskImplTest {
     private final DataSetMetaDataPurgeTaskImpl purge = new DataSetMetaDataPurgeTaskImpl(
             openDapGriddedPurge) {
 
+        @SuppressWarnings("rawtypes")
         @Override
         List<DataSetMetaData> getDataSetMetaDatas() {
             return java.util.Arrays.<DataSetMetaData> asList(dataSetMetaDatas);
@@ -118,19 +120,19 @@ public class DataSetMetaDataPurgeTaskImplTest {
     public void testMetaDatasAreOrderedByDate() {
         // Give all DataSetMetaDatas the same dataset name and provider name so
         // they go in the same set
-        for (DataSetMetaData metaData : dataSetMetaDatas) {
+        for (DataSetMetaData<?> metaData : dataSetMetaDatas) {
             metaData.setDataSetName("dataSetName");
             metaData.setProviderName("providerName");
         }
 
-        Multimap<String, DataSetMetaData> dataSetKeyedMap = purge
+        Multimap<String, DataSetMetaData<?>> dataSetKeyedMap = purge
                 .getDataSetNameKeyedInstanceMap();
 
         Set<String> keySet = dataSetKeyedMap.keySet();
         assertEquals("Incorrect number of dataset name keys!", 1, keySet.size());
 
-        DataSetMetaData old = null;
-        for (DataSetMetaData metaData : dataSetKeyedMap.values()) {
+        DataSetMetaData<?> old = null;
+        for (DataSetMetaData<?> metaData : dataSetKeyedMap.values()) {
             if (old != null) {
                 assertTrue(
                         "The DataSetMetaData instances should have been ordered by date!",
@@ -142,14 +144,14 @@ public class DataSetMetaDataPurgeTaskImplTest {
 
     @Test
     public void testMetaDatasAreSeparatedIntoMapSetsKeyedByDataSetName() {
-        Multimap<String, DataSetMetaData> dataSetKeyedMap = purge
+        Multimap<String, DataSetMetaData<?>> dataSetKeyedMap = purge
                 .getDataSetNameKeyedInstanceMap();
 
         Set<String> keySet = dataSetKeyedMap.keySet();
         assertEquals("Incorrect number of dataset name keys!",
                 dataSetMetaDatas.length, keySet.size());
 
-        for (DataSetMetaData metaData : dataSetMetaDatas) {
+        for (DataSetMetaData<?> metaData : dataSetMetaDatas) {
             assertTrue(
                     "Did not find the dataset name and provider combination as a key a in the map!",
                     keySet.contains(DataSetMetaDataPurgeTaskImpl
@@ -204,7 +206,7 @@ public class DataSetMetaDataPurgeTaskImplTest {
     public void testWhenDataSetMetadataReturnsFalseForPurgeSetIsNoLongerChecked() {
         // Give all DataSetMetaDatas the same dataset name and provider name so
         // they go in the same set
-        for (DataSetMetaData metaData : dataSetMetaDatas) {
+        for (DataSetMetaData<?> metaData : dataSetMetaDatas) {
             metaData.setDataSetName("dataSetName");
             metaData.setProviderName("providerName");
         }

@@ -67,7 +67,9 @@ import dods.dap.parser.ParseException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 09, 2013  1466      dhladky     Unit test for NCOM
- * Feb 06, 2013 1543       djohnson     Remove test setup methods no longer necessary.
+ * Feb 06, 2013 1543       djohnson    Remove test setup methods no longer necessary.
+ * Jun 24, 2013 2106       djohnson    Use in-memory registry object handlers.
+ * Sept 30, 2013 1797      dhladky     Generics
  * 
  * </pre>
  * 
@@ -112,7 +114,7 @@ public class OpenDAPMetaDataParserNCOMTest {
                 TestUtil.readResource(OpenDAPMetaDataParserNCOMTest.class, DAS_FILE));
         DAS.parse(bis);
 
-        RegistryObjectHandlersUtil.init();
+        RegistryObjectHandlersUtil.initMemory();
     }
 
     private final OpenDAPMetaDataParser parser = new OpenDAPMetaDataParser() {
@@ -126,7 +128,7 @@ public class OpenDAPMetaDataParserNCOMTest {
          * {@inheritDoc}
          */
         @Override
-        public void storeMetaData(List<DataSetMetaData> metaDatas,
+        public void storeMetaData(List<DataSetMetaData<?>> metaDatas,
                 DataSet dataSet) {
             metadatas = metaDatas;
         }
@@ -134,7 +136,7 @@ public class OpenDAPMetaDataParserNCOMTest {
 
     private OpenDapGriddedDataSet dataSet;
 
-    private List<DataSetMetaData> metadatas;
+    private List<DataSetMetaData<?>> metadatas;
 
     private void performParse() {
         Link link = new Link(COLLECTION_NAME, LINK_URL);
@@ -304,7 +306,7 @@ public class OpenDAPMetaDataParserNCOMTest {
         Collection coll = new Collection(COLLECTION_NAME, "ncom", "yyyyMMdd");
         coll.setProjection(ProjectionType.LatLon);
 
-        List<DataSetMetaData> results = parser.parseMetaData(provider,
+        List<DataSetMetaData<?>> results = parser.parseMetaData(provider,
                 linkStore, coll, DateFormat);
 
         assertEquals("Expected two DataSetMetaData objects to be parsed!", 2,

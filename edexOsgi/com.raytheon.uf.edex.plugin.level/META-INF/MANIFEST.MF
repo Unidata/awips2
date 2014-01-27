@@ -8,13 +8,11 @@ Bundle-Vendor: Raytheon
 Require-Bundle: com.raytheon.edex.common,
  javax.measure,
  javax.persistence,
- org.eclipse.ui,
- org.eclipse.core.runtime,
  org.apache.commons.lang,
- org.apache.commons.logging,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.serialization.comm
+ com.raytheon.uf.common.serialization.comm,
+ org.slf4j;bundle-version="1.7.5"
 Export-Package: com.raytheon.uf.edex.plugin.level.adapter,
  com.raytheon.uf.edex.plugin.level.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

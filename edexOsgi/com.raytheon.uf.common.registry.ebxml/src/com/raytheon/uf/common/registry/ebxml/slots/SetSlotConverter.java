@@ -9,6 +9,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.StringValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ValueType;
 
+import com.raytheon.uf.common.registry.constants.CollectionTypes;
+
 /**
  * A <code>SlotConverter</code> implementation for converting the members of a
  * Set into a RegistryObject slot type. A collection slot type will be created
@@ -82,7 +84,7 @@ public class SetSlotConverter implements SlotConverter {
         }
 
         cvt.setCollectionValue(collectionValues);
-        cvt.setCollectionType("urn:oasis:names:tc:ebxml-regrep:CollectionType:Set");
+        cvt.setCollectionType(CollectionTypes.SET);
         slot.setSlotValue(cvt);
         slots.add(slot);
         return slots;

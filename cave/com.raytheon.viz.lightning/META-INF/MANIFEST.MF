@@ -12,8 +12,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1
  com.raytheon.viz.core,
  org.geotools,
  com.raytheon.viz.ui,
- org.apache.commons.lang,
- com.raytheon.edex.common
+ org.apache.commons.lang
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.lightning
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

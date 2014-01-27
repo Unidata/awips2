@@ -6,28 +6,29 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * 
- * TODO Add Description
+ * Description of a single source for the volume browser.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 6, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jan 06, 2011           bsteffen    Initial creation
+ * Dec 11, 2013  2602     bsteffen    Remove ISerializableObject.
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
+ * @see VbSourceList
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class VbSource implements ISerializableObject {
+public class VbSource {
 
     @XmlAttribute(required = true)
     private String key;

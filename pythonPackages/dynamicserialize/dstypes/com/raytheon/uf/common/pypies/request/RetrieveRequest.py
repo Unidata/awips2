@@ -24,7 +24,6 @@ class RetrieveRequest(object):
 
     def __init__(self):
         self.group = None
-        self.includeInterpolated = None
         self.dataset = None
         self.request = None
         self.filename = None
@@ -34,12 +33,6 @@ class RetrieveRequest(object):
 
     def setGroup(self, group):
         self.group = group
-
-    def getIncludeInterpolated(self):
-        return self.includeInterpolated
-
-    def setIncludeInterpolated(self, includeInterpolated):
-        self.includeInterpolated = includeInterpolated
 
     def getDataset(self):
         return self.dataset

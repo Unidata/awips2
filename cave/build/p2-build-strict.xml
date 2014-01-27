@@ -92,12 +92,6 @@
 				includes="ohd*/**" />
 		</copy>
 		
-		<echo message="PLUGINS: meteolib.*/**" />
-		<copy todir="${basedir}/cave/p2/plugins">
-			<fileset dir="${workspace.dir}"
-				includes="meteolib.*/**" />
-		</copy>
-		
 		<echo message="PLUGINS: javax.*/**" />
 		<copy todir="${basedir}/cave/p2/plugins">
 			<fileset dir="${workspace.dir}"

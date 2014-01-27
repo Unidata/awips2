@@ -47,13 +47,14 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2008 969        jkorman     Initial implementation.
- * Jul 06, 2009 2538       jsanchez    Added latitude,longitude to point data.
- * May 17, 2013 1869       bsteffen    Remove DataURI column from sat plot
- *                                     types.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 03, 2008  969      jkorman     Initial implementation.
+ * Jul 06, 2009  2538     jsanchez    Added latitude,longitude to point data.
+ * May 17, 2013  1869     bsteffen    Remove DataURI column from sat plot
+ *                                    types.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 21, 2013  2379     bsteffen    Fix a null pointer exception.
  * 
  * </pre>
  * 
@@ -154,10 +155,9 @@ public class SSMIDataAdapter extends BUFRPointDataAdapter<SSMIScanData> {
 
             // Extract the header data.
             obsData = getHeaderData(dataList);
-            obsData.setWmoHeader(wmoHeader.getWmoHeader());
 
             if (obsData != null) {
-
+                obsData.setWmoHeader(wmoHeader.getWmoHeader());
                 obsList = new ArrayList<SSMIScanData>();
                 logger.debug("Created master observation for scanline");
                 // Now go get the point data for this obs

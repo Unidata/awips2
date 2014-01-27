@@ -59,6 +59,7 @@ import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownSitesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetLockTablesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetOfficialDbNameRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetParmListRequest;
+import com.raytheon.uf.common.dataplugin.gfe.request.GetTopoDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetWXDefinitionRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GridLocRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.IscCreateDomainDictRequest;
@@ -78,6 +79,7 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.LockTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SaveGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.SendISCRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
 import com.raytheon.uf.common.message.WsId;
@@ -115,6 +117,7 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 05/02/13     #1969      randerso    Added createNewDb method
  * 06/06/13     #2073      dgilling    Make getGridInventory() better match A1,
  *                                     fix warnings.
+ * 11/20/2013   #2331      randerso    Added getTopoData method
  * 
  * </pre>
  * 
@@ -768,4 +771,9 @@ public class IFPClient {
         return makeRequest(request);
     }
 
+    public ServerResponse<ScalarGridSlice> getTopoData(GridLocation gloc)
+            throws GFEServerException {
+        GetTopoDataRequest request = new GetTopoDataRequest(gloc);
+        return (ServerResponse<ScalarGridSlice>) makeRequest(request, false);
+    }
 }

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -271,5 +273,54 @@ public final class StringUtil {
 
         return sb.toString();
 
+    }
+
+    /**
+     * Wraps input Object.toString (if non-null) in [] for display (helps show
+     * empty string in output).<br>
+     * Example: printString("test") would display "[test]"<br>
+     * printString(null) would display "[null]"
+     * 
+     * @param obj
+     *            An object instance
+     * @return The object's {@link Object#toString()} value
+     */
+    public static final String printString(Object obj) {
+        return "[" + (obj == null ? "null" : obj.toString()) + "]";
+    }
+
+    /**
+     * Simple check if str is null or empty.
+     * 
+     * @param str
+     *            A string to check
+     * @return true if string is null or empty, false otherwise
+     */
+    public static final boolean isEmptyString(String str) {
+        return (str == null) || ("".equals(str));
+    }
+
+    /**
+     * Determines if the given string is all alpha-numeric characters
+     * 
+     * @param str
+     *            The string to test
+     * @return True if the string is alpha-numeric
+     */
+    public static boolean isAlnum(String str) {
+        int count = 0;
+        Pattern pat = Pattern.compile("\\p{Alnum}");
+        Matcher mat = pat.matcher(str);
+    
+        while (mat.find()) {
+            count++;
+        }
+    
+        if (count == str.length()) {
+            return true;
+        } else {
+            return false;
+        }
+    
     }
 }

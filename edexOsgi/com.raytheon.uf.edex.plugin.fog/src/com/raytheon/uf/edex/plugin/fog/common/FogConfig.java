@@ -292,8 +292,7 @@ public class FogConfig {
      * @return
      */
     private void setDx(SatelliteRecord rec) {
-
-        dx = rec.getCoverage().getDx();
+        dx = (float) rec.getCoverage().getDx();
     }
 
     /**
@@ -312,8 +311,7 @@ public class FogConfig {
      * @return
      */
     private void setDy(SatelliteRecord rec) {
-
-        dy = rec.getCoverage().getDy();
+        dy = (float) rec.getCoverage().getDy();
     }
 
     /**

@@ -28,15 +28,15 @@ diff -crB a/qpid-java.spec b/qpid-java.spec
 + Source4:	virtualhosts.xml
 + Source5:	qpidd
 + Source6:	log4j.xml
-+ Source7:	qpid-wrapper
-+ Source8:	wrapper.conf
-+ Source9:	yajsw-distribution.tar
++ Source7:      qpid-wrapper
++ Source8:      wrapper.conf
++ Source9:      yajsw-distribution.tar
   
   Patch0:         mrg.patch
   Patch1:         examples.patch
   Patch2:         build.patch
 + Patch3:         awips.patch
-+ Patch4:		qpid-messageNotFound.patch
++ Patch4:         qpid-messageNotFound.patch
   
   BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
   BuildArch:      noarch

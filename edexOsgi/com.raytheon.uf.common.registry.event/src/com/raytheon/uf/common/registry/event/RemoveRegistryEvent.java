@@ -20,6 +20,8 @@ package com.raytheon.uf.common.registry.event;
  * further licensing information.
  **/
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -33,6 +35,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
+ * Nov 08, 2013 2506       bgonzale     Added constructors.  Added object deleted field.
+ *                                      Added RegistryObjectType field.
  * 
  * </pre>
  * 
@@ -46,16 +50,17 @@ public class RemoveRegistryEvent extends RegistryEvent {
 
     private String username;
 
+    private RegistryObjectType removedObject;
+
     public RemoveRegistryEvent() {
 
     }
 
-    public RemoveRegistryEvent(String username, String id) {
-        this.id = id;
+    public RemoveRegistryEvent(String username, String id,
+            RegistryObjectType removedObject) {
+        super(id, null, null, Action.DELETE);
         this.username = username;
-        setLid(null);
-        setObjectType(null);
-        setAction(Action.DELETE);
+        this.removedObject = removedObject;
     }
 
     public String getUsername() {
@@ -64,6 +69,21 @@ public class RemoveRegistryEvent extends RegistryEvent {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    /**
+     * @return the removedObject
+     */
+    public RegistryObjectType getRemovedObject() {
+        return removedObject;
+    }
+
+    /**
+     * @param removedObject
+     *            the removedObject to set
+     */
+    public void setRemovedObject(RegistryObjectType removedObject) {
+        this.removedObject = removedObject;
     }
 
     @Override

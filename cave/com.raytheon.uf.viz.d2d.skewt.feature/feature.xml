@@ -27,6 +27,7 @@
       <import feature="com.raytheon.uf.viz.displays.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.uf.viz.cots.feature" version="1.0.0.qualifier"/>
       <import feature="com.raytheon.viz.satellite.feature" version="1.0.0.qualifier"/>
+      <import feature="com.raytheon.uf.viz.npp.feature" version="1.0.0.qualifier"/>
    </requires>
 
    <plugin
@@ -36,9 +37,17 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.viz.skewt"
+         id="com.raytheon.uf.viz.ui.popupskewt"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.d2d.ui.popupskewt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

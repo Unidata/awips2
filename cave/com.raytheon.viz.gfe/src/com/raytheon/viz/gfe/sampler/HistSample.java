@@ -52,7 +52,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
  * Contains a complete histogram for a single grid and parameter
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date			Ticket#		Engineer	Description
@@ -63,9 +63,10 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * May 29, 2009 2159        rjpeter     Optimized sample methods.
  * May 24, 2012  673        randerso    Added defaulted method calls
  * Jun 17, 2013 15951       ryu         Fix index to wx/discrete key array
- *
+ * Oct 31, 2013 2508        randerso    Change to use DiscreteGridSlice.getKeys()
+ * 
  * </pre>
- *
+ * 
  * @author mnash
  * @version 1.0
  */
@@ -176,7 +177,7 @@ public class HistSample {
      * Description : Constructor far HistSample taking a histogram in the form
      * of a time range and a sequence of HistPairs, stores the information in
      * private data. Counts up the samples and stores that in _numSamplePoints.
-     *
+     * 
      * @param timeRange
      * @param histPairs
      */
@@ -211,7 +212,7 @@ public class HistSample {
      * cached. Sets number of sample points to zero. Calls sampleGrid() to
      * sample the grid. If successful, stores the time range and counts up the
      * number of sample points.
-     *
+     * 
      * @param gridSlice
      * @param sampleArea
      * @param cachePoints
@@ -251,13 +252,13 @@ public class HistSample {
      * for WEATHER. The most common value for DISCRETE. For vector, if
      * separateMagDir is true, the magnitude is averaged separately from the
      * direction.
-     *
+     * 
      * @param separateMagDir
      * @return
      */
     public final HistValue average(boolean separateMagDir) {
 
-        if (separateMagDir == _averageMagDir && _average != null) {
+        if ((separateMagDir == _averageMagDir) && (_average != null)) {
             return _average;
         }
 
@@ -326,7 +327,7 @@ public class HistSample {
                             * _histPairs.get(i).value().magnitude();
                     float v = uSum / count;
                     float u = vSum / count;
-                    float mag = binit((float) Math.sqrt(u * u + v * v),
+                    float mag = binit((float) Math.sqrt((u * u) + (v * v)),
                             _resolution);
                     float dir = binit((float) (Math.atan2(u, v) * RAD_TO_DEG),
                             10.0f);
@@ -361,7 +362,7 @@ public class HistSample {
 
     /**
      * Description : the square root function
-     *
+     * 
      * @param val
      * @return
      */
@@ -378,7 +379,7 @@ public class HistSample {
      * Returns the standard deviation of each component separately for VECTOR.
      * Should not be called for WEATHER. For vector, if separate MagDir is true,
      * the magnitude is averaged separately from the direction.
-     *
+     * 
      * @return
      */
     public final HistValue stdDev() {
@@ -408,7 +409,7 @@ public class HistSample {
 
             float dev = 0.0f;
             if (count != 0) {
-                dev = (float) squareRoot((sum2 - (sum * sum) / count) / count);
+                dev = (float) squareRoot((sum2 - ((sum * sum) / count)) / count);
             }
             hs._stdDev = new HistValue(dev);
             return _stdDev;
@@ -444,10 +445,10 @@ public class HistSample {
             float vdev = 0.0f;
 
             if (count != 0) {
-                dev = (float) squareRoot((sum2 - (sum * sum) / count) / count);
-                udev = (float) squareRoot((uSum2 - (uSum * uSum) / count)
+                dev = (float) squareRoot((sum2 - ((sum * sum) / count)) / count);
+                udev = (float) squareRoot((uSum2 - ((uSum * uSum) / count))
                         / count);
-                vdev = (float) squareRoot((vSum2 - (vSum * vSum) / count)
+                vdev = (float) squareRoot((vSum2 - ((vSum * vSum) / count))
                         / count);
             }
             hs._stdDev = new HistValue(dev, udev + udev);
@@ -470,7 +471,7 @@ public class HistSample {
      * the HistPair's for the maximum count value and returns it. In the case
      * where more than one entry shares the maximum count value, then only the
      * highest value (sort order) value will be returned.
-     *
+     * 
      * @return
      */
     public final HistValue mostCommonValue() {
@@ -504,7 +505,7 @@ public class HistSample {
      * case where more than one entyr shares the maximum count value, then only
      * the highest value (sort order) value will be returned. Works only on
      * SCALAR and VECTOR.
-     *
+     * 
      * @param resolution
      * @return
      */
@@ -515,7 +516,7 @@ public class HistSample {
 
         // cached?
         if ((_binnedMostCommonValue != null)
-                && resolution == _binnedMostCommonValueFactor) {
+                && (resolution == _binnedMostCommonValueFactor)) {
             return _binnedMostCommonValue;
         }
 
@@ -543,11 +544,11 @@ public class HistSample {
      * Finds and returns the middle value associated with the sample. The middle
      * value is that value that is halfway between the lowest and highest in
      * terms of count, and not value. This is a no-op for WEATHER/DISCRETE.
-     *
+     * 
      * @return
      */
     public final HistValue middleValue() {
-        if (_histPairs.size() == 0
+        if ((_histPairs.size() == 0)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
                 || _histPairs.get(0).value().dataType()
@@ -564,7 +565,7 @@ public class HistSample {
         int runningCount = 0;
         for (int i = 0; i < _histPairs.get(i).count(); i++) {
             runningCount += _histPairs.get(i).count();
-            if ((float) runningCount / (float) _numSamplePoints > 0.50) {
+            if (((float) runningCount / (float) _numSamplePoints) > 0.50) {
                 hs._middleValue = _histPairs.get(i).value();
                 return _middleValue;
             }
@@ -577,11 +578,11 @@ public class HistSample {
      * Description : Returns the absolute minimum value for the sample points.
      * This is a no-op for WEATHER/DISCRETE. Only the magnitude component for
      * VECTOR is used for comparison.
-     *
+     * 
      * @return
      */
     public final HistValue absoluteMin() {
-        if (_histPairs.size() == 0
+        if ((_histPairs.size() == 0)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
                 || _histPairs.get(0).value().dataType()
@@ -603,11 +604,11 @@ public class HistSample {
      * Description : REturns the absolute maximum value for the sample points.
      * This is a no-op for WEATHER/DISCRETE. Only the magnitude component for
      * VECTOR is used for comparison.
-     *
+     * 
      * @return
      */
     public final HistValue absoluteMax() {
-        if (_histPairs.size() == 0
+        if ((_histPairs.size() == 0)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
                 || _histPairs.get(0).value().dataType()
@@ -643,7 +644,7 @@ public class HistSample {
      * most common value is provide for WEATERH. Outliers are eliminated.
      * Percent ranges from 0 to 50. For vector, if separateMagDir is true, the
      * magnitude is averaged separately from the direction.
-     *
+     * 
      * @param minpercent
      * @param maxpercent
      * @param separateMagDir
@@ -653,17 +654,17 @@ public class HistSample {
             boolean separateMagDir) {
         HistValue bogus = new HistValue();
         HistSample hs = this;
-        if (_histPairs.size() == 0 || minpercent < 0 || minpercent > 50
-                || maxpercent < 0 || maxpercent > 50) {
+        if ((_histPairs.size() == 0) || (minpercent < 0) || (minpercent > 50)
+                || (maxpercent < 0) || (maxpercent > 50)) {
             hs._moderatedAverage = new HistValue();
             hs._moderatedAverageMinPercent = hs._moderatedAverageMaxPercent = 0;
             return _moderatedAverage;
         }
 
         // cached value
-        if (minpercent == _moderatedAverageMinPercent
-                && maxpercent == _moderatedAverageMaxPercent
-                && _moderatedAverage != null) {
+        if ((minpercent == _moderatedAverageMinPercent)
+                && (maxpercent == _moderatedAverageMaxPercent)
+                && (_moderatedAverage != null)) {
             return _moderatedAverage;
         }
 
@@ -672,8 +673,8 @@ public class HistSample {
         hs._moderatedAverageMaxPercent = maxpercent;
 
         float runningCount = 0;
-        int minlimitCount = (int) (minpercent * _numSamplePoints / 100.0);
-        int maxlimitCount = (int) ((100 - maxpercent) * _numSamplePoints / 100.0);
+        int minlimitCount = (int) ((minpercent * _numSamplePoints) / 100.0);
+        int maxlimitCount = (int) (((100 - maxpercent) * _numSamplePoints) / 100.0);
 
         switch (_histPairs.get(0).value().dataType()) {
         case SCALAR: {
@@ -684,11 +685,11 @@ public class HistSample {
                 int maxVCount = (int) runningCount + _histPairs.get(i).count();
 
                 int numInclude = 0;
-                if (minlimitCount > maxVCount || maxlimitCount < minVCount) {
+                if ((minlimitCount > maxVCount) || (maxlimitCount < minVCount)) {
                     numInclude = 0;
                 } else {
-                    numInclude = Math.max(minlimitCount, minVCount)
-                            - Math.min(maxlimitCount, maxVCount) + 1;
+                    numInclude = (Math.max(minlimitCount, minVCount) - Math
+                            .min(maxlimitCount, maxVCount)) + 1;
                 }
 
                 if (numInclude != 0) {
@@ -714,11 +715,12 @@ public class HistSample {
                             + _histPairs.get(i).count();
 
                     int numInclude = 0;
-                    if (minlimitCount > maxVCount || maxlimitCount < minVCount) {
+                    if ((minlimitCount > maxVCount)
+                            || (maxlimitCount < minVCount)) {
                         numInclude = 0;
                     } else {
-                        numInclude = Math.max(minlimitCount, minVCount)
-                                - Math.min(maxlimitCount, maxVCount) + 1;
+                        numInclude = (Math.max(minlimitCount, minVCount) - Math
+                                .min(maxlimitCount, maxVCount)) + 1;
                     }
                     if (numInclude != 0) {
                         int tCount = numInclude;
@@ -757,11 +759,12 @@ public class HistSample {
                             + _histPairs.get(i).count();
 
                     int numInclude = 0;
-                    if (minlimitCount > maxVCount || maxlimitCount < minVCount) {
+                    if ((minlimitCount > maxVCount)
+                            || (maxlimitCount < minVCount)) {
                         numInclude = 0;
                     } else {
-                        numInclude = Math.max(minlimitCount, minVCount)
-                                - Math.min(maxlimitCount, maxVCount) + 1;
+                        numInclude = (Math.max(minlimitCount, minVCount) - Math
+                                .min(maxlimitCount, maxVCount)) + 1;
                     }
 
                     if (numInclude != 0) {
@@ -782,7 +785,8 @@ public class HistSample {
                 }
                 float u = uSum / count;
                 float v = vSum / count;
-                float mag = binit((float) Math.sqrt(u * u + v * v), _resolution);
+                float mag = binit((float) Math.sqrt((u * u) + (v * v)),
+                        _resolution);
                 float dir = binit((float) (Math.atan2(u, v) * RAD_TO_DEG),
                         10.0f);
                 while (dir < 0.0) {
@@ -821,29 +825,29 @@ public class HistSample {
      * points. this is a no-op for WEATHER/DISCRETE. Percent should be between 0
      * and 50. This routine eliminates the bottom xx% of sample values and
      * returns that value.
-     *
+     * 
      * @param percent
      * @return
      */
     public final HistValue moderatedMin(int percent) {
         HistSample hs = this;
-        if (_histPairs.size() == 0 || percent < 0 || percent > 50
-                || _histPairs.get(0).value().dataType() == GridType.WEATHER
-                || _histPairs.get(0).value().dataType() == GridType.DISCRETE) {
+        if ((_histPairs.size() == 0) || (percent < 0) || (percent > 50)
+                || (_histPairs.get(0).value().dataType() == GridType.WEATHER)
+                || (_histPairs.get(0).value().dataType() == GridType.DISCRETE)) {
             hs._moderatedMin = new HistValue();
             hs._moderatedMinPercent = 0;
             return _moderatedMin; // default histValue()
         }
 
         // cached?
-        if (_moderatedMinPercent == percent && _moderatedMin != null) {
+        if ((_moderatedMinPercent == percent) && (_moderatedMin != null)) {
             return _moderatedMin;
         }
 
         hs._moderatedMinPercent = percent;
 
         float runningCount = 0;
-        float limitCount = (float) (percent * _numSamplePoints / 100.0);
+        float limitCount = (float) ((percent * _numSamplePoints) / 100.0);
 
         for (int i = 0; i < _histPairs.size(); i++) {
             runningCount += _histPairs.get(i).count();
@@ -865,15 +869,15 @@ public class HistSample {
      * points. This is a no-op for WEATHER/DISCRETE. Percent should be between 0
      * and 50. This routine eliminates the top 15% of sample values and returns
      * that value.
-     *
+     * 
      * @param percent
      * @return
      */
     public final HistValue moderatedMax(int percent) {
         HistSample hs = this;
-        if (_histPairs.size() == 0
-                || percent < 0
-                || percent > 50
+        if ((_histPairs.size() == 0)
+                || (percent < 0)
+                || (percent > 50)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
                 || _histPairs.get(0).value().dataType()
@@ -884,14 +888,14 @@ public class HistSample {
         }
 
         // cached?
-        if (_moderatedMax != null && _moderatedMaxPercent == percent) {
+        if ((_moderatedMax != null) && (_moderatedMaxPercent == percent)) {
             return _moderatedMax;
         }
 
         hs._moderatedMaxPercent = percent;
 
         float runningCount = 0;
-        float limitCount = (float) (percent * _numSamplePoints / 100.0);
+        float limitCount = (float) ((percent * _numSamplePoints) / 100.0);
 
         for (int i = _histPairs.size() - 1; i >= 0; i--) {
             runningCount += _histPairs.get(i).count();
@@ -922,7 +926,7 @@ public class HistSample {
      * most common value is provided for WEATHER/DISCRETE. Outliers are
      * eliminated based on standard deviation. For vector, if separateMagDir is
      * true, the magnitude is averaged separately from the direction.
-     *
+     * 
      * @param minStdD
      * @param maxStdD
      * @param separateMagDir
@@ -933,7 +937,7 @@ public class HistSample {
         HistValue bogus = new HistValue();
         HistSample hs = this;
 
-        if (_histPairs.size() == 0 || minStdD < 0 || maxStdD < 0) {
+        if ((_histPairs.size() == 0) || (minStdD < 0) || (maxStdD < 0)) {
             hs._stdDevAvgMinStdD = hs._stdDevAvgMaxStdD = 0;
             hs._stdDevMagDir = false;
             hs._stdDevAvg = new HistValue();
@@ -941,9 +945,9 @@ public class HistSample {
         }
 
         // use cached value if possible
-        if (_stdDevAvg != null && _stdDevAvgMinStdD == minStdD
-                && _stdDevAvgMaxStdD == maxStdD
-                && separateMagDir == _stdDevMagDir) {
+        if ((_stdDevAvg != null) && (_stdDevAvgMinStdD == minStdD)
+                && (_stdDevAvgMaxStdD == maxStdD)
+                && (separateMagDir == _stdDevMagDir)) {
             return _stdDevAvg;
         }
 
@@ -955,13 +959,13 @@ public class HistSample {
         case SCALAR: {
             float sDev = stdDev().scalar();
             float avg = average(true).scalar();
-            float minValue = avg - minStdD * sDev;
-            float maxValue = avg + maxStdD * sDev;
+            float minValue = avg - (minStdD * sDev);
+            float maxValue = avg + (maxStdD * sDev);
             float sum = 0.0f;
             int count = 0;
             for (int i = 0; i < _histPairs.size(); i++) {
                 float v = _histPairs.get(i).value().scalar();
-                if (v >= minValue && v <= maxValue) {
+                if ((v >= minValue) && (v <= maxValue)) {
                     sum += _histPairs.get(i).count() * v;
                     count += _histPairs.get(i).count();
                 }
@@ -975,8 +979,8 @@ public class HistSample {
         case VECTOR: {
             float sDev = stdDev().scalar();
             float avg = average(true).scalar();
-            float minValue = avg - minStdD * sDev;
-            float maxValue = avg + maxStdD * sDev;
+            float minValue = avg - (minStdD * sDev);
+            float maxValue = avg + (maxStdD * sDev);
             float sum = 0.0f;
             int count = 0;
             float uSum = 0.0f;
@@ -984,7 +988,7 @@ public class HistSample {
             if (separateMagDir) {
                 for (int i = 0; i < _histPairs.size(); i++) {
                     float v = _histPairs.get(i).value().magnitude();
-                    if (v >= minValue && v <= maxValue) {
+                    if ((v >= minValue) && (v <= maxValue)) {
                         int tCount = _histPairs.get(i).count();
                         sum += tCount * _histPairs.get(i).value().magnitude();
                         count += tCount;
@@ -1018,7 +1022,7 @@ public class HistSample {
             } else {
                 for (int i = 0; i < _histPairs.size(); i++) {
                     float v = _histPairs.get(i).value().magnitude();
-                    if (v >= minValue && v <= maxValue) {
+                    if ((v >= minValue) && (v <= maxValue)) {
                         int tCount = _histPairs.get(i).count();
                         count += tCount;
                         uSum += tCount
@@ -1038,7 +1042,7 @@ public class HistSample {
                 }
                 float u = uSum / count;
                 float v = vSum / count;
-                float mag = binit((float) (Math.sqrt(u * u + v * v)),
+                float mag = binit((float) (Math.sqrt((u * u) + (v * v))),
                         _resolution);
                 float dir = binit((float) (Math.atan2(u, v) * RAD_TO_DEG),
                         10.0f);
@@ -1075,15 +1079,15 @@ public class HistSample {
      * Description : Returns the representative minimum value for the sample
      * points. This is a no-op for WEATHER/DISCRETE. Based on standard
      * deviations.
-     *
+     * 
      * @param stdD
      * @return
      */
     public final HistValue stdDevMin(float stdD) {
         HistSample hs = this;
 
-        if (_histPairs.size() == 0
-                || stdD < 0
+        if ((_histPairs.size() == 0)
+                || (stdD < 0)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
                 || _histPairs.get(0).value().dataType()
@@ -1094,7 +1098,7 @@ public class HistSample {
         }
 
         // use cached value if possible
-        if (_stdDevMin != null && _stdDevMinD == stdD) {
+        if ((_stdDevMin != null) && (_stdDevMinD == stdD)) {
             return _stdDevMin;
         }
 
@@ -1102,7 +1106,7 @@ public class HistSample {
 
         float sDev = stdDev().scalar();
         float avg = average(true).scalar();
-        float minValue = avg - stdD * sDev;
+        float minValue = avg - (stdD * sDev);
         if (_histPairs.get(0).value().scalar() > minValue) {
             minValue = _histPairs.get(0).value().scalar();
         }
@@ -1118,15 +1122,15 @@ public class HistSample {
      * Description : Returns the representative maximum value for the sample
      * points. This is a no-op for WEATHER/DISCRETE. Based on standard
      * deviations.
-     *
+     * 
      * @param stdD
      * @return
      */
     public final HistValue stdDevMax(float stdD) {
         HistSample hs = this;
 
-        if (_histPairs.size() == 0
-                || stdD < 0
+        if ((_histPairs.size() == 0)
+                || (stdD < 0)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.DISCRETE)
                 || _histPairs.get(0).value().dataType()
@@ -1137,14 +1141,14 @@ public class HistSample {
         }
 
         // use cached value if possible
-        if (_stdDevMax != null && _stdDevMaxD == stdD) {
+        if ((_stdDevMax != null) && (_stdDevMaxD == stdD)) {
             return _stdDevMax;
         }
         hs._stdDevMaxD = stdD;
 
         float sDev = stdDev().scalar();
         float avg = average(true).scalar();
-        float maxValue = avg + stdD * sDev;
+        float maxValue = avg + (stdD * sDev);
         if (_histPairs.get(_histPairs.size() - 1).value().scalar() < maxValue) {
             maxValue = _histPairs.get(_histPairs.size() - 1).value().scalar();
         }
@@ -1156,14 +1160,14 @@ public class HistSample {
     /**
      * OUtputs the histogram for this grid, but binned by the specified float
      * value. This only applies to SCALAR and VECTOR data.
-     *
+     * 
      * @param resolution
      * @return
      */
     public List<HistPair> binnedHistogram(float resolution) {
         HistSample hs = this;
-        if (_histPairs.size() == 0
-                || resolution <= 0.0
+        if ((_histPairs.size() == 0)
+                || (resolution <= 0.0)
                 || _histPairs.get(0).value().dataType().equals(GridType.NONE)
                 || _histPairs.get(0).value().dataType()
                         .equals(GridType.WEATHER)
@@ -1230,7 +1234,7 @@ public class HistSample {
 
     /**
      * Description : Bins the data sample based on the resolution
-     *
+     * 
      * @param v
      * @param resolution
      * @return
@@ -1255,7 +1259,7 @@ public class HistSample {
      * that the grid is valid and grid and Grid2DBit sizes match. Ensures there
      * are points in the sample area. Switch cases on data type and then
      * extracts out the data for each sample point.
-     *
+     * 
      * @param grid
      * @param area
      * @param cachePoints
@@ -1310,7 +1314,7 @@ public class HistSample {
 
     /**
      * If the sample was of scalars this function is called
-     *
+     * 
      * @param grid
      * @param area
      * @param cachePoints
@@ -1469,7 +1473,7 @@ public class HistSample {
         ParmID parmId = grid.getGridInfo().getParmID();
         Grid2DByte gs = ((DiscreteGridSlice) grid).getDiscreteGrid();
         String siteId = parmId.getDbId().getSiteId();
-        DiscreteKey[] key = ((DiscreteGridSlice) grid).getKey();
+        DiscreteKey[] key = ((DiscreteGridSlice) grid).getKeys();
         for (int x = ll.x; x <= ur.x; x++) {
             for (int y = ll.y; y <= ur.y; y++) {
                 if (area.get(x, y) != 0) {
@@ -1525,7 +1529,7 @@ public class HistSample {
 
     /**
      * Description : counts the number of sample points and returns the number
-     *
+     * 
      * @return
      */
     private int countSamplePoints() {
@@ -1553,7 +1557,7 @@ public class HistSample {
 
     /**
      * Description : Returns the sample's valid time
-     *
+     * 
      * @return
      */
     public final TimeRange validTime() {
@@ -1562,7 +1566,7 @@ public class HistSample {
 
     /**
      * Description : Returns the histogram associated with this sample
-     *
+     * 
      * @return
      */
     public final HistPair[] histogram() {
@@ -1571,7 +1575,7 @@ public class HistSample {
 
     /**
      * Description : Returns the number of points associated with this sample
-     *
+     * 
      * @return
      */
     public int numOfPoints() {

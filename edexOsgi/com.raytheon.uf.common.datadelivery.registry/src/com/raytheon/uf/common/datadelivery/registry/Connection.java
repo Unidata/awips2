@@ -27,9 +27,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * Connection XML
@@ -42,7 +43,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 17, 2011    191      dhladky     Initial creation
  * Jun 28, 2012    819      djohnson    Remove proxy information.
  * Jul 24, 2012    955      djohnson    Add copy constructor.
- * 
+ * Jun 11, 2013    1763     dhladky     Added Encryption type
+ * Jun 17, 2013    2106     djohnson    Check for encryption to not be null, getPassword() must be left alone for dynamic serialize.
+ * Aug 08, 2013    2108     mpduff      Serialize the provider key.
  * </pre>
  * 
  * @author dhladky
@@ -51,9 +54,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "connection")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Connection implements ISerializableObject, Serializable {
+public class Connection implements Serializable {
 
     private static final long serialVersionUID = 8223819912383198409L;
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(Connection.class);
 
     public Connection() {
 
@@ -69,6 +75,7 @@ public class Connection implements ISerializableObject, Serializable {
         setPassword(connection.getPassword());
         setUrl(connection.getUrl());
         setUserName(connection.getUserName());
+        setEncryption(connection.getEncryption());
     }
 
     @XmlElement(name = "userName")
@@ -78,6 +85,13 @@ public class Connection implements ISerializableObject, Serializable {
     @XmlElement(name = "password")
     @DynamicSerializeElement
     private String password;
+
+    @DynamicSerializeElement
+    private String providerKey;
+
+    @XmlElement(name = "encryption")
+    @DynamicSerializeElement
+    private Encryption encryption;
 
     @XmlElement(name = "url")
     @DynamicSerializeElement
@@ -103,8 +117,116 @@ public class Connection implements ISerializableObject, Serializable {
         return password;
     }
 
+    /**
+     * You pass in the providerKey to the local DD client The reason for this is
+     * you don't want the key and password ever stored in the same place.
+     * providerKey is kept in the metadata database at the WFO. The password is
+     * stored encrypted in a connection object file stored in localization. You
+     * 
+     * @param providerKey
+     * @return
+     */
+    public String getUnencryptedPassword() {
+
+        if (password != null && providerKey != null) {
+
+            try {
+                return encryption.decrypt(providerKey, password);
+            } catch (Exception e) {
+                statusHandler.error("Unable to decrypt password!", e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * encrypt password with providerKey
+     * 
+     * 
+     * @param providerKey
+     * @return
+     */
+    public void encryptPassword() {
+
+        String encryptPassword = null;
+
+        if (password != null && providerKey != null) {
+
+            try {
+                encryptPassword = encryption.encrypt(providerKey, password);
+                setPassword(encryptPassword);
+            } catch (Exception e) {
+                statusHandler.error("Unable to crypt password!", e);
+            }
+        }
+    }
+
+    /**
+     * You pass in the providerKey to the local DD client The reason for this is
+     * you don't want the key and password ever stored in the same place.
+     * providerKey is kept in the metadata database at the WFO. The password is
+     * stored encrypted in a connection object file stored in localization. You
+     * can only decrypt when they come together in code here.
+     * 
+     * 
+     * @param providerKey
+     * @return
+     */
+    public String getUnencryptedUsername() {
+
+        if (userName != null && providerKey != null) {
+
+            try {
+                return encryption.decrypt(providerKey, userName);
+            } catch (Exception e) {
+                statusHandler.error("Unable to decrypt userName!", e);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * encrypt userName with providerKey
+     * 
+     * 
+     * @param providerKey
+     * @return
+     */
+    public void encryptUserName() {
+
+        String encryptUserName = null;
+
+        if (userName != null && providerKey != null) {
+
+            try {
+                encryptUserName = encryption.encrypt(providerKey, userName);
+                setUserName(encryptUserName);
+            } catch (Exception e) {
+                statusHandler.error("Unable to crypt userName!", e);
+            }
+        }
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public Encryption getEncryption() {
+        return encryption;
+    }
+
+    public void setEncryption(Encryption encryption) {
+        this.encryption = encryption;
+    }
+
+    public String getProviderKey() {
+        return providerKey;
+    }
+
+    public void setProviderKey(String providerKey) {
+        this.providerKey = providerKey;
     }
 
 }

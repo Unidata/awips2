@@ -53,6 +53,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -67,7 +68,6 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
-import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -86,11 +86,12 @@ import com.raytheon.viz.core.gl.GLDisposalManager;
 import com.raytheon.viz.core.gl.GLStats;
 import com.raytheon.viz.core.gl.IGLFont;
 import com.raytheon.viz.core.gl.IGLTarget;
-import com.raytheon.viz.core.gl.ext.imaging.GLColormappedImageExtension;
+import com.raytheon.viz.core.gl.dataformat.GLByteDataFormat;
 import com.raytheon.viz.core.gl.ext.imaging.GLDefaultImagingExtension;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
+import com.raytheon.viz.core.gl.images.GLBufferCMTextureData;
 import com.raytheon.viz.core.gl.images.GLImage;
 import com.raytheon.viz.core.gl.objects.GLTextureObject;
 import com.sun.opengl.util.Screenshot;
@@ -128,6 +129,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  *                                      strings are always readable despite extent
  * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
  *                                      box around text
+ * Nov  4, 2013 2492        mschenke    Switched colormap drawing to use 1D texture object for alpha mask
  * 
  * </pre>
  * 
@@ -517,28 +519,19 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
             GLTextureObject i = getColorMapTexture(colorMapParams);
 
-            GLColormappedImage alphaMaskTexture = null;
+            GLBufferCMTextureData alphaMaskTexture = null;
             if (colorMapParams.isUseMask() && capabilities.cardSupportsShaders) {
-                final byte[] mask = colorMapParams.getAlphaMask();
-                alphaMaskTexture = getExtension(
-                        GLColormappedImageExtension.class).initializeRaster(
-                        new IColorMapDataRetrievalCallback() {
-                            @Override
-                            public ColorMapData getColorMapData()
-                                    throws VizException {
-                                return new ColorMapData(ByteBuffer.wrap(mask),
-                                        new int[] { mask.length, 1 });
-                            }
-
-                        }, colorMapParams);
-                alphaMaskTexture.stage();
-                alphaMaskTexture.target(this);
-            }
-
-            if (alphaMaskTexture != null) {
+                byte[] mask = colorMapParams.getAlphaMask();
+                alphaMaskTexture = new GLBufferCMTextureData(new ColorMapData(
+                        ByteBuffer.wrap(mask), new int[] { mask.length },
+                        ColorMapDataType.BYTE), new GLByteDataFormat());
                 gl.glActiveTexture(GL.GL_TEXTURE1);
-                gl.glBindTexture(alphaMaskTexture.getTextureStorageType(),
-                        alphaMaskTexture.getTextureid());
+                if (alphaMaskTexture.loadTexture(gl)) {
+                    gl.glBindTexture(alphaMaskTexture.getTextureStorageType(),
+                            alphaMaskTexture.getTexId());
+                } else {
+                    alphaMaskTexture.dispose();
+                }
             }
 
             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
@@ -573,14 +566,11 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         "colormap");
                 if (program != null) {
                     program.startShader();
-                    program.setUniform("alphaVal", blendAlpha);
-                    program.setUniform("brightness", brightness);
-                    program.setUniform("contrast", contrast);
-                    program.setUniform("colorMap", 0);
-                    program.setUniform("logFactor", logFactor);
-                    program.setUniform("alphaMask", 1);
-                    program.setUniform("applyMask",
-                            colorMapParams.isUseMask() ? 1 : 0);
+
+                    GLSLStructFactory.createColorMapping(program,
+                            "colorMapping", 0, 1, colorMapParams);
+                    GLSLStructFactory.createColorModifiers(program,
+                            "modifiers", blendAlpha, brightness, contrast);
                     program.setUniform("bkgrndRed",
                             backgroundColor.red / 255.0f);
                     program.setUniform("bkgrndGreen",
@@ -1854,9 +1844,12 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
             // This loop just draws the box or a blank rectangle.
             for (DrawableString dString : parameters) {
-                float[] rotatedPoint = null;
-                if (dString.textStyle == TextStyle.BOXED
-                        || dString.textStyle == TextStyle.BLANKED) {
+                switch (dString.textStyle) {
+                case BOXED:
+                case BLANKED:
+                case UNDERLINE:
+                case OVERLINE:
+                case STRIKETHROUGH:
                     double yPos = dString.basics.y;
                     VerticalAlignment verticalAlignment = dString.verticallAlignment;
                     double fontPercentage = this
@@ -1874,6 +1867,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     double scaleX = stringScaleX;
                     double scaleY = stringScaleY;
 
+                    float[] rotatedPoint = null;
                     if (dString.rotation != 0.0) {
                         rotatedPoint = getUpdatedCoordinates(
                                 new java.awt.Rectangle(0, 0, 0, 0),
@@ -1897,18 +1891,6 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                                 dString.basics.x, yPos, dString.basics.z,
                                 dString.rotation, fontPercentage);
 
-                        gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-                        if (dString.textStyle == TextStyle.BOXED
-                                && dString.boxColor != null) {
-                            gl.glColor4d(dString.boxColor.red / 255.0,
-                                    dString.boxColor.green / 255.0,
-                                    dString.boxColor.blue / 255.0, alpha);
-                        } else {
-                            gl.glColor4d(backgroundColor.red / 255.0,
-                                    backgroundColor.green / 255.0,
-                                    backgroundColor.blue / 255.0, alpha);
-                        }
-
                         double width = textBounds.getWidth();
                         double height = textBounds.getHeight();
                         double diff = height + textBounds.getY();
@@ -1918,38 +1900,78 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         double x2 = xy[0] + width + scaleX;
                         double y2 = (xy[1] - diff) + height + scaleY;
 
-                        gl.glRectd(x1, y2, x2, y1);
+                        if (dString.textStyle == TextStyle.BOXED
+                                || dString.textStyle == TextStyle.BLANKED) {
+                            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
+                            if (dString.textStyle == TextStyle.BOXED
+                                    && dString.boxColor != null) {
+                                gl.glColor4d(dString.boxColor.red / 255.0,
+                                        dString.boxColor.green / 255.0,
+                                        dString.boxColor.blue / 255.0, alpha);
+                            } else {
+                                gl.glColor4d(backgroundColor.red / 255.0,
+                                        backgroundColor.green / 255.0,
+                                        backgroundColor.blue / 255.0, alpha);
+                            }
 
-                        if (dString.textStyle == TextStyle.BOXED) {
+                            gl.glRectd(x1, y2, x2, y1);
+                        }
+
+                        if (dString.textStyle == TextStyle.BOXED
+                                || dString.textStyle == TextStyle.UNDERLINE
+                                || dString.textStyle == TextStyle.OVERLINE
+                                || dString.textStyle == TextStyle.STRIKETHROUGH) {
+                            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
+
                             RGB color = dString.getColors()[c];
                             if (color == null) {
                                 color = DEFAULT_LABEL_COLOR;
                             }
-                            gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
                             gl.glColor4d(color.red / 255.0,
                                     color.green / 255.0, color.blue / 255.0,
                                     alpha);
-                            gl.glLineWidth(2);
-                            gl.glRectd(x1, y2, x2, y1);
 
+                            if (dString.textStyle == TextStyle.BOXED) {
+                                gl.glLineWidth(2);
+                                gl.glRectd(x1, y2, x2, y1);
+                            } else {
+                                gl.glLineWidth(1);
+                                double percent;
+                                if (dString.textStyle == TextStyle.UNDERLINE) {
+                                    percent = .2;
+                                } else if (dString.textStyle == TextStyle.OVERLINE) {
+                                    percent = 1.;
+                                } else { // TextStyle.STRIKETHROUGH
+                                    percent = .5;
+                                }
+                                double lineY = y1 + (y2 - y1) * percent;
+                                gl.glBegin(GL.GL_LINES);
+                                gl.glVertex2d(x1, lineY);
+                                gl.glVertex2d(x2, lineY);
+                                gl.glEnd();
+                            }
                         }
-                        gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
 
                         if (verticalAlignment == VerticalAlignment.TOP) {
                             yPos += textBounds.getHeight();
                         } else {
                             yPos -= textBounds.getHeight();
-
                         }
                     }
-                }
 
-                if (rotatedPoint != null) {
-                    gl.glTranslated(rotatedPoint[0], rotatedPoint[1], 0.0);
-                    gl.glRotated(-dString.rotation, 0.0, 0.0, 1.0);
-                    gl.glTranslated(-rotatedPoint[0], -rotatedPoint[1], 0.0);
+                    if (rotatedPoint != null) {
+                        gl.glTranslated(rotatedPoint[0], rotatedPoint[1], 0.0);
+                        gl.glRotated(-dString.rotation, 0.0, 0.0, 1.0);
+                        gl.glTranslated(-rotatedPoint[0], -rotatedPoint[1], 0.0);
+                    }
+                    break;
+                default:
+                    break;
                 }
             }
+
+            gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
+
             IFont font = null;
             double magnification = -1.0;
             double fontPercentage = -1.0;

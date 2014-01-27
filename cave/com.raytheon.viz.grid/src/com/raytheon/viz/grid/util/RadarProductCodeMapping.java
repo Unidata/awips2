@@ -29,13 +29,11 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.grid.Activator;
 import com.raytheon.viz.grid.xml.ParameterList;
 import com.raytheon.viz.grid.xml.ParameterMapping;
 
@@ -48,6 +46,7 @@ import com.raytheon.viz.grid.xml.ParameterMapping;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 22, 2010 #4473      rjpeter     Initial creation
+ * Nov 07, 2361  2361      njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -86,13 +85,14 @@ public class RadarProductCodeMapping {
                 "/parameterMapping/radar/RadarProductCodes.xml");
 
         try {
-            loadParameters(baseFile);
+            JAXBManager jaxb = new JAXBManager(ParameterList.class);
+            loadParameters(baseFile, jaxb);
 
             if (siteFile.exists()) {
-                loadParameters(siteFile);
+                loadParameters(siteFile, jaxb);
             }
             if (userFile.exists()) {
-                loadParameters(userFile);
+                loadParameters(userFile, jaxb);
             }
         } catch (Exception e) {
             statusHandler.handle(
@@ -102,9 +102,10 @@ public class RadarProductCodeMapping {
         }
     }
 
-    private void loadParameters(File fileToLoad) throws SerializationException {
-        ParameterList parameterList = (ParameterList) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(fileToLoad);
+    private void loadParameters(File fileToLoad, JAXBManager jaxb)
+            throws SerializationException {
+        ParameterList parameterList = jaxb.unmarshalFromXmlFile(
+                ParameterList.class, fileToLoad);
         for (ParameterMapping parameter : parameterList.getParameters()) {
             // print message for overwrite?
             parameterMappings.put(parameter.getAbbrev(),

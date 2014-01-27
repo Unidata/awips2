@@ -27,30 +27,29 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * HydroviewDefaultColorScale.xml java object.  Holds the default color 
- * scale data for the Color Scale Manager.
+ * HydroviewDefaultColorScale.xml java object. Holds the default color scale
+ * data for the Color Scale Manager.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2010 4671       mpduff      Initial creation.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement(name = "defaultColorScale")
 @XmlAccessorType(XmlAccessType.NONE)
-public class DefaultColorScaleXML implements ISerializableObject {
-    @XmlElements( { @XmlElement(name = "colorDataClass", type = ColorDataClassXML.class) })
+public class DefaultColorScaleXML {
+
+    @XmlElements({ @XmlElement(name = "colorDataClass", type = ColorDataClassXML.class) })
     private ArrayList<ColorDataClassXML> colorDataClassList = new ArrayList<ColorDataClassXML>();
 
     /**
@@ -61,9 +60,11 @@ public class DefaultColorScaleXML implements ISerializableObject {
     }
 
     /**
-     * @param colorDataClass the colorDataClassList to set
+     * @param colorDataClass
+     *            the colorDataClassList to set
      */
-    public void setColorDataClassList(ArrayList<ColorDataClassXML> colorDataClassList) {
+    public void setColorDataClassList(
+            ArrayList<ColorDataClassXML> colorDataClassList) {
         this.colorDataClassList = colorDataClassList;
     }
 }

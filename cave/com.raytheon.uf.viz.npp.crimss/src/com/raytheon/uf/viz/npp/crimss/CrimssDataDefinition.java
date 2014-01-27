@@ -20,6 +20,8 @@
 package com.raytheon.uf.viz.npp.crimss;
 
 import gov.noaa.nws.ncep.ui.nsharp.display.NsharpEditor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDescriptor;
+import gov.noaa.nws.ncep.ui.nsharp.display.NsharpSkewTPaneDisplay;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +44,6 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDescriptor;
-import com.raytheon.uf.viz.d2d.nsharp.display.D2DNSharpDisplay;
 import com.raytheon.uf.viz.npp.sounding.rsc.NPPSoundingMapResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
@@ -60,9 +60,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2011            bsteffen     Initial creation
+ * Dec 06, 2011            bsteffen    Initial creation
  * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
  *                                     DbQueryRequest.
+ * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
  * 
  * </pre>
  * 
@@ -198,7 +199,7 @@ public class CrimssDataDefinition
     @Override
     protected Class<? extends IDescriptor> getDescriptorClass() {
         if (resourceData instanceof CrimssNSharpResourceData) {
-            return D2DNSharpDescriptor.class;
+            return NsharpSkewTPaneDescriptor.class;
         } else {
             return super.getDescriptorClass();
         }
@@ -214,7 +215,7 @@ public class CrimssDataDefinition
     @Override
     protected IDisplayPaneContainer openNewEditor(String editorId) {
         if (NsharpEditor.EDITOR_ID.equals(editorId)) {
-            return UiUtil.createEditor(editorId, new D2DNSharpDisplay());
+            return UiUtil.createEditor(editorId, new NsharpSkewTPaneDisplay());
         } else {
             return super.openNewEditor(editorId);
         }

@@ -44,6 +44,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
+import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthMap;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
@@ -56,10 +58,11 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.time.util.TimeUtilTest;
+import com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthMap;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.InMemoryBandwidthBucketAllocationAssociator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
@@ -77,6 +80,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Feb 07, 2013 1543       djohnson     Remove unnecessary test setup methods.
  * Feb 14, 2013 1595       djohnson     Fix retrieval plan/subscription time intersections.
  * Jun 05, 2013 2038       djohnson     Use public API for getting retrieval times.
+ * Jun 25, 2013 2106       djohnson     RetrievalPlan uses setters instead of constructor injection now.
+ * Sept 25, 2013 1797      dhladky      separated time and gridded time
  * 
  * </pre>
  * 
@@ -116,12 +121,26 @@ public class BandwidthDaoUtilTest {
                 "datadelivery/bandwidthmap.xml");
 
         map = BandwidthMap.load(lf.getFile());
-        plan = new RetrievalPlan(Network.OPSNET, map, mockDao);
+        final InMemoryBandwidthBucketDao bucketsDao = new InMemoryBandwidthBucketDao();
+        plan = new RetrievalPlan();
+        plan.setNetwork(Network.OPSNET);
+        plan.setMap(map);
+        plan.setBandwidthDao(mockDao);
+        plan.setBucketsDao(bucketsDao);
+        plan.setAssociator(new InMemoryBandwidthBucketAllocationAssociator(
+                mockDao, bucketsDao));
 
         Map<Network, RetrievalPlan> retrievalPlans = Maps
                 .newEnumMap(Network.class);
         retrievalPlans.put(Network.OPSNET, plan);
         when(retrievalManager.getRetrievalPlans()).thenReturn(retrievalPlans);
+
+        // Just used to initialize the retrieval plans that are used on the mock
+        // retrieval manager
+        final RetrievalManager tmpRetrievalManager = new RetrievalManager(
+                mockDao, new Object());
+        tmpRetrievalManager.setRetrievalPlans(retrievalPlans);
+        tmpRetrievalManager.initRetrievalPlans();
     }
 
     @After
@@ -132,14 +151,15 @@ public class BandwidthDaoUtilTest {
     @Test
     public void testGetRetrievalTimesReturnsBaseReferenceTimesInPlanWindow() {
         // Make sure the subscription is "active" within the plan period
+        // This test is grid specific
         Subscription subscription = new SubscriptionBuilder()
                 .withActivePeriodStart(plan.getPlanStart().getTime())
                 .withActivePeriodEnd(plan.getPlanEnd().getTime())
                 .withSubscriptionStart(TimeUtil.newImmutableDate()).build();
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
+        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
                 .getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
@@ -158,10 +178,10 @@ public class BandwidthDaoUtilTest {
         Subscription subscription = new SubscriptionBuilder()
                 .withSubscriptionStart(startsTwoDaysIntoPlan)
                 .withSubscriptionEnd(plan.getPlanEnd().getTime()).build();
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
+        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
                 .getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
@@ -183,10 +203,10 @@ public class BandwidthDaoUtilTest {
         Subscription subscription = new SubscriptionBuilder()
                 .withSubscriptionStart(plan.getPlanStart().getTime())
                 .withSubscriptionEnd(endsOneDayBeforePlan).build();
-        subscription.getTime().setCycleTimes(
+        ((GriddedTime)subscription.getTime()).setCycleTimes(
                 Arrays.asList(Integer.valueOf(9), Integer.valueOf(0)));
 
-        TreeSet<Integer> cycles = new TreeSet<Integer>(subscription.getTime()
+        TreeSet<Integer> cycles = new TreeSet<Integer>(((GriddedTime)subscription.getTime())
                 .getCycleTimes());
 
         SortedSet<Calendar> subscriptionTimes = bandwidthDaoUtil
@@ -260,8 +280,8 @@ public class BandwidthDaoUtilTest {
         assertThat(numberOfZeroMinuteTimes, is(equalTo(halfTheTimes + 1)));
         assertThat(numberOfThirtyMinuteTimes, is(equalTo(halfTheTimes)));
 
-        // Would be nice to verify the days and hours, but the cycle based tests already
-        // do that and the code was reused, maybe add it later
+        // Would be nice to verify the days and hours, but the cycle based tests
+        // already do that and the code was reused, maybe add it later
     }
 
     /**

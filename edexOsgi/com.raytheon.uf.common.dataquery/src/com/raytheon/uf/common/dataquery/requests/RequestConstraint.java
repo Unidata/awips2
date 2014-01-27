@@ -114,14 +114,17 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
     @DynamicSerializeElement
     protected String constraintValue;
 
-    protected transient Map<Class<?>, Object> asMap;
+    protected transient Map<Class<?>, Object> asMap = new HashMap<Class<?>, Object>();
 
     /**
      * Constructor
      */
     public RequestConstraint() {
-        this.constraintType = ConstraintType.EQUALS;
-        this.asMap = new HashMap<Class<?>, Object>();
+        this(ConstraintType.EQUALS);
+    }
+
+    public RequestConstraint(ConstraintType constraintType) {
+        this(null, constraintType);
     }
 
     /**
@@ -131,8 +134,7 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
      *            the value to constrain on
      */
     public RequestConstraint(String value) {
-        this();
-        this.constraintValue = value;
+        this(value, ConstraintType.EQUALS);
     }
 
     /**
@@ -142,8 +144,47 @@ public class RequestConstraint implements ISerializableObject, Cloneable {
      * @param type
      */
     public RequestConstraint(String value, ConstraintType type) {
-        this(value);
+        this.constraintValue = value;
         this.constraintType = type;
+    }
+
+    /**
+     * Converts inConstraints into String[] and calls
+     * {@link RequestConstraint#RequestConstraint(String[])}
+     * 
+     * @param inConstraints
+     */
+    public RequestConstraint(Collection<String> inConstraints) {
+        this(inConstraints.toArray(new String[0]));
+    }
+
+    /**
+     * Creates a {@link RequestConstraint} with {@link ConstraintType#IN} with
+     * inConstraints set as the {@link #setConstraintValueList(String[])} if
+     * inConstraints size == 1 then {@link ConstraintType#EQUALS} will be used
+     * instead
+     * 
+     * @param inConstraints
+     */
+    public RequestConstraint(String[] inConstraints) {
+        this.constraintType = ConstraintType.IN;
+        if (inConstraints.length == 1) {
+            this.constraintType = ConstraintType.EQUALS;
+            this.constraintValue = inConstraints[0];
+        } else {
+            setConstraintValueList(inConstraints);
+        }
+    }
+
+    /**
+     * Creates a {@link RequestConstraint} with {@link ConstraintType#BETWEEN}
+     * 
+     * @param low
+     * @param high
+     */
+    public RequestConstraint(String low, String high) {
+        this(ConstraintType.BETWEEN);
+        setBetweenValueList(new String[] { low, high });
     }
 
     @Override

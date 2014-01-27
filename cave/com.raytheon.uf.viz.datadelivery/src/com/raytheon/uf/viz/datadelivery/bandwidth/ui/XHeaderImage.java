@@ -46,6 +46,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPri
  * Nov 28, 2012   1269     lvenable    Initial creation.
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Jan 25, 2013   1528     djohnson    Subscription priority is now an enum.
+ * Oct 28, 2013   2430     mpduff      Changed labels.
  * 
  * </pre>
  * 
@@ -118,12 +119,13 @@ public class XHeaderImage extends AbstractCanvasImage {
         gc.setBackground(bgColor);
         gc.fillRectangle(0, 0, cs.getImageWidth(), cs.getImageHeight());
 
-        Point extent = gc.stringExtent(xHeaderStr);
-        int yCoord = 5;
+        String title = xHeaderStr + " (" + imageMgr.getNetwork().name() + ")";
+        Point extent = gc.stringExtent(title);
+        int yCoord = 25;
         int fontHeight = extent.y;
 
         int xCoord = cs.getImageWidth() / 2 - extent.x;
-        gc.drawText(xHeaderStr, xCoord, yCoord, true);
+        gc.drawText(title, xCoord, yCoord, true);
 
         int legendSpace = 5;
         Point priorityPt = gc.stringExtent(priorityStr);

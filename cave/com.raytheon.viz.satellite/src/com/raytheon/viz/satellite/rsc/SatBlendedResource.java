@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.Measure;
+
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -55,11 +57,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009     2032   jsanchez    Initial Creation.
- *                                      Updated inspect to display a single value.
- * Mar 17, 2009      800   jsanchez    Avoided displaying unnecessary 0.0.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 18, 2009  2032     jsanchez    Initial Creation.
+ *                                    Updated inspect to display a single value.
+ * Mar 17, 2009  800      jsanchez    Avoided displaying unnecessary 0.0.
+ * Jul 31, 2013  2190     mschenke    Removed arbitrary check for 0.0 and instead 
+ *                                    only check for NaN.  SatResource handles fill
+ *                                    values and returns NaN now
+ * Nov 18, 2013  2544     bsteffen    Override recycleInternal
+ * Nov 20, 2013  2492     bsteffen    Update inspect to use Measure objects
  * 
  * </pre>
  * 
@@ -96,6 +103,14 @@ public class SatBlendedResource extends
         }
         disposeImage();
         resourceData.removeChangeListener(this);
+    }
+
+    @Override
+    protected void recycleInternal() {
+        for (ResourcePair rp : this.resourceData.getResourceList()) {
+            rp.getResource().recycle();
+        }
+        disposeImage();
     }
 
     /*
@@ -275,22 +290,19 @@ public class SatBlendedResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspectString = "NO DATA";
-        Double inspectValue = null;
         ResourceList list = getResourceList();
         for (int i = list.size() - 1; i >= 0; --i) {
             AbstractVizResource<?, ?> rsc = list.get(i).getResource();
             Map<String, Object> dataMap = rsc.interrogate(coord);
-            if (dataMap.get(SatResource.RAW_VALUE) instanceof Double) {
-                Double value = (Double) dataMap.get(SatResource.RAW_VALUE);
-                if (value.isNaN()) {
-                    // This one is no good, skip it.
-                    continue;
-                }
-                if (inspectValue == null || inspectValue == 0.0) {
-                    // Either there is no previous value or it was zero, so
-                    // try this one.
-                    inspectValue = value;
+            Measure<?, ?> value = (Measure<?, ?>) dataMap
+                    .get(SatResource.SATELLITE_DATA_INTERROGATE_ID);
+            if (value != null && value.getValue() instanceof Number) {
+                double measuredValue = ((Number) value.getValue())
+                        .doubleValue();
+                if (Double.isNaN(measuredValue) == false) {
+                    // use this resource
                     inspectString = rsc.inspect(coord);
+                    break;
                 }
             }
         }

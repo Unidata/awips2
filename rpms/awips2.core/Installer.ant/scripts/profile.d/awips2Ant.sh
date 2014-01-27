@@ -8,7 +8,7 @@ if [ ${RC} -ne 0 ]; then
 fi
 
 # Determine Where Ant Has Been Installed.
-ANT_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-ant`
+ANT_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}' awips2-ant`
 if [ "${ANT_INSTALL}" = "" ]; then
    return
 fi

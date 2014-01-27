@@ -42,7 +42,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * Provides utilities for serialization support
+ * Provides an easy and convenient layer to marshal or unmarshal objects to and
+ * from XML using JAXB. An instance of this class is thread-safe, it will use
+ * separate marshallers and unmarshallers if used simultaneously by different
+ * threads.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -51,6 +54,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 24, 2008            chammack     Initial creation
  * Nov 13, 2008            njensen      Added thrift methods
  * May 22, 2013 1917       rjpeter      Added non-pretty print option to jaxb serialize methods.
+ * Aug 18, 2013 #2097      dhladky      Allowed extension by OGCJAXBManager
+ * Sep 30, 2013 2361       njensen      Refactored for cleanliness
+ * Nov 14, 2013 2361       njensen      Added lazy init option, improved unmarshal error message
  * </pre>
  * 
  * @author chammack
@@ -104,21 +110,90 @@ public class JAXBManager {
         }
     }
 
-    private final JAXBContext jaxbContext;
+    private volatile JAXBContext jaxbContext;
 
-    private final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
+    private Class<?>[] clazz;
 
-    private final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
+    protected final Queue<Unmarshaller> unmarshallers = new ConcurrentLinkedQueue<Unmarshaller>();
 
+    protected final Queue<Marshaller> marshallers = new ConcurrentLinkedQueue<Marshaller>();
+
+    /**
+     * Constructor. Clazz should include any classes that this JAXBManager needs
+     * to marshal to XML or unmarshal from XML. Does not need to include classes
+     * contained as fields or inner classes of other classes already passed to
+     * the constructor.
+     * 
+     * @param clazz
+     *            classes that this instance must know about for
+     *            marshalling/unmarshalling
+     * @throws JAXBException
+     */
     public JAXBManager(Class<?>... clazz) throws JAXBException {
-        jaxbContext = JAXBContext.newInstance(clazz);
+        this(false, clazz);
     }
 
+    /**
+     * Constructor. Clazz should include any classes that this JAXBManager needs
+     * to marshal to XML or unmarshal from XML. Does not need to include classes
+     * contained as fields or inner classes of other classes already passed to
+     * the constructor.
+     * 
+     * If lazyInit is true, then the underlying JAXBContext (a potentially slow
+     * operation) will be constructed when first used, ie the first marshal or
+     * unmarshal operation.
+     * 
+     * @param lazyInit
+     *            whether or not to immediately initialize the underlying
+     *            JAXBContext
+     * @param clazz
+     *            classes that this instance must know about for
+     *            marshalling/unmarshalling
+     * @throws JAXBException
+     */
+    public JAXBManager(boolean lazyInit, Class<?>... clazz)
+            throws JAXBException {
+        this.clazz = clazz;
+        if (!lazyInit) {
+            getJaxbContext();
+        }
+    }
+
+    /**
+     * Returns the JAXB Context behind this JAXBManager.
+     * 
+     * @return the JAXBContext
+     * @throws JAXBException
+     * @Deprecated TODO This method should be protected and the JAXBContext
+     *             should be hidden from outside libraries. Any options needing
+     *             to be applied to the context or its marshallers/unmarshallers
+     *             should either have convenience methods or flags on
+     *             JAXBManager to provide that functionality.
+     */
+    @Deprecated
     public JAXBContext getJaxbContext() throws JAXBException {
+        if (jaxbContext == null) {
+            synchronized (this) {
+                if (jaxbContext == null) {
+                    long t0 = System.currentTimeMillis();
+                    jaxbContext = JAXBContext.newInstance(clazz);
+                    System.out.println("JAXB context with " + clazz.length
+                            + " classes inited in: "
+                            + (System.currentTimeMillis() - t0));
+                    clazz = null;
+                }
+            }
+        }
         return jaxbContext;
     }
 
-    private Unmarshaller getUnmarshaller() throws JAXBException {
+    /**
+     * Gets an unmarshaller, creating one if one is not currently available.
+     * 
+     * @return an unmarshaller
+     * @throws JAXBException
+     */
+    protected Unmarshaller getUnmarshaller() throws JAXBException {
         Unmarshaller m = unmarshallers.poll();
         if (m == null) {
             m = getJaxbContext().createUnmarshaller();
@@ -138,7 +213,13 @@ public class JAXBManager {
         return m;
     }
 
-    private Marshaller getMarshaller() throws JAXBException {
+    /**
+     * Gets a marshaller, creating one if one is not currently available.
+     * 
+     * @return
+     * @throws JAXBException
+     */
+    protected Marshaller getMarshaller() throws JAXBException {
         Marshaller m = marshallers.poll();
         if (m == null) {
             m = getJaxbContext().createMarshaller();
@@ -148,8 +229,7 @@ public class JAXBManager {
     }
 
     /**
-     * Instantiates an object from the XML representation in a string. Uses
-     * JAXB.
+     * Instantiates an object from the XML representation in a string.
      * 
      * @param xml
      *            The XML representation
@@ -173,7 +253,10 @@ public class JAXBManager {
     }
 
     /**
+     * Processes the events received by an unmarshaller when parsing XML.
+     * 
      * @param msh
+     *            the unmarshaller
      */
     private void handleEvents(Unmarshaller msh, String name) {
         try {
@@ -223,7 +306,7 @@ public class JAXBManager {
 
     /**
      * Convert an instance of a class to an XML pretty print representation in a
-     * string. Uses JAXB.
+     * string.
      * 
      * @param obj
      *            Object being marshalled
@@ -235,8 +318,7 @@ public class JAXBManager {
     }
 
     /**
-     * Convert an instance of a class to an XML representation in a string. Uses
-     * JAXB.
+     * Convert an instance of a class to an XML representation in a string.
      * 
      * @param obj
      *            Object being marshalled
@@ -245,13 +327,13 @@ public class JAXBManager {
      * @return XML string representation of the object
      * @throws JAXBException
      */
-    public String marshalToXml(Object obj, boolean formatedOutput)
+    public String marshalToXml(Object obj, boolean formattedOutput)
             throws JAXBException {
         Marshaller msh = getMarshaller();
         try {
             StringWriter writer = new StringWriter();
             msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, new Boolean(
-                    formatedOutput));
+                    formattedOutput));
             msh.marshal(obj, writer);
             return writer.toString();
         } finally {
@@ -263,7 +345,7 @@ public class JAXBManager {
 
     /**
      * Convert an instance of a class to an XML representation and writes pretty
-     * print formatted XML to file. Uses JAXB.
+     * print formatted XML to file.
      * 
      * @param obj
      *            Object to be marshaled
@@ -271,14 +353,14 @@ public class JAXBManager {
      *            Path to the output file
      * @throws SerializationException
      */
-    public void jaxbMarshalToXmlFile(Object obj, String filePath)
+    public void marshalToXmlFile(Object obj, String filePath)
             throws SerializationException {
-        jaxbMarshalToXmlFile(obj, filePath, true);
+        marshalToXmlFile(obj, filePath, true);
     }
 
     /**
      * Convert an instance of a class to an XML representation and writes XML to
-     * file. Uses JAXB.
+     * file.
      * 
      * @param obj
      *            Object to be marshaled
@@ -288,10 +370,10 @@ public class JAXBManager {
      *            True for pretty print xml.
      * @throws SerializationException
      */
-    public void jaxbMarshalToXmlFile(Object obj, String filePath,
+    public void marshalToXmlFile(Object obj, String filePath,
             boolean formattedOutput) throws SerializationException {
         try {
-            jaxbMarshalToStream(obj, new FileOutputStream(new File(filePath)),
+            marshalToStream(obj, new FileOutputStream(new File(filePath)),
                     formattedOutput);
         } catch (SerializationException e) {
             throw e;
@@ -302,20 +384,20 @@ public class JAXBManager {
 
     /**
      * Convert an instance of a class to an XML representation and writes pretty
-     * print formatted XML to output stream. Uses JAXB.
+     * print formatted XML to output stream.
      * 
      * @param obj
      * @param out
      * @throws SerializationException
      */
-    public void jaxbMarshalToStream(Object obj, OutputStream out)
+    public void marshalToStream(Object obj, OutputStream out)
             throws SerializationException {
-        jaxbMarshalToStream(obj, out, true);
+        marshalToStream(obj, out, true);
     }
 
     /**
      * Convert an instance of a class to an XML representation and writes XML to
-     * output stream. Uses JAXB.
+     * output stream.
      * 
      * @param obj
      * @param out
@@ -323,7 +405,7 @@ public class JAXBManager {
      * 
      * @throws SerializationException
      */
-    public void jaxbMarshalToStream(Object obj, OutputStream out,
+    public void marshalToStream(Object obj, OutputStream out,
             boolean formattedOutput) throws SerializationException {
         Marshaller msh = null;
         try {
@@ -348,64 +430,78 @@ public class JAXBManager {
     }
 
     /**
-     * Instantiates an object from the XML representation in a File. Uses JAXB.
+     * Instantiates an object from the XML representation in a File.
      * 
      * @param filePath
      *            The path to the XML file
      * @return A new instance from the XML representation
      * @throws SerializationException
+     * @Deprecated Use unmarshalFromXmlFile(Class<?>, String) instead
      */
-    public Object jaxbUnmarshalFromXmlFile(String filePath)
+    @Deprecated
+    public Object unmarshalFromXmlFile(String filePath)
             throws SerializationException {
-        return jaxbUnmarshalFromXmlFile(new File(filePath));
+        return unmarshalFromXmlFile(new File(filePath));
     }
 
     /**
-     * Instantiates an object from the XML representation in a File. Uses JAXB.
+     * Instantiates an object from the XML representation in a File.
      * 
+     * @param file
+     *            The XML file
+     * @return A new instance from the XML representation
+     * @throws SerializationException
+     * @Deprecated Use unmarshalFromXmlFile(Class<?>, File) instead
+     */
+    @Deprecated
+    public Object unmarshalFromXmlFile(File file) throws SerializationException {
+        return unmarshalFromXmlFile(Object.class, file);
+    }
+
+    /**
+     * Instantiates an object of the specified type from the XML representation
+     * in a File.
+     * 
+     * @param clazz
+     *            The class to cast the Object in the file to
      * @param filePath
+     *            The path to the XML file
+     * @return A new instance from the XML representation
+     * @throws SerializationException
+     */
+    public <T> T unmarshalFromXmlFile(Class<T> clazz, String filePath)
+            throws SerializationException {
+        return unmarshalFromXmlFile(clazz, new File(filePath));
+    }
+
+    /**
+     * Instantiates an object from the XML representation in a File.
+     * 
+     * @param clazz
+     *            The class to cast the Object in the file to
+     * @param file
      *            The XML file
      * @return A new instance from the XML representation
      * @throws SerializationException
      */
-    public Object jaxbUnmarshalFromXmlFile(File file)
+    public <T> T unmarshalFromXmlFile(Class<T> clazz, File file)
             throws SerializationException {
-        FileReader reader = null;
-        Unmarshaller msh = null;
         try {
-            msh = getUnmarshaller();
-            reader = new FileReader(file);
-            Object obj = msh.unmarshal(reader);
-            return obj;
-        } catch (Exception e) {
-            throw new SerializationException(e.getLocalizedMessage(), e);
-        } finally {
-            if (msh != null) {
-                handleEvents(msh, file.getName());
-            }
-            if ((msh != null) && (unmarshallers.size() < QUEUE_SIZE)) {
-                unmarshallers.add(msh);
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
+            return clazz.cast(internalUnmarshalFromXmlFile(file));
+        } catch (ClassCastException cce) {
+            throw new SerializationException(cce);
         }
     }
 
     /**
-     * Instantiates an object from the XML representation in a stream. Uses
-     * JAXB.
+     * Instantiates an object from the XML representation in a stream.
      * 
      * @param is
      *            The input stream. The stream will be closed by this operation.
      * @return A new instance from the XML representation
      * @throws SerializationException
      */
-    public Object jaxbUnmarshalFromInputStream(InputStream is)
+    public Object unmarshalFromInputStream(InputStream is)
             throws SerializationException {
         Unmarshaller msh = null;
         try {
@@ -424,6 +520,43 @@ public class JAXBManager {
             if (is != null) {
                 try {
                     is.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    /**
+     * Unmarshals an object from an xml file.
+     * 
+     * @param file
+     *            the file to unmarshal and object from.
+     * @return the object from the file
+     * @throws SerializationException
+     */
+    protected Object internalUnmarshalFromXmlFile(File file)
+            throws SerializationException {
+        FileReader reader = null;
+        Unmarshaller msh = null;
+        try {
+            msh = getUnmarshaller();
+            reader = new FileReader(file);
+            Object obj = msh.unmarshal(reader);
+            return obj;
+        } catch (Exception e) {
+            throw new SerializationException("Error reading " + file.getName()
+                    + "\n" + e.getLocalizedMessage(), e);
+        } finally {
+            if (msh != null) {
+                handleEvents(msh, file.getName());
+            }
+            if ((msh != null) && (unmarshallers.size() < QUEUE_SIZE)) {
+                unmarshallers.add(msh);
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
                 } catch (IOException e) {
                     // ignore
                 }

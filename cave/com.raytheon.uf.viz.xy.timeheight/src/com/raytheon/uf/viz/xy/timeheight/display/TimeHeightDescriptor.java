@@ -34,7 +34,6 @@ import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.timeheight.graph.TimeHeightGraph;
 import com.raytheon.uf.viz.xy.timeheight.rsc.AbstractTimeHeightResource;
 import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 
 /**
  * TODO Add Description
@@ -56,6 +55,10 @@ import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
 public class TimeHeightDescriptor extends XyGraphDescriptor {
 
     public static final int REAL_FRAME_COUNT_TO_USE_WHEN_FRAME_COUNT_IS_ONE = 999;
+
+    public static enum TimeDirection {
+        RIGHT_TO_LEFT, LEFT_TO_RIGHT;
+    }
 
     @XmlAttribute
     public TimeDirection timeDirection;

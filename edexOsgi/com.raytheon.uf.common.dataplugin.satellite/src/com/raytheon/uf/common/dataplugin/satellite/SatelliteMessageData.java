@@ -22,17 +22,15 @@ package com.raytheon.uf.common.dataplugin.satellite;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
+import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Encapsulate satellite image data as well as the dimensions of
- * the image grid. Attributes about the data may also be added. As an
- * example these attributes could include "scale factor" and/or "fill_value".
+ * Encapsulate satellite image data as well as the dimensions of the image grid.
+ * Attributes about the data may also be added. As an example these attributes
+ * could include "scale factor" and/or "fill_value".
  * 
  * <pre>
  * 
@@ -41,6 +39,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 27, 2012        798     jkorman Initial creation
+ * Nov 14, 2013  2393       bclement   use datastore factory in
+ *                                     getStorageRecord()
  * 
  * </pre>
  * 
@@ -125,15 +125,8 @@ public class SatelliteMessageData {
         IDataRecord storageRecord = null;
         if ((messageData != null) && (dataRec != null)) {
             long[] sizes = new long[] { nx, ny };
-            if (messageData instanceof byte[]) {
-                storageRecord = new ByteDataRecord(dataSetName,
-                        dataRec.getDataURI(), (byte[]) messageData, DATA_DIMS,
-                        sizes);
-            } else if (messageData instanceof short[]) {
-                storageRecord = new ShortDataRecord(dataSetName,
-                        dataRec.getDataURI(), (short[]) messageData, DATA_DIMS,
-                        sizes);
-            }
+            storageRecord = DataStoreFactory.createStorageRecord(dataSetName,
+                    dataRec.getDataURI(), messageData, DATA_DIMS, sizes);
         }
         if ((storageRecord != null) && (dataAttributes != null)) {
             storageRecord.setDataAttributes(dataAttributes);

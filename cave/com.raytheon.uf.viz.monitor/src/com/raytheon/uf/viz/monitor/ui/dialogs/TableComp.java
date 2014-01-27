@@ -63,8 +63,9 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009            lvenable     Initial creation
- * Nov 7, 2013  DR 16703   gzhang	   Check in code for Lee for FFMP and Safeseas
+ * Apr 7, 2009             lvenable    Initial creation
+ * Oct 7, 2013  #2436      lvenable    Disposed of the sort color.
+ * Nov 7, 2013  DR 16703   gzhang      Check in code for Lee for FFMP and Safeseas
  * 
  * </pre>
  * 
@@ -118,12 +119,16 @@ public abstract class TableComp extends Composite {
     protected int defaultColWidth;
 
     protected boolean columnMinimumSize = false;
-    
+
     private int imageWidth = 0;
+
     private int imageHeight = 0;
+
     private int textWidth = 0;
+
     private int textHeight = 0;
-    private Color sortColor; 
+
+    private Color sortColor;
 
     /**
      * A map that contains a table column and the sort direction.
@@ -154,10 +159,10 @@ public abstract class TableComp extends Composite {
      * Initialize method.
      */
     protected void init() {
-    	tiFont = new Font(parent.getDisplay(), "Arial", 10, SWT.NORMAL);
+        tiFont = new Font(parent.getDisplay(), "Arial", 10, SWT.NORMAL);
 
-    	sortColor = new Color(parent.getDisplay(), 133, 104, 190);
-    	
+        sortColor = new Color(parent.getDisplay(), 133, 104, 190);
+
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
         gl.verticalSpacing = 2;
@@ -167,7 +172,7 @@ public abstract class TableComp extends Composite {
         this.setLayoutData(gd);
 
         makeImageCalculations();
-        
+
         initData();
         createSortImage();
 
@@ -186,6 +191,7 @@ public abstract class TableComp extends Composite {
                 tiFont.dispose();
                 lineColor.dispose();
                 sortImage.dispose();
+                sortColor.dispose();
             }
         });
     }
@@ -207,10 +213,10 @@ public abstract class TableComp extends Composite {
         textHeight = gc.getFontMetrics().getHeight();
 
         String[] columnKeys = getColumnKeys(appName);
-        
-        for ( String key : columnKeys ) {
-        	String columnName = getColumnAttribteData(key).getColumnName(); 
-        	
+
+        for (String key : columnKeys) {
+            String columnName = getColumnAttribteData(key).getColumnName();
+
             String[] nameArray = columnName.split("\n");
 
             for (String tmpStr : nameArray) {
@@ -225,7 +231,7 @@ public abstract class TableComp extends Composite {
         image.dispose();
     }
 
-	/**
+    /**
      * Initialize the data.
      */
     private void initData() {
@@ -267,10 +273,10 @@ public abstract class TableComp extends Composite {
                 event.gc.setLineWidth(1);
                 event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
                         + rect.width - 2, rect.y - 1 + rect.height);
-                
+
                 // Draw a top line
                 event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
-             
+
                 // Draw a bottom line if this is the last row of the table
                 TableItem ti = (TableItem) event.item;
                 int idx = table.indexOf(ti);
@@ -305,14 +311,14 @@ public abstract class TableComp extends Composite {
             }
 
         });
-        
-        table.addMouseMoveListener(new MouseMoveListener () {
-        	@Override
-        	public void mouseMove(MouseEvent event) {
-        		tableMouseHoverAction(event);
-        	}
+
+        table.addMouseMoveListener(new MouseMoveListener() {
+            @Override
+            public void mouseMove(MouseEvent event) {
+                tableMouseHoverAction(event);
+            }
         });
-        
+
     }
 
     /**
@@ -350,13 +356,15 @@ public abstract class TableComp extends Composite {
                     for (int j = 0; j < cols.length; j++) {
                         cols[j].setImage(null);
                         cols[j].setWidth(defaultColWidth);
-                        cols[j].setText(getColumnAttribteData(colnkeys[j]).getColumnName());
+                        cols[j].setText(getColumnAttribteData(colnkeys[j])
+                                .getColumnName());
                     }
 
                     /*
                      * Set the sort image, pack the column and sort the data.
                      */
-                    tc.setImage(getSortHeaderImage(getColumnAttribteData(sortCol).getColumnName()));
+                    tc.setImage(getSortHeaderImage(getColumnAttribteData(
+                            sortCol).getColumnName()));
                     tc.setText("");
                     tc.pack();
 
@@ -368,17 +376,19 @@ public abstract class TableComp extends Composite {
                     sortTableData(tc);
                 }
             });
-            
+
             /**
-             * DR#10701: The first column is selected for 
-             * sorting by default when a Zone table or Station 
-             * table is first displayed (not for History table)
+             * DR#10701: The first column is selected for sorting by default
+             * when a Zone table or Station table is first displayed (not for
+             * History table)
              */
-            if ( i == 0 ) {
-            	if ( getColumnAttribteData(columns[i]).getSortDir() != SortDirection.None.getSortDir() ) {
-            		tc.setText("");
-            		tc.setImage(getSortHeaderImage(getColumnAttribteData(columns[0]).getColumnName()));
-            	}
+            if (i == 0) {
+                if (getColumnAttribteData(columns[i]).getSortDir() != SortDirection.None
+                        .getSortDir()) {
+                    tc.setText("");
+                    tc.setImage(getSortHeaderImage(getColumnAttribteData(
+                            columns[0]).getColumnName()));
+                }
             }
 
             if (columnMinimumSize == true) {
@@ -426,8 +436,8 @@ public abstract class TableComp extends Composite {
 
             for (int i = 0; i < cellData.length; i++) {
                 ti.setText(i, cellData[i].displayString());
-                Color c = new Color(parent.getDisplay(), cellData[i]
-                        .getBackgroungRGB());
+                Color c = new Color(parent.getDisplay(),
+                        cellData[i].getBackgroungRGB());
                 ti.setBackground(i, c);
                 c.dispose();
             }
@@ -474,12 +484,12 @@ public abstract class TableComp extends Composite {
 
         int columnIndex = getColumnIndex(appName, sortCol);
 
-        if ( sortCol == "SSZT_SwellPeriod" || sortCol == "SSZT_Swell2Period" ) {
-        	if ( MonitorConfigConstants.isRankSwellPeriodHigh() ) {
-        		sortDir = SWT.DOWN; 
-        	} else {
-        		sortDir = SWT.UP;
-        	}
+        if (sortCol == "SSZT_SwellPeriod" || sortCol == "SSZT_Swell2Period") {
+            if (MonitorConfigConstants.isRankSwellPeriodHigh()) {
+                sortDir = SWT.DOWN;
+            } else {
+                sortDir = SWT.UP;
+            }
         }
         tableData.setSortColumnAndDirection(columnIndex, sortDir);
 
@@ -504,32 +514,34 @@ public abstract class TableComp extends Composite {
 
         gc.dispose();
     }
-    
+
     private Image getSortHeaderImage(String header) {
-    	Image image = new Image(parent.getDisplay(), imageWidth, imageHeight); 
-    	GC gc = new GC(image);
-    	gc.setFont(tiFont);
-    	gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-    	gc.setBackground(sortColor);
-    	gc.fillRectangle(0, 0, imageWidth, imageHeight);
-    	int xCoord = 0;
-    	int yCoord = 0;
-    	if ( header.indexOf("\n") > 0 ) {
-    		String [] tmpArray = header.split("\n");
-    		int maxTextLen = tmpArray[0].length();
-    		for ( int j = 1; j < tmpArray.length; j++ ) {
-    			if ( tmpArray[j].length() > maxTextLen ) {
-    				maxTextLen = tmpArray[j].length();
-    			}
-    		}
-    		xCoord = Math.round( (imageWidth / 2) - (maxTextLen*textWidth / 2) ) - 2;
-    		yCoord = 0;
-    	} else { 
-    		xCoord = Math.round( (imageWidth / 2) - (header.length()*textWidth / 2) ) - 2;
-    		yCoord = imageHeight / 2 - textHeight /2 - 1;
-    	}
-    	gc.drawText(header, xCoord, yCoord, true);
-    	return image; 
+        Image image = new Image(parent.getDisplay(), imageWidth, imageHeight);
+        GC gc = new GC(image);
+        gc.setFont(tiFont);
+        gc.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        gc.setBackground(sortColor);
+        gc.fillRectangle(0, 0, imageWidth, imageHeight);
+        int xCoord = 0;
+        int yCoord = 0;
+        if (header.indexOf("\n") > 0) {
+            String[] tmpArray = header.split("\n");
+            int maxTextLen = tmpArray[0].length();
+            for (int j = 1; j < tmpArray.length; j++) {
+                if (tmpArray[j].length() > maxTextLen) {
+                    maxTextLen = tmpArray[j].length();
+                }
+            }
+            xCoord = Math
+                    .round((imageWidth / 2) - (maxTextLen * textWidth / 2)) - 2;
+            yCoord = 0;
+        } else {
+            xCoord = Math.round((imageWidth / 2)
+                    - (header.length() * textWidth / 2)) - 2;
+            yCoord = imageHeight / 2 - textHeight / 2 - 1;
+        }
+        gc.drawText(header, xCoord, yCoord, true);
+        return image;
     }
 
     /**
@@ -603,7 +615,7 @@ public abstract class TableComp extends Composite {
     /**
      * Pack the table columns.
      */
-    protected abstract void packColumns(); 
+    protected abstract void packColumns();
 
     protected abstract void tableColRightMouseAction(MouseEvent event);
 

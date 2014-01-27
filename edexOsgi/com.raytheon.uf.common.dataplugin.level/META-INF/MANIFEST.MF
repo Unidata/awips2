@@ -9,7 +9,6 @@ Bundle-Vendor: Raytheon
 Require-Bundle: javax.measure,
  javax.persistence,
  org.apache.commons.lang,
- org.apache.commons.logging,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.serialization,

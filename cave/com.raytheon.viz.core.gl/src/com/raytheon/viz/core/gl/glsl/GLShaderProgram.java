@@ -155,7 +155,6 @@ public class GLShaderProgram {
             gl.glUseProgram(0);
             state = State.INITIALIZED;
         }
-        loadedUniforms.clear();
     }
 
     /**
@@ -358,6 +357,7 @@ public class GLShaderProgram {
             glslContext = -1;
         }
         state = State.INVALID;
+        loadedUniforms.clear();
     }
 
 }

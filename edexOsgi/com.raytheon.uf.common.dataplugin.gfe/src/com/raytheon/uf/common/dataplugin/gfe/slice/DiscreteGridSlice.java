@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
-import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -45,7 +44,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * TODO Add Description
+ * Grid slice for Discrete weather elements
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -56,6 +55,10 @@ import com.raytheon.uf.common.time.TimeRange;
  * 06/10/2009   2159       rjpeter     Updated checkDims to check grid for null
  * 01/30/2013   15719      jdynina     Allowed more than 128 char width wx
  *                                     string
+ * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
+ *                                     debugger when trying to display the grid
+ * 10/29/2013   2476       njensen     Updated getNumpy() and added getKeyList()
+ * 10/31/2013   2508       randerso    Added getKeys(), deprecated getKey()
  * </pre>
  * 
  * @author chammack
@@ -73,7 +76,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     private String cacheId;
 
     @DynamicSerializeElement
-    private DiscreteKey[] key;
+    private DiscreteKey[] keys;
 
     /**
      * Constructor for serialization only.
@@ -95,7 +98,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             Grid2DByte aGrid, DiscreteKey[] aKey) {
         super(validTime, gfeRecord);
         setDiscreteGrid(aGrid);
-        key = aKey;
+        keys = aKey;
     }
 
     /**
@@ -111,7 +114,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             GridDataHistory[] history, Grid2DByte aGrid, DiscreteKey[] aKey) {
         super(validTime, gpi, history);
         setDiscreteGrid(aGrid);
-        key = aKey;
+        keys = aKey;
     }
 
     public DiscreteGridSlice(TimeRange validTime, GridParmInfo gpi,
@@ -149,8 +152,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         Grid2DByte grid = rhs.getDiscreteGrid().clone();
         setDiscreteGrid(grid);
 
-        this.key = new DiscreteKey[rhs.key.length];
-        System.arraycopy(rhs.key, 0, this.key, 0, rhs.key.length);
+        this.keys = new DiscreteKey[rhs.keys.length];
+        System.arraycopy(rhs.keys, 0, this.keys, 0, rhs.keys.length);
     }
 
     @Override
@@ -167,8 +170,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
         if (gsDiscreteGrid != null) {
             Grid2DByte discreteGrid = getDiscreteGrid();
-            if (discreteGrid.getXdim() != gsDiscreteGrid.getXdim()
-                    || discreteGrid.getYdim() != gsDiscreteGrid.getYdim()) {
+            if ((discreteGrid.getXdim() != gsDiscreteGrid.getXdim())
+                    || (discreteGrid.getYdim() != gsDiscreteGrid.getYdim())) {
                 throw new IllegalArgumentException(
                         "Supplied grid is not of same dimension");
             }
@@ -176,11 +179,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             discreteGrid.assign(gsDiscreteGrid);
             setDiscreteGrid(discreteGrid);
 
-            this.key = new DiscreteKey[slice.key.length];
-            System.arraycopy(slice.key, 0, this.key, 0, slice.key.length);
+            this.keys = new DiscreteKey[slice.keys.length];
+            System.arraycopy(slice.keys, 0, this.keys, 0, slice.keys.length);
         } else {
             setDiscreteGrid(null);
-            this.key = new DiscreteKey[0];
+            this.keys = new DiscreteKey[0];
         }
     }
 
@@ -235,8 +238,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         byte[] thisData = grid.getBuffer().array();
         byte[] rhsData = rhsGrid.getBuffer().array();
         for (int i = 0; i < thisData.length; i++) {
-            if (!this.key[0xFF & thisData[i]]
-                    .equals(rhsDiscreteGridSlice.key[0xFF & rhsData[i]])) {
+            if (!this.keys[0xFF & thisData[i]]
+                    .equals(rhsDiscreteGridSlice.keys[0xFF & rhsData[i]])) {
                 return false;
             }
         }
@@ -252,7 +255,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * @return null if everything was ok, otherwise the reason why not
      */
     public String checkKeyAndData() {
-        int keyLength = key.length;
+        int keyLength = keys.length;
         Grid2DByte discreteGrid = getDiscreteGrid();
         byte[] b = discreteGrid.getBuffer().array();
         for (int i = 0; i < b.length; i++) {
@@ -276,10 +279,10 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * @return null if the key is ok, otherwise the reason why not
      */
     public String checkKey() {
-        for (int i = 0; i < key.length; i++) {
-            if (!this.key[i].isValid()) {
+        for (int i = 0; i < keys.length; i++) {
+            if (!this.keys[i].isValid()) {
                 return "Invalid Key found in Grid. Key Position is " + i
-                        + " Key is: " + key[i].getOrigStr();
+                        + " Key is: " + keys[i].getOrigStr();
             }
         }
         return null;
@@ -302,8 +305,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         Grid2DByte discreteGrid = getDiscreteGrid();
         Point gridSize = new Point(discreteGrid.getXdim(),
                 discreteGrid.getYdim());
-        if (editArea.getXdim() != gridSize.x
-                || editArea.getYdim() != gridSize.y) {
+        if ((editArea.getXdim() != gridSize.x)
+                || (editArea.getYdim() != gridSize.y)) {
             return false;
         }
 
@@ -314,19 +317,19 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         // find a key match
         byte dByte = 0;
         boolean found = false;
-        for (int k = 0; k < key.length; k++) {
-            if (key[k].equals(aValue)) {
+        for (int k = 0; k < keys.length; k++) {
+            if (keys[k].equals(aValue)) {
                 dByte = (byte) k;
                 found = true;
             }
         }
 
         if (!found) {
-            DiscreteKey newKey[] = new DiscreteKey[key.length + 1];
-            System.arraycopy(key, 0, newKey, 0, key.length);
+            DiscreteKey newKey[] = new DiscreteKey[keys.length + 1];
+            System.arraycopy(keys, 0, newKey, 0, keys.length);
             newKey[newKey.length - 1] = aValue;
-            key = newKey;
-            dByte = (byte) (key.length - 1);
+            keys = newKey;
+            dByte = (byte) (keys.length - 1);
         }
 
         for (int i = ll.x; i <= ur.x; i++) {
@@ -353,8 +356,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      */
     public boolean assign(DiscreteGridSlice gs, Grid2DBit editArea) {
         Grid2DByte discreteGrid = getDiscreteGrid();
-        if (editArea.getXdim() != discreteGrid.getXdim()
-                || editArea.getYdim() != discreteGrid.getYdim()) {
+        if ((editArea.getXdim() != discreteGrid.getXdim())
+                || (editArea.getYdim() != discreteGrid.getYdim())) {
             return false;
         }
 
@@ -368,23 +371,23 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                 if (editArea.get(i, j) != 0) {
                     // Get the DiscreteKey from the source grid
                     byte dByte = gsDiscreteGrid.get(i, j);
-                    DiscreteKey dKey = gs.key[0xFF & dByte];
+                    DiscreteKey dKey = gs.keys[0xFF & dByte];
                     // See if this key already exists in target grid
                     boolean found = false;
                     byte keyIndex = 0;
-                    for (int k = 0; k < key.length; k++) {
-                        if (key[k] == dKey) {
+                    for (int k = 0; k < keys.length; k++) {
+                        if (keys[k] == dKey) {
                             found = true;
                             keyIndex = (byte) k;
                         }
                     }
                     if (!found) // not found, so add the key
                     {
-                        DiscreteKey newKey[] = new DiscreteKey[key.length + 1];
-                        System.arraycopy(key, 0, newKey, 0, key.length);
+                        DiscreteKey newKey[] = new DiscreteKey[keys.length + 1];
+                        System.arraycopy(keys, 0, newKey, 0, keys.length);
                         newKey[newKey.length - 1] = dKey;
-                        key = newKey;
-                        keyIndex = (byte) (key.length - 1);
+                        keys = newKey;
+                        keyIndex = (byte) (keys.length - 1);
                     }
 
                     discreteGrid.set(i, j, keyIndex);
@@ -412,19 +415,19 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         // find a key match
         byte dByte = 0;
         boolean found = false;
-        for (int k = 0; k < key.length; k++) {
-            if (key[k].equals(aValue)) {
+        for (int k = 0; k < keys.length; k++) {
+            if (keys[k].equals(aValue)) {
                 dByte = (byte) k;
                 found = true;
             }
         }
 
         if (!found) {
-            DiscreteKey newKey[] = new DiscreteKey[key.length + 1];
-            System.arraycopy(key, 0, newKey, 0, key.length);
+            DiscreteKey newKey[] = new DiscreteKey[keys.length + 1];
+            System.arraycopy(keys, 0, newKey, 0, keys.length);
             newKey[newKey.length - 1] = aValue;
-            key = newKey;
-            dByte = (byte) (key.length - 1);
+            keys = newKey;
+            dByte = (byte) (keys.length - 1);
         }
 
         Grid2DByte discreteGrid = getDiscreteGrid();
@@ -446,22 +449,22 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         Grid2DByte discreteGrid = gs.discreteGrid.clone();
 
         List<DiscreteKey> currentKeys = new ArrayList<DiscreteKey>(
-                Arrays.asList(this.key));
+                Arrays.asList(this.keys));
         byte[] data = discreteGrid.getBuffer().array();
         int thisB;
         for (int i = 0; i < data.length; i++) {
             thisB = 0xFF & data[i];
             byte keyIndex;
-            if ((keyIndex = (byte) currentKeys.indexOf(gs.key[thisB])) != -1) {
+            if ((keyIndex = (byte) currentKeys.indexOf(gs.keys[thisB])) != -1) {
                 data[i] = keyIndex;
             } else {
                 data[i] = (byte) currentKeys.size();
-                currentKeys.add(new DiscreteKey(gs.key[thisB]));
+                currentKeys.add(new DiscreteKey(gs.keys[thisB]));
             }
         }
 
         setDiscreteGrid(discreteGrid);
-        this.key = currentKeys.toArray(new DiscreteKey[currentKeys.size()]);
+        this.keys = currentKeys.toArray(new DiscreteKey[currentKeys.size()]);
 
         return true;
     }
@@ -476,7 +479,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      */
     public Grid2DBit eq(DiscreteKey value) {
         if (!value.isValid()) {
-            throw new IllegalArgumentException("Supplied key is invalid");
+            throw new IllegalArgumentException("Supplied keys is invalid");
         }
 
         Grid2DByte discreteGrid = getDiscreteGrid();
@@ -487,8 +490,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         // Get or make a Discrete
         byte dByte = 0;
         boolean found = false;
-        for (int k = 0; k < key.length; k++) {
-            if (key[k].equals(value)) {
+        for (int k = 0; k < keys.length; k++) {
+            if (keys[k].equals(value)) {
                 dByte = (byte) k;
                 found = true;
             }
@@ -543,17 +546,17 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
 
         // Check for each value
         // Get the list of subkey permutations from the value given
-        List<String> searchKeys = key[0].descriptionSubKeys(value);
+        List<String> searchKeys = keys[0].descriptionSubKeys(value);
 
         // Get the byte values that correspond to the specified textStrings
         List<Byte> byteValues = new ArrayList<Byte>();
 
         // Check each discrete key for a match of a subkey
-        for (int i = 0; i < key.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             // Check each subkey
-            for (int j = 0; j < key[i].getSubKeys().size(); j++) {
+            for (int j = 0; j < keys[i].getSubKeys().size(); j++) {
                 for (int k = 0; k < searchKeys.size(); k++) {
-                    if (key[i].getSubKeys().get(j).equals(searchKeys.get(k))) {
+                    if (keys[i].getSubKeys().get(j).equals(searchKeys.get(k))) {
                         byteValues.add((byte) i);
                         break;
                     }
@@ -602,7 +605,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         byte[] rhsB = gs.getDiscreteGrid().getBuffer().array();
         byte[] b = bits.getBuffer().array();
         for (int i = 0; i < thisB.length; i++) {
-            if (key[0xFF & thisB[i]].equals(gs.key[0xFF & rhsB[i]])) {
+            if (keys[0xFF & thisB[i]].equals(gs.keys[0xFF & rhsB[i]])) {
                 b[i] = (byte) 1;
             }
         }
@@ -637,9 +640,9 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
          * for duplicate keys, set all locations in grid that match that key to
          * the "first" of the duplicate keys
          */
-        for (int i = 0; i < key.length - 1; i++) {
-            for (int j = i; j < key.length; j++) {
-                if (key[i].equals(key[j])) {
+        for (int i = 0; i < (keys.length - 1); i++) {
+            for (int j = i; j < keys.length; j++) {
+                if (keys[i].equals(keys[j])) {
                     discreteGrid.setAllOfValue((byte) j, (byte) i);
                 }
             }
@@ -664,11 +667,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                 .hasNext(); keyIndex++) {
             byte thisByte = usedKeysI.next();
             discreteGrid.setAllOfValue(thisByte, (byte) keyIndex);
-            newKey[keyIndex] = key[0xFF & thisByte];
+            newKey[keyIndex] = keys[0xFF & thisByte];
         }
 
         setDiscreteGrid(discreteGrid);
-        key = newKey;
+        keys = newKey;
     }
 
     @Override
@@ -686,21 +689,11 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
             aGrid = aGrid.clone();
         }
 
-        DiscreteKey[] aKey = new DiscreteKey[this.key.length];
+        DiscreteKey[] aKey = new DiscreteKey[this.keys.length];
         for (int i = 0; i < aKey.length; i++) {
-            aKey[i] = new DiscreteKey(this.key[i]);
+            aKey[i] = new DiscreteKey(this.keys[i]);
         }
         return new DiscreteGridSlice(aValidTime, aGpi, aHistory, aGrid, aKey);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder rVal = new StringBuilder(super.toString());
-
-        rVal.append("Discrete grid: ").append(getDiscreteGrid()).append("\n");
-        rVal.append("Discrete keys: ").append(getKey()).append("\n");
-
-        return rVal.toString();
     }
 
     private String checkDims() {
@@ -712,8 +705,8 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         int x = discreteGrid.getXdim();
         int y = discreteGrid.getYdim();
 
-        if (x != gridParmInfo.getGridLoc().getNx()
-                || y != gridParmInfo.getGridLoc().getNy()) {
+        if ((x != gridParmInfo.getGridLoc().getNx())
+                || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
                     + x
                     + ","
@@ -733,7 +726,7 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
      * @return the discrete grid
      */
     public Grid2DByte getDiscreteGrid() {
-        if (useCache && cacheId != null) {
+        if (useCache && (cacheId != null)) {
             try {
                 @SuppressWarnings("unchecked")
                 ICache<IGrid2D> diskCache = CacheFactory.getInstance()
@@ -750,12 +743,23 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     /**
-     * Return the discrete key
+     * Return the discrete keys
      * 
-     * @return the discrete key
+     * @return the discrete keys
+     * @deprecated use getKeys() instead
      */
+    @Deprecated
     public DiscreteKey[] getKey() {
-        return this.key;
+        return this.keys;
+    }
+
+    /**
+     * Return the discrete keys
+     * 
+     * @return the discrete keys
+     */
+    public DiscreteKey[] getKeys() {
+        return this.keys;
     }
 
     public void setDiscreteGrid(Grid2DByte grid) {
@@ -788,25 +792,27 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
         }
     }
 
-    public void setKey(DiscreteKey[] key) {
-        this.key = key;
+    /**
+     * @param keys
+     *            the keys to set
+     * @deprecated use setKeys() instead
+     */
+    @Deprecated
+    public void setKey(DiscreteKey[] keys) {
+        this.keys = keys;
     }
 
-    public void setKey(List<DiscreteKey[]> key) {
-        setKey(key.toArray(new DiscreteKey[] {}));
+    /**
+     * @param keys
+     *            the keys to set
+     */
+    public void setKeys(DiscreteKey[] keys) {
+        this.keys = keys;
     }
 
     @Override
-    public Object[] getNumPy() {
-        Object[] numpy = new Object[2];
-        numpy[0] = getDiscreteGrid().getBuffer().array();
-        List<String> keyList = new ArrayList<String>();
-        for (DiscreteKey k : key) {
-            keyList.add(k.toString());
-        }
-        String pyList = PyUtil.listToList(keyList);
-        numpy[1] = pyList;
-        return numpy;
+    public Object[] getNumpy() {
+        return new Object[] { getDiscreteGrid().getBuffer().array() };
     }
 
     @Override
@@ -867,5 +873,13 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
                     "GFE");
             diskCache.removeFromCache(cacheId);
         }
+    }
+
+    public List<String> getKeyList() {
+        List<String> list = new ArrayList<String>(keys.length);
+        for (DiscreteKey k : keys) {
+            list.add(k.toString());
+        }
+        return list;
     }
 }

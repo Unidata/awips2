@@ -2,9 +2,10 @@ package com.raytheon.viz.pointdata.rsc.progdisc;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -27,8 +28,9 @@ import com.raytheon.viz.pointdata.rsc.PlotResource2.Station;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 12, 2011            bsteffen     Initial creation
- * Jul 1, 2011               njensen      Added queuing
+ * Jan 12, 2011            bsteffen    Initial creation
+ * Jul 01, 2011            njensen     Added queuing
+ * Dec 02, 2013 2573       njensen     Smarter queuing
  * 
  * </pre>
  * 
@@ -63,6 +65,7 @@ public abstract class AbstractProgDisclosure extends Job {
 
         DataTime time = null;
 
+        @Override
         protected Task clone() {
             Task task = new Task();
             task.descriptor = descriptor;
@@ -94,7 +97,7 @@ public abstract class AbstractProgDisclosure extends Job {
 
     private Task nextTask = new Task();
 
-    private Queue<QueueEntry> queue = new ConcurrentLinkedQueue<QueueEntry>();
+    private Deque<QueueEntry> queue = new LinkedList<QueueEntry>();
 
     public AbstractProgDisclosure(IProgDiscListener listener) {
         super("progressive disclosure");
@@ -114,9 +117,14 @@ public abstract class AbstractProgDisclosure extends Job {
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        while (!queue.isEmpty()) {
-            QueueEntry entry = queue.poll();
-            // Clone the current state so it does not change in the midle of the
+        QueueEntry entry = null;
+        synchronized (queue) {
+            entry = queue.poll();
+        }
+
+        while (entry != null) {
+            // Clone the current state so it does not change in the middle of
+            // the
             // algorithm
             Task task = nextTask.clone();
             task.stations = entry.stations;
@@ -124,6 +132,9 @@ public abstract class AbstractProgDisclosure extends Job {
             if (task != null && task.extent != null && task.time != null
                     && !task.stations.isEmpty()) {
                 listener.disclosureComplete(task.time, progDisc(task));
+            }
+            synchronized (queue) {
+                entry = queue.poll();
             }
         }
 
@@ -158,11 +169,50 @@ public abstract class AbstractProgDisclosure extends Job {
         }
     }
 
+    /**
+     * Requests progressive disclosure to run for the specified time with the
+     * available stations
+     * 
+     * @param stations
+     * @param time
+     */
     public void update(Collection<Station> stations, DataTime time) {
+        update(stations, time, false);
+    }
+
+    /**
+     * Requests progressive disclosure to run for the specified time with the
+     * available stations. If highPriority is true, the next disclosure that is
+     * run will be this one.
+     * 
+     * @param stations
+     * @param time
+     * @param highPriority
+     */
+    public void update(Collection<Station> stations, DataTime time,
+            boolean highPriority) {
         QueueEntry entry = new QueueEntry();
         entry.stations = new ArrayList<Station>(stations);
         entry.time = time;
-        queue.add(entry);
+        synchronized (queue) {
+            // time corresponds to a frame and there's no point in running
+            // an older progressive disclosure task for the same time
+            // if a newer one is requested, so remove the older one
+            // if there is more than one for the same time
+            Iterator<QueueEntry> itr = queue.iterator();
+            while (itr.hasNext()) {
+                QueueEntry alreadyQueued = itr.next();
+                if (entry.time.equals(alreadyQueued.time)) {
+                    itr.remove();
+                    break;
+                }
+            }
+            if (highPriority) {
+                queue.addFirst(entry);
+            } else {
+                queue.addLast(entry);
+            }
+        }
         update();
     }
 

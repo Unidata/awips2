@@ -28,10 +28,23 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -52,6 +65,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 03/20/2013     #1774    randerso    Removed unnecessary XML annotations,
  *                                     added isValid method to match A1
  * 04/02/2013     #1774    randerso    Improved error message in validCheck
+ * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
+ * 10/22/2013     #2361    njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -59,10 +74,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
+@Embeddable
 @DynamicSerialize
-public class GridParmInfo implements Cloneable, ISerializableObject {
+public class GridParmInfo implements Cloneable {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmInfo.class);
+
     static {
         // TODO: is this the right place for these?
 
@@ -89,52 +107,73 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
     }
 
     /** The parm id associated with this grid parm info */
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(referencedColumnName = "id", name = "parmId_id")
     @DynamicSerializeElement
     private ParmID parmID;
 
     /** The grid location associated with this grid parm info */
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @PrimaryKeyJoinColumn
     @DynamicSerializeElement
     private GridLocation gridLoc;
 
     /** The grid type */
+    @Column(length = 8, nullable = false)
+    @Enumerated(EnumType.STRING)
     @DynamicSerializeElement
     private GridType gridType;
 
     /** The parameter descriptive name */
+    @Column(length = 64, nullable = false)
     @DynamicSerializeElement
     private String descriptiveName;
 
     /** The units associated with the parameter */
+    @Column(length = 64, nullable = false)
     @DynamicSerializeElement
     private String unitString;
 
+    @Transient
     private Unit<?> unitObject;
 
     /** The minimum allowed value */
+    @Column(nullable = false)
     @DynamicSerializeElement
     private float minValue;
 
     /** The maximum allowed value */
+    @Column(nullable = false)
     @DynamicSerializeElement
     private float maxValue;
 
     /** The precision of the value */
+    @Column(nullable = false)
     @DynamicSerializeElement
     private int precision;
 
     /** Is value a rate parameter */
+    @Column(nullable = false)
     @DynamicSerializeElement
     private boolean rateParm;
 
     /** Time Constraints */
+    @Embedded
     @DynamicSerializeElement
     private TimeConstraints timeConstraints;
 
+    @Column(nullable = false)
     @DynamicSerializeElement
     private boolean timeIndependentParm;
 
+    @Transient
     private String errorMessage;
 
+    /**
+     * Default constructor for serialization
+     */
     public GridParmInfo() {
         gridType = GridType.NONE;
         timeIndependentParm = false;
@@ -150,6 +189,11 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         timeConstraints = null;
     }
 
+    /**
+     * Copy constructor
+     * 
+     * @param orig
+     */
     public GridParmInfo(GridParmInfo orig) {
         this.parmID = orig.parmID;
         this.gridLoc = orig.gridLoc;
@@ -202,6 +246,20 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         }
     }
 
+    /**
+     * Constructor with rateParm defaulted to false
+     * 
+     * @param id
+     * @param gridLoc
+     * @param gridType
+     * @param unit
+     * @param descriptiveName
+     * @param minValue
+     * @param maxValue
+     * @param precision
+     * @param timeIndependentParm
+     * @param timeConstraints
+     */
     public GridParmInfo(ParmID id, GridLocation gridLoc, GridType gridType,
             String unit, String descriptiveName, float minValue,
             float maxValue, int precision, boolean timeIndependentParm,
@@ -255,7 +313,7 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         }
 
         // units defined
-        if (unitString == null || unitString.isEmpty()) {
+        if ((unitString == null) || unitString.isEmpty()) {
             sb.append("GridParmInfo.Units are not defined.\n");
         }
 
@@ -269,7 +327,7 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         }
 
         // precision check
-        if (precision < -2 || precision > 5) {
+        if ((precision < -2) || (precision > 5)) {
             sb.append("GridParmInfo is invalid.  Precision out of limits. ");
             sb.append(" Precision is: ");
             sb.append(precision);
@@ -317,6 +375,9 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         return unitString;
     }
 
+    /**
+     * @return the unitObject
+     */
     public synchronized Unit<?> getUnitObject() {
         if (unitObject == null) {
             try {
@@ -378,6 +439,9 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         return new GridParmInfo(this);
     }
 
+    /**
+     * @return the parmID
+     */
     public ParmID getParmID() {
         return parmID;
     }
@@ -391,20 +455,21 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result
+        result = (prime * result)
                 + ((descriptiveName == null) ? 0 : descriptiveName.hashCode());
-        result = prime * result + ((gridLoc == null) ? 0 : gridLoc.hashCode());
-        result = prime * result
+        result = (prime * result)
+                + ((gridLoc == null) ? 0 : gridLoc.hashCode());
+        result = (prime * result)
                 + ((gridType == null) ? 0 : gridType.hashCode());
-        result = prime * result + Float.floatToIntBits(maxValue);
-        result = prime * result + Float.floatToIntBits(minValue);
-        result = prime * result + ((parmID == null) ? 0 : parmID.hashCode());
-        result = prime * result + precision;
-        result = prime * result + (rateParm ? 1231 : 1237);
-        result = prime * result
+        result = (prime * result) + Float.floatToIntBits(maxValue);
+        result = (prime * result) + Float.floatToIntBits(minValue);
+        result = (prime * result) + ((parmID == null) ? 0 : parmID.hashCode());
+        result = (prime * result) + precision;
+        result = (prime * result) + (rateParm ? 1231 : 1237);
+        result = (prime * result)
                 + ((timeConstraints == null) ? 0 : timeConstraints.hashCode());
-        result = prime * result + (timeIndependentParm ? 1231 : 1237);
-        result = prime * result
+        result = (prime * result) + (timeIndependentParm ? 1231 : 1237);
+        result = (prime * result)
                 + ((unitString == null) ? 0 : unitString.hashCode());
         return result;
     }
@@ -502,6 +567,11 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
         return timeIndependentParm;
     }
 
+    /**
+     * Reset the parmId
+     * 
+     * @param parmId
+     */
     public void resetParmID(ParmID parmId) {
         this.parmID = parmId;
     }
@@ -516,50 +586,98 @@ public class GridParmInfo implements Cloneable, ISerializableObject {
                 + " GridType: " + gridType;
     }
 
+    /**
+     * @param parmID
+     *            the parmID to set
+     */
     public void setParmID(ParmID parmID) {
         this.parmID = parmID;
     }
 
+    /**
+     * @param gridLoc
+     *            the gridLoc to set
+     */
     public void setGridLoc(GridLocation gridLoc) {
         this.gridLoc = gridLoc;
     }
 
+    /**
+     * @param gridType
+     *            the gridType to set
+     */
     public void setGridType(GridType gridType) {
         this.gridType = gridType;
     }
 
+    /**
+     * @param descriptiveName
+     *            the descriptiveName to set
+     */
     public void setDescriptiveName(String descriptiveName) {
         this.descriptiveName = descriptiveName;
     }
 
+    /**
+     * @param unitString
+     *            the unitString to set
+     */
     public void setUnitString(String unitString) {
         this.unitString = unitString;
     }
 
+    /**
+     * @param unitObject
+     *            the unitObject to set
+     */
     public void setUnitObject(Unit<?> unitObject) {
         this.unitObject = unitObject;
     }
 
+    /**
+     * @param minValue
+     *            the minValue to set
+     */
     public void setMinValue(float minValue) {
         this.minValue = minValue;
     }
 
+    /**
+     * @param maxValue
+     *            the maxValue to set
+     */
     public void setMaxValue(float maxValue) {
         this.maxValue = maxValue;
     }
 
+    /**
+     * @param precision
+     *            the precision to set
+     */
     public void setPrecision(int precision) {
         this.precision = precision;
     }
 
+    /**
+     * @param rateParm
+     *            the rateParm to set
+     */
     public void setRateParm(boolean rateParm) {
         this.rateParm = rateParm;
     }
 
+    /**
+     * @param timeConstraints
+     *            the timeConstraints to set
+     */
     public void setTimeConstraints(TimeConstraints timeConstraints) {
         this.timeConstraints = timeConstraints;
     }
 
+    /**
+     * @param timeIndependentParm
+     *            the timeIndependentParm to set
+     */
     public void setTimeIndependentParm(boolean timeIndependentParm) {
         this.timeIndependentParm = timeIndependentParm;
     }

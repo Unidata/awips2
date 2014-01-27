@@ -24,16 +24,16 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 
@@ -47,8 +47,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 7, 2011            mschenke     Initial creation
- * 
+ * Dec  7, 2011            mschenke    Initial creation
+ * Sep  9, 2013       2277 mschenke    Got rid of ScriptCreator references
  * </pre>
  * 
  * @author mschenke
@@ -188,14 +188,32 @@ public class DefaultDataCubeAdapter implements IDataCubeAdapter {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getData(com.raytheon
-     * .uf.viz.core.catalog.LayerProperty, int)
+     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getData(java.
+     * util.Map, com.raytheon.uf.common.time.DataTime[])
      */
     @Override
-    public List<Object> getData(LayerProperty property, int timeOut)
+    public PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
             throws VizException {
-        String scriptToExecute = ScriptCreator.createScript(property);
-        return Loader.loadScripts(new String[] { scriptToExecute }, timeOut);
+        DbQueryRequest request = new DbQueryRequest(constraints);
+        if (selectedTimes != null && selectedTimes.length > 0) {
+            RequestConstraint timeConstraint = new RequestConstraint();
+            if (selectedTimes.length == 1) {
+                timeConstraint.setConstraintType(ConstraintType.EQUALS);
+                timeConstraint.setConstraintValue(selectedTimes[0].toString());
+            } else {
+                timeConstraint.setConstraintType(ConstraintType.IN);
+                String[] times = new String[selectedTimes.length];
+                for (int i = 0; i < times.length; ++i) {
+                    times[i] = selectedTimes[i].toString();
+                }
+                timeConstraint.setConstraintValueList(times);
+            }
+            request.addConstraint(PluginDataObject.DATATIME_ID, timeConstraint);
+        }
+        DbQueryResponse response = (DbQueryResponse) ThriftClient
+                .sendRequest(request);
+        return response.getEntityObjects(PluginDataObject.class);
     }
 
     /*
@@ -206,7 +224,6 @@ public class DefaultDataCubeAdapter implements IDataCubeAdapter {
      */
     @Override
     public void initInventory() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -218,7 +235,6 @@ public class DefaultDataCubeAdapter implements IDataCubeAdapter {
      */
     @Override
     public Object getInventory() {
-        // TODO Auto-generated method stub
         return null;
     }
 

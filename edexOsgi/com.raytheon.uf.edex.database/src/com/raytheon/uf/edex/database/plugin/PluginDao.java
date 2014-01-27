@@ -21,7 +21,6 @@
 package com.raytheon.uf.edex.database.plugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -52,7 +51,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
-import com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -74,11 +72,11 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 import com.raytheon.uf.edex.database.purge.PurgeLogger;
 import com.raytheon.uf.edex.database.purge.PurgeRule;
 import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
@@ -112,8 +110,13 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
+ * Jun 11, 2013 2090       djohnson    Separate the hdf5 purge by ref time for
+ *                                     reuse.
+ * Jun 11, 2013 2092       bclement    Added purge results
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Sept23, 2013 2399       dhladky     Changed logging of duplicate records.
  * Oct 07, 2013 2392       rjpeter     Updated to pass null productKeys as actual null instead of string null.
+ * Dec 13, 2013 2555       rjpeter     Refactored archiving logic into processArchiveRecords.
  * </pre>
  * 
  * @author bphillip
@@ -206,9 +209,15 @@ public abstract class PluginDao extends CoreDao {
             toPersist.add(record);
         }
         List<PluginDataObject> duplicates = mergeAll(toPersist);
-        for (PluginDataObject pdo : duplicates) {
-            logger.info("Discarding duplicate: " + ((pdo)).getDataURI());
-            toPersist.remove(pdo);
+        toPersist.removeAll(duplicates);
+        
+        if (!duplicates.isEmpty()) {
+            logger.info("Discarded : " + duplicates.size() + " duplicates!");
+            if (logger.isDebugEnabled()) {
+                for (PluginDataObject pdo : duplicates) {
+                    logger.debug("Discarding duplicate: " + ((pdo)).getDataURI());
+                }
+            }
         }
         return toPersist.toArray(new PluginDataObject[toPersist.size()]);
     }
@@ -457,7 +466,7 @@ public abstract class PluginDao extends CoreDao {
 
             for (IPersistable persistable : persistables) {
                 try {
-                    if (((PersistableDataObject) persistable)
+                    if (((PersistableDataObject<?>) persistable)
                             .isOverwriteAllowed()) {
                         if (replaceDataStore == null) {
                             replaceDataStore = DataStoreFactory
@@ -699,20 +708,50 @@ public abstract class PluginDao extends CoreDao {
     }
 
     /**
+     * Result of purge for rule
+     */
+    protected static class RuleResult {
+        public Set<Date> timesKept;
+
+        public Set<Date> timesPurged;
+
+        public int itemsDeletedForKey;
+
+        public RuleResult(Set<Date> timesKept, Set<Date> timesPurged,
+                int itemsDeletedForKey) {
+            this.timesKept = timesKept;
+            this.timesPurged = timesPurged;
+            this.itemsDeletedForKey = itemsDeletedForKey;
+        }
+
+    }
+
+    /**
      * Purges data according to purge criteria specified by the owning plugin
      * 
      * @throws PluginException
      *             If problems occur while interacting with data stores
      */
     public void purgeExpiredData() throws PluginException {
+        purgeExpiredDataWithResults();
+    }
+
+    /**
+     * Purges data according to purge criteria specified by the owning plugin
+     * 
+     * @throws PluginException
+     *             If problems occur while interacting with data stores
+     */
+    public PurgeResults purgeExpiredDataWithResults() throws PluginException {
         try {
             PurgeRuleSet ruleSet = getPurgeRulesForPlugin(pluginName);
-
+            Map<String, Set<Date>> timesKept = new HashMap<String, Set<Date>>();
+            Map<String, Set<Date>> timesPurged = new HashMap<String, Set<Date>>();
             if (ruleSet == null) {
                 PurgeLogger.logInfo(
                         "No valid purge rules found. Skipping purge.",
                         pluginName);
-                return;
+                return new PurgeResults(timesKept, timesPurged);
             }
 
             // Query the database to get all possible product keys for this data
@@ -724,11 +763,17 @@ public abstract class PluginDao extends CoreDao {
                 String[][] distinctKeys = getDistinctProductKeyValues(ruleSet
                         .getKeys());
                 for (String[] key : distinctKeys) {
-                    totalItems += purgeExpiredKey(ruleSet, key);
+                    RuleResult res = purgeExpiredKey(ruleSet, key);
+                    timesKept.put(Arrays.toString(key), res.timesKept);
+                    timesPurged.put(Arrays.toString(key), res.timesPurged);
+                    totalItems += res.itemsDeletedForKey;
                 }
             } else {
                 // no rule keys defined, can only apply default rule
-                totalItems += purgeExpiredKey(ruleSet, null);
+                RuleResult res = purgeExpiredKey(ruleSet, null);
+                timesKept.put("default", res.timesKept);
+                timesPurged.put("default", res.timesPurged);
+                totalItems += res.itemsDeletedForKey;
             }
 
             StringBuilder messageBuffer = new StringBuilder();
@@ -739,6 +784,7 @@ public abstract class PluginDao extends CoreDao {
             messageBuffer.append(" total.");
 
             PurgeLogger.logInfo(messageBuffer.toString(), pluginName);
+            return new PurgeResults(timesKept, timesPurged);
         } catch (EdexException e) {
             throw new PluginException("Error applying purge rule!!", e);
         }
@@ -750,18 +796,19 @@ public abstract class PluginDao extends CoreDao {
      * 
      * @param ruleSet
      * @param purgeKeys
-     * @return Number of records purged
+     * @return Summary of purge for keys
      * @throws DataAccessLayerException
      */
-    protected int purgeExpiredKey(PurgeRuleSet ruleSet, String[] purgeKeys)
-            throws DataAccessLayerException {
+    protected RuleResult purgeExpiredKey(PurgeRuleSet ruleSet,
+            String[] purgeKeys) throws DataAccessLayerException {
         List<PurgeRule> rules = ruleSet.getRuleForKeys(purgeKeys);
 
         if (rules == null) {
             PurgeLogger.logWarn(
                     "No rules found for purgeKeys: "
                             + Arrays.toString(purgeKeys), pluginName);
-            return 0;
+            return new RuleResult(Collections.<Date> emptySet(),
+                    Collections.<Date> emptySet(), 0);
         }
 
         /*
@@ -827,7 +874,8 @@ public abstract class PluginDao extends CoreDao {
                     if (maxRefTime == null) {
                         PurgeLogger.logInfo("No data available to purge",
                                 pluginName);
-                        return 0;
+                        return new RuleResult(Collections.<Date> emptySet(),
+                                Collections.<Date> emptySet(), 0);
                     } else {
                         periodCutoffTime = new Date(maxRefTime.getTime()
                                 - rule.getPeriodInMillis());
@@ -1142,7 +1190,7 @@ public abstract class PluginDao extends CoreDao {
             }
         }
 
-        return itemsDeletedForKey;
+        return new RuleResult(timesKept, timesPurged, itemsDeletedForKey);
     }
 
     /**
@@ -1362,47 +1410,13 @@ public abstract class PluginDao extends CoreDao {
 
         dataQuery.setMaxResults(500);
 
-        // fields for hdf5 purge
-        String previousFile = null;
-        StringBuilder pathBuilder = new StringBuilder();
-
         do {
             pdos = (List<PluginDataObject>) this.queryByCriteria(dataQuery);
             if ((pdos != null) && !pdos.isEmpty()) {
                 this.delete(pdos);
 
                 if (trackHdf5 && (hdf5FileToUriPurged != null)) {
-                    for (PluginDataObject pdo : pdos) {
-                        pathBuilder.setLength(0);
-                        IPersistable persist = (IPersistable) pdo;
-                        pathBuilder
-                                .append(PLUGIN_HDF5_DIR)
-                                .append(pathProvider.getHDFPath(
-                                        this.pluginName, persist))
-                                .append(File.separatorChar)
-                                .append(pathProvider.getHDFFileName(
-                                        this.pluginName, persist));
-                        String file = pathBuilder.toString();
-
-                        if (trackToUri) {
-                            List<String> uriList = hdf5FileToUriPurged
-                                    .get(file);
-                            if (uriList == null) {
-                                // sizing to 50 as most data types have numerous
-                                // entries in a file
-                                uriList = new ArrayList<String>(50);
-                                hdf5FileToUriPurged.put(file, uriList);
-                            }
-                            uriList.add(file);
-                        } else {
-                            // only need to track file, tracking last file
-                            // instead of constantly indexing hashMap
-                            if (!file.equals(previousFile)) {
-                                hdf5FileToUriPurged.put(file, null);
-                                previousFile = file;
-                            }
-                        }
-                    }
+                    purgeHdf5ForPdos(trackToUri, hdf5FileToUriPurged, pdos);
                 }
 
                 results += pdos.size();
@@ -1411,6 +1425,59 @@ public abstract class PluginDao extends CoreDao {
         } while ((pdos != null) && !pdos.isEmpty());
 
         return results;
+    }
+
+    /**
+     * Purge HDF5 data for a list of PDOs. Extracted as is from
+     * {@link #purgeDataByRefTime} so it can be reused.
+     * 
+     * @param trackToUri
+     *            If true will track each URI that needs to be deleted from
+     *            HDF5, if false will only track the hdf5 files that need to be
+     *            deleted.
+     * @param hdf5FileToUriPurged
+     *            Map to be populated by purgeDataByRefTime of all the hdf5
+     *            files that need to be updated. If trackToUri is true, each
+     *            file will have the exact data URI's to be removed from each
+     *            file. If trackToUri is false, the map will have a null entry
+     *            for the list and only track the files.
+     * @param pdos
+     *            the pdos
+     */
+    protected void purgeHdf5ForPdos(boolean trackToUri,
+            Map<String, List<String>> hdf5FileToUriPurged,
+            List<PluginDataObject> pdos) {
+        // fields for hdf5 purge
+        String previousFile = null;
+        for (PluginDataObject pdo : pdos) {
+            StringBuilder pathBuilder = new StringBuilder();
+            IPersistable persist = (IPersistable) pdo;
+            pathBuilder
+                    .append(PLUGIN_HDF5_DIR)
+                    .append(pathProvider.getHDFPath(this.pluginName, persist))
+                    .append(File.separatorChar)
+                    .append(pathProvider.getHDFFileName(this.pluginName,
+                            persist));
+            String file = pathBuilder.toString();
+
+            if (trackToUri) {
+                List<String> uriList = hdf5FileToUriPurged.get(file);
+                if (uriList == null) {
+                    // sizing to 50 as most data types have numerous
+                    // entries in a file
+                    uriList = new ArrayList<String>(50);
+                    hdf5FileToUriPurged.put(file, uriList);
+                }
+                uriList.add(file);
+            } else {
+                // only need to track file, tracking last file
+                // instead of constantly indexing hashMap
+                if (!file.equals(previousFile)) {
+                    hdf5FileToUriPurged.put(file, null);
+                    previousFile = file;
+                }
+            }
+        }
     }
 
     /**
@@ -1695,105 +1762,18 @@ public abstract class PluginDao extends CoreDao {
         return null;
     }
 
-    public void archiveData(String archivePath, Calendar insertStartTime,
-            Calendar insertEndTime) throws DataAccessLayerException,
-            SerializationException, IOException {
-        List<PersistableDataObject> pdos = getRecordsToArchive(insertStartTime,
-                insertEndTime);
-        if ((pdos != null) && (pdos.size() > 0)) {
-            // map of file to list of pdo
-            Map<String, List<PersistableDataObject>> pdoMap = new HashMap<String, List<PersistableDataObject>>();
-            if (pdos.get(0) instanceof IPersistable) {
-                IHDFFilePathProvider pathProvider = this.pathProvider;
-
-                for (PersistableDataObject pdo : pdos) {
-                    IPersistable persistable = (IPersistable) pdo;
-                    String path = pathProvider.getHDFPath(pluginName,
-                            persistable)
-                            + File.separator
-                            + pathProvider.getHDFFileName(pluginName,
-                                    persistable);
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-            } else {
-                // order files by refTime hours
-                for (PersistableDataObject pdo : pdos) {
-                    String timeString = null;
-                    if (pdo instanceof PluginDataObject) {
-                        PluginDataObject pluginDataObj = (PluginDataObject) pdo;
-                        Date time = pluginDataObj.getDataTime()
-                                .getRefTimeAsCalendar().getTime();
-                        timeString = DefaultPathProvider.fileNameFormat.get()
-                                .format(time);
-                    } else {
-                        // no refTime to use bounded insert query bounds
-                        Date time = insertStartTime.getTime();
-                        timeString = DefaultPathProvider.fileNameFormat.get()
-                                .format(time);
-                    }
-
-                    String path = pluginName + timeString;
-                    List<PersistableDataObject> list = pdoMap.get(path);
-                    if (list == null) {
-                        list = new ArrayList<PersistableDataObject>(pdos.size());
-                        pdoMap.put(path, list);
-                    }
-                    list.add(pdo);
-                }
-
-            }
-
-            for (Map.Entry<String, List<PersistableDataObject>> entry : pdoMap
-                    .entrySet()) {
-                String path = archivePath + File.separator + pluginName
-                        + File.separator + entry.getKey();
-
-                // remove .h5
-                int index = path.lastIndexOf('.');
-                if ((index > 0) && ((path.length() - index) < 5)) {
-                    // ensure its end of string in case extension is
-                    // dropped/changed
-                    path = path.substring(0, index);
-                }
-
-                path += ".bin.gz";
-
-                File file = new File(path);
-
-                if (file.exists()) {
-                    // pull the
-                }
-
-                // Thrift serialize pdo list
-                byte[] data = SerializationUtil.transformToThrift(entry
-                        .getValue());
-
-                SerializationUtil.transformFromThrift(data);
-
-                // save list to disk (in gz format?)
-                FileUtil.bytes2File(data, file, true);
-            }
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<PersistableDataObject> getRecordsToArchive(
-            Calendar insertStartTime, Calendar insertEndTime)
+    public int processArchiveRecords(Calendar insertStartTime,
+            Calendar insertEndTime, IDatabaseProcessor processor)
             throws DataAccessLayerException {
         DatabaseQuery dbQuery = new DatabaseQuery(this.getDaoClass());
         dbQuery.addQueryParam("insertTime", insertStartTime,
                 QueryOperand.GREATERTHANEQUALS);
         dbQuery.addQueryParam("insertTime", insertEndTime,
                 QueryOperand.LESSTHAN);
+        dbQuery.addOrder("insertTime", true);
         dbQuery.addOrder("dataTime.refTime", true);
 
-        return (List<PersistableDataObject>) this.queryByCriteria(dbQuery);
+        return this.processByCriteria(dbQuery, processor);
     }
 
     protected static class DuplicateCheckStat {

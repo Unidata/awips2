@@ -2,6 +2,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.interfaces;
 
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 
 /**
@@ -18,6 +19,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2012 1286       djohnson     Initial creation
  * Apr 16, 2013 1906       djohnson     Extends RegistryInitializedListener.
+ * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager}.
  * 
  * </pre>
  * 
@@ -34,8 +36,11 @@ public interface BandwidthInitializer extends RegistryInitializedListener {
      *            initialize.
      * @param dbInit
      *            a reference to the {@link IBandwidthDbInit} instance
+     * @param retrievalManager
+     *            the {@link RetrievalManager} instance
      * 
      * @return Whether or not the initialization completed successfully.
      */
-    boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit);
+    boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit,
+            RetrievalManager retrievalManager);
 }

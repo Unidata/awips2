@@ -24,19 +24,19 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * TODO Add Description
+ * Provides XML format for a dmd attribute in the sample text for dmd products.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 6, 2011            jdortiz     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 06, 2011           jdortiz     Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -46,7 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement(name = "attribute")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DmdAttribute implements ISerializableObject {
+public class DmdAttribute {
 
     @XmlAttribute(name = "value")
     private String value;

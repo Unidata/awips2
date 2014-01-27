@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Dec 16, 2013 DR 16920   D. Friemdan Fix type of tempFromTenths access.
  * 
  * </pre>
  * 
@@ -398,7 +399,7 @@ public class MetarPointDataTransform {
 
         mr.setTemperature(pdv.getNumber(TEMPERATURE).intValue());
         mr.setDewPoint(pdv.getNumber(DEWPOINT).intValue());
-        mr.setTempFromTenths(pdv.getNumber(TEMP_FROM_TENTHS).intValue());
+        mr.setTempFromTenths(pdv.getNumber(TEMP_FROM_TENTHS).floatValue());
         mr.setDewPointFromTenths(pdv.getNumber(DP_FROM_TENTHS).floatValue());
 
         mr.setMinTemp6Hour(pdv.getNumber(MIN_TEMP6_HOUR).floatValue());

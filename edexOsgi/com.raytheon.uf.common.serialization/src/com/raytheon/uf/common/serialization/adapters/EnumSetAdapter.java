@@ -28,15 +28,16 @@ import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
 import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
- * Dynamic serialize adapter for EnumSet. Due to the restrictions on EnumSet, an
- * empty EnumSet will be deserialized as null.
+ * Dynamic serialize adapter for EnumSet.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 16, 2009            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 16, 2009           rjpeter     Initial creation
+ * Dec 02, 2013  2537     bsteffen    Serialize empty enum sets.
+ * 
  * 
  * </pre>
  * 
@@ -53,28 +54,22 @@ public class EnumSetAdapter implements ISerializationTypeAdapter<EnumSet> {
         int setSize = deserializer.readI32();
         EnumSet rval = null;
 
-        if (setSize > 0) {
-            String enumClassName = deserializer.readString();
-
-            try {
-                Class baseClass = Class.forName(enumClassName);
-                if (baseClass.isEnum()) {
-                    Enum firstEnum = Enum.valueOf(baseClass, deserializer
-                            .readString());
-                    rval = EnumSet.of(firstEnum);
-                    for (int i = 1; i < setSize; i++) {
-                        rval.add(Enum.valueOf(baseClass, deserializer
-                                .readString()));
-                    }
-                } else {
-                    throw new SerializationException(
-                            "Cannot deserialize EnumSet.  Class ["
-                                    + enumClassName + "] is not an enum");
+        String enumClassName = deserializer.readString();
+        try {
+            Class baseClass = Class.forName(enumClassName);
+            if (baseClass.isEnum()) {
+                rval = EnumSet.noneOf(baseClass);
+                for (int i = 0; i < setSize; i++) {
+                    rval.add(Enum.valueOf(baseClass, deserializer.readString()));
                 }
-            } catch (ClassNotFoundException e) {
-                throw new SerializationException("Unable to find enum class ["
-                        + enumClassName + "]", e);
+            } else {
+                throw new SerializationException(
+                        "Cannot deserialize EnumSet.  Class [" + enumClassName
+                                + "] is not an enum");
             }
+        } catch (ClassNotFoundException e) {
+            throw new SerializationException("Unable to find enum class ["
+                    + enumClassName + "]", e);
         }
 
         return rval;
@@ -94,6 +89,15 @@ public class EnumSetAdapter implements ISerializationTypeAdapter<EnumSet> {
             while (iter.hasNext()) {
                 serializer.writeString(((Enum) iter.next()).name());
             }
+        } else {
+            /*
+             * Due to generic type erasure there is no simple way to access the
+             * enum type from the enum set. To work around this limitation get
+             * the complement of the empty set which will contain all the values
+             * and use an arbitrary example Object to access the enum class.
+             */ 
+            Object example = EnumSet.complementOf(set).iterator().next();
+            serializer.writeString(example.getClass().getName());
         }
     }
 }

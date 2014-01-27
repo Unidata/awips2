@@ -49,6 +49,9 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -63,8 +66,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.xy.crosssection.CrossSectionRotation;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
@@ -166,8 +167,12 @@ public abstract class AbstractCrossSectionResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (prefs == null) {
-            prefs = GraphPrefsFactory.buildPreferences(
-                    resourceData.getParameter(), null);
+            try {
+                prefs = GraphPrefsFactory.buildPreferences(
+                        resourceData.getParameter(), null);
+            } catch (StyleException e) {
+                throw new VizException(e.getLocalizedMessage(), e);
+            }
         }
         int numTimes = dataTimes.size();
         if (numTimes > 0) {

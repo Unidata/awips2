@@ -7,17 +7,29 @@
   http://www.springframework.org/schema/util
   http://www.springframework.org/schema/util/spring-util-3.1.xsd
   http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx.xsd">
+  http://www.springframework.org/schema/tx/spring-tx.xsd">  
 
 	<tx:annotation-driven transaction-manager="metadataTxManager"
 		proxy-target-class="true" />
+	
+	<!-- The db class finder will search the packages listed for classes with @Entity or @Embeddable -->	
+	<bean id="dbClassFinder" class="com.raytheon.uf.edex.database.DatabaseClassAnnotationFinder" >
+       <constructor-arg>
+           <list>
+               <value>com.raytheon</value>
+               <value>gov.noaa</value>
+           </list>
+       </constructor-arg>      
+    </bean>
 
 	<bean id="metadataDbSessionConfig"
 		class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
+		<property name="classFinder" ref="dbClassFinder" />
 		<property name="excludes">
 			<list>
 				<value>com.raytheon.uf.common.dataplugin.text</value>
-				<value>com.raytheon.edex.plugin.shef</value>
+				<value>com.raytheon.uf.common.dataplugin.shef</value>
+				<value>com.raytheon.edex.plugin.shef</value>				
 			</list>
 		</property>
 	</bean>

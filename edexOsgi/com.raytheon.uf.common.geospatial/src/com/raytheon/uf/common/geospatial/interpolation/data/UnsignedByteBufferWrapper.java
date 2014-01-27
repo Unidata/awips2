@@ -25,7 +25,7 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 
 /**
  * 
- * ByteBuffer data wrapper
+ * Unsigned ByteBuffer data wrapper
  * 
  * <pre>
  * 
@@ -34,50 +34,52 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2012            bsteffen     Initial creation
+ * Nov 19, 2013  2393      bclement    changed to extend ByteBufferWrapper
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class UnsignedByteBufferWrapper extends DataWrapper1D {
+public class UnsignedByteBufferWrapper extends ByteBufferWrapper {
 
-    protected final ByteBuffer buffer;
 
+    /**
+     * @param buffer
+     * @param geometry
+     */
     public UnsignedByteBufferWrapper(ByteBuffer buffer,
             GeneralGridGeometry geometry) {
-        super(geometry);
-        this.buffer = buffer;
+        super(buffer, geometry);
     }
 
+    /**
+     * @param buffer
+     * @param nx
+     * @param ny
+     */
     public UnsignedByteBufferWrapper(ByteBuffer buffer, int nx, int ny) {
-        super(nx, ny);
-        this.buffer = buffer;
+        super(buffer, nx, ny);
     }
 
-    public UnsignedByteBufferWrapper(int nx, int ny) {
-        this(ByteBuffer.allocate(nx * ny), nx, ny);
-    }
-
+    /**
+     * @param geometry
+     */
     public UnsignedByteBufferWrapper(GeneralGridGeometry geometry) {
-        // assume this is going to be a destination and avoid passing
-        // geometry to super to save time on checking for wrapping.
-        this(geometry.getGridRange().getSpan(0), geometry.getGridRange()
-                .getSpan(1));
+        super(geometry);
     }
 
-    public ByteBuffer getBuffer() {
-        return buffer;
+    /**
+     * @param nx
+     * @param ny
+     */
+    public UnsignedByteBufferWrapper(int nx, int ny) {
+        super(nx, ny);
     }
 
     @Override
     protected double getDataValueInternal(int index) {
         return buffer.get(index) & 0xFF;
-    }
-
-    @Override
-    public void setDataValueInternal(double dataValue, int index) {
-        buffer.put(index, (byte) dataValue);
     }
 
 }

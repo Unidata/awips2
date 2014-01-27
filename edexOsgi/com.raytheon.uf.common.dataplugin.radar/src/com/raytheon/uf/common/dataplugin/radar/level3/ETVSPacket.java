@@ -32,6 +32,7 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -40,12 +41,6 @@ package com.raytheon.uf.common.dataplugin.radar.level3;
  */
 
 public class ETVSPacket extends TVSPacket {
-    private static final int ETVS_PACKET26 = 26;
 
     protected final boolean isElevated = true;
-
-    static {
-        PacketFactory.registerPacketType(ETVSPacket.class, ETVS_PACKET26);
-    }
-
 }

@@ -27,4 +27,34 @@
         <statisticsAggregate field="numRecords"
             displayName="Number of Records Downloaded" displayUnit="Count" />
     </statisticsEvent>
+    <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.AdhocDataRetrievalEvent"
+        displayName="Adhoc Data Retrieval" category="Data Delivery">
+        <statisticsGroup name="plugin" displayName="Data Type" />
+        <statisticsGroup name="provider" displayName="Data Provider" />
+        <statisticsGroup name="owner" displayName="Owner" />
+        <statisticsGroup name="network" displayName="Network Route" />
+        <!-- 
+           Display unit options are bytes, KB, MB, GB
+        -->
+        <statisticsAggregate field="bytes"
+            displayName="Amount of Data Downloaded" displayUnit="MB" />
+        <statisticsAggregate field="numRecords"
+            displayName="Number of Records Downloaded" displayUnit="Count" />
+    </statisticsEvent>
+    <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.SubscriptionRequestEvent"
+        displayName="Subscription Requests" category="Data Delivery">
+        <statisticsGroup name="provider" displayName="Data Provider" />
+        <statisticsGroup name="owner" displayName="Owner" />
+        <statisticsGroup name="network" displayName="Network Route" />
+        <statisticsAggregate field="numRecords"
+            displayName="Number of Subscription Requests" displayUnit="Count" />
+    </statisticsEvent>
+    <statisticsEvent type="com.raytheon.uf.common.datadelivery.event.retrieval.AdhocSubscriptionRequestEvent"
+        displayName="Adhoc Subscription Requests" category="Data Delivery">
+        <statisticsGroup name="provider" displayName="Data Provider" />
+        <statisticsGroup name="owner" displayName="Owner" />
+        <statisticsGroup name="network" displayName="Network Route" />
+        <statisticsAggregate field="numRecords"
+            displayName="Number of Adhoc Subscription Requests" displayUnit="Count" />
+    </statisticsEvent>
 </statisticsConfig>

@@ -58,6 +58,9 @@ import com.vividsolutions.jts.geom.Point;
  *                                     types.
  * Jul 09, 2013 1869       bsteffen    Switch location hibernate type to use
  *                                     hibernate spatial.
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
+ * July 15, 2013 2180      dhladky     Changed to hibernate spatial type (Done in 13.51) not in dev
  * 
  * </pre>
  * 

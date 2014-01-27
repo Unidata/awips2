@@ -23,36 +23,18 @@
       <import feature="com.raytheon.uf.edex.registry.feature" version="0.0.0"/>
       <import feature="com.raytheon.uf.edex.core.feature" version="0.0.0"/>
       <import feature="com.raytheon.uf.edex.datadelivery.client.feature" version="0.0.0"/>
+      <import feature="com.raytheon.uf.edex.datadelivery.core.feature" version="0.0.0"/>
    </requires>
 
    <plugin
-         id="org.codehaus.jackson"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.json"
+         id="org.apache.commons.compress"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.sun.xml.bind"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.datadelivery.retrieval"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.datadelivery.retrieval"
+         id="edu.uci.ics.crawler4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -73,41 +55,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.datadelivery.service"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.datadelivery.service"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="net.dods"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="edu.uci.ics.crawler4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.edex.datadelivery.event"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.common.datadelivery.bandwidth"
          download-size="0"
          install-size="0"
@@ -115,7 +62,21 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.datadelivery.harvester"
+         id="com.raytheon.uf.edex.datadelivery.bandwidth.ncf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.datadelivery.registry"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.apache.commons.compress"
          download-size="0"
          install-size="0"
          version="0.0.0"

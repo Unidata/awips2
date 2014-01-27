@@ -29,9 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.util.GenProcess;
 import com.raytheon.edex.plugin.grib.util.Grib1Parameter;
@@ -44,6 +41,8 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 
@@ -54,10 +53,11 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Mar 14, 2013 1794        djohnson    Consolidate common FilenameFilter implementations.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 07, 2009  1994     bphillip    Initial Creation
+ * Mar 14, 2013  1794     djohnson    Consolidate common FilenameFilter implementations.
+ * Oct 15, 2013  2473     bsteffen    Switch logging to use UFStatus
  * 
  * </pre>
  * 
@@ -67,7 +67,8 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
 public class GribTableLookup {
 
     /** The logger */
-    protected transient Log logger = LogFactory.getLog(getClass());
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GribTableLookup.class);
 
     /** No center number */
     private static final int NO_CENTER = -1;
@@ -250,7 +251,7 @@ public class GribTableLookup {
                             try {
                                 createTable(table, center, subcenter, tableName);
                             } catch (GribException e) {
-                                logger.error("Unable to create table: "
+                                statusHandler.error("Unable to create table: "
                                         + tableName + " for Center: " + center
                                         + " Subcenter: " + subcenter);
                                 continue;
@@ -380,7 +381,7 @@ public class GribTableLookup {
                 try {
                     in.close();
                 } catch (IOException e) {
-                    logger.error("Unable to close file: " + file, e);
+                    statusHandler.error("Unable to close file: " + file, e);
                 }
             }
         }

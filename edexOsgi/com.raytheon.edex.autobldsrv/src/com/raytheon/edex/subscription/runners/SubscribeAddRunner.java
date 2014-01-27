@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.edex.autobldsrv.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.dao.SubscriptionDAO;
-import com.raytheon.edex.subscription.data.SubscriptionRecord;
 import com.raytheon.edex.subscription.util.Tools;
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.message.Property;

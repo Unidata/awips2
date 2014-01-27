@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.CoordAdapter;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.AbstractDescriptor;
@@ -37,10 +36,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 5, 2007             njensen     Initial creation.
- * Oct 22, 2009 #3348      bsteffen    Moved getter/setters for numberOfFrames down to AbstractDescriptor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 5, 2007            njensen     Initial creation.
+ * Oct 22, 2009  3348     bsteffen    Moved getter/setters for numberOfFrames
+ *                                    down to AbstractDescriptor
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -48,8 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class GraphDescriptor extends AbstractDescriptor implements
-        ISerializableObject {
+public class GraphDescriptor extends AbstractDescriptor {
 
     protected double zoomLevel = 1.0f;
 

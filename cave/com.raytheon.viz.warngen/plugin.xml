@@ -90,13 +90,6 @@
 		</menuContribution>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="warngen"
-            scriptTemplateFile="scriptTemplates/warngenRequestTemplate.vm">
-      </scriptTemplate>
-   </extension>
-   <extension
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="D2D"

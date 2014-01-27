@@ -1,0 +1,22 @@
+@startuml
+
+package "EDEX Common OGC" {
+  [Simple Dimension] as dim
+  [Simple Layer] as layer
+  [Abstract Layer Collector] as abscol
+}
+
+node "EDEX Data Plug-in Adapter" {
+  [Plug-in Dimension] as pdim
+  [Plug-in Layer] as player
+  [Plug-in Layer Collector] as collector
+} 
+
+abscol <|-- collector
+layer <|-- player
+dim <|-- pdim
+
+collector o-left- "*"player
+player o-left- "*" pdim
+
+@enduml

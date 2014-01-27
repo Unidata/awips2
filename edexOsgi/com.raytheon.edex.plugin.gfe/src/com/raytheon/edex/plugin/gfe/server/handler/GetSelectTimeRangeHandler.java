@@ -26,7 +26,6 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.TimeZone;
 
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSelectTimeRangeRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.time.SelectTimeRange;
@@ -54,6 +53,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 1, 2012             dgilling    Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -61,7 +61,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * @version 1.0
  */
 
-public class GetSelectTimeRangeHandler implements
+public class GetSelectTimeRangeHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetSelectTimeRangeRequest> {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -121,10 +121,8 @@ public class GetSelectTimeRangeHandler implements
         }
 
         if (trFile != null) {
-            TimeZone localTZ = TimeZone
-                    .getTimeZone(IFPServerConfigManager
-                            .getServerConfig(request.getSiteID())
-                            .getTimeZones().get(0));
+            TimeZone localTZ = TimeZone.getTimeZone(getIfpServer(request)
+                    .getConfig().getTimeZones().get(0));
             SelectTimeRange selectTR = loadTimeRange(trFile, localTZ);
             if (selectTR != null) {
                 TimeRange tr = selectTR.toTimeRange();

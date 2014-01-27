@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
@@ -37,6 +38,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.IStyleType;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.level.LevelUtilities;
@@ -45,10 +51,6 @@ import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
@@ -56,9 +58,8 @@ import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData.AxisParameter;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
-import com.raytheon.viz.grid.GridLevelTranslator;
+import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.grid.rsc.GridLoadProperties;
-import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -71,14 +72,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 6, 2009  2987       jelkins     Initial creation
- * 10-21-09     #1711      bsteffen    Updated Baseline and Points to use new ToolsDataManager
- * 01/30/2012   DR 14308   D.Friedman  Use correct style for arrow types.
- * 07/31/2012   #875       rferrel     Now uses points.
+ * Oct 06, 2009 2987       jelkins     Initial creation
+ * Oct 21, 2009 1711       bsteffen    Updated Baseline and Points to use new
+ *                                     ToolsDataManager
+ * Jan 30, 2012 14308      D.Friedman  Use correct style for arrow types.
+ * Jul 31, 2012 875        rferrel     Now uses points.
  * Feb 21, 2013 1617       bsteffen    fixed vb sounding point selection for
  *                                     points which contain the word Point
  * May 03, 2013 DR14824 mgamazaychikov Added alterProductParameters method
- * 
+ * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
+ * Sep 06, 2013 2251       mnash       Move graph prefs style type to
+ *                                      graph plugin
  * 
  * </pre>
  * 
@@ -193,14 +197,6 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
             thData.setSource(catalogEntry.getSelectedData().getSourcesText());
             resourceData = thData;
             break;
-        case SOUNDING:
-            resourceData = inputResourceData;
-            if ((catalogEntry != null)
-                    && (resourceData instanceof SkewTResourceData)) {
-                ((SkewTResourceData) resourceData)
-                        .setPointLetter(getPointLetter(catalogEntry));
-            }
-            break;
         default: // PLAN_VIEW
             resourceData = null;
             break;
@@ -240,10 +236,6 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         case TIME_HEIGHT:
             resourceData = getResourceData(catalogEntry, resourceType,
                     new TimeHeightResourceData());
-            break;
-        case SOUNDING:
-            resourceData = getResourceData(catalogEntry, resourceType,
-                    new SkewTResourceData());
             break;
         default: // PLAN_VIEW
             resourceData = null;
@@ -402,7 +394,7 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
         StyleRule sr = null;
         try {
 
-            StyleManager.StyleType styleType = StyleManager.StyleType.CONTOUR;
+            IStyleType styleType = StyleManager.StyleType.CONTOUR;
 
             if (displayType.equals(DisplayType.IMAGE)) {
                 styleType = StyleManager.StyleType.IMAGERY;
@@ -416,11 +408,11 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
 
             if (catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.TIMESERIES
                     || catalogEntry.getDialogSettings().getViewSelection() == ViewMenu.VARVSHGT) {
-                styleType = StyleManager.StyleType.GRAPH;
+                styleType = GraphPrefsFactory.GRAPH_STYLE_TYPE;
             }
 
             sr = StyleManager.getInstance().getStyleRule(styleType, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to obtain a style rule for"
                             + catalogEntry.getSelectedData().getUniqueKey(), e);
@@ -497,14 +489,14 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
     protected boolean isLatLon(String plane) {
         return ((plane != null) && (plane.startsWith("Lat")
                 || plane.startsWith("Lon") || plane.equals("LATS") || plane
-                .equals("LONS")));
+                    .equals("LONS")));
     }
 
     protected boolean isPointLine(String plane) {
         return ((plane != null) && (plane.startsWith("Line") || plane
                 .startsWith("Point")));
     }
-    
+
     /**
      * Alter product parameters
      * 
@@ -512,9 +504,9 @@ public abstract class AbstractDataCatalog implements IDataCatalog {
      * @param selectedValue
      * @param productParameters
      */
-    public void alterProductParameters(
-            String selectedKey,
-            String selectedValue, HashMap<String, RequestConstraint> productParameters) {
+    public void alterProductParameters(String selectedKey,
+            String selectedValue,
+            HashMap<String, RequestConstraint> productParameters) {
         return;
     }
 

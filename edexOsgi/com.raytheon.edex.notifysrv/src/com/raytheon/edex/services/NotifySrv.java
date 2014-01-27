@@ -31,8 +31,8 @@ import com.raytheon.edex.subscription.ISubscriptionManager;
 import com.raytheon.edex.subscription.Script;
 import com.raytheon.edex.subscription.Subscription;
 import com.raytheon.edex.subscription.SubscriptionManager;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -104,7 +104,7 @@ public class NotifySrv {
                             .getSubscriptionKey(dataURI);
                     // messages = new ArrayList<String>();
                     logger.info("-subscription exists for "
-                            + Util.printString(dataURI));
+                            + StringUtil.printString(dataURI));
                     Configuration properties = PropertiesFactory.getInstance()
                             .getConfiguration(
                                     ISubscriptionManager.CONFIGURATION_NAME);

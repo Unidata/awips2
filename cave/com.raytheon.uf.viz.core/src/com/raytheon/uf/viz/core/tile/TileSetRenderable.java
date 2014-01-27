@@ -22,9 +22,13 @@ package com.raytheon.uf.viz.core.tile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -61,8 +65,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 8, 2012             mschenke     Initial creation
- * May 28, 2013 2037       njensen      Made imageMap concurrent to fix leak
+ * Aug 8, 2012             mschenke    Initial creation
+ * May 28, 2013 2037       njensen     Made imageMap concurrent to fix leak
+ * Jun 20, 2013 2122       mschenke    Fixed null pointer in interrogate and made 
+ *                                     canceling jobs safer
+ * Oct 16, 2013 2333       mschenke    Added auto NaN checking for interrogation
+ * Nov 14, 2013 2492       mschenke    Added more interrogate methods that take units
  * 
  * </pre>
  * 
@@ -226,6 +234,25 @@ public class TileSetRenderable implements IRenderable {
         }
     }
 
+    /**
+     * Returns the {@link GeneralGridGeometry} the {@link TileSet} is currently
+     * projected for
+     * 
+     * @return
+     */
+    public GeneralGridGeometry getTargetGeometry() {
+        return tileSet != null ? tileSet.getTargetGeometry() : null;
+    }
+
+    /**
+     * Returns the {@link GridGeometry2D} of the {@link TileSet}
+     * 
+     * @return
+     */
+    public GridGeometry2D getTileSetGeometry() {
+        return tileSetGeometry;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -297,7 +324,21 @@ public class TileSetRenderable implements IRenderable {
         lastPaintedLevel = usedTileLevel;
 
         return getImagesWithinExtent(target, paintProps.getView().getExtent(),
-                usedTileLevel, 0);
+                usedTileLevel);
+    }
+
+    /**
+     * Gets the images to render within the extent in target grid space
+     * 
+     * @param target
+     * @param extent
+     * @param level
+     * @return
+     * @throws VizException
+     */
+    protected List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
+            IExtent extent, int level) {
+        return getImagesWithinExtent(target, extent, level, 0);
     }
 
     /**
@@ -309,8 +350,8 @@ public class TileSetRenderable implements IRenderable {
      * @return
      * @throws VizException
      */
-    protected List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
-            IExtent extent, int level, int depth) throws VizException {
+    private List<DrawableImage> getImagesWithinExtent(IGraphicsTarget target,
+            IExtent extent, int level, int depth) {
         if (tileSet == null) {
             // Early exit condition, disposed or haven't projected yet
             return Collections.emptyList();
@@ -366,10 +407,13 @@ public class TileSetRenderable implements IRenderable {
                 // All intersecting tiles are loaded for this level, cancel any
                 // jobs running for tiles we don't need anymore (may be case if
                 // zooming or panning)
-                for (Runnable job : jobMap.values()) {
-                    tileCreationPool.cancel(job);
+                Iterator<Runnable> iterator = jobMap.values().iterator();
+                while (iterator.hasNext()) {
+                    Runnable job = iterator.next();
+                    if (tileCreationPool.cancel(job)) {
+                        iterator.remove();
+                    }
                 }
-                jobMap.clear();
             } else {
                 target.setNeedsRefresh(true);
                 // Create tiles needing images
@@ -435,6 +479,66 @@ public class TileSetRenderable implements IRenderable {
      * @throws VizException
      */
     public double interrogate(Coordinate coordinate) throws VizException {
+        return interrogate(coordinate, null);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param resultUnit
+     *            unit result from interrogate will be returned is. If unit is
+     *            not compatible with data unit, {@link Double#NaN} will be
+     *            returned. Null indicates data will not be converted
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit)
+            throws VizException {
+        return interrogate(coordinate, resultUnit, Double.NaN);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, double nanValue)
+            throws VizException {
+        return interrogate(coordinate, null, nanValue);
+    }
+
+    /**
+     * Returns the raw image value from tile image that contains the lat/lon
+     * coordinate. Any values matching nanValue will return {@link Double#NaN}
+     * 
+     * @param coordinate
+     *            in lat/lon space
+     * @param resultUnit
+     *            unit result from interrogate will be returned is. If unit is
+     *            not compatible with data unit, {@link Double#NaN} will be
+     *            returned. Null indicates data will not be converted
+     * @param nanValue
+     *            if interrogated value is equal to nanValue, {@link Double#NaN}
+     *            will be returned
+     * @return
+     * @throws VizException
+     */
+    public double interrogate(Coordinate coordinate, Unit<?> resultUnit,
+            double nanValue) throws VizException {
+        double dataValue = Double.NaN;
         try {
             double[] local = new double[2];
             llToLocalProj
@@ -451,15 +555,39 @@ public class TileSetRenderable implements IRenderable {
                 if (di != null) {
                     IImage image = di.getImage();
                     if (image instanceof IColormappedImage) {
-                        return ((IColormappedImage) image).getValue(
+                        IColormappedImage cmapImage = (IColormappedImage) image;
+                        dataValue = cmapImage.getValue(
                                 (int) grid[0] % tileSize, (int) grid[1]
                                         % tileSize);
+                        if (dataValue == nanValue) {
+                            dataValue = Double.NaN;
+                        } else {
+                            Unit<?> dataUnit = cmapImage.getDataUnit();
+                            if (resultUnit != null && dataUnit != null
+                                    && dataUnit.equals(resultUnit) == false) {
+                                if (resultUnit.isCompatible(dataUnit)) {
+                                    dataValue = dataUnit.getConverterTo(
+                                            resultUnit).convert(dataValue);
+                                } else {
+                                    throw new IllegalArgumentException(
+                                            "Unable to interrogate tile set. "
+                                                    + String.format(
+                                                            "Desired unit (%s) is not compatible with data unit (%s).",
+                                                            UnitFormat
+                                                                    .getUCUMInstance()
+                                                                    .format(resultUnit),
+                                                            UnitFormat
+                                                                    .getUCUMInstance()
+                                                                    .format(dataUnit)));
+                                }
+                            }
+                        }
                     }
                 }
             }
         } catch (TransformException e) {
             throw new VizException("Error interrogating ", e);
         }
-        return Double.NaN;
+        return dataValue;
     }
 }

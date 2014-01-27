@@ -28,48 +28,51 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Internal structure for parsing Local Storm Reports
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2009            jkorman     Initial creation
  * Oct 23, 2013  DR 16674  D. Friedman Prevent infinite loop
- *
+ * Dec 10, 2013  2581      njensen     Use UFStatus for logging
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public class InternalReport {
 
-    private static Log logger = LogFactory.getLog(InternalReport.class);
-    
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(InternalReport.class);
+
     public static final String NWS_ID_LINE = "^(NATIONAL WEATHER SERVICE) +(.*)";
 
     // 544 PM EDT SUN OCT 18 2009
     public static final String DATETIME = "^((\\d{3,4}) (AM|PM) (EDT|EST|CDT|CST|MDT|MST|PDT|PST|GMT)(.*))";
-    
-    // 
-    // 0953 AM     NON-TSTM WND DMG FAIRHAVEN               41.65N 70.82W
+
+    //
+    // 0953 AM NON-TSTM WND DMG FAIRHAVEN 41.65N 70.82W
     public static final String TIME_LINE = "^((0[1-9]|1[0-2]))([0-5]\\d) (AM|PM) (.*)";
-    
-    // 10/18/2009                   PLYMOUTH           MA   AMATEUR RADIO
+
+    // 10/18/2009 PLYMOUTH MA AMATEUR RADIO
     public static final String DATE_LINE = "^((0[1-9])|(1[0-2]))/(\\d{2,2})/(\\d{4,4}) .*";
 
     private final InternalType lineType;
+
     private final String reportLine;
-    
+
     private List<InternalReport> subLines = null;
-    
+
     public InternalReport(InternalType type, String line) {
         lineType = type;
         reportLine = line;
@@ -96,15 +99,16 @@ public class InternalReport {
     public List<InternalReport> getSubLines() {
         return subLines;
     }
-    
+
     /**
      * 
-     * @param buffer Buffer to receive String formatted internal data. If this
-     * reference is null, a new StringBuilder instance is created.
+     * @param buffer
+     *            Buffer to receive String formatted internal data. If this
+     *            reference is null, a new StringBuilder instance is created.
      * @return The populated StringBuilder instance.
      */
     public StringBuilder toString(StringBuilder buffer) {
-        if(buffer == null) {
+        if (buffer == null) {
             buffer = new StringBuilder();
         }
         buffer.append("[");
@@ -114,16 +118,17 @@ public class InternalReport {
         buffer.append("}\n");
         return buffer;
     }
-    
+
     /**
      * Create a string representation of this class instance.
+     * 
      * @return The string representation of this class instance.
      */
     @Override
     public String toString() {
         StringBuilder sb = toString(null);
-        if(subLines != null) {
-            for(InternalReport r : subLines) {
+        if (subLines != null) {
+            for (InternalReport r : subLines) {
                 sb.append("   ");
                 r.toString(sb);
             }
@@ -131,41 +136,46 @@ public class InternalReport {
         return sb.toString();
     }
 
-    public static List<InternalReport> identifyMessage(byte [] message) {
+    public static List<InternalReport> identifyMessage(byte[] message) {
         List<InternalReport> reports = new ArrayList<InternalReport>();
         List<String> lines = separateLines(message);
-        if(lines != null) {
+        if (lines != null) {
             Pattern p1 = Pattern.compile(NWS_ID_LINE);
             Pattern p2 = Pattern.compile(DATETIME);
             Pattern p3 = Pattern.compile(TIME_LINE);
             Pattern p4 = Pattern.compile(DATE_LINE);
-            
-            for(String s : lines) {
-                if((s.length() > 0)&&(s.startsWith("&&"))) {
+
+            for (String s : lines) {
+                if ((s.length() > 0) && (s.startsWith("&&"))) {
                     // We don't care about any aux. data past this point.
                     break;
                 }
                 Matcher m = p1.matcher(s);
-                if(m.matches()) {
-                    InternalReport rptLine = new InternalReport(InternalType.NWS_ID,m.group(2));
+                if (m.matches()) {
+                    InternalReport rptLine = new InternalReport(
+                            InternalType.NWS_ID, m.group(2));
                     reports.add(rptLine);
                 } else {
                     m = p2.matcher(s);
-                    if(m.matches()) {
-                        InternalReport rptLine = new InternalReport(InternalType.DATETIME_ZONE,s);
+                    if (m.matches()) {
+                        InternalReport rptLine = new InternalReport(
+                                InternalType.DATETIME_ZONE, s);
                         reports.add(rptLine);
                     } else {
                         m = p3.matcher(s);
-                        if(m.matches()) {
-                            InternalReport rptLine = new InternalReport(InternalType.TIME,s);
+                        if (m.matches()) {
+                            InternalReport rptLine = new InternalReport(
+                                    InternalType.TIME, s);
                             reports.add(rptLine);
                         } else {
                             m = p4.matcher(s);
-                            if(m.matches()) {
-                                InternalReport rptLine = new InternalReport(InternalType.DATE,s);
+                            if (m.matches()) {
+                                InternalReport rptLine = new InternalReport(
+                                        InternalType.DATE, s);
                                 reports.add(rptLine);
-                            } else if(s.startsWith("            ")) {
-                                InternalReport rptLine = new InternalReport(InternalType.REMARK,s.trim());
+                            } else if (s.startsWith("            ")) {
+                                InternalReport rptLine = new InternalReport(
+                                        InternalType.REMARK, s.trim());
                                 reports.add(rptLine);
                             } else {
                                 logger.debug("not identified [" + s + "]");
@@ -177,7 +187,7 @@ public class InternalReport {
         }
         return adjust(reports);
     }
-        
+
     /**
      * 
      * @param message
@@ -199,7 +209,7 @@ public class InternalReport {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Error reading from reader",e);
+                logger.error("Error reading from reader", e);
             } finally {
                 if (reader != null) {
                     try {
@@ -212,45 +222,47 @@ public class InternalReport {
         }
         return reportLines;
     }
-    
+
     /**
      * Collect subordinate report lines "below" the report lead-in line.
-     * @param reports List of report lines to adjust.
+     * 
+     * @param reports
+     *            List of report lines to adjust.
      * @return The adjusted report list.
      */
     private static List<InternalReport> adjust(List<InternalReport> reports) {
-        if(reports != null) {
+        if (reports != null) {
             InternalReport currRpt = null;
-            for(int i = 0;i < reports.size();) {
+            for (int i = 0; i < reports.size();) {
                 InternalReport r = reports.get(i);
-                switch(r.lineType) {
-                case DATETIME_ZONE : {
+                switch (r.lineType) {
+                case DATETIME_ZONE: {
                     i++;
                     break;
                 }
-                case TIME : {
+                case TIME: {
                     currRpt = r;
-                    if(currRpt.subLines == null) {
+                    if (currRpt.subLines == null) {
                         currRpt.subLines = new ArrayList<InternalReport>();
                     }
                     i++;
                     break;
                 }
-                case DATE : {
-                    if(currRpt != null) {
+                case DATE: {
+                    if (currRpt != null) {
                         currRpt.subLines.add(r);
                     }
                     reports.remove(r);
                     break;
                 }
-                case REMARK : {
-                    if(currRpt != null) {
+                case REMARK: {
+                    if (currRpt != null) {
                         currRpt.subLines.add(r);
                     }
                     reports.remove(r);
                     break;
                 }
-                default : {
+                default: {
                     logger.debug(r.reportLine);
                     reports.remove(r);
                 }
@@ -259,13 +271,13 @@ public class InternalReport {
         }
         return reports;
     }
-    
-    
-    public static final void main(String [] args) {
-        
-        Pattern p4 = Pattern.compile("^((0[1-9])|(1[0-2]))/(\\d{2,2})/(\\d{4,4}) .*");
-        
-        String [] test = {
+
+    public static final void main(String[] args) {
+
+        Pattern p4 = Pattern
+                .compile("^((0[1-9])|(1[0-2]))/(\\d{2,2})/(\\d{4,4}) .*");
+
+        String[] test = {
                 "00/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
                 "01/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
                 "02/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
@@ -279,15 +291,13 @@ public class InternalReport {
                 "10/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
                 "11/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
                 "12/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
-                "13/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ",
-        };
-        for(String s : test) {
+                "13/25/2010                   PROVIDENCE         RI   AMATEUR RADIO   ", };
+        for (String s : test) {
             Matcher m = p4.matcher(s);
-            if(m.matches()) {
+            if (m.matches()) {
                 System.out.println(s);
             }
         }
     }
-    
-    
+
 }

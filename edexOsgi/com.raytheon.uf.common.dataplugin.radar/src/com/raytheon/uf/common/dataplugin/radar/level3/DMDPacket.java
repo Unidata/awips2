@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 22, 2009            askripsk    Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -138,8 +139,6 @@ public class DMDPacket extends GenericDataPacket {
         }
     }
 
-    private static final int DMD_PRODUCT_CODE = 149;
-
     @DynamicSerializeElement
     private List<String> featureIDs;
 
@@ -149,11 +148,6 @@ public class DMDPacket extends GenericDataPacket {
 
     @DynamicSerializeElement
     private HashMap<String, GenericDataParameter> params;
-
-    static {
-        PacketFactory.registerGenericPacketType(DMDPacket.class,
-                DMD_PRODUCT_CODE);
-    }
 
     public DMDPacket(int packetId, DataInputStream in) throws IOException {
         super(packetId, in);

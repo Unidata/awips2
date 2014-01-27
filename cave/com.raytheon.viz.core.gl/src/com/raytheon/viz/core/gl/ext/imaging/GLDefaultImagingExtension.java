@@ -22,11 +22,13 @@ package com.raytheon.viz.core.gl.ext.imaging;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
 
 /**
- * TODO Add Description
+ * Default GL imaging extension. Renders RGB images in GL applying alpha,
+ * brightness, and contrast settings.
  * 
  * <pre>
  * 
@@ -34,7 +36,9 @@ import com.raytheon.viz.core.gl.images.AbstractGLImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2011            mschenke     Initial creation
+ * Dec 16, 2011            mschenke    Initial creation
+ * Nov  4, 2013 2492       mschenke    Switched to use GLSLStructFactory for 
+ *                                     common shader structure use
  * 
  * </pre>
  * 
@@ -76,10 +80,10 @@ public class GLDefaultImagingExtension extends AbstractGLImagingExtension {
         }
         image = (AbstractGLImage) iimage;
 
-        program.setUniform("alpha", paintProps.getAlpha());
-        program.setUniform("brightness", image.getBrightness());
-        program.setUniform("contrast", image.getContrast());
         program.setUniform("rawTex", 0);
+        GLSLStructFactory.createColorModifiers(program, "modifiers",
+                paintProps.getAlpha(), image.getBrightness(),
+                image.getContrast());
     }
 
 }

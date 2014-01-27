@@ -26,6 +26,10 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleRule;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -39,26 +43,23 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.contours.util.VectorGraphicsRenderable;
-import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.style.arrow.ArrowPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Creates a vector resource on a cross section display.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * ------------- -------- ----------- --------------------------
  * Jun 15, 2010            bsteffen     Initial creation
  * Feb 14, 2011 8244       bkowal       enabled magnification capability.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
  * 
  * </pre>
  * 
@@ -68,9 +69,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class CrossSectionVectorResource extends AbstractCrossSectionResource {
 
-    private ArrowPreferences arrowPrefs;
-
-    private int imageSize = XYWindImageData.IMAGE_SIZE;
+    /* Unknown source, provides acceptable density. */
+    private static final int VECTOR_SPACING = 60;
 
     /**
      * @param data
@@ -89,12 +89,12 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         try {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.ARROW, match);
-        } catch (VizStyleException e) {
+        } catch (StyleException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         if (sr != null) {
-            prefs = arrowPrefs = (ArrowPreferences) sr.getPreferences();
+            prefs = sr.getPreferences();
         }
     }
 
@@ -116,8 +116,6 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         double density = getCapability(DensityCapability.class).getDensity();
         RGB color = getCapability(ColorableCapability.class).getColor();
 
-        int scaledSize = (int) (this.imageSize * magnification);
-
         IExtent graphArea = descriptor.getGraph(this).getExtent();
         if (graphArea == null) {
             return;
@@ -131,13 +129,15 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         double ratio = paintProps.getView().getExtent().getWidth()
                 / paintProps.getCanvasBounds().width;
         int spacing = (int) ((geometry.getGridRange2D().getMaxX()
-                * this.imageSize * .75 * ratio / Math.min(2.0, density) * magnification)
+                * VECTOR_SPACING * ratio / Math.min(2.0, density) * magnification)
                 / paintProps.getCanvasBounds().width + 1);
         IExtent viewableArea = paintProps.getView().getExtent()
                 .intersection(graphArea);
 
+        VectorGraphicsConfig config = new VectorGraphicsConfig();
+        config.setSizeScaler(magnification * ratio);
         VectorGraphicsRenderable vgr = new VectorGraphicsRenderable(descriptor,
-                target, this.imageSize, 1.0f);
+                target, config);
 
         for (int i = spacing / 2; i < geometry.getGridRange2D().getMaxX(); i += spacing) {
             for (int j = spacing / 2; j < geometry.getGridRange2D().getMaxY(); j += spacing) {
@@ -156,11 +156,10 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
                 double spd = Math.hypot(uudd, vvff);
                 double dir = Math.atan2(-uudd, -vvff);
                 Coordinate plotLoc = new Coordinate(screenX, screenY);
-                double adjSize = scaledSize * ratio;
                 if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.ARROW) {
-                    vgr.paintArrow(plotLoc, adjSize, spd, dir);
+                    vgr.paintArrow(plotLoc, spd, dir);
                 } else {
-                    vgr.paintBarb(plotLoc, adjSize, spd, dir);
+                    vgr.paintBarb(plotLoc, spd, dir);
                 }
             }
         }
@@ -178,7 +177,7 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         String s = null;
         Coordinate c = coord.getObject();
         DataTime time = descriptor.getTimeForResource(this);
-        double[] values = descriptor.getGraph(this).getGridLocation(c.x, c.y);
+        double[] values = descriptor.pixelToWorld(new double[] { c.x, c.y });
 
         // if geometry has not been created yet dont sample
         if (geometry == null) {
@@ -194,8 +193,8 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
                     && y < geometry.getGridRange().getSpan(1)
                     && sliceMap.get(time) != null) {
                 int index = y * geometry.getGridRange().getSpan(0) + x;
-                float[] ufd = (float[]) sliceMap.get(time).get(2);
-                float[] vfd = (float[]) sliceMap.get(time).get(3);
+                float[] ufd = sliceMap.get(time).get(2);
+                float[] vfd = sliceMap.get(time).get(3);
 
                 double val = Math.hypot(ufd[index], vfd[index]);
                 ColorMapParameters colorMapParams = getCapability(

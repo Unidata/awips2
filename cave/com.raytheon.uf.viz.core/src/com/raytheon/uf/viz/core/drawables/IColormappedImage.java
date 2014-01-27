@@ -19,8 +19,9 @@
  **/
 package com.raytheon.uf.viz.core.drawables;
 
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 /**
  * Describes a Colormapped Image
@@ -63,5 +64,13 @@ public interface IColormappedImage extends IImage {
      * @return the value
      */
     public abstract double getValue(int x, int y);
+
+    /**
+     * Get the unit associated with the data in the image. Values returned from
+     * {@link #getValue(int, int)} will be in this unit
+     * 
+     * @return
+     */
+    public abstract Unit<?> getDataUnit();
 
 }

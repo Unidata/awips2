@@ -19,20 +19,15 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
 /**
@@ -47,6 +42,8 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * ------------ ---------- ----------- --------------------------
  * Jan 19, 2012 184        bphillip     Initial creation
  * 4/9/2013     1802       bphillip    Removed exception catching.  Added merge method.
+ * 8/1/2013     1693       bphillip    Moved the merge method down to RegistryObjectDao
+ * 10/8/2013    1682       bphillip    Added like lid method, changed to use criteria queries for simple operations
  * 
  * </pre>
  * 
@@ -64,37 +61,6 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
     }
 
     /**
-     * Merges the state of the new object onto the persistent object
-     * 
-     * @param newObject
-     *            The object to get the state from
-     * @param existingObject
-     *            The existing persistent object to copy the state on to
-     */
-    public void merge(RegistryObjectType newObject,
-            RegistryObjectType existingObject) {
-        newObject.setId(existingObject.getId());
-        template.merge(newObject);
-    }
-
-    /**
-     * Queries for all lids of registry objects matching the pattern of the
-     * given id. A query using 'like' will be executed.
-     * 
-     * @param lid
-     *            The lid containing % or _ denoting wildcard characters
-     * @return List of lids matching the given id pattern
-     */
-    public List<String> getMatchingLids(String lid) {
-        DetachedCriteria criteria = DetachedCriteria.forClass(this
-                .getEntityClass());
-        criteria = criteria.add(Property.forName(QueryConstants.LID).like(lid));
-        criteria = criteria.setProjection(Projections
-                .property(QueryConstants.LID));
-        return this.executeCriteriaQuery(criteria);
-    }
-
-    /**
      * Retrieves registry objects based on lid values
      * 
      * @param <T>
@@ -103,12 +69,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of lids to query for
      * @return The list of registry objects;
      */
+    @SuppressWarnings("unchecked")
     public List<ENTITY> getByLid(List<String> lids) {
-        StringBuilder str = new StringBuilder();
-        HqlQueryUtil.assembleSingleParamQuery(str, getEntityClass(),
-                QueryConstants.LID, "in", lids);
-        str.append(" order by obj.lid asc,obj.versionInfo.versionName desc");
-        return executeHQLQuery(str.toString());
+        return createCriteria().add(
+                Property.forName(QueryConstants.LID).in(lids)).list();
     }
 
     /**
@@ -125,6 +89,19 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
     }
 
     /**
+     * Gets all IdentifiableType objects matching (using like) the given lid.
+     * 
+     * @param lid
+     *            The id to query for
+     * @return All IdentifiableType objects matching the given lid
+     */
+    @SuppressWarnings("unchecked")
+    public List<ENTITY> getByLidUsingLike(String lid) {
+        return createCriteria().add(
+                Property.forName(QueryConstants.LID).like(lid)).list();
+    }
+
+    /**
      * Retrieves registry objects based on objectType values
      * 
      * @param <T>
@@ -133,9 +110,11 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of objectTypes to query for
      * @return The list of registry objects;
      */
+    @SuppressWarnings("unchecked")
     public List<ENTITY> getByObjectType(List<String> objTypes) {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                getEntityClass(), QueryConstants.OBJECT_TYPE, "in", objTypes));
+        return createCriteria().add(
+                Property.forName(QueryConstants.OBJECT_TYPE).in(objTypes))
+                .list();
     }
 
     /**
@@ -147,9 +126,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of statuses to query for
      * @return The list of registry objects;
      */
+    @SuppressWarnings("unchecked")
     public List<ENTITY> getByStatus(List<String> status) {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                getEntityClass(), QueryConstants.STATUS, "in", status));
+        return createCriteria().add(
+                Property.forName(QueryConstants.STATUS).in(status)).list();
     }
 
     /**
@@ -161,9 +141,10 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of owners to query for
      * @return The list of registry objects;
      */
+    @SuppressWarnings("unchecked")
     public List<ENTITY> getByOwner(List<String> owner) {
-        return executeHQLQuery(HqlQueryUtil.assembleSingleParamQuery(
-                getEntityClass(), QueryConstants.OWNER, "in", owner));
+        return createCriteria().add(
+                Property.forName(QueryConstants.OWNER).in(owner)).list();
     }
 
     /**
@@ -227,55 +208,6 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
                 "Classifications.classificationNode", classifications);
 
         return this.executeHQLQuery(str.toString());
-    }
-
-    /**
-     * Deletes objects based on the reference (id field)
-     * 
-     * @param objRefs
-     *            The objectRefs pointing to objects to be deleted
-     * @throws EbxmlRegistryException
-     *             If the delete fails
-     */
-    @SuppressWarnings("unchecked")
-    public void deleteByRefs(final List<ObjectRefType> objRefs)
-            throws EbxmlRegistryException {
-        // TODO: FIX THIS METHOD TO ELIMINATE CASTING OR MOVE IT ELSEWHERE
-        try {
-            List<String> objIds = new ArrayList<String>();
-            for (ObjectRefType ref : objRefs) {
-                objIds.add(ref.getId());
-            }
-            List<ENTITY> objs = getById(objIds);
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getClassification() != null) {
-                    for (RegistryObjectType classification : regObj
-                            .getClassification()) {
-                        delete((ENTITY) classification);
-                    }
-                }
-            }
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getExternalIdentifier() != null) {
-                    for (RegistryObjectType extId : regObj
-                            .getExternalIdentifier()) {
-                        delete((ENTITY) extId);
-                    }
-                }
-            }
-            for (RegistryObjectType regObj : objs) {
-                if (regObj.getExternalLink() != null) {
-                    for (RegistryObjectType extLink : regObj.getExternalLink()) {
-                        delete((ENTITY) extLink);
-                    }
-                }
-            }
-            for (ENTITY obj : objs) {
-                delete(obj);
-            }
-        } catch (Throwable e) {
-            throw new EbxmlRegistryException("Error deleting objects", e);
-        }
     }
 
     /**

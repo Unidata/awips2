@@ -28,12 +28,13 @@ import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.meteoLib.Controller;
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.util.GridUtil;
+import com.raytheon.uf.common.wxmath.DistFilter;
+import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -57,6 +58,7 @@ import com.raytheon.viz.grid.util.TiltUtils;
  * May 20, 2010            bsteffen    Initial creation
  * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
  *                                     concurrent python for threading.
+ * Aug 20, 2013 2262       njensen     Use wxmath instead of meteolib
  * 
  * </pre>
  * 
@@ -122,14 +124,14 @@ public class OATiltGridTransformer extends OAGridTransformer {
         if (!hasData) {
             return null;
         }
-        float[] grid = new float[nx * ny];
-        Controller.scaleless_analysis(xind, yind, values, size, nx, ny, grid);
 
-        grid = Controller.dist_filter(grid, smoothPts, nx, 0, 0, nx, ny);
+        float[] grid = ScalelessAnalysis.scaleless_analysis(xind, yind, values,
+                size, nx, ny);
+        grid = DistFilter.filter(grid, smoothPts, nx, ny, 1);
 
         for (int i = 0; i < grid.length; i++) {
             if (grid[i] > 1e36f) {
-                grid[i] = Util.GRID_FILL_VALUE;
+                grid[i] = GridUtil.GRID_FILL_VALUE;
             }
         }
         return grid;
@@ -193,8 +195,9 @@ public class OATiltGridTransformer extends OAGridTransformer {
             if (grid == null) {
                 continue;
             }
-            FloatDataRecord fdr = new FloatDataRecord(parmDescription
-                    .getParameterName(), "", grid, 2, new long[] { nx, ny });
+            FloatDataRecord fdr = new FloatDataRecord(
+                    parmDescription.getParameterName(), "", grid, 2,
+                    new long[] { nx, ny });
             cube.add(new CubeLevel<Object, Object>((float) i, fdr));
         }
         if (cube.size() < 3) {

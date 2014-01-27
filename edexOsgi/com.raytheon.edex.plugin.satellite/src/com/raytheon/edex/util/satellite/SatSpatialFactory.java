@@ -23,6 +23,7 @@ package com.raytheon.edex.util.satellite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.geotools.geometry.DirectPosition2D;
+import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.operation.MathTransform;
 
@@ -30,8 +31,10 @@ import com.raytheon.edex.plugin.satellite.dao.SatMapCoverageDao;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * 
@@ -43,17 +46,33 @@ import com.vividsolutions.jts.io.WKTReader;
  * ------------ ----------  ----------- --------------------------
  * 12/19/07     439         bphillip    Initial creation
  * - AWIPS2 Baseline Repository --------
- * 07/12/2012    798        jkorman     Changed projection "magic" numbers 
- * 
+ * 07/12/2012    798        jkorman     Changed projection "magic" numbers
+ * 09/30/2013   2333        mschenke    Refactored to store points in crs space
  * </pre>
  */
 public class SatSpatialFactory {
+
+    // TODO: These constants should be in the GINI decoder since they are only
+    // related to the GINI format and should not be stored in SatMapCoverage.
+    // Can't do this now as ncep has code that checks projection number to
+    // determine how code should flow.
+    public static final int PROJ_MERCATOR = 1;
+
+    public static final int PROJ_LAMBERT = 3;
+
+    public static final int PROJ_POLAR = 5;
+
+    public static final int PROJ_CYLIN_EQUIDISTANT = 7;
+
+    public static final int UNDEFINED = -1;
 
     /** The logger */
     private Log logger = LogFactory.getLog(getClass());
 
     /** The singleton instance */
     private static SatSpatialFactory instance;
+
+    private SatMapCoverageDao satDao = new SatMapCoverageDao();
 
     /**
      * Gets the singleton instance
@@ -98,39 +117,24 @@ public class SatSpatialFactory {
      *             If errors occur during db interaction or creation of the
      *             coverage object
      */
-    public synchronized SatMapCoverage getMapCoverage(
-            Integer mapProjection, Integer nx, Integer ny, Float dx, Float dy,
-            Float lov, Float latin, Float la1, Float lo1, Float la2, Float lo2)
-            throws Exception {
-
-        SatMapCoverage mapCoverage = null;
-        SatMapCoverageDao satDao = new SatMapCoverageDao();
-
+    public synchronized SatMapCoverage getMapCoverage(Integer mapProjection,
+            Integer nx, Integer ny, Float dx, Float dy, Float lov, Float latin,
+            Float la1, Float lo1, Float la2, Float lo2) throws Exception {
         try {
-            // Check the database to see if a coverage already exists
-            mapCoverage = satDao.getSatCoverage(mapProjection, nx, ny, dx, dy,
-                    lov, latin, la1, lo1, la2, lo2);
-
-            // If the database does not contain an existing sat map coverage for
-            // the given values, create one
-            if (mapCoverage == null) {
-                mapCoverage = createMapCoverage(mapProjection, nx, ny, dx, dy,
-                        lov, latin, la1, lo1, la2, lo2);
-                // Persist the new coverage to the database
-                satDao.persist(mapCoverage);
+            SatMapCoverage mapCoverage = createMapCoverage(mapProjection, nx,
+                    ny, dx, dy, lov, latin, la1, lo1, la2, lo2);
+            SatMapCoverage persisted = satDao
+                    .queryByMapId(mapCoverage.getGid());
+            if (persisted == null) {
+                persisted = mapCoverage;
+                satDao.persist(persisted);
             }
+            return persisted;
         } catch (Exception e) {
             throw new DataAccessLayerException(
                     "Unable to retrieve or construct valid Satellite Map Coverage",
                     e);
         }
-
-        if (mapCoverage == null) {
-            throw new DataAccessLayerException(
-                    "Unable to retrieve or construct valid Satellite Map Coverage");
-        }
-
-        return mapCoverage;
     }
 
     /**
@@ -173,16 +177,20 @@ public class SatSpatialFactory {
 
         ProjectedCRS crs = null;
         // Get the correct CRS
-        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
+        if (mapProjection == PROJ_MERCATOR) {
             double cm = 0.0;
             if ((lo1 > 0.0) && (lo2 < 0.0)) {
                 cm = 180.0;
             }
             crs = MapUtil.constructMercator(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, latin, cm);
-        } else if (mapProjection == 3) {
+        } else if (mapProjection == PROJ_LAMBERT) {
             crs = MapUtil.constructLambertConformal(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, latin, latin, lov);
+        } else if (mapProjection == SatSpatialFactory.PROJ_CYLIN_EQUIDISTANT) {
+            crs = MapUtil.constructEquidistantCylindrical(
+                    MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
+                    lov, latin);
         } else {
             crs = MapUtil.constructNorthPolarStereo(MapUtil.AWIPS_EARTH_RADIUS,
                     MapUtil.AWIPS_EARTH_RADIUS, 60, lov);
@@ -201,7 +209,7 @@ public class SatSpatialFactory {
          * Projection is Mercator. Determine corner points from la1,lo1,la2,lo2
          * provided in the satellite file
          */
-        if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
+        if (mapProjection == PROJ_MERCATOR) {
             logger.debug("Determining corner points for Mercator projection");
             corner1.x = lo1;
             corner1.y = la1;
@@ -214,15 +222,13 @@ public class SatSpatialFactory {
 
             corner4.x = lo1;
             corner4.y = la2;
-
         }
         /*
          * Projection is Lambert Conformal or Polar Stereographic. Therefore,
          * the corner points must be calculated
          */
         else {
-            logger
-                    .debug("Determining corner points for Lambert Conformal or Polar Stereographic projection");
+            logger.debug("Determining corner points for Lambert Conformal or Polar Stereographic projection");
 
             // Get the transforms to be used to convert between meters and
             // lat/lon
@@ -235,12 +241,12 @@ public class SatSpatialFactory {
 
             // Determine the 3 other corner points using the given dx,dy,nx, and
             // ny in meters
-            secondPosition = new DirectPosition2D(dx * nx + firstPosition.x,
+            secondPosition = new DirectPosition2D(firstPosition.x + (dx * nx),
                     firstPosition.y);
-            thirdPosition = new DirectPosition2D(dx * nx + firstPosition.x, dy
-                    * ny + firstPosition.y);
-            fourthPosition = new DirectPosition2D(firstPosition.x, dx * ny
-                    + firstPosition.y);
+            thirdPosition = new DirectPosition2D(secondPosition.x,
+                    firstPosition.y + (dy * ny));
+            fourthPosition = new DirectPosition2D(firstPosition.x,
+                    thirdPosition.y);
 
             // Convert the corner points from meters to lat/lon
             toLatLon.transform(firstPosition, corner1);
@@ -249,23 +255,31 @@ public class SatSpatialFactory {
             toLatLon.transform(fourthPosition, corner4);
         }
 
-        // Construct the polygon constructor String
-        StringBuffer buffer = new StringBuffer();
-        buffer.append("POLYGON((");
-        buffer.append(corner1.x + " " + corner1.y + ",");
-        buffer.append(corner2.x + " " + corner2.y + ",");
-        buffer.append(corner3.x + " " + corner3.y + ",");
-        buffer.append(corner4.x + " " + corner4.y + ",");
-        buffer.append(corner1.x + " " + corner1.y);
-        buffer.append("))");
+        double[] c = corner1.getCoordinate();
+        Coordinate c1 = new Coordinate(c[0], c[1]);
+        c = corner2.getCoordinate();
+        Coordinate c2 = new Coordinate(c[0], c[1]);
+        c = corner3.getCoordinate();
+        Coordinate c3 = new Coordinate(c[0], c[1]);
+        c = corner4.getCoordinate();
+        Coordinate c4 = new Coordinate(c[0], c[1]);
 
-        // Create the geometry from the constructed String
-        Geometry geometry = new WKTReader().read(buffer.toString());
+        // Go from lat/lon to crs space to get minX,minY in crs space
+        GeometryFactory gf = new GeometryFactory();
+        Polygon polygon = gf.createPolygon(
+                gf.createLinearRing(new Coordinate[] { c1, c2, c3, c4, c1 }),
+                null);
+        MathTransform fromLatLon = MapUtil.getTransformFromLatLon(crs);
 
-        SatMapCoverage mapCoverage = new SatMapCoverage(mapProjection,
-                nx, ny, dx, dy, lov, latin, la1, lo1, la2, lo2, crs, geometry);
-
-        return mapCoverage;
+        polygon = (Polygon) JTS.transform(polygon, fromLatLon);
+        Envelope env = polygon.getEnvelopeInternal();
+        if (mapProjection == PROJ_MERCATOR) {
+            // Calculate dx/dy in mercator crs space
+            dx = (float) (env.getWidth() / nx);
+            dy = (float) (env.getHeight() / ny);
+        }
+        return new SatMapCoverage(mapProjection, env.getMinX(), env.getMinY(),
+                nx, ny, dx, dy, crs);
     }
 
 }

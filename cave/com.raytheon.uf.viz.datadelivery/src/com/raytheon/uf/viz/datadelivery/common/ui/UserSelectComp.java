@@ -57,9 +57,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.GroupDefinitionManager;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.presenter.IDisplay;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
@@ -95,6 +95,8 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * May 15, 2013  1040      mpduff       OfficeID is now a list so need to add it rather than set it.
  * May 23, 2013  1650      djohnson     Fix creation of new GroupDefinitions.
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
+ * Jun 13, 2013  2108      mpduff       Refactored DataSizeUtils.
+ * Oct 28, 2013  2292      mpduff       Change overlap services.
  * </pre>
  * 
  * @author jpiatt
@@ -367,7 +369,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         }
 
         for (Subscription subscription : groupSubscriptions) {
-
+            DataSizeUtils<?> sizeUtils = null;
             // Apply group properties to subscription definition
             subscription.setGroupName(groupName);
 
@@ -399,33 +401,32 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 DataSet dataset = MetaDataManager.getInstance().getDataSet(
                         subscription.getDataSetName(),
                         subscription.getProvider());
-                DataSizeUtils u = new DataSizeUtils(dataset);
-                u.setEnvelope(groupDefinition.getEnvelope());
-                u.setNumFcstHours(subscription.getTime()
-                        .getSelectedTimeIndices().size());
-                u.setNumEnsembleMembers(subscription.getEnsemble());
-                u.determineNumberRequestedGrids(subscription.getParameter());
+
+                sizeUtils = DataSizeUtils.getInstance(dataset, subscription);
 
                 Coverage cov = new GriddedCoverage();
                 cov.setEnvelope(groupDefinition.getEnvelope());
 
-                subscription.setDataSetSize(u.getDataSetSize());
                 subscription.setCoverage(cov);
             }
 
             subscription.addOfficeID(LocalizationManager.getInstance()
                     .getCurrentSite());
+            if (sizeUtils != null) {
+                subscription.setDataSetSize(sizeUtils
+                        .getDataSetSizeInKb(subscription));
+            }
         }
 
         try {
-            final ISubscriptionServiceResult result = DataDeliveryServices
+            final SubscriptionServiceResult result = DataDeliveryServices
                     .getSubscriptionService().updateWithPendingCheck(
                             new ArrayList<Subscription>(Sets.union(
                                     groupSubscriptions,
                                     removeFromGroupSubscriptions)), this);
             if (result.hasMessageToDisplay()) {
                 DataDeliveryUtils.showMessage(getShell(), SWT.ICON_INFORMATION,
-                        "Edit Group", result.getMessageToDisplay());
+                        "Edit Group", result.getMessage());
             }
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,

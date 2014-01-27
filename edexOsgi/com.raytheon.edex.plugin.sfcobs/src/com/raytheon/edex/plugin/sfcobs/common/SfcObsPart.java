@@ -36,9 +36,10 @@ import java.util.Map;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 20070925            391 jkorman     Initial Coding.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 25, 2007  391      jkorman     Initial Coding.
+ * Oct 29, 2013  2489     bsteffen    Add NAVTEX_END_PART
  * 
  * </pre>
  * 
@@ -69,6 +70,9 @@ public class SfcObsPart {
     public static final SfcObsPart SPECI_PART = new SfcObsPart("SPECI",false);
     
     public static final SfcObsPart MAROB_PART = new SfcObsPart("MAROB",true);
+
+    public static final SfcObsPart NAVTEX_END_PART = new SfcObsPart("NNNN",
+            true);
 
     private static final Map<String, SfcObsPart> OBS_TYPE_MAP = new HashMap<String, SfcObsPart>();
     static {

@@ -20,7 +20,6 @@
 package com.raytheon.uf.edex.registry.ebxml.services.rest;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -36,15 +35,22 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ParameterType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 
+import org.apache.commons.beanutils.ConstructorUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.registry.constants.Languages;
 import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.rest.IQueryProtocolRestService;
 import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.edex.registry.ebxml.dao.QueryDefinitionDao;
+import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
  * 
@@ -59,38 +65,26 @@ import com.raytheon.uf.common.serialization.JAXBManager;
  * ------------ ----------  ----------- --------------------------
  * 4/19/2013    1931        bphillip    Initial implementation
  * 5/21/2013    2022        bphillip    Added interface and moved constants
+ * 10/8/2013    1682        bphillip    Refactored to use parameter definitions from the registry
+ * 10/30/2013   1538        bphillip    Changed root REST service path
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Path("/rest/search")
+@Path("/search")
 @Service
 @Transactional
 public class QueryProtocolRestService implements IQueryProtocolRestService {
-
-    /** Convenience list of all the canonical query parameter names */
-    private static final List<String> CANONICAL_QUERY_PARAMETERS;
-
-    static {
-        CANONICAL_QUERY_PARAMETERS = new ArrayList<String>();
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.QUERY_ID);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.DEPTH);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FORMAT);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FEDERATED);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.FEDERATION);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.MATCH_OLDER_VERSIONS);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.START_INDEX);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.LANG);
-        CANONICAL_QUERY_PARAMETERS.add(QueryRequest.MAX_RESULTS);
-
-    }
 
     /** The local query manager */
     private QueryManager queryManager;
 
     /** Jaxb Manager for marshalling the response */
     private JAXBManager responseJaxb;
+
+    /** Data access object for query definitions */
+    private QueryDefinitionDao queryDefinitionDao;
 
     /**
      * Creates a new QueryProtocolRestService instance
@@ -99,12 +93,7 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
      *             If errors occur while initializing the JAXBManager
      */
     public QueryProtocolRestService() throws JAXBException {
-        responseJaxb = new JAXBManager(QueryResponse.class);
-    }
-
-    public String executeQuery() {
-
-        return null;
+        responseJaxb = new JAXBManager(QueryRequest.class, QueryResponse.class);
     }
 
     @GET
@@ -116,45 +105,40 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
          */
         MultivaluedMap<String, String> queryParameters = info
                 .getQueryParameters();
-        String queryId = queryParameters.getFirst(QueryRequest.QUERY_ID) == null ? "urn:oasis:names:tc:ebxml-regrep:query:GetObjectById"
-                : queryParameters.getFirst(QueryRequest.QUERY_ID);
 
-        BigInteger depth = queryParameters.getFirst(QueryRequest.DEPTH) == null ? null
-                : new BigInteger(queryParameters.getFirst(QueryRequest.DEPTH));
-
-        String format = queryParameters.getFirst(QueryRequest.FORMAT);
-
-        boolean federated = queryParameters.getFirst(QueryRequest.FEDERATED) == null ? false
-                : Boolean.parseBoolean(queryParameters
-                        .getFirst(QueryRequest.FEDERATED));
-
-        String federation = queryParameters.getFirst(QueryRequest.FEDERATION);
-
-        boolean matchOlderVersions = queryParameters
-                .getFirst(QueryRequest.MATCH_OLDER_VERSIONS) == null ? true
-                : Boolean.parseBoolean(queryParameters
-                        .getFirst(QueryRequest.MATCH_OLDER_VERSIONS));
-
-        BigInteger startIndex = queryParameters
-                .getFirst(QueryRequest.START_INDEX) == null ? new BigInteger(
-                "0") : new BigInteger(
-                queryParameters.getFirst(QueryRequest.START_INDEX));
-
-        String lang = queryParameters.getFirst(QueryRequest.LANG) == null ? Languages.EN_US
-                : queryParameters.getFirst(QueryRequest.LANG);
-
-        BigInteger maxResults = queryParameters
-                .getFirst(QueryRequest.MAX_RESULTS) == null ? new BigInteger(
-                "0") : new BigInteger(
-                queryParameters.getFirst(QueryRequest.MAX_RESULTS));
+        String queryId = getValue(queryParameters, QueryRequest.QUERY_ID,
+                CanonicalQueryTypes.GET_OBJECT_BY_ID);
+        BigInteger depth = getValue(queryParameters, QueryRequest.DEPTH,
+                QueryRequest.DEFAULT_DEPTH);
+        String format = getValue(queryParameters, QueryRequest.FORMAT,
+                QueryRequest.DEFAULT_RESPONSE_FORMAT);
+        Boolean federated = getValue(queryParameters, QueryRequest.FEDERATED,
+                Boolean.FALSE);
+        String federation = getValue(queryParameters, QueryRequest.FEDERATION,
+                "");
+        Boolean matchOlderVersions = getValue(queryParameters,
+                QueryRequest.MATCH_OLDER_VERSIONS, Boolean.FALSE);
+        BigInteger startIndex = getValue(queryParameters,
+                QueryRequest.START_INDEX, QueryRequest.DEFAULT_START_INDEX);
+        String lang = getValue(queryParameters, QueryRequest.LANG,
+                Languages.EN_US);
+        BigInteger maxResults = getValue(queryParameters,
+                QueryRequest.MAX_RESULTS, QueryRequest.DEFAULT_MAX_RESULTS);
+        String responseOption = getValue(queryParameters,
+                QueryRequest.RESPONSE_OPTION, QueryReturnTypes.REGISTRY_OBJECT);
+        Boolean returnRequest = getValue(queryParameters,
+                QueryRequest.RETURN_REQUEST, Boolean.FALSE);
 
         /*
          * Create the query request object
          */
         QueryRequest restQueryRequest = new QueryRequest();
-        ResponseOptionType responseOption = new ResponseOptionType();
-        responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
-        responseOption.setReturnComposedObjects(true);
+        restQueryRequest.setId(RegistryUtil.generateRegistryObjectId());
+        restQueryRequest.setComment("Query received from REST Endpoint");
+        ResponseOptionType responseOptionObj = new ResponseOptionType();
+        responseOptionObj.setReturnType(responseOption);
+        responseOptionObj.setReturnComposedObjects(true);
+
         QueryType queryType = new QueryType();
         queryType.setQueryDefinition(queryId);
 
@@ -167,23 +151,65 @@ public class QueryProtocolRestService implements IQueryProtocolRestService {
         restQueryRequest.setLang(lang);
         restQueryRequest.setMaxResults(maxResults);
         restQueryRequest.setQuery(queryType);
-        restQueryRequest.setResponseOption(responseOption);
+        restQueryRequest.setResponseOption(responseOptionObj);
 
-        /*
-         * Extract out any non-canonical query parameters and assign them as
-         * slots to be used as query specific arguments
-         */
-        for (String key : queryParameters.keySet()) {
-            if (!CANONICAL_QUERY_PARAMETERS.contains(key)) {
-                queryType.addSlot(key, queryParameters.getFirst(key));
+        List<ParameterType> parameters = queryDefinitionDao
+                .getParametersForQuery(queryId);
+
+        for (ParameterType param : parameters) {
+            String value = queryParameters.getFirst(param.getParameterName());
+            if (isSpecified(value)) {
+                RegistryQueryUtil.addSlotToQuery(value, param, queryType);
             }
         }
-        return responseJaxb.marshalToXml(queryManager
-                .executeQuery(restQueryRequest));
+
+        if (returnRequest.booleanValue()) {
+            return responseJaxb.marshalToXml(restQueryRequest);
+        } else {
+            return responseJaxb.marshalToXml(queryManager
+                    .executeQuery(restQueryRequest));
+        }
+    }
+
+    /**
+     * Gets the value of a given url argument
+     * 
+     * @param queryParameters
+     *            The parameters received for the query
+     * @param parameterName
+     *            The paremeter name to get
+     * @param defaultValue
+     *            The default value for this parameter to return if the
+     *            parameter is not found in the query parameters
+     * @return The value of the parameter or default value if not found
+     * @throws MsgRegistryException
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Object> T getValue(
+            MultivaluedMap<String, String> queryParameters,
+            String parameterName, T defaultValue) throws MsgRegistryException {
+        String value = queryParameters.getFirst(parameterName);
+        try {
+            return (T) (isSpecified(value) ? ConstructorUtils
+                    .invokeConstructor(defaultValue.getClass(), value)
+                    : defaultValue);
+        } catch (Exception e) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error constructing Query!", e);
+        }
+
+    }
+
+    private boolean isSpecified(String value) {
+        return !(value == null || value.isEmpty());
     }
 
     public void setQueryManager(QueryManager queryManager) {
         this.queryManager = queryManager;
+    }
+
+    public void setQueryDefinitionDao(QueryDefinitionDao queryDefinitionDao) {
+        this.queryDefinitionDao = queryDefinitionDao;
     }
 
 }

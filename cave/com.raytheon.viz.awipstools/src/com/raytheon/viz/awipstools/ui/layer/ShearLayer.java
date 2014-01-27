@@ -25,7 +25,10 @@ import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -49,24 +52,26 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
+import com.raytheon.viz.awipstools.common.ToolsUiUtil;
 import com.raytheon.viz.ui.input.EditableManager;
+import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.operation.buffer.BufferOp;
 
 /**
- * TODO Add Description
+ * Interactive resource for rendering the Shear data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 15Mar2013	15693	mgamazaychikov	Added magnification capability.
- * 05/02/2013   DR 14587   D. Friedman Use base velocity.
+ * Date          Ticket#  Engineer       Description
+ * ------------- -------- -------------- --------------------------
+ * Mar 15, 2013  15693    mgamazaychikov Added magnification capability.
+ * May 02, 2013  14587    D. Friedman    Use base velocity.
+ * Aug 29, 2013  2281     bsteffen       Fix click distance calculations.
+ * Sep 03, 2013  2310     bsteffen       Move MouseHandler from ShearAction to
+ *                                       ShearLayer.
  * 
  * </pre>
  * 
@@ -96,6 +101,7 @@ public class ShearLayer extends
         setDescriptor(descriptor);
         gc = new GeodeticCalculator(this.descriptor.getCRS());
         this.baseline = createDefaultBaseline();
+        this.mouseHandler = new MouseHandler(this);
     }
 
     /*
@@ -109,21 +115,6 @@ public class ShearLayer extends
         if (container != null) {
             container.unregisterMouseHandler(mouseHandler);
         }
-    }
-
-    /**
-     * @return the mouseHandler
-     */
-    public IInputHandler getMouseHandler() {
-        return mouseHandler;
-    }
-
-    /**
-     * @param mouseHandler
-     *            the mouseHandler to set
-     */
-    public void setMouseHandler(IInputHandler mouseHandler) {
-        this.mouseHandler = mouseHandler;
     }
 
     /*
@@ -218,24 +209,6 @@ public class ShearLayer extends
         }
     }
 
-    public LinearRing getCircle(Coordinate coor, double radius) {
-
-        Coordinate circleCoordinates[] = new Coordinate[361];
-        Coordinate firstCoor = null;
-
-        for (int i = 0; i < 360; i++) {
-            circleCoordinates[i] = getCoordinateOnCircle(coor, radius, i);
-            if (i == 0) {
-                // save the first coordinate, to add to end, so completes the
-                // ring.
-                firstCoor = circleCoordinates[0];
-            }
-        }
-        circleCoordinates[360] = firstCoor;
-
-        return gf.createLinearRing(circleCoordinates);
-    }
-
     public Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
             int angle) {
 
@@ -254,7 +227,7 @@ public class ShearLayer extends
         return coorOnCircle;
 
     }
-
+    
     protected void drawBaselineLabel(IGraphicsTarget target,
             Coordinate latLong, String label) throws VizException {
 
@@ -298,18 +271,6 @@ public class ShearLayer extends
         return getCapability(EditableCapability.class).isEditable();
     }
 
-    /**
-     * Checks and returns the coordinate of the endpoint that clicked in.
-     * 
-     * @param c
-     *            Coordinate of the click.
-     * @return Coordinate of the endpoint, null if not found.
-     */
-    public Coordinate isInsideEndpoint(Coordinate c) {
-
-        return getEndpointClickedIn(c);
-    }
-
     public void moveBaseline(Coordinate delta, int index) {
 
         for (Coordinate point : baseline.getCoordinates()) {
@@ -340,54 +301,48 @@ public class ShearLayer extends
     }
 
     /**
-     * Returns the endpoint the user clicked in, or null if they didn't click in
-     * an endpoint.
+     * Get the closest endpoint to the provided screen location.
      * 
-     * @param coor
-     *            Coordinate of the click point.
-     * @return The coordinate of the endpoint they hit on.
+     * @param refX
+     *            x location in screen pixels
+     * @param refY
+     *            y location in screen pixels
+     * @return T Coordinate of the endpoint, null if not found.
      */
-    public Coordinate getEndpointClickedIn(Coordinate coor) {
-
-        Coordinate c1 = getBaseline().getCoordinates()[0];
-        Coordinate c2 = getBaseline().getCoordinates()[1];
-
-        if (gf.createPolygon(getCircle(c1, this.endCircleRadius), null)
-                .contains(gf.createPoint(coor))) {
-            return c1;
-        } else if (gf.createPolygon(getCircle(c2, this.endCircleRadius), null)
-                .contains(gf.createPoint(coor))) {
-            return c2;
+    public Coordinate isInsideEndpoint(int x,
+            int y) {
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container == null) {
+            return null;
         }
-
-        return null;
+        Coordinate[] coords = getBaseline().getCoordinates();
+        int idx = ToolsUiUtil.closeToCoordinate(container, coords, x, y, 9);
+        if (idx < 0) {
+            return null;
+        } else {
+            return coords[idx];
+        }
     }
 
     /**
      * Return the index of the linestring the user clicked in (for move for
      * instance).
      * 
-     * @param coor
+     * @param refX
+     *            x location of reference point in screen pixels
+     * @param refY
+     *            y location of reference point in screen pixels
      * @return int Index of line they matched on.
      */
-    public int isInsideLine(Coordinate coor) {
-
-        int index = -1;
-        for (int i = 0; i < getBuffer().length; i++) {
-            if (getBuffer()[i].contains(gf.createPoint(coor))) {
-                index = i;
-            }
+    public int isInsideLine(int x, int y) {
+        IDisplayPaneContainer container = getResourceContainer();
+        Coordinate[] coords = getBaseline().getCoordinates();
+        if (container != null
+                && ToolsUiUtil.closeToLine(container, coords, x, y, 15)) {
+            return 0;
+        } else {
+            return -1;
         }
-        return index;
-    }
-
-    public Geometry[] getBuffer() {
-
-        Geometry[] buffer = new Geometry[1];
-
-        buffer[0] = BufferOp.bufferOp(getBaseline(), 0.001);
-
-        return buffer;
     }
 
     /**
@@ -553,6 +508,200 @@ public class ShearLayer extends
                 return "";
             }
         }
+    }
+
+    /**
+     * Associated navigation modes:
+     * <UL>
+     * <LI>CREATE - Create the initial baseline
+     * <LI>MOVE_LINE - Move an existing line within the baseline.
+     * <LI>MOVE_POINT - Move one endpoint of an existing baseline linestring.
+     * <LI>PAN - Allow other tools, such as pan, to have control
+     */
+    private static enum Mode {
+        CREATE, MOVE_LINE, MOVE_POINT, PAN
+    };
+
+    private static class MouseHandler extends InputAdapter {
+
+        private int indexOfMovedEndpoint;
+
+        private ShearLayer shearLayer;
+
+        /** The mode of the mouse. By default, create */
+        private Mode mode = Mode.CREATE;
+
+        /** The last mouse position - x */
+        private int lastMouseX = -1;
+
+        /** The last mouse position - y */
+        private int lastMouseY = -1;
+
+        /** The index of the line to be moved */
+        private int lineToMove;
+
+        /** The millisecond time of the right mouse button down event */
+        private long rightMouseButtonDownTime;
+
+        private Coordinate coordinateMoved;
+
+        private Coordinate coordinateFound = null;
+
+        public MouseHandler(ShearLayer shearLayer) {
+            this.shearLayer = shearLayer;
+        }
+
+        public boolean handleMouseDown(int x, int y, int mouseButton) {
+            lastMouseX = x;
+            lastMouseY = y;
+
+            if (shearLayer.isEditable()) {
+
+                if (mouseButton == 1) {
+                    lineToMove = -1;
+                    coordinateFound = shearLayer.isInsideEndpoint(x, y);
+
+                    if (coordinateFound != null) {
+                        this.mode = Mode.MOVE_POINT;
+                        coordinateMoved = coordinateFound;
+                        return true;
+                    }
+
+                    if ((lineToMove = shearLayer.isInsideLine(x, y)) != -1) {
+                        this.mode = Mode.MOVE_LINE;
+                        return true;
+                    }
+                } else if (mouseButton == 3) {
+                    // move prior unmoved end point
+                    this.rightMouseButtonDownTime = System.currentTimeMillis();
+                }
+            } else {
+                this.mode = Mode.PAN;
+            }
+            shearLayer.issueRefresh();
+            return false;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.map.IMouseHandler#handleMouseDownMove(int,
+         * int)
+         */
+        public boolean handleMouseDownMove(int x, int y, int button) {
+
+            if (button != 1)
+                return false;
+
+            if (this.mode == Mode.PAN)
+                return false;
+
+            if (this.mode == Mode.MOVE_LINE || this.mode == Mode.MOVE_POINT) {
+                IDisplayPaneContainer container = shearLayer
+                        .getResourceContainer();
+                if (container == null) {
+                    return false;
+                }
+                Coordinate c = container.translateClick(lastMouseX, lastMouseY);
+                Coordinate c2 = container.translateClick(x, y);
+
+                Coordinate delta = new Coordinate(c2.x - c.x, c2.y - c.y);
+
+                if (this.mode == Mode.MOVE_LINE) {
+                    shearLayer.moveBaseline(delta, this.lineToMove);
+                } else {
+                    shearLayer.movePoint(delta, coordinateMoved);
+                }
+
+                lastMouseX = x;
+                lastMouseY = y;
+                shearLayer.issueRefresh();
+                return true;
+            }
+
+            return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.map.IMouseHandler#handleMouseUp(int, int)
+         */
+        public boolean handleMouseUp(int x, int y, int mouseButton) {
+            if (mouseButton == 3) {
+                if (System.currentTimeMillis() - this.rightMouseButtonDownTime < 275) {
+                    IDisplayPaneContainer container = shearLayer
+                            .getResourceContainer();
+                    if (container == null) {
+                        return false;
+                    }
+                    Coordinate c = container.translateClick(x, y);
+
+                    // move prior unmoved end point
+                    Coordinate[] coords = shearLayer.getBaseline()
+                            .getCoordinates();
+                    indexOfMovedEndpoint = (indexOfMovedEndpoint >= coords.length - 1) ? 0
+                            : ++indexOfMovedEndpoint;
+                    Coordinate coord = coords[indexOfMovedEndpoint];
+                    Coordinate delta = new Coordinate(c.x - coord.x, c.y
+                            - coord.y, c.z - coord.z);
+
+                    shearLayer.movePoint(delta, coord);
+                }
+            } else if (this.mode == Mode.PAN)
+                return false;
+
+            // Default back to pan operation
+            mode = Mode.PAN;
+            return true;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.viz.ui.mouse.IMouseHandler#handleMouseMove(int,
+         * int)
+         */
+        public boolean handleMouseMove(int x, int y) {
+            if (shearLayer.isEditable()) {
+
+                if (shearLayer.isInsideEndpoint(x, y) != null) {
+                    // Change the cursor to a hand.
+                    this.setCursorHand();
+                    return true;
+                }
+
+                if (shearLayer.isInsideLine(x, y) != -1) {
+                    // Change the cursor to crosshairs.
+                    this.setCursorCross();
+                    return true;
+                }
+            }
+
+            this.changeCursorNormal();
+            return false;
+        }
+
+        protected void changeCursorNormal() {
+            this.updateCursorStandard(SWT.CURSOR_ARROW);
+        }
+
+        private void setCursorHand() {
+            this.updateCursorStandard(SWT.CURSOR_HAND);
+        }
+
+        private void setCursorCross() {
+            this.updateCursorStandard(SWT.CURSOR_SIZEALL);
+        }
+
+        private void updateCursorStandard(int cursorEnum) {
+            IWorkbenchWindow window = PlatformUI.getWorkbench()
+                    .getActiveWorkbenchWindow();
+
+            window.getShell().setCursor(
+                    window.getShell().getDisplay().getSystemCursor(cursorEnum));
+        }
+
     }
 
 }

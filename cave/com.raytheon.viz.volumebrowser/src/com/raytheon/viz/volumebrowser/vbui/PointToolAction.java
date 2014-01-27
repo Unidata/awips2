@@ -20,6 +20,7 @@
 package com.raytheon.viz.volumebrowser.vbui;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -54,6 +55,7 @@ import com.raytheon.viz.volumebrowser.xml.MenuContribution;
  *                                      now opens the menu.
  * Sep 26, 2012 1216       rferrel     resetMenu method added.
  * Jan 24, 2013 1516       rferrel     Change Active Data Selection prior to filling menus.
+ * Dec 06, 2013 2271       mpduff      Disable plane menu items for already selected items.
  * 
  * </pre>
  * 
@@ -173,6 +175,7 @@ public class PointToolAction extends Action implements IMenuCreator {
     @Override
     public Menu getMenu(Menu parent) {
         if (menu == null) {
+
             MenuItemManager.getInstance().setActiveDataSelection(dataSelection);
             menu = new Menu(parent);
             fillMenu(menu);
@@ -229,6 +232,16 @@ public class PointToolAction extends Action implements IMenuCreator {
                 TitleContributionItem cci = new TitleContributionItem();
                 cci.setText(node.getName());
                 cci.fill(menu, -1);
+
+                // disable menu items for already selected items
+                if (dataSelection == DataSelection.PLANES) {
+                    Set<String> planeItems = MenuItemManager.getInstance()
+                            .getSelectedPlaneItems();
+                    for (String s : planeItems) {
+                        MenuItemManager.getInstance().disableMenuItem(s,
+                                DataSelection.PLANES);
+                    }
+                }
             }
         }
     }

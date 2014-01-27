@@ -35,7 +35,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DescriptorMap;
@@ -47,6 +46,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.hydrocommon.actions.SetProjection;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
@@ -71,12 +71,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 21, 2008            randerso     Initial creation
- * Feb 18, 2010  4111      snaples      Updated to support contexts
- * Apr 27, 2010            mschenke     refactor for common perspective switching
- * Jan 29, 2013  1550      mpduff       Add ability to preload maps on open.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 21, 2008           randerso    Initial creation
+ * Feb 18, 2010  4111     snaples     Updated to support contexts
+ * Apr 27, 2010           mschenke    refactor for common perspective switching
+ * Jan 29, 2013  1550     mpduff      Add ability to preload maps on open.
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to 
+ *                                    ProcedureXmlManager
  * </pre>
  * 
  * @author randerso
@@ -120,68 +122,57 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     public AbstractEditor openNewEditor() {
         try {
             // Unmarshal default bundle xml
-            Object unmarshalled = SerializationUtil.getJaxbManager()
-                    .jaxbUnmarshalFromXmlFile(
-                            PathManagerFactory.getPathManager().getStaticFile(
+            Bundle b = ProcedureXmlManager.getInstance().unmarshal(
+                    Bundle.class,
+                    PathManagerFactory.getPathManager()
+                            .getStaticFile(
                                     MPE + IPathManager.SEPARATOR
                                             + "default-bundle.xml"));
-            if (unmarshalled instanceof Bundle) {
-                // Load Bundle to perspective window in new editor
-                Bundle b = (Bundle) unmarshalled;
-                String editorId = b.getEditor();
-                if (editorId != null) {
-                    IRenderableDisplay[] displays = b.getDisplays();
-                    if (displays.length > 0) {
-                        editorId = DescriptorMap.getEditorId(displays[0]
-                                .getDescriptor().getClass().getName());
-                        AbstractEditor editor = UiUtil.createEditor(
-                                perspectiveWindow, editorId, displays);
-                        if (editor != null) {
-                            initialize(editor);
+            // Load Bundle to perspective window in new editor
+            String editorId = b.getEditor();
+            if (editorId != null) {
+                IRenderableDisplay[] displays = b.getDisplays();
+                if (displays.length > 0) {
+                    editorId = DescriptorMap.getEditorId(displays[0]
+                            .getDescriptor().getClass().getName());
+                    AbstractEditor editor = UiUtil.createEditor(
+                            perspectiveWindow, editorId, displays);
+                    if (editor != null) {
+                        initialize(editor);
 
-                            String[] maps;
+                        String[] maps;
 
-                            // Get the maps configured for display at startup
-                            String displayMaps = AppsDefaults.getInstance()
-                                    .getToken("mpe_display_maps",
-                                            "statesCounties");
+                        // Get the maps configured for display at startup
+                        String displayMaps = AppsDefaults.getInstance()
+                                .getToken("mpe_display_maps", "statesCounties");
 
-                            if (displayMaps.contains(",")) {
-                                maps = displayMaps.split(",");
-                            } else {
-                                maps = new String[1];
-                                maps[0] = displayMaps;
-                            }
-
-                            IDisplayPaneContainer currentEditor = EditorUtil
-                                    .getActiveVizContainer();
-                            MapManager mapMgr = MapManager
-                                    .getInstance((IMapDescriptor) currentEditor
-                                            .getActiveDisplayPane()
-                                            .getDescriptor());
-
-                            // Load the configured maps
-                            for (String map : maps) {
-                                mapMgr.loadMapByBundleName(map.trim());
-                            }
-
-                            return editor;
+                        if (displayMaps.contains(",")) {
+                            maps = displayMaps.split(",");
                         } else {
-                            throw new VizException(
-                                    "Failed to open new editor on window");
+                            maps = new String[1];
+                            maps[0] = displayMaps;
                         }
+
+                        IDisplayPaneContainer currentEditor = EditorUtil
+                                .getActiveVizContainer();
+                        MapManager mapMgr = MapManager
+                                .getInstance((IMapDescriptor) currentEditor
+                                        .getActiveDisplayPane().getDescriptor());
+
+                        // Load the configured maps
+                        for (String map : maps) {
+                            mapMgr.loadMapByBundleName(map.trim());
+                        }
+
+                        return editor;
                     } else {
-                        throw new SerializationException(
-                                "No displays to load found in MPE default bundle XML");
+                        throw new VizException(
+                                "Failed to open new editor on window");
                     }
+                } else {
+                    throw new SerializationException(
+                            "No displays to load found in MPE default bundle XML");
                 }
-            } else {
-                throw new SerializationException(
-                        "Unexpected type deserialied from mpe bundle file. Expected "
-                                + Bundle.class.getSimpleName()
-                                + ", got "
-                                + (unmarshalled != null ? unmarshalled
-                                        .getClass().getSimpleName() : null));
             }
         } catch (Exception e) {
             UFStatus.getHandler().handle(Priority.PROBLEM,
