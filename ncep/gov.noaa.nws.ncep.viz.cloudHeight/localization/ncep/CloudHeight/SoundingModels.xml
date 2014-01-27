@@ -257,6 +257,11 @@
            <temperature>-79.90</temperature>
            <height>16500.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>67.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>19450.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -288,6 +293,16 @@
            <pressure>145.00</pressure>
            <temperature>-69.90</temperature>
            <height>14000.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>112.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>15540.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>67.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>18615.00</height>
         </levelValues>
       </SoundingLevels>
    </SoundingModel>
@@ -321,6 +336,16 @@
            <temperature>-64.90</temperature>
            <height>12600.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>100.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>16020.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>49.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>20580.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -353,6 +378,16 @@
            <temperature>-55.90</temperature>
            <height>8500.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>184.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>12030.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>120.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>14970.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -382,8 +417,13 @@
         </levelValues>
         <levelValues>
            <pressure>185.00</pressure>
-           <temperature>-159.5</temperature>
+           <temperature>-59.5</temperature>
            <height>11500.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>8.16</pressure>
+           <temperature>-69.90</temperature>
+           <height>31000.00</height>
         </levelValues>
       </SoundingLevels>
    </SoundingModel>
@@ -417,6 +457,11 @@
            <temperature>-79.90</temperature>
            <height>16500.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>67.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>19490.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -448,6 +493,16 @@
            <pressure>133.00</pressure>
            <temperature>-69.90</temperature>
            <height>15000.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>108.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>16430.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>71.0</pressure>
+           <temperature>-99.90</temperature>
+           <height>19285.00</height>
         </levelValues>
       </SoundingLevels>
    </SoundingModel>
@@ -481,6 +536,16 @@
            <temperature>-57.50</temperature>
            <height>13000.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>109.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>16440.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>71.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>19510.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -513,6 +578,16 @@
            <temperature>-48.10</temperature>
            <height>10100.00</height>
         </levelValues>
+        <levelValues>
+           <pressure>148.00</pressure>
+           <temperature>-79.90</temperature>
+           <height>26000.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>102.00</pressure>
+           <temperature>-99.90</temperature>
+           <height>36000.00</height>
+        </levelValues>
       </SoundingLevels>
    </SoundingModel>
 
@@ -544,6 +619,16 @@
            <pressure>280.00</pressure>
            <temperature>-47.1</temperature>
            <height>9600.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>56.0</pressure>
+           <temperature>-69.90</temperature>
+           <height>21000.00</height>
+        </levelValues>
+        <levelValues>
+           <pressure>27.0</pressure>
+           <temperature>-79.90</temperature>
+           <height>26000.00</height>
         </levelValues>
       </SoundingLevels>
    </SoundingModel>
