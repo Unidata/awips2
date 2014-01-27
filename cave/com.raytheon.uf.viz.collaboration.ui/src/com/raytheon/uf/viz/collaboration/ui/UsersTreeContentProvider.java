@@ -32,7 +32,7 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
+ * Jan 27, 2014 2700       bclement    added support roster entries
  * 
  * </pre>
  * 
@@ -135,12 +136,14 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
      * @return
      */
     private Object[] getRosterChildren(Collection<RosterEntry> entries) {
-        List<UserId> result = new ArrayList<UserId>();
-        UserId localUser = CollaborationConnection.getConnection().getUser();
+        List<RosterEntry> result = new ArrayList<RosterEntry>();
+        CollaborationConnection connection = CollaborationConnection.getConnection();
+        UserId localUser = connection.getUser();
         for (RosterEntry entry : entries) {
             String user = entry.getUser();
-            if (!localUser.isSameUser(user)) {
-                result.add(IDConverter.convertFrom(entry));
+            if (!localUser.isSameUser(user)
+                    && ContactsManager.hasInteraction(entry)) {
+                result.add(entry);
             }
         }
         return result.toArray();
