@@ -2,5 +2,5 @@
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>NAM</resource>
     <attrSetGroupName>basic_wx</attrSetGroupName>
-    <attrSetNames>700mb_rh_rs_temp_nam,lifted_index_nam,bl_thte_wind,ct_index,emsl_bl_tempc_wind,great_lakes_snow,great_lakes_snow2,pmsl_thkn_wind_nam,pmsl_1000-850_thk_nam,precip_6hr_1000-500_thkn,precip_type,precip_type_vv,sfclifted_index</attrSetNames>
+    <attrSetNames>1000-470mb_rh_rs_t_700_vv,700mb_rh_rs_temp_nam,lifted_index_nam,bl_thte_wind,ct_index,emsl_bl_tempc_wind,great_lakes_snow,great_lakes_snow2,pmsl_thkn_wind_nam,pmsl_1000-850_thk_nam,precip_6hr_1000-500_thkn,precip_type,precip_type_vv,sfclifted_index</attrSetNames>
 </AttributeSetGroup>
