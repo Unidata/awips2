@@ -12,6 +12,7 @@
         Change Log:
 
         B. Yin/Chugach  05/10   Initial Coding
+        B. Yin/SGT		12/13	TTR 904 change county list string
 -->
 
   <xsl:template name="getCoastalWaters">
@@ -20,7 +21,7 @@
 	 <xsl:for-each select="/Products/Product/Layer/DrawableElement/DECollection/DrawableElement/WatchBox/Counties[substring(.,8,2) = $state]">
           	<xsl:value-of select="$newline"/>
 		<!-- get the county string -->
-                <xsl:variable name="zonestr" select="substring(.,52)"/>
+                <xsl:variable name="zonestr" select="substring(.,57)"/>
                 <xsl:call-template name="wrapText">
                         <xsl:with-param name="str" select="$zonestr"/>
                         <xsl:with-param name="charPerLine" select="65"/>
