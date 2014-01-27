@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2012            njensen     Initial creation
  * Jan 14, 2014 2630       bclement    added away on idle defaults
+ * Jan 27, 2014 2700       bclement    added auto accept subscribe
  * 
  * </pre>
  * 
@@ -67,6 +68,7 @@ public class CollabPrefInitializer extends AbstractPreferenceInitializer {
         store.setDefault(CollabPrefConstants.AWAY_ON_IDLE, true);
         store.setDefault(CollabPrefConstants.AWAY_TIMEOUT,
                 CollabPrefConstants.AWAY_TIMEOUT_DEFAULT);
+        store.setDefault(CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE, false);
     }
 
 }
