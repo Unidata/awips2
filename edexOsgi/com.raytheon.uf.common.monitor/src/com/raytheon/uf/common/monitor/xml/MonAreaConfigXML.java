@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Monitoring area configuration xml.
  * 
@@ -46,18 +44,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "MonitorAreaConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class MonAreaConfigXML  implements ISerializableObject {
-    
-    @XmlElements( { @XmlElement(name = "AreaID", type = AreaIdXML.class) })
+public class MonAreaConfigXML {
+
+    @XmlElements({ @XmlElement(name = "AreaID", type = AreaIdXML.class) })
     private ArrayList<AreaIdXML> areaIds = new ArrayList<AreaIdXML>();
-    
-    @XmlElements( {@XmlElement(name = "timeWindow", type = Integer.class) })
+
+    @XmlElements({ @XmlElement(name = "timeWindow", type = Integer.class) })
     private int timeWindow;
 
-    @XmlElements( {@XmlElement(name = "shipDistance", type = Integer.class) })
+    @XmlElements({ @XmlElement(name = "shipDistance", type = Integer.class) })
     private int shipDistance;
-    
-    @XmlElements( {@XmlElement(name = "useAlgorithms", type = Boolean.class) })
+
+    @XmlElements({ @XmlElement(name = "useAlgorithms", type = Boolean.class) })
     private boolean useAlgorithms;
 
     public MonAreaConfigXML() {
@@ -79,7 +77,8 @@ public class MonAreaConfigXML  implements ISerializableObject {
     }
 
     /**
-     * @param timeWindow the timeWindow to set
+     * @param timeWindow
+     *            the timeWindow to set
      */
     public void setTimeWindow(int timeWindow) {
         this.timeWindow = timeWindow;
@@ -93,7 +92,8 @@ public class MonAreaConfigXML  implements ISerializableObject {
     }
 
     /**
-     * @param shipDistance the shipDistance to set
+     * @param shipDistance
+     *            the shipDistance to set
      */
     public void setShipDistance(int shipDistance) {
         this.shipDistance = shipDistance;
@@ -107,12 +107,13 @@ public class MonAreaConfigXML  implements ISerializableObject {
     }
 
     /**
-     * @param useAlgorithms the useAlgorithms to set
+     * @param useAlgorithms
+     *            the useAlgorithms to set
      */
     public void setUseAlgorithms(boolean useAlgorithms) {
         this.useAlgorithms = useAlgorithms;
     }
-    
+
     public void addAreaId(AreaIdXML areaXml) {
         areaIds.add(areaXml);
     }

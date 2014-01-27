@@ -25,6 +25,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import javax.measure.unit.Unit;
+
 /**
  * 
  * Container for colormap data.
@@ -36,6 +38,7 @@ import java.nio.ShortBuffer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 28, 2013            bsteffen    Seperate from IColorMapDataRetrievalCallback
+ * Oct 16, 2013       2333 mschenke    Added field for specifying the unit of the data
  * 
  * </pre>
  * 
@@ -48,11 +51,13 @@ public class ColorMapData {
         BYTE, SIGNED_BYTE, UNSIGNED_SHORT, SHORT, INT, FLOAT;
     }
 
-    private Buffer buffer;
+    private final Buffer buffer;
 
-    private int[] dimensions;
+    private final int[] dimensions;
 
-    private ColorMapData.ColorMapDataType dataType;
+    private final ColorMapData.ColorMapDataType dataType;
+
+    private final Unit<?> dataUnit;
 
     /**
      * 
@@ -64,25 +69,34 @@ public class ColorMapData {
     }
 
     /**
+     * @param dataType
+     * @param dataBounds
+     */
+    public ColorMapData(ColorMapDataType dataType, int[] dimensions) {
+        this(getBuffer(dataType, dimensions), dimensions, dataType);
+    }
+
+    /**
      * @param buffer
      * @param dataBounds
      * @param dataType
      */
     public ColorMapData(Buffer buffer, int[] dimensions,
             ColorMapData.ColorMapDataType dataType) {
-        this.buffer = buffer;
-        this.dimensions = dimensions;
-        this.dataType = dataType;
+        this(buffer, dimensions, dataType, null);
     }
 
     /**
-     * @param dataType
+     * @param buffer
      * @param dataBounds
+     * @param dataType
      */
-    public ColorMapData(ColorMapDataType dataType, int[] dimensions) {
-        this.buffer = getBuffer(dataType, dimensions);
+    public ColorMapData(Buffer buffer, int[] dimensions,
+            ColorMapData.ColorMapDataType dataType, Unit<?> dataUnit) {
+        this.buffer = buffer;
         this.dimensions = dimensions;
         this.dataType = dataType;
+        this.dataUnit = dataUnit;
     }
 
     public Buffer getBuffer() {
@@ -97,7 +111,11 @@ public class ColorMapData {
         return dataType;
     }
 
-    private static ColorMapData.ColorMapDataType getDataType(Buffer buffer) {
+    public Unit<?> getDataUnit() {
+        return dataUnit;
+    }
+
+    public static ColorMapData.ColorMapDataType getDataType(Buffer buffer) {
         if (buffer instanceof FloatBuffer) {
             return ColorMapData.ColorMapDataType.FLOAT;
         } else if (buffer instanceof IntBuffer) {

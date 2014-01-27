@@ -12,7 +12,6 @@ package gov.noaa.nws.ost.edex.plugin.regionalsat.decoder;
 
 import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatLookups;
 import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatLookups.PhysicalElementValue;
-import gov.noaa.nws.ost.edex.plugin.regionalsat.util.RegionalSatSpatialFactory;
 
 import java.util.Calendar;
 import java.util.TimeZone;
@@ -22,6 +21,7 @@ import ucar.nc2.NetcdfFile;
 
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.edex.util.satellite.SatSpatialFactory;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -175,11 +175,8 @@ public class RegionalSatDecoder extends AbstractDecoder {
             // read the number of records
             int numRecords = netCdfFile.findDimension("y").getLength();
 
-            record.setNumRecords(numRecords);
-
             // read the size of each record
             int recordSize = netCdfFile.findDimension("x").getLength();
-            record.setSizeRecords(recordSize);
 
             // read the valid time in seconds and store the time in milliseconds
             long time = netCdfFile.findVariable("validTime").readScalarLong(); // time
@@ -200,7 +197,7 @@ public class RegionalSatDecoder extends AbstractDecoder {
             float lov = netCdfFile.findGlobalAttribute("centralLon")
                     .getNumericValue().floatValue();
 
-            int mapProjection = SatMapCoverage.PROJ_POLAR_STEREO; // STEREOGRAPHIC
+            int mapProjection = SatSpatialFactory.PROJ_POLAR; // STEREOGRAPHIC
                                                                   // projection
                                                                   // default
             float latin = 0.0f; // set to zero for Stereographic projections
@@ -215,12 +212,12 @@ public class RegionalSatDecoder extends AbstractDecoder {
                         .getNumericValue().floatValue();
                 if (projection.equalsIgnoreCase("LAMBERT")
                         || projection.equalsIgnoreCase("LAMBERT_CONFORMAL")) {
-                    mapProjection = SatMapCoverage.PROJ_LAMBERT;
+                    mapProjection = SatSpatialFactory.PROJ_LAMBERT;
                 } else if (projection.equalsIgnoreCase("MERCATOR")) {
-                    mapProjection = SatMapCoverage.PROJ_MERCATOR;
+                    mapProjection = SatSpatialFactory.PROJ_MERCATOR;
                 } else if (projection
                         .equalsIgnoreCase("CYLINDRICAL_EQUIDISTANT")) {
-                    mapProjection = SatMapCoverage.PROJ_CYLIN_EQUIDISTANT;
+                    mapProjection = SatSpatialFactory.PROJ_CYLIN_EQUIDISTANT;
                 }
 
             } else {
@@ -237,10 +234,10 @@ public class RegionalSatDecoder extends AbstractDecoder {
             int nx = 0, ny = 0;
 
             // Do specialized decoding and retrieve spatial data for projections
-            if ((mapProjection == SatMapCoverage.PROJ_MERCATOR)
-                    || (mapProjection == SatMapCoverage.PROJ_LAMBERT)
-                    || (mapProjection == SatMapCoverage.PROJ_POLAR_STEREO)
-                    || (mapProjection == SatMapCoverage.PROJ_CYLIN_EQUIDISTANT)) {
+            if ((mapProjection == SatSpatialFactory.PROJ_MERCATOR)
+                    || (mapProjection == SatSpatialFactory.PROJ_LAMBERT)
+                    || (mapProjection == SatSpatialFactory.PROJ_POLAR)
+                    || (mapProjection == SatSpatialFactory.PROJ_CYLIN_EQUIDISTANT)) {
 
                 // set number of points along x-axis
                 nx = recordSize;
@@ -276,20 +273,10 @@ public class RegionalSatDecoder extends AbstractDecoder {
                         "Unable to decode Satellite: Encountered Unknown projection");
             } // end of if map projection block
 
-            // Get latitude of upper right hand corner
-            float urLat = 0; // not used so set to zero, if required get and set
-                             // value
-            record.setUpperRightLat(urLat);
-
-            // Get longitude of upper right hand corner
-            float urLon = 0; // not used so set to zero, if required get and set
-                             // value
-            record.setUpperRightLon(urLon);
-
             SatMapCoverage mapCoverage = null;
 
             try {
-                mapCoverage = RegionalSatSpatialFactory.getInstance()
+                mapCoverage = SatSpatialFactory.getInstance()
                         .getMapCoverage(mapProjection, nx, ny, dx, dy, lov,
                                 latin, la1, lo1, la2, lo2);
             } catch (Exception e) {
@@ -316,7 +303,6 @@ public class RegionalSatDecoder extends AbstractDecoder {
                 record.setCoverage(mapCoverage);
                 record.setPersistenceTime(TimeTools.getSystemCalendar()
                         .getTime());
-                record.constructDataURI();
 
                 // Set the data into the IDataRecord
                 IDataRecord dataRec = SatelliteRecord.getDataRecord(record);

@@ -28,6 +28,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.util.SpringFiles;
 import com.raytheon.uf.common.util.TestUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
@@ -45,6 +47,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012 1286       djohnson     Initial creation
  * Jun 03, 2013 2038       djohnson     Use transactional semantics.
+ * Oct 3,  2013 1797       dhladky      generics
  * 
  * </pre>
  * 
@@ -58,17 +61,17 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthD
 @TransactionConfiguration(transactionManager = TestUtil.METADATA_TX_MANAGER, defaultRollback = true)
 @Transactional
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class HibernateBandwidthDaoTest extends
-        AbstractBandwidthDaoTest<IBandwidthDao> {
+public class HibernateBandwidthDaoTest<T extends Time, C extends Coverage> extends
+        AbstractBandwidthDaoTest<T, C, IBandwidthDao<T, C>> {
 
     @Autowired
-    private IBandwidthDao dao;
+    private IBandwidthDao<T, C> dao;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected IBandwidthDao getDao() {
+    protected IBandwidthDao<T, C> getDao() {
         return dao;
     }
 

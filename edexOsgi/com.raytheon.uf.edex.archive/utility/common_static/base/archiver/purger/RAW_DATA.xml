@@ -26,6 +26,7 @@
  * Jun 20, 2013 1966       rferrel     Initial creation
  * Aug 05, 2013 2224       rferrel     Changes to add dataSet tags.
  * Oct 01, 2013 2147       rferrel     Date time stamp no longer requires an hour field.
+ * Dec 12, 2013 2624       rferrel     Document Julian time stamp.
  * 
  * @author rferrel
  * @version 1.0
@@ -64,14 +65,19 @@
                               single table entry.
         <timeType>          - Optional tag to determine what type of time stamp is being used to get files/directories for retention
                               and case creation. The value dictates how many groupings in the <dirPattern>s and/or <filePattern> are
-                              used to get the time stamp for a file. The four values are:
-                              Date - (default) the time stamp is made up of four groups in the patterns: year, month, day and hour.
+                              used to get the time stamp for a file. The five values are:
+                              Date - (default) the time stamp is made up of 3 or 4 groups in the patterns: year, month, day and optional hour.
+                              Julian - The time stamp is made up of 2 or 3 groups in the patterns: year, day_of_year and optional hour.
+                                       if the year is less then 100 it is adjust to a year prior to or no more then a month into the future 
+                                       of the current simulate year.
                               EpochSec - The time stamp has one group in the patterns which is the epoch time in seconds.
                               EpochMS - The time stamp has one group in the patterns which is the epoch time in milliseconds.
                               File - No group is used to get the time stamp. Instead use the files date of last modification.
         <dateGroupIndicies> - Required tag when <timeType> has any value but File. 
                               Date - A comma separated list of 3 or 4 numbers which are in order the index for year, month, day and hour.
                                      When only 3 numbers the hour is value is 23.
+                              Julian - A comma separated list of 2 or 3 numbers which are in order the index for year, day of year, and hour.
+                                       When only two numbers the hour value is 23.
                               EpochSec - A number which is the index for the epoch in seconds.
                               EpochMS - A number which is the index for the epoch in milliseconds.
                               File - Not needed since no group is used to get the time stamp.
@@ -114,7 +120,7 @@
            <displayLabel>{1}</displayLabel>
            <timeType>Date</timeType>
            <dateGroupIndices>2,3,4,5</dateGroupIndices>
-           <filePattern>[^/]*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
+           <filePattern>.*-(\d{4})-(\d{2})-(\d{2})-(\d{2})\..*</filePattern>
         </dataSet>
      </category>
      The first <dirPattern> looks for files matching the <filePattern> in the directories acars, airep, airmet or taf.

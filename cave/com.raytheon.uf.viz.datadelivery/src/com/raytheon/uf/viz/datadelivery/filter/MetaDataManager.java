@@ -20,7 +20,6 @@
 package com.raytheon.uf.viz.datadelivery.filter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +34,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
 import com.raytheon.uf.common.datadelivery.registry.ProviderType;
@@ -68,6 +68,8 @@ import com.raytheon.uf.viz.datadelivery.filter.config.xml.FilterTypeXML;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jun 04, 2013  223       mpduff       Add data set type to filter.
+ * Jul 05, 2013 2137       mpduff       Single data type.
+ * Jul 29, 2013 2196       bgonzale     Added levels isEmpty check.
  * 
  * </pre>
  * 
@@ -79,6 +81,7 @@ public class MetaDataManager {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(MetaDataManager.class);
 
+    /** The single instance */
     private static MetaDataManager instance = new MetaDataManager();
 
     /**
@@ -94,7 +97,7 @@ public class MetaDataManager {
     // references from a multi-threaded call
     private volatile SortedSet<String> allAvailableDataSets;
 
-    private volatile SortedSet<String> allAvailableProviders;
+    private volatile Set<Provider> allAvailableProviders;
 
     private volatile SortedSet<String> allAvailableLevels;
 
@@ -105,14 +108,42 @@ public class MetaDataManager {
      */
     private ReferencedEnvelope envelope;
 
+    /** reread flag */
     private boolean reread = true;
 
-    private String[] dataTypes;
+    /** The data type */
+    private String dataType;
 
     /**
      * Private constructor.
      */
     private MetaDataManager() {
+    }
+
+    /**
+     * Get the available data providers for the provided data type.
+     * 
+     * @param dataType
+     *            The data type
+     * 
+     * @return SortedSet of available providers
+     */
+    public SortedSet<String> getAvailableDataProvidersByType(String dataType) {
+        SortedSet<String> providers = new TreeSet<String>();
+
+        if (allAvailableProviders == null) {
+            populateAvailableProviders();
+        }
+        for (Provider p : allAvailableProviders) {
+            for (ProviderType pt : p.getProviderType()) {
+                if (pt.getDataType().toString().equalsIgnoreCase(dataType)) {
+                    providers.add(p.getName());
+                    break;
+                }
+            }
+        }
+
+        return providers;
     }
 
     /**
@@ -122,20 +153,37 @@ public class MetaDataManager {
      */
     public SortedSet<String> getAvailableDataProviders() {
         if (allAvailableProviders == null) {
-            allAvailableProviders = new TreeSet<String>();
-
-            try {
-                for (Provider provider : DataDeliveryHandlers
-                        .getProviderHandler().getAll()) {
-                    allAvailableProviders.add(provider.getName());
-                }
-            } catch (RegistryHandlerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve the list of providers.", e);
-            }
+            populateAvailableProviders();
         }
 
-        return allAvailableProviders;
+        SortedSet<String> providers = new TreeSet<String>();
+        for (Provider p : allAvailableProviders) {
+            providers.add(p.getName());
+        }
+
+        return providers;
+    }
+
+    /**
+     * Populate the available providers.
+     */
+    private void populateAvailableProviders() {
+        allAvailableProviders = new HashSet<Provider>();
+
+        DataType dataType = DataType.valueOfIgnoreCase(this.dataType);
+        try {
+            for (Provider provider : DataDeliveryHandlers.getProviderHandler()
+                    .getAll()) {
+
+                ProviderType providerType = provider.getProviderType(dataType);
+                if (providerType != null) {
+                    allAvailableProviders.add(provider);
+                }
+            }
+        } catch (RegistryHandlerException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve the list of providers.", e);
+        }
     }
 
     /**
@@ -148,9 +196,10 @@ public class MetaDataManager {
             allAvailableDataSets = new TreeSet<String>();
 
             try {
+                List<String> dataTypeList = new ArrayList<String>();
+                dataTypeList.add(dataType);
                 allAvailableDataSets.addAll(DataDeliveryHandlers
-                        .getDataSetNameHandler().getByDataTypes(
-                                Arrays.asList(dataTypes)));
+                        .getDataSetNameHandler().getByDataTypes(dataTypeList));
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to retrieve the dataset list.", e);
@@ -160,6 +209,11 @@ public class MetaDataManager {
         return allAvailableDataSets;
     }
 
+    /**
+     * Get the available data types
+     * 
+     * @return List of data types
+     */
     public List<String> getAvailableDataTypes() {
         Set<String> typeSet = new TreeSet<String>();
 
@@ -195,9 +249,16 @@ public class MetaDataManager {
             allAvailableLevels = new TreeSet<String>();
 
             try {
-                allAvailableLevels.addAll(DataDeliveryHandlers
+                List<String> dataTypeList = new ArrayList<String>();
+                dataTypeList.add(dataType);
+
+                List<String> levels = DataDeliveryHandlers
                         .getParameterHandler().getDataLevelTypeDescriptions(
-                                Arrays.asList(dataTypes)));
+                                dataTypeList);
+                if (levels != null && !levels.isEmpty()
+                        && levels.get(0) != null) {
+                    allAvailableLevels.addAll(levels);
+                }
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to retrieve the levels.", e);
@@ -217,9 +278,14 @@ public class MetaDataManager {
             allAvailableParameters = new TreeSet<String>();
 
             try {
-                allAvailableParameters.addAll(DataDeliveryHandlers
-                        .getParameterHandler().getNamesByDataTypes(
-                                Arrays.asList(dataTypes)));
+                List<String> dataTypeList = new ArrayList<String>();
+                dataTypeList.add(dataType);
+                Set<String> parameters = DataDeliveryHandlers
+                        .getParameterHandler()
+                        .getNamesByDataTypes(dataTypeList);
+                if (parameters != null) {
+                    allAvailableParameters.addAll(parameters);
+                }
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to retrieve the parameter list.", e);
@@ -228,6 +294,15 @@ public class MetaDataManager {
         return allAvailableParameters;
     }
 
+    /**
+     * Get the data set.
+     * 
+     * @param dataSetName
+     *            The data set name
+     * @param providerName
+     *            The provider name
+     * @return The DataSet
+     */
     public DataSet getDataSet(String dataSetName, String providerName) {
         try {
             return DataDeliveryHandlers.getDataSetHandler()
@@ -311,10 +386,11 @@ public class MetaDataManager {
      * Get the metadata
      * 
      * @param dataType
+     *            the data type
      */
     public void readMetaData(String dataType) {
         if (reread) {
-            dataTypes = new String[] { dataType };
+            this.dataType = dataType;
 
             reread = false;
             allAvailableDataSets = null;
@@ -326,6 +402,9 @@ public class MetaDataManager {
         }
     }
 
+    /**
+     * Sets flag to reread the metadata
+     */
     public void rereadMetaData() {
         reread = true;
     }

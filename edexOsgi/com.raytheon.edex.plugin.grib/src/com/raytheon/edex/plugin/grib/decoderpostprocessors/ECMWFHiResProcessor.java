@@ -40,9 +40,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 8/30/10      5875        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2010  5875     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Removed unused method argument.
+ * 
  * 
  * </pre>
  * 
@@ -150,8 +152,7 @@ public class ECMWFHiResProcessor extends SixHrPrecipGridProcessor {
                     .getDataTime().getFcstTime())) {
                 // If the precipitation grid has not been produced, generate it
                 List<GridRecord> generated6hrPrecips = generate6hrPrecip(
-                        precipInventory.get(i), precipInventory,
-                        precip6hrInventory);
+                        precipInventory.get(i), precipInventory);
                 for (GridRecord newRecord : generated6hrPrecips) {
                     // Add the generated grid to the current inventory
                     if (newRecord != null) {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wfs-soap="http://www.opengis.net/wfs/soap/2.0" xmlns:wsntw="http://docs.oasis-open.org/wsn/bw-2"
+    xmlns:wsntw-soap="http://docs.oasis-open.org/wsn/bw-2/soap"
+    xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    targetNamespace="http://wsn.edex.uf.raytheon.com" xmlns:tns="http://wsn.edex.uf.raytheon.com">
+
+    <!-- ============================ Bindings Section ================================ -->
+    <wsdl:import namespace="http://docs.oasis-open.org/wsn/bw-2"
+        location="http://docs.oasis-open.org/wsn/bw-2.wsdl" />
+    <wsdl:binding name="NotificationConsumerSOAPBinding"
+        type="wsntw:NotificationConsumer">
+        <soap:binding style="document"
+            transport="http://schemas.xmlsoap.org/soap/http" />
+        <wsdl:operation name="Notify">
+            <soap:operation soapAction="" style="document" />
+            <wsdl:input>
+                <soap:body use="literal" />
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" />
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <!-- ============================ Service Section ================================ -->
+    <wsdl:service name="wsn-consumer">
+        <wsdl:port name="wsn-SOAP-Port" binding="tns:NotificationConsumerSOAPBinding">
+            <soap:address location="http://0.0.0.0:8080/notify">http://0.0.0.0:8080/notify
+            </soap:address>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions> 

@@ -35,6 +35,7 @@ import com.raytheon.uf.common.util.PropertiesUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 1, 2013    1786     mpduff      Initial creation
+ * 8/28/2013    1538       bphillip    Add handling of nonProxyHosts
  * 
  * </pre>
  * 
@@ -49,6 +50,9 @@ public class ProxyUtil {
     /** Proxy port environment variable name */
     public static final String HTTP_PROXY_PORT = "http.proxyPort";
 
+    /** Hosts that bypass the proxy over http */
+    public static final String HTTP_NON_PROXY_HOSTS = "http.nonProxyHosts";
+
     /**
      * Get the proxy server settings if any are present.
      * 
@@ -57,9 +61,14 @@ public class ProxyUtil {
     public static ProxyConfiguration getProxySettings() {
         String host = System.getProperty(HTTP_PROXY_HOST);
         String port = System.getProperty(HTTP_PROXY_PORT);
+        String nonProxyHosts = System.getProperty(HTTP_NON_PROXY_HOSTS);
 
         if (host != null && port != null) {
-            return new ProxyConfiguration(host, port);
+            ProxyConfiguration proxyConfig = new ProxyConfiguration(host, port);
+            if (nonProxyHosts != null && !nonProxyHosts.trim().isEmpty()) {
+                proxyConfig.setNonProxyHosts(nonProxyHosts);
+            }
+            return proxyConfig;
         }
 
         return null;
@@ -80,9 +89,14 @@ public class ProxyUtil {
         Properties properties = PropertiesUtil.read(proxyFile);
         String host = properties.getProperty(HTTP_PROXY_HOST);
         String port = properties.getProperty(HTTP_PROXY_PORT);
+        String nonProxyHosts = properties.getProperty(HTTP_NON_PROXY_HOSTS);
 
         if (host != null && port != null) {
-            proxySettings = new ProxyConfiguration(host, port);
+            ProxyConfiguration proxyConfig = new ProxyConfiguration(host, port);
+            if (nonProxyHosts != null && !nonProxyHosts.trim().isEmpty()) {
+                proxyConfig.setNonProxyHosts(nonProxyHosts);
+            }
+            return proxyConfig;
         }
 
         return proxySettings;

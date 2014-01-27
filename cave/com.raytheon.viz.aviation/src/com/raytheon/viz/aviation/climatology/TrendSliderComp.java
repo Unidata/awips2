@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 28 FEB 2008  938        lvenable    Initial creation.
+ * 12 Aug 2013  #2256      lvenable    Added calcArrow() method and code to dispose of the region.
  * 
  * </pre>
  * 
@@ -217,6 +218,7 @@ public abstract class TrendSliderComp extends Composite {
         this.addDisposeListener(new DisposeListener() {
             public void widgetDisposed(DisposeEvent e) {
                 canvasFont.dispose();
+                region.dispose();
             }
         });
     }
@@ -332,6 +334,21 @@ public abstract class TrendSliderComp extends Composite {
         mb.setText("Notice");
         mb.setMessage(information);
         mb.open();
+    }
+
+    /**
+     * Calculate the arrow position.
+     */
+    protected void calcArrow() {
+        if (region.isEmpty() == false) {
+            region.subtract(arrowPoints);
+        }
+
+        arrowPoints = new int[] { arrowCenterXCoord, arrowBottomYCoord,
+                arrowCenterXCoord + 5, arrowTopYCoord, arrowCenterXCoord - 5,
+                arrowTopYCoord, arrowCenterXCoord, arrowBottomYCoord };
+
+        region.add(arrowPoints);
     }
 
     /**

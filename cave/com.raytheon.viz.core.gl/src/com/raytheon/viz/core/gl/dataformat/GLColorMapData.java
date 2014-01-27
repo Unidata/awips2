@@ -19,10 +19,7 @@
  **/
 package com.raytheon.viz.core.gl.dataformat;
 
-import java.nio.Buffer;
-
 import com.raytheon.uf.common.colormap.image.ColorMapData;
-import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 
 /**
  * 
@@ -34,7 +31,8 @@ import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 10, 2011            bsteffen     Initial creation
+ * Aug 10, 2011            bsteffen    Initial creation
+ * Oct 16, 2013       2333 mschenke    Removed Buffer from this object
  * 
  * </pre>
  * 
@@ -43,31 +41,21 @@ import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
  */
 public class GLColorMapData {
 
-    private final AbstractGLColorMapDataFormat dataFormat;
+    protected final AbstractGLColorMapDataFormat dataFormat;
 
-    private Buffer data;
+    private final int[] dimensions;
 
-    private int[] dimensions;
+    private final ColorMapData.ColorMapDataType dataType;
 
-    private ColorMapData.ColorMapDataType dataType;
-
-    private int textureType;
-
-    public GLColorMapData(ColorMapData cmData,
-            AbstractGLColorMapDataFormat dataFormat) {
+    public GLColorMapData(AbstractGLColorMapDataFormat dataFormat,
+            ColorMapData.ColorMapDataType dataType, int[] dimensions) {
         this.dataFormat = dataFormat;
-        this.dimensions = cmData.getDimensions();
-        this.dataType = cmData.getDataType();
-        this.textureType = dataFormat.getTextureType();
-        this.data = dataFormat.formatForGL(cmData.getBuffer(), this);
+        this.dataType = dataType;
+        this.dimensions = dimensions;
     }
 
-    public Buffer getData() {
-        return data;
-    }
-
-    public void setData(Buffer data) {
-        this.data = data;
+    public AbstractGLColorMapDataFormat getDataFormat() {
+        return dataFormat;
     }
 
     public int getTextureFormat() {
@@ -79,19 +67,11 @@ public class GLColorMapData {
     }
 
     public int getTextureType() {
-        return textureType;
-    }
-
-    public void setTextureType(int textureType) {
-        this.textureType = textureType;
+        return dataFormat.getTextureType();
     }
 
     public ColorMapData.ColorMapDataType getDataType() {
         return dataType;
-    }
-
-    public int getCopyBackTextureType() {
-        return dataFormat.getCopyBackTextureType();
     }
 
     public double getDataFormatMin() {
@@ -106,12 +86,8 @@ public class GLColorMapData {
         return dataFormat.isScaled();
     }
 
-    public Buffer getCopybackBuffer() {
-        return dataFormat.getCopybackBuffer(this);
-    }
-
-    public Number getValue(int x, int y) {
-        return dataFormat.getValue(x, y, this);
+    public boolean isDataFormatSigned() {
+        return dataFormat.isSignedFormat();
     }
 
     public int getDimensionSize(int index) {
@@ -119,6 +95,10 @@ public class GLColorMapData {
             return 0;
         }
         return dimensions[index];
+    }
+
+    public int getNumDimensions() {
+        return dimensions.length;
     }
 
     public int[] getDimensions() {

@@ -23,17 +23,23 @@
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.SerializeRetrievedDataToDirectory">
                 <constructor-arg value="${sbn.retrieval.transfer.directory}" />
                 <constructor-arg>
-                    <bean class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.AlwaysSameWmoHeader">
+                    <bean class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DataDeliveryRetrievalWmoHeaderApplier">
                         <constructor-arg value="${sbn.retrieval.transfer.wmo.header}" />
+                        <constructor-arg value="${sbn.retrieval.transfer.wmo.header.dataProviderMap}" />
+                        <constructor-arg value="${sbn.retrieval.transfer.wmo.header.dataFormatMap}" />
+                        <constructor-arg value="${sbn.retrieval.transfer.wmo.header.dataSourceMap}" />
                     </bean>
                 </constructor-arg>
+                <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
-        <constructor-arg>
-            <util:constant
-                static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
+        <constructor-arg> 
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalResponseCompleter" >
+                <constructor-arg ref="subNotifyTask" />
+                <constructor-arg ref="retrievalDao" />
+            </bean>
         </constructor-arg>
-        <constructor-arg ref="retrievalDao" />
     </bean>
 
     <util:list id="retrievalTaskList"

@@ -12,13 +12,6 @@
             resourceType="PLAN_VIEW"/>
    </extension>
    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="sgwh"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
-   <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
       <nc-resource
             class="gov.noaa.nws.ncep.viz.rsc.wavesat.rsc.WaveSatResourceData"

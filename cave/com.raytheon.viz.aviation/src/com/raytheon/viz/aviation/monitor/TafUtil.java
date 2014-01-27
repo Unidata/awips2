@@ -19,22 +19,22 @@
  **/
 package com.raytheon.viz.aviation.monitor;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.comm.Loader;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -49,7 +49,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Jul 6, 2010  5792       rferrel    getLatestTafs now returns tafs
  *                                    sorted by issue date newest at
  *                                    the start of the array.
- * 08AUG2012    15613      zhao       Modified safeFormatTaf() 
+ * 08AUG2012    15613      zhao       Modified safeFormatTaf()
+ * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -92,15 +93,11 @@ public class TafUtil {
     public static TafRecord[] getLatestTafs(String siteID, int numberOfTafs) {
         try {
             Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
-            map.put("pluginName", new RequestConstraint("taf"));
+            map.put(TafRecord.PLUGIN_NAME_ID, new RequestConstraint(
+                    TafRecord.PLUGIN_NAME));
             map.put("stationId", new RequestConstraint(siteID));
-            LayerProperty lp = new LayerProperty();
-            lp.setEntryQueryParameters(map);
-            lp.setNumberOfImages(numberOfTafs);
 
-            // Assume entry times are the same as issue time and are
-            // returned sorted with oldest to newest timestamp.
-            DataTime[] dt = lp.getEntryTimes();
+            DataTime[] dt = DataCubeContainer.performTimeQuery(map, false);
             if (dt.length == 0) {
                 return null;
             }
@@ -117,35 +114,23 @@ public class TafUtil {
                     break;
                 }
             }
-            lp.setSelectedEntryTimes(requestedTimes);
-            List<Object> objs = Loader.loadData(lp, "select", 10000);
-            TafRecord[] tafs = new TafRecord[objs.size()];
 
-            // No need to sort single record
-            if (objs.size() == 1) {
-                tafs[0] = (TafRecord) objs.get(0);
+            PluginDataObject[] pdos = DataCubeContainer.getData(map,
+                    requestedTimes);
+            TafRecord[] tafs = new TafRecord[pdos.length];
+            for (int i = 0; i < pdos.length; ++i) {
+                tafs[i] = (TafRecord) pdos[i];
             }
-            // sort so newest issued taf record is first.
-            else {
-                ArrayList<TafRecord> tafList = new ArrayList<TafRecord>(
-                        objs.size());
-                tafList.add((TafRecord) objs.get(0));
-
-                for (int i = 1; i < objs.size(); i++) {
-                    TafRecord tafI = (TafRecord) objs.get(i);
-                    Date timeI = tafI.getIssue_time();
-
-                    for (k = 0; k < i; ++k) {
-                        if (timeI.compareTo(tafList.get(k).getIssue_time()) > 0) {
-                            break;
+            // Sort newest first based on issue time
+            Arrays.sort(tafs,
+                    Collections.reverseOrder(new Comparator<TafRecord>() {
+                        @Override
+                        public int compare(TafRecord o1, TafRecord o2) {
+                            return o1.getIssue_time().compareTo(
+                                    o2.getIssue_time());
                         }
-                    }
+                    }));
 
-                    tafList.add(k, tafI);
-                }
-
-                tafList.toArray(tafs);
-            }
             return tafs;
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, "Error retrieving TAFs", e);
@@ -167,7 +152,8 @@ public class TafUtil {
             if (includeHeader) {
                 sb.append(t.getWmoHeader());
                 sb.append(LINE_BREAK);
-                sb.append("TAF").append(t.getStationId().substring(1,4)).append(LINE_BREAK);
+                sb.append("TAF").append(t.getStationId().substring(1, 4))
+                        .append(LINE_BREAK);
             }
             String firstLine = text[0];
             if (firstLine.startsWith("TAF AMD")

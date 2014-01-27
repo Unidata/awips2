@@ -12,19 +12,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.IDeepCopyable;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 
 /**
@@ -39,6 +34,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2012 0726       djohnson     Added SW history, added length to subscription.
  * Nov 09, 2012 1286       djohnson     Add convenience methods for retrieving the subscription.
+ * Jun 13, 2013 2095       djohnson     Add flag for whether or not data set update should be looked for on aggregating.
+ * Jun 24, 2013 2106       djohnson     Add copy constructor.
+ * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum, remove the Subscription.
+ * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -49,11 +48,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @Table(name = "bandwidth_subscription")
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
-public class BandwidthSubscription extends PersistableDataObject<Long> implements
-        Serializable, ISerializableObject {
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(BandwidthSubscription.class);
+public class BandwidthSubscription extends PersistableDataObject<Long>
+        implements Serializable, IDeepCopyable<BandwidthSubscription> {
 
     private static final long serialVersionUID = 20120723L;
 
@@ -98,60 +94,43 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
 
     @DynamicSerializeElement
     @Column(nullable = false)
-    private double priority;
+    @Enumerated(EnumType.STRING)
+    private SubscriptionPriority priority;
 
     @DynamicSerializeElement
     @Column(nullable = false)
     private String registryId;
 
     @DynamicSerializeElement
-    @Column(nullable = false, length = 100000)
-    private byte[] subSubscription;
-
-    @Transient
-    private transient Subscription subscription;
+    @Column(nullable = false)
+    private boolean checkForDataSetUpdate;
 
     public void setRegistryId(String registryId) {
         this.registryId = registryId;
     }
 
-    /**
-     * @return the subSubscription
-     * @throws SerializationException
-     */
-    public Subscription getSubscription() throws SerializationException {
-        if (subscription == null) {
-            if (subSubscription != null) {
-                subscription = SerializationUtil.transformFromThrift(
-                        Subscription.class, subSubscription);
-            } else {
-                statusHandler.handle(Priority.WARN,
-                        "Null subSubscription as field, not deserializing.");
-            }
-
-        }
-        return subscription;
-    }
-
-    /**
-     * @param sub
-     * @throws SerializationException
-     */
-    public void setSubscription(Subscription sub) throws SerializationException {
-        // Set the transient field subscription so that we don't
-        // have to deserialize the subscription if it was set
-        // already.
-        this.subscription = sub;
-        if (sub != null) {
-            this.subSubscription = SerializationUtil.transformToThrift(sub);
-        } else {
-            statusHandler.handle(Priority.WARN,
-                    "Null subscription passed as parameter, not serializing.");
-        }
-    }
-
     public BandwidthSubscription() {
         // Bean constructor
+    }
+
+    /**
+     * @param bandwidthSubscription
+     */
+    public BandwidthSubscription(BandwidthSubscription bandwidthSubscription) {
+        this.baseReferenceTime = TimeUtil.newCalendar(bandwidthSubscription
+                .getBaseReferenceTime());
+        this.checkForDataSetUpdate = bandwidthSubscription.checkForDataSetUpdate;
+        this.cycle = bandwidthSubscription.cycle;
+        this.dataSetName = bandwidthSubscription.dataSetName;
+        this.estimatedSize = bandwidthSubscription.estimatedSize;
+        this.id = bandwidthSubscription.id;
+        this.identifier = bandwidthSubscription.identifier;
+        this.name = bandwidthSubscription.name;
+        this.owner = bandwidthSubscription.owner;
+        this.priority = bandwidthSubscription.priority;
+        this.provider = bandwidthSubscription.provider;
+        this.registryId = bandwidthSubscription.registryId;
+        this.route = bandwidthSubscription.route;
     }
 
     /**
@@ -274,11 +253,11 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
         return baseReferenceTime;
     }
 
-    public void setPriority(double priority) {
+    public void setPriority(SubscriptionPriority priority) {
         this.priority = priority;
     }
 
-    public double getPriority() {
+    public SubscriptionPriority getPriority() {
         return priority;
     }
 
@@ -302,27 +281,25 @@ public class BandwidthSubscription extends PersistableDataObject<Long> implement
     }
 
     /**
-     * Added only to comply with DynamicSerialize, use
-     * {@link #getSubscription()} instead.
-     * 
-     * @deprecated
-     * @return the subSubscription the raw bytes of the serialized subscription
+     * @return the checkForDataSetUpdate
      */
-    @Deprecated
-    public byte[] getSubSubscription() {
-        return subSubscription;
+    public boolean isCheckForDataSetUpdate() {
+        return checkForDataSetUpdate;
     }
 
     /**
-     * Added only to comply with DynamicSerialize, use
-     * {@link #setSubscription()} instead.
-     * 
-     * @deprecated
-     * @param subSubscription
-     *            the subSubscription to set
+     * @param checkForDataSetUpdate
+     *            the checkForDataSetUpdate to set
      */
-    @Deprecated
-    public void setSubSubscription(byte[] subSubscription) {
-        this.subSubscription = subSubscription;
+    public void setCheckForDataSetUpdate(boolean checkForDataSetUpdate) {
+        this.checkForDataSetUpdate = checkForDataSetUpdate;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BandwidthSubscription copy() {
+        return new BandwidthSubscription(this);
     }
 }

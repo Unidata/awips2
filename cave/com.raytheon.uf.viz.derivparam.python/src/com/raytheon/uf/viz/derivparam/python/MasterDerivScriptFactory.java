@@ -45,6 +45,8 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 04, 2013 2041       bsteffen    Initial creation
+ * Aug 26, 2013 2289       bsteffen    Make number of deriv param threads
+ *                                     configurable.
  * 
  * </pre>
  * 
@@ -55,7 +57,7 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 public class MasterDerivScriptFactory extends
         AbstractPythonScriptFactory<MasterDerivScript> {
 
-    private static final int MAX_THREADS = 2;
+    private static final int DEFAULT_MAX_THREADS = 3;
 
     public static final String NAME = "DerivedParameterPython";
 
@@ -66,7 +68,7 @@ public class MasterDerivScriptFactory extends
             + "DerivParamImporter.py";
 
     public MasterDerivScriptFactory() {
-        super(NAME, MAX_THREADS);
+        super(NAME, getMaxThreadsProperty());
     }
 
     @Override
@@ -117,4 +119,9 @@ public class MasterDerivScriptFactory extends
                 MasterDerivScript.class.getClassLoader(), preEvals);
     }
 
+    private static int getMaxThreadsProperty() {
+        return Integer.getInteger(
+                "com.raytheon.uf.viz.derivparam.python.threads",
+                DEFAULT_MAX_THREADS);
+    }
 }

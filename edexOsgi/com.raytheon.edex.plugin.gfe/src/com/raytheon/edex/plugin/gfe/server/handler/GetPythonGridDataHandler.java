@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetPythonGridDataRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
@@ -31,7 +30,7 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * TODO Add Description
+ * Handler for GetPythonGridDataRequest
  * 
  * <pre>
  * 
@@ -40,8 +39,11 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 4, 2011            dgilling     Initial creation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
+ * 
+ * @deprecated use the Data Access Framework
  * 
  * @author dgilling
  * @version 1.0
@@ -51,7 +53,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 // DiscreteDefinition/DiscreteKey and WxDefinition/WeatherKey class hierarchy is
 // ever fully-implemented in Python.
 
-public class GetPythonGridDataHandler implements
+@Deprecated
+public class GetPythonGridDataHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetPythonGridDataRequest> {
 
     /*
@@ -66,8 +69,8 @@ public class GetPythonGridDataHandler implements
             GetPythonGridDataRequest request) throws Exception {
         ServerResponse<List<IGridSlice>> finalResp = new ServerResponse<List<IGridSlice>>();
 
-        ServerResponse<List<IGridSlice>> sr = GridParmManager
-                .getGridData(request.getRequests());
+        ServerResponse<List<IGridSlice>> sr = getIfpServer(request)
+                .getGridParmMgr().getGridData(request.getRequests());
         if (!sr.isOkay()) {
             finalResp.addMessages(sr);
             finalResp.setPayload(new ArrayList<IGridSlice>(0));

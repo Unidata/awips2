@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.glsl.AbstractGLSLImagingExtension;
+import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.GLSingleColorImage;
 
@@ -40,7 +41,9 @@ import com.raytheon.viz.core.gl.images.GLSingleColorImage;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke     Initial creation
+ * Dec 15, 2011            mschenke    Initial creation
+ * Nov  4, 2013 2492       mschenke    Switched to use GLSLStructFactory for 
+ *                                     common shader structure use
  * 
  * </pre>
  * 
@@ -97,11 +100,11 @@ public class GLSingleColorImageExtension extends AbstractGLSLImagingExtension
 
         image = (GLSingleColorImage) iimage;
 
-        program.setUniform("brightness", image.getBrightness());
-        program.setUniform("contrast", image.getContrast());
-        program.setUniform("alpha", paintProps.getAlpha());
         program.setUniform("color", image.getColor());
         program.setUniform("rawTex", 0);
+        GLSLStructFactory.createColorModifiers(program, "modifiers",
+                paintProps.getAlpha(), image.getBrightness(),
+                image.getContrast());
     }
 
 }

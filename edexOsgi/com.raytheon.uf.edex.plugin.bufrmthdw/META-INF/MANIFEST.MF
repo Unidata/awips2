@@ -5,13 +5,14 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrmthdw
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.uf.common.dataplugin.bufrmthdw;bundle-version="1.0.0",
- com.raytheon.edex.common;bundle-version="1.11.1",
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.apache.commons.logging;bundle-version="1.0.4",
+Require-Bundle: com.raytheon.uf.common.dataplugin.bufrmthdw,
+ com.raytheon.edex.common,
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.edex.pointdata,
  org.geotools,
  javax.persistence,
  javax.measure
-Import-Package: com.raytheon.uf.edex.bufrtools
+Import-Package: com.raytheon.uf.common.status,
+ com.raytheon.uf.edex.bufrtools,
+ org.apache.commons.logging

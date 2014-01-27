@@ -23,11 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.util.JarUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
@@ -49,23 +50,27 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 20, 2013 1543       djohnson     For now assume all in-memory bandwidth managers are WFOs.
  * Feb 27, 2013 1644       djohnson     Schedule SBN subscriptions.
  * Apr 16, 2013 1906       djohnson     Implements RegistryInitializedListener.
+ * Jun 25, 2013 2106       djohnson     init() now takes a {@link RetrievalManager} as well.
+ * Jul 09, 2013 2106       djohnson     Add shutdownInternal().
+ * Oct 2,  2013 1797       dhladky      Generics
+ * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class InMemoryBandwidthManager extends BandwidthManager {
+class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends BandwidthManager<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
 
-    // TODO DPJ: The NCF and WFO bandwidth managers probably each need an
-    // in-memory version
-    public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = new String[] {
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-inmemory-impl.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery.xml"),
-            JarUtil.getResResourcePath("/spring/bandwidth-datadelivery-wfo.xml") };
+    private static final String MODE_NAME = "inMemoryBandwidthManager";
+
+    // NOTE: NEVER add the bandwidth-datadelivery-eventbus.xml file to this
+    // array, in-memory versions should not coordinate with the event bus in any
+    // fashion
+    public static final String[] IN_MEMORY_BANDWIDTH_MANAGER_FILES = getSpringFileNamesForMode(MODE_NAME);
 
     /**
      * {@link BandwidthInitializer} which will make a copy of the current
@@ -78,7 +83,8 @@ class InMemoryBandwidthManager extends BandwidthManager {
          * {@inheritDoc}
          */
         @Override
-        public boolean init(IBandwidthManager instance, IBandwidthDbInit dbInit) {
+        public boolean init(IBandwidthManager instance,
+                IBandwidthDbInit dbInit, RetrievalManager retrievalManager) {
             BandwidthManager edexBandwidthManager = EdexBandwidthContextFactory
                     .getInstance();
             if (instance instanceof InMemoryBandwidthManager) {
@@ -112,7 +118,7 @@ class InMemoryBandwidthManager extends BandwidthManager {
      * @param bandwidthDaoUtil
      */
     public InMemoryBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
+            IBandwidthDao<T,C> bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
@@ -130,7 +136,7 @@ class InMemoryBandwidthManager extends BandwidthManager {
      */
     @Override
     protected ProposeScheduleResponse proposeScheduleSbnSubscription(
-            List<Subscription> subscriptions) throws Exception {
+            List<Subscription<T,C>> subscriptions) throws Exception {
         return proposeScheduleSubscriptions(subscriptions);
     }
 
@@ -139,8 +145,25 @@ class InMemoryBandwidthManager extends BandwidthManager {
      */
     @Override
     protected Set<String> scheduleSbnSubscriptions(
-            List<Subscription> subscriptions) throws SerializationException {
+            List<Subscription<T,C>> subscriptions) throws SerializationException {
         return scheduleSubscriptions(subscriptions);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void shutdownInternal() {
+        // Nothing to do for in-memory version
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void unscheduleSubscriptionsForAllocations(
+            List<BandwidthAllocation> unscheduled) {
+        // Nothing to do for in-memory version
     }
 
 }

@@ -1,11 +1,9 @@
-#include <colorUtil>
+#include <coloring>
 
-uniform float brightness;
-uniform float contrast;
-uniform float alpha;
 uniform sampler2D rawTex;
+uniform ColorModifiers modifiers;
 
 void main(void) {
     vec4 textureColor = texture2D(rawTex, gl_TexCoord[0].st);
-    gl_FragColor = applyContrastAlphaBrightness(textureColor, alpha, brightness, contrast);
+    gl_FragColor = applyColorModifiers(textureColor, modifiers);
 }

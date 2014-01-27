@@ -47,9 +47,8 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
@@ -65,8 +64,10 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2008            mnash       Initial creation
+ * Aug 07, 2013       1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
  *                                     Cleaned up error handling
+ * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -82,9 +83,12 @@ public class CombinationsFileUtil {
 
     public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
 
+    private static final SingleTypeJAXBManager<ComboData> jaxb = SingleTypeJAXBManager
+            .createWithoutException(ComboData.class);
+
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.NONE)
-    public static class ComboData implements ISerializableObject {
+    public static class ComboData {
 
         @XmlRootElement
         @XmlAccessorType(XmlAccessType.NONE)
@@ -128,8 +132,9 @@ public class CombinationsFileUtil {
 
     public static LocalizationFile[] getSavedCombos() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile[] combos = pm.listStaticFiles(SAVED_COMBO_DIR,
-                new String[] { ".xml" }, false, true);
+        LocalizationFile[] combos = pm.listFiles(
+                pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+                SAVED_COMBO_DIR, new String[] { ".xml" }, false, true);
 
         return combos;
     }
@@ -156,7 +161,7 @@ public class CombinationsFileUtil {
         LocalizationFile lf = idToFile(id);
         File file = lf.getFile(false);
         ComboData comboData = new ComboData(combos);
-        SerializationUtil.jaxbMarshalToXmlFile(comboData, file.getPath());
+        jaxb.marshalToXmlFile(comboData, file.getPath());
         lf.save();
     }
 
@@ -183,7 +188,7 @@ public class CombinationsFileUtil {
         }
         s.append(':');
 
-        if (fn.length() > s.length() && fn.indexOf(s.toString()) == 0) {
+        if ((fn.length() > s.length()) && (fn.indexOf(s.toString()) == 0)) {
             return fn.substring(s.length());
         } else {
             return "";
@@ -194,8 +199,7 @@ public class CombinationsFileUtil {
             throws SerializationException {
         LocalizationFile lf = idToFile(id);
         File file = lf.getFile();
-        ComboData comboData = (ComboData) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(file);
+        ComboData comboData = jaxb.unmarshalFromXmlFile(file);
 
         Map<String, Integer> comboDict = new HashMap<String, Integer>(
                 comboData.combos.size());

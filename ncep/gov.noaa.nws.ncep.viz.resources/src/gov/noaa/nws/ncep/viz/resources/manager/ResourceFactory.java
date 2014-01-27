@@ -6,26 +6,20 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
 import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsResourceData;
 import gov.noaa.nws.ncep.viz.resources.INatlCntrsResourceData;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.ResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 
 /**
- * Class used by the content providers for Resources and Overlays. This stores the 
- * instantiated Resource Bundle Templates first with the default attributes and 
- * additionally stores later changes to the attributes. 
+ * Class used by the content providers for Resources and Overlays. This stores
+ * the instantiated Resource Bundle Templates first with the default attributes
+ * and additionally stores later changes to the attributes.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -43,10 +37,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
  * 08/23/10     #273        Greg Hull       isVisible()
  * 11/17/11     #518        Greg Hull       set dfltFrameTimes (GDATTIM)
  * 02/10/13     #972        Greg Hull       getSupportedDisplayTypes
- *   
+ * 10/29/13     #2491       bsteffen        Use AbstratRBD JAXBManager instead of SerializationUtil.
+ * 
  * </pre>
  * 
- * @author 
+ * @author
  * @version 1
  */
 
@@ -187,7 +182,7 @@ public class ResourceFactory {
 
 			ResourceList bndl_rscs = null;
 
-			Object rg =  SerializationUtil.unmarshalFromXml(substStr);
+            Object rg = AbstractRBD.getJaxbManager().unmarshalFromXml(substStr);
 
 			if( !(rg instanceof ResourceGroup) ) {
 				throw new VizException("Resource Bundle template has unexpected class. (not ResourceGroup)");

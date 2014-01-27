@@ -113,11 +113,19 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.edex.registry.client.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.edex.datadelivery.client.feature"
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.registry.client.feature"
+         id="com.raytheon.uf.edex.registry.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.edex.datadelivery.core.feature"
          version="0.0.0"/>
 
    <includes
@@ -125,7 +133,7 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.edex.registry.feature"
+         id="com.raytheon.uf.edex.dataprovideragent.feature"
          version="0.0.0"/>
 
 </feature>

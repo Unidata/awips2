@@ -41,6 +41,9 @@ import com.raytheon.uf.common.python.PythonScript;
  * ------------ ---------- ----------- --------------------------
  * 09 Dec 2008             lvenable    Initial creation
  * 10 Nov 2010             njensen     Cache python
+ * 29 Aug 2013   #2250     dgilling    Fix PythonScript construction to use
+ *                                     proper ClassLoader, return JepExceptions
+ *                                     to caller.
  * </pre>
  * 
  * @author lvenable
@@ -50,21 +53,26 @@ public class TextFmtParserUtil {
 
     private static PythonScript python;
 
+    /**
+     * Private constructor, since all methods are static.
+     */
+    private TextFmtParserUtil() {
+        throw new AssertionError();
+    }
+
     @SuppressWarnings("unchecked")
-    public static HashMap<String, Object> parseText(String text) {
+    public static HashMap<String, Object> parseText(String text)
+            throws JepException {
 
         HashMap<String, Object> parsedText = null;
 
         HashMap<String, Object> map = new HashMap<String, Object>(1);
 
-        try {
-            PythonScript py = getPython();
-            map.put("text", text);
-            Object com = py.execute("parseFromJava", "parser", map);
-            parsedText = (HashMap<String, Object>) com;
-        } catch (JepException e) {
-            e.printStackTrace();
-        }
+        PythonScript py = getPython();
+        map.put("text", text);
+        Object com = py.execute("parseFromJava", "parser", map);
+        parsedText = (HashMap<String, Object>) com;
+
         return parsedText;
     }
 
@@ -77,7 +85,8 @@ public class TextFmtParserUtil {
                     + "userPython" + File.separator + "utilities"
                     + File.separator + "ProductParser.py");
             python = new PythonScript(baseFile.getPath(),
-                    GfePyIncludeUtil.getCommonPythonIncludePath());
+                    GfePyIncludeUtil.getCommonPythonIncludePath(),
+                    TextFmtParserUtil.class.getClassLoader());
             python.instantiatePythonClass("parser", "ProductParser", null);
         }
         return python;

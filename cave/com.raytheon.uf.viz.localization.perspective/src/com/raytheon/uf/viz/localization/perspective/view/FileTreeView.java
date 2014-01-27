@@ -86,20 +86,19 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationNotificationObserver;
-import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.localization.LocalizationEditorInput;
 import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
@@ -129,10 +128,13 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 26, 2010            mnash     Initial creation
- * Feb 13, 2013  1610      mschenke  Fixed null pointer by repopulating LocalizationFileGroupData 
- *                                   objects even if they weren't expanded
- * May 1st, 2013   1967   njensen    Fix for pydev 2.7
+ * May 26, 2010            mnash       Initial creation
+ * Feb 13, 2013  1610      mschenke    Fixed null pointer by repopulating LocalizationFileGroupData 
+ *                                     objects even if they weren't expanded
+ * May  1, 2013  1967      njensen     Fix for pydev 2.7
+ * Sep 17, 2013  2285      mschenke    Made openFile refresh items if file not found
+ * Oct  9, 2013  2104      mschenke    Fixed file delete/add refresh issue and file change message
+ *                                     found when testing scalesInfo.xml file
  * 
  * </pre>
  * 
@@ -141,8 +143,7 @@ import com.raytheon.uf.viz.localization.service.ILocalizationService;
  */
 
 public class FileTreeView extends ViewPart implements IPartListener2,
-        ILocalizationFileObserver, ILocalizationService,
-        IResourceChangeListener {
+        ILocalizationService, IResourceChangeListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FileTreeView.class);
 
@@ -194,6 +195,58 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                     }
                 } else {
                     return nameVal;
+                }
+            }
+        }
+
+    }
+
+    private class FileUpdateRefresher implements Runnable {
+
+        private final LocalizationFile file;
+
+        private final FileChangeType type;
+
+        public FileUpdateRefresher(LocalizationFile file, FileChangeType type) {
+            this.file = file;
+            this.type = type;
+        }
+
+        @Override
+        public void run() {
+            // Find and refresh file in tree
+            for (TreeItem appItem : getTree().getItems()) {
+                for (TreeItem rootItem : appItem.getItems()) {
+                    TreeItem found = find(rootItem, file.getContext(),
+                            file.getName(), false);
+                    if (found != null) {
+                        // File found. If updated, set the time stamp to that of
+                        // the file to avoid modification change discrepancies
+                        if (type == FileChangeType.UPDATED) {
+                            if (found.getData() instanceof LocalizationFileGroupData) {
+                                for (LocalizationFileEntryData data : ((LocalizationFileGroupData) found
+                                        .getData()).getChildrenData()) {
+                                    if (data.getFile().equals(file)) {
+                                        try {
+                                            data.getResource()
+                                                    .setLocalTimeStamp(
+                                                            file.getTimeStamp()
+                                                                    .getTime());
+                                        } catch (CoreException e) {
+                                            statusHandler
+                                                    .handle(Priority.INFO,
+                                                            "Could not update workspace file timestamp: "
+                                                                    + e.getLocalizedMessage(),
+                                                            e);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // ADD/DELETE, refresh the file
+                            refresh(found);
+                        }
+                    }
                 }
             }
         }
@@ -838,22 +891,13 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                         if (data instanceof LocalizationFileEntryData) {
                             toDelete.add(((LocalizationFileEntryData) data)
                                     .getFile());
-                        } else if (data.isDirectory()) {
-                            String[] parts = LocalizationUtil.splitUnique(data
-                                    .getPath());
-                            String parentDir = parts[0];
-                            for (int i = 1; i < parts.length - 1; ++i) {
-                                parentDir += IPathManager.SEPARATOR + parts[i];
+                        } else if (data instanceof LocalizationFileGroupData) {
+                            for (LocalizationFileEntryData child : ((LocalizationFileGroupData) data)
+                                    .getChildrenData()) {
+                                toDelete.add(child.getFile());
                             }
-                            LocalizationFile[] files = PathManagerFactory
-                                    .getPathManager()
-                                    .listFiles(
-                                            getTreeSearchContexts(data
-                                                    .getPathData().getType()),
-                                            data.getPath(),
-                                            new String[] { parts[parts.length - 1] },
-                                            false, false);
-                            toDelete.addAll(Arrays.asList(files));
+                        } else if (data.isDirectory()) {
+                            toDelete.addAll(buildFileList(item, null));
                         }
                     }
                 }
@@ -866,6 +910,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
             }
 
             if (toDelete.size() > 0) {
+                Collections.sort(toDelete, new FileTreeFileComparator());
                 mgr.add(new DeleteAction(getSite().getPage(), toDelete
                         .toArray(new LocalizationFile[toDelete.size()])));
                 mgr.add(new Separator());
@@ -925,6 +970,39 @@ public class FileTreeView extends ViewPart implements IPartListener2,
                 }
             }
         }
+    }
+
+    /**
+     * Builds a list of {@link LocalizationFile}s starting at the item passed in
+     * 
+     * @param item
+     * @param files
+     *            (option) list to add entries to
+     * @return list of files
+     */
+    private List<LocalizationFile> buildFileList(TreeItem item,
+            List<LocalizationFile> files) {
+        if (files == null) {
+            files = new ArrayList<LocalizationFile>();
+        }
+
+        FileTreeEntryData data = (FileTreeEntryData) item.getData();
+        if (data instanceof LocalizationFileEntryData) {
+            // single item
+            files.add(((LocalizationFileEntryData) data).getFile());
+        } else if (data instanceof LocalizationFileGroupData) {
+            for (LocalizationFileEntryData child : ((LocalizationFileGroupData) data)
+                    .getChildrenData()) {
+                files.add(child.getFile());
+            }
+        } else if (data.isDirectory()) {
+            // recursive part, ensure item populated
+            populateNode(item);
+            for (TreeItem childItem : item.getItems()) {
+                buildFileList(childItem, files);
+            }
+        }
+        return files;
     }
 
     /**
@@ -1134,6 +1212,7 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         parentItem.removeAll();
         LocalizationFileGroupData fData = (LocalizationFileGroupData) parentItem
                 .getData();
+        fData.clearChildData();
         fData.setRequestedChildren(true);
         PathData pd = fData.getPathData();
         for (LocalizationFile file : files) {
@@ -1361,23 +1440,25 @@ public class FileTreeView extends ViewPart implements IPartListener2,
     private TreeItem find(TreeItem item, LocalizationContext ctx, String path,
             boolean populateToFind) {
         FileTreeEntryData data = (FileTreeEntryData) item.getData();
-        String itemPath = data.getPath();
-        if (path.startsWith(itemPath)) {
-            if (path.equals(itemPath)
-                    || (data.hasRequestedChildren() == false && !populateToFind)) {
-                return item;
-            } else {
-                if (data.hasRequestedChildren() == false) {
-                    populateNode(item);
-                }
-                for (TreeItem child : item.getItems()) {
-                    TreeItem rval = find(child, ctx, path, populateToFind);
-                    if (rval != null) {
-                        return rval;
+        if (data.getPathData().getType() == ctx.getLocalizationType()) {
+            String itemPath = data.getPath();
+            if (path.startsWith(itemPath)) {
+                if (path.equals(itemPath)
+                        || (data.hasRequestedChildren() == false && !populateToFind)) {
+                    return item;
+                } else {
+                    if (data.hasRequestedChildren() == false) {
+                        populateNode(item);
+                    }
+                    for (TreeItem child : item.getItems()) {
+                        TreeItem rval = find(child, ctx, path, populateToFind);
+                        if (rval != null) {
+                            return rval;
+                        }
                     }
                 }
+                return item;
             }
-            return item;
         }
         return null;
     }
@@ -1479,34 +1560,19 @@ public class FileTreeView extends ViewPart implements IPartListener2,
         String filePath = message.getFileName();
         IPathManager pathManager = PathManagerFactory.getPathManager();
 
-        final FileChangeType type = message.getChangeType();
-        final LocalizationFile file = pathManager.getLocalizationFile(context,
+        FileChangeType type = message.getChangeType();
+        LocalizationFile file = pathManager.getLocalizationFile(context,
                 filePath);
 
-        if ((file.exists() == false && (type == FileChangeType.ADDED || type == FileChangeType.UPDATED))
-                || (file.exists() && type == FileChangeType.DELETED)) {
-            System.out.println("Got weird state in update for " + file
-                    + ": exists=" + file.exists() + ", changeType="
-                    + message.getChangeType());
-        }
-
         if (file != null) {
-            VizApp.runAsync(new Runnable() {
-                @Override
-                public void run() {
-                    // Only get closest parent if file added
-                    TreeItem toRefresh = find(file, false,
-                            type == FileChangeType.ADDED);
-                    if (toRefresh != null) {
-                        if (type == FileChangeType.DELETED) {
-                            // If deleted, we found the actual item that was
-                            // deleted, we should refresh it's parent
-                            toRefresh = toRefresh.getParentItem();
-                        }
-                        refresh(toRefresh);
-                    }
-                }
-            });
+            if ((file.exists() == false && (type == FileChangeType.ADDED || type == FileChangeType.UPDATED))
+                    || (file.exists() && type == FileChangeType.DELETED)) {
+                System.out.println("Got weird state in update for " + file
+                        + ": exists=" + file.exists() + ", changeType="
+                        + message.getChangeType());
+            }
+
+            VizApp.runAsync(new FileUpdateRefresher(file, type));
         }
     }
 
@@ -1663,16 +1729,35 @@ public class FileTreeView extends ViewPart implements IPartListener2,
      */
     @Override
     public void openFile(LocalizationFile file) {
+        boolean fileOpened = false;
         IWorkbenchPage page = this.getSite().getPage();
-        TreeItem item = find(file, true, false);
+        // Attempt to find file, populating tree as you search and returning the
+        // nearest parent item
+        TreeItem item = find(file, true, true);
         if (item != null) {
-            LocalizationFileEntryData fileData = (LocalizationFileEntryData) item
-                    .getData();
-            LocalizationPerspectiveUtils.openInEditor(page,
-                    new LocalizationEditorInput(file, fileData.getResource()));
-        } else {
-            statusHandler.handle(Priority.PROBLEM, "Unable to find " + file
+            // An item was found, if it is not an entry for this file, refresh
+            // the item and search again
+            FileTreeEntryData data = (FileTreeEntryData) item.getData();
+            if (data instanceof LocalizationFileEntryData == false) {
+                refresh(item);
+                item = find(file, true, true);
+            }
+            // Check for entry for this file in item, if is entry, open file
+            if (item.getData() instanceof LocalizationFileEntryData) {
+                LocalizationFileEntryData fileData = (LocalizationFileEntryData) item
+                        .getData();
+                LocalizationPerspectiveUtils.openInEditor(
+                        page,
+                        new LocalizationEditorInput(file, fileData
+                                .getResource()));
+                fileOpened = true;
+            }
+        }
+        if (!fileOpened) {
+            // File was not opened, send status
+            VizException e = new VizException("Unable to find " + file
                     + " in view to open");
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 

@@ -5,13 +5,11 @@ Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.bufrmthdw
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.dataplugin.bufrmthdw,
- com.raytheon.uf.common.dataplugin.bufrmthdw.dao
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.geotools,
- org.apache.commons.logging,
+Export-Package: com.raytheon.uf.common.dataplugin.bufrmthdw
+Require-Bundle: com.raytheon.uf.common.pointdata,
  javax.persistence,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.status

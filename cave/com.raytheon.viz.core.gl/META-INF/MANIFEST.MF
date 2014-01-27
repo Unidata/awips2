@@ -35,7 +35,5 @@ Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.viz.core.preferences,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.viz.core.rsc.hdf5,
- com.raytheon.uf.viz.core.status,
- junit.framework,
- org.junit
+ com.raytheon.uf.viz.core.status
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

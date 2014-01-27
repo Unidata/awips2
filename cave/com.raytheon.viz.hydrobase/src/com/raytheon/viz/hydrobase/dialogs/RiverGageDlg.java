@@ -45,6 +45,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrobase.FcstPointGroupDlg;
 import com.raytheon.viz.hydrobase.listeners.IForecastGroupAssignmentListener;
@@ -58,6 +61,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
 import com.raytheon.viz.hydrocommon.util.StnClassSyncUtil;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * This class displays the River Gage dialog.
@@ -71,6 +75,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
  * Apr 16,2012  14797       wkwock      Change lat/lon from hour minute sec to decimal.
+ * Jun 11,2013  2088        rferrel     Make dialog non-blocking.
+ *                                      Changes for non-blocking FcstPointGroupDlg.
  * 
  * </pre>
  * 
@@ -79,6 +85,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class RiverGageDlg extends CaveSWTDialog implements
         IForecastGroupAssignmentListener {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RiverGageDlg.class);
+
+    /**
+     * Allow only a single instance of the Forcast Point Group dialog.
+     */
+    private FcstPointGroupDlg fcstPointDlg;
 
     /**
      * Control font.
@@ -290,10 +303,14 @@ public class RiverGageDlg extends CaveSWTDialog implements
      */
     private final String NO_FCST_GROUP_SELECTED = "(Not a Forecast Point)";
 
-    /** Original latitude value */
+    /**
+     * Original latitude value
+     */
     private String origLat;
 
-    /** Original longitude value */
+    /**
+     * Original longitude value
+     */
     private String origLon;
 
     /**
@@ -322,14 +339,20 @@ public class RiverGageDlg extends CaveSWTDialog implements
      *            Dialog title information.
      */
     public RiverGageDlg(Shell parent, String titleInfo, String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("River Gage" + titleInfo);
 
         this.lid = lid;
         dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -340,14 +363,25 @@ public class RiverGageDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
 
         // Initialize all of the controls and layouts
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -839,7 +873,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (saveRecord()) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -864,7 +898,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -878,11 +912,14 @@ public class RiverGageDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 deleteRecord();
-                shell.dispose();
+                close();
             }
         });
     }
 
+    /**
+     * Load static PElist from manager.
+     */
     private void loadStaticData() {
         // Load Physical Element Lists
         stageFlowList.removeAll();
@@ -893,10 +930,14 @@ public class RiverGageDlg extends CaveSWTDialog implements
             }
             stageFlowList.select(0);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler
+                    .handle(Priority.PROBLEM, "Unable to load PE list ", e);
         }
     }
 
+    /**
+     * Get lid's data and populate the display.
+     */
     private void getDialogData() {
         RiverStatData seedData = new RiverStatData();
         seedData.setLid(lid);
@@ -918,7 +959,8 @@ public class RiverGageDlg extends CaveSWTDialog implements
                 fcstGroup = NO_FCST_GROUP_SELECTED;
             }
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, "Unable to load " + lid
+                    + "'s data ", e);
         }
 
         if ((data != null) && (data.size() > 0)) {
@@ -934,6 +976,9 @@ public class RiverGageDlg extends CaveSWTDialog implements
         updateDisplay();
     }
 
+    /**
+     * Populate te display.
+     */
     private void updateDisplay() {
         if (riverGageData != null) {
             // Stream
@@ -1196,7 +1241,8 @@ public class RiverGageDlg extends CaveSWTDialog implements
                     lon = GeoUtil.getInstance().cvt_spaced_format(lonTxt, 0);
                 } catch (Exception e) {
                     invalidLon = true;
-                    e.printStackTrace();
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unable to determine logitude ", e);
                 }
 
                 if ((lon > 180) || (lon < -180) || invalidLon) {
@@ -1226,9 +1272,6 @@ public class RiverGageDlg extends CaveSWTDialog implements
                 mb.setText("Invalid Value");
                 mb.setMessage("Please enter a Date\nin the form: YYYY-MM-DD");
                 mb.open();
-
-                e.printStackTrace();
-
                 return successful;
             }
         } else {
@@ -1285,8 +1328,6 @@ public class RiverGageDlg extends CaveSWTDialog implements
                 mb.setMessage("Please enter a Date of Rating\nin the form: YYYY-MM-DD");
                 mb.open();
 
-                e.printStackTrace();
-
                 return successful;
             }
         } else {
@@ -1324,8 +1365,6 @@ public class RiverGageDlg extends CaveSWTDialog implements
             mb.setText("Unable to Save");
             mb.setMessage("An error occurred while trying to save the River Gage");
             mb.open();
-
-            e.printStackTrace();
         }
 
         // Refresh the data
@@ -1424,8 +1463,6 @@ public class RiverGageDlg extends CaveSWTDialog implements
                 mb.setText("Unable to Delete");
                 mb.setMessage("An error occurred while trying to delete the River Gage");
                 mb.open();
-
-                e.printStackTrace();
             }
         }
     }
@@ -1448,6 +1485,13 @@ public class RiverGageDlg extends CaveSWTDialog implements
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.hydrobase.listeners.IForecastGroupAssignmentListener
+     * #notifyUpdate(com.raytheon.viz.hydrocommon.data.RPFFcstGroupData)
+     */
     @Override
     public void notifyUpdate(RPFFcstGroupData selectedForecastGroup) {
         if (selectedForecastGroup != null) {
@@ -1463,14 +1507,23 @@ public class RiverGageDlg extends CaveSWTDialog implements
      * Opens the Forecast Point Group Assignment Dialog
      */
     private void openFcstGroupAssignmentDlg() {
-        FcstPointGroupDlg fcstPointDlg = new FcstPointGroupDlg(shell,
-                forecastPointTF.getText());
-        fcstPointDlg.addListener(this);
+        if (fcstPointDlg == null || fcstPointDlg.isDisposed()) {
+            fcstPointDlg = new FcstPointGroupDlg(shell,
+                    forecastPointTF.getText());
+            fcstPointDlg.addListener(this);
+            fcstPointDlg.setCloseCallback(new ICloseCallback() {
 
-        // Open the Fcst Assignment dlg
-        fcstPointDlg.open();
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    fcstPointDlg.removeListener(RiverGageDlg.this);
+                }
+            });
 
-        fcstPointDlg.removeListener(this);
+            // Open the Fcst Assignment dlg
+            fcstPointDlg.open();
+        } else {
+            fcstPointDlg.bringToTop();
+        }
     }
 
     /**

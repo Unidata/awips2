@@ -7,10 +7,10 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
  org.jep,
  org.geotools,
- org.apache.commons.logging,
  com.raytheon.uf.common.localization,
  org.apache.commons.pool;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.python.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.python
+Import-Package: com.raytheon.uf.common.python,
+ org.apache.commons.logging

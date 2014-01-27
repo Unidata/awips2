@@ -19,7 +19,6 @@
  **/
 package com.raytheon.edex.plugin.gfe.server.handler;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * May 2, 2013      #1969  randerso     Initial creation
  * May 3, 2013      #1969  randerso     Code review comment incorporation
+ * Jun 13, 2013     #2044  randerso     Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -42,7 +42,8 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * @version 1.0
  */
 
-public class CreateNewDbHandler implements IRequestHandler<CreateNewDbRequest> {
+public class CreateNewDbHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<CreateNewDbRequest> {
 
     /*
      * (non-Javadoc)
@@ -54,7 +55,8 @@ public class CreateNewDbHandler implements IRequestHandler<CreateNewDbRequest> {
     @Override
     public ServerResponse<?> handleRequest(CreateNewDbRequest request)
             throws Exception {
-        return GridParmManager.createNewDb(request.getDbId());
+        return getIfpServer(request).getGridParmMgr().createNewDb(
+                request.getDbId());
     }
 
 }

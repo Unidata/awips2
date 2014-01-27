@@ -36,14 +36,13 @@ import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolBlockingSelectionDlg;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolRequest;
 import com.raytheon.viz.gfe.smarttool.script.SmartToolSelectionDlg;
 import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
 
 /**
  * Utilities for smart tools
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -52,9 +51,10 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * Dec 1,  2009  1426      ryu         Add time range warning
  * Nov 15, 2012 1298       rferrel     Changes for non-blocking prcedures.
  * Jun 25, 2013  16065     ryu         Passing outerLevel to smart tool job.
- *
+ * Dec 10, 2013  #2367     dgilling    Use new SmartToolJobPool.
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -67,7 +67,7 @@ public class SmartUtil {
      * Checks if LD_PRELOAD is set in the environment. If not, jep may have
      * issues importing modules. (Note that this presumes LD_PRELOAD was set
      * correctly to point at the python .so file).
-     *
+     * 
      * @return if LD_PRELOAD is set
      */
     public static boolean isLdPreloadSet() {
@@ -118,7 +118,7 @@ public class SmartUtil {
         if (pi != null) {
             SmartToolRequest req = buildSmartToolRequest(dm, pi, true);
             if (req != null) {
-                SmartToolJob.enqueue(dm, req);
+                dm.getSmartToolJobPool().schedule(req);
             }
         }
     }
@@ -145,8 +145,8 @@ public class SmartUtil {
                 timeRange, editArea, emptyEditAreaFlag,
                 MissingDataMode.valueFrom(missingDataMode));
         PreviewInfo pi = new PreviewInfo(editAction, passErrors, parm);
-        final SmartToolRequest req = SmartUtil.
-                buildSmartToolRequest(dm, pi, false);
+        final SmartToolRequest req = SmartUtil.buildSmartToolRequest(dm, pi,
+                false);
 
         if (varDict != null) {
             req.setVarDict(varDict);
@@ -195,7 +195,7 @@ public class SmartUtil {
             });
         }
 
-        SmartToolJob.enqueue(dm, req);
+        dm.getSmartToolJobPool().schedule(req);
         return req.getResult();
     }
 }

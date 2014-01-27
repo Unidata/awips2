@@ -66,6 +66,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.VerticalXML;
  * Nov 19, 2012 1166       djohnson   Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 10, 2013 1444       mpduff     Add updateSettings method.
+ * Sept 30, 1797 1797      dhladky    separated time from gridded time
+ * Oct 09, 2013 2267       bgonzale   Fix Collection cast to List error.
  * 
  * </pre>
  * 
@@ -196,7 +198,8 @@ public class VerticalSubsetTab extends SubsetTab implements
         List<String> returnList = new ArrayList<String>();
 
         Levels levels = null;
-        for (Parameter p : dataSet.getParameters().values()) {
+        for (Parameter p : (Collection<Parameter>) dataSet.getParameters()
+                .values()) {
             DataLevelType tempCheck = p.getDataLevelByType(levelType.getType());
 
             if (tempCheck != null) {

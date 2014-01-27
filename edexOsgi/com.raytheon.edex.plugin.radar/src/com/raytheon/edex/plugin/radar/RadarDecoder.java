@@ -85,17 +85,18 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Feb 14, 2007 139         Phillippe   Initial check-in. Refactor of initial
- *                                      implementation.
- * Dec 17, 2007 600         bphillip    Added dao pool usage
- * Dec 03, 2010 2235        cjeanbap    EDEXUtility.sendMessageAlertViz()
- *                                      signature changed.
- * Mar 19, 2013 1804        bsteffen    Optimize decoder performance.
- * Mar 19, 2013 1785        bgonzale    Added performance status handler and
- *                                      added status  to decode.
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 14, 2007  139      Phillippe   Initial check-in. Refactor of initial
+ *                                    implementation.
+ * Dec 17, 2007  600      bphillip    Added dao pool usage
+ * Dec 03, 2010  2235     cjeanbap    EDEXUtility.sendMessageAlertViz()
+ *                                    signature changed.
+ * Mar 19, 2013  1804     bsteffen    Optimize decoder performance.
+ * Mar 19, 2013  1785     bgonzale    Added performance status handler and
+ *                                    added status  to decode.
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 09, 2013  2457     bsteffen    Improve error message for missing icao.
  * </pre>
  * 
  * @author bphillip
@@ -222,8 +223,8 @@ public class RadarDecoder extends AbstractDecoder {
                 if (station == null) {
                     record.setIcao("unkn");
                     logger.error(headers.get("ingestfilename")
-                            + "-Unknown radar station id: "
-                            + l3Radar.getSourceId());
+                            + " contains an rpg id(" + l3Radar.getSourceId()
+                            + ") that is not in the radar_spatial table.");
                 } else {
                     record.setIcao(station.getRdaId().toLowerCase());
                 }

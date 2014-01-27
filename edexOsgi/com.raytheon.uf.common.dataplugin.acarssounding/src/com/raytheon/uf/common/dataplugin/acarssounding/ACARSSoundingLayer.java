@@ -30,22 +30,17 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * TODO Add Description
+ * Layer for an ACARS Sounding
  * 
  * <pre>
  * 
@@ -53,6 +48,7 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 30, 2009            jkorman     Initial creation
+ * Oct 22, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -62,10 +58,8 @@ import com.vividsolutions.jts.geom.Point;
 
 @Entity
 @Table(name = "acarssoundinglayer")
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class ACARSSoundingLayer implements Serializable, ISerializableObject,
-        ISpatialEnabled {
+public class ACARSSoundingLayer implements Serializable, ISpatialEnabled {
 
     private static final long serialVersionUID = 1L;
 
@@ -81,103 +75,86 @@ public class ACARSSoundingLayer implements Serializable, ISerializableObject,
     // Time of the observation.
     @Column
     @DynamicSerializeElement
-    @XmlAttribute
     private Calendar timeObs;
 
     @Column(length = 32)
     @DynamicSerializeElement
-    @XmlElement
     private String tailNumber;
 
     @Embedded
-    @XmlElement
     @DynamicSerializeElement
     private AircraftObsLocation location;
 
     // Flight phase
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer flightPhase;
 
     // Observation air temperature in degrees Kelvin.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double temp;
 
     // Observation dewpoint temperature in degrees Kelvin.
     // Decimal(5,2)
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double dwpt;
 
     // Relative Humidity in percent. Decimal(5,2)
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double humidity;
 
     // Mixing ratio in Kg/Kg
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double mixingRatio;
 
     // Observation wind direction in angular degrees. Integer
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer windDirection;
 
     // Observation wind speed in meters per second.
     // Decimal(5,2)
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double windSpeed;
 
     // Base height of reported icing.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer iceBaseHgt;
 
     // Top height of reported icing.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer iceTopHgt;
 
     // Intensity of reported icing.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer icing;
 
     // Base height of reported turbulence.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer turbBaseHgt;
 
     // Top height of reported turbulence.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer turbTopHgt;
 
     // Intensity of reported turbulence.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Integer turbulence;
 
     // Indicated or calculated pressure.
     @Column
     @DynamicSerializeElement
-    @XmlElement
     private Double pressure;
 
     /**
@@ -608,29 +585,27 @@ public class ACARSSoundingLayer implements Serializable, ISerializableObject,
             return false;
         return true;
     }
-    
-    public static final void main(String [] args) {
-        
+
+    public static final void main(String[] args) {
+
         ACARSSoundingLayer layerA = new ACARSSoundingLayer();
         AircraftObsLocation locA = new AircraftObsLocation();
         locA.setLocation(40.2, -101.5);
         locA.setFlightLevel(1052);
         layerA.setLocation(locA);
         layerA.setTailNumber("ABCDEF");
-        
+
         ACARSSoundingLayer layerB = new ACARSSoundingLayer();
         AircraftObsLocation locB = new AircraftObsLocation();
         locB.setLocation(40.2, -101.5);
         locB.setFlightLevel(1052);
         layerB.setLocation(locB);
         layerB.setTailNumber("ABCDEF");
-        
+
         System.out.println(layerA.hashCode());
-        
+
         System.out.println(layerB.hashCode());
-        
+
     }
-    
-    
-    
+
 }

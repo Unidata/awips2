@@ -23,10 +23,12 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.raytheon.edex.plugin.poessounding.dao.POESSoundingDAO;
 import com.raytheon.uf.common.dataplugin.poessounding.POESSounding;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
 import com.raytheon.uf.common.geospatial.spi.SPIEntry;
@@ -36,6 +38,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.time.DataTime;
@@ -53,7 +56,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080317           1026 jkorman     Initial implementation.
+ * Mar 17, 2008 1026       jkorman     Initial implementation.
+ * Jul 17, 2013 2112       bsteffen    Split poes data so it gets stored in
+ *                                     correct file.
  * 
  * </pre>
  * 
@@ -87,7 +92,8 @@ public class POESSoundingDataAdapter {
      */
     public static POESSounding createSoundingData(
             Iterator<BUFRDataDocument> iterator, WMOHeader wmoHeader,
-            PointDataContainer pdc) {
+            Map<File, PointDataContainer> containerMap,
+            PointDataDescription pdd, POESSoundingDAO dao) {
 
         POESSounding obsData = null;
 
@@ -99,11 +105,23 @@ public class POESSoundingDataAdapter {
             // Extract the header data.
             obsData = getHeaderData(dataList);
             if (obsData != null) {
-                PointDataView pdv = pdc.append();
+                // Have to do this to make sure data gets in the right file
+                // as the bufr files come in across hours. Eventually
+                // may want to solve this in a different way so that this
+                // knowledge
+                // of dao at this point is not necessary.
+                File file = dao.getFullFilePath(obsData);
+                PointDataContainer container = containerMap.get(file);
+                if (container == null) {
+                    container = PointDataContainer.build(pdd);
+                    containerMap.put(file, container);
+                }
+                PointDataView pdv = container.append();
 
                 getSoundingData(dataList, obsData, pdv);
 
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
+
             }
         }
         return obsData;

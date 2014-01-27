@@ -36,9 +36,10 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscriptionFixture;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.event.EventBus;
@@ -60,6 +61,7 @@ import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVer
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104       djohnson     Initial creation
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
  * 
  * </pre>
  * 
@@ -72,9 +74,11 @@ public class SubscriptionIntegrityVerifierTest {
 
     private final OpenDapGriddedDataSet dataSet = new OpenDapGriddedDataSet();
 
-    private final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1);
+    private final Subscription sub1 = SiteSubscriptionFixture.INSTANCE.get(1,
+            DataType.GRID);
 
-    private final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2);
+    private final Subscription sub2 = SiteSubscriptionFixture.INSTANCE.get(2,
+            DataType.GRID);
 
     private final List<Subscription> subscriptions = Arrays.asList(sub1, sub2);
 

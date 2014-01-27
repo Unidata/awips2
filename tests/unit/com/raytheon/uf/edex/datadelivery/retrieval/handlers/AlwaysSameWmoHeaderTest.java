@@ -23,6 +23,8 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Date;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -40,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOMessage;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 04, 2013 1647       djohnson     Initial creation
+ * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
  * 
  * </pre>
  * 
@@ -51,7 +54,8 @@ public class AlwaysSameWmoHeaderTest {
     private static final AlwaysSameWmoHeader WRAPPER = new AlwaysSameWmoHeader(
             "SMYG10 LYBM 280000");
 
-    private static final String wrapped = WRAPPER.applyWmoHeader("someData");
+    private static final String wrapped = WRAPPER.applyWmoHeader(null, null,
+            null, new Date(), "someData");
 
     private static WMOMessage message;
 

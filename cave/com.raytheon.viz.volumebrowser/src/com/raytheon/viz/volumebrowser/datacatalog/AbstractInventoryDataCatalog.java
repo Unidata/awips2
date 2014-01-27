@@ -61,7 +61,8 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 14, 2010            bsteffen     Initial creation
+ * Apr 14, 2010            bsteffen    Initial creation
+ * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
  * 
  * </pre>
  * 
@@ -241,10 +242,13 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
 
     public List<String> getSupportedSourcesInternal() {
         BlockingQueue<String> returnQueue = new LinkedBlockingQueue<String>();
-        try {
-            getInventory().checkSources(null, null, null, returnQueue);
+        AbstractInventory inventory = getInventory();
+        if (inventory != null) {
+            try {
+                inventory.checkSources(null, null, null, returnQueue);
         } catch (InterruptedException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
         }
         List<String> result = new ArrayList<String>(returnQueue);
         result.retainAll(MenuItemManager.getInstance()

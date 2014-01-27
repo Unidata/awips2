@@ -34,6 +34,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.UnresolvedReferenceExceptionType;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -49,7 +50,7 @@ import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryErrorMessage;
-import com.raytheon.uf.common.serialization.JAXBManager;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -78,13 +79,14 @@ import com.raytheon.uf.common.util.ReflectionException;
  * 3/27/2013    1802       bphillip    Changed visibility of processRequest and fixed catch block to catch the correct Exception type
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
+ * Jun 24, 2013 2106       djohnson    Requires a transaction to already be active.
  * 
  * </pre>
  * 
  * @author djohnson
  */
 @Service
-@Transactional
+@Transactional(propagation = Propagation.MANDATORY)
 public class FactoryRegistryHandler implements RegistryHandler {
 
     @VisibleForTesting
@@ -97,23 +99,13 @@ public class FactoryRegistryHandler implements RegistryHandler {
     static IUFStatusHandler statusHandler = UFStatus
             .getHandler(FactoryRegistryHandler.class);
 
-    private static void print(Object object) {
-
-        JAXBManager jaxb;
-        try {
-            jaxb = new JAXBManager(object.getClass());
-            System.out.println(jaxb.marshalToXml(object));
-        }
-
-        catch (Throwable t) {
-        }
-    }
-
     private final int batchSize = 10;
 
     private LifecycleManagerFactory lifecycleManagerFactory;
 
     private QueryManagerFactory queryManagerFactory;
+
+    private IRegistryEncoder encoderStrategy;
 
     /**
      * Private constructor to disallow instance creation.
@@ -179,6 +171,14 @@ public class FactoryRegistryHandler implements RegistryHandler {
      */
     public void setQueryFactory(QueryManagerFactory queryManagerFactory) {
         this.queryManagerFactory = queryManagerFactory;
+    }
+
+    /**
+     * @param encoderStrategy
+     *            the encoderStrategy to set
+     */
+    public void setEncoderStrategy(IRegistryEncoder encoderStrategy) {
+        this.encoderStrategy = encoderStrategy;
     }
 
     private List<RegistryObjectType> getAssociations(QueryManager qm,
@@ -324,8 +324,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                     + objs.size() + " items returned");
         }
 
-        List<T> registryObjects = FactoryRegistryHandler.filterResults(
-                registryQuery, objs);
+        List<T> registryObjects = filterResults(registryQuery, objs);
 
         timer.stop();
         long totalElapsedTime = timer.getElapsedTime();
@@ -358,16 +357,15 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * @return the results
      */
     @VisibleForTesting
-    static <T> List<T> filterResults(RegistryQuery<T> registryQuery,
+    <T> List<T> filterResults(RegistryQuery<T> registryQuery,
             List<RegistryObjectType> objs) {
         final List<T> registryObjects = new ArrayList<T>(objs.size());
 
         if (registryQuery instanceof IResultFormatter) {
-            FactoryRegistryHandler.filterResults(
-                    (IResultFormatter<T>) registryQuery, objs, registryObjects);
+            filterResults((IResultFormatter<T>) registryQuery, objs,
+                    registryObjects);
         } else if (registryQuery instanceof IMultipleResultFormatter) {
-            FactoryRegistryHandler.filterResults(
-                    (IMultipleResultFormatter<T>) registryQuery, objs,
+            filterResults((IMultipleResultFormatter<T>) registryQuery, objs,
                     registryObjects);
         }
         // This handles Association queries that do NOT return @RegistryObject
@@ -381,7 +379,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
         } else {
             for (RegistryObjectType obj : objs) {
                 try {
-                    Object o = RegistryUtil.decodeObject(obj);
+                    Object o = encoderStrategy.decodeObject(obj);
                     if (o != null) {
                         registryObjects.add(registryQuery.getResultType().cast(
                                 o));
@@ -408,11 +406,12 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * @param results
      *            the collection to add results to
      */
-    private static <T> void filterResults(IResultFormatter<T> registryQuery,
+    private <T> void filterResults(IResultFormatter<T> registryQuery,
             List<RegistryObjectType> objs, Collection<T> results) {
         for (RegistryObjectType obj : objs) {
             try {
-                T decodedObject = registryQuery.decodeObject(obj);
+                T decodedObject = registryQuery.decodeObject(obj,
+                        encoderStrategy);
                 if (decodedObject != null) {
                     results.add(decodedObject);
                 }
@@ -435,12 +434,12 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * @param results
      *            the collection to add results to
      */
-    private static <T> void filterResults(
-            IMultipleResultFormatter<T> registryQuery,
+    private <T> void filterResults(IMultipleResultFormatter<T> registryQuery,
             List<RegistryObjectType> objs, Collection<T> results) {
         for (RegistryObjectType obj : objs) {
             try {
-                Collection<T> decodedObject = registryQuery.decodeObject(obj);
+                Collection<T> decodedObject = registryQuery.decodeObject(obj,
+                        encoderStrategy);
                 if (decodedObject != null) {
                     results.addAll(decodedObject);
                 }
@@ -711,8 +710,8 @@ public class FactoryRegistryHandler implements RegistryHandler {
         // to be stored for this Object in a list so that appropriate
         // associations can be created between the RegistryObjects created (the
         // associations themselves are RegistryObjects).
-        RegistryObjectType registryObject = RegistryUtil
-                .newRegistryObject(object);
+        RegistryObjectType registryObject = RegistryUtil.newRegistryObject(
+                object, encoderStrategy);
 
         // Need to find all associations for the Objects referenced by the 'new'
         // RegistryObject so that the appropriate 'parent' associations can also

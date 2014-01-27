@@ -42,6 +42,7 @@ import javax.persistence.TemporalType;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
  * 
  * </pre>
  * 
@@ -50,94 +51,71 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "sacsmaparams")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Sacsmaparams extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable, com.raytheon.uf.common.serialization.ISerializableObject {
+public class Sacsmaparams extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private SacsmaparamsId id;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Date postingtime;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double uztwm;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double uzfwm;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double uzk;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double pctim;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double adimp;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double riva;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double zperc;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double rexp;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double lztwm;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double lzfsm;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double lzfpm;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double lzsk;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double lzpk;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double pfree;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double rserv;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double side;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double peadj;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double pxadj;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private double efc;
 

@@ -28,8 +28,8 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 7, 2012            jpiatt     Initial creation.
- * 
+ * May  7, 2012            jpiatt      Initial creation.
+ * Sep 26, 2013   2417     mpduff      Add clearSelection method.
  * </pre>
  * 
  * @author jpiatt
@@ -40,17 +40,24 @@ public interface ITableFind {
     /**
      * handleFind call
      */
-    public void handlePageSelection();
-    
+    void handlePageSelection();
+
     /**
      * handleFind call
-     * @param index 
+     * 
+     * @param index
      */
-    public void selectIndex(int index);
-    
+    void selectIndex(int index);
+
     /**
      * handleFind call
-     * @param indices 
+     * 
+     * @param indices
      */
-    public void selectIndices(int[] indices);
+    void selectIndices(int[] indices);
+
+    /**
+     * Clear any table selections.
+     */
+    void clearSelections();
 }

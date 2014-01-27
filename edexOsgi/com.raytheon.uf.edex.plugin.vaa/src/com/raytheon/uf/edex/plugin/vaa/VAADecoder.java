@@ -22,18 +22,15 @@ package com.raytheon.uf.edex.plugin.vaa;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
-import com.raytheon.uf.common.dataplugin.vaa.dao.VAARecordDao;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
 
 /**
- * 
+ * Decoder for Volcanic Ash Advisory
  * 
  * <pre>
  * 
@@ -41,6 +38,7 @@ import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 04, 2009       3267 jkorman     Initial creation
+ * Nov 26, 2013       2582 njensen     Cleanup
  * 
  * </pre>
  * 
@@ -48,18 +46,15 @@ import com.raytheon.uf.edex.plugin.vaa.decoder.VAAParser;
  * @version 1.0
  */
 public class VAADecoder {
-    private Log logger = LogFactory.getLog(getClass());
 
-    private final String pluginName;
-
-    private boolean failSafe = false;
+    private IUFStatusHandler logger = UFStatus.getHandler(VAADecoder.class);
 
     /**
      * 
      * @param name
      */
-    public VAADecoder(String name) {
-        pluginName = name;
+    public VAADecoder() {
+
     }
 
     /**
@@ -77,29 +72,19 @@ public class VAADecoder {
         if (headers != null) {
             traceId = (String) headers.get("traceId");
         }
-        if (isFailSafe()) {
-            return new PluginDataObject[0];
-        }
 
         logger.debug(traceId + " - Decoding data");
 
         if (data != null && data.length > 0) {
             List<PluginDataObject> obsList = new ArrayList<PluginDataObject>();
             try {
-                VAAParser parser = new VAAParser(pluginName, data, traceId,
-                        headers);
+                VAAParser parser = new VAAParser(data, traceId, headers);
                 for (VAARecord record : parser) {
                     if (record != null) {
-                        try {
-                            record.constructDataURI();
-                            if (!checkForDup(record)) {
-                                obsList.add(record);
-                            }
-                        } catch (PluginException e) {
-                            logger.error(traceId
-                                    + "- Unable to construct dataURI", e);
-                            record = null;
-                        }
+                        // overwrite will only happen if a correction is issued
+                        // within the same minute as the original
+                        record.setOverwriteAllowed(true);
+                        obsList.add(record);
                     }
                 }
             } catch (Exception e) {
@@ -120,37 +105,4 @@ public class VAADecoder {
         return decodedData;
     }
 
-    /**
-     * 
-     * @return
-     */
-    public boolean isFailSafe() {
-        return failSafe;
-    }
-
-    /**
-     * 
-     * @param value
-     */
-    public void setFailSafe(boolean value) {
-        failSafe = value;
-    }
-
-    /**
-     * 
-     * @param vaa
-     * @return
-     */
-    private boolean checkForDup(VAARecord vaa) {
-        boolean isDup = false;
-
-        try {
-            VAARecordDao dao = new VAARecordDao(pluginName);
-            Object[] res = dao.queryDataUriColumn(vaa.getDataURI());
-            isDup = (res != null) && (res.length > 0);
-        } catch (Exception e) {
-            logger.error("Unable to create VAARecordDao", e);
-        }
-        return isDup;
-    }
 }

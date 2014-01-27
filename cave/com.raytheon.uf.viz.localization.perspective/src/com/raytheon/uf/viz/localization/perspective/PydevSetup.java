@@ -23,7 +23,11 @@ import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.python.pydev.core.IInterpreterInfo;
 import org.python.pydev.core.IInterpreterManager;
@@ -48,9 +52,10 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 1, 2013    1967    njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 01, 2013  1967     njensen     Initial creation
+ * Oct 11, 2013  2441     bsteffen    Make initialize async.
  * 
  * </pre>
  * 
@@ -69,7 +74,18 @@ public class PydevSetup {
      */
     public static void preparePydev() {
         preventFundingPopup();
-        initializeInterpreter();
+        initializeInterpreterAsync();
+    }
+
+    public static void initializeInterpreterAsync() {
+        new Job("Preparing python interpreter.") {
+
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                initializeInterpreter(monitor);
+                return Status.OK_STATUS;
+            }
+        }.schedule();
     }
 
     /**
@@ -77,7 +93,7 @@ public class PydevSetup {
      * environment, saving the user the trouble of initializing it through the
      * preference page.
      */
-    public static void initializeInterpreter() {
+    public static void initializeInterpreter(IProgressMonitor monitor) {
         try {
             // Attempt the initialization twice before reporting errors,
             // sometimes it can fail unexpectedly and recover a second time.
@@ -132,7 +148,15 @@ public class PydevSetup {
                         }
                         IInterpreterInfo[] infoList = new IInterpreterInfo[] { iinfo };
                         setupStupidFile(mgr, iinfo);
-                        mgr.setInfos(infoList, null, null);
+                        /*
+                         * Calling setInfo will not begin a task, but it will
+                         * complete work. There isn't any way to get the amount
+                         * of work that will be completed so this is an
+                         * estimate. 3832 is the amount of work was being done
+                         * at the time of this writing.
+                         */
+                        monitor.beginTask("Examining python path.", 3832);
+                        mgr.setInfos(infoList, null, monitor);
                     } else {
                         if (retry) {
                             throw new Exception(

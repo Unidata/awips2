@@ -21,6 +21,7 @@ package com.raytheon.viz.mpe.ui.rsc;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,7 +65,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2012            mschenke     Initial creation
+ * Dec 06, 2012            mschenke    Initial creation.
+ * Jul 02, 2013  2160      mpduff      Added convenience method getData(Date)
  * 
  * </pre>
  * 
@@ -297,9 +299,29 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
         return getData(lastPainted);
     }
 
+    /**
+     * Get the data.
+     * 
+     * @param time
+     *            date of the data
+     * @return the Data
+     * @throws VizException
+     */
     public short[] getData(DataTime time) throws VizException {
         Frame frame = getFrame(time);
         return frame.data;
+    }
+
+    /**
+     * Get the data.
+     * 
+     * @param date
+     *            date of the data
+     * @return the Data
+     * @throws VizException
+     */
+    public short[] getData(Date date) throws VizException {
+        return getData(new DataTime(date));
     }
 
     /**

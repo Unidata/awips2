@@ -49,8 +49,8 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -75,9 +75,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            bgonzale     Initial creation
+ * Apr 8, 2009             bgonzale    Initial creation
  * Oct 16, 2012 1229       rferrel     Made dialog non-blocking.
  * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
+ * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
  * 
  * </pre>
  * 
@@ -254,16 +255,16 @@ public class DisplayPropertiesDialog extends CaveSWTDialog {
             }
         };
         int maxSize = 0;
-        MapScale[] mScales = MapScales.getInstance().getScales();
-        String[] scales = new String[mScales.length];
-        for (int i = 0; i < scales.length; ++i) {
-            scales[i] = mScales[i].getDisplayName();
-            if (scales[i].length() > maxSize) {
-                maxSize = scales[i].length();
+        List<String> scales = new ArrayList<String>();
+        for (ManagedMapScale scale : MapScalesManager.getInstance().getScales()) {
+            String displayName = scale.getDisplayName();
+            scales.add(displayName);
+            if (displayName.length() > maxSize) {
+                maxSize = displayName.length();
             }
         }
 
-        scale = createComboBox(parent, "Scale:", scales,
+        scale = createComboBox(parent, "Scale:", scales.toArray(new String[0]),
                 String.valueOf(getCurrentValue(VizConstants.SCALE_ID)),
                 listener);
     }

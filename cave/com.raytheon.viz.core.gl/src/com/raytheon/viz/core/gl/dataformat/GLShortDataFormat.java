@@ -105,15 +105,15 @@ public class GLShortDataFormat extends AbstractGLColorMapDataFormat {
      * (int, int, com.raytheon.viz.core.gl.dataprep.GLColorMapData)
      */
     @Override
-    public Number getValue(int x, int y, GLColorMapData data) {
-        if (!(data.getData() instanceof ShortBuffer)) {
+    public Number getValue(int x, int y, GLColorMapData data, Buffer dataBuffer) {
+        if (!(dataBuffer instanceof ShortBuffer)) {
             throw new IllegalArgumentException(
                     "Expecting data to contain a ShortBuffer but instead it is a "
-                            + data.getData().getClass().getSimpleName());
+                            + dataBuffer.getClass().getSimpleName());
         }
         int width = getAlignedWidth(data.getDimensionSize(0));
         int index = y * width + x;
-        ShortBuffer buffer = (ShortBuffer) data.getData();
+        ShortBuffer buffer = (ShortBuffer) dataBuffer;
         short value = buffer.get(index);
         switch (data.getTextureType()) {
         case GL.GL_SHORT:

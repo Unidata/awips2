@@ -1,0 +1,159 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="madisDecoder" class="com.raytheon.uf.edex.plugin.madis.MadisDecoder">
+        <constructor-arg ref="madisPluginName" />
+    </bean>
+
+    <bean id="jmsIngestMadisConfig" class="org.apache.camel.component.jms.JmsConfiguration"
+        factory-bean="jmsConfig" factory-method="copy">
+    </bean>
+
+    <bean id="madisThreadPool"
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="2" />
+        <property name="maxPoolSize" value="2" />
+    </bean>
+
+    <bean id="jms-madis" class="org.apache.camel.component.jms.JmsComponent">
+        <constructor-arg ref="jmsIngestMadisConfig" />
+        <property name="taskExecutor" ref="madisThreadPool" />
+    </bean>
+
+    <bean id="madisPointData"
+        class="com.raytheon.uf.edex.plugin.madis.MadisPointDataTransform"
+        depends-on="registerMadisPlugin" />
+
+    <bean id="madisDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="madis" />
+        <constructor-arg
+            value="jms-dist:queue:Ingest.madis" />
+    </bean>
+
+    <bean id="madisCamelRegistered" factory-bean="contextManager"
+        factory-method="register" depends-on="persistCamelRegistered">
+        <constructor-arg ref="madis-camel" />
+    </bean>
+
+	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator"
+		depends-on="jmsIngestMadisConfig, jms-madis, madisThreadPool">
+		<constructor-arg
+			value="jms-madis:queue:Ingest.madisSeparator?destinationResolver=#qpidDurableResolver" />
+		<!-- time in hours for orphan purging -->
+		<constructor-arg value="1" />
+	</bean>
+
+	<bean id="madisRegistryAddon"
+		class="com.raytheon.uf.edex.plugin.madis.registry.MadisRegistryCollectorAddon"
+		depends-on="registerDataDeliveryHandlers, registerRequestRegistryRouter, registerMadisPlugin">
+		<constructor-arg value="madis" />
+	</bean>
+	
+	<bean id="madisRegistryAddonProvider" class="com.raytheon.uf.edex.ogc.registry.RegistryCollectorAddonProvider">
+		<constructor-arg ref="madisRegistryAddon"/>
+	</bean>
+	
+	<bean id="madisWfsTypeModifier" class="com.raytheon.uf.edex.ogc.registry.RegistryFeatureTypeModifier" />
+	
+	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor">
+		<constructor-arg>
+			<map>
+				<entry key="madisIngestFilter">
+					<map>
+						<entry key="filter" value-ref="madisRegistryAddon" />
+					</map>
+				</entry>
+				<entry key="madisLayerCollector">
+					<map>
+						<entry key="addonFactory" value-ref="madisRegistryAddonProvider" />
+					</map>
+				</entry>
+				<entry key="madisWfsSource">
+					<map>
+						<entry key="typeModifier" value-ref="madisWfsTypeModifier" />
+					</map>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+    
+    <camelContext id="madis-camel"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler"
+        autoStartup="false">
+
+        <!-- This first file drop route is used mainly for testing -->
+        <endpoint id="madisFileEndpoint"
+            uri="file:${edex.home}/data/sbn/madis?noop=true&amp;idempotent=false" />
+        <route id="madisFileConsumerRoute">
+            <from ref="madisFileEndpoint" />
+            <bean ref="fileToString" />
+            <setHeader headerName="pluginName">
+                <constant>madis</constant>
+            </setHeader>
+            <to uri="jms-generic:queue:Ingest.madis" />
+        </route>
+
+        <!-- Separates MADIS files into manageable chunks -->
+        <route id="madisSeperatorRoute">
+            <from
+                uri="jms-generic:queue:Ingest.madis?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>madis</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="stringToFile" />
+                    <bean ref="dataUnzipper" method="gunzip"/>
+                    <bean ref="madisSeparator" method="separate" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:madis" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <!-- Begin MADIS production route -->
+        <route id="madisIngestRoute">
+            <from
+                uri="jms-madis:queue:Ingest.madisSeparator?destinationResolver=#qpidDurableResolver" />
+            <setHeader headerName="pluginName">
+                <constant>madis</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="madisDecoder" method="decode" />
+                    <bean ref="madisRegistryAddon" method="filter" />
+                    <bean ref="madisPointData" method="toPointData" />
+                    <bean ref="persist" method="persist"/>
+            		<bean ref="index" method="index"/>
+                    <bean ref="madisLayerCollector" method="add" />
+           			<bean ref="processUtil" method="log"/>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:madis" />
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="madisOrphanPurgeRoute">
+            <!-- purge madis orphan files based on hour in separator constructor 
+                arg -->
+            <from uri="quartz://madis/orphan?cron=0+0+*+*+*+?" />
+            <bean ref="madisSeparator" method="fileCleaner" />
+        </route>
+        
+        <route id="madisRegistryRoute">
+			<!-- send metadata to registry every minute -->
+            <from uri="quartz://madis/layers?cron=0+*+*+*+*+?" />
+            <bean ref="madisRegistryAddon" method="buildLayerUpdate" />
+		</route>
+
+    </camelContext>
+</beans>

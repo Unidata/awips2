@@ -26,8 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * VGB's
  * 
@@ -44,9 +42,9 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class VGBXML implements ISerializableObject {
+public class VGBXML {
 
-    @XmlElements( { @XmlElement(name = "vgb") } )
+    @XmlElements({ @XmlElement(name = "vgb") })
     private ArrayList<String> lids = new ArrayList<String>();
 
     /**
@@ -57,14 +55,16 @@ public class VGBXML implements ISerializableObject {
     }
 
     /**
-     * @param the lids to set
+     * @param the
+     *            lids to set
      */
     public void setLid(ArrayList<String> lids) {
         this.lids = lids;
     }
-    
+
     /**
      * Add one
+     * 
      * @param slid
      */
     public void add(String lid) {

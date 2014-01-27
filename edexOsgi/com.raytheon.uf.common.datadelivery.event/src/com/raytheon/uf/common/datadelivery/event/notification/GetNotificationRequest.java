@@ -14,7 +14,8 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jsanchez     Initial creation
+ * Mar 1,  2012            jsanchez    Initial creation.
+ * Sep 05, 2013    2314    mpduff      Add loadAll.
  * 
  * </pre>
  * 
@@ -32,6 +33,9 @@ public class GetNotificationRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private Integer maxResults;
+
+    @DynamicSerializeElement
+    private Boolean loadAll;
 
     /**
      * 
@@ -90,6 +94,21 @@ public class GetNotificationRequest implements IServerRequest {
      */
     public void setMaxResults(Integer maxResults) {
         this.maxResults = maxResults;
+    }
+
+    /**
+     * @return the loadAll
+     */
+    public Boolean getLoadAll() {
+        return loadAll;
+    }
+
+    /**
+     * @param loadAll
+     *            the loadAll to set
+     */
+    public void setLoadAll(Boolean loadAll) {
+        this.loadAll = loadAll;
     }
 
 }

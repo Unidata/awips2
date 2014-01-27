@@ -45,10 +45,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 17, 2011            bphillip    Initial creation
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 17, 2011           bphillip    Initial creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * 
  * </pre>
  * 
@@ -208,11 +209,6 @@ public class Nam80PostProcessor implements IDecoderPostProcessor {
         newRecord.setDataTime(newDataTime);
         newRecord.getInfo().setId(null);
         newRecord.setDataURI(null);
-        try {
-            newRecord.constructDataURI();
-        } catch (PluginException e) {
-            throw new GribException("Error constructing dataURI!", e);
-        }
         newRecord.setOverwriteAllowed(true);
         return newRecord;
     }

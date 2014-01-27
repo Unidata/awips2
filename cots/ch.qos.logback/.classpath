@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry exported="true" kind="lib" path="logback-classic-1.0.13.jar" sourcepath="logback-classic-1.0.13-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="logback-core-1.0.13.jar" sourcepath="logback-core-1.0.13-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

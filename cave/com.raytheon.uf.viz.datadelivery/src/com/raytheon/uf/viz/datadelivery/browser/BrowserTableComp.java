@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.IDialogClosed;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
@@ -83,6 +84,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 10, 2013   1346     mpduff       Add additional information to the dataset details output.
  * Feb 15, 2013   1638     mschenke     Moved Util.EOL into FileUtil
  * Apr 10, 2013   1891     djohnson     Declare variable as List.
+ * Sep 11, 2013   2352     mpduff       Add siteId to getSubscribedToDataSetNames method.
  * 
  * </pre>
  * 
@@ -369,7 +371,8 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
             for (String param : paramList) {
                 sb.append("--- ").append(param);
                 sb.append(getSpacing(max + 1, param));
-                sb.append(paramMap.get(param).getDefinition()).append(FileUtil.EOL);
+                sb.append(paramMap.get(param).getDefinition()).append(
+                        FileUtil.EOL);
             }
         }
 
@@ -623,7 +626,8 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         Set<String> datasetNames = Collections.emptySet();
         try {
             datasetNames = DataDeliveryHandlers.getSubscriptionHandler()
-                    .getSubscribedToDataSetNames();
+                    .getSubscribedToDataSetNames(
+                            LocalizationManager.getInstance().getCurrentSite());
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve subscription dataset names!", e);

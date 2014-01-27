@@ -8,7 +8,6 @@ Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serializ
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=optional,
  com.raytheon.edex.common;bundle-version="1.11.7",
  com.raytheon.uf.common.monitor;bundle-version="1.11.7",
- org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.mpe;bundle-version="1.0.0",
  com.raytheon.uf.common.hydro;bundle-version="1.11.11",
  com.raytheon.uf.common.localization;bundle-version="1.11.26",
@@ -25,7 +24,8 @@ Import-Package: com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.status,
  com.raytheon.uf.edex.dat.utils;resolution:=optional,
- com.raytheon.uf.edex.plugin.scan.common
+ com.raytheon.uf.edex.plugin.scan.common,
+ org.apache.commons.logging
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.ffmp,

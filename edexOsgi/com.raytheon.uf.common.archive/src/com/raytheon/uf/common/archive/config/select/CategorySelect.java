@@ -20,7 +20,9 @@
 package com.raytheon.uf.common.archive.config.select;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,6 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 19, 2013 2221       rferrel     Initial creation
+ * Dec 11, 2013 2603       rferrel     Selected now a Set.
  * 
  * </pre>
  * 
@@ -57,7 +60,7 @@ public class CategorySelect {
      * List of selected labels.
      */
     @XmlElement(name = "selectedDisplayName")
-    private final List<String> selectList = new ArrayList<String>();
+    private final Set<String> selectSet = new HashSet<String>();
 
     public String getName() {
         return name;
@@ -67,21 +70,21 @@ public class CategorySelect {
         this.name = name;
     }
 
-    public List<String> getSelectList() {
-        return selectList;
+    public Set<String> getSelectSet() {
+        return selectSet;
     }
 
-    public void setSelectList(List<String> selectList) {
-        this.selectList.clear();
-        this.selectList.addAll(selectList);
+    public void setSelectSet(Set<String> selectList) {
+        this.selectSet.clear();
+        this.selectSet.addAll(selectList);
     }
 
     public void add(String displayName) {
-        selectList.add(displayName);
+        selectSet.add(displayName);
     }
 
     public boolean isEmpty() {
-        return selectList.isEmpty();
+        return selectSet.isEmpty();
     }
 
     @Override
@@ -89,7 +92,7 @@ public class CategorySelect {
         StringBuilder sb = new StringBuilder();
         sb.append("CategorySelect [ name: ").append(getName());
         sb.append("[ ");
-        for (String select : getSelectList()) {
+        for (String select : getSelectSet()) {
             sb.append("\"").append(select).append("\", ");
         }
         sb.append("]");

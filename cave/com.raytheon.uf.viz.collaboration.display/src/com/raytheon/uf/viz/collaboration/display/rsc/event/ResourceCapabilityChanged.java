@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 
 /**
@@ -34,9 +33,10 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 26, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 26, 2012           mschenke    Initial creation
+ * Oct 31, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -45,8 +45,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class ResourceCapabilityChanged extends AbstractResourceChangedEvent
-        implements ISerializableObject {
+public class ResourceCapabilityChanged extends AbstractResourceChangedEvent {
 
     @XmlElement
     private AbstractCapability capability;

@@ -59,7 +59,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -98,6 +97,8 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * Oct 17, 2013 2481       randerso    Fixed regression which cause configured level combinations 
  *                                     files to not be found. Removed message when combinations file 
  *                                     not found to match A1.
+ * Dec 03, 2013  #2591     dgilling    Ensure all change states to the combo
+ *                                     file are handled.
  * 
  * </pre>
  * 
@@ -985,8 +986,7 @@ public class ZoneCombinerComp extends Composite implements
      */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
-        if ((message.getChangeType().equals(FileChangeType.UPDATED))
-                && message.getFileName().equalsIgnoreCase(currentComboFile)) {
+        if (message.getFileName().equalsIgnoreCase(currentComboFile)) {
             File file = new File(message.getFileName());
             String comboName = file.getName().replace(".py", "");
             statusHandler

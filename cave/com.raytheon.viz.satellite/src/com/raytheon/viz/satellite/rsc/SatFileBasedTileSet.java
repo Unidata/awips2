@@ -50,7 +50,10 @@ import com.raytheon.viz.core.rsc.hdf5.AbstractTileSet;
 import com.raytheon.viz.core.rsc.hdf5.CreateTileJob;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
 import com.raytheon.viz.satellite.data.prep.SatDataRetriever;
+import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 
+/** Use {@link SatTileSetRenderable} instead */
+@Deprecated
 public class SatFileBasedTileSet extends FileBasedTileSet {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatFileBasedTileSet.class);

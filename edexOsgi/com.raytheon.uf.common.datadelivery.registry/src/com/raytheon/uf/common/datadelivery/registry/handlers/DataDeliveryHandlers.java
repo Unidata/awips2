@@ -34,6 +34,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
  * ------------ ---------- ----------- --------------------------
  * Oct 3, 2012  1241      djohnson     Initial creation
  * Dec 11, 2012 1403      djohnson     Adhoc subscriptions no longer go to the registry.
+ * Oct 12, 2013 2046      dhladky      Restored Adhoc's at WFO level
  * 
  * </pre>
  * 
@@ -137,4 +138,15 @@ public final class DataDeliveryHandlers {
     public static IDataSetHandler getDataSetHandler() {
         return RegistryObjectHandlers.get(IDataSetHandler.class);
     }
+    
+    /**
+     * Retrieve the {@link IAdhocSubscriptionHandler}.
+     * 
+     * @return the handler
+     */
+
+    public static IAdhocSubscriptionHandler getAdhocSubscriptionHandler() {
+        return RegistryObjectHandlers.get(IAdhocSubscriptionHandler.class);
+    }
+
 }

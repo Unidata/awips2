@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11-05-2007	465        randerso    Initial Creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -45,6 +46,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class UnlinkedVectorPacket extends SymbologyPacket implements
         ISerializableObject {
+
+    private static final int UNLINKED_VECTOR_PACKET10 = 10;
 
     /**
      * @param packetId
@@ -58,14 +61,6 @@ public class UnlinkedVectorPacket extends SymbologyPacket implements
 
     public UnlinkedVectorPacket() {
 
-    }
-
-    private static final int UNLINKED_VECTOR_PACKET7 = 7;
-
-    private static final int UNLINKED_VECTOR_PACKET10 = 10;
-    static {
-        PacketFactory.registerPacketType(UnlinkedVectorPacket.class,
-                UNLINKED_VECTOR_PACKET7, UNLINKED_VECTOR_PACKET10);
     }
 
     @DynamicSerializeElement

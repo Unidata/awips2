@@ -30,12 +30,9 @@ import org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.status.StatusConstants;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorData;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;
 
@@ -50,7 +47,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 18, 2010            mschenke     Initial creation
+ * Nov 18, 2010            mschenke    Initial creation
+ * Nov 11, 2013  2361      njensen     Use ColorMap.JAXB for XML processing
  * 
  * </pre>
  * 
@@ -61,7 +59,8 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;
 @SuppressWarnings("restriction")
 public class ColorMapMultiPageEditorPart extends XMLMultiPageEditorPart
         implements IColorEditCompCallback {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ColorMapMultiPageEditorPart.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ColorMapMultiPageEditorPart.class);
 
     private ColorMapEditor editor;
 
@@ -103,7 +102,7 @@ public class ColorMapMultiPageEditorPart extends XMLMultiPageEditorPart
         }
         if (editor != null) {
             try {
-                String newXml = SerializationUtil
+                String newXml = ColorMap.JAXB
                         .marshalToXml((ColorMap) getColorMapParameters()
                                 .getColorMap());
                 IDocument document = editor.getDocumentProvider().getDocument(

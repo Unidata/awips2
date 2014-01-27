@@ -128,6 +128,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     Code clean up for non-blocking dialog.
  * Feb 27,2013 1790        rferrel     Bug fix for non-blocking dialogs.
  * Jun 07, 2013 1981       mpduff      Set user's id on the OUPRequest as it is now protected.
+ * Jul 16, 2013 2088       rferrel     Changes for non-blocking TextEditorDlg.
  * 
  * </pre>
  * 
@@ -997,7 +998,6 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 tabularShefEncode();
-                // notYetImplemented();
             }
         });
 
@@ -3012,7 +3012,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             }
             out.close();
         } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to create shef file: ", e);
             showMessage(shell, SWT.ERROR | SWT.OK, "Unable to Save File",
                     "File:  " + SHEF_FILE_NAME + "." + getPid()
                             + "\nUser does NOT have write permission.");
@@ -3026,8 +3027,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         if ((shefFileName != null) && (shefFileName.length() > 0)) {
             File shefFile = new File(shefFileName);
             if (shefFile.exists()) {
-                editor = new TextEditorDlg(shell, false, shefFile);
-                editor.open();
+                if (editor == null || editor.isDisposed()) {
+                    editor = new TextEditorDlg(shell, false, shefFile);
+                    editor.open();
+                } else {
+                    editor.bringToTop();
+                }
             } else {
                 showMessage(shell, SWT.OK, "Unable to Open File",
                         "Unable to open file:\n" + SHEF_FILE_NAME + "."

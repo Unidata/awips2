@@ -30,13 +30,15 @@ package com.raytheon.uf.common.datadelivery.registry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 02, 2013 1841       djohsnon    Converted to interface
+ * Sept 30, 2013 1797      dhladky     Some generics
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public interface InitialPendingSubscription extends Subscription {
+
+public interface InitialPendingSubscription<T extends Time, C extends Coverage> extends Subscription<T, C> {
 
     String CHANGE_REQUEST_ID_SLOT = "changeReqId";
 
@@ -75,5 +77,5 @@ public interface InitialPendingSubscription extends Subscription {
      * 
      * @return the subscription
      */
-    Subscription subscription();
+    Subscription<T, C> subscription();
 }

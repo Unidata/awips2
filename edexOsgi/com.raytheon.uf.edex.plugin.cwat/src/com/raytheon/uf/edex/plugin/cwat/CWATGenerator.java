@@ -27,7 +27,6 @@ import java.util.Set;
 import com.raytheon.edex.urifilter.URIFilter;
 import com.raytheon.edex.urifilter.URIGenerateMessage;
 import com.raytheon.uf.common.dataplugin.cwat.CWATRecord;
-import com.raytheon.uf.common.dataplugin.cwat.dao.CWATDao;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;

@@ -22,7 +22,9 @@ package com.raytheon.uf.viz.core;
 import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 
 /**
- * Interface for notification when a mesh calculation has completed
+ * Interface for notification when a mesh calculation has completed.
+ *
+ * Deprecated: Meshes do not need to be explicitly calculated
  * 
  * <pre>
  * 
@@ -36,7 +38,7 @@ import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
  * @author mschenke
  * @version 1.0
  */
-
+@Deprecated
 public interface IMeshCallback {
 
     /**

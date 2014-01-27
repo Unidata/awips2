@@ -28,7 +28,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -41,6 +41,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -68,31 +69,50 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Changed Hibernate cascade type on objectRef field
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "ObjectRefList")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectRefListType", propOrder = { "objectRef" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "ObjectRefList")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ObjectRefList")
 public class ObjectRefListType {
 
     @Id
-    @SequenceGenerator(name = "ObjectRefListTypeGenerator", schema = "ebxml", sequenceName = "ebxml.ObjectRefList_sequence")
-    @GeneratedValue(generator = "ObjectRefListTypeGenerator")
+    @SequenceGenerator(name = "ObjectRefListGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".ObjectRefList_sequence")
+    @GeneratedValue(generator = "ObjectRefListGenerator")
     @XmlTransient
-    private Integer key;
+    private int id;
 
     @XmlElement(name = "ObjectRef")
     @DynamicSerializeElement
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(schema = "ebxml")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinTable(schema = RegrepUtil.EBXML_SCHEMA)
     protected List<ObjectRefType> objectRef;
 
-    public Integer getKey() {
-        return key;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -168,6 +188,17 @@ public class ObjectRefListType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ObjectRefListType \n[id=");
+        builder.append(id);
+        builder.append(", \nobjectRef=");
+        builder.append(objectRef);
+        builder.append("]");
+        return builder.toString();
     }
 
 }
