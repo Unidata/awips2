@@ -66,7 +66,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
  * Jan 14, 2014 2459       mpduff       Add subscription state.
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
- * Jan 24, 2013 2709       bgonzale     Fix setting of active period end.
+ * Jan 24, 2013 2709       bgonzale     Fix setting of active period end.  Change active period checks
+ *                                      to check day of year.  removed now unused active period methods.
  * 
  * </pre>
  * 
@@ -269,6 +270,17 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @SlotAttribute(Subscription.SUBSCRIPTION_STATE_SLOT)
     private SubscriptionState subscriptionState = SubscriptionState.ON;
 
+    /*
+     * Active Period starting day of the year. Calculated from
+     * activePeriodStart.
+     */
+    private Integer startActivePeriodDayOfYear;
+
+    /*
+     * Active Period ending day of the year. Calculated from activePeriodEnd.
+     */
+    private Integer endActivePeriodDayOfYear;
+
     /** Flag stating if the object should be updated */
     private boolean shouldUpdate = false;
 
@@ -433,6 +445,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @Override
     public void setActivePeriodStart(Date activePeriodStart) {
         this.activePeriodStart = activePeriodStart;
+        this.startActivePeriodDayOfYear = null;
     }
 
     /**
@@ -454,56 +467,35 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     @Override
     public void setActivePeriodEnd(Date activePeriodEnd) {
         this.activePeriodEnd = activePeriodEnd;
+        this.endActivePeriodDayOfYear = null;
     }
 
-    private Calendar getActivePeriodStart(Calendar base) {
-        // active period values are month and day of month only, use base
-        // Calendar for active period year
-        Calendar activePeriodStartCal = TimeUtil.newCalendar(activePeriodStart);
-        TimeUtil.minCalendarFields(activePeriodStartCal, Calendar.MILLISECOND,
-                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-        activePeriodStartCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
-        return activePeriodStartCal;
+    private Integer getStartActivePeriodDayOfYear() {
+        if (startActivePeriodDayOfYear == null && activePeriodStart != null) {
+            startActivePeriodDayOfYear = TimeUtil
+                    .newCalendar(activePeriodStart).get(Calendar.DAY_OF_YEAR);
+        }
+        return startActivePeriodDayOfYear;
     }
 
-    private Calendar getActivePeriodEnd(Calendar base) {
-        // active period values are month and day of month only, use base
-        // Calendar for active period year
-        Calendar activePeriodEndCal = TimeUtil.newCalendar(activePeriodEnd);
-        TimeUtil.minCalendarFields(activePeriodEndCal, Calendar.MILLISECOND,
-                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
-        activePeriodEndCal.set(Calendar.YEAR, base.get(Calendar.YEAR));
-        return activePeriodEndCal;
+    private Integer getEndActivePeriodDayOfYear() {
+        if (endActivePeriodDayOfYear == null && activePeriodEnd != null) {
+            endActivePeriodDayOfYear = TimeUtil.newCalendar(activePeriodEnd)
+                    .get(Calendar.DAY_OF_YEAR);
+        }
+        return endActivePeriodDayOfYear;
     }
 
     @Override
     public Calendar calculateStart(Calendar startConstraint) {
-        Calendar realStart = null;
-        boolean hasActivePeriodStart = activePeriodStart != null;
-        if (hasActivePeriodStart) {
-            realStart = getActivePeriodStart(startConstraint);
-            if (realStart.before(startConstraint)) {
-                realStart = startConstraint;
-            }
-        } else {
-            realStart = startConstraint;
-        }
-        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart, realStart));
+        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart,
+                startConstraint));
     }
 
     @Override
     public Calendar calculateEnd(Calendar endConstraint) {
-        Calendar realEnd = null;
-        boolean hasActivePeriodEnd = activePeriodEnd != null;
-        if (hasActivePeriodEnd) {
-            realEnd = getActivePeriodEnd(endConstraint);
-            if (realEnd.after(endConstraint)) {
-                realEnd = endConstraint;
-            }
-        } else {
-            realEnd = endConstraint;
-        }
-        return TimeUtil.newCalendar(TimeUtil.min(subscriptionEnd, realEnd));
+        return TimeUtil.newCalendar(TimeUtil
+                .min(subscriptionEnd, endConstraint));
     }
 
     /**
@@ -930,9 +922,8 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
         // At this point the subscription is in the ON state
         Calendar cal = TimeUtil.newGmtCalendar();
-        Date today = cal.getTime();
 
-        if (inWindow(today)) {
+        if (inActivePeriodWindow(cal)) {
             return SubscriptionStatus.ACTIVE;
         }
 
@@ -956,54 +947,33 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      * @param checkDate
      * @return
      */
-    public boolean shouldScheduleForTime(Date checkDate) {
-        if (!isExpired(checkDate) && inWindow(checkDate)) {
+    public boolean shouldScheduleForTime(Calendar checkCal) {
+        if (!isExpired(checkCal.getTime()) && inActivePeriodWindow(checkCal)) {
             return true;
         }
         
         return false;
     }
 
-    private boolean inWindow(Date checkDate) {
+    public boolean inActivePeriodWindow(Calendar checkDate) {
         if (activePeriodStart == null && activePeriodEnd == null) {
+            // no active period set
             return true;
-        } else if (activePeriodStart != null && activePeriodEnd != null) {
+        } else {
+            Integer startDay = getStartActivePeriodDayOfYear();
+            Integer endDay = getEndActivePeriodDayOfYear();
+            int checkDay = checkDate.get(Calendar.DAY_OF_YEAR);
 
-            Calendar startCal = TimeUtil.newGmtCalendar();
-            startCal.setTime(activePeriodStart);
-            startCal = TimeUtil.minCalendarFields(startCal,
-                    Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND,
-                    Calendar.MILLISECOND);
-            // add the current year for true comparison
-            startCal = TimeUtil.addCurrentYearCalendar(startCal);
-
-            activePeriodStart = startCal.getTime();
-
-            Calendar endCal = TimeUtil.newGmtCalendar();
-            endCal.setTime(activePeriodEnd);
-            endCal = TimeUtil.maxCalendarFields(endCal, Calendar.HOUR_OF_DAY,
-                    Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
-            // add the current year for true comparison
-            endCal = TimeUtil.addCurrentYearCalendar(endCal);
-            // If the period crosses a year boundary, add a year to the end
-            if (endCal.before(startCal)) {
-                endCal.add(Calendar.YEAR, 1);
+            boolean isAfterPeriodStart = startDay <= checkDay;
+            boolean isBeforePeriodEnd = checkDay < endDay;
+            boolean periodCrossesYearBoundary = endDay < startDay;
+            
+            if (periodCrossesYearBoundary) {
+                return isAfterPeriodStart || isBeforePeriodEnd;
+            } else {
+                return isAfterPeriodStart && isBeforePeriodEnd;
             }
-
-            activePeriodEnd = endCal.getTime();
-
-            // Only concerned with month and day, need to set the
-            // years on equal footing for comparison sake.
-            Calendar c = TimeUtil.newGmtCalendar();
-            c.setTime(checkDate);
-            // set the date to compare with the current date from the start
-            c.set(Calendar.YEAR, startCal.get(Calendar.YEAR));
-            Date date = c.getTime();
-
-            return (activePeriodStart.before(date) && activePeriodEnd
-                    .after(date));
         }
-        return false;
     }
 
     @Override
