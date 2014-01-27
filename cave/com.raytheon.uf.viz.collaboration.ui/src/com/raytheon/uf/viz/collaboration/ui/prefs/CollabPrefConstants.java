@@ -30,6 +30,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2012            njensen     Initial creation
  * Jan 14, 2014 2630       bclement    added away on idle constants
+ * Jan 27, 2014 2700       bclement    added auto accept subscribe
  * 
  * </pre>
  * 
@@ -51,6 +52,8 @@ public class CollabPrefConstants {
     public static final String AWAY_ON_IDLE = "awayOnIdle";
 
     public static final String AWAY_TIMEOUT = "awayTimeOut";
+
+    public static final String AUTO_ACCEPT_SUBSCRIBE = "autoAcceptSubscribe";
 
     public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
 
