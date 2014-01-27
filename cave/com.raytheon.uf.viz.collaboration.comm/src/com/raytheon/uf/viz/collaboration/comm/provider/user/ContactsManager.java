@@ -34,6 +34,8 @@ import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket.ItemStatus;
+import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.SharedGroupManager;
 
@@ -64,6 +66,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Jan 24, 2014 2701       bclement     removed roster manager
  *                                      switched local groups to roster groups
  *                                      added shared groups
+ * Jan 27, 2014 2700       bclement     fixed ungrouped entries being out of date
+ *                                      added utility methods for subscription status
  * 
  * </pre>
  * 
@@ -567,7 +571,62 @@ public class ContactsManager {
      * @return
      */
     public Collection<RosterEntry> getNonGroupedContacts() {
-        return getRoster().getUnfiledEntries();
+        Collection<RosterEntry> unfiled = getRoster().getUnfiledEntries();
+        List<RosterEntry> rval = new ArrayList<RosterEntry>(unfiled.size());
+        for (RosterEntry entry : unfiled) {
+            if (isBlocked(entry)) {
+                // check to see if we are really blocked
+                entry = update(entry);
+            }
+            if (hasInteraction(entry)) {
+                rval.add(entry);
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Get updated entry from roster. This is a work around for a smack
+     * limitation where unfiled entry objects are not updated when the roster
+     * entry objects are.
+     * 
+     * @param entry
+     * @return
+     */
+    public RosterEntry update(RosterEntry entry) {
+        RosterEntry rval = searchRoster(entry.getUser());
+        return rval != null ? rval : entry;
+    }
+
+    /**
+     * @param entry
+     * @return true if we are blocked from seeing updates from user in entry
+     */
+    public static boolean isBlocked(RosterEntry entry) {
+        ItemType type = entry.getType();
+        return type != null
+                && (type.equals(ItemType.none) || type.equals(ItemType.from));
+    }
+
+    /**
+     * Test for interaction between this user and entry. Returns true if either
+     * has a subscription to the other or there is a pending subscription
+     * request.
+     * 
+     * @param entry
+     * @return
+     */
+    public static boolean hasInteraction(RosterEntry entry) {
+        ItemType type = entry.getType();
+        boolean rval = true;
+        if (type != null) {
+            if (type.equals(ItemType.none)) {
+                ItemStatus status = entry.getStatus();
+                rval = status != null
+                        && status.equals(ItemStatus.SUBSCRIPTION_PENDING);
+            }
+        }
+        return rval;
     }
 
     /**
