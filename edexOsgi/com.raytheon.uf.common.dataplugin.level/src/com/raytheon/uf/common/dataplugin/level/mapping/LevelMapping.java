@@ -31,7 +31,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * Class defines a mapping from a display level to one or more database levels.
@@ -41,19 +40,21 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/01/2007    #518      S.Manoj     Initial version
- * 11/16/2009    #3120     rjpeter     Modifed to better integrate with level framework.
- * 11/21/2009    #3576     rjpeter     Added group
- * 04/17/2013    #1913     randerso    Moved to common
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 01, 2007  518      S.Manoj     Initial version
+ * Nov 16, 2009  3120     rjpeter     Modifed to better integrate with level
+ *                                    framework.
+ * Nov 21, 2009  3576     rjpeter     Added group
+ * Apr 17, 2013  1913     randerso    Moved to common
+ * Jan 23, 2014  2711     bsteffen    Remove ISerializableObject
  * 
  * &#064;author smanoj
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class LevelMapping implements ISerializableObject {
+public class LevelMapping {
 
     @XmlAttribute
     private String displayName = null;
