@@ -193,63 +193,38 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                 subscriptionCalculatedStart, Calendar.MINUTE, Calendar.SECOND,
                 Calendar.MILLISECOND);
         subscriptionCalculatedStart.add(Calendar.HOUR_OF_DAY, -6);
-
         Calendar start = (Calendar) subscriptionCalculatedStart.clone();
-        int availabilityOffset = 0;
-        try {
-            availabilityOffset = BandwidthUtil.getDataSetAvailablityOffset(
-                    subscription, start);
-        } catch (RegistryHandlerException e) {
-            // Error occurred querying the registry. Log and continue on
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Unable to retrieve data availability offset, using 0 for the offset.",
-                            e);
-        }
-
-        /**
-         * Check the offset times against the start time and the base time
-         * against the end time. This prevents a missing download window at the
-         * beginning and the end
-         */
         outerloop: while (!start.after(subscriptionCalculatedEnd)) {
 
             for (Integer cycle : hours) {
                 start.set(Calendar.HOUR_OF_DAY, cycle);
-                Calendar baseTime = (Calendar) start.clone();
-
-                Calendar retrievalTime = TimeUtil.newCalendar(start);
                 // start base equal-to-or-after subscriptionStart
-                if (retrievalTime.compareTo(subscriptionCalculatedStart) >= 0) {
+                if (start.compareTo(subscriptionCalculatedStart) >= 0) {
                     for (Integer minute : minutes) {
-                        retrievalTime.set(Calendar.MINUTE, minute);
                         start.set(Calendar.MINUTE, minute);
 
-                        retrievalTime.add(Calendar.MINUTE, availabilityOffset);
-
                         // start minutes equal-to-or-after subscriptionStart
-                        if (retrievalTime
-                                .compareTo(subscriptionCalculatedStart) >= 0) {
+                        if (start.compareTo(subscriptionCalculatedStart) >= 0) {
                             // Check for nonsense
                             if (start.after(subscriptionCalculatedEnd)) {
                                 break outerloop;
                             } else {
                                 Calendar time = TimeUtil.newCalendar();
-                                time.setTimeInMillis(retrievalTime
-                                        .getTimeInMillis());
+                                time.setTimeInMillis(start.getTimeInMillis());
                                 /**
                                  * Fine grain check by hour and minute, for
                                  * subscription(start/end),
                                  * activePeriod(start/end)
                                  **/
                                 // Subscription Start and End time first
-                                if (start.after(subscriptionCalculatedEnd)
+                                if (time.after(subscriptionCalculatedEnd)
                                         || time.before(start)) {
                                     // don't schedule this retrieval time,
                                     // outside subscription window
                                     continue;
                                 }
-                                subscriptionTimes.add(baseTime);
+
+                                subscriptionTimes.add(time);
                             }
                         }
                     }
