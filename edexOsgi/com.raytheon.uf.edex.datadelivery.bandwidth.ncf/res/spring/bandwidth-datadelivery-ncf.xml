@@ -1,0 +1,25 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+
+    <bean id="SBNRetrievalPlan"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan">
+        <property name="network" value="SBN" />
+        <property name="map" ref="BandwidthMap" />
+        <property name="bandwidthDao" ref="bandwidthDao" />
+        <property name="bucketsDao" ref="bandwidthBucketDao" />
+        <property name="associator" ref="bandwidthBucketAllocationAssociator" />
+        <property name="scheduler">
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.PriorityRetrievalScheduler" />
+        </property>
+    </bean>
+
+    <util:map id="retrievalPlans">
+        <entry key="SBN">
+            <ref local="SBNRetrievalPlan" />
+        </entry>
+    </util:map>
+
+</beans>

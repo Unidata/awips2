@@ -20,7 +20,6 @@
 
 package com.raytheon.edex.plugin.grib;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ucar.grib.NoValidGribException;
 import ucar.grib.NotSupportedException;
 import ucar.grib.grib1.Grib1BinaryDataSection;
 import ucar.grib.grib1.Grib1BitMapSection;
@@ -55,7 +55,6 @@ import com.raytheon.edex.util.grib.Grib1TableMap;
 import com.raytheon.edex.util.grib.GribParamTranslator;
 import com.raytheon.edex.util.grib.GribTableLookup;
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -90,12 +89,15 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Mar 11, 2010 4758        bphillip    Initial Creation
- * Feb 15, 2013 1638        mschenke    Moved array based utilities from Util
- *                                      into ArraysUtil
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 11, 2010  4758     bphillip    Initial Creation
+ * Feb 15, 2013  1638     mschenke    Moved array based utilities from Util
+ *                                    into ArraysUtil
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 07, 2013  2402     bsteffen    Decode GribDecodeMessage instead of
+ *                                    files.
+ * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
  * 
  * </pre>
  * 
@@ -134,13 +136,6 @@ public class Grib1Decoder extends AbstractDecoder {
     }
 
     /**
-     * Creates a new Grib1Decoder
-     */
-    public Grib1Decoder() {
-        super();
-    }
-
-    /**
      * Decodes the grib file provided.
      * 
      * @param gribFileName
@@ -149,25 +144,16 @@ public class Grib1Decoder extends AbstractDecoder {
      * @throws GribException
      *             If decoding the file fails or encounters problems
      */
-    public GridRecord[] decode(String gribFileName) throws GribException {
-        File gribFile = new File(gribFileName);
+    public GridRecord[] decode(GribDecodeMessage message) throws GribException {
+        String fileName = message.getFileName();
         RandomAccessFile raf = null;
         try {
-            try {
-                raf = new RandomAccessFile(gribFile.getAbsolutePath(), "r");
-            } catch (IOException e) {
-                throw new GribException(
-                        "Unable to create RandomAccessFile for grib file: ["
-                                + gribFile + "]");
-            }
+            raf = new RandomAccessFile(fileName, "r");
             raf.order(RandomAccessFile.BIG_ENDIAN);
+            raf.seek(message.getStartPosition());
             Grib1Input g1i = new Grib1Input(raf);
-            try {
-                g1i.scan(false, false);
-            } catch (Exception e) {
-                throw new GribException("Error scanning grib 1 file: ["
-                        + gribFile + "]");
-            }
+            g1i.scan(false, true);
+
             ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<GridRecord>();
             for (int i = 0; i < records.size(); i++) {
@@ -177,6 +163,12 @@ public class Grib1Decoder extends AbstractDecoder {
                 }
             }
             return gribRecords.toArray(new GridRecord[] {});
+        } catch (IOException e) {
+            throw new GribException("Failed to decode grib1 file: [" + fileName
+                    + "]", e);
+        } catch (NoValidGribException e) {
+            throw new GribException(
+                    "Invalid grib1 message: [" + fileName + "]", e);
         } finally {
             if (raf != null) {
                 try {
@@ -184,7 +176,7 @@ public class Grib1Decoder extends AbstractDecoder {
                 } catch (IOException e) {
                     throw new GribException(
                             "Failed to close RandomAccessFile for grib file: ["
-                                    + gribFile + "]", e);
+                                    + fileName + "]", e);
                 }
             }
         }
@@ -328,7 +320,7 @@ public class Grib1Decoder extends AbstractDecoder {
         // Get the level information
         float[] levelMetadata = this.convertGrib1LevelInfo(
                 pdsVars.getLevelType1(), (float) pdsVars.getLevelValue1(),
-                pdsVars.getLevelType2(), (float) pdsVars.getLevelValue2());
+                (float) pdsVars.getLevelValue2());
         retVal.setLevel(getLevelInfo(centerid, subcenterid, levelMetadata[0],
                 levelMetadata[1], levelMetadata[2], levelMetadata[3],
                 levelMetadata[4], levelMetadata[5]));
@@ -500,12 +492,6 @@ public class Grib1Decoder extends AbstractDecoder {
         // } else {
         // retVal.setResCompFlags(gridCoverage.getResolution());
         // }
-
-        try {
-            retVal.constructDataURI();
-        } catch (PluginException e) {
-            throw new GribException("Error constructing grib dataURI", e);
-        }
 
         // check if FLAG.FCST_USED needs to be removed
         checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
@@ -1026,7 +1012,7 @@ public class Grib1Decoder extends AbstractDecoder {
      *            The value of the level
      * @return The converted level type information
      */
-    private float[] convertGrib1LevelInfo(int ltype1, float lval1, int ltype2,
+    private float[] convertGrib1LevelInfo(int ltype1, float lval1,
             float lval2) {
         float level1Type = ltype1;
         float level1Scale = 0;

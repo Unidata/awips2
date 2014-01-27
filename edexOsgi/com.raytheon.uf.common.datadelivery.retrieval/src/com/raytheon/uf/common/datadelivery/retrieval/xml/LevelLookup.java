@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -39,7 +38,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jpiatt     Initial creation.
+ * Mar 1, 2012             jpiatt      Initial creation.
+ * 07 Nov, 2013   2361     njensen      Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -50,7 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement(name = "LevelLookup")
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class LevelLookup implements ISerializableObject {
+public class LevelLookup {
 
     @XmlElement(name = "Level", type = Double.class)
     @DynamicSerializeElement

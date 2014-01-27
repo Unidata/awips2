@@ -25,11 +25,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -50,6 +46,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 09Dec2003    377         J. Wilwerding   Adjust date for month rollover
  * 23Mar2005    1055        D. Weeks        Modified for use to decode TAFs for JET 
  * 30Aug2006                B. Phillippe    Modified for use to decode TAFs for AWIPS
+ * Nov 01, 2013 2361        njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -58,8 +55,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 @Embeddable
 @DynamicSerialize
-@XmlAccessorType(XmlAccessType.NONE)
-public class TafPeriod implements Serializable, ISerializableObject {
+public class TafPeriod implements Serializable {
 
     /**
      * 
@@ -70,14 +66,12 @@ public class TafPeriod implements Serializable, ISerializableObject {
      * The forecast valid starting date
      */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private Calendar startDate;
 
     // This time is only used for BECMG groups. It marks the end time of the
     // BECMG transition period.
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private Calendar transitionEndDate;
 
@@ -85,7 +79,6 @@ public class TafPeriod implements Serializable, ISerializableObject {
      * The forecast valid ending date
      */
     @DynamicSerializeElement
-    @XmlElement
     @Column
     private Calendar endDate;
 

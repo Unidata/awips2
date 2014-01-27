@@ -19,9 +19,8 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml;
 
-import javax.jws.WebService;
+import java.io.ByteArrayInputStream;
 
-import com.raytheon.uf.common.registry.IRegistryRequestService;
 import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
 
 /**
@@ -35,21 +34,17 @@ import com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/3/2013     1948        bphillip    Initial implementation
+ * 7/26/2013    2232        mpduff      Don't override executeThrift.
+ * 10/30/2013   1538        bphillip    Removed unused IRegistryRequestService interface
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@WebService(endpointInterface = "com.raytheon.uf.common.registry.IRegistryRequestService")
-public class RegistryRemoteRequestWrapper extends RemoteRequestRouteWrapper
-        implements IRegistryRequestService {
+public class RegistryRemoteRequestWrapper extends RemoteRequestRouteWrapper {
 
     public byte[] request(byte[] data) {
-        return executeThrift(data);
+        return executeThrift(new ByteArrayInputStream(data));
     }
-
-    public byte[] executeThrift(byte[] data) {
-        return super.executeThrift(data);
-    }
-
 }

@@ -52,6 +52,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  *                                      for PatternSyntaxException.
  * Mar 19, 2013 1794       djohnson     Add toString() for debugging.
  * Sep 10, 2013 2327       rjpeter      Sized ArrayList declarations.
+ * Nov 21, 2013 2541       bgonzale     Exclusion patterns.
  * </pre>
  * 
  * @author brockwoo
@@ -68,7 +69,16 @@ public class RequestPatterns implements ISerializableObject {
     @XmlElements({ @XmlElement(name = "regex", type = String.class) })
     private List<String> patterns = new ArrayList<String>(0);
 
+    /**
+     * List of patterns excluded by a plugin. Excludes takes precedence over
+     * acceptance and is applied first.
+     */
+    @XmlElements({ @XmlElement(name = "regexExclude", type = String.class) })
+    private List<String> exclusionPatterns = new ArrayList<String>(0);
+
     private List<Pattern> compiledPatterns = new ArrayList<Pattern>(0);
+
+    private List<Pattern> compiledExclusionPatterns = new ArrayList<Pattern>(0);
 
     protected Log patternFailedLogger = LogFactory.getLog("PatternFailedLog");
 
@@ -112,7 +122,13 @@ public class RequestPatterns implements ISerializableObject {
      * 
      */
     public void compilePatterns() {
-        compiledPatterns = new ArrayList<Pattern>(patterns.size());
+        compiledPatterns = compilePatterns(patterns);
+        compiledExclusionPatterns = compilePatterns(exclusionPatterns);
+    }
+
+    private List<Pattern> compilePatterns(List<String> patterns) {
+        List<Pattern> compiledPatterns = new ArrayList<Pattern>(patterns.size());
+
         for (String pattern : patterns) {
             try {
                 compiledPatterns.add(Pattern.compile(pattern));
@@ -123,11 +139,14 @@ public class RequestPatterns implements ISerializableObject {
                 patternFailedLogger.error(sb.toString(), e);
             }
         }
+        return compiledPatterns;
     }
 
     /**
      * Takes a string and compares against the patterns in this container. The
      * first one that matches breaks the search and returns true.
+     * 
+     * Check for exclusion first. It takes precedence over acceptance.
      * 
      * @param header
      *            The string to search for
@@ -135,10 +154,20 @@ public class RequestPatterns implements ISerializableObject {
      */
     public boolean isDesiredHeader(String header) {
         boolean isFound = false;
-        for (Pattern headerPattern : compiledPatterns) {
+        boolean isExcluded = false;
+
+        for (Pattern headerPattern : compiledExclusionPatterns) {
             if (headerPattern.matcher(header).find()) {
-                isFound = true;
+                isExcluded = true;
                 break;
+            }
+        }
+        if (!isExcluded) {
+            for (Pattern headerPattern : compiledPatterns) {
+                if (headerPattern.matcher(header).find()) {
+                    isFound = true;
+                    break;
+                }
             }
         }
         return isFound;

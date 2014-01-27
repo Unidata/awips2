@@ -20,12 +20,16 @@
 package com.raytheon.viz.gfe.vtec;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.texteditor.util.VtecUtil;
@@ -49,6 +53,11 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Aug 07, 2013  #1842     dgilling     Fix ETN assignment for products with
  *                                      multiple NEW segments with the same 
  *                                      phensig.
+ * Aug 29, 2013  #1843     dgilling     Add hooks for inter-site ETN assignment.
+ * Oct 21, 2013  #1843     dgilling     Use new GetNextEtnResponse.
+ * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
+ *                                      multiple NEW VTEC lines for the same
+ *                                      phensig but disjoint TimeRanges.
  * 
  * </pre>
  * 
@@ -77,24 +86,152 @@ public class GFEVtecUtil {
         throw new AssertionError();
     }
 
-    public static int getNextEtn(String office, String phensig, boolean lockEtn)
-            throws VizException {
-        return VtecUtil.getNextEtn(office, phensig, lockEtn);
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn) throws VizException {
+        return getNextEtn(office, phensig, lockEtn, false, false, null);
     }
 
-    public static String finalizeETNs(String message) throws VizException {
-        if (Strings.isNullOrEmpty(message)) {
-            return message;
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See {@link
+     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
+     *            String, Calendar, List<IRequestRouter>)} for more information.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC) throws VizException {
+        return getNextEtn(office, phensig, lockEtn, performISC, false, null);
+    }
+
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See {@link
+     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
+     *            String, Calendar, List<IRequestRouter>)} for more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride) throws VizException {
+        return VtecUtil.getNextEtn(office, phensig, lockEtn, performISC,
+                reportOnlyConflict, etnOverride);
+    }
+
+    /**
+     * Reads through a GFE VTEC product and returns VTEC lines with NEW action
+     * codes that need to be assigned an ETN.
+     * 
+     * @param product
+     *            The product's text.
+     * @return A <code>Set</code> of <code>VtecObject</code>s that need to have
+     *         a new ETN assigned to them.
+     */
+    public static Set<VtecObject> getVtecLinesThatNeedEtn(String product) {
+        if (StringUtil.isEmptyString(product)) {
+            return Collections.emptySet();
         }
 
-        // With GFE VTEC products, it's possible to have multiple segments with
-        // NEW vtec action codes and the same phensig. For this reason,
-        // HazardsTable.py implemented a "cache" that would ensure all NEWs for
-        // the same phensig would be assigned the same ETN. This Map replicates
-        // that legacy behavior.
-        Map<String, Integer> etnCache = new HashMap<String, Integer>();
+        Set<VtecObject> phensigs = new HashSet<VtecObject>();
 
-        Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(message);
+        Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(product);
+        while (vtecMatcher.find()) {
+            VtecObject vtec = new VtecObject(vtecMatcher.group());
+            if (("NEW".equals(vtec.getAction()))
+                    && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
+                            .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
+                            .contains(vtec.getPhensig())))) {
+                phensigs.add(vtec);
+            }
+        }
+
+        return phensigs;
+    }
+
+    /**
+     * For any NEW VTEC lines contained within the specified product texts,
+     * generates a <code>GetNextEtnRequest</code> to retrieve the next canonical
+     * ETN in sequence for the given phensig.
+     * 
+     * @param product
+     *            The product's text.
+     * @return The product's text with any NEW VTEC lines having their ETN
+     *         values replaced with the next ETN in sequence.
+     * @throws VizException
+     *             If an error occurred sending the request to the server.
+     */
+    public static String finalizeETNs(String product,
+            Map<String, Map<TimeRange, Integer>> etnCache) {
+        if (StringUtil.isEmptyString(product)) {
+            return product;
+        }
+
+        Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(product);
         StringBuffer finalOutput = new StringBuffer();
         while (vtecMatcher.find()) {
             VtecObject vtec = new VtecObject(vtecMatcher.group());
@@ -105,15 +242,46 @@ public class GFEVtecUtil {
                     && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
+                // With GFE VTEC products, it's possible to have multiple
+                // segments with
+                // NEW vtec action codes and the same phensig. For this reason,
+                // HazardsTable.py implemented a "cache" that would ensure all
+                // NEWs for
+                // the same phensig would be assigned the same ETN. This Map
+                // replicates
+                // that legacy behavior.
+                //
+                // This "cache" has two levels:
+                // 1. The first level is keyed by the hazard's phensig.
+                // 2. The second level is keyed by the valid period of the
+                // hazard.
+                // Effectively, making this a Map<Phensig, Map<ValidPeriod,
+                // ETN>>.
+
+                // Some more clarification on the ETN assignment behavior: all
+                // NEW VTEC lines with the same phensig should be assigned the
+                // same ETN if the hazards' valid periods are adjacent or
+                // overlapping.
+                // If there's a discontinuity in TimeRanges we increment to the
+                // next ETN.
+                Integer newEtn = null;
                 String cacheKey = vtec.getPhensig();
-                Integer newEtn = etnCache.get(cacheKey);
-                if (newEtn == null) {
-                    newEtn = VtecUtil.getNextEtn(vtec.getOffice(),
-                            vtec.getPhensig(), true);
-                    etnCache.put(cacheKey, newEtn);
+                TimeRange validPeriod = new TimeRange(vtec.getStartTime()
+                        .getTime(), vtec.getEndTime().getTime());
+
+                Map<TimeRange, Integer> etnsByTR = etnCache.get(cacheKey);
+                if (etnsByTR != null) {
+                    newEtn = etnsByTR.get(validPeriod);
+                    for (TimeRange tr : etnsByTR.keySet()) {
+                        if ((validPeriod.isAdjacentTo(tr))
+                                || (validPeriod.overlaps(tr))) {
+                            vtec.setSequence(newEtn);
+                            break;
+                        }
+                    }
                 }
-                vtec.setSequence(newEtn);
             }
+
             vtecMatcher
                     .appendReplacement(
                             finalOutput,

@@ -29,6 +29,7 @@
  * ------------ ----------  ----------- --------------------------
  * 11/2/09       3375       brockwoo    Initial Creation
  * 08/13/13      2257       bkowal      Update for qpid 0.18.
+ * 08/15/13      2169       bkowal      Qpid messages are now decompressed
  *
  * </pre>
  *
@@ -37,7 +38,11 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 #include <uuid/uuid.h>
 #include <qpid/messaging/Connection.h>
 #include <qpid/messaging/Duration.h>
@@ -103,7 +108,29 @@ void EdexNotification::listen() {
 		if (result) {
 			this->session.acknowledge(message);
 			std::string output = message.getContent();
+
+			std::stringstream compressedData(output);
+			std::stringstream decompressedData;
+
+			/* decompress the data. */
+			try
+			{
+				boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+				in.push(boost::iostreams::gzip_decompressor());
+				in.push(compressedData);
+				boost::iostreams::copy(in, decompressedData);
+			}
+			catch (const boost::iostreams::gzip_error& error)
+			{
+				std::cout << "ERROR: Failed to decompress gzip data - "
+					<< error.error() << std::endl;
+				this->cleanup();
+				throw;
+			}
+
+			output = decompressedData.str();
 			uint8_t * data = (uint8_t *) output.c_str();
+
 			TMemoryBuffer * buffer = new TMemoryBuffer(data,
 					output.length(),
 					apache::thrift::transport::TMemoryBuffer::COPY);

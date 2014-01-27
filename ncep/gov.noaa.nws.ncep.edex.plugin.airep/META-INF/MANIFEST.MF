@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Airep
+Bundle-SymbolicName: gov.noaa.nws.ncep.edex.plugin.airep
+Bundle-Version: 1.12.1174.qualifier
+Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-Vendor: NOAA/NWS/NCEP/NCO/SIB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
+ javax.measure;bundle-version="1.0.0",
+ org.geotools;bundle-version="2.6.4",
+ javax.persistence;bundle-version="1.0.0",
+ org.apache.camel;bundle-version="1.0.0";resolution:=optional,
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ gov.noaa.nws.ncep.common.dataplugin.airep;bundle-version="1.0.0"
+Export-Package: gov.noaa.nws.ncep.edex.plugin.airep,
+ gov.noaa.nws.ncep.edex.plugin.airep.decoder
+Import-Package: com.raytheon.uf.edex.pointdata,
+ org.apache.commons.logging

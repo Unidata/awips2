@@ -21,23 +21,19 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -65,28 +61,47 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "QueryExpression")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryExpressionType")
 @XmlSeeAlso({ StringQueryExpressionType.class, XMLQueryExpressionType.class })
 @DynamicSerialize
 @Entity
-@Table(schema = "ebxml", name = "QueryExpression")
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "QueryExpression")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 public class QueryExpressionType extends ExtensibleObjectType {
 
-    @Id
-    @SequenceGenerator(name = "QueryExpressionTypeGenerator", schema = "ebxml", sequenceName = "ebxml.QueryExpression_sequence")
-    @GeneratedValue(generator = "QueryExpressionTypeGenerator")
-    @XmlTransient
-    protected Integer key;
+    private static final long serialVersionUID = 4333123982284573279L;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String queryLanguage;
+
+    public QueryExpressionType() {
+        super();
+    }
+
+    public QueryExpressionType(String queryLanguage) {
+        super();
+        this.queryLanguage = queryLanguage;
+    }
 
     /**
      * Gets the value of the queryLanguage property.
@@ -107,6 +122,45 @@ public class QueryExpressionType extends ExtensibleObjectType {
      */
     public void setQueryLanguage(String value) {
         this.queryLanguage = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((queryLanguage == null) ? 0 : queryLanguage.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        QueryExpressionType other = (QueryExpressionType) obj;
+        if (queryLanguage == null) {
+            if (other.queryLanguage != null)
+                return false;
+        } else if (!queryLanguage.equals(other.queryLanguage))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QueryExpressionType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nqueryLanguage=");
+        builder.append(queryLanguage);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

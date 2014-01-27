@@ -24,13 +24,10 @@ import java.io.File;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -41,9 +38,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 16, 2009            mschenke     Initial creation
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 16, 2009           mschenke    Initial creation
+ * Jul 25, 2013  2190     mschenke    Moved sounding configurations into popup
+ *                                    skewt plugin
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -52,7 +52,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class CloudHeightData implements ISerializableObject {
+public class CloudHeightData {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CloudHeightData.class);
@@ -64,31 +64,17 @@ public class CloudHeightData implements ISerializableObject {
 
     private static CloudHeightData theData = null;
 
-    @XmlAccessorType(XmlAccessType.NONE)
     public static enum DisplayOption {
         NONE, PEAK, PREDOMINANT, LOW;
     }
 
-    @XmlAttribute
+    @XmlElement
     private float nx;
 
-    @XmlAttribute
+    @XmlElement
     private float ny;
 
-    @XmlAttribute
-    private float maxTimeoutSecGrid;
-
-    @XmlAttribute
-    private float maxTimeoutSecRaob;
-
-    @XmlAttribute
-    private float maxMouseDistanceDeg;
-
-    @XmlElementWrapper(name = "sources")
-    @XmlElement(name = "source")
-    private SoundingSource[] sources;
-
-    @XmlAttribute
+    @XmlElement
     private DisplayOption displayOption;
 
     public static synchronized CloudHeightData getCloudHeightData() {
@@ -108,12 +94,8 @@ public class CloudHeightData implements ISerializableObject {
             CloudHeightData serializedData = JAXB.unmarshal(dataFile,
                     CloudHeightData.class);
             theData.displayOption = serializedData.displayOption;
-            theData.maxMouseDistanceDeg = serializedData.maxMouseDistanceDeg;
-            theData.maxTimeoutSecGrid = serializedData.maxTimeoutSecGrid;
-            theData.maxTimeoutSecRaob = serializedData.maxTimeoutSecRaob;
             theData.nx = serializedData.nx;
             theData.ny = serializedData.ny;
-            theData.sources = serializedData.sources;
             if ((int) Math.floor(theData.getNx() * theData.getNy()) > 6400) {
                 statusHandler
                         .handle(Priority.VERBOSE,
@@ -141,38 +123,6 @@ public class CloudHeightData implements ISerializableObject {
 
     public void setNy(float ny) {
         this.ny = ny;
-    }
-
-    public float getMaxTimeoutSecGrid() {
-        return maxTimeoutSecGrid;
-    }
-
-    public void setMaxTimeoutSecGrid(float maxTimeoutSecGrid) {
-        this.maxTimeoutSecGrid = maxTimeoutSecGrid;
-    }
-
-    public float getMaxTimeoutSecRaob() {
-        return maxTimeoutSecRaob;
-    }
-
-    public void setMaxTimeoutSecRaob(float maxTimeoutSecRaob) {
-        this.maxTimeoutSecRaob = maxTimeoutSecRaob;
-    }
-
-    public float getMaxMouseDistanceDeg() {
-        return maxMouseDistanceDeg;
-    }
-
-    public void setMaxMouseDistanceDeg(float maxMouseDistanceDeg) {
-        this.maxMouseDistanceDeg = maxMouseDistanceDeg;
-    }
-
-    public SoundingSource[] getSources() {
-        return sources;
-    }
-
-    public void setSources(SoundingSource[] sources) {
-        this.sources = sources;
     }
 
     public DisplayOption getDisplayOption() {

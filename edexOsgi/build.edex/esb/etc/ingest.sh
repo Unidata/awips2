@@ -25,5 +25,5 @@ export MAX_MEM=896 # in Meg
 export METADATA_POOL_MIN=10
 export EDEX_DEBUG_PORT=5006
 export EDEX_JMX_PORT=1617
-export LOG4J_CONF=log4j-ingest.xml
+export LOG_CONF=logback-ingest.xml
 export MGMT_PORT=9602

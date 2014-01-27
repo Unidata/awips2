@@ -36,7 +36,6 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,6 +53,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 20, 2008			   dglazesk	   Updated for the new ColorMap interface
  * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * Mar 14, 2013 1794       djohnson    FileUtil.listFiles now returns List.
+ * Aug 06, 2013 2210       njensen     Moved colormaps to common_static
+ * Nov 11, 2013 2361       njensen     Use ColorMap.JAXB for XML processing
  * 
  * </pre>
  * 
@@ -74,12 +75,12 @@ public class ColorMapManager {
     private ColorMapManager() {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext edexStaticBase = pathMgr.getContext(
-                LocalizationContext.LocalizationType.EDEX_STATIC,
+        LocalizationContext commonStaticBase = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
                 LocalizationContext.LocalizationLevel.BASE);
 
         try {
-            baseColormapDir = pathMgr.getFile(edexStaticBase, "colormaps")
+            baseColormapDir = pathMgr.getFile(commonStaticBase, "colormaps")
                     .getCanonicalPath();
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -112,8 +113,7 @@ public class ColorMapManager {
         if (baseFile.exists()) {
 
             try {
-                map = (ColorMap) SerializationUtil
-                        .jaxbUnmarshalFromXmlFile(baseFilePath);
+                map = ColorMap.JAXB.unmarshalFromXmlFile(baseFilePath);
             } catch (SerializationException e) {
                 throw new ColorTableException("Exception during serialization "
                         + baseFilePath, e);

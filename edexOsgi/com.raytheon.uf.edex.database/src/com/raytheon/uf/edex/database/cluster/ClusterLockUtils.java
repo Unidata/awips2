@@ -50,7 +50,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Apr 28, 2010 #5050      rjpeter     Initial creation from SmartInitTransaction.
  * Aug 26, 2013 #2272      bkowal      Add a function to see if a cluster suffix has
  *                                     been specified via the environment.
- * 
+ * Dec 13, 2013 2555       rjpeter     Added updateExtraInfoAndLockTime and javadoc.
  * </pre>
  * 
  * @author rjpeter
@@ -116,6 +116,13 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Attempts to lock based on the taskName/details and the specified
+     * validTime for checkTime. If waitForRunningToFinish it will sleep and then
+     * attempt to lock again until it achieves a lock other than already
+     * running. The waitForRunningToFinish is not part of the main lock logic
+     * due to checkTime being keyed off something other than System clock. If
+     * the validTime is older than the current validTime for the lock, an OLD
+     * LockState will be returned.
      * 
      * @param taskName
      * @param details
@@ -131,6 +138,11 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Attempts to lock based on the taskName/details and the specified
+     * lockHandler. If waitForRunningToFinish it will sleep and then attempt to
+     * lock again until it achieves a lock other than already running. The
+     * waitForRunningToFinish is not part of the main lock logic due to
+     * checkTime being keyed off something other than System clock.
      * 
      * @param taskName
      * @param details
@@ -214,6 +226,9 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Updates the lock time for the specified lock. IMPORTANT: No tracking is
+     * done to ensure caller has lock, so only use when you know you have a
+     * valid lock.
      * 
      * @param taskName
      * @param details
@@ -268,7 +283,9 @@ public class ClusterLockUtils {
     }
 
     /**
-     * Updates the extra info field for a cluster task
+     * Updates the extra info field for a cluster task. IMPORTANT: No tracking
+     * is done to ensure caller has lock, so only use when you know you have a
+     * valid lock.
      * 
      * @param taskName
      *            The name of the task
@@ -327,6 +344,70 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Updates the extra info and lock time fields for a cluster task.
+     * IMPORTANT: No tracking is done to ensure caller has lock, so only use
+     * when you know you have a valid lock.
+     * 
+     * @param taskName
+     *            The name of the task
+     * @param details
+     *            The details associated with the task
+     * @param extraInfo
+     *            The new extra info to set
+     * @oaran lockTime The lock time to set
+     * @return True if the update was successful, else false if the update
+     *         failed
+     */
+    public static boolean updateExtraInfoAndLockTime(String taskName,
+            String details, String extraInfo, long lockTime) {
+        CoreDao cd = new CoreDao(DaoConfig.DEFAULT);
+        Session s = null;
+        Transaction tx = null;
+        ClusterTask ct = null;
+        boolean rval = true;
+
+        try {
+            s = cd.getHibernateTemplate().getSessionFactory().openSession();
+            tx = s.beginTransaction();
+            ClusterTaskPK pk = new ClusterTaskPK();
+            pk.setName(taskName);
+            pk.setDetails(details);
+
+            ct = getLock(s, pk, true);
+            ct.setExtraInfo(extraInfo);
+            ct.setLastExecution(lockTime);
+            s.update(ct);
+            tx.commit();
+        } catch (Throwable t) {
+            handler.handle(Priority.ERROR,
+                    "Error processing update lock time for cluster task ["
+                            + taskName + "/" + details + "]", t);
+            rval = false;
+
+            if (tx != null) {
+                try {
+                    tx.rollback();
+                } catch (HibernateException e) {
+                    handler.handle(Priority.ERROR,
+                            "Error rolling back cluster task lock transaction",
+                            e);
+                }
+            }
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (HibernateException e) {
+                    handler.handle(Priority.ERROR,
+                            "Error closing cluster task lock session", e);
+                }
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Looks up the specified cluster lock.
      * 
      * @param taskName
      * @param details
@@ -388,6 +469,9 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Unlocks the given cluster lock. If clear time is set, time field will be
+     * reset to the epoch time. This can be useful when wanting the next check
+     * to always succeed.
      * 
      * @param taskName
      * @param details
@@ -500,6 +584,7 @@ public class ClusterLockUtils {
     }
 
     /**
+     * Deletes the specified cluster lock.
      * 
      * @param taskName
      * @param details
@@ -554,11 +639,22 @@ public class ClusterLockUtils {
         return rval;
     }
 
+    /**
+     * Looks up and returns the specified cluster lock. If the lock does not
+     * exist and create flag is set, the lock will be created. This is done
+     * using a Master lock to ensure isolation among all transactions.
+     * 
+     * @param s
+     * @param pk
+     * @param create
+     * @return
+     * @throws HibernateException
+     */
     private static ClusterTask getLock(Session s, ClusterTaskPK pk,
             boolean create) throws HibernateException {
         ClusterTask ct = (ClusterTask) s.get(ClusterTask.class, pk,
                 LockOptions.UPGRADE);
-        if (ct == null && create) {
+        if ((ct == null) && create) {
             getMasterLock(s);
 
             // now have master lock, verify new row hasn't already been
@@ -577,6 +673,13 @@ public class ClusterLockUtils {
         return ct;
     }
 
+    /**
+     * Returns the master lock.
+     * 
+     * @param s
+     * @return
+     * @throws HibernateException
+     */
     private static ClusterTask getMasterLock(Session s)
             throws HibernateException {
         ClusterTaskPK masterNewRowLockId = new ClusterTaskPK();
@@ -597,6 +700,12 @@ public class ClusterLockUtils {
         return masterLock;
     }
 
+    /**
+     * Returns all cluster locks that match the specified name.
+     * 
+     * @param name
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static List<ClusterTask> getLocks(String name) {
         StatelessSession sess = null;
@@ -611,15 +720,15 @@ public class ClusterLockUtils {
             crit.add(nameCrit);
             tasks = crit.list();
         } catch (Throwable e) {
-            // TODO
-            e.printStackTrace();
+            handler.handle(Priority.ERROR,
+                    "Error retrieving cluster locks for name: " + name, e);
         } finally {
             if (sess != null) {
                 try {
                     sess.close();
                 } catch (HibernateException e) {
-                    // TODO
-                    e.printStackTrace();
+                    handler.handle(Priority.ERROR,
+                            "Error closing cluster task getLocks session", e);
                 }
             }
         }

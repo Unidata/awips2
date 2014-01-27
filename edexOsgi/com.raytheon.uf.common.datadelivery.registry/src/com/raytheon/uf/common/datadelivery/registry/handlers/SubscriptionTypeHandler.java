@@ -25,7 +25,6 @@ import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.ebxml.AssociationQuery;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 05, 2013 1841       djohnson     Extracted and genericized from siteSubscriptionHandler.
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -77,8 +77,8 @@ public abstract class SubscriptionTypeHandler<T extends Subscription, QUERY exte
         query.setSourceObjectId(id);
         query.setReturnObjects(true);
 
-        RegistryQueryResponse<Object> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<Object> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getByPendingSubscriptionId");
 
@@ -130,8 +130,7 @@ public abstract class SubscriptionTypeHandler<T extends Subscription, QUERY exte
         query.setProviderName(providerName);
         query.setActive(true);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getActiveByDataSetAndProvider");
 

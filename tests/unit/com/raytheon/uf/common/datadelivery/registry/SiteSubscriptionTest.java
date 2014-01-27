@@ -54,6 +54,7 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Jan 11, 2013 1453       djohnson     Add test for active period crossing year boundary.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 15, 2013 1040       mpduff       Office Id now a set.
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types
  * 
  * </pre>
  * 
@@ -78,7 +79,8 @@ public class SiteSubscriptionTest {
 
     @Test
     public void testCopyConstructorSetsSpecifiedName() throws Exception {
-        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
 
         Subscription copied = new SiteSubscription(subscription, "newName");
 
@@ -89,7 +91,8 @@ public class SiteSubscriptionTest {
     @Test
     public void testCopyConstructorSetsValuesFromSourceSubscription()
             throws Exception {
-        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE.get();
+        SiteSubscription subscription = SiteSubscriptionFixture.INSTANCE
+                .get(DataType.GRID);
 
         Subscription copied = new SiteSubscription(subscription, "newName");
 

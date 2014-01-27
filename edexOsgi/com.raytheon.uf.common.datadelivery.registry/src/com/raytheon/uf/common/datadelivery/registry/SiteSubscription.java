@@ -59,6 +59,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 15, 2013 1040        mpduff      Added addOfficeId.
  * May 21, 2013 2020        mpduff      Rename UserSubscription to SiteSubscription.
  * Jun 12, 2013 2038        djohnson    Set registryId from each constructor with arguments.
+ * Jun 13, 2013 2095        djohnson    Duplicate 13.5.1 change so bandwidth manager deletes subscriptions correctly.
+ * Jun 24, 2013 2106        djohnson    Add copy constructor.
+ * Sept 30, 2013 1797       dhladky     Some Generics
+ * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
+ * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -69,9 +74,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
-        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT })
+        Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
 @DynamicSerialize
-public class SiteSubscription extends RecurringSubscription {
+public class SiteSubscription<T extends Time, C extends Coverage> extends
+        RecurringSubscription<T, C> {
     private static final long serialVersionUID = -6422673887457060034L;
 
     /**
@@ -89,7 +96,7 @@ public class SiteSubscription extends RecurringSubscription {
      * @param name
      *            New subscription name
      */
-    public SiteSubscription(SiteSubscription sub, String name) {
+    public SiteSubscription(SiteSubscription<T, C> sub, String name) {
         this(sub);
         this.setName(name);
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -101,7 +108,7 @@ public class SiteSubscription extends RecurringSubscription {
      * @param sub
      *            Subscription object
      */
-    public SiteSubscription(SiteSubscription sub) {
+    public SiteSubscription(SiteSubscription<T, C> sub) {
         super(sub);
         this.setOwner(sub.getOwner());
         this.setId(RegistryUtil.getRegistryObjectKey(this));
@@ -136,32 +143,32 @@ public class SiteSubscription extends RecurringSubscription {
      * {@inheritDoc}
      */
     @Override
-    public Subscription copy() {
-        return new SiteSubscription(this);
+    public SiteSubscription<T, C> copy() {
+        return new SiteSubscription<T, C>(this);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Subscription copy(String newName) {
-        return new SiteSubscription(this, newName);
+    public Subscription<T, C> copy(String newName) {
+        return new SiteSubscription<T, C>(this, newName);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InitialPendingSubscription initialPending(String currentUser) {
-        return new InitialPendingSiteSubscription(this, currentUser);
+    public InitialPendingSubscription<T, C> initialPending(String currentUser) {
+        return new InitialPendingSiteSubscription<T, C>(this, currentUser);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PendingSubscription pending(String currentUser) {
-        return new PendingSiteSubscription(this, currentUser);
+    public PendingSubscription<T, C> pending(String currentUser) {
+        return new PendingSiteSubscription<T, C>(this, currentUser);
     }
 
     /**

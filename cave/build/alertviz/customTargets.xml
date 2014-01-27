@@ -96,10 +96,6 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="ohd*/**"/>
                 </copy>
-        		<echo message="meteolib.*/**"/>
-        		<copy todir="${buildDirectory}/plugins">
-        			<fileset dir="${buildDirectory}/../../../" includes="meteolib.*/**"/>
-        		</copy>
         		<echo message="javax.*/**"/>
                 <copy todir="${buildDirectory}/plugins">
                         <fileset dir="${buildDirectory}/../../../" includes="javax.*/**"/>
@@ -116,6 +112,7 @@
                 <copy todir="${buildDirectory}/plugins">
                     <fileset dir="${buildDirectory}/../../../" includes="ch.*/**"/>
                 </copy>
+
 
                 <antcall target="getBaseComponents" />
         </target>
@@ -167,20 +164,10 @@
         <!-- Steps to do after  running assemble. -->
         <!-- ===================================================================== -->
         <target name="postAssemble">
-        	<copy todir="${buildDirectory}/../../static/common/alertviz/etc"
-        		verbose="true">
-        		<fileset dir="${buildDirectory}/../../static/common/cave/etc">
-        			<include name="alertViz*/**" />
-        			<include name="monitorIcons/**" />
-        		</fileset>
-        	</copy>
-        	
         	<!-- Update the 32-bit linux AlertViz zip with static files -->
         	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86.zip"
         		update="true">
-        		
-            	<fileset dir="${buildDirectory}/../../static/common"
-            		excludes="cave/**" />        		
+        		   		
         		<fileset dir="${buildDirectory}/../../static/linux"
         			excludes="cave/**" />
         		
@@ -188,9 +175,7 @@
         	<!-- Update the 64-bit linux AlertViz zip with static files -->
         	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-linux.gtk.x86_64.zip"
         		update="true">
-        		
-            	<fileset dir="${buildDirectory}/../../static/common"
-            		excludes="cave/**" />        		
+        		   		
         		<fileset dir="${buildDirectory}/../../static/linux"
         			excludes="cave/**" />        		
         		
@@ -199,19 +184,10 @@
         	<zip destfile="${buildDirectory}/${buildLabel}/${buildId}-win32.win32.x86.zip"
         		update="true">
         		
-            	<fileset dir="${buildDirectory}/../../static/common"
-            		excludes="cave/**" /> 
             	<fileset dir="${buildDirectory}/../../static/win32.x86" 
             		excludes="cave/**" />
         		
-        	</zip>        	
-        	
-        	<delete includeEmptyDirs="true">
-        		<fileset dir="${buildDirectory}/../../static/common/alertviz/etc">
-        			<include name="alertViz*/**" />
-        			<include name="monitorIcons/**" />
-        		</fileset>
-        	</delete>
+        	</zip>
         </target>
 
 

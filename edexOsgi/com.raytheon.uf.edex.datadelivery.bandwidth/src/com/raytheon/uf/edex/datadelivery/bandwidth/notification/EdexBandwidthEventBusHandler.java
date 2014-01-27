@@ -20,9 +20,6 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.notification;
 
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.event.BaseEdexEventBusHandler;
 
@@ -36,6 +33,7 @@ import com.raytheon.uf.edex.event.BaseEdexEventBusHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 28, 2013 1650       djohnson     Extracted from {@link BandwidthEventBus}.
+ * Jul 09, 2013 2106       djohnson     Remove subscriptionBus.
  * 
  * </pre>
  * 
@@ -47,8 +45,6 @@ public class EdexBandwidthEventBusHandler extends
         BaseEdexEventBusHandler<Object> implements IBandwidthEventBusHandler {
 
     private final com.google.common.eventbus.EventBus dataSetBus;
-
-    private final com.google.common.eventbus.EventBus subscriptionBus;
 
     private final com.google.common.eventbus.EventBus retrievalBus;
 
@@ -68,7 +64,6 @@ public class EdexBandwidthEventBusHandler extends
     EdexBandwidthEventBusHandler(BandwidthEventBusFactory eventBusFactory) {
         super(eventBusFactory);
         this.dataSetBus = eventBusFactory.getDataSetBus();
-        this.subscriptionBus = eventBusFactory.getSubscriptionBus();
         this.retrievalBus = eventBusFactory.getRetrievalBus();
     }
 
@@ -78,16 +73,10 @@ public class EdexBandwidthEventBusHandler extends
     @Override
     protected void publishInternal(Object object) {
 
-        if (object instanceof SubscriptionRetrieval) {
+        if (object instanceof SubscriptionRetrievalFulfilled) {
             retrievalBus.post(object);
-        } else if (object instanceof SubscriptionRetrievalFulfilled) {
-            subscriptionBus.post(object);
         } else if (object instanceof DataSetMetaData) {
             dataSetBus.post(object);
-        } else if (object instanceof Subscription) {
-            subscriptionBus.post(object);
-        } else if (object instanceof RemoveRegistryEvent) {
-            subscriptionBus.post(object);
         } else {
             throw new IllegalArgumentException("Object type ["
                     + object.getClass().getName()

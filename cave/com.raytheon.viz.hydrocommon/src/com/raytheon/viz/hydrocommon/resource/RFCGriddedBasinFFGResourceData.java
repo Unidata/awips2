@@ -22,6 +22,8 @@ package com.raytheon.viz.hydrocommon.resource;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
@@ -39,16 +41,17 @@ import com.raytheon.viz.hydrocommon.constants.FFGConstants.ResolutionLevel;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 24, 2011            mpduff     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 24, 2011           mpduff      Initial creation
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-
+@XmlTransient
 public class RFCGriddedBasinFFGResourceData extends AbstractResourceData {
     private ResolutionLevel resolution;
 

@@ -8,8 +8,6 @@ Bundle-Vendor: AWIPS II migration
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  javax.persistence;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.apache.log4j;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
@@ -19,4 +17,5 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
 Import-Package: com.raytheon.uf.edex.decodertools.core,
  com.raytheon.uf.edex.decodertools.time,
  com.raytheon.uf.edex.wmo.message,
- org.junit
+ org.apache.commons.logging,
+ org.apache.log4j

@@ -25,11 +25,26 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+/**
+ * The FFMP Template configuration
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/----                          Initial creation
+ * 
+ * 
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
+ */
 
 @XmlRootElement(name = "FFMPTemplate")
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFMPTemplateXML implements ISerializableObject {
+public class FFMPTemplateXML {
 
     @XmlAttribute(name = "hucDepth")
     private Integer hucDepth;

@@ -35,6 +35,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * </pre>
  * 
  * @author mnash
@@ -43,7 +44,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class CellTrendVolumeScanPacket extends SymbologyPacket implements
         ISerializableObject {
-    private static final int CELL_TREND_VOLUME_SCAN_PACKET22 = 22;
 
     @DynamicSerializeElement
     private int numberOfVolumes;
@@ -53,11 +53,6 @@ public class CellTrendVolumeScanPacket extends SymbologyPacket implements
 
     @DynamicSerializeElement
     private ArrayList<Integer> volumeTimes;
-
-    static {
-        PacketFactory.registerPacketType(CellTrendVolumeScanPacket.class,
-                CELL_TREND_VOLUME_SCAN_PACKET22);
-    }
 
     public CellTrendVolumeScanPacket() {
     }

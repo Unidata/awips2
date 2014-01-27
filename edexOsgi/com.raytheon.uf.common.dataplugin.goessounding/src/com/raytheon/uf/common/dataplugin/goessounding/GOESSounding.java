@@ -62,6 +62,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * May 15, 2013 1869       bsteffen    Remove DataURI from goes/poes soundings.
+ * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
@@ -91,8 +93,8 @@ public class GOESSounding extends PersistablePluginDataObject implements
     private SurfaceObsLocation location;
 
     // The bounding box that contains this observation.
-	@Column(name = "boxGeometry", columnDefinition = "geometry")
-	@Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @DynamicSerializeElement
     private Geometry boxGeometry;
 

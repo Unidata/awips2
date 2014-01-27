@@ -21,10 +21,12 @@ package com.raytheon.uf.edex.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * TODO Add Description
+ * A configuration used to match which classes should correspond to a particular
+ * database session.
  * 
  * <pre>
  * 
@@ -32,6 +34,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2010            rjpeter     Initial creation
+ * Oct 11, 2013 2361       njensen     Added database class finder
  * 
  * </pre>
  * 
@@ -40,9 +43,12 @@ import java.util.regex.Pattern;
  */
 
 public class DatabaseSessionConfiguration {
+
     protected List<Pattern> includes;
 
     protected List<Pattern> excludes;
+
+    protected DatabaseClassAnnotationFinder finder;
 
     public void setIncludes(List<String> includes) {
         if (includes != null) {
@@ -67,7 +73,7 @@ public class DatabaseSessionConfiguration {
 
         if (includes != null) {
             for (Pattern p : includes) {
-                if (p.matcher(value).matches()) {
+                if (p.matcher(value).find()) {
                     rval = true;
                     break;
                 }
@@ -78,7 +84,7 @@ public class DatabaseSessionConfiguration {
 
         if (excludes != null) {
             for (Pattern p : excludes) {
-                if (p.matcher(value).matches()) {
+                if (p.matcher(value).find()) {
                     rval = false;
                     break;
                 }
@@ -87,4 +93,13 @@ public class DatabaseSessionConfiguration {
 
         return rval;
     }
+
+    public Set<Class<?>> getAnnotatedClasses() {
+        return finder.getDbAnnotatedClases();
+    }
+
+    public void setClassFinder(DatabaseClassAnnotationFinder finder) {
+        this.finder = finder;
+    }
+
 }

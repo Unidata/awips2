@@ -41,7 +41,8 @@ import com.sun.opengl.util.texture.TextureCoords;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 2, 2011            bsteffen     Initial creation
+ * Aug 2, 2011             bsteffen    Initial creation
+ * Oct 16, 2013       2333 mschenke    Cleaned up usaAsFrameBuffer for clearer logic
  * 
  * </pre>
  * 
@@ -171,55 +172,61 @@ public abstract class AbstractGLImage implements IImage {
 
     public void usaAsFrameBuffer() throws VizException {
         GL gl = GLU.getCurrentGL();
-        if (fbo != null && fbo.isValid()) {
-            fbo.bind(gl);
-            gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            if (rbuf != null && rbuf.isValid()) {
-                gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        if (fbo == null || fbo.isValid() == false) {
+            gl.glBindTexture(getTextureStorageType(), 0);
+
+            fbo = new GLFrameBufferObject(this);
+            if (fbo.isValid()) {
+                fbo.bind(gl);
+                if ((rbuf == null || rbuf.isValid() == false)
+                        && gl.glIsEnabled(GL.GL_DEPTH_TEST)) {
+                    // Generate and bind a render buffer for the depth component
+                    rbuf = new GLRenderBuffer(this);
+                    rbuf.bind(gl);
+                    rbuf.createStorage(gl, GL.GL_DEPTH_COMPONENT, getWidth(),
+                            getHeight());
+                    gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
+
+                    // Attach render buffer to depth of fbo
+                    gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
+                            GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT,
+                            rbuf.getId());
+                }
+
+                // Attach texture to color attachement on fbo
+                gl.glFramebufferTexture2DEXT(GL.GL_FRAMEBUFFER_EXT,
+                        GL.GL_COLOR_ATTACHMENT0_EXT, getTextureStorageType(),
+                        getTextureid(), 0);
+                String errorMessage = fbo.checkStatus(gl);
+
+                // use the window buffer
+                if (errorMessage != null) {
+                    gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
+                    if (fbo != null) {
+                        fbo.dispose();
+                        fbo = null;
+                    }
+                    if (rbuf != null) {
+                        rbuf.dispose();
+                        rbuf = null;
+                    }
+                    throw new VizException(errorMessage);
+                }
             } else {
-                gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+                throw new VizException("Error generating Frame Buffer Object");
             }
-            return;
+        } else {
+            // Bind the fbo for use
+            fbo.bind(gl);
         }
-        gl = GLU.getCurrentGL();
 
-        gl.glBindTexture(getTextureStorageType(), 0);
-
-        fbo = new GLFrameBufferObject(this);
-        fbo.bind(gl);
-
-        if (gl.glIsEnabled(GL.GL_DEPTH_TEST)) {
-            // Generate and bind a render buffer for the depth component
-            rbuf = new GLRenderBuffer(this);
-            rbuf.bind(gl);
-            rbuf.createStorage(gl, GL.GL_DEPTH_COMPONENT, getWidth(),
-                    getHeight());
-            gl.glBindRenderbufferEXT(GL.GL_RENDERBUFFER_EXT, 0);
-
-            // Attach render buffer to depth of fbo
-            gl.glFramebufferRenderbufferEXT(GL.GL_FRAMEBUFFER_EXT,
-                    GL.GL_DEPTH_ATTACHMENT_EXT, GL.GL_RENDERBUFFER_EXT,
-                    rbuf.getId());
+        gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        if (rbuf != null && rbuf.isValid()) {
+            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        } else {
+            gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         }
-        // Attach texture to color attachement on fbo
-        gl.glFramebufferTexture2DEXT(GL.GL_FRAMEBUFFER_EXT,
-                GL.GL_COLOR_ATTACHMENT0_EXT, getTextureStorageType(),
-                getTextureid(), 0);
-        String errorMessage = fbo.checkStatus(gl);
 
-        // use the window buffer
-        if (errorMessage != null) {
-            gl.glBindFramebufferEXT(GL.GL_FRAMEBUFFER_EXT, 0);
-            if (fbo != null) {
-                fbo.dispose();
-                fbo = null;
-            }
-            if (rbuf != null) {
-                rbuf.dispose();
-                rbuf = null;
-            }
-            throw new VizException(errorMessage);
-        }
     }
 
     /*
@@ -265,7 +272,7 @@ public abstract class AbstractGLImage implements IImage {
         }
         return false;
     }
-    
+
     /*
      * (non-Javadoc)
      * 

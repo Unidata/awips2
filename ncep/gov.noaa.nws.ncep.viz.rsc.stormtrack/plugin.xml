@@ -11,13 +11,6 @@
             resourceType="PLAN_VIEW">
       </resource>
    </extension>
-    <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="stormtrack"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
    <extension
          point="gov.noaa.nws.ncep.viz.resources.NC-Resource">
        <nc-resource

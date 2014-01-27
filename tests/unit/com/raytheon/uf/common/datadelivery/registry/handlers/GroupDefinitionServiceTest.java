@@ -23,11 +23,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.rmi.RemoteException;
 
@@ -36,12 +31,10 @@ import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinition;
 import com.raytheon.uf.common.datadelivery.registry.GroupDefinitionServiceRequest;
+import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SubscriptionBuilder;
-import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.service.GroupDefinitionService;
-import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
-import com.raytheon.uf.common.registry.RegistryManagerTest;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlersUtil;
 import com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionServiceHandler;
@@ -58,6 +51,8 @@ import com.raytheon.uf.edex.datadelivery.service.services.GroupDefinitionService
  * Jan 18, 2013 1441       djohnson     Initial creation
  * Feb 26, 2013 1643       djohnson     Change exception type thrown.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
+ * Jun 24, 2013 2106       djohnson     RegistryManager is gone.
+ * Nov 12, 2013 2506       bgonzale     Refactored out notification service.
  * 
  * </pre>
  * 
@@ -73,14 +68,11 @@ public class GroupDefinitionServiceTest {
 
     private IGroupDefinitionHandler groupHandler;
 
-    private final ISubscriptionNotificationService subscriptionNotificationService = mock(ISubscriptionNotificationService.class);
-
     private final GroupDefinitionService service = new GroupDefinitionService() {
         @Override
         protected Object getResponseFromServer(
                 GroupDefinitionServiceRequest request) throws Exception {
-            return new GroupDefinitionServiceHandler(
-                    subscriptionNotificationService).handleRequest(request);
+            return new GroupDefinitionServiceHandler().handleRequest(request);
         }
     };
 
@@ -89,7 +81,6 @@ public class GroupDefinitionServiceTest {
     @Before
     public void setUp() throws RegistryHandlerException {
         RegistryObjectHandlersUtil.initMemory();
-        RegistryManagerTest.setMockInstance();
 
         subscriptionHandler = DataDeliveryHandlers.getSubscriptionHandler();
         groupHandler = DataDeliveryHandlers.getGroupDefinitionHandler();
@@ -115,16 +106,6 @@ public class GroupDefinitionServiceTest {
 
         assertThat(subscriptionHandler.getByGroupName(GROUP_NAME),
                 is(emptyCollectionOf(Subscription.class)));
-    }
-
-    @Test
-    public void deletingAGroupNotifiesOfSubscriptionUpdates()
-            throws RemoteException, RegistryHandlerException {
-        service.deleteGroupDefinition(group);
-
-        verify(subscriptionNotificationService, times(2))
-                .sendUpdatedSubscriptionNotification(any(Subscription.class),
-                        anyString());
     }
 
     @Test

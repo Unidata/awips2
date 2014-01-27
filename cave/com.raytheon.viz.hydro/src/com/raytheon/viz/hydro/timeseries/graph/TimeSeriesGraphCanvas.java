@@ -24,9 +24,12 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -54,18 +57,19 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 12, 2008 1519       mpduff     Initial creation
- * Jan 26, 2011 5557       bkowal     Finished the implementation of
- *                                    "Reverse Video" printing.
- * Feb 03, 2011 8085       mpduff     Modified the trace line to circle 
- *                                    around the point.
- * Apr 18, 2011 8963       jpiatt     Removed Left Scale call to scale manager.
- * July 12 2011 9709       djingtao   draw right Y axis for showPP is true. add new 
- *                                    function adjust_pcymax()
- * Aug. 10, 2011 10457     djingtao   allow the red rubberband box to be drawn for setMissing in Edit  
- * Jul. 24, 2012 15195     mpduff     Fix x axis scales.
- * 06 Nov   2012 15399     wkwock       Fix refine the plot algorithm and sampling algorithm
- * May 06, 2013    1976    mpduff     Code cleanup
+ * Sep 12, 2008 1519       mpduff      Initial creation
+ * Jan 26, 2011 5557       bkowal      Finished the implementation of
+ *                                     "Reverse Video" printing.
+ * Feb 03, 2011 8085       mpduff      Modified the trace line to circle 
+ *                                     around the point.
+ * Apr 18, 2011 8963       jpiatt      Removed Left Scale call to scale manager.
+ * July 12 2011 9709       djingtao    draw right Y axis for showPP is true. add new 
+ *                                     function adjust_pcymax()
+ * Aug 10, 2011 10457      djingtao    allow the red rubberband box to be drawn for setMissing in Edit  
+ * Jul 24, 2012 15195      mpduff      Fix x axis scales.
+ * 06 Nov  2012 15399      wkwock      Fix refine the plot algorithm and sampling algorithm
+ * May 06, 2013 1976       mpduff      Code cleanup
+ * 05Sep2013    #2332      lvenable    Fixed memory leaks.
  * </pre>
  * 
  * @author mpduff
@@ -173,9 +177,9 @@ public class TimeSeriesGraphCanvas extends Canvas {
     /* Flag for selection of 1hr PC as PP */
     protected boolean showPP = false;
 
-    protected ArrayList<Region> precipRegions = new ArrayList<Region>();
+    protected final List<Region> precipRegions = new ArrayList<Region>();
 
-    protected ArrayList<ArrayList<Region>> precipPointList = new ArrayList<ArrayList<Region>>();
+    protected final List<List<Region>> precipPointList = new ArrayList<List<Region>>();
 
     protected int currentX;
 
@@ -222,6 +226,23 @@ public class TimeSeriesGraphCanvas extends Canvas {
     public TimeSeriesGraphCanvas(Composite parent, int style) {
         super(parent, style);
         parentComp = parent;
+        init();
+    }
+
+    /**
+     * Initialize method.
+     */
+    private void init() {
+        this.addDisposeListener(new DisposeListener() {
+
+            @Override
+            public void widgetDisposed(DisposeEvent e) {
+                if (currentTraceColor != null
+                        && currentTraceColor.isDisposed() == false) {
+                    currentTraceColor.dispose();
+                }
+            }
+        });
     }
 
     /**

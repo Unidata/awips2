@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.monitor.data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialException;
@@ -30,9 +31,12 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.monitor.MonitorAreaUtils;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.site.xml.AdjacentWfoXML;
 import com.raytheon.uf.common.site.xml.CwaXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.StringUtil;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKBReader;
 
@@ -44,7 +48,9 @@ import com.vividsolutions.jts.io.WKBReader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 22, 2009            mpduff     Initial creation
+ * Dec 22, 2009            mpduff      Initial creation
+ * Jul 24, 2013   2219     mpduff      Improve error handling.
+ * Oct 02, 2013   2361     njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -53,6 +59,16 @@ import com.vividsolutions.jts.io.WKBReader;
  */
 
 public class AdjacentWfoMgr {
+
+    /** Path to Adjacent WFO XML. */
+    private static final String fileName = "allAdjacentWFOs.xml";
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AdjacentWfoMgr.class);
+
+    private static final SingleTypeJAXBManager<AdjacentWfoXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(AdjacentWfoXML.class);
+
     /** Configuration XML. */
     private AdjacentWfoXML adjXML = null;
 
@@ -62,19 +78,17 @@ public class AdjacentWfoMgr {
 
     private ArrayList<String> idList = null;
 
-    /** Path to Adjacent WFO XML. */
-    private static final String fileName = "allAdjacentWFOs.xml";
-
-	private Geometry geoAdjAreas = null;
+    /** Adjacent area geometry */
+    private Geometry geoAdjAreas = null;
 
     /**
      * Constructor.
      * 
-     * @param fullPath
-     *            The full path the the configuration XML file.
+     * @param currentSite
+     *            The current site
      */
     public AdjacentWfoMgr(String currentSite) {
-        System.out.println("**********************AdjacentWfoMgr instantiated with "
+        statusHandler.debug("****AdjacentWfoMgr instantiated with "
                 + currentSite);
         this.currentSite = currentSite;
         readAdjXml();
@@ -92,12 +106,11 @@ public class AdjacentWfoMgr {
             String path = pm.getFile(
                     pm.getContext(LocalizationType.COMMON_STATIC,
                             LocalizationLevel.BASE), fileName)
-                            .getAbsolutePath();
+                    .getAbsolutePath();
 
-            System.out.println("**** path = " + path);
+            statusHandler.debug("**** path = " + path);
 
-            adjXML = (AdjacentWfoXML) SerializationUtil
-            .jaxbUnmarshalFromXmlFile(path.toString());
+            adjXML = jaxb.unmarshalFromXmlFile(path);
 
             ArrayList<CwaXML> list = adjXML.getAreaIds();
             for (CwaXML cx : list) {
@@ -110,37 +123,10 @@ public class AdjacentWfoMgr {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error setting up adjacent WFO data", e);
         }
     }
 
-    /**
-     * Save the XML adjacent data to the current XML file name.
-     */
-    // public void saveAdjXml() {
-    // IPathManager pm = PathManagerFactory.getPathManager();
-    // LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-    // LocalizationLevel.SITE);
-    // LocalizationFile newXmlFile = pm.getLocalizationFile(lc, fileName);
-    //
-    // if (newXmlFile.getFile().getParentFile().exists() == false) {
-    // System.out.println("Creating new directory");
-    //
-    // if (newXmlFile.getFile().getParentFile().mkdirs() == false) {
-    // System.out.println("Could not create new directory...");
-    // }
-    // }
-    //
-    // try {
-    // System.out.println("Saving -- "
-    // + newXmlFile.getFile().getAbsolutePath());
-    // SerializationUtil.jaxbMarshalToXmlFile(adjXML, newXmlFile
-    // .getFile().getAbsolutePath());
-    // newXmlFile.save();
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
     /**
      * @return the adjXML
      */
@@ -176,91 +162,108 @@ public class AdjacentWfoMgr {
         return idList;
     }
 
-	/**
-	 * Gets geometry of all adjacent CWAs
-	 * 
-	 * @param wfo
-	 * @return
-	 */
-	public static Geometry getAdjacentAreas(String wfo) {
+    /**
+     * Gets geometry of all adjacent CWAs
+     * 
+     * @param wfo
+     *            The WFO
+     * @return The adjacent Geometry
+     * @throws SpatialException
+     *             if problem with wfo geometry
+     */
+    public static Geometry getAdjacentAreas(String wfo) throws SpatialException {
+        boolean invalidGeom = false;
+        List<String> areaList = new ArrayList<String>();
 
-		Geometry adjAreaGeometry = getCwaGeomtry(wfo);
-		AdjacentWfoMgr adjMgr = new AdjacentWfoMgr(wfo);
+        Geometry adjAreaGeometry = getCwaGeomtry(wfo);
+        if (adjAreaGeometry == null) {
+            throw new SpatialException("CWA Geometry is null for " + wfo);
+        }
 
-		for (String area : adjMgr.getAdjIdList()) {
-			Geometry areaGeo = getCwaGeomtry(area);
-			adjAreaGeometry = adjAreaGeometry.union(areaGeo);
-		}
+        AdjacentWfoMgr adjMgr = new AdjacentWfoMgr(wfo);
 
-		return adjAreaGeometry;
-	}
+        for (String area : adjMgr.getAdjIdList()) {
+            Geometry areaGeo = getCwaGeomtry(area);
+            // verify areaGeo is not null
+            if (areaGeo == null) {
+                invalidGeom = true;
+                areaList.add(area);
+                continue;
+            }
+            adjAreaGeometry = adjAreaGeometry.union(areaGeo);
+        }
 
-	/**
-	 * Gets you the CWA geometry
-	 * 
-	 * @param cwa
-	 * @return
-	 */
-	public static Geometry getCwaGeomtry(String cwa) {
+        if (invalidGeom) {
+            StringBuilder sb = new StringBuilder("Missing geometries for:");
+            for (String site : areaList) {
+                sb.append(StringUtil.NEWLINE).append(site);
+            }
+            UFStatus.getHandler(AdjacentWfoMgr.class).warn(sb.toString());
+        }
 
-		ISpatialQuery sq = null;
-		Geometry geo = null;
-		WKBReader wkbReader = new WKBReader();
-		String sql = "select AsBinary(" + ScanUtils.getStandardResolutionLevel("cwa") + ") from mapdata.cwa where cwa = '"
-				+ cwa + "'";
-		String msql = "select AsBinary(" + ScanUtils.getStandardResolutionLevel("marinezones") + ") from mapdata.marinezones where wfo = '"
-				+ cwa + "'";
+        return adjAreaGeometry;
+    }
 
-		try {
-			sq = SpatialQueryFactory.create();
-			Object[] results = sq.dbRequest(sql, "maps");
-			if (results.length > 0) {
-				geo = MonitorAreaUtils.readGeometry(results[0], wkbReader);
-			}
-			// marine zones
-			Object[] mresults = sq.dbRequest(msql, "maps");
-			if (mresults.length > 0) {
-				for (Object res : mresults) {
-					if (res instanceof Object[]) {
-						res = ((Object[]) res)[0];
-					}
-					Geometry mgeo = MonitorAreaUtils.readGeometry(res,
-							wkbReader);
-					geo = geo.union(mgeo);
-				}
-			}
-		} catch (SpatialException e) {
-			e.printStackTrace();
-		}
-		return geo;
-		// return geo.convexHull(); ????
-	}
+    /**
+     * Gets you the CWA geometry
+     * 
+     * @param cwa
+     *            The CWA
+     * @return The Geometry for the CWA
+     */
+    public static Geometry getCwaGeomtry(String cwa) {
+        ISpatialQuery sq = null;
+        Geometry geo = null;
+        WKBReader wkbReader = new WKBReader();
+        String sql = "select AsBinary("
+                + ScanUtils.getStandardResolutionLevel("cwa")
+                + ") from mapdata.cwa where cwa = '" + cwa + "'";
+        String msql = "select AsBinary("
+                + ScanUtils.getStandardResolutionLevel("marinezones")
+                + ") from mapdata.marinezones where wfo = '" + cwa + "'";
 
-	// /**
-	// * extract geometry
-	// *
-	// * @param object
-	// * @return
-	// */
-	//
-	// private static Geometry readGeometry(Object object, WKBReader wkbReader)
-	// {
-	// Geometry geometry = null;
-	// try {
-	// geometry = wkbReader.read((byte[]) object);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	//
-	// return geometry.buffer(0);
-	// }
+        try {
+            sq = SpatialQueryFactory.create();
+            Object[] results = sq.dbRequest(sql, "maps");
+            if (results.length > 0) {
+                geo = MonitorAreaUtils.readGeometry(results[0], wkbReader);
+            }
+            // marine zones
+            Object[] mresults = sq.dbRequest(msql, "maps");
+            if (mresults.length > 0) {
+                for (Object res : mresults) {
+                    if (res instanceof Object[]) {
+                        res = ((Object[]) res)[0];
+                    }
+                    Geometry mgeo = MonitorAreaUtils.readGeometry(res,
+                            wkbReader);
+                    geo = geo.union(mgeo);
+                }
+            }
+        } catch (SpatialException e) {
+            UFStatus.getHandler(AdjacentWfoMgr.class).error(
+                    "Error getting CWA Geometry", e);
+        }
 
-	public void setGeoAdjAreas(Geometry geoAdjAreas) {
-		this.geoAdjAreas = geoAdjAreas;
-	}
+        return geo;
+    }
 
-	public Geometry getGeoAdjAreas() {
-		return geoAdjAreas;
-	}
+    /**
+     * Set the geometry for adjacent areas
+     * 
+     * @param geoAdjAreas
+     *            The geometry
+     */
+    public void setGeoAdjAreas(Geometry geoAdjAreas) {
+        this.geoAdjAreas = geoAdjAreas;
+    }
 
+    /**
+     * Get the geometry for adjacent areas
+     * 
+     * @return The geometry
+     */
+    public Geometry getGeoAdjAreas() {
+        return geoAdjAreas;
+    }
 }

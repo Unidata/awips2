@@ -22,7 +22,7 @@
     <Method name="Alias">
         <Field abbreviation="CCOV"/>
     </Method>
-    <Method models="HPCGuide HPCGuide-2.5km" displayName="Total Cloud Cover" name="Multiply">
+    <Method models="HPCGuide" displayName="Total Cloud Cover" name="Multiply">
         <Field abbreviation="TCC"/>
         <ConstantField value="100.0"/>
     </Method>

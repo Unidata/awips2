@@ -6,8 +6,7 @@ Bundle-Name: Harvester
 Bundle-SymbolicName: com.raytheon.uf.edex.datadelivery.harvester
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
- org.apache.http;bundle-version="4.1.2",
+Require-Bundle: org.apache.http;bundle-version="4.1.2",
  edu.uci.ics.crawler4j;bundle-version="1.0.0",
  net.dods;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
@@ -26,7 +25,6 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.datadelivery.event;bundle-version="1.0.0",
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0",
  com.raytheon.uf.edex.datadelivery.retrieval;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
  com.raytheon.uf.edex.registry.ebxml;bundle-version="1.0.0",

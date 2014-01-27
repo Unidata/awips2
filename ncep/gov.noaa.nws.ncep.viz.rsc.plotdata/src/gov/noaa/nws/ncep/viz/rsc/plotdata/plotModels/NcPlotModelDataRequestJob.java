@@ -544,9 +544,9 @@ public class NcPlotModelDataRequestJob extends Job {
                     // Datacube didn't have proper plugin; going directly
                     // to the data store
                     tempPdc = PointDataRequest.requestPointDataAllLevels(
-                            null, this.plugin, 
-                            params.toArray( new String[params.size()] ), 
-                            null, map );
+                            this.plugin,
+                            params.toArray(new String[params.size()]), null,
+                            map);
                 }
                 long t002 = System.currentTimeMillis();
                 

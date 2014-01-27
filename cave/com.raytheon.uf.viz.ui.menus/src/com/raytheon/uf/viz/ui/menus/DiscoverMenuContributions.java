@@ -191,41 +191,40 @@ public class DiscoverMenuContributions {
                             public void createContributionItems(
                                     IServiceLocator serviceLocator,
                                     IContributionRoot additions) {
-
-                                IContributionItem[] items = null;
-
                                 try {
-                                    items = imc.getContributionItems(null,
-                                            new VariableSubstitution[0],
-                                            new HashSet<String>());
+                                    IContributionItem[] items = imc
+                                            .getContributionItems(
+                                                    null,
+                                                    new VariableSubstitution[0],
+                                                    new HashSet<String>());
+                                    Expression exp = null;
+                                    if (imc.visibleOnActionSet != null) {
+                                        org.eclipse.core.internal.expressions.WithExpression we = new org.eclipse.core.internal.expressions.WithExpression(
+                                                "activeContexts");
+
+                                        org.eclipse.core.internal.expressions.IterateExpression oe = null;
+                                        try {
+                                            oe = new org.eclipse.core.internal.expressions.IterateExpression(
+                                                    "or");
+                                        } catch (CoreException e) {
+                                            // ignore, since this is hardcoded
+                                        }
+                                        for (String str : imc.visibleOnActionSet) {
+                                            org.eclipse.core.internal.expressions.EqualsExpression ee = new org.eclipse.core.internal.expressions.EqualsExpression(
+                                                    str);
+                                            oe.add(ee);
+                                        }
+                                        we.add(oe);
+                                        exp = we;
+                                    }
+
+                                    for (IContributionItem item : items) {
+                                        additions
+                                                .addContributionItem(item, exp);
+                                    }
                                 } catch (VizException e) {
                                     statusHandler.handle(Priority.SIGNIFICANT,
                                             "Error setting up menus", e);
-                                }
-
-                                Expression exp = null;
-                                if (imc.visibleOnActionSet != null) {
-                                    org.eclipse.core.internal.expressions.WithExpression we = new org.eclipse.core.internal.expressions.WithExpression(
-                                            "activeContexts");
-
-                                    org.eclipse.core.internal.expressions.IterateExpression oe = null;
-                                    try {
-                                        oe = new org.eclipse.core.internal.expressions.IterateExpression(
-                                                "or");
-                                    } catch (CoreException e) {
-                                        // ignore, since this is hardcoded
-                                    }
-                                    for (String str : imc.visibleOnActionSet) {
-                                        org.eclipse.core.internal.expressions.EqualsExpression ee = new org.eclipse.core.internal.expressions.EqualsExpression(
-                                                str);
-                                        oe.add(ee);
-                                    }
-                                    we.add(oe);
-                                    exp = we;
-                                }
-
-                                for (IContributionItem item : items) {
-                                    additions.addContributionItem(item, exp);
                                 }
                             }
                         };

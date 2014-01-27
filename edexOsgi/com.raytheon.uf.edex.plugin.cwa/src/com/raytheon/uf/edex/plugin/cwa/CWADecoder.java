@@ -28,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
-import com.raytheon.uf.common.dataplugin.cwa.dao.CWARecordDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.plugin.cwa.decoder.CWAParser;
 import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;

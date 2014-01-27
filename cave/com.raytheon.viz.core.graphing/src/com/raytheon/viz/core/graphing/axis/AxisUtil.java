@@ -22,9 +22,9 @@ package com.raytheon.viz.core.graphing.axis;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
+import com.raytheon.uf.common.style.graph.AxisScale;
 import com.raytheon.viz.core.graphing.DataAxisInfo;
 import com.raytheon.viz.core.graphing.util.GraphUtilPorted;
-import com.raytheon.viz.core.style.graph.AxisScale;
 
 /**
  * 
@@ -33,7 +33,7 @@ import com.raytheon.viz.core.style.graph.AxisScale;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- *                         njensen     Initial creation	
+ *                         njensen     Initial creation
  * 
  * </pre>
  * 

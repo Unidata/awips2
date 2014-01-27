@@ -7,12 +7,12 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 
-import com.facebook.thrift.TException;
-import com.facebook.thrift.protocol.TBinaryProtocol;
-import com.facebook.thrift.protocol.TField;
-import com.facebook.thrift.protocol.TStruct;
-import com.facebook.thrift.protocol.TType;
-import com.facebook.thrift.transport.TTransport;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TField;
+import org.apache.thrift.protocol.TStruct;
+import org.apache.thrift.protocol.TType;
+import org.apache.thrift.transport.TTransport;
 
 /**
  * This software was developed and / or modified by Raytheon Company,
@@ -57,6 +57,9 @@ import com.facebook.thrift.transport.TTransport;
  * Jun 17, 2010   #5091     njensen     Added primitive list methods
  * Jun 12, 2013    2102     njensen     Added max read length to prevent out
  *                                       of memory errors due to bad stream
+ * Jul 23, 2013    2215     njensen     Updated for thrift 0.9.0
+ * Aug 06, 2013    2228     njensen     Overrode readBinary() to ensure it
+ *                                       doesn't read too much
  * 
  * </pre>
  * 
@@ -98,6 +101,15 @@ public class SelfDescribingBinaryProtocol extends TBinaryProtocol {
         this.setReadLength(MAX_READ_LENGTH);
     }
 
+    @Override
+    public ByteBuffer readBinary() throws TException {
+        int size = readI32();
+        checkReadLength(size);
+        byte[] buf = new byte[size];
+        trans_.readAll(buf, 0, size);
+        return ByteBuffer.wrap(buf);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -106,13 +118,14 @@ public class SelfDescribingBinaryProtocol extends TBinaryProtocol {
     @Override
     public TField readFieldBegin() throws TException {
         // This method was overriden to make the structs more self describing
-        TField field = new TField();
-        field.type = readByte();
-        if (field.type != TType.STOP) {
-            field.name = readString();
-            field.id = readI16();
+        Byte type = readByte();
+        String name = "";
+        short id = (short) 0;
+        if (type != TType.STOP) {
+            name = readString();
+            id = readI16();
         }
-        return field;
+        return new TField(name, type, id);
     }
 
     /*

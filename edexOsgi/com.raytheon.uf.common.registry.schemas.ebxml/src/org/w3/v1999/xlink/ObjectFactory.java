@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElementDecl;
 import javax.xml.bind.annotation.XmlRegistry;
 import javax.xml.namespace.QName;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the org.w3._1999.xlink package.
@@ -35,21 +37,33 @@ import javax.xml.namespace.QName;
  * of schema type definitions, element declarations and model groups. Factory
  * methods for each of these are provided in this class.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRegistry
 public class ObjectFactory {
 
     private final static QName _Resource_QNAME = new QName(
-            "http://www.w3.org/1999/xlink", "resource");
+            EbxmlNamespaces.XLINK_URI, "resource");
 
     private final static QName _Locator_QNAME = new QName(
-            "http://www.w3.org/1999/xlink", "locator");
+            EbxmlNamespaces.XLINK_URI, "locator");
 
     private final static QName _Arc_QNAME = new QName(
-            "http://www.w3.org/1999/xlink", "arc");
+            EbxmlNamespaces.XLINK_URI, "arc");
 
     private final static QName _Title_QNAME = new QName(
-            "http://www.w3.org/1999/xlink", "title");
+            EbxmlNamespaces.XLINK_URI, "title");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of
@@ -112,7 +126,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/1999/xlink", name = "resource")
+    @XmlElementDecl(namespace = EbxmlNamespaces.XLINK_URI, name = "resource")
     public JAXBElement<ResourceType> createResource(ResourceType value) {
         return new JAXBElement<ResourceType>(_Resource_QNAME,
                 ResourceType.class, null, value);
@@ -123,7 +137,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/1999/xlink", name = "locator")
+    @XmlElementDecl(namespace = EbxmlNamespaces.XLINK_URI, name = "locator")
     public JAXBElement<LocatorType> createLocator(LocatorType value) {
         return new JAXBElement<LocatorType>(_Locator_QNAME, LocatorType.class,
                 null, value);
@@ -133,7 +147,7 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link ArcType }{@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/1999/xlink", name = "arc")
+    @XmlElementDecl(namespace = EbxmlNamespaces.XLINK_URI, name = "arc")
     public JAXBElement<ArcType> createArc(ArcType value) {
         return new JAXBElement<ArcType>(_Arc_QNAME, ArcType.class, null, value);
     }
@@ -143,7 +157,7 @@ public class ObjectFactory {
      * {@code >}
      * 
      */
-    @XmlElementDecl(namespace = "http://www.w3.org/1999/xlink", name = "title")
+    @XmlElementDecl(namespace = EbxmlNamespaces.XLINK_URI, name = "title")
     public JAXBElement<TitleEltType> createTitle(TitleEltType value) {
         return new JAXBElement<TitleEltType>(_Title_QNAME, TitleEltType.class,
                 null, value);

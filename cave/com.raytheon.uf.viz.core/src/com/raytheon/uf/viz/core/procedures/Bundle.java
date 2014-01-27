@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -31,8 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
@@ -45,9 +43,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Aug 30, 2007             chammack    Initial Creation.
+ *    Date       Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2007           chammack    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to 
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -56,7 +56,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class Bundle implements ISerializableObject {
+public class Bundle {
 
     /** Contains the descriptors */
     @XmlElement
@@ -161,8 +161,8 @@ public class Bundle implements ISerializableObject {
 
     public String toXML() throws VizException {
         try {
-            return SerializationUtil.marshalToXml(this);
-        } catch (JAXBException e) {
+            return ProcedureXmlManager.getInstance().marshal(this);
+        } catch (SerializationException e) {
             throw new VizException(e);
         }
     }
@@ -275,7 +275,8 @@ public class Bundle implements ISerializableObject {
             String substStr = VariableSubstitutionUtil.processVariables(
                     bundleStr, variables);
 
-            Bundle b = (Bundle) SerializationUtil.unmarshalFromXml(substStr);
+            Bundle b = ProcedureXmlManager.getInstance().unmarshal(
+                    Bundle.class, substStr);
 
             return b;
         } catch (Exception e) {

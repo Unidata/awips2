@@ -21,12 +21,12 @@ package com.raytheon.viz.ui.dialogs;
 
 import java.text.DecimalFormat;
 
-import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
+import javax.measure.unit.Unit;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -36,11 +36,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.colormap.image.Colormapper;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 
 /**
  * Composite for slider bars for ColorMapParameters
@@ -51,7 +49,9 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 3, 2012            mschenke     Initial creation
+ * Jan  3, 2012            mschenke    Initial creation
+ * Nov  8, 2013 2492       mschenke    Rewritten to work with colormap
+ *                                     units different from data units
  * 
  * </pre>
  * 
@@ -61,8 +61,13 @@ import com.raytheon.viz.ui.dialogs.colordialog.ColorUtil;
 
 public class ColorMapSliderComp extends Composite {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ColorMapSliderComp.class);
+    private static final String NaN_STRING = "NO DATA";
+
+    private static final int SLIDER_MIN = 0;
+
+    private static final int SLIDER_MAX = 250;
+
+    private static final int SLIDER_INC = 1;
 
     private ColorMapParameters cmap;
 
@@ -74,25 +79,23 @@ public class ColorMapSliderComp extends Composite {
 
     private Text maxValueText;
 
-    private String[] sliderText;
+    private float cmapAbsoluteMin;
 
-    private float cmapMin;
+    private float cmapAbsoluteMax;
 
-    private float cmapMax;
+    private final float origCmapMin;
 
-    private float cmapWidth;
+    private final float origCmapMax;
 
-    private float cmapIncrement;
+    private float currentCmapMin;
 
-    private DecimalFormat format = null;
+    private float currentCmapMax;
 
-    private float currentMin;
+    private final DecimalFormat format;
 
-    private float currentMax;
+    private UnitConverter displayToColorMap;
 
-    private float origCmapMin;
-
-    private float origCmapMax;
+    private UnitConverter colorMapToDisplay;
 
     /**
      * @param parent
@@ -101,8 +104,23 @@ public class ColorMapSliderComp extends Composite {
     public ColorMapSliderComp(Composite parent, ColorMapParameters cmap) {
         super(parent, SWT.NONE);
         this.cmap = cmap;
-        this.origCmapMin = cmap.getColorMapMin();
-        this.origCmapMax = cmap.getColorMapMax();
+        this.cmapAbsoluteMin = this.currentCmapMin = this.origCmapMin = cmap
+                .getColorMapMin();
+        this.cmapAbsoluteMax = this.currentCmapMax = this.origCmapMax = cmap
+                .getColorMapMax();
+        this.displayToColorMap = cmap.getDisplayToColorMapConverter();
+        this.colorMapToDisplay = cmap.getColorMapToDisplayConverter();
+        if (displayToColorMap == null) {
+            displayToColorMap = Unit.ONE.getConverterTo(Unit.ONE);
+        }
+        if (colorMapToDisplay == null) {
+            colorMapToDisplay = Unit.ONE.getConverterTo(Unit.ONE);
+        }
+
+        updateAbsolutes(cmapAbsoluteMin, cmapAbsoluteMax);
+
+        this.format = getTextFormat();
+
         initializeComponents();
     }
 
@@ -115,16 +133,15 @@ public class ColorMapSliderComp extends Composite {
      * 
      */
     private void initializeComponents() {
-        buildColorMapData();
         setLayout(new GridLayout(3, false));
 
         Label maxLabel = new Label(this, SWT.None);
         maxLabel.setText("Max:");
 
         maxSlider = new Scale(this, SWT.HORIZONTAL);
-        maxSlider.setMaximum(255);
-        maxSlider.setMinimum(0);
-        maxSlider.setIncrement(1);
+        maxSlider.setMaximum(SLIDER_MAX);
+        maxSlider.setMinimum(SLIDER_MIN);
+        maxSlider.setIncrement(SLIDER_INC);
         maxSlider.setSelection(maxSlider.getMaximum());
         GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         layoutData.minimumWidth = 250;
@@ -142,9 +159,9 @@ public class ColorMapSliderComp extends Composite {
         minLabel.setText("Min:");
 
         minSlider = new Scale(this, SWT.HORIZONTAL);
-        minSlider.setMaximum(255);
-        minSlider.setMinimum(0);
-        minSlider.setIncrement(1);
+        minSlider.setMaximum(SLIDER_MAX);
+        minSlider.setMinimum(SLIDER_MIN);
+        minSlider.setIncrement(SLIDER_INC);
         minSlider.setSelection(minSlider.getMinimum());
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         layoutData.minimumWidth = 250;
@@ -156,286 +173,237 @@ public class ColorMapSliderComp extends Composite {
         minValueText.setLayoutData(labelLayoutData);
 
         maxSlider.addSelectionListener(new SelectionAdapter() {
-
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (maxSlider.getSelection() <= minSlider.getSelection()) {
-                    maxSlider.setSelection(minSlider.getSelection() + 1);
-                }
-                maxValueText.setText(selectionToText(maxSlider.getSelection()));
-                changeMax(maxSlider.getSelection());
+                setColorMapMax(selectionToColorMapValue(maxSlider
+                        .getSelection()));
             }
-
         });
+
 
         minSlider.addSelectionListener(new SelectionAdapter() {
-
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (minSlider.getSelection() >= maxSlider.getSelection()) {
-                    minSlider.setSelection(maxSlider.getSelection() - 1);
-                }
-                minValueText.setText(selectionToText(minSlider.getSelection()));
-                changeMin(minSlider.getSelection());
+                setColorMapMin(selectionToColorMapValue(minSlider
+                        .getSelection()));
             }
-
         });
 
-        maxValueText.addKeyListener(new KeyListener() {
-
+        maxValueText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.character == SWT.CR) {
-                    maxTextChanged();
+                    updateMinMaxFromText(maxValueText);
                 }
             }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // do nothing
-            }
-
         });
 
-        minValueText.addKeyListener(new KeyListener() {
-
+        minValueText.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.character == SWT.CR) {
-                    minTextChanged();
+                    updateMinMaxFromText(minValueText);
                 }
             }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // do nothing
-            }
-
         });
 
-        // set initial values
-        currentMax = cmap.getColorMapMax();
-        currentMin = cmap.getColorMapMin();
-        maxSlider.setSelection(cmapToSelection(currentMax));
-        minSlider.setSelection(cmapToSelection(currentMin));
-        setMaxText();
-        setMinText();
+        setColorMapMin(currentCmapMin);
+        setColorMapMax(currentCmapMax);
     }
 
-    private void setMaxText() {
-        maxValueText.setText(cmapToText(currentMax));
-    }
-
-    private void setMinText() {
-        minValueText.setText(cmapToText(currentMin));
-    }
-
-    private void setColorMapMax(float f) {
-        if (currentMax != f) {
-            currentMax = f;
-            cmap.setColorMapMax(f, true);
-        }
-    }
-
-    private void setColorMapMin(float f) {
-        if (currentMin != f) {
-            currentMin = f;
-            cmap.setColorMapMin(f, true);
-        }
-    }
-
-    private void minTextChanged() {
-        String text = minValueText.getText().trim().split(" ")[0];
-        try {
-            float f = Float.valueOf(text);
-            UnitConverter unitConv = cmap.getImageToDisplayConverter();
-            if (unitConv != null) {
-                f = (float) unitConv.inverse().convert(f);
-            }
-            if (f >= currentMax) {
-                setMinText();
-                statusHandler.handle(Priority.ERROR,
-                        "Minimum of colormap range cannot exceed the maximum.");
-            } else if (cmapMin >= f) {
-                setColorMapMin(cmapMin);
-                minSlider.setSelection(0);
-                setMinText();
+    private void updateMinMaxFromText(Text text) {
+        float newCmapValue = textToColorMapValue(text);
+        if (Float.isNaN(newCmapValue)) {
+            // Change nothing
+            if (text == minValueText) {
+                newCmapValue = currentCmapMin;
             } else {
-                setColorMapMin(f);
-                minSlider.setSelection(cmapToSelection(f));
+                newCmapValue = currentCmapMax;
             }
-        } catch (NumberFormatException ex) {
-            statusHandler.handle(Priority.ERROR,
-                    "Minimum of colormap range cannot be parsed: " + text);
-            setMinText();
-        } catch (ConversionException ex) {
-            statusHandler.handle(Priority.ERROR, "Unit converter error.", ex);
-            setMinText();
-        }
-    }
-
-    private void maxTextChanged() {
-        String text = maxValueText.getText().trim().split(" ")[0];
-        try {
-            float f = Float.valueOf(text);
-            UnitConverter unitConv = cmap.getImageToDisplayConverter();
-            if (unitConv != null) {
-                f = (float) unitConv.inverse().convert(f);
-            }
-            if (currentMin >= f) {
-                statusHandler
-                        .handle(Priority.ERROR,
-                                "Maximum of colormap range cannot be below the minimum.");
-                setMaxText();
-            } else if (f >= cmapMax) {
-                setColorMapMax(cmapMax);
-                maxSlider.setSelection(255);
-                setMaxText();
+        } else {
+            // Update colormap range
+            if (text == minValueText) {
+                currentCmapMin = newCmapValue;
             } else {
-                setColorMapMax(f);
-                maxSlider.setSelection(cmapToSelection(f));
-            }
-        } catch (NumberFormatException ex) {
-            statusHandler.handle(Priority.ERROR,
-                    "Maximum of colormap range cannot be parsed: " + text);
-            setMaxText();
-        } catch (ConversionException ex) {
-            statusHandler.handle(Priority.ERROR, "Unit converter error.", ex);
-            setMaxText();
-        }
-
-    }
-
-    private void changeMax(int position) {
-        // slider min and max is based on the color map, so position is the new
-        // color map max
-        currentMax = selectionToCmap(position);
-        cmap.setColorMapMax(currentMax, true);
-    }
-
-    private void changeMin(int position) {
-        // slider min and max is based on the color map, so position is the new
-        // color map min
-        currentMin = selectionToCmap(position);
-        cmap.setColorMapMin(currentMin, true);
-    }
-
-    private String cmapToText(double value) {
-        UnitConverter unitConv = cmap.getImageToDisplayConverter();
-        String textStr = "";
-
-        if (unitConv != null) {
-            value = unitConv.convert(value);
-
-            if (((Double) value).isNaN()) {
-                textStr = "NO DATA";
+                currentCmapMax = newCmapValue;
             }
         }
 
-        String txt;
-        if (textStr.length() == 0) {
-            txt = format.format(value);
-        } else {
-            txt = textStr;
+        updateAbsolutes(currentCmapMin, currentCmapMax);
+
+        setColorMapMin(currentCmapMin);
+        setColorMapMax(currentCmapMax);
+    }
+
+    /**
+     * 
+     */
+    private void updateAbsolutes(float cmapAbsoluteMin, float cmapAbsoluteMax) {
+        double displayAbsMax = colorMapToDisplay.convert(cmapAbsoluteMax);
+        double displayAbsMin = colorMapToDisplay.convert(cmapAbsoluteMin);
+        if (displayAbsMax < displayAbsMin) {
+            float tmp = cmapAbsoluteMax;
+            cmapAbsoluteMax = cmapAbsoluteMin;
+            cmapAbsoluteMin = tmp;
         }
 
-        return txt;
+        // Add a 1/16 buffer on either side for fine tuning
+        float buffer = (cmapAbsoluteMax - cmapAbsoluteMin) * .0625f;
+        this.cmapAbsoluteMin = cmapAbsoluteMin - buffer;
+        this.cmapAbsoluteMax = cmapAbsoluteMax + buffer;
     }
 
-    private String selectionToText(int selection) {
-        String rval = "ERR";
-
-        if (selection > -1 && selection < sliderText.length) {
-            // exact match into sliderText array
-            rval = sliderText[selection];
-        } else {
-            statusHandler.handle(Priority.CRITICAL, "index " + selection
-                    + " out of range, max " + (sliderText.length - 1));
-        }
-        return rval;
+    /**
+     * Converts a slider selection index to a colormap value
+     * 
+     * @param selection
+     * @return
+     */
+    private float selectionToColorMapValue(int selection) {
+        double indexValue = Colormapper.getLinearIndex(selection, SLIDER_MIN,
+                SLIDER_MAX);
+        double colorMapValue = cmapAbsoluteMin
+                + (cmapAbsoluteMax - cmapAbsoluteMin) * indexValue;
+        return (float) colorMapValue;
     }
 
-    private float selectionToCmap(int selection) {
-        float percentOffset = selection / 255.0f;
-        float value = percentOffset * cmapWidth + cmapMin;
-        return value;
+    /**
+     * Converts a colormap value to a slider selection index
+     * 
+     * @param colorMapValue
+     * @return
+     */
+    private int colorMapValueToSelection(float colorMapValue) {
+        double indexValue = Colormapper.getLinearIndex(colorMapValue,
+                cmapAbsoluteMin, cmapAbsoluteMax);
+        return (int) (SLIDER_MIN + (SLIDER_MAX - SLIDER_MIN) * indexValue);
     }
 
-    private int cmapToSelection(float value) {
-        int selection = (int) ((value - cmapMin) * 255.0f / cmapWidth);
-        return selection;
-    }
-
-    // modified from logic in ColorBar.java
-    private void buildColorMapData() {
-        sliderText = new String[256];
-        cmapWidth = cmap.getDataMax() - cmap.getDataMin();
-        cmapIncrement = cmapWidth / ColorUtil.MAX_VALUE;
-        cmapMin = cmap.getDataMin();
-        cmapMax = cmap.getDataMax();
-        float start = cmap.getDataMin();
-        String units = "";
-
-        UnitConverter unitConv = cmap.getImageToDisplayConverter();
-
-        Double lastVal = Double.NaN;
-
-        // TODO: Handle piecewise pixel converts to show ranges (for radar)
-        for (int i = 0; i < sliderText.length; ++i) {
-            double value = start;
-
-            // handle precision errors
-            if (value > cmapMax) {
-                // if the difference is .1 the increment between steps assume
-                // that cmapMax is ok
-                if ((value - cmapMax) < (.1 * cmapIncrement)) {
-                    value = cmapMax;
+    /**
+     * Converts a text string to a colormap value
+     * 
+     * @param text
+     * @return
+     */
+    private float textToColorMapValue(Text textControl) {
+        String text = textControl.getText().trim();
+        if (cmap.getDataMapping() != null && text.isEmpty() == false) {
+            // First check for data mapping entries
+            for (DataMappingEntry entry : cmap.getDataMapping().getEntries()) {
+                if (entry.getLabel() != null && text.equals(entry.getLabel())) {
+                    return entry.getPixelValue().floatValue();
                 }
             }
-
-            String textStr = "";
-
-            if (cmap.isLogarithmic()) {
-                // TODO: Handle case where min/max go from neg to pos
-                if (cmap.getColorMapMax() >= 0 && cmap.getColorMapMin() >= 0) {
-                    double index = (i) / ColorUtil.MAX_VALUE;
-                    value = Math.pow(Math.E,
-                            (Math.log(cmap.getColorMapMin()) + (index * (Math
-                                    .log(cmap.getColorMapMax()) - Math.log(cmap
-                                    .getColorMapMin())))));
-                }
-                if (format == null) {
-                    format = new DecimalFormat("0.000");
-                }
-            }
-
-            if (unitConv != null) {
-                value = unitConv.convert(value);
-
-                /*
-                 * Check if the last value is non a number.
-                 */
-                if (lastVal.isNaN()) {
-                    // If value is not a number then set the text to
-                    // "NO DATA".
-                    if (((Double) value).isNaN()) {
-                        textStr = "NO DATA";
+        }
+        if (NaN_STRING.equals(text)) {
+            // If special NaN String, try to find closest NaN value
+            float currentColorMapValue = textControl == maxValueText ? currentCmapMax
+                    : currentCmapMin;
+            int currentSliderValue = colorMapValueToSelection(currentColorMapValue);
+            int minDist = Integer.MAX_VALUE;
+            float bestNanValue = currentColorMapValue;
+            for (int i = SLIDER_MIN; i < SLIDER_MAX; i += SLIDER_INC) {
+                float colorMapValue = selectionToColorMapValue(i);
+                if (Double.isNaN(colorMapToDisplay.convert(colorMapValue))) {
+                    int dist = Math.abs(i - currentSliderValue);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        bestNanValue = colorMapValue;
+                    } else if (i > currentSliderValue) {
+                        break;
                     }
-                    lastVal = value;
                 } else {
-                    // If value is not a number then prepend ">"
-                    // to the value.
-                    if (((Double) value).isNaN()) {
-                        textStr = "> " + lastVal;
-                    } else {
-                        lastVal = value;
+                    // For now, assume NaN will live on low end of slider
+                    break;
+                }
+            }
+            return bestNanValue;
+        } else {
+            // Attempt to parse and convert
+            try {
+                float displayValue = Float.parseFloat(text);
+                return (float) displayToColorMap.convert(displayValue);
+            } catch (Throwable t) {
+                // Ignore, NaN will be returned and text will be reverted
+            }
+        }
+        return Float.NaN;
+    }
+
+    /**
+     * Converts a colormap value into a text display string
+     * 
+     * @param colorMapValue
+     * @return
+     */
+    private String colorMapValueToText(float colorMapValue) {
+        String text = null;
+        if (cmap.getDataMapping() != null) {
+            text = cmap.getDataMapping().getLabelValueForDataValue(
+                    colorMapValue);
+        }
+        if (text == null || text.trim().isEmpty()) {
+            float displayValue = (float) colorMapToDisplay
+                    .convert(colorMapValue);
+            if (Float.isNaN(displayValue) == false) {
+                text = format.format(displayValue);
+            } else {
+                text = NaN_STRING;
+                int selection = colorMapValueToSelection(colorMapValue);
+                for (int i = selection; i >= SLIDER_MIN; i -= SLIDER_INC) {
+                    displayValue = (float) colorMapToDisplay
+                            .convert(selectionToColorMapValue(i));
+                    if (Float.isNaN(displayValue) == false) {
+                        text = "> " + format.format(displayValue);
+                        break;
                     }
                 }
             }
+        }
+        return text;
+    }
 
-            if (format == null && new Double(value).isNaN() == false) {
+    /**
+     * Sets the colormap min value, updates the text and slider
+     * 
+     * @param colorMapMin
+     */
+    private void setColorMapMin(float colorMapMin) {
+        if (Float.isNaN(colorMapMin) == false) {
+            currentCmapMin = colorMapMin;
+        }
+        minSlider.setSelection(colorMapValueToSelection(currentCmapMin));
+        minValueText.setText(colorMapValueToText(currentCmapMin));
+
+        cmap.setColorMapMin(currentCmapMin, true);
+    }
+
+    /**
+     * Sets the colormap max value, updates the text and slider
+     * 
+     * @param colorMapMax
+     */
+    private void setColorMapMax(float colorMapMax) {
+        if (Float.isNaN(colorMapMax) == false) {
+            currentCmapMax = colorMapMax;
+        }
+        maxSlider.setSelection(colorMapValueToSelection(currentCmapMax));
+        maxValueText.setText(colorMapValueToText(currentCmapMax));
+
+        cmap.setColorMapMax(currentCmapMax, true);
+    }
+
+    private DecimalFormat getTextFormat() {
+        if (cmap.isLogarithmic() == false) {
+            for (int i = SLIDER_MIN; i < SLIDER_MAX; ++i) {
+                double cmapValue = selectionToColorMapValue(i);
+                double displayValue = colorMapToDisplay.convert(cmapValue);
+                if (Double.isNaN(displayValue)) {
+                    continue;
+                }
+
                 int zeros = 0;
-                String val = "" + value;
+                String val = "" + displayValue;
                 char[] vals = val.substring(val.indexOf(".") + 1).toCharArray();
                 for (int j = 0; j < vals.length; ++j) {
                     if (vals[j] == '0') {
@@ -451,28 +419,10 @@ public class ColorMapSliderComp extends Composite {
                 for (int j = 0; j < zeros; ++j) {
                     f += "0";
                 }
-                format = new DecimalFormat(f);
+                return new DecimalFormat(f);
             }
-
-            String txt;
-
-            /*
-             * If textStr doesn't have any text then set txt to the value in the
-             * value variable.
-             */
-            if (textStr.length() == 0) {
-                txt = format.format(value);
-            } else {
-                txt = textStr;
-            }
-
-            if (units != null && units.length() != 0) {
-                txt += " " + units;
-            }
-
-            sliderText[i] = txt;
-            start += cmapIncrement;
         }
+        return new DecimalFormat("0.000");
     }
 
 }

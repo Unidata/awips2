@@ -9,7 +9,7 @@
     <bean id="svrwxProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="svrwxPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.svrwx" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.svrwx.dao.SvrWxRecordDao" /> 
+        <property name="dao" value="com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao" /> 
         <property name="record" value="com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord" />     
     </bean>
     

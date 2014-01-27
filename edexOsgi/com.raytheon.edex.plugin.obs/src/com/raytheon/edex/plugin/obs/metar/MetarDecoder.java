@@ -78,6 +78,7 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
  *                                      handle  CB/TCU and /// data.
  * Nov 11, 2008 1684        chammack    Camel refactor.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Sep 17, 2013 2378        njensen     Improve 3/6 hr precip decoding
  * </pre>
  * 
  * @author bphillip
@@ -157,11 +158,11 @@ public class MetarDecoder extends AbstractDecoder {
 
     /** Regular expression for the 3 hour precipitation */
     public static final Pattern PRECIP_3HR_EXP = Pattern
-            .compile("\\s6(\\d{3,4}|////)\\s");
+            .compile("\\s6(\\d{4}|////)\\s");
 
-    /** Regular expression for the 3 hour precipitation */
+    /** Regular expression for the 24 hour precipitation */
     public static final Pattern PRECIP_24HR_EXP = Pattern
-            .compile("\\s7(\\d{3,4}|////)\\s");
+            .compile("\\s7(\\d{4}|////)\\s");
 
     /** Regular expression for the 3 hour pressure change */
     public static final Pattern PRESS_CHANGE_EXP = Pattern

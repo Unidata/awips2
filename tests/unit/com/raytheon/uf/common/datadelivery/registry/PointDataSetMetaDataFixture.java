@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
-import java.text.ParseException;
 import java.util.Random;
 
 import com.raytheon.uf.common.time.util.ImmutableDate;
@@ -35,7 +34,9 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 05, 2013 2038      djohnson     Initial creation
+ * Jun 05, 2013 2038       djohnson     Initial creation
+ * Oct  3, 2013 1797       dhladky      generics
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
  * 
  * </pre>
  * 
@@ -66,12 +67,8 @@ public class PointDataSetMetaDataFixture extends
         PointDataSetMetaData obj = new PointDataSetMetaData();
         obj.setDataSetDescription("description" + seedValue);
         obj.setDataSetName(dataSet.getDataSetName());
-        try {
-            obj.setDate(new ImmutableDate(TimeFixture.INSTANCE.get(seedValue)
-                    .getStartDate()));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
+        obj.setDate(new ImmutableDate(GriddedTimeFixture.INSTANCE
+                .get(seedValue).getStart()));
         obj.setProviderName(dataSet.getProviderName());
         obj.setTime(time);
         obj.setUrl("http://" + seedValue);

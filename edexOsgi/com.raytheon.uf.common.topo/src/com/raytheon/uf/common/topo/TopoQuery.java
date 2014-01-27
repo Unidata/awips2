@@ -80,12 +80,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 11/19/2007   #377       randerso    Initial creation
- * Jun 13, 2008     #1160   randerso    Moved to server side
- * 03/09/2012   DR 14581   D. Friedman Fix grid referencing and use custom 
+ * Nov 19, 2007 377        randerso    Initial creation
+ * Jun 13, 2008 1160       randerso    Moved to server side
+ * Mar 09, 2012 14581      D. Friedman Fix grid referencing and use custom
  *                                     nearest-neighbor resampling.i
- * 01/14/2013   #1469       bkowal     Removed the hdf5 data directory.
- * Feb 15, 2013 1638       mschenke    Moved from edex.topo project (not edex specific)
+ * Jan 14, 2013 1469       bkowal      Removed the hdf5 data directory.
+ * Feb 15, 2013 1638       mschenke    Moved from edex.topo project (not edex
+ *                                     specific)
+ * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -97,8 +99,6 @@ public class TopoQuery {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TopoQuery.class);
-
-    private static final String TOPO_FILE = "/topo/srtm30.hdf";
 
     private static final int TOPO_LIMIT = 4096 * 4096;
 
@@ -116,7 +116,7 @@ public class TopoQuery {
      * @return Initialized TopoQuery instance
      */
     public static synchronized TopoQuery getInstance(int topoLevel) {
-        return getInstance(new File(TOPO_FILE), topoLevel);
+        return getInstance(TopoUtils.getDefaultTopoFile(), topoLevel);
     }
 
     public static synchronized TopoQuery getInstance(File hdf5File,
@@ -180,11 +180,7 @@ public class TopoQuery {
                 1 });
 
         try {
-            if (topoLevel == 0) {
-                dataset = "/full";
-            } else {
-                dataset = "/interpolated/" + topoLevel;
-            }
+            dataset = TopoUtils.getDatasetForLevel(topoLevel);
 
             IDataRecord record = dataStore.retrieve("", dataset, request);
             Map<String, Object> attributes = record.getDataAttributes();

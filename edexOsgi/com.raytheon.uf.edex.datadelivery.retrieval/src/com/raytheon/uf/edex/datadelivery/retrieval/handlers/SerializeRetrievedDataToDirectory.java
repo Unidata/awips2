@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
 
 import javax.xml.bind.JAXBException;
@@ -29,7 +30,10 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalResponse;
+import com.raytheon.uf.edex.datadelivery.retrieval.wfs.WfsRetrievalResponse;
 
 /**
  * Serializes the retrieved data to a directory.
@@ -44,6 +48,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.opendap.OpenDapRetrievalRespo
  * Feb 15, 2013 1543       djohnson     Serialize data out as XML.
  * Mar 05, 2013 1647       djohnson     Apply WMO header.
  * Mar 07, 2013 1647       djohnson     Write out as hidden file, then rename.
+ * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
+ * Oct 28, 2013 2506       bgonzale     Removed request parameters.  Constructor inject IRetrievalDao.
  * 
  * </pre>
  * 
@@ -59,16 +65,21 @@ public class SerializeRetrievedDataToDirectory implements
 
     private final IWmoHeaderApplier wmoHeaderWrapper;
 
+    private final IRetrievalDao retrievalDao;
+
     /**
      * @param directory
      */
     public SerializeRetrievedDataToDirectory(File directory,
-            IWmoHeaderApplier wmoHeaderWrapper) {
+            IWmoHeaderApplier wmoHeaderWrapper, IRetrievalDao retrievalDao) {
         this.targetDirectory = directory;
         this.wmoHeaderWrapper = wmoHeaderWrapper;
+        this.retrievalDao = retrievalDao;
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
-                    OpenDapRetrievalResponse.class, Coverage.class);
+                    SbnRetrievalResponseXml.class,
+                    OpenDapRetrievalResponse.class, WfsRetrievalResponse.class,
+                    Coverage.class);
         } catch (JAXBException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -76,9 +87,12 @@ public class SerializeRetrievedDataToDirectory implements
 
     /**
      * {@inheritDoc}
+     * 
+     * @return the RetrievalRequestRecord associated with the response
+     *         processing.
      */
     @Override
-    public void processRetrievedPluginDataObjects(
+    public RetrievalRequestRecord processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
             throws SerializationException {
         retrievalPluginDataObjects.prepareForSerialization();
@@ -89,9 +103,15 @@ public class SerializeRetrievedDataToDirectory implements
             final File tempHiddenFile = new File(finalFile.getParentFile(), "."
                     + finalFile.getName());
 
+            final RetrievalRequestRecord request = retrievalDao
+                    .getById(retrievalPluginDataObjects.getRequestRecord());
             final String xml = jaxbManager
-                    .marshalToXml(retrievalPluginDataObjects);
-            final String textForFile = wmoHeaderWrapper.applyWmoHeader(xml);
+                    .marshalToXml(new SbnRetrievalResponseXml(request,
+                            retrievalPluginDataObjects));
+            final Date date = request.getInsertTime();
+            final String textForFile = wmoHeaderWrapper
+                    .applyWmoHeader(request.getProvider(), request.getPlugin(),
+                    getSourceType(request), date, xml);
 
             // Write as hidden file, this is OS specific, but there is no
             // platform-neutral way to do this with Java
@@ -103,8 +123,23 @@ public class SerializeRetrievedDataToDirectory implements
                         + tempHiddenFile.getAbsolutePath() + "] to ["
                         + finalFile.getAbsolutePath() + "]");
             }
+            return request;
         } catch (Exception e) {
             throw new SerializationException(e);
         }
+    }
+
+    /**
+     * Determine source type from the request.
+     * 
+     * TODO Simple method that is adequate for now. It will need to be updated
+     * for new data from NOMADS, MADIS, and PDA.
+     * 
+     * @return source type string ("MODEL", "OBSERVATION", or "SATELLITE")
+     */
+    private String getSourceType(RetrievalRequestRecord request) {
+        String provider = request.getProvider();
+        return (provider == null || !provider.equalsIgnoreCase("MADIS") ? "MODEL"
+                : "OBSERVATION");
     }
 }

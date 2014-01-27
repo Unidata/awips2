@@ -19,9 +19,7 @@
  **/
 package com.raytheon.viz.satellite.rsc;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,17 +27,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.opengis.referencing.operation.MathTransform;
+import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.geospatial.BoundaryTool;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
-import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -55,6 +51,7 @@ import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.satellite.SatelliteDataCubeAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -70,6 +67,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Jul 30, 2010            mschenke     Initial creation
  * Oct 31, 2012  DR 15287  D. Friedman  Fix overlap calculation
  * Nov 06, 2012  DR 15157  D. Friedman  Allow configured inclusion percentage
+ * Oct 10, 2013       2104 mschenke     Fixed broken percentage calculation
  * 
  * </pre>
  * 
@@ -121,10 +119,10 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
     public ResourcePair getResourceToDraw(IDescriptor descriptor)
             throws VizException {
-        double minX = descriptor.getGridGeometry().getGridRange().getLow(0);
-        double minY = descriptor.getGridGeometry().getGridRange().getLow(1);
-        double maxX = descriptor.getGridGeometry().getGridRange().getHigh(0);
-        double maxY = descriptor.getGridGeometry().getGridRange().getHigh(1);
+        double minX = descriptor.getGridGeometry().getEnvelope().getMinimum(0);
+        double minY = descriptor.getGridGeometry().getEnvelope().getMinimum(1);
+        double maxX = descriptor.getGridGeometry().getEnvelope().getMaximum(0);
+        double maxY = descriptor.getGridGeometry().getEnvelope().getMaximum(1);
         GeometryFactory gf = new GeometryFactory();
         Coordinate first = new Coordinate(minX, minY);
         Polygon extent = gf.createPolygon(
@@ -148,21 +146,19 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
 
             int displayWidth = ((IMapDescriptor) descriptor).getMapWidth();
 
-            int i = 0;
             for (ResourcePair rp : resourceList) {
                 props = rp.getProperties().getPdProps();
                 if (props != null && props.isDisclosed(displayWidth)) {
                     disclosedResource = rp;
                     break;
                 }
-                ++i;
             }
         }
 
         Map<ResourcePair, Double> percentOfIntersection = new HashMap<ResourcePair, Double>();
         if (disclosedResource != null) {
-            final double inclusionPercentageToUse = inclusionFactor != null ?
-                    inclusionFactor : DESIRED_PERCENTAGE;
+            final double inclusionPercentageToUse = inclusionFactor != null ? inclusionFactor
+                    : DESIRED_PERCENTAGE;
             // check inclusion percentage of the disclosed resource
             Double inclusion = getInclusionPercentage(descriptor,
                     disclosedResource, extent);
@@ -302,55 +298,47 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
     private double getInclusionPercentage(IDescriptor descriptor,
             ResourcePair rp, Polygon extent) throws VizException {
         Double totalPercentage = Double.NaN;
-        MathTransform crsToScreen = null;
+        GeneralGridGeometry targetGeometry = descriptor.getGridGeometry();
         try {
-            crsToScreen = descriptor.getGridGeometry().getGridToCRS().inverse();
-        } catch (Exception e1) {
-            throw new VizException(e1);
-        }
-        if (crsToScreen != null) {
-            try {
-                AbstractRequestableResourceData aard = (AbstractRequestableResourceData) rp
-                        .getResourceData();
-                DbQueryRequest request = new DbQueryRequest();
-                Map<String, RequestConstraint> copy = new HashMap<String, RequestConstraint>(
-                        aard.getMetadataMap());
-                copy.remove(SatelliteDataCubeAdapter.DERIVED);
-                request.setConstraints(copy);
-                request.addRequestField("coverage");
-                request.setDistinct(true);
-                DbQueryResponse response = (DbQueryResponse) ThriftClient
-                        .sendRequest(request);
-                List<Polygon> prevs = new ArrayList<Polygon>();
-                for (Map<String, Object> result : response.getResults()) {
-                    ISpatialObject so = (ISpatialObject) result.get("coverage");
-                    MathTransform gridToScreen = ConcatenatedTransform.create(
-                            MapUtil.getGridGeometry(so).getGridToCRS(),
-                            ConcatenatedTransform.create(CRS.findMathTransform(
-                                    so.getCrs(), descriptor.getCRS()),
-                                    crsToScreen));
-                    Polygon polygon = BoundaryTool.calculateBoundaryGeometry(
-                            gridToScreen, 0, 0, so.getNx(), so.getNy(), false,
-                            Math.max(1, so.getNx() / 100),
-                            Math.max(1, so.getNy() / 100));
-                    Double percentage = polygon.intersection(extent).getArea()
-                            / extent.getArea();
-                    if (prevs.size() == 0) {
-                        totalPercentage = percentage;
-                    } else {
-                        totalPercentage += percentage;
+            AbstractRequestableResourceData aard = (AbstractRequestableResourceData) rp
+                    .getResourceData();
+            DbQueryRequest request = new DbQueryRequest();
+            Map<String, RequestConstraint> copy = new HashMap<String, RequestConstraint>(
+                    aard.getMetadataMap());
+            copy.remove(SatelliteDataCubeAdapter.DERIVED);
+            request.setConstraints(copy);
+            request.addRequestField("coverage");
+            request.setDistinct(true);
+            DbQueryResponse response = (DbQueryResponse) ThriftClient
+                    .sendRequest(request);
+            Geometry area = null;
+            for (Map<String, Object> result : response.getResults()) {
+                IGridGeometryProvider provider = (IGridGeometryProvider) result
+                        .get("coverage");
+                GridGeometry2D gridGeometry = provider.getGridGeometry();
 
-                        for (Polygon last : prevs) {
-                            // Don't want to double include percentage areas
-                            totalPercentage -= last.intersection(polygon).intersection(extent)
-                                    .getArea() / extent.getArea();
-                        }
-                    }
-                    prevs.add(polygon);
+                double envWidth = gridGeometry.getEnvelope().getSpan(0);
+                double envHeight = gridGeometry.getEnvelope().getSpan(1);
+                double threshold = targetGeometry.getEnvelope().getSpan(0)
+                        / targetGeometry.getGridRange().getSpan(0);
+
+                Geometry intersection = EnvelopeIntersection
+                        .createEnvelopeIntersection(gridGeometry.getEnvelope(),
+                                targetGeometry.getEnvelope(), threshold,
+                                (int) (envWidth / 100.0),
+                                (int) (envHeight / 100.0));
+                if (area == null) {
+                    area = intersection;
+                } else {
+                    area = area.union(intersection);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            if (area != null) {
+                totalPercentage = area.intersection(extent).getArea()
+                        / extent.getArea();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return totalPercentage;
     }

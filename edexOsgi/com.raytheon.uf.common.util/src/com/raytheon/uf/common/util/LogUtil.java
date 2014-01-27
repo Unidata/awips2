@@ -32,6 +32,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 26, 2012 1322       djohnson     Initial creation
+ * Oct 01, 2013 2267       bgonzale     Add logging for errors also.
  * 
  * </pre>
  * 
@@ -70,5 +71,36 @@ public final class LogUtil {
             Priority priority, String message, Iterable<T> iterables) {
         String msg = StringUtil.createMessage(message, iterables, 3);
         statusHandler.handle(priority, msg);
+    }
+
+    /**
+     * Logs the message, then each iterable to the output with a new line
+     * separator between each iterable.
+     * 
+     * <pre>
+     * 
+     * Example:
+     * 
+     * This would be the message:
+     *    iterable1
+     *    iterable2
+     * </pre>
+     * 
+     * @param statusHandler
+     *            the status handler
+     * @param priority
+     *            the priority
+     * @param message
+     *            the message
+     * @param iterable
+     *            the iterables
+     * @param error
+     *            the throwable
+     */
+    public static <T> void logIterable(IUFStatusHandler statusHandler,
+            Priority priority, String message, Iterable<T> iterables,
+            Throwable error) {
+        String msg = StringUtil.createMessage(message, iterables, 3);
+        statusHandler.handle(priority, msg, error);
     }
 }

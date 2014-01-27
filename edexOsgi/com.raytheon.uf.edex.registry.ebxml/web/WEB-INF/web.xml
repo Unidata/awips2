@@ -11,21 +11,19 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
 	version="2.4">
 	<display-name>Data Delivery Web Services</display-name>
-	
-    <context-param>
-    	<param-name>webAppRootKey</param-name>
-    	<param-value>registryEbxml</param-value>
-    </context-param>	
-	
+
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>registryEbxml</param-value>
+	</context-param>
+
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/webServiceBeans.xml</param-value>
 	</context-param>
 
 	<listener>
-		<listener-class>
-			org.springframework.web.context.ContextLoaderListener
-		</listener-class>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 
 	<filter>
@@ -50,11 +48,15 @@
 		<servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
 		<init-param>
 			<param-name>static-welcome-file</param-name>
-			<param-value>/RegistryUserMenu.html</param-value>
+			<param-value>/registry/RegistryInterface.html</param-value>
 		</init-param>
 		<init-param>
 			<param-name>static-resources-list</param-name>
 			<param-value>.*\.html .*\.js .*\.css</param-value>
+		</init-param>
+		<init-param>
+			<param-name>disable-address-updates</param-name>
+			<param-value>true</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -76,6 +78,6 @@
 	</servlet-mapping>
 
 	<welcome-file-list>
-		<welcome-file>RegistryUserMenu.html</welcome-file>
+		<welcome-file>registry/RegistryInterface.html</welcome-file>
 	</welcome-file-list>
 </web-app>

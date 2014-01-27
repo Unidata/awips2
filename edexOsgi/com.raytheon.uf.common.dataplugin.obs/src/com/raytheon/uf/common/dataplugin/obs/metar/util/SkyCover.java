@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -43,11 +42,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 2/14/2007    139         Phillippe   initial creation
- * 20080414            996  jkorman     Added cloud genus field.    
- * 20090511            2338 jsanchez    Implemented the Comparable interface.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 14, 2007  139      Phillippe   initial creation
+ * Apr 14, 2008  996      jkorman     Added cloud genus field.    
+ * May 11, 2009  2338     jsanchez    Implemented the Comparable interface.
+ * Dec 03, 2013  2537     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class SkyCover implements Serializable, ISerializableObject,
+public class SkyCover implements Serializable,
         Comparable<SkyCover> {
 
     private static final long serialVersionUID = 1L;

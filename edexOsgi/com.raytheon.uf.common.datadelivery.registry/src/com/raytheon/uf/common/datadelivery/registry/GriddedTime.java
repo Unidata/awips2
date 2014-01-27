@@ -21,12 +21,9 @@ package com.raytheon.uf.common.datadelivery.registry;
  **/
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,12 +31,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Request Time XML
@@ -53,6 +48,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jul 24, 2012    955      djohnson    Use List instead of ArrayList.
  * Jun 04, 2013    223      mpduff      Cleanup.
  * Jun 06, 2013 2038        djohnson    Remove throws ParseException.
+ * Sept 25, 2013 1797       dhladky     separated overrides from time.
+ * Oct 10, 2013 1797        bgonzale    Refactored registry Time objects.
+ * Oct 24, 2013  2454       dhladky     Trouble with general gridded cycles that don't exist being null instead of empty.
  * 
  * </pre>
  * 
@@ -63,20 +61,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class GriddedTime extends Time implements ISerializableObject,
+public class GriddedTime extends Time implements
         Serializable {
 
     private static final long serialVersionUID = -7032078355732493125L;
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GriddedTime.class);
-
-    /**
-     * Default Constructor.
-     */
-    public GriddedTime() {
-
-    }
 
     @XmlElement(name = "step")
     @DynamicSerializeElement
@@ -92,116 +80,44 @@ public class GriddedTime extends Time implements ISerializableObject,
 
     @XmlElements({ @XmlElement(name = "cycleTimes", type = Integer.class) })
     @DynamicSerializeElement
-    private List<Integer> cycleTimes;
+    private List<Integer> cycleTimes = new ArrayList<Integer>();
 
-    private Date startDate = null;
-
-    private Date requestEndDate = null;
-
-    private Date endDate = null;
-
-    private Date requestStartDate = null;
-
+    /**
+     * Default Constructor.
+     */
+    public GriddedTime() {
+    }
+   
     /**
      * Clone constructor.
      * 
      * @param the
-     *            {@link Time} to clone
+     *            {@link GriddedTime} to clone
      */
     public GriddedTime(GriddedTime toCopy) {
+        super(toCopy);
         List<Integer> incomingCycleTimes = toCopy.getCycleTimes();
         this.cycleTimes = (incomingCycleTimes == null) ? null
                 : new ArrayList<Integer>(incomingCycleTimes);
-        this.end = toCopy.end;
-        this.format = toCopy.format;
-        this.numTimes = toCopy.numTimes;
-        this.requestEnd = toCopy.requestEnd;
-        this.requestStart = toCopy.requestStart;
         List<Integer> incomingSelectedTimeIndices = toCopy.selectedTimeIndices;
         this.selectedTimeIndices = (incomingSelectedTimeIndices == null) ? null
                 : new ArrayList<Integer>(incomingSelectedTimeIndices);
-        this.start = toCopy.start;
         this.step = toCopy.step;
         this.stepUnit = toCopy.stepUnit;
     }
 
     /**
-     * Get the start date
-     * 
+     * Get the step of time
      * @return
-     * @throws ParseException
      */
-    @Override
-    public Date getStartDate() throws ParseException {
-
-        if (startDate == null) {
-            if (getStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.startDate = dateFormat.parse(getStart());
-            }
-        }
-
-        return startDate;
-    }
-
-    /**
-     * Set the start date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-        if (startDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setStart(dateFormat.format(startDate));
-        }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public Date getEndDate() throws ParseException {
-        if (endDate == null) {
-            if (getEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.endDate = dateFormat.parse(getEnd());
-            }
-        }
-
-        return endDate;
-    }
-
-    /**
-     * Set the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-        if (endDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setStart(dateFormat.format(endDate));
-        }
-    }
-
-    @Override
     public Double getStep() {
         return step;
     }
 
-    @Override
+    /**
+     * Sets the step of time
+     * @param step
+     */
     public void setStep(Double step) {
         this.step = step;
     }
@@ -211,7 +127,6 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @return List of cycle times
      */
-    @Override
     public List<Integer> getCycleTimes() {
         return this.cycleTimes;
     }
@@ -222,7 +137,6 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @param cycleTimes
      *            ArrayList of cycle times.
      */
-    @Override
     public void setCycleTimes(List<Integer> cycleTimes) {
         this.cycleTimes = cycleTimes;
     }
@@ -233,8 +147,10 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @param cycleTime
      *            The cycle time to add
      */
-    @Override
     public void addCycleTime(int cycleTime) {
+        if (this.cycleTimes == null) {
+            this.cycleTimes = new ArrayList<Integer>();
+        }
         this.cycleTimes.add(cycleTime);
     }
 
@@ -244,28 +160,22 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @param timeInt
      * @return
      */
-    @Override
     public Date getTimeAsDate(int timeInt) {
 
-        try {
-            long unitStepFactor = getUnitStepFactor();
+        long unitStepFactor = getUnitStepFactor();
 
-            for (int i = 0; i < getNumTimes(); i++) {
-                if (timeInt == i) {
+        for (int i = 0; i < getNumTimes(); i++) {
+            if (timeInt == i) {
 
-                    long time = 0l;
-                    if (i == 0) {
-                        time = getStartDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    return new Date(time);
+                long time = 0l;
+                if (i == 0) {
+                    time = getStart().getTime();
+                } else {
+                    time = (long) (getStart().getTime() + (unitStepFactor
+                            * getStep() * i));
                 }
+                return new Date(time);
             }
-        } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse time as date.",
-                    pe);
         }
         return null;
     }
@@ -275,34 +185,27 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @param timeInt
      */
-    @Override
     public void setRequestStartTimeAsInt(Integer timeInt) {
-        try {
-            if (getStartDate() != null) {
+        if (getStart() != null) {
 
-                long unitStepFactor = getUnitStepFactor();
+            long unitStepFactor = getUnitStepFactor();
 
-                for (int i = 0; i < getNumTimes(); i++) {
-                    if (timeInt == i) {
+            for (int i = 0; i < getNumTimes(); i++) {
+                if (timeInt == i) {
 
-                        long time = 0l;
-                        if (i == 0) {
-                            time = getStartDate().getTime();
-                        } else {
-                            time = (long) (getStartDate().getTime() + (unitStepFactor
-                                    * getStep() * i));
-                        }
-                        Date date = new Date(time);
-                        setRequestStartAsDate(date);
-                        break;
+                    long time = 0l;
+                    if (i == 0) {
+                        time = getStart().getTime();
+                    } else {
+                        time = (long) (getStart().getTime() + (unitStepFactor
+                                * getStep() * i));
                     }
-
+                    Date date = new Date(time);
+                    setRequestStart(date);
+                    break;
                 }
-            }
 
-        } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR, "Can't parse time as date.",
-                    pe);
+            }
         }
     }
 
@@ -311,38 +214,32 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @return
      */
-    @Override
     public int getRequestStartTimeAsInt() {
 
         int timeInt = 0;
 
-        try {
-            if (getRequestStartAsDate() != null && getStartDate() != null) {
+        if (getRequestStart() != null && getStart() != null) {
 
-                long unitStepFactor = getUnitStepFactor();
+            long unitStepFactor = getUnitStepFactor();
 
-                for (int i = 0; i < getNumTimes(); i++) {
-                    // System.out.println("StartDate: "+getStartDate());
-                    long time = 0l;
-                    if (i == 0) {
-                        time = getStartDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    Date stepDate = new Date(time);
+            for (int i = 0; i < getNumTimes(); i++) {
+                // System.out.println("StartDate: "+getStartDate());
+                long time = 0l;
+                if (i == 0) {
+                    time = getStart().getTime();
+                } else {
+                    time = (long) (getStart().getTime() + (unitStepFactor
+                            * getStep() * i));
+                }
+                Date stepDate = new Date(time);
 
-                    if (stepDate.equals(getRequestStartAsDate())) {
-                        timeInt = i;
-                        break;
-                    }
+                if (stepDate.equals(getRequestStart())) {
+                    timeInt = i;
+                    break;
                 }
             }
-
-        } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR,
-                    "Can't parse requested time as date.", pe);
         }
+
         return timeInt;
 
     }
@@ -352,31 +249,24 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @param timeInt
      */
-    @Override
     public void setRequestEndTimeAsInt(Integer timeInt) {
-        try {
-            if (getEndDate() != null) {
+        if (getEnd() != null) {
 
-                long unitStepFactor = getUnitStepFactor();
+            long unitStepFactor = getUnitStepFactor();
 
-                for (int i = getNumTimes() - 1; i > 0; i--) {
-                    // System.out.println("EndDate: " + getEndDate());
+            for (int i = getNumTimes() - 1; i > 0; i--) {
+                // System.out.println("EndDate: " + getEndDate());
 
-                    if (i == timeInt) {
+                if (i == timeInt) {
 
-                        long time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                        Date date = new Date(time);
-                        setRequestEndAsDate(date);
-                        break;
-                    }
+                    long time = (long) (getStart().getTime() + (unitStepFactor
+                            * getStep() * i));
+                    Date date = new Date(time);
+                    setRequestEnd(date);
+                    break;
                 }
             }
-        } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR,
-                    "Can't parse requested time as int.", pe);
         }
-
     }
 
     /**
@@ -384,48 +274,47 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @return
      */
-    @Override
     public int getRequestEndTimeAsInt() {
 
         int timeInt = 0;
 
-        try {
-            if (getRequestEndAsDate() != null && getEndDate() != null) {
+        if (getRequestEnd() != null && getEnd() != null) {
 
-                long unitStepFactor = getUnitStepFactor();
+            long unitStepFactor = getUnitStepFactor();
 
-                for (int i = 0; i < getNumTimes(); i++) {
-                    // System.out.println("StartDate: "+getStartDate());
-                    long time = 0l;
-                    if (i == getNumTimes() - 1) {
-                        time = getEndDate().getTime();
-                    } else {
-                        time = (long) (getStartDate().getTime() + (unitStepFactor
-                                * getStep() * i));
-                    }
-                    Date stepDate = new Date(time);
+            for (int i = 0; i < getNumTimes(); i++) {
+                // System.out.println("StartDate: "+getStartDate());
+                long time = 0l;
+                if (i == getNumTimes() - 1) {
+                    time = getEnd().getTime();
+                } else {
+                    time = (long) (getStart().getTime() + (unitStepFactor
+                            * getStep() * i));
+                }
+                Date stepDate = new Date(time);
 
-                    if (stepDate.equals(getRequestEndAsDate())) {
-                        timeInt = i;
-                        break;
-                    }
+                if (stepDate.equals(getRequestEnd())) {
+                    timeInt = i;
+                    break;
                 }
             }
-
-        } catch (ParseException pe) {
-            statusHandler.handle(Priority.ERROR,
-                    "Can't parse requested time as int.", pe);
         }
         return timeInt;
 
     }
 
-    @Override
+    /**
+     * Gets the step unit of time
+     * @return
+     */
     public String getStepUnit() {
         return stepUnit;
     }
 
-    @Override
+    /**
+     * Set the step unit of time
+     * @param stepUnit
+     */
     public void setStepUnit(String stepUnit) {
         this.stepUnit = stepUnit;
     }
@@ -486,8 +375,7 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @return
      */
-    @Override
-    public int findForecastStepUnit() {
+     public int findForecastStepUnit() {
 
         if (getStepUnit().equals("hour")) {
             return (int) (getStep() * 60 * 60);
@@ -507,81 +395,10 @@ public class GriddedTime extends Time implements ISerializableObject,
     }
 
     /**
-     * Set the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public void setRequestStartAsDate(Date requestStartDate) {
-        this.requestStartDate = requestStartDate;
-        if (requestStartDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestStart(dateFormat.format(requestStartDate));
-        }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public Date getRequestStartAsDate() throws ParseException {
-        if (requestStartDate == null) {
-            if (getRequestStart() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestStartDate = dateFormat.parse(getRequestStart());
-            }
-        }
-
-        return requestStartDate;
-    }
-
-    /**
-     * Set the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public void setRequestEndAsDate(Date requestEndDate) {
-        this.requestEndDate = requestEndDate;
-        if (requestEndDate != null && getFormat() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-            setRequestEnd(dateFormat.format(requestEndDate));
-        }
-    }
-
-    /**
-     * Get the end date
-     * 
-     * @return
-     * @throws ParseException
-     */
-    @Override
-    public Date getRequestEndAsDate() throws ParseException {
-        if (requestEndDate == null) {
-            if (getRequestEnd() != null && getFormat() != null) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat(getFormat());
-                dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-                this.requestEndDate = dateFormat.parse(getRequestEnd());
-            }
-        }
-
-        return requestEndDate;
-    }
-
-    /**
      * gets the FCST hours
      * 
      * @return
      */
-    @Override
     public List<String> getFcstHours() {
         List<String> hours = new ArrayList<String>();
 
@@ -599,7 +416,6 @@ public class GriddedTime extends Time implements ISerializableObject,
     /**
      * @return the selectedTimeIndices
      */
-    @Override
     public List<Integer> getSelectedTimeIndices() {
         return selectedTimeIndices;
     }
@@ -608,7 +424,6 @@ public class GriddedTime extends Time implements ISerializableObject,
      * @param selectedTimeIndices
      *            the selectedTimeIndices to set
      */
-    @Override
     public void setSelectedTimeIndices(List<Integer> selectedTimeIndices) {
         this.selectedTimeIndices = selectedTimeIndices;
     }
@@ -619,7 +434,6 @@ public class GriddedTime extends Time implements ISerializableObject,
      * 
      * @return
      */
-    @Override
     public List<List<Integer>> getTimeSequences(int sfactor) {
 
         List<List<Integer>> sequences = new ArrayList<List<Integer>>();
@@ -646,4 +460,5 @@ public class GriddedTime extends Time implements ISerializableObject,
 
         return sequences;
     }
+  
 }

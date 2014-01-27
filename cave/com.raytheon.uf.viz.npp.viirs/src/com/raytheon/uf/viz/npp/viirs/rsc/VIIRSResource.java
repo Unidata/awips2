@@ -23,19 +23,22 @@ import java.text.DecimalFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.datum.PixelInCell;
+import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -43,18 +46,25 @@ import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.image.DataScale;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IImage;
@@ -69,17 +79,17 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.uf.viz.core.style.LabelingPreferences;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
-import com.raytheon.uf.viz.core.style.StyleRule;
 import com.raytheon.uf.viz.core.tile.Tile;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
+import com.raytheon.uf.viz.npp.viirs.Activator;
 import com.raytheon.uf.viz.npp.viirs.style.VIIRSDataRecordCriteria;
-import com.raytheon.viz.core.style.image.DataScale;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.prep.PreparedGeometry;
+import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
  * NPP VIIRS resource. Responsible for drawing a single color band.
@@ -93,6 +103,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 30, 2011            mschenke    Initial creation
  * Feb 21, 2012 #30        mschenke    Fixed sampling issue
+ * Aug 2,  2013 #2190      mschenke    Switched interrogate to use Measure objects
+ * Aug 27, 2013 #2190      mschenke    Made interrogate more efficient
  * 
  * </pre>
  * 
@@ -107,9 +119,8 @@ public class VIIRSResource extends
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VIIRSResource.class);
 
-    public static final String DATA_KEY = "dataValue";
-
-    public static final String UNIT_KEY = "unit";
+    /** String id to look for satellite-provided data values */
+    public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
 
     private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 
@@ -141,16 +152,107 @@ public class VIIRSResource extends
     /**
      * Every {@link VIIRSDataRecord} will have a corresponding RecordData object
      */
-    private static class RecordData {
+    private class RecordData {
 
-        /** Indicates if data intersects current descriptor */
-        private boolean intersects = false;
+        private double INTERSECTION_FACTOR = 10.0;
 
-        /** Indicates if the {@link #tileSet} needs to be projected */
-        private boolean project = true;
+        /** Intersection geometry for the target */
+        private List<PreparedGeometry> targetIntersection;
+
+        /** Flag designated if a project call is required next paint */
+        private boolean project;
 
         /** Renderable for the data record */
         private TileSetRenderable tileSet;
+
+        private final double resolution;
+
+        public RecordData(VIIRSDataRecord dataRecord) {
+            this.tileSet = new TileSetRenderable(
+                    getCapability(ImagingCapability.class), dataRecord
+                            .getCoverage().getGridGeometry(),
+                    new VIIRSTileImageCreator(dataRecord),
+                    dataRecord.getLevels(), 256);
+            this.resolution = Math.min(dataRecord.getCoverage().getDx(),
+                    dataRecord.getCoverage().getDy()) * INTERSECTION_FACTOR;
+            this.project = true;
+        }
+
+        public Collection<DrawableImage> getImagesToRender(
+                IGraphicsTarget target, PaintProperties paintProps)
+                throws VizException {
+            if (project) {
+                projectInternal();
+                project = false;
+            }
+            if (targetIntersection != null) {
+                return tileSet.getImagesToRender(target, paintProps);
+            } else {
+                return Collections.emptyList();
+            }
+        }
+
+        public void project() {
+            this.project = true;
+        }
+
+        private void projectInternal() {
+            GeneralGridGeometry targetGeometry = descriptor.getGridGeometry();
+            if (tileSet.getTargetGeometry() != targetGeometry) {
+                tileSet.project(targetGeometry);
+
+                try {
+                    Envelope tileSetEnvelope = tileSet.getTileSetGeometry()
+                            .getEnvelope();
+
+                    targetIntersection = null;
+                    Geometry intersection = EnvelopeIntersection
+                            .createEnvelopeIntersection(
+                                    tileSetEnvelope,
+                                    targetGeometry.getEnvelope(),
+                                    resolution,
+                                    (int) (tileSetEnvelope.getSpan(0) / (resolution * INTERSECTION_FACTOR)),
+                                    (int) (tileSetEnvelope.getSpan(1) / (resolution * INTERSECTION_FACTOR)));
+                    if (intersection != null) {
+                        int numGeoms = intersection.getNumGeometries();
+                        targetIntersection = new ArrayList<PreparedGeometry>(
+                                numGeoms);
+                        for (int n = 0; n < numGeoms; ++n) {
+                            targetIntersection.add(PreparedGeometryFactory
+                                    .prepare(intersection.getGeometryN(n)
+                                            .buffer(resolution
+                                                    * INTERSECTION_FACTOR)));
+                        }
+                    }
+                } catch (Exception e) {
+                    Activator.statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "Error constructing envelope intersection for tileset",
+                                    e);
+                }
+            }
+        }
+
+        public double interrogate(Coordinate latLon) throws VizException {
+            return tileSet.interrogate(latLon);
+        }
+
+        public boolean contains(Geometry geom) {
+            if (targetIntersection != null) {
+                for (PreparedGeometry pg : targetIntersection) {
+                    if (pg.contains(geom)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public void dispose() {
+            tileSet.dispose();
+            tileSet = null;
+            targetIntersection = null;
+        }
 
     }
 
@@ -159,6 +261,8 @@ public class VIIRSResource extends
      * disposing, adding, and removing
      */
     private Map<VIIRSDataRecord, RecordData> dataRecordMap;
+
+    private Map<DataTime, Collection<VIIRSDataRecord>> groupedRecords;
 
     private String name;
 
@@ -170,6 +274,7 @@ public class VIIRSResource extends
             LoadProperties loadProperties, List<VIIRSDataRecord> initialRecords) {
         super(resourceData, loadProperties);
         dataRecordMap = new LinkedHashMap<VIIRSDataRecord, RecordData>();
+        groupedRecords = new HashMap<DataTime, Collection<VIIRSDataRecord>>();
         resourceData.addChangeListener(this);
         dataTimes = new ArrayList<DataTime>();
         for (VIIRSDataRecord record : initialRecords) {
@@ -207,25 +312,8 @@ public class VIIRSResource extends
         RecordData data = dataRecordMap.get(dataRecord);
         if (data == null) {
             // New record
-            data = new RecordData();
-            data.tileSet = new TileSetRenderable(
-                    getCapability(ImagingCapability.class), dataRecord
-                            .getCoverage().getGridGeometry(),
-                    new VIIRSTileImageCreator(dataRecord),
-                    dataRecord.getLevels(), 256);
-            dataRecordMap.put(dataRecord, data);
+            dataRecordMap.put(dataRecord, new RecordData(dataRecord));
         }
-
-        // Make sure record intersects map
-        data.intersects = intersects(dataRecord);
-    }
-
-    private boolean intersects(VIIRSDataRecord dataRecord) {
-        // Make sure spatial record intersects map
-        PixelCoverage dataCoverage = descriptor.worldToPixel(dataRecord
-                .getCoverage().getEnvelope().getEnvelopeInternal());
-        return dataCoverage.intersects(new PixelExtent(descriptor
-                .getGridGeometry().getGridRange()));
     }
 
     /**
@@ -249,8 +337,13 @@ public class VIIRSResource extends
         name += " " + parameter;
 
         // Get style rule preferences
-        StyleRule styleRule = StyleManager.getInstance().getStyleRule(
-                StyleType.IMAGERY, new VIIRSDataRecordCriteria(dataRecord));
+        StyleRule styleRule;
+        try {
+            styleRule = StyleManager.getInstance().getStyleRule(
+                    StyleType.IMAGERY, new VIIRSDataRecordCriteria(dataRecord));
+        } catch (StyleException e1) {
+            throw new VizException(e1.getLocalizedMessage(), e1);
+        }
         ImagePreferences preferences = null;
         if (styleRule != null) {
             preferences = (ImagePreferences) styleRule.getPreferences();
@@ -331,6 +424,7 @@ public class VIIRSResource extends
         }
 
         colorMapParameters.setDataUnit(dataUnit);
+        colorMapParameters.setColorMapUnit(dataUnit);
         colorMapParameters.setDisplayUnit(displayUnit);
 
         colorMapParameters.setColorMapMin(colorMapParameters.getDataMin());
@@ -340,12 +434,14 @@ public class VIIRSResource extends
             if (scale != null) {
                 UnitConverter displayToData = colorMapParameters
                         .getDisplayToDataConverter();
+                UnitConverter displayToColorMap = colorMapParameters
+                        .getDisplayToColorMapConverter();
                 if (scale.getMinValue() != null) {
-                    colorMapParameters.setColorMapMin((float) displayToData
+                    colorMapParameters.setColorMapMin((float) displayToColorMap
                             .convert(scale.getMinValue()));
                 }
                 if (scale.getMaxValue() != null) {
-                    colorMapParameters.setColorMapMax((float) displayToData
+                    colorMapParameters.setColorMapMax((float) displayToColorMap
                             .convert(scale.getMaxValue()));
                 }
                 if (scale.getMinValue2() != null) {
@@ -373,6 +469,32 @@ public class VIIRSResource extends
                 colorMapParameters);
     }
 
+    public void addRecords(PluginDataObject... records) {
+        synchronized (dataRecordMap) {
+            for (PluginDataObject record : records) {
+                if (record instanceof VIIRSDataRecord) {
+                    try {
+                        addRecord((VIIRSDataRecord) record);
+                    } catch (VizException e) {
+                        statusHandler.handle(
+                                Priority.PROBLEM,
+                                "Error adding record from update: "
+                                        + e.getLocalizedMessage(), e);
+
+                    }
+                }
+            }
+
+            Map<DataTime, Collection<VIIRSDataRecord>> groupedRecords = resourceData
+                    .groupRecordTimes(dataRecordMap.keySet());
+            List<DataTime> dataTimes = new ArrayList<DataTime>(
+                    groupedRecords.keySet());
+            Collections.sort(dataTimes);
+            this.dataTimes = dataTimes;
+            this.groupedRecords = groupedRecords;
+        }
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -382,21 +504,19 @@ public class VIIRSResource extends
      */
     @Override
     public void remove(DataTime dataTime) {
-        super.remove(dataTime);
         synchronized (dataRecordMap) {
-            Iterator<Entry<VIIRSDataRecord, RecordData>> iter = dataRecordMap
-                    .entrySet().iterator();
-            while (iter.hasNext()) {
-                Entry<VIIRSDataRecord, RecordData> entry = iter.next();
-                VIIRSDataRecord record = entry.getKey();
-                if (VIIRSResourceData.withinRange(dataTime.getValidPeriod(),
-                        record.getDataTime())) {
-                    iter.remove();
-                    RecordData data = entry.getValue();
-                    data.tileSet.dispose();
+            Collection<VIIRSDataRecord> records = groupedRecords
+                    .remove(dataTime);
+            if (records != null) {
+                for (VIIRSDataRecord record : records) {
+                    RecordData data = dataRecordMap.remove(record);
+                    if (data != null) {
+                        data.dispose();
+                    }
                 }
             }
         }
+        super.remove(dataTime);
     }
 
     /*
@@ -408,9 +528,10 @@ public class VIIRSResource extends
     protected void disposeInternal() {
         synchronized (dataRecordMap) {
             for (RecordData data : dataRecordMap.values()) {
-                data.tileSet.dispose();
+                data.dispose();
             }
             dataRecordMap.clear();
+            groupedRecords.clear();
             dataTimes.clear();
         }
     }
@@ -446,8 +567,9 @@ public class VIIRSResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getCapability(ImagingCapability.class).setProvider(this);
         synchronized (dataRecordMap) {
-            resourceChanged(ChangeType.DATA_UPDATE, dataRecordMap.keySet()
-                    .toArray(new PluginDataObject[dataRecordMap.size()]));
+            PluginDataObject[] pdos = dataRecordMap.keySet().toArray(
+                    new PluginDataObject[0]);
+            resourceChanged(ChangeType.DATA_UPDATE, pdos);
         }
     }
 
@@ -467,25 +589,8 @@ public class VIIRSResource extends
             for (int i = 0; i < pdos.length; ++i) {
                 records[i] = (VIIRSDataRecord) pdos[i];
             }
-            synchronized (dataRecordMap) {
-                long t0 = System.currentTimeMillis();
-                for (VIIRSDataRecord record : records) {
-                    try {
-                        addRecord(record);
-                    } catch (VizException e) {
-                        statusHandler.handle(
-                                Priority.PROBLEM,
-                                "Error adding record from update: "
-                                        + e.getLocalizedMessage(), e);
 
-                    }
-                }
-                System.out.println("Time to add " + records.length
-                        + " records: " + (System.currentTimeMillis() - t0)
-                        + "ms");
-                dataTimes = new ArrayList<DataTime>(resourceData
-                        .groupRecordTimes(dataRecordMap.keySet()).keySet());
-            }
+            addRecords(records);
         }
         issueRefresh();
     }
@@ -501,17 +606,19 @@ public class VIIRSResource extends
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> interMap = interrogate(coord);
         double value = Double.NaN;
-        Number dataVal = (Number) interMap.get(DATA_KEY);
+        Unit<?> unit = Unit.ONE;
+        Measure<?, ?> dataVal = (Measure<?, ?>) interMap
+                .get(SATELLITE_DATA_INTERROGATE_ID);
         if (dataVal != null) {
-            value = dataVal.doubleValue();
+            value = (Double) dataVal.getValue();
+            unit = dataVal.getUnit();
         }
         if (Double.isNaN(value)) {
             return "NO DATA";
         } else {
             String inspectStr = NUMBER_FORMAT.format(value);
-            Unit<?> unit = (Unit<?>) interMap.get(UNIT_KEY);
             if (unit != null && unit != Unit.ONE) {
-                inspectStr += " " + UnitFormat.getUCUMInstance().format(unit);
+                inspectStr += " " + unit.toString();
             }
             return inspectStr;
         }
@@ -530,39 +637,61 @@ public class VIIRSResource extends
         Map<String, Object> interMap = new HashMap<String, Object>();
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        interMap.put(UNIT_KEY, params.getDisplayUnit());
+        double dataValue = Double.NaN;
+        Unit<?> dataUnit = params.getDisplayUnit();
         double noDataValue = params.getNoDataValue();
         Coordinate latLon = null;
+        Coordinate crs = null;
         try {
             latLon = coord.asLatLon();
+            Coordinate grid = coord.asGridCell(descriptor.getGridGeometry(),
+                    PixelInCell.CELL_CENTER);
+            MathTransform mt = descriptor.getGridGeometry().getGridToCRS(
+                    PixelInCell.CELL_CENTER);
+            double[] out = new double[2];
+            mt.transform(new double[] { grid.x, grid.y }, 0, out, 0, 1);
+            crs = new Coordinate(out[0], out[1]);
         } catch (Exception e) {
             throw new VizException(
                     "Could not get lat/lon from ReferencedCoordinate", e);
         }
-        DataTime currTime = descriptor.getTimeForResource(this);
-        if (currTime != null) {
-            double bestValue = Double.NaN;
-            // Since there is overlap between granules, the best value is the
-            // one that is closest to 0
-            synchronized (dataRecordMap) {
-                for (VIIRSDataRecord record : dataRecordMap.keySet()) {
-                    if (VIIRSResourceData.withinRange(
-                            currTime.getValidPeriod(), record.getDataTime())) {
-                        RecordData data = dataRecordMap.get(record);
-                        if (data.intersects && data.project == false) {
-                            double value = data.tileSet.interrogate(latLon);
-                            if (Double.isNaN(value) == false
-                                    && value != noDataValue) {
-                                bestValue = value;
-                                break;
-                            }
+
+        Point crsPoint = new GeometryFactory().createPoint(crs);
+
+        double bestValue = Double.NaN;
+        VIIRSDataRecord bestRecord = null;
+
+        synchronized (dataRecordMap) {
+            Collection<VIIRSDataRecord> records = groupedRecords.get(descriptor
+                    .getTimeForResource(this));
+            if (records != null) {
+                // Since there is overlap between granules, the best value is
+                // the one that is closest to 0
+                for (VIIRSDataRecord record : records) {
+                    RecordData data = dataRecordMap.get(record);
+                    if (data.contains(crsPoint)) {
+                        double value = data.interrogate(latLon);
+                        if (Double.isNaN(value) == false
+                                && value != noDataValue) {
+                            bestValue = value;
+                            bestRecord = record;
+                            break;
                         }
                     }
                 }
             }
-            interMap.put(DATA_KEY,
-                    params.getDataToDisplayConverter().convert(bestValue));
+
+            if (Double.isNaN(bestValue) == false) {
+                dataValue = params.getDataToDisplayConverter().convert(
+                        bestValue);
+            }
+            if (bestRecord != null) {
+                interMap.put(IGridGeometryProvider.class.toString(), bestRecord);
+            }
         }
+
+        interMap.put(SATELLITE_DATA_INTERROGATE_ID,
+                Measure.valueOf(dataValue, dataUnit));
         return interMap;
     }
 
@@ -577,10 +706,8 @@ public class VIIRSResource extends
     public void project(CoordinateReferenceSystem crs) throws VizException {
         synchronized (dataRecordMap) {
             try {
-                for (VIIRSDataRecord record : dataRecordMap.keySet()) {
-                    RecordData data = dataRecordMap.get(record);
-                    data.intersects = intersects(record);
-                    data.project = true;
+                for (RecordData data : dataRecordMap.values()) {
+                    data.project();
                 }
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -601,22 +728,15 @@ public class VIIRSResource extends
     public Collection<DrawableImage> getImages(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         List<DrawableImage> images = new ArrayList<DrawableImage>();
-        DataTime currTime = paintProps.getDataTime();
-        if (currTime != null) {
-            TimeRange tr = currTime.getValidPeriod();
-            synchronized (dataRecordMap) {
-                for (VIIRSDataRecord record : dataRecordMap.keySet()) {
-                    if (VIIRSResourceData.withinRange(tr, record.getDataTime())) {
-                        RecordData data = dataRecordMap.get(record);
-                        if (data.intersects) {
-                            if (data.project) {
-                                data.tileSet.project(descriptor
-                                        .getGridGeometry());
-                                data.project = false;
-                            }
-                            images.addAll(data.tileSet.getImagesToRender(
-                                    target, paintProps));
-                        }
+        synchronized (dataRecordMap) {
+            Collection<VIIRSDataRecord> records = groupedRecords.get(paintProps
+                    .getDataTime());
+            if (records != null) {
+                for (VIIRSDataRecord record : records) {
+                    RecordData data = dataRecordMap.get(record);
+                    if (data != null) {
+                        images.addAll(data
+                                .getImagesToRender(target, paintProps));
                     }
                 }
             }

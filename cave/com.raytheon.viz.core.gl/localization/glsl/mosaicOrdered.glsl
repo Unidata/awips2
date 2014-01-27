@@ -1,20 +1,26 @@
 // this shader program sets values into a mosaic texture
 // which is the same size as the screen (frame buffer)
 
-uniform sampler2D imageData;
-uniform sampler2D mosaicTexture;
-uniform int height;
-uniform int width;
+#include <mapping>
 
-void main(void)
-{
-	vec2 xy = gl_FragCoord.xy;
-	vec4 imageVal = texture2D(imageData,gl_TexCoord[0].st);
-	vec4 curVal = texture2D(mosaicTexture, vec2((xy.x / float(width)), (xy.y / float(height))));
-	// assume 0 or NaN is No Data and should be replaced if another image has better values.
-	if ( imageVal.r != 0.0 && imageVal.r == imageVal.r) {
-		gl_FragColor = vec4(imageVal.r,0.0,0.0,1.0);
+uniform DataTexture imageData;
+uniform DataMapping imageToMosaic;
+uniform DataTexture mosaicData;
+
+void main(void) {
+	float imageValue = textureToDataValue(imageData, gl_TexCoord[0].st);
+	vec2 frag_xy = gl_FragCoord.xy;
+	float mosaicValue = textureToDataValue(mosaicData,
+			vec2(frag_xy.x / mosaicData.width, frag_xy.y / mosaicData.height));
+
+	float newValue;
+	// No data check/special NaN check
+	if (imageValue == imageData.noDataValue || imageValue != imageValue) {
+		// Use existing value
+		newValue = mosaicValue;
 	} else {
-		gl_FragColor = vec4(curVal.r,0.0,0.0,1.0);
+		newValue = dataToColorMapValue(imageValue, imageToMosaic);
 	}
+	gl_FragColor = vec4(dataToTextureValue(mosaicData, newValue), 0.0, 0.0,
+			1.0);
 }

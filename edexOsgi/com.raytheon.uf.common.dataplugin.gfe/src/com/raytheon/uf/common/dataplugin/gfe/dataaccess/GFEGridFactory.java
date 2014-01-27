@@ -36,18 +36,25 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
+import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
+import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
+import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * A data factory for getting gfe data from the metadata database. There are
@@ -65,6 +72,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * May 02, 2013 1949       bsteffen    Update GFE data access in Product
  *                                     Browser, Volume Browser, and Data Access
  *                                     Framework.
+ * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -80,6 +88,8 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     private static final String MODEL_NAME = "modelName";
 
     private static final String SITE_ID = "siteId";
+
+    private static final String KEYS = "keys";
 
     // The more full version from GFEDataAccessUtil is prefered but the smaller
     // keys are needed for backwards compatibility.
@@ -107,14 +117,14 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setLevel(level);
         defaultGridData.setUnit(gfeRecord.getGridInfo().getUnitObject());
         defaultGridData.setLocationName(gfeRecord.getDbId().getSiteId());
-
         Map<String, Object> attrs = new HashMap<String, Object>();
-        attrs.put(MODEL_NAME, gfeRecord.getDbId()
-                .getModelName());
-        attrs.put(MODEL_TIME, gfeRecord.getDbId()
-                .getModelTime());
+        attrs.put(MODEL_NAME, gfeRecord.getDbId().getModelName());
+        attrs.put(MODEL_TIME, gfeRecord.getDbId().getModelTime());
         attrs.put(SITE_ID, gfeRecord.getDbId().getSiteId());
-
+        if (dataRecord.getDataAttributes().containsKey(KEYS)) {
+            attrs.put(KEYS, StringUtil.join((String[]) dataRecord
+                    .getDataAttributes().get(KEYS), ','));
+        }
         defaultGridData.setAttributes(attrs);
 
         return defaultGridData;
@@ -130,8 +140,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
             for (Entry<String, Object> entry : identifiers.entrySet()) {
                 if (entry.getKey().equals(MODEL_NAME)) {
                     constraints.put(GFEDataAccessUtil.MODEL_NAME,
-                            new RequestConstraint(entry
-                        .getValue().toString()));
+                            new RequestConstraint(entry.getValue().toString()));
                 } else if (entry.getKey().equals(SITE_ID)) {
                     constraints.put(GFEDataAccessUtil.SITE_ID,
                             new RequestConstraint(entry.getValue().toString()));
@@ -154,7 +163,8 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
                 RequestConstraint paramNameConstraint = new RequestConstraint(
                         null, ConstraintType.IN);
                 paramNameConstraint.setConstraintValueList(parameters);
-                constraints.put(GFEDataAccessUtil.PARM_NAME, paramNameConstraint);
+                constraints.put(GFEDataAccessUtil.PARM_NAME,
+                        paramNameConstraint);
             }
         }
 
@@ -171,7 +181,8 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
                     paramLevelConstraint.addToConstraintValueList(level
                             .getMasterLevel().getName());
                 }
-                constraints.put(GFEDataAccessUtil.PARM_LEVEL, paramLevelConstraint);
+                constraints.put(GFEDataAccessUtil.PARM_LEVEL,
+                        paramLevelConstraint);
             }
         }
 
@@ -196,20 +207,51 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         GFERecord gfeRecord = asGFERecord(pdo);
 
         try {
-            IGridSlice slice = GFEDataAccessUtil
-                    .getSlice(gfeRecord);
+            IGridSlice slice = GFEDataAccessUtil.getSlice(gfeRecord);
             GridLocation loc = slice.getGridInfo().getGridLoc();
             gfeRecord.setGridInfo(slice.getGridInfo());
-            Grid2DFloat data = null;
-            if(slice instanceof ScalarGridSlice){
+            IGrid2D data = null;
+            Map<String, Object> attrs = new HashMap<String, Object>();
+            if (slice instanceof ScalarGridSlice) {
                 // This also grabs vector data.
                 data = ((ScalarGridSlice) slice).getScalarGrid();
+                return new FloatDataRecord("Data", gfeRecord.getDataURI(),
+                        ((Grid2DFloat) data).getFloats(), 2, new long[] {
+                                loc.getNx(), loc.getNy() });
+            } else if (slice instanceof DiscreteGridSlice) {
+                DiscreteGridSlice castedSlice = (DiscreteGridSlice) slice;
+                data = castedSlice.getDiscreteGrid();
+                Object[] dKeys = castedSlice.getKeys();
+                String[] keys = new String[dKeys.length];
+                for (int i = 0; i < dKeys.length; i++) {
+                    keys[i] = dKeys[i].toString();
+                }
+                byte[] bytes = ((Grid2DByte) data).getBytes();
+                ByteDataRecord record = new ByteDataRecord("Data",
+                        gfeRecord.getDataURI(), bytes, 2, new long[] {
+                                loc.getNx(), loc.getNy() });
+                attrs.put(KEYS, keys);
+                record.setDataAttributes(attrs);
+                return record;
+            } else if (slice instanceof WeatherGridSlice) {
+                WeatherGridSlice castedSlice = (WeatherGridSlice) slice;
+                data = castedSlice.getWeatherGrid();
+                WeatherKey[] wKeys = castedSlice.getKeys();
+                String[] keys = new String[wKeys.length];
+                for (int i = 0; i < wKeys.length; i++) {
+                    keys[i] = wKeys[i].toString();
+                }
+                byte[] bytes = ((Grid2DByte) data).getBytes();
+                ByteDataRecord record = new ByteDataRecord("Data",
+                        gfeRecord.getDataURI(), bytes, 2, new long[] {
+                                loc.getNx(), loc.getNy() });
+                attrs.put(KEYS, keys);
+                record.setDataAttributes(attrs);
+                return record;
             } else {
                 throw new DataRetrievalException("Unknown slice of type "
                         + slice.getClass().getSimpleName());
             }
-            return new FloatDataRecord("Data", gfeRecord.getDataURI(), data.getFloats(), 2, new long[] {
-                    loc.getNx(), loc.getNy() });
         } catch (Exception e) {
             throw new DataRetrievalException(e);
         }
@@ -243,7 +285,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     private GFERecord asGFERecord(Object obj) {
-        if (obj instanceof GFERecord == false) {
+        if ((obj instanceof GFERecord) == false) {
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + obj.getClass().getSimpleName());
         }

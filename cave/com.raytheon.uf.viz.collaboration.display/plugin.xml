@@ -21,4 +21,10 @@
             class="com.raytheon.uf.viz.collaboration.display.rsc.rendering.PrimitiveRenderingHandler">
       </renderingExtension>
    </extension>
+ <extension point="com.raytheon.uf.viz.collaboration.xml">
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.editor.CreateRemoteDisplay" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.SharedResource" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.ResourceCapabilityChanged" />
+    <xmlRoot class="com.raytheon.uf.viz.collaboration.display.rsc.event.ResourcePropertiesChanged" />
+ </extension>
 </plugin>

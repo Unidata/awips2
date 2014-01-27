@@ -17,6 +17,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2012 0743       djohnson     Initial creation
  * Jan 14, 2013 1286       djohnson     Use time domain API.
+ * Jun 14, 2013 2095       djohnson     Change access level on instance variables to protected.
  * 
  * </pre>
  * 
@@ -24,11 +25,11 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * @version 1.0
  */
 abstract class AbstractTimer implements ITimer {
-    private ITimePoint start;
+    protected ITimePoint start;
 
-    private ITimePoint stop;
+    protected ITimePoint stop;
 
-    private IDuration elapsedTime = Durations.ZERO;
+    protected IDuration elapsedTime = Durations.ZERO;
 
     /**
      * {@inheritDoc}

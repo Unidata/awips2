@@ -31,179 +31,156 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
-public class SCANSplash extends Dialog
-{
-    /**
-     * Dialog shell.
-     */
-    private Shell shell;
-    
-    /**
-     * The display control.
-     */
-    private Display display;
-    
+/**
+ * SCAN Splash.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ * 15 Aug 2013   2143      mpduff      Use the existing display.
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
+public class SCANSplash extends CaveSWTDialog {
+
     /**
      * Canvas to display the information.
      */
     private Canvas canvas;
-    
+
     private Font textFont;
-    
+
     /**
      * Canvas width.
      */
-    private int canvasWidth = 300;
-    
+    private final int canvasWidth = 300;
+
     /**
      * Canvas height.
      */
-    private int canvasHeight = 200;
-    
+    private final int canvasHeight = 200;
+
     private Image loadImage = null;
-    
-    public SCANSplash(Shell parent)
-    {
-        super(parent, 0);
-        
-        open();
-    }
-    
+
     /**
-     * Open method to show the dialog.
-     * @return Null.
+     * Constructor
+     * 
+     * @param parent
      */
-    public Object open()
-    {        
-        Shell parent = getParent();
-        display = parent.getDisplay();
-//        shell = new Shell(parent, SWT.NO_TRIM | SWT.ON_TOP);
-        shell = new Shell(parent, SWT.NO_TRIM);
-        
+    public SCANSplash(Shell parent) {
+        super(parent, SWT.NO_TRIM, CAVE.DO_NOT_BLOCK);
+
+    }
+
+    @Override
+    protected Layout constructShellLayout() {
         // Create the main layout for the shell.
         GridLayout mainLayout = new GridLayout(1, false);
         mainLayout.marginHeight = 0;
         mainLayout.marginWidth = 0;
-        shell.setLayout(mainLayout);
-        
-      
-        // Initialize all of the controls and layouts
-        initializeComponents();
-        
-        shell.pack();    
-        
-        centerOnScreen();
-        
-        shell.setVisible(true);
-        
-        return null;
+        return mainLayout;
     }
-    
-    private void initializeComponents()
-    {       
-        textFont = new Font(display, "Monospace", 50, SWT.BOLD);
+
+    @Override
+    protected void initializeComponents(Shell parentShell) {
+        // Initialize all of the controls and layouts
+        centerOnScreen();
+        textFont = new Font(getDisplay(), "Monospace", 50, SWT.BOLD);
         String imageName = loadImage();
-        
-        if (imageName != null)
-        {
-             loadImage = new Image(display, imageName);
+        if (imageName != null) {
+            loadImage = new Image(getDisplay(), imageName);
         }
-        
-        // Make the calculation for the canvas.
-//        makeCalculations();
-        
-        // Create the canvas.
+
         createCanvas();
     }
-    
-    private void createCanvas()
-    {                
+
+    private void createCanvas() {
         canvas = new Canvas(shell, SWT.DOUBLE_BUFFERED);
         GridData gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
         gd.heightHint = canvasHeight;
-        gd.widthHint = canvasWidth;        
-        
+        gd.widthHint = canvasWidth;
+
         canvas.setSize(canvasWidth, canvasHeight);
-        
+
         canvas.setLayoutData(gd);
-        canvas.addPaintListener(new PaintListener()
-        {
-            public void paintControl(PaintEvent e)
-            {                
+        canvas.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e) {
                 drawCanvas(e.gc);
             }
         });
     }
-    
-    private void drawCanvas(GC gc)
-    {                
+
+    private void drawCanvas(GC gc) {
         gc.setFont(textFont);
         gc.setTextAntialias(SWT.ON);
-        
-        if (loadImage != null)
-        {
+
+        if (loadImage != null) {
             gc.drawImage(loadImage, 0, 0);
-        }
-        else
-        {
-            gc.setBackground(display.getSystemColor(SWT.COLOR_BLUE));
+        } else {
+            gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLUE));
             gc.fillRectangle(0, 0, canvasWidth, canvasHeight);
         }
-        
-        gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));        
+
+        gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
         gc.setLineWidth(3);
-        gc.drawRectangle(1, 1, canvasWidth-3, canvasHeight-3);
+        gc.drawRectangle(1, 1, canvasWidth - 3, canvasHeight - 3);
     }
-    
+
     /**
      * Center on the screen that CAVE is on.
      */
-    private void centerOnScreen()
-    {
+    private void centerOnScreen() {
         Shell tmpShell = getParent().getShell();
-        
+
         Monitor[] monitors = getParent().getDisplay().getMonitors();
         int displayMonitor = 0;
-        
-        for (int i = 0; i < monitors.length; i++)
-        {
+
+        for (int i = 0; i < monitors.length; i++) {
             displayMonitor = i;
-            int rightEdge = monitors[i].getBounds().x + monitors[i].getBounds().width;
-            if (tmpShell.getBounds().x < rightEdge)
-            {
+            int rightEdge = monitors[i].getBounds().x
+                    + monitors[i].getBounds().width;
+            if (tmpShell.getBounds().x < rightEdge) {
                 break;
             }
         }
-        
+
         Monitor monitor = monitors[displayMonitor];
         Rectangle monRect = monitor.getBounds();
-        
+
         int xCoord = ((monRect.x + (monRect.width / 2)) - (canvasWidth / 2));
         int yCoord = (monRect.height / 2) - (canvasHeight / 2);
-        
+
         shell.setLocation(xCoord, yCoord);
     }
-    
-    private String loadImage()
-    {
+
+    private String loadImage() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        String path = pm.getStaticFile("scan" + File.separatorChar + "images" +
-                File.separatorChar + "ScanLoading.png").getAbsolutePath();
+        String path = pm.getStaticFile(
+                "scan" + File.separatorChar + "images" + File.separatorChar
+                        + "ScanLoading.png").getAbsolutePath();
         return path;
     }
-    
-    public void disposeDialog()
-    {
+
+    public void disposeDialog() {
         textFont.dispose();
         loadImage.dispose();
-        shell.dispose();
+        close();
     }
+
 }

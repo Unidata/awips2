@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            mnash     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * </pre>
  * 
  * @author mnash
@@ -57,13 +58,6 @@ public class SpecialGraphicSymbolPacket extends SymbologyPacket implements
 
     public SpecialGraphicSymbolPacket() {
 
-    }
-
-    private static final int SPECIAL_GRAPHIC_SYMBOL20 = 20;
-
-    static {
-        PacketFactory.registerPacketType(SpecialGraphicSymbolPacket.class,
-                SPECIAL_GRAPHIC_SYMBOL20);
     }
 
     @DynamicSerialize

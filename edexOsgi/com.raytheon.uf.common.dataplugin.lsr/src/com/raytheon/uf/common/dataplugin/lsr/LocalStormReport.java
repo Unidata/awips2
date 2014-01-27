@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.lsr;
 
 import java.util.Calendar;
-import java.util.Collection;
 
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.DataAmount;
@@ -31,8 +30,6 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -40,14 +37,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
@@ -61,7 +53,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * 
+ * Record implementation for Local Storm Reports
  * 
  * <pre>
  * 
@@ -75,6 +67,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
+ * Dec 10, 2013 2581       njensen     Removed dataURI column
  * 
  * </pre>
  * 
@@ -83,18 +77,18 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
-@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "latitude", "longitude", "stationId", "refTime", "forecastTime",
+        "eventType" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
 @org.hibernate.annotations.Table(appliesTo = "lsr", indexes = { @Index(name = "lsr_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class LocalStormReport extends PersistablePluginDataObject implements
-        ISpatialEnabled, IDecoderGettable, IPointData, IPersistable {
+        ISpatialEnabled, IPointData, IPersistable {
 
     private static final long serialVersionUID = 1L;
 
@@ -119,20 +113,16 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     //
     @DataURI(position = 1)
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private LSREventType eventType;
 
     // Correction indicator from wmo header
-    @DataURI(position = 2)
     @Column
-    @XmlElement
     @DynamicSerializeElement
     private String corIndicator;
 
     @Embedded
-    @DataURI(position = 3, embedded = true)
-    @XmlElement
+    @DataURI(position = 2, embedded = true)
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 
@@ -142,48 +132,40 @@ public class LocalStormReport extends PersistablePluginDataObject implements
 
     // Text of the WMO header
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String wmoHeader = "";
 
     // Text of the office
-    @XmlElement
     @DynamicSerializeElement
     private String officeid = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String cityLoc = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String source = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String countyLoc = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String stateLoc = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private String remarks = "";
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private Float magnitude = -9999.0f;
 
@@ -193,19 +175,16 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     // 3 =
     // 4 =
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private Integer magQual = MISSING;
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private Integer injuries = MISSING;
 
     //
     @Transient
-    @XmlElement
     @DynamicSerializeElement
     private Integer fatalities = MISSING;
 
@@ -431,11 +410,6 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     }
 
     @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
-    }
-
-    @Override
     public SurfaceObsLocation getSpatialObject() {
         return location;
     }
@@ -503,26 +477,6 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     }
 
     @Override
-    public Amount getValue(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String getString(String paramName) {
-        return null;
-    }
-
-    @Override
-    public String[] getStrings(String paramName) {
-        return null;
-    }
-
-    @Override
-    public Collection<Amount> getValues(String paramName) {
-        return null;
-    }
-
-    @Override
     public PointDataView getPointDataView() {
         return pointDataView;
     }
@@ -548,13 +502,6 @@ public class LocalStormReport extends PersistablePluginDataObject implements
         sb.append(String.format("%5.2f:%s", getMagnitude(), getEventType()
                 .getEventUnits()));
         return sb.toString();
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override

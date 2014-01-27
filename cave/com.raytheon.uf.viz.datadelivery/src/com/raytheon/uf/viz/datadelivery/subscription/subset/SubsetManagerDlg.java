@@ -53,13 +53,14 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionType;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
-import com.raytheon.uf.common.datadelivery.retrieval.util.DataSizeUtils;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -70,13 +71,9 @@ import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CreateSubscriptionDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.ForceApplyPromptResponse;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
-import com.raytheon.uf.viz.datadelivery.subscription.presenter.CreateSubscriptionDlgPresenter;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.DataTimingSubsetPresenter;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.PointTimeXML;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
+import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.VerticalXML;
@@ -134,20 +131,29 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * May 28, 2013 1650       djohnson     More information when failing to schedule subscriptions.
  * Jun 04, 2013  223       mpduff       Moved data type specific code to sub classes.
  * Jun 11, 2013 2064       mpduff       Fix editing of subscriptions.
+ * Jun 14, 2013 2108       mpduff       Refactored DataSizeUtils.
+ * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Oct 15, 2013   2477     mpduff       Remove debug code.
+ * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
+ * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
+ * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
+ * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
-public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extends DataTimingSubsetPresenter<DATASET, ?, ?, TIMEXML, ?>, TIMEXML extends TimeXML>
-        extends CaveSWTDialog implements ITabAction, IDataSize, IDisplay,
-        IForceApplyPromptDisplayText {
+public abstract class SubsetManagerDlg extends CaveSWTDialog implements
+        ITabAction, IDataSize, IDisplay, IForceApplyPromptDisplayText {
     /** constant */
     private final static String DATASETS_NOT_SUPPORTED = "Datasets of type [%s] are currently not supported!";
 
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubsetManagerDlg.class);
+
+    private final ISubscriptionService subscriptionService = DataDeliveryServices
+            .getSubscriptionService();
 
     /** Subset Name text box */
     private Text nameText;
@@ -158,30 +164,17 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** TabFolder object */
     private TabFolder tabFolder;
 
-    /** DataSet object */
-    protected DATASET dataSet;
-
-    /** Create a subscription dialog */
-    private CreateSubscriptionDlgPresenter subDlg;
-
     /** Saved subset tab */
     private SavedSubsetTab subsetTab;
 
     /** Vertical subset tab */
     protected VerticalSubsetTab vTab;
 
-    /**
-     * The presenter class separates as much of the logic from the SWT code as
-     * possible. It also allows for unit testing of the logic since SWT is
-     * typically not ran headless.
-     **/
-    protected PRESENTER timingTabControls;
-
     /** Spatial subset tab */
     protected SpatialSubsetTab spatialTabControls;
 
     /** Subset XML file object */
-    private SubsetXML<TIMEXML> subsetXml;
+    protected SubsetXML subsetXml;
 
     /** Load dataset flag */
     private boolean loadDataSet = false;
@@ -192,49 +185,39 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Subscription object */
     protected Subscription subscription;
 
-    /** Utility for calculating bandwidth */
-    protected DataSizeUtils dataSize = null;
-
     /** Dialog initialized flag */
     protected boolean initialized = false;
 
     /** Subset manager constant */
-    private final String DD_SUBSET_MANAGER = "Data Delivery Subset Manager - ";
+    protected final String DD_SUBSET_MANAGER = "Data Delivery Subset Manager - ";
 
+    /** Vertical tab text */
     protected final String VERTICAL_TAB = "Vertical Levels/Parameters";
 
-    private final String SPATIAL_TAB = "Spatial";
+    /** Spatial tab text */
+    protected final String SPATIAL_TAB = "Spatial";
 
-    private final ISubscriptionService subscriptionService = DataDeliveryServices
-            .getSubscriptionService();
+    /** The create subscription dialog */
+    private CreateSubscriptionDlg subDlg;
+
+    /** The dataset */
+    protected DataSet dataSet;
 
     /**
      * Constructor
      * 
      * @param shell
      *            The parent Shell
-     * @param dataSet
-     *            The DataSetMetaData
      * @param loadDataSet
      *            Populate the dialog if true
-     * @param subsetXml
-     *            The SubsetXML object to load
+     * @param dataSet
+     *            The DataSetMetaData
      */
-    public SubsetManagerDlg(Shell shell, DATASET dataSet, boolean loadDataSet,
-            SubsetXML<TIMEXML> subsetXml) {
+    public SubsetManagerDlg(Shell shell, boolean loadDataSet, DataSet dataSet) {
         super(shell, SWT.RESIZE | SWT.DIALOG_TRIM | SWT.MIN,
                 CAVE.INDEPENDENT_SHELL);
-        if (dataSet != null) {
-            setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
-        } else {
-            setText(DD_SUBSET_MANAGER);
-        }
-
-        this.dataSet = dataSet;
-        this.subsetXml = subsetXml;
         this.loadDataSet = loadDataSet;
-
-        this.dataSize = new DataSizeUtils(dataSet);
+        this.dataSet = dataSet;
     }
 
     /**
@@ -246,8 +229,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * @param dataSet
      *            The DataSetMetaData
      */
-    public SubsetManagerDlg(Shell shell, DATASET dataSet) {
-        this(shell, dataSet, false, null);
+    public SubsetManagerDlg(Shell shell, DataSet dataSet) {
+        this(shell, false, dataSet);
     }
 
     /**
@@ -267,16 +250,38 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 CAVE.INDEPENDENT_SHELL);
         this.create = false;
         this.loadDataSet = true;
-        // TODO: Is there a cleaner way to do this other than casting?
-        this.dataSet = (DATASET) MetaDataManager.getInstance().getDataSet(
+
+        this.dataSet = MetaDataManager.getInstance().getDataSet(
                 subscription.getDataSetName(), subscription.getProvider());
         this.subscription = subscription;
         setText(DD_SUBSET_MANAGER + "Edit: " + subscription.getName());
-
-        this.dataSize = new DataSizeUtils(dataSet);
     }
 
+    /**
+     * Create the type specific tabs.
+     * 
+     * @param tabFolder
+     */
     abstract void createTabs(TabFolder tabFolder);
+
+    /** Populate the subscription object */
+    protected abstract <T extends Subscription> T populateSubscription(T sub,
+            boolean create);
+
+    /**
+     * Setup the timing information specific to the data type.
+     */
+    protected abstract Time setupDataSpecificTime(Time newTime, Subscription sub);
+
+    /**
+     * Get the Time object.
+     * 
+     * @return The time object
+     */
+    protected abstract TimeXML getTimeXmlFromSubscription();
+
+    /** Get the data time information */
+    protected abstract TimeXML getDataTimeInfo();
 
     /*
      * (non-Javadoc)
@@ -312,6 +317,11 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         updateDataSize();
     }
 
+    /** Set the title */
+    protected void setTitle() {
+        setText(DD_SUBSET_MANAGER + dataSet.getDataSetName());
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -341,7 +351,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         tabFolder.setLayoutData(gd);
         createCommonTabs(tabFolder);
         tabFolder.pack();
-
     }
 
     /*
@@ -353,22 +362,12 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     protected void opened() {
         // Set the min size of the shell to the current
         // shell size since it has been packed before this call
-        // shell.setMinimumSize(shell.getSize());
+        shell.setMinimumSize(shell.getSize());
     }
 
     /** Create the tabs */
     private void createCommonTabs(TabFolder tabFolder) {
         createTabs(tabFolder);
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(1, false);
-
-        TabItem spatialTab = new TabItem(tabFolder, SWT.NONE);
-        spatialTab.setText(SPATIAL_TAB);
-        Composite spatialComp = new Composite(tabFolder, SWT.NONE);
-        spatialComp.setLayout(gl);
-        spatialComp.setLayoutData(gd);
-        spatialTab.setControl(spatialComp);
-        spatialTabControls = new SpatialSubsetTab(spatialComp, dataSet, this);
 
         TabItem savedSetsTab = new TabItem(tabFolder, SWT.NONE);
         savedSetsTab.setText("Saved Subsets");
@@ -376,23 +375,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         savedSetsTab.setControl(savedSetsComp);
         subsetTab = new SavedSubsetTab(savedSetsComp, this);
     }
-
-    /**
-     * Construct and return the presenter class.
-     * 
-     * @param shell
-     * @param subsetManagerDlg
-     * @param dataSet2
-     * @param timingComp
-     * 
-     * @return the presenter instance
-     */
-    protected abstract PRESENTER getDataTimingSubsetPresenter(
-            Composite parentComp, DATASET dataSet, IDataSize callback,
-            Shell shell);
-
-    protected abstract <T extends Subscription> T populateSubscription(T sub,
-            boolean create);
 
     /** Create the information composite */
     private void createInfoComp() {
@@ -421,8 +403,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     /** Create the buttons */
     private void createButtons() {
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        final int numColumns = (DataDeliveryConstants.PHASE3_ENABLED) ? 4 : 3;
-        GridLayout gl = new GridLayout(numColumns, false);
+        GridLayout gl = new GridLayout(3, false);
 
         Composite bottomComp = new Composite(shell, SWT.NONE);
         bottomComp.setLayout(gl);
@@ -504,10 +485,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             if (subDlg != null && !subDlg.isDisposed()) {
                 subDlg.bringToTop();
             } else {
-                subDlg = new CreateSubscriptionDlgPresenter(
-                        new CreateSubscriptionDlg(shell, create), dataSet,
-                        create, new VizAppTaskExecutor());
-                subDlg.setSubscriptionData(sub);
+                subDlg = new CreateSubscriptionDlg(shell, create, dataSet,
+                        new VizAppTaskExecutor());
+                subDlg.setSubscription(sub);
                 subDlg.open();
             }
             return subDlg.getStatus() == Status.OK;
@@ -517,12 +497,28 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * Query button action handler.
+     * * u Query button action handler.
      */
     private void handleQuery() {
         boolean valid = this.validated(false);
 
         if (valid) {
+            // Check for existing subscription
+            ISubscriptionHandler handler = RegistryObjectHandlers
+                    .get(ISubscriptionHandler.class);
+            try {
+                if (handler.getByName(nameText.getText()) != null) {
+                    String message = "A query with this name already exists.\n\nPlease enter a different query name.";
+                    DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
+                            "Duplicate Query Name", message);
+                    return;
+                }
+            } catch (RegistryHandlerException e) {
+                statusHandler
+                        .handle(Priority.PROBLEM,
+                                "Unable to check for an existing subscription by name.",
+                                e);
+            }
 
             AdhocSubscription as = createSubscription(new AdhocSubscription(),
                     Network.OPSNET);
@@ -531,12 +527,13 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 return;
             }
             try {
-                ISubscriptionServiceResult result = subscriptionService.store(
+                as.setSubscriptionType(SubscriptionType.QUERY);
+                SubscriptionServiceResult result = subscriptionService.store(
                         as, this);
 
                 if (result.hasMessageToDisplay()) {
                     DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Query Scheduled", result.getMessageToDisplay());
+                            "Query Scheduled", result.getMessage());
                 }
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -566,6 +563,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         sub.setOwner((create) ? LocalizationManager.getInstance()
                 .getCurrentUser() : this.subscription.getOwner());
+        sub.setOriginatingSite(LocalizationManager.getInstance()
+                .getCurrentSite());
+        sub.setSubscriptionType(SubscriptionType.RECURRING);
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
     }
@@ -606,17 +606,12 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
             sub.setActive(this.subscription.isActive());
             sub.setPriority(this.subscription.getPriority());
         }
-        sub.setProvider(dataSet.getProviderName());
-        sub.setDataSetName(dataSet.getDataSetName());
-        sub.setDataSetSize(dataSize.getDataSetSize());
-        sub.setDataSetType(dataSet.getDataSetType());
 
         // Catch the case where the user closes this dialog.
         if (this.isDisposed()) {
             return null;
         }
 
-        sub.setDataSetName(dataSet.getDataSetName());
         sub.setSubscriptionId("AdHocID");
         if (this.subscription != null) {
             if (this.subscription.getDescription() != null) {
@@ -629,11 +624,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
 
         return populateSubscription(sub, create);
     }
-
-    /**
-     * Setup the timing information specific to the data type.
-     */
-    protected abstract Time setupDataSpecificTime(Time newTime, Subscription sub);
 
     /**
      * Display cancel changes message.
@@ -709,9 +699,36 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     }
 
     /**
-     * Validate the area.
+     * {@inheritDoc}
      */
-    private boolean validateArea() {
+    @Override
+    public void handleSaveSubset() {
+
+        if (!DataDeliveryGUIUtils.hasText(this.nameText)) {
+            DataDeliveryUtils.showMessage(getShell(), SWT.OK, "Name Required",
+                    "Name requred. A subset name must be entered.");
+            return;
+        }
+
+        if (DataDeliveryGUIUtils.INVALID_CHAR_PATTERN.matcher(
+                nameText.getText().trim()).find()) {
+            DataDeliveryUtils
+                    .showMessage(getShell(), SWT.ERROR, "Invalid Characters",
+                            "Invalid characters. The Subset Name may only contain letters/numbers/dashes.");
+            return;
+        }
+
+        SubsetXML subset = new SubsetXML();
+        populateSubsetXML(subset);
+
+        // Have all the info, now save the file
+        SubsetFileManager.getInstance().saveSubset(subset, this.shell);
+        setClean();
+        subsetTab.enableButtons(nameText);
+    }
+
+    /** Validate the area */
+    protected boolean validateArea() {
         ReferencedEnvelope envelope = spatialTabControls.getEnvelope();
 
         if (envelope == null) {
@@ -733,7 +750,9 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
                 valid = true;
             }
         } catch (TransformException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            statusHandler.handle(
+                    com.raytheon.uf.common.status.UFStatus.Priority.PROBLEM,
+                    e.getLocalizedMessage(), e);
         }
 
         if (!valid) {
@@ -753,33 +772,13 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         return true;
     }
 
-    @Override
-    public void handleSaveSubset() {
-
-        if (!DataDeliveryGUIUtils.hasText(this.nameText)) {
-            DataDeliveryUtils.showMessage(getShell(), SWT.OK, "Name Required",
-                    "Name requred. A subset name must be entered.");
-            return;
-        }
-
-        if (DataDeliveryGUIUtils.INVALID_CHAR_PATTERN.matcher(
-                nameText.getText().trim()).find()) {
-            DataDeliveryUtils
-                    .showMessage(getShell(), SWT.ERROR, "Invalid Characters",
-                            "Invalid characters. The Subset Name may only contain letters/numbers/dashes.");
-            return;
-        }
-
-        SubsetXML<TIMEXML> subset = new SubsetXML<TIMEXML>();
-        populateSubsetXML(subset);
-
-        // Have all the info, now save the file
-        SubsetFileManager.getInstance().saveSubset(subset, this.shell);
-        setClean();
-        subsetTab.enableButtons(nameText);
-    }
-
-    protected void populateSubsetXML(SubsetXML<TIMEXML> subset) {
+    /**
+     * Populate the subset XML data object.
+     * 
+     * @param subset
+     *            The SubsetXML object to populate
+     */
+    protected void populateSubsetXML(SubsetXML subset) {
         subset.setBaseSubsetName(nameText.getText());
         subset.setDatasetName(dataSet.getDataSetName());
         subset.setProviderName(dataSet.getProviderName());
@@ -788,8 +787,8 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         AreaXML area = spatialTabControls.getSaveInfo();
         subset.setArea(area);
 
-        // TODO Only save this for grid. Once Obs have parameters then this will
-        // need to be saved for obs
+        // TODO Only save this for grid. Once Obs have parameters then this
+        // will need to be saved for obs
         if (dataSet.getDataSetType() == DataType.GRID) {
             // next save vertical layer/parameter info
             ArrayList<VerticalXML> vertList = vTab.getSaveInfo();
@@ -797,7 +796,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         }
 
         // finally the date/cycle/forecast data
-        TIMEXML time = timingTabControls.getSaveInfo();
+        TimeXML time = getDataTimeInfo();
         subset.setTime(time);
     }
 
@@ -811,15 +810,19 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     @SuppressWarnings("unchecked")
     @Override
     public void handleLoadSubset(String subsetName) {
-
-        // TODO: How else to do this other than casting?
-        SubsetXML<TIMEXML> loadedSubsetXml = (SubsetXML<TIMEXML>) SubsetFileManager
-                .getInstance().loadSubset(subsetName);
+        SubsetXML loadedSubsetXml = SubsetFileManager.getInstance().loadSubset(
+                subsetName);
 
         loadFromSubsetXML(loadedSubsetXml);
     }
 
-    protected void loadFromSubsetXML(SubsetXML<TIMEXML> subsetXml) {
+    /**
+     * Populate the dialog from the SubsetXML object.
+     * 
+     * @param subsetXml
+     *            The subset xml object
+     */
+    protected void loadFromSubsetXML(SubsetXML subsetXml) {
         if (this.subsetXml == subsetXml) {
             // only populate area and name if subsetXml is loading from initial
             // load, not from the saved subsets tab.
@@ -831,34 +834,15 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         }
     }
 
+    /**
+     * Populate the dialog from the Subscription object.
+     * 
+     * @param subscription
+     *            The subscription object
+     */
     protected void loadFromSubscription(Subscription subscription) {
         this.nameText.setText(this.subscription.getName());
-
-        // Area
-        AreaXML area = new AreaXML();
-
-        ReferencedEnvelope envelope = this.subscription.getCoverage()
-                .getEnvelope();
-        ReferencedEnvelope requestEnvelope = this.subscription.getCoverage()
-                .getRequestEnvelope();
-
-        if (requestEnvelope != null && !requestEnvelope.isEmpty()) {
-            area.setEnvelope(requestEnvelope);
-        } else {
-            area.setEnvelope(envelope);
-        }
-
-        spatialTabControls.setDataSet(this.dataSet);
-        spatialTabControls.populate(area);
-
     }
-
-    /**
-     * Get the Time object.
-     * 
-     * @return The time object
-     */
-    protected abstract TIMEXML getTimeXmlFromSubscription();
 
     /**
      * If any mods have been made to the composite selections, set dirty true.
@@ -866,10 +850,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
     protected boolean isDirty() {
 
         if (vTab != null && vTab.isDirty()) {
-            return true;
-        }
-
-        if (timingTabControls.isDirty()) {
             return true;
         }
 
@@ -887,7 +867,6 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
         if (vTab != null) {
             vTab.setClean();
         }
-        timingTabControls.setDirty(false);
         spatialTabControls.setSpatialDirty(false);
     }
 
@@ -897,19 +876,18 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * 
      * @param shell
      *            the current dialog shell
-     * @param data
+     * @param dataSet
      *            the data set
      * @return the dialog
      */
-    public static SubsetManagerDlg<?, ?, ?> fromDataSet(Shell shell,
-            DataSet data) {
-        if (data.getDataSetType() == DataType.GRID) {
-            return new GriddedSubsetManagerDlg(shell, (GriddedDataSet) data);
-        } else if (data.getDataSetType() == DataType.POINT) {
-            return new PointSubsetManagerDlg(shell, (PointDataSet) data);
+    public static SubsetManagerDlg fromDataSet(Shell shell, DataSet dataSet) {
+        if (dataSet.getDataSetType() == DataType.GRID) {
+            return new GriddedSubsetManagerDlg(shell, (GriddedDataSet) dataSet);
+        } else if (dataSet.getDataSetType() == DataType.POINT) {
+            return new PointSubsetManagerDlg(shell, (PointDataSet) dataSet);
         }
         throw new IllegalArgumentException(String.format(
-                DATASETS_NOT_SUPPORTED, data.getClass().getName()));
+                DATASETS_NOT_SUPPORTED, dataSet.getClass().getName()));
     }
 
     /**
@@ -924,7 +902,7 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      *            the subscription object
      * @return SubsetManagerDlg
      */
-    public static SubsetManagerDlg<?, ?, ?> fromSubscription(Shell shell,
+    public static SubsetManagerDlg fromSubscription(Shell shell,
             boolean loadDataSet, Subscription subscription) {
         if (DataType.GRID == subscription.getDataSetType()) {
             return new GriddedSubsetManagerDlg(shell, loadDataSet, subscription);
@@ -951,14 +929,14 @@ public abstract class SubsetManagerDlg<DATASET extends DataSet, PRESENTER extend
      * @return SubsetManagerDlg
      */
     @SuppressWarnings("unchecked")
-    public static SubsetManagerDlg<?, ?, ?> fromSubsetXML(Shell shell,
-            DataSet data, boolean loadDataSet, SubsetXML<?> subset) {
+    public static SubsetManagerDlg fromSubsetXML(Shell shell, DataSet data,
+            boolean loadDataSet, SubsetXML subset) {
         if (data instanceof GriddedDataSet) {
             return new GriddedSubsetManagerDlg(shell, (GriddedDataSet) data,
-                    loadDataSet, (SubsetXML<SpecificDateTimeXML>) subset);
+                    loadDataSet, subset);
         } else if (data instanceof PointDataSet) {
             return new PointSubsetManagerDlg(shell, (PointDataSet) data, true,
-                    (SubsetXML<PointTimeXML>) subset);
+                    subset);
         }
         throw new IllegalArgumentException(String.format(
                 DATASETS_NOT_SUPPORTED, data.getClass().getName()));

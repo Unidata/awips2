@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.core.rsc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 
 /**
@@ -43,9 +45,14 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 21, 2011            mschenke     Initial creation
+ * Date          Ticket#    Engineer    Description
+ * ------------- ---------- ----------- --------------------------
+ * Dec 21, 2011             mschenke    Initial creation
+ * Jun 24, 2013  2122       mschenke    Made use built in resource data changed
+ *                                      listener updates will not be lost from
+ *                                      construction to initInternal
+ * Nov 18, 2013  2544       bsteffen    Clear dataTimes in disposeInternal to
+ *                                      fix recycle.
  * 
  * </pre>
  * 
@@ -66,38 +73,6 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
         IRenderable renderable;
     }
 
-    private IResourceDataChanged dataChangedListener = new IResourceDataChanged() {
-        @Override
-        public void resourceChanged(ChangeType type, Object object) {
-            if (type == ChangeType.DATA_UPDATE) {
-                if (object instanceof PluginDataObject) {
-                    addDataObject((PluginDataObject) object);
-                } else if (object instanceof PluginDataObject[]) {
-                    addDataObject((PluginDataObject[]) object);
-                } else if (object instanceof Object[]) {
-                    List<PluginDataObject> pdos = new ArrayList<PluginDataObject>();
-                    for (Object obj : (Object[]) object) {
-                        if (obj instanceof PluginDataObject) {
-                            pdos.add((PluginDataObject) obj);
-                        }
-                    }
-                    if (pdos.size() > 0) {
-                        addDataObject(pdos.toArray(new PluginDataObject[0]));
-                    }
-                }
-            } else if (type == ChangeType.CAPABILITY) {
-                if (object instanceof AbstractCapability) {
-                    AbstractCapability capability = (AbstractCapability) object;
-                    for (Frame frame : frames.values()) {
-                        if (frame.renderable != null) {
-                            capabilityChanged(frame.renderable, capability);
-                        }
-                    }
-                }
-            }
-        }
-    };
-
     private Map<DataTime, Frame> frames = new HashMap<DataTime, Frame>();
 
     /**
@@ -108,6 +83,37 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         dataTimes = new ArrayList<DataTime>();
+    }
+
+    @Override
+    protected void resourceDataChanged(ChangeType type, Object object) {
+        if (type == ChangeType.DATA_UPDATE) {
+            if (object instanceof PluginDataObject) {
+                addDataObject((PluginDataObject) object);
+            } else if (object instanceof PluginDataObject[]) {
+                addDataObject((PluginDataObject[]) object);
+            } else if (object instanceof Object[]) {
+                List<PluginDataObject> pdos = new ArrayList<PluginDataObject>();
+                for (Object obj : (Object[]) object) {
+                    if (obj instanceof PluginDataObject) {
+                        pdos.add((PluginDataObject) obj);
+                    }
+                }
+                if (pdos.isEmpty() == false) {
+                    addDataObject(pdos.toArray(new PluginDataObject[0]));
+                }
+            }
+        } else if (type == ChangeType.CAPABILITY) {
+            if (object instanceof AbstractCapability) {
+                AbstractCapability capability = (AbstractCapability) object;
+                for (Frame frame : frames.values()) {
+                    if (frame.renderable != null) {
+                        capabilityChanged(frame.renderable, capability);
+                    }
+                }
+            }
+        }
+        issueRefresh();
     }
 
     /**
@@ -153,12 +159,14 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
                         if (updateRenderable(frame.renderable,
                                 pdoList.toArray(new PluginDataObject[0])) == false) {
                             dispose(frame.renderable);
+                            frame.renderable = null;
                         }
                     }
                 }
 
                 if (!dataTimes.contains(dataTimes)) {
                     dataTimes.add(time);
+                    Collections.sort(dataTimes);
                 }
             }
         }
@@ -203,6 +211,54 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
      */
     protected DataTime getTimeForResource() {
         return descriptor.getTimeForResource(this);
+    }
+
+    /**
+     * Gets the renderable for the frame and creates it if it doesn't exist
+     * 
+     * @param dataTime
+     * @return
+     */
+    protected IRenderable getOrCreateRenderable(DataTime time)
+            throws VizException {
+        Frame frame = null;
+        IRenderable renderable = null;
+        synchronized (this) {
+            frame = frames.get(time);
+        }
+        if (frame != null) {
+            synchronized (frame.lock) {
+                if (!frame.disposed) {
+                    renderable = frame.renderable;
+                    if (renderable == null) {
+                        frame.renderable = renderable = constructRenderable(
+                                time, new ArrayList<PluginDataObject>(
+                                        frame.records));
+                    }
+                }
+            }
+        }
+
+        return renderable;
+    }
+
+    /**
+     * Gets the IRenderable for the given time or null if none exists yet
+     * 
+     * @param time
+     * @return
+     */
+    protected IRenderable getRenderable(DataTime time) {
+        Frame frame = null;
+        synchronized (this) {
+            frame = frames.get(time);
+        }
+        if (frame != null) {
+            synchronized (frame.lock) {
+                return frame.renderable;
+            }
+        }
+        return null;
     }
 
     /*
@@ -260,18 +316,8 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
     }
 
     @Override
-    protected final void initInternal(IGraphicsTarget target)
-            throws VizException {
-        resourceData.addChangeListener(dataChangedListener);
-        initResource(target);
-    }
-
-    /**
-     * Init method for the resource to initialize any data needed for rendering
-     * which is not tied to a renderable.
-     */
-    protected void initResource(IGraphicsTarget target) throws VizException {
-
+    protected void initInternal(IGraphicsTarget target) throws VizException {
+        // Default no-op
     }
 
     /*
@@ -292,25 +338,10 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
                 return;
             }
         }
-        Frame currFrame = null;
-        synchronized (this) {
-            currFrame = frames.get(time);
-        }
-        if (currFrame != null) {
-            synchronized (currFrame.lock) {
-                if (currFrame.disposed == false) {
-                    IRenderable renderable = currFrame.renderable;
-                    if (renderable == null) {
-                        currFrame.renderable = renderable = constructRenderable(
-                                time, new ArrayList<PluginDataObject>(
-                                        currFrame.records));
-                    }
 
-                    if (renderable != null) {
-                        renderable.paint(target, paintProps);
-                    }
-                }
-            }
+        IRenderable renderable = getOrCreateRenderable(time);
+        if (renderable != null) {
+            renderable.paint(target, paintProps);
         }
     }
 
@@ -326,6 +357,11 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
             // Copy Frames and clear member
             frames = new HashMap<DataTime, Frame>(this.frames);
             this.frames.clear();
+
+            /* Must clear dataTimes for recycle to work correctly. */
+            if (!dataTimes.isEmpty()) {
+                dataTimes.clear();
+            }
         }
 
         // Dispose frame one by one
@@ -333,7 +369,6 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
             disposeFrame(frame);
         }
 
-        resourceData.removeChangeListener(dataChangedListener);
         disposeResource();
     }
 
@@ -345,12 +380,14 @@ public abstract class AbstractPluginDataObjectResource<T extends AbstractResourc
      */
     private void disposeFrame(Frame frame) {
         synchronized (frame.lock) {
-            if (frame.renderable != null) {
-                disposeRenderable(frame.renderable);
-                frame.renderable = null;
+            if (!frame.disposed) {
+                if (frame.renderable != null) {
+                    dispose(frame.renderable);
+                    frame.renderable = null;
+                }
+                frame.records.clear();
+                frame.disposed = true;
             }
-            frame.records.clear();
-            frame.disposed = true;
         }
     }
 

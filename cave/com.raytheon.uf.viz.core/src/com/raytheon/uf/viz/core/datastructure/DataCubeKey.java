@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.viz.core.datastructure;
 
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 
 /**
  * Key for data in the data cube
