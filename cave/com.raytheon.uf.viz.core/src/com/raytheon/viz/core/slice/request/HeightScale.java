@@ -29,9 +29,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
-import com.raytheon.uf.viz.core.style.level.Level.LevelType;
+import com.raytheon.uf.common.style.level.Level.LevelType;
 
 /**
  * Height scale used by volume browser
@@ -39,9 +38,10 @@ import com.raytheon.uf.viz.core.style.level.Level.LevelType;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 6, 2009            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 06, 2009           mschenke    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.style.level.Level.LevelType;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class HeightScale implements ISerializableObject {
+public class HeightScale {
 
     @XmlAccessorType(XmlAccessType.NONE)
     public static enum ScaleType {

@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javax.measure.quantity.Temperature;
+import javax.measure.unit.Unit;
+
+import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.sounding.SoundingLayer;
 import com.raytheon.uf.common.sounding.VerticalSounding;
@@ -32,8 +36,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.cloudheight.data.CloudHeightData;
-import com.raytheon.uf.viz.cloudheight.data.SoundingSource;
-import com.raytheon.uf.viz.cloudheight.data.SoundingSource.SourceType;
 
 /**
  * Cloud height calculations ported from HH_Grid.C and HH_Climo.C
@@ -43,8 +45,8 @@ import com.raytheon.uf.viz.cloudheight.data.SoundingSource.SourceType;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2009            mschenke     Initial creation
- * 
+ * Dec 16, 2009            mschenke    Initial creation
+ * Jul 25, 2013       2190 mschenke    Genericized algorithm for more sources and non-byte data
  * </pre>
  * 
  * @author mschenke
@@ -55,11 +57,13 @@ public class CloudHeightCalculatorPorted {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CloudHeightCalculatorPorted.class);
 
+    public static Unit<Temperature> ALGORITHM_UNIT = SatelliteUnits.IR_PIXEL;
+
     public static class CloudHeightResult {
+
         public float value;
 
         public String status = "";
-
     }
 
     private static class Record {
@@ -76,8 +80,7 @@ public class CloudHeightCalculatorPorted {
     private static Record[][] SoundingJul = new Record[5][4];
 
     public static CloudHeightResult getCloudHeightGrid(float cloudTemp,
-            VerticalSounding sounding, SoundingSource source,
-            float[] parcelTrajectory) {
+            VerticalSounding sounding, float[] parcelTrajectory) {
         CloudHeightResult result = new CloudHeightResult();
         result.status = "S";
         int count = sounding.size();
@@ -88,7 +91,10 @@ public class CloudHeightCalculatorPorted {
         boolean dwptDrying = false;
 
         float dd1, dd2, dd3, dz, d2x;
-        float d2xparam;
+        // Split difference between RAOB/MODEL, not sure where numbers came from
+        // and would have no idea what to set it for nucaps so splitting the
+        // difference between grid and raob seems to provide good results
+        float d2xparam = 0.000245f;
         float P2, P1, T2, T1, Z2, Z1, pres, presCloud = 99999.0f;
         float Tenv500, Tparcel, Tparcel500, presTrajL, presTrajU;
         float presEL;
@@ -97,12 +103,6 @@ public class CloudHeightCalculatorPorted {
         if (count < 1) {
             result.value = Float.NaN;
             return result;
-        }
-
-        if (source.getType() == SourceType.RAOB) {
-            d2xparam = .0005f;
-        } else {
-            d2xparam = 1e-5f;
         }
 
         warmestTemp = 0;
@@ -215,10 +215,15 @@ public class CloudHeightCalculatorPorted {
                         // solve for T of Parcel Trajectory at P
                         presTrajL = ((int) ((sounding.get(j).getPressure() + 49.0) / 50)) * 50;
                         presTrajU = presTrajL - 50;
-                        Tparcel = (parcelTrajectory[20 - (int) (presTrajU / 50)] - parcelTrajectory[20 - (int) (presTrajL / 50)])
+                        int lIdx = 20 - (int) (presTrajL / 50);
+                        int uIdx = 20 - (int) (presTrajU / 50);
+                        if (lIdx < 0 || uIdx >= parcelTrajectory.length) {
+                            continue;
+                        }
+                        Tparcel = (parcelTrajectory[uIdx] - parcelTrajectory[lIdx])
                                 / -50
                                 * (sounding.get(j).getPressure() - presTrajL)
-                                + parcelTrajectory[20 - (int) (presTrajL / 50)];
+                                + parcelTrajectory[lIdx];
                         if (sounding.get(j).getTemperature() > Tparcel) {
                             presEL = sounding.get(j - 1).getPressure();
                             break;
@@ -436,9 +441,17 @@ public class CloudHeightCalculatorPorted {
         return height;
     }
 
-    public static void findHighPredLowBrightness(byte[] elements,
-            int numElements, int[] values) {
-        int highest = 0, pred = 0, lowest = 255;
+    /**
+     * Finds the high, predominate, and low brightness values in elements and
+     * stores in values. Units are that of {@link #ALGORITHM_UNIT}
+     * 
+     * @param elements
+     * @param numElements
+     * @param values
+     */
+    public static void findHighPredLowBrightness(double[] elements,
+            int numElements, double[] values) {
+        int highest = Integer.MIN_VALUE, pred = 0, lowest = Integer.MAX_VALUE;
         int i, j;
         int[] freq = new int[256];
         int[] smoothFreq = new int[256];
@@ -449,12 +462,15 @@ public class CloudHeightCalculatorPorted {
             smoothFreq[i] = 0;
         }
         for (i = 0; i < numElements; i++) {
-            if (unsignByte(elements[i]) != 0) {
-                freq[unsignByte(elements[i])]++;
-                if (unsignByte(elements[i]) > highest)
-                    highest = unsignByte(elements[i]);
-                if (unsignByte(elements[i]) < lowest)
-                    lowest = unsignByte(elements[i]);
+            if (Double.isNaN(elements[i]) == false) {
+                int value = (int) elements[i];
+                freq[value] += 1;
+                if (value < lowest) {
+                    lowest = value;
+                }
+                if (value > highest) {
+                    highest = value;
+                }
             }
         }
 

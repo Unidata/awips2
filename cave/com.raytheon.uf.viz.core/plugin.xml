@@ -24,7 +24,6 @@
    <extension-point id="units" name="units" schema="schema/units.exsd"/>
    <extension-point id="descriptor" name="descriptor" schema="schema/descriptor.exsd"/>
    <extension-point id="renderingOrder" name="renderingOrder" schema="schema/renderingOrder.exsd"/>
-   <extension-point id="scriptTemplate" name="Script Template Extension" schema="schema/scriptTemplate.exsd"/>
    <extension-point id="graphicsFactory" name="graphics factory" schema="schema/graphicsFactory.exsd"/>
    <extension-point id="classContext" name="classContext" schema="schema/classContext.exsd"/>
    <extension-point id="userManager" name="userManager" schema="schema/userManager.exsd"/>
@@ -38,14 +37,6 @@
             class="com.raytheon.uf.viz.core.localization.LocalizationPreferences"
             id="com.raytheon.uf.viz.core.localization.LocalizationPreferences"
             name="Localization"/>
-   </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="table"
-            scriptLibrary="TableRequest"
-            scriptTemplateFile="scriptTemplates/tableRequestTemplate.vm">
-      </scriptTemplate>
    </extension>
    <extension point="org.eclipse.ui.themes">
     <themeElementCategory 
@@ -87,7 +78,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="CAVE"
-          localizationType="CAVE_STATIC"
+          localizationType="COMMON_STATIC"
           name="Style Rules"
           value="styleRules" 
           recursive="true">

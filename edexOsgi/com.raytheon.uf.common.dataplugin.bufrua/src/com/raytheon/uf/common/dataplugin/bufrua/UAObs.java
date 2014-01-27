@@ -20,7 +20,6 @@
 package com.raytheon.uf.common.dataplugin.bufrua;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -93,6 +92,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Jun 20, 2013 2128       bsteffen    Ensure setDataURI sets the dataURI.
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
@@ -102,12 +103,12 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "bufruaseq")
-@Table(name = "bufrua", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = UAObs.PLUGIN_NAME, uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
  */
-@org.hibernate.annotations.Table(appliesTo = "bufrua", indexes = { @Index(name = "bufrua_refTimeIndex", columnNames = {
+@org.hibernate.annotations.Table(appliesTo = UAObs.PLUGIN_NAME, indexes = { @Index(name = "bufrua_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -135,6 +136,8 @@ public class UAObs extends PersistablePluginDataObject implements
             return compValue;
         }
     };
+
+    public static final String PLUGIN_NAME = "bufrua";
 
     public static final Unit<Length> DISTANCE_UNIT = SI.METER;
 
@@ -170,18 +173,6 @@ public class UAObs extends PersistablePluginDataObject implements
     // Non persisted value. Hold the last requested level value.
     @Transient
     private Integer levelId;
-
-	// Time of the observation.
-	@Column
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar validTime;
-
-	// Time of the observation to the nearest hour.
-	@Column
-	@XmlElement
-	@DynamicSerializeElement
-	private Calendar refHour;
 
     // The observation report type.
     @DataURI(position = 1)
@@ -445,42 +436,9 @@ public class UAObs extends PersistablePluginDataObject implements
      */
     public void setReportType(Integer reportType) {
         this.reportType = reportType;
-	}
-
-	/**
-	 * @return the validTime
-	 */
-	public Calendar getValidTime() {
-		return validTime;
-	}
-
-	/**
-	 * @param validTime
-	 *            the validTime to set
-	 */
-	public void setValidTime(Calendar validTime) {
-		this.validTime = validTime;
-	}
-
-	/**
-	 * Get the reference hour
-	 * 
-	 * @return the refHour
-	 */
-	public Calendar getRefHour() {
-		return refHour;
-	}
-
-	/**
-	 * Set the reference hour
-	 * 
-	 * @param refHour
-	 *            the refHour to set
-	 */
-	public void setRefHour(Calendar refHour) {
-		this.refHour = refHour;
     }
 
+    /**
     /**
      * Get the station pressure at the observation site.
      * 
@@ -893,35 +851,6 @@ public class UAObs extends PersistablePluginDataObject implements
         return wmoHeader;
     }
 
-    public static final void main(String[] args) {
-
-        List<UAObs> obsList = new ArrayList<UAObs>();
-        UAObs obsA = new UAObs();
-        obsA.setWmoHeader("IUSZ42 KWBC 271845 CCA");
-        obsList.add(obsA);
-        UAObs obsB = new UAObs();
-        obsB.setWmoHeader("IUSZ42 KWBC 271835 CCA");
-        obsList.add(obsB);
-        UAObs obs = new UAObs();
-        obs.setWmoHeader("IUSZ42 KWBC 271815");
-        obsList.add(obs);
-        obs = new UAObs();
-        obs.setWmoHeader("IUSZ42 KWBC 271825 CCA");
-        obsList.add(obs);
-
-        System.out.println(obsList);
-        obsList = sortByCorrection(obsList);
-        System.out.println(obsList);
-
-        int c = UAObs.getCorComparator().compare(obsA, obsB);
-        System.out.println(c);
-
-        UAObs test = new UAObs(
-                "/bufrua/2011-10-07_00:00:00.0/2022/null/IUSZ52_KWBC_070040/72634/44.90833/-84.71944");
-
-        System.out.println(test.dataURI);
-
-    }
 
     @Override
     @Column
@@ -932,6 +861,6 @@ public class UAObs extends PersistablePluginDataObject implements
 
     @Override
     public String getPluginName() {
-        return "bufrua";
+        return PLUGIN_NAME;
     }
 }

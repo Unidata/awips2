@@ -26,9 +26,6 @@ import javax.persistence.Entity;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
@@ -49,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
+ * Nov 04, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -68,8 +66,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 				@Index(name = "bufrmosLamp_refTimeIndex", columnNames = { "refTime", "forecastTime" } )
 		}
 )
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class BufrMosLampData extends BufrMosData {
     @Override

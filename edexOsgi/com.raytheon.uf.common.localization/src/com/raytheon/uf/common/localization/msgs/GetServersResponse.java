@@ -21,7 +21,6 @@ package com.raytheon.uf.common.localization.msgs;
 
 import java.util.Map;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -45,7 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class GetServersResponse implements ISerializableObject {
+public class GetServersResponse {
 
     @DynamicSerializeElement
     private String httpServer;

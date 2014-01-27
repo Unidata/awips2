@@ -19,14 +19,15 @@
  **/
 package com.raytheon.uf.viz.datadelivery.subscription;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -51,33 +52,44 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 
+import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
+import com.raytheon.uf.common.site.SiteData;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.actions.DataBrowserAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
+import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
+import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.help.HelpManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceApplyPromptDisplayText;
 import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionTableComp.SubscriptionType;
 import com.raytheon.uf.viz.datadelivery.subscription.approve.SubscriptionApprovalDlg;
+import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryGUIUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.presenter.IDisplay;
 
 /**
@@ -126,6 +138,12 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jun 05, 2013 2064       mpduff     Fix for filtering combo boxes.
  * Jun 06, 2013 2030       mpduff     Refactored help.
  * Jun 14, 2013 2064       mpduff     Check for null/disposed sort column.
+ * Jul 26, 2013   2232     mpduff     Refactored Data Delivery permissions.
+ * Sep 25. 2013   2409     mpduff     Add check for widget disposed after calling configuration.
+ * Oct 25, 2013   2292     mpduff     Move overlap checks to edex.
+ * Nov 06, 2013   2358     mpduff     Resurrected file management code.
+ * Nov 08, 2013   2506     bgonzale   Removed send notification when a subscription is deleted.
+ * Dec 05, 2013   2570     skorolev   Show All subscriptions.
  * </pre>
  * 
  * @author mpduff
@@ -212,7 +230,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     private final ISubscriptionNotificationService subscriptionNotificationService = DataDeliveryServices
             .getSubscriptionNotificationService();
 
-    private final ISubscriptionManagerFilter filter;
+    private ISubscriptionManagerFilter filter;
 
     /** The selected office */
     private String selectedOffice;
@@ -220,8 +238,20 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** The selected group */
     private String selectedGroup;
 
-    /** The office display list */
-    private final SortedSet<String> officeDisplayItems = new TreeSet<String>();
+    /** Load config dialog */
+    private LoadSaveConfigDlg loadDlg;
+
+    /** Delete config dialog */
+    private LoadSaveConfigDlg deleteDlg;
+
+    /** SaveAs config dialog */
+    private LoadSaveConfigDlg saveAsDlg;
+
+    /** Option to select all subscriptions */
+    private final String ALL = "ALL";
+
+    /** Option to select all groups of subscriptions */
+    private final String ALL_SUBSCRIPTIONS = "All Subscriptions";
 
     /**
      * Constructor
@@ -238,13 +268,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         this.filter = filter;
 
         setText("Data Delivery Subscription Manager");
-    }
-
-    @Override
-    protected void disposed() {
-        super.disposed();
-        // save any table sort direction changes
-        SubscriptionConfigurationManager.getInstance().saveXml();
     }
 
     /*
@@ -364,6 +387,59 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent e) {
                 launchApprovalDlg();
+            }
+        });
+
+        new MenuItem(fileMenu, SWT.SEPARATOR);
+
+        MenuItem setDefaultMI = new MenuItem(fileMenu, SWT.NONE);
+        setDefaultMI.setText("Set as Default");
+        setDefaultMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleSetDefault();
+            }
+        });
+
+        MenuItem loadConfigMI = new MenuItem(fileMenu, SWT.NONE);
+        loadConfigMI.setText("Load Configuration...");
+        loadConfigMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                try {
+                    handleLoadConfig();
+                } catch (JAXBException e) {
+                    statusHandler
+                            .handle(com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
+                                    e.getLocalizedMessage(), e);
+                }
+            }
+        });
+
+        MenuItem saveConfigMI = new MenuItem(fileMenu, SWT.NONE);
+        saveConfigMI.setText("Save Configuration");
+        saveConfigMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleSaveConfig();
+            }
+        });
+
+        MenuItem saveConfigAsMI = new MenuItem(fileMenu, SWT.NONE);
+        saveConfigAsMI.setText("Save Configuration As...");
+        saveConfigAsMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                handleSaveAsConfig();
+            }
+        });
+
+        MenuItem deleteConfigMI = new MenuItem(fileMenu, SWT.NONE);
+        deleteConfigMI.setText("Delete Configuration...");
+        deleteConfigMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleDeleteConfig();
             }
         });
 
@@ -525,14 +601,13 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         // Office Selection Combo Box
         GridData comboData = new GridData(85, SWT.DEFAULT);
-        officeCbo = new Combo(officeComp, SWT.READ_ONLY);
+        officeCbo = new Combo(officeComp, SWT.READ_ONLY | SWT.BORDER);
         officeCbo.setLayoutData(comboData);
         officeCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleFilterSelection();
             }
-
         });
 
         // Group label
@@ -598,7 +673,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void createSubscription() {
         // check to see if authorized
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to create subscriptions";
@@ -614,7 +690,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             statusHandler.handle(
                     com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
                     e.getLocalizedMessage(), e);
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -627,7 +703,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     private void handleGroupCreate(boolean create) {
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_CREATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_CREATE
+                .toString();
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " is not authorized to access the Dataset Discovery Browser\nPermission: "
@@ -660,7 +737,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     }
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred in authorization request", e);
         }
@@ -683,6 +760,138 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                             "No Groups Defined",
                             "No groups currently defined.\n\n"
                                     + "Select the File->New Group... menu to create a group");
+        }
+    }
+
+    /**
+     * Set the default configuration file.
+     */
+    private void handleSetDefault() {
+        SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+
+        String fileName = configMan.getDefaultXMLConfig();
+
+        IPathManager pm = PathManagerFactory.getPathManager();
+        LocalizationContext context = pm.getContext(
+                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+
+        LocalizationFile locFile = pm.getLocalizationFile(context, fileName);
+
+        try {
+            configMan.setCurrentConfigFile(locFile);
+            configMan.saveXml();
+        } catch (Exception e) {
+            statusHandler.handle(
+                    com.raytheon.uf.common.status.UFStatus.Priority.ERROR,
+                    e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * Load configuration action.
+     */
+    private void handleLoadConfig() throws JAXBException {
+        if (loadDlg == null || loadDlg.isDisposed()) {
+            final SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                    .getInstance();
+            loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
+                    configMan.getLocalizationPath(),
+                    configMan.getDefaultXMLConfigFileName(), true);
+            loadDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        try {
+                            LocalizationFile fileName = (LocalizationFile) returnValue;
+                            // Get the name of the selected file
+                            if (fileName != null && fileName.exists()) {
+                                File file = fileName.getFile();
+
+                                if (file != null) {
+                                    SubscriptionManagerConfigXML xml = configMan
+                                            .unmarshall(file);
+                                    configMan.setXml(xml);
+                                    configMan.setCurrentConfigFile(fileName);
+                                    tableChanged();
+                                }
+                            }
+                        } catch (JAXBException e) {
+                            statusHandler.error(e.getLocalizedMessage(), e);
+                        }
+                    }
+                    loadDlg = null;
+                }
+            });
+
+            loadDlg.open();
+        } else {
+            loadDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Save configuration action.
+     */
+    private void handleSaveConfig() {
+        final SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+        if (configMan.getCurrentConfigFile() == null) {
+            handleSaveAsConfig();
+        } else {
+            // configMan.setConfigFile(configMan.getCurrentConfigFile());
+            configMan.saveXml();
+        }
+    }
+
+    /**
+     * Save as configuration action.
+     */
+    private void handleSaveAsConfig() {
+        final SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+        if (saveAsDlg == null || saveAsDlg.isDisposed()) {
+            saveAsDlg = new LoadSaveConfigDlg(shell, DialogType.SAVE_AS,
+                    configMan.getLocalizationPath(),
+                    configMan.getDefaultXMLConfigFileName());
+            saveAsDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        configMan.setConfigFile(fileName);
+                        configMan.saveXml();
+                    }
+                }
+            });
+            saveAsDlg.open();
+        } else {
+            saveAsDlg.bringToTop();
+        }
+    }
+
+    /**
+     * Delete configuration action.
+     */
+    private void handleDeleteConfig() {
+        final SubscriptionConfigurationManager configMan = SubscriptionConfigurationManager
+                .getInstance();
+        if (deleteDlg == null || deleteDlg.isDisposed()) {
+            deleteDlg = new LoadSaveConfigDlg(shell, DialogType.DELETE,
+                    configMan.getLocalizationPath(), true);
+            deleteDlg.setCloseCallback(new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    if (returnValue instanceof LocalizationFile) {
+                        LocalizationFile fileName = (LocalizationFile) returnValue;
+                        configMan.deleteXml(fileName);
+                        tableChanged();
+                    }
+                }
+            });
+            deleteDlg.open();
+        } else {
+            deleteDlg.bringToTop();
         }
     }
 
@@ -720,7 +929,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             return;
         }
 
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_DELETE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_DELETE
+                .toString();
 
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
@@ -778,7 +988,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     job.schedule();
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -798,6 +1008,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             public List<Subscription> getSubscriptions(
                     ISubscriptionHandler subscriptionHandler)
                     throws RegistryHandlerException {
+
+                if (!office.equals(ALL)) {
+                    filter = SubscriptionManagerFilters.getBySiteId(office);
+                } else {
+                    filter = SubscriptionManagerFilters.getAll();
+                }
                 final List<Subscription> results = filter
                         .getSubscriptions(subscriptionHandler);
 
@@ -806,11 +1022,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 for (Iterator<Subscription> iter = results.iterator(); iter
                         .hasNext();) {
                     Subscription subscription = iter.next();
-                    if ((office == null || "ALL".equals(office) || subscription
-                            .getOfficeIDs().contains(office))
-                            && (group == null
-                                    || "All Subscriptions".equals(group) || group
-                                        .equals(subscription.getGroupName()))) {
+                    if (group == null || ALL_SUBSCRIPTIONS.equals(group)
+                            || group.equals(subscription.getGroupName())) {
                         continue;
                     }
                     iter.remove();
@@ -833,7 +1046,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         getShell().setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         // Check for activate premissions
-        final DataDeliveryPermission permission = DataDeliveryPermission.SUBSCRIPTION_ACTIVATE;
+        final String permission = DataDeliveryPermission.SUBSCRIPTION_ACTIVATE
+                .toString();
 
         final IUser user = UserController.getUserObject();
         final String username = user.uniqueId().toString();
@@ -844,7 +1058,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         try {
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermission(user, msg, permission).isAuthorized()) {
-                final List<Subscription> updatedList = new ArrayList<Subscription>();
 
                 int count = tableComp.getTable().getSelectionCount();
 
@@ -870,12 +1083,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                         sub.setActive(activate);
 
                         try {
-                            ISubscriptionServiceResult response = subscriptionService
+                            SubscriptionServiceResult response = subscriptionService
                                     .update(sub, forceApplyPromptDisplayText);
                             if (response.hasMessageToDisplay()) {
                                 DataDeliveryUtils.showMessage(getShell(),
                                         SWT.OK, sub.getName() + " Activated",
-                                        response.getMessageToDisplay());
+                                        response.getMessage());
                             }
 
                             if (!response.isAllowFurtherEditing()) {
@@ -896,7 +1109,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     }
                 }
             }
-        } catch (VizException e) {
+        } catch (AuthException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
@@ -913,7 +1126,10 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         } else {
             configDlg.bringToTop();
         }
-        handleTooltipSelection(tooltipMI.getSelection());
+
+        if (!this.isDisposed()) {
+            handleTooltipSelection(tooltipMI.getSelection());
+        }
     }
 
     /**
@@ -963,7 +1179,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         List<String> groupNameList = GroupDefinitionManager.getGroupNames();
 
-        groupNameList.add(0, "All Subscriptions");
+        groupNameList.add(0, ALL_SUBSCRIPTIONS);
         groupNames = groupNameList.toArray(new String[0]);
         groupCbo.setItems(groupNames);
 
@@ -978,34 +1194,23 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      * Return the list of office names available. Default is "ALL" office ids
      */
     public void loadOfficeNames() {
-        int numRows = tableComp.getTable().getItemCount();
 
-        if (numRows > 0) {
-            for (int i = 0; i < numRows; i++) {
+        Map<String, SiteData> siteData = SiteMap.getInstance().getSiteData();
+        Set<String> sites = siteData.keySet();
 
-                SubscriptionManagerRowData rowData = tableComp
-                        .getSubscriptionData().getDataRow(i);
-                Set<String> office = rowData.getOfficeIds();
-                officeDisplayItems.addAll(office);
-            }
-        }
-
-        officeNames = officeDisplayItems.toArray(new String[officeDisplayItems
-                .size()]);
+        officeNames = sites.toArray(new String[sites.size()]);
         String[] officeAll = new String[officeNames.length + 1];
 
-        officeAll[0] = "ALL";
+        officeAll[0] = ALL;
 
         System.arraycopy(officeNames, 0, officeAll, 1, officeNames.length);
         officeCbo.setItems(officeAll);
 
         String site = CURRENT_SITE;
         if (this.selectedOffice != null) {
-            for (Iterator<String> iter = officeDisplayItems.iterator(); iter
-                    .hasNext();) {
-                String next = iter.next();
-                if (next.equals(selectedOffice)) {
-                    site = next;
+            for (String item : officeAll) {
+                if (item.equals(selectedOffice)) {
+                    site = item;
                     break;
                 }
             }
@@ -1051,7 +1256,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 }
             }
         }
-        
+
         // If null get the first one
         if (sortedTableColumn == null) {
             sortedTableColumn = tableComp.getTable().getColumn(0);
@@ -1087,12 +1292,16 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
             return DataDeliveryServices
                     .getPermissionsService()
-                    .checkPermissions(user, msg,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER,
-                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW)
-                    .isAuthorized();
-        } catch (VizException e) {
+                    .checkPermissions(
+                            user,
+                            msg,
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_SITE
+                                    .toString(),
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_USER
+                                    .toString(),
+                            DataDeliveryPermission.SUBSCRIPTION_APPROVE_VIEW
+                                    .toString()).isAuthorized();
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
@@ -1117,12 +1326,6 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 .get(ISubscriptionHandler.class);
         try {
             handler.delete(username, subscriptions);
-
-            for (Subscription subscription : subscriptions) {
-                subscriptionNotificationService
-                        .sendDeletedSubscriptionNotification(subscription,
-                                username);
-            }
         } catch (RegistryHandlerException e) {
             exceptions.add(e);
         }
@@ -1130,21 +1333,33 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         return exceptions;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void activateButtonUpdate(String text) {
         activateBtn.setText(text);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void groupSelectionUpdate(String fileName) {
         // unused
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getGroupNameTxt() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void tableSelection() {
         // not currently used
@@ -1158,6 +1373,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         return DataDeliveryUtils.showYesNoMessage(shell, title, message) == SWT.YES;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void tableLock(boolean isLocked) {
         // no-op

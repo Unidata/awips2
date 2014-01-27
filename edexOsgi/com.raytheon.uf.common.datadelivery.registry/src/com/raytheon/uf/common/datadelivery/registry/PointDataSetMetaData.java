@@ -32,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2012  754      dhladky     Initial creation
+ * Sept 30, 2013 1797     dhladky     Generics
  * 
  * </pre>
  * 
@@ -42,7 +43,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class PointDataSetMetaData extends DataSetMetaData {
+public class PointDataSetMetaData extends DataSetMetaData<PointTime> {
 
     @Override
     public void accept(IDataSetMetaDataVisitor visitor) {

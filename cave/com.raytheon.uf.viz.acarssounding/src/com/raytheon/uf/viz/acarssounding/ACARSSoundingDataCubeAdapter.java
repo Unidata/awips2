@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.edex.meteoLib.Controller;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingLayer;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -42,8 +42,7 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
+import com.raytheon.uf.common.wxmath.ZToPsa;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
@@ -63,6 +62,8 @@ import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 26, 2012            bsteffen     Initial javadoc
+ * Aug 14, 2013  2262      dgilling     Use new wxmath method for ztopsa.
+ * Sep  9, 2013  2277      mschenke     Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -142,36 +143,34 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
     public PointDataContainer getBaseRecords(Collection<String> baseParameters,
             Map<String, RequestConstraint> queryParams) throws VizException {
         List<String> baseParams = new ArrayList<String>(baseParameters);
-        String script = ScriptCreator.createScript(queryParams, 1000, "select");
-        List<Object> respList = Loader.loadData(script, 60000);
-        ACARSSoundingRecord[] records = new ACARSSoundingRecord[respList.size()];
-        for (int i = 0; i < records.length; i++) {
-            records[i] = (ACARSSoundingRecord) respList.get(i);
-        }
+
+        PluginDataObject[] pdos = getData(queryParams, null);
+        int numRecords = pdos.length;
+
         Object[] vals = new Object[baseParams.size()];
         for (int i = 0; i < baseParams.size(); i++) {
             String parameter = baseParams.get(i);
             if (REFTIME.equals(parameter)) {
-                vals[i] = new long[records.length];
+                vals[i] = new long[numRecords];
             } else if (FORECASTHR.equals(parameter)) {
-                vals[i] = new int[records.length];
+                vals[i] = new int[numRecords];
             } else if (NUMLEVELS.equals(parameter)) {
-                vals[i] = new int[records.length];
+                vals[i] = new int[numRecords];
             } else if (STATIONID.equals(parameter)) {
-                vals[i] = new String[records.length];
+                vals[i] = new String[numRecords];
             } else if (DATAURI.equals(parameter)) {
-                vals[i] = new String[records.length];
+                vals[i] = new String[numRecords];
             } else if (TAILNUMBER.equals(parameter)) {
-                vals[i] = new String[records.length];
+                vals[i] = new String[numRecords];
             } else {
-                vals[i] = new float[records.length][];
+                vals[i] = new float[numRecords][];
             }
         }
-        int[] ids = new int[records.length];
-        float[] latitudes = new float[records.length];
-        float[] longitudes = new float[records.length];
-        for (int i = 0; i < records.length; i++) {
-            ACARSSoundingRecord record = records[i];
+        int[] ids = new int[numRecords];
+        float[] latitudes = new float[numRecords];
+        float[] longitudes = new float[numRecords];
+        for (int i = 0; i < numRecords; i++) {
+            ACARSSoundingRecord record = (ACARSSoundingRecord) pdos[i];
             latitudes[i] = record.getLocation().getLatitude().floatValue();
             longitudes[i] = record.getLocation().getLongitude().floatValue();
             ids[i] = record.getId();
@@ -188,19 +187,19 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
             if (baseParams.contains(STATIONID)) {
                 int j = baseParams.indexOf(STATIONID);
                 String[] data = (String[]) vals[j];
-                data[i] = records[i].getLocation().getStationId();
+                data[i] = record.getLocation().getStationId();
             }
             if (baseParams.contains(DATAURI)) {
                 int j = baseParams.indexOf(DATAURI);
                 String[] data = (String[]) vals[j];
-                data[i] = records[i].getDataURI();
+                data[i] = record.getDataURI();
             }
             // TODO currently it is necessary to remove duplicate flight levels
             // and pressure values to avoid errors in interpolation when
             // calculating values at rounded numbers(500mb) however it is not
             // good to be discarding random data
             Set<ACARSSoundingLayer> uniqueLayers = new HashSet<ACARSSoundingLayer>();
-            Set<ACARSSoundingLayer> allLayers = records[i].getLevels();
+            Set<ACARSSoundingLayer> allLayers = record.getLevels();
             List<Integer> levels = new ArrayList<Integer>();
             List<Integer> pressures = new ArrayList<Integer>();
             for (ACARSSoundingLayer layer : allLayers) {
@@ -258,7 +257,7 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
                         } else if (levelParam.equals(PRESSURE)) {
                             value = layers[j].getPressure();
                             if (value == null) {
-                                value = Controller.ztopsa(layers[j]
+                                value = ZToPsa.ztopsa(layers[j]
                                         .getFlightLevel());
                             } else {
                                 value = value.floatValue() / 100;
@@ -297,8 +296,8 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
                         maxLength = val[j].length;
                     }
                 }
-                float[] newValues = new float[maxLength * records.length];
-                for (int j = 0; j < records.length; j++) {
+                float[] newValues = new float[maxLength * numRecords];
+                for (int j = 0; j < numRecords; j++) {
                     for (int k = 0; k < maxLength; k++) {
                         if (val[j] != null && val[j].length > k) {
                             newValues[j * maxLength + k] = val[j][k];
@@ -308,7 +307,7 @@ public class ACARSSoundingDataCubeAdapter extends PointDataCubeAdapter {
                     }
                 }
                 dataRecords[i] = new FloatDataRecord(baseParams.get(i), "",
-                        newValues, 2, new long[] { maxLength, records.length });
+                        newValues, 2, new long[] { maxLength, numRecords });
             }
         }
 

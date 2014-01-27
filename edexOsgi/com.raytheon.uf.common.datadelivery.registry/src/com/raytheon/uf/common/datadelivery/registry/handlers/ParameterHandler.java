@@ -30,7 +30,6 @@ import com.raytheon.uf.common.datadelivery.registry.ParameterLevel;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataLevelTypeDescriptionQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.ParameterNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.ParameterQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.ebxml.UnresolvedReferenceException;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
@@ -47,7 +46,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012  1241      djohnson     Initial creation
+ * Oct 03, 2012 1241       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -146,8 +146,8 @@ public class ParameterHandler extends
         DataLevelTypeDescriptionQuery query = new DataLevelTypeDescriptionQuery();
         query.setDataTypes(dataTypes);
 
-        RegistryQueryResponse<String> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<String> response = registryHandler
+                .getObjects(query);
         checkResponse(response, "getDataLevelTypeDescriptions");
 
         return response.getResults();
@@ -222,8 +222,8 @@ public class ParameterHandler extends
         ParameterNameQuery query = new ParameterNameQuery();
         query.setDataTypes(dataTypes);
 
-        RegistryQueryResponse<String> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<String> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getNamesByDataTypes");
 

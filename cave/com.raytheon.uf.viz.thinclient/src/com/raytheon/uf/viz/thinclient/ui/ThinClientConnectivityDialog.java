@@ -53,7 +53,8 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 23, 2011            bsteffen     Initial creation
+ * Nov 23, 2011            bsteffen    Initial creation
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * 
  * </pre>
  * 
@@ -237,7 +238,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     }
 
     private void validateServices() {
-        ConnectivityManager.checkHttpServer(services, servicesCallback);
+        ConnectivityManager.checkLocalizationServer(services, servicesCallback);
     }
 
     private void validatePypies() {

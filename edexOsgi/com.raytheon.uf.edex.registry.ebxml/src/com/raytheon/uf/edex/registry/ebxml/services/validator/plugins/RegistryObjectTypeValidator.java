@@ -32,6 +32,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
+import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
@@ -129,8 +130,9 @@ public class RegistryObjectTypeValidator extends
 
             if (!objectReferenceValid) {
                 exceptions.add(EbxmlExceptionUtil
-                        .createUnresolvedReferenceException(object.getClass(),
-                                objectId, statusHandler));
+                        .createUnresolvedReferenceExceptionType(
+                                ValidatorImpl.VALIDATOR_ERROR_MSG, objectId)
+                        .getFaultInfo());
             } else {
                 statusHandler
                         .info("References successfully resolve for object with id ["

@@ -97,6 +97,12 @@ public class DefaultDataRequest implements IDataRequest {
         identifiers.put(key, value);
     }
 
+    public void removeIdentifier(String key) {
+        if (identifiers != null) {
+            identifiers.remove(key);
+        }
+    }
+
     public void setIdentifiers(Map<String, Object> identifiers) {
         this.identifiers = identifiers;
     }

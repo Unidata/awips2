@@ -23,30 +23,29 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Individual Threshold xml elements.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2010 4671       mpduff      Initial creation.
- *
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class ColorThresholdXML implements ISerializableObject {
+public class ColorThresholdXML {
+
     @XmlAttribute(name = "color")
     private String color;
-    
+
     @XmlAttribute(name = "value")
     private Double value;
 
@@ -58,7 +57,8 @@ public class ColorThresholdXML implements ISerializableObject {
     }
 
     /**
-     * @param color the color to set
+     * @param color
+     *            the color to set
      */
     public void setColor(String color) {
         this.color = color;
@@ -72,7 +72,8 @@ public class ColorThresholdXML implements ISerializableObject {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(Double value) {
         this.value = value;

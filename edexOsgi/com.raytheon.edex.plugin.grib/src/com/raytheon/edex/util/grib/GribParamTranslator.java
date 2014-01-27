@@ -44,9 +44,10 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/15/10      4553        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 15, 2010  4553     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove e.printStackTrace()
  * 
  * </pre>
  * 
@@ -71,8 +72,10 @@ public class GribParamTranslator {
      * Gets the singleton instance
      * 
      * @return The singleton instance
+     * @throws GribException
      */
-    public static synchronized GribParamTranslator getInstance() {
+    public static synchronized GribParamTranslator getInstance()
+            throws GribException {
         if (instance == null) {
             instance = new GribParamTranslator();
         }
@@ -81,25 +84,13 @@ public class GribParamTranslator {
 
     /**
      * Creates the singleton instance
+     * 
+     * @throws GribException
      */
-    private GribParamTranslator() {
-        try {
-            initGrib1Lookup();
-        } catch (GribException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            initGrib2Lookup();
-        } catch (GribException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            initParameterAliases();
-        } catch (GribException e) {
-            e.printStackTrace();
-        }
+    private GribParamTranslator() throws GribException {
+        initGrib1Lookup();
+        initGrib2Lookup();
+        initParameterAliases();
     }
 
     public void getParameterNameAlias(String modelName, Parameter parameter) {

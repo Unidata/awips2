@@ -26,30 +26,19 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
-import com.raytheon.uf.common.dataquery.requests.TimeQueryRequestSet;
-import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Loader;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
-import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
+import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
@@ -78,33 +67,23 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * @version 1.0
  */
 
-public class PointDataCubeAdapter implements IDataCubeAdapter {
+public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PointDataCubeAdapter.class);
 
     public static String PLUGIN_NAME = PointDataInventory.PLUGIN_NAME;
 
-    private static String[] supportedPlugins = { "obs", "modelsounding",
-            "bufrssmi", "bufrquikscat", "lsr", "sfcobs", "goessounding",
-            "bufrascat", "poessounding", "profiler", "bufrua", "ldadmesonet",
-            "ldadhydro", "qc", "fssobs", "bufrmosAVN", "bufrmosETA",
-            "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP", "bufrmosMRF",
-            "bufrmosNGM", "ncairep", "ncpirep", "nctaf" };
+    private static String[] supportedPlugins = { "obs", "madis",
+            "modelsounding", "bufrssmi", "bufrquikscat", "lsr", "sfcobs",
+            "goessounding", "bufrascat", "poessounding", "profiler", "bufrua",
+            "ldadmesonet", "ldadhydro", "qc", "fssobs", "bufrmosAVN",
+            "bufrmosETA", "bufrmosGFS", "bufrmosHPC", "bufrmosLAMP",
+            "bufrmosMRF", "bufrmosNGM", "airep", "pirep", "nctaf"};
 
     protected AbstractPointDataInventory inventory;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getData(com.raytheon
-     * .uf.viz.core.catalog.LayerProperty, java.util.Map)
-     */
-    @Override
-    public List<Object> getData(LayerProperty property, int timeOut)
-            throws VizException {
-        String scriptToExecute = ScriptCreator.createScript(property);
-        return Loader.loadScripts(new String[] { scriptToExecute }, timeOut);
+    public PointDataCubeAdapter() {
+        super(PLUGIN_NAME);
     }
 
     /*
@@ -235,33 +214,8 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
     public PointDataContainer getBaseRecords(Collection<String> baseParams,
             Map<String, RequestConstraint> queryParams) throws VizException {
         String plugin = queryParams.get(PLUGIN_NAME).getConstraintValue();
-        return PointDataRequest.requestPointDataAllLevels(null, plugin,
+        return PointDataRequest.requestPointDataAllLevels(plugin,
                 baseParams.toArray(new String[] {}), null, queryParams);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getRecord(com
-     * .raytheon.uf.common.dataplugin.PluginDataObject)
-     */
-    @Override
-    public IDataRecord[] getRecord(PluginDataObject obj)
-            throws VizDataCubeException {
-        if (obj.getMessageData() == null) {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName());
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving point data record.", e);
-            }
-
-            return new IDataRecord[] { record };
-        }
-
-        return null;
     }
 
     /*
@@ -299,59 +253,4 @@ public class PointDataCubeAdapter implements IDataCubeAdapter {
         }
     }
 
-    @Override
-    public IDataRecord[] getRecord(PluginDataObject obj, Request req,
-            String dataset) throws VizDataCubeException {
-        if (obj.getMessageData() == null) {
-            IDataRecord record = null;
-            try {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
-                        dataset);
-            } catch (VizException e) {
-                throw new VizDataCubeException(
-                        "Error retrieving point data record.", e);
-            }
-
-            return new IDataRecord[] { record };
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter#getRecords(java
-     * .util.List, com.raytheon.uf.common.datastorage.Request, java.lang.String)
-     */
-    @Override
-    public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws VizDataCubeException {
-        for (PluginDataObject obj : objs) {
-            IDataRecord[] records = getRecord(obj, req, dataset);
-            obj.setMessageData(records);
-        }
-    }
-
-    @Override
-    public List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
-            Map<String, RequestConstraint> constraints) {
-        List<Map<String, RequestConstraint>> result = new ArrayList<Map<String, RequestConstraint>>(
-                1);
-        result.add(constraints);
-        return result;
-    }
-
-    @Override
-    public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
-            throws VizException {
-        TimeQueryRequestSet set = new TimeQueryRequestSet();
-        set.setRequests(requests.toArray(new TimeQueryRequest[0]));
-
-        @SuppressWarnings("unchecked")
-        List<List<DataTime>> result = (List<List<DataTime>>) ThriftClient
-                .sendRequest(set);
-        return result;
-    }
 }

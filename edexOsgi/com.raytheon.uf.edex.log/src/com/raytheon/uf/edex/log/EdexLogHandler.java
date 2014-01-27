@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.edex.log;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.raytheon.uf.common.status.AbstractHandlerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -36,6 +38,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009            njensen     Initial creation
+ * Jun 27, 2013 2142       njensen     Use SLF4J instead of log4j
  * 
  * </pre>
  * 
@@ -44,7 +47,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class EdexLogHandler implements IUFStatusHandler {
-    private final Log clazzLogger;
+
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
+
+    private final Logger clazzLogger;
 
     private final AbstractHandlerFactory factory;
 
@@ -55,7 +61,7 @@ public class EdexLogHandler implements IUFStatusHandler {
     private String source;
 
     public EdexLogHandler(String clazz, String category, String source) {
-        this.clazzLogger = LogFactory.getLog(clazz);
+        this.clazzLogger = LoggerFactory.getLogger(clazz);
         this.pluginId = clazz;
         this.category = category;
         this.source = source;
@@ -64,7 +70,7 @@ public class EdexLogHandler implements IUFStatusHandler {
 
     public EdexLogHandler(AbstractHandlerFactory factory, String pluginId,
             String category) {
-        this.clazzLogger = LogFactory.getLog(pluginId);
+        this.clazzLogger = LoggerFactory.getLogger(pluginId);
         this.pluginId = pluginId;
         this.category = category;
         this.factory = null;
@@ -74,7 +80,7 @@ public class EdexLogHandler implements IUFStatusHandler {
     public boolean isPriorityEnabled(Priority p) {
         switch (p) {
         case CRITICAL:
-            return clazzLogger.isFatalEnabled();
+            return true;
         case SIGNIFICANT:
             return clazzLogger.isErrorEnabled();
         case PROBLEM:
@@ -124,7 +130,7 @@ public class EdexLogHandler implements IUFStatusHandler {
 
         switch (p) {
         case CRITICAL:
-            clazzLogger.fatal(statusMsg, t);
+            clazzLogger.error(FATAL, statusMsg, t);
             break;
         case SIGNIFICANT:
             clazzLogger.error(statusMsg, t);
@@ -179,7 +185,7 @@ public class EdexLogHandler implements IUFStatusHandler {
 
         switch (p) {
         case CRITICAL:
-            clazzLogger.fatal(msg);
+            clazzLogger.error(FATAL, msg);
             break;
         case SIGNIFICANT:
             clazzLogger.error(msg);
@@ -225,7 +231,7 @@ public class EdexLogHandler implements IUFStatusHandler {
 
         switch (p) {
         case CRITICAL:
-            clazzLogger.fatal(msg, t);
+            clazzLogger.error(FATAL, msg, t);
             break;
         case SIGNIFICANT:
             clazzLogger.error(msg, t);

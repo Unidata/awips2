@@ -31,6 +31,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 7, 2012  1286      djohnson     Initial creation
+ * Oct 2, 2013  1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -39,7 +40,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  */
 
 public class AdhocSubscriptionFixture extends
-        BaseSiteSubscriptionFixture<AdhocSubscription> {
+        BaseSiteSubscriptionFixture<AdhocSubscription<Time, Coverage>> {
 
     public static final AdhocSubscriptionFixture INSTANCE = new AdhocSubscriptionFixture();
 
@@ -53,8 +54,8 @@ public class AdhocSubscriptionFixture extends
      * {@inheritDoc}
      */
     @Override
-    protected AdhocSubscription getSubscription() {
-        return new AdhocSubscription();
+    protected AdhocSubscription<Time, Coverage> getSubscription() {
+        return new AdhocSubscription<Time, Coverage>();
     }
 
 }

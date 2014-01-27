@@ -31,6 +31,6 @@ if [ ${RC} -ne 0 ]; then
    echo "Unable To Continue ... Terminating."
 fi
 
-JAVA_INSTALL=`rpm -q --queryformat '%{INSTALLPREFIX}' awips2-java`
+JAVA_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}' awips2-java`
 
 ${JAVA_INSTALL}/bin/java -classpath $awips_home/edex/lib/plugins/plugin-warning.jar:$awips_home/edex/lib/dependencies/org.geotools/jts-1.9.jar com.raytheon.edex.plugin.warning.tools.DamInfoTranslator $@

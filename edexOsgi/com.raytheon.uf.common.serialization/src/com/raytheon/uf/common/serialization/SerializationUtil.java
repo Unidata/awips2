@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.serialization;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +29,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
+import com.raytheon.uf.common.util.DataUnzipper;
 import com.raytheon.uf.common.util.ServiceLoaderUtil;
 
 /**
@@ -47,6 +47,9 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
+ * Aug 06, 2013 2228       njensen      More efficient transformFromThrift(Class, byte[])
+ * Aug 13, 2013 2169       bkowal       Unzip any gzipped data before applying thrift transformations
+ * Oct 01, 2013 2163       njensen      Updated calls to JAXBManager
  * 
  * </pre>
  * 
@@ -94,6 +97,14 @@ public final class SerializationUtil {
         return result;
     }
 
+    /**
+     * Gets the JAXBContext behind the global JAXBManager instance.
+     * 
+     * @return the global JAXBContext
+     * @throws JAXBException
+     * @Deprecated Use a specific JAXBManager instead.
+     */
+    @Deprecated
     public static JAXBContext getJaxbContext() throws JAXBException {
         return getJaxbManager().getJaxbContext();
     }
@@ -158,7 +169,7 @@ public final class SerializationUtil {
     public static void jaxbMarshalToXmlFile(Object obj, String filePath)
             throws SerializationException {
         try {
-            getJaxbManager().jaxbMarshalToXmlFile(obj, filePath);
+            getJaxbManager().marshalToXmlFile(obj, filePath);
         } catch (JAXBException e) {
             throw new SerializationException(e);
         }
@@ -196,8 +207,7 @@ public final class SerializationUtil {
     public static <T> T jaxbUnmarshalFromXmlFile(Class<T> clazz, String filePath)
             throws SerializationException {
         try {
-            return clazz.cast(getJaxbManager().jaxbUnmarshalFromXmlFile(
-                    filePath));
+            return getJaxbManager().unmarshalFromXmlFile(clazz, filePath);
         } catch (JAXBException e) {
             throw new SerializationException(e);
         }
@@ -235,7 +245,7 @@ public final class SerializationUtil {
     public static <T> T jaxbUnmarshalFromXmlFile(Class<T> clazz, File file)
             throws SerializationException {
         try {
-            return clazz.cast(getJaxbManager().jaxbUnmarshalFromXmlFile(file));
+            return getJaxbManager().unmarshalFromXmlFile(clazz, file);
         } catch (Exception e) {
             throw new SerializationException(e.getLocalizedMessage(), e);
         }
@@ -274,8 +284,7 @@ public final class SerializationUtil {
     public static <T> T jaxbUnmarshalFromInputStream(Class<T> clazz,
             InputStream is) throws SerializationException {
         try {
-            return clazz
-                    .cast(getJaxbManager().jaxbUnmarshalFromInputStream(is));
+            return clazz.cast(getJaxbManager().unmarshalFromInputStream(is));
         } catch (Exception e) {
             throw new SerializationException(e.getLocalizedMessage(), e);
         }
@@ -334,6 +343,14 @@ public final class SerializationUtil {
     @Deprecated
     public static Object transformFromThrift(byte[] bytes)
             throws SerializationException {
+        try {
+            if (DataUnzipper.isGzipped(bytes)) {
+                return transformFromThrift(Object.class,
+                        new DataUnzipper().gunzip(bytes));
+            }
+        } catch (IOException e) {
+            throw new SerializationException("GZip analysis failed!", e);
+        }
         return transformFromThrift(Object.class, bytes);
     }
 
@@ -351,20 +368,10 @@ public final class SerializationUtil {
             throws SerializationException {
         DynamicSerializationManager dsm = DynamicSerializationManager
                 .getManager(SerializationType.Thrift);
-        ByteArrayInputStream bais = null;
         try {
-            bais = new ByteArrayInputStream(bytes);
-            return clazz.cast(dsm.deserialize(bais));
+            return clazz.cast(dsm.deserialize(bytes));
         } catch (ClassCastException cce) {
             throw new SerializationException(cce);
-        } finally {
-            if (bais != null) {
-                try {
-                    bais.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
         }
     }
 

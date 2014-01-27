@@ -201,6 +201,6 @@ public class FollowupData extends AbstractWarningRecord {
      */
     @Override
     public String getPluginName() {
-        return "followUpWarning";
+        return "followupwarning";
     }
 }

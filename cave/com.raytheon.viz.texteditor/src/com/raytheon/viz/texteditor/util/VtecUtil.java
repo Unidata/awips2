@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.GetNextEtnRequest;
+import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -43,6 +44,8 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * ------------ ---------- ----------- --------------------------
  * Feb 09, 2009            bwoodle     Initial creation
  * May 08, 2013  #1842     dgilling    Code cleanup.
+ * Aug 29, 2013  #1843     dgilling    Use new GetNextEtnRequest constructor.
+ * Oct 21, 2013  #1843     dgilling    Use new GetNextEtnResponse.
  * 
  * </pre>
  * 
@@ -105,33 +108,92 @@ public class VtecUtil {
         }
 
         if (vtec.getAction().equals("NEW")) {
-            vtec.setSequence(getNextEtn(vtec.getOffice(), vtec.getPhenomena()
-                    + "." + vtec.getSignificance(), lockEtn));
+            int nextEtn = getNextEtn(vtec.getOffice(),
+                    vtec.getPhenomena() + "." + vtec.getSignificance(), lockEtn)
+                    .getNextEtn();
+            vtec.setSequence(nextEtn);
         }
         return replaceFirstVtecString(message, vtec);
     }
 
-    public static int getNextEtn(String office, String phensig, boolean lockEtn)
-            throws VizException {
-        int rval = 1;
-        GetNextEtnRequest req = new GetNextEtnRequest();
-        req.setSiteID(office);
-        req.setPhensig(phensig);
-        req.setLockEtn(lockEtn);
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn) throws VizException {
+        return getNextEtn(office, phensig, lockEtn, false, false, null);
+    }
+
+    /**
+     * Gets the next available ETN for a specific product and office.
+     * 
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param lockEtn
+     *            Whether or not to request an exclusive ETN--if true, this will
+     *            cause the server to increment its running ETN sequence to the
+     *            next number after determining the next ETN for this request.
+     *            If false, the next ETN will be returned, but it will not
+     *            increment the server's running sequence, so the ETN return
+     *            could be used by another client that makes a
+     *            GetNextEtnRequest.
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See {@link
+     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
+     *            String, Calendar, List<IRequestRouter>)} for more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
+    public static GetNextEtnResponse getNextEtn(String office, String phensig,
+            boolean lockEtn, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride) throws VizException {
         Calendar currentTime = Calendar.getInstance();
         currentTime.setTime(SimulatedTime.getSystemTime().getTime());
-        req.setCurrentTime(currentTime);
-        CAVEMode mode = CAVEMode.getMode();
-        if (mode.equals(CAVEMode.PRACTICE)) {
-            req.setMode(ActiveTableMode.PRACTICE);
-        } else {
-            req.setMode(ActiveTableMode.OPERATIONAL);
-        }
+        ActiveTableMode activeTable = (CAVEMode.getMode()
+                .equals(CAVEMode.PRACTICE)) ? ActiveTableMode.PRACTICE
+                : ActiveTableMode.OPERATIONAL;
+        GetNextEtnRequest req = new GetNextEtnRequest(office, activeTable,
+                phensig, currentTime, lockEtn, performISC, reportOnlyConflict,
+                etnOverride);
 
-        Integer resp = (Integer) ThriftClient.sendRequest(req);
-        if (resp != null) {
-            rval = resp;
-        }
+        GetNextEtnResponse resp = (GetNextEtnResponse) ThriftClient
+                .sendRequest(req);
+        GetNextEtnResponse rval = (resp != null) ? resp
+                : new GetNextEtnResponse(1, phensig);
         return rval;
     }
 

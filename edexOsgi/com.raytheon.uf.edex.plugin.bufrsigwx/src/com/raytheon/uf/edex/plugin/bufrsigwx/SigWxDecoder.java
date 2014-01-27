@@ -26,7 +26,6 @@ import java.util.List;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.SigWxData;
-import com.raytheon.uf.common.dataplugin.bufrsigwx.dao.SigWxDataDao;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.edex.bufrtools.AbstractBUFRDecoder;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;

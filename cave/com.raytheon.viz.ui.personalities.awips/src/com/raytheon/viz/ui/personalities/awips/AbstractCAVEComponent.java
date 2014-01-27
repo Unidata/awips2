@@ -26,14 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXBException;
-
 import org.eclipse.core.internal.runtime.InternalPlatform;
 import org.eclipse.core.runtime.ILogListener;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
@@ -46,7 +41,6 @@ import org.eclipse.ui.statushandlers.StatusAdapter;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.pypies.PyPiesDataStoreFactory;
 import com.raytheon.uf.common.pypies.PypiesProperties;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -64,7 +58,9 @@ import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.status.VizStatusHandlerFactory;
+import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
 import com.raytheon.viz.alerts.jobs.MenuUpdater;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -80,23 +76,29 @@ import com.raytheon.viz.core.units.UnitRegistrar;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 28, 2011            mschenke     Initial creation
- * May 16, 2012   #636     dgilling     Ensure exception is thrown
- *                                      and CAVE immediately exits
- *                                      if connection cannot be made to
- *                                      localization server.
- * May 31, 2012   #674     dgilling     Allow SimulatedTime to be set from
- *                                      the command line.
- * Oct 02, 2012   #1236    dgilling     Allow SimulatedTime to be set from
- *                                      the command line even if practice
- *                                      mode is off.
- * Jan 09, 2013   #1442    rferrel      Changes to notify SimultedTime listeners.
- * Apr 17, 2013    1786    mpduff       startComponent now sets StatusHandlerFactory
- * Apr 23, 2013   #1939    randerso     Allow serialization to complete initialization
- *                                      before connecting to JMS to avoid deadlock
- * May 23, 2013   #2005    njensen      Shutdown on spring initialization errors
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Apr 28, 2011           mschenke    Initial creation
+ * May 16, 2012  636      dgilling    Ensure exception is thrown and CAVE
+ *                                    immediately exits if connection cannot be
+ *                                    made to localization server.
+ * May 31, 2012  674      dgilling    Allow SimulatedTime to be set from the
+ *                                    command line.
+ * Oct 02, 2012  1236     dgilling    Allow SimulatedTime to be set from the 
+ *                                    command line even if practice mode is
+ *                                    off.
+ * Jan 09, 2013  1442     rferrel     Changes to notify SimultedTime listeners.
+ * Apr 17, 2013  1786     mpduff      startComponent now sets
+ *                                    StatusHandlerFactory
+ * Apr 23, 2013  1939     randerso    Allow serialization to complete
+ *                                    initialization before connecting to JMS
+ *                                    to avoid deadlock
+ * May 23, 2013  2005     njensen     Shutdown on spring initialization errors
+ * Oct 15, 2013  2361     njensen     Added startupTimer
+ * Nov 14, 2013  2361     njensen     Removed initializing serialization at
+ *                                    startup
+ * Dec 10, 2013  2602     bsteffen    Start loading ProcedureXmlManager in
+ *                                    startComponent.
  * 
  * </pre>
  * 
@@ -125,6 +127,9 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     @SuppressWarnings("restriction")
     @Override
     public final Object startComponent(String componentName) throws Exception {
+        ITimer startupTimer = TimeUtil.getTimer();
+        startupTimer.start();
+
         // This is a workaround to receive status messages because without the
         // PlatformUI initialized Eclipse throws out the status
         // messages. Once PlatformUI has started, the status handler
@@ -192,7 +197,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         }
         UFStatus.setHandlerFactory(new VizStatusHandlerFactory());
 
-        Job serializationJob = initializeSerialization();
         initializeDataStoreFactory();
         initializeObservers();
 
@@ -233,21 +237,19 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
         try {
             initializeSimulatedTime();
 
-            // wait for serialization initialization to complete before
-            // opening JMS connection to avoid deadlock in class loaders
-            if (serializationJob != null) {
-                serializationJob.join();
-            }
-
             // open JMS connection to allow alerts to be received
             NotificationManagerJob.connect();
 
             timer.stop();
-            System.out.println("Initialization time: " + timer.getElapsedTime()
-                    + "ms");
+            System.out.println("Internal initialization time: "
+                    + timer.getElapsedTime() + " ms");
 
             if (cave) {
                 workbenchAdvisor = getWorkbenchAdvisor();
+                if (workbenchAdvisor instanceof VizWorkbenchAdvisor) {
+                    ((VizWorkbenchAdvisor) workbenchAdvisor)
+                            .setStartupTimer(startupTimer);
+                }
             } else if (!nonui) {
                 workbenchAdvisor = new HiddenWorkbenchAdvisor(componentName,
                         this);
@@ -256,6 +258,8 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
             if (workbenchAdvisor instanceof HiddenWorkbenchAdvisor == false) {
                 startInternal(componentName);
             }
+
+            ProcedureXmlManager.inititializeAsync();
 
             if (workbenchAdvisor != null) {
                 returnCode = PlatformUI.createAndRunWorkbench(display,
@@ -412,25 +416,6 @@ public abstract class AbstractCAVEComponent implements IStandaloneComponent {
     protected void initializeLocalization(boolean nonui) throws Exception {
         new LocalizationInitializer(!nonui,
                 !LocalizationManager.internalAlertServer).run();
-    }
-
-    protected Job initializeSerialization() {
-        Job job = new Job("Loading Serialization") {
-
-            @Override
-            protected IStatus run(IProgressMonitor monitor) {
-                try {
-                    SerializationUtil.getJaxbContext();
-                } catch (JAXBException e) {
-                    statusHandler.handle(Priority.CRITICAL,
-                            "An error occured initializing Serialization", e);
-                }
-                return Status.OK_STATUS;
-            }
-
-        };
-        job.schedule();
-        return job;
     }
 
     /**

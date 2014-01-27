@@ -156,7 +156,8 @@ public class NcepLoggerManager  {
 
 	private Logger getLog4jLogger(NcepLogCategory ncepLogCategory, String logName) {
 		Logger logger = Logger.getLogger(logName); 
-		addDailyLogFileAppender(logger, ncepLogCategory); 
+		// njensen commented the line below out because it doesn't seem to do much and it doesn't work with logback
+		//addDailyLogFileAppender(logger, ncepLogCategory); 
 		return logger; 
 	}
 	

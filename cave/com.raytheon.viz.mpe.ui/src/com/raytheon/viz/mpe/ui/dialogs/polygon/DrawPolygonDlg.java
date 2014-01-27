@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 26, 2011 7761       bkowal      The value associated with polygons
  *                                     with the "scale" action will no
  *                                     longer be divided by 100.
+ * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * 
  * </pre>
  * 
@@ -120,7 +121,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Edit Precipitation");
         this.resource = resource;
-        waitCursor = new Cursor(parentShell.getDisplay(), SWT.CURSOR_WAIT);
+        waitCursor = parentShell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
     }
 
     @Override

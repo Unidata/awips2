@@ -20,6 +20,10 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.lcm.v4;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -65,20 +69,41 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Added Hibernate annotations
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "UpdateAction")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UpdateActionType", propOrder = { "valueHolder", "selector" })
 @DynamicSerialize
+@Embeddable
 public class UpdateActionType {
+
+    public enum UPDATE_MODE {
+        Insert, Update, Delete
+    }
 
     @XmlElement(name = "ValueHolder")
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "valueHolder_id", referencedColumnName = "id")
     protected ValueType valueHolder;
 
     @XmlElement(name = "Selector", required = true)
     @DynamicSerializeElement
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "selector_id", referencedColumnName = "id")
     protected QueryExpressionType selector;
 
     @XmlAttribute(required = true)
@@ -138,6 +163,10 @@ public class UpdateActionType {
         return mode;
     }
 
+    public UPDATE_MODE getUpdateMode() {
+        return UPDATE_MODE.valueOf(mode);
+    }
+
     /**
      * Sets the value of the mode property.
      * 
@@ -147,6 +176,10 @@ public class UpdateActionType {
      */
     public void setMode(String value) {
         this.mode = value;
+    }
+
+    public void setUpdateMode(UPDATE_MODE mode) {
+        this.mode = mode.toString();
     }
 
 }

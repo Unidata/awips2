@@ -29,7 +29,6 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -57,7 +56,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
@@ -81,14 +80,15 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/20/2006              brockwoo    Initial creation.
- * 03/16/2009              jsanchez    Added processAvailDirective.
- * 06/29/2009       2538   jsanchez    Implemented pointdata.
- * ======================================
- * AWIPS2 DR Work
- * 08/09/2012         1085 jkorman     Corrected data construction.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 20, 2006           brockwoo    Initial creation.
+ * Mar 16, 2009           jsanchez    Added processAvailDirective.
+ * Jun 29, 2009  2538     jsanchez    Implemented pointdata.
+ * Aug 09, 2012  1085     jkorman     Corrected data construction.
+ * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
+ * Sep 05, 2013  2307     dgilling    Use better PythonScript constructor.
+ * Nov 20, 2013  2033     njensen     Fix detecting plotModels dirs from multiple plugins
  * 
  * </pre>
  * 
@@ -99,7 +99,7 @@ public class PlotModelFactory2 {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotModelFactory2.class);
 
-    private static final String plotmodelDir = "plotModels";
+    private static final String PLOT_MODEL_DIR = "plotModels";
 
     private static final String DM_ATTRIBUTE = "plotMode";
 
@@ -120,6 +120,8 @@ public class PlotModelFactory2 {
     private static final String PLT_INDEX = "plotIndex";
 
     private static final String REQUIRED = "required";
+
+    private static String cachedIncludePath;
 
     private final SimpleDateFormat SAMPLE_DATE = new SimpleDateFormat("HHmm");
 
@@ -460,11 +462,13 @@ public class PlotModelFactory2 {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node child = childNodes.item(i);
-                if (Node.TEXT_NODE == child.getNodeType())
+                if (Node.TEXT_NODE == child.getNodeType()) {
                     sb.append(((Text) child).getData());
+                }
             }
-            if (sb.length() > 0)
+            if (sb.length() > 0) {
                 scriptInfo.scriptText = sb.toString();
+            }
 
             sampleScriptInfo = new ScriptInfo();
             sampleScriptInfo.plotDelegateName = scriptInfo.plotDelegateName;
@@ -599,8 +603,9 @@ public class PlotModelFactory2 {
                     Object result = script.executePlotDelegateMethod("isValid",
                             "rec", stationData);
                     if (result instanceof Boolean
-                            && !((Boolean) result).booleanValue())
+                            && !((Boolean) result).booleanValue()) {
                         return null;
+                    }
                 } catch (JepException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -983,8 +988,9 @@ public class PlotModelFactory2 {
         case LONG:
             if (dimensions == 1) {
                 Number n = ob.getNumber(element.parameter);
-                if((n != null) && (n.doubleValue() != -9999)) {
-                    if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                if ((n != null) && (n.doubleValue() != -9999)) {
+                    if ((n.doubleValue() != -9999)
+                            && (!Double.isNaN(n.doubleValue()))) {
                         display = n.toString();
                     }
                 }
@@ -1007,13 +1013,13 @@ public class PlotModelFactory2 {
             display = fields[element.index];
         } else if (element.ranking != null && fields != null) {
             display = element.ranking.getRankedField(fields);
-        } else if ((fields != null)&&(fields.length > 0)) {
-            StringBuilder sb = new StringBuilder(fields[fields.length-1]);
-            for(int i = fields.length-2; i >= 0;i--) {
+        } else if ((fields != null) && (fields.length > 0)) {
+            StringBuilder sb = new StringBuilder(fields[fields.length - 1]);
+            for (int i = fields.length - 2; i >= 0; i--) {
                 sb.append(" ");
                 sb.append(fields[i]);
             }
-            display = sb.toString();
+            display = sb.toString().trim();
         }
 
         if (element.lookup != null) {
@@ -1196,19 +1202,24 @@ public class PlotModelFactory2 {
     }
 
     /**
-     * Convert an array of Numbers to their String representation. Note that indexing
-     * may be used on the return array so the output size must match the input size.
-     * @param values An array of Number to convert.
-     * @return The converted data. If the input is null, the return will be null.
+     * Convert an array of Numbers to their String representation. Note that
+     * indexing may be used on the return array so the output size must match
+     * the input size.
+     * 
+     * @param values
+     *            An array of Number to convert.
+     * @return The converted data. If the input is null, the return will be
+     *         null.
      */
     private String[] numberToStringArray(Number[] values) {
         String[] retVal = null;
-        if(values != null) {
+        if (values != null) {
             retVal = new String[values.length];
-            Arrays.fill(retVal,"");
-            for(int i = 0;i < values.length;i++) {
+            Arrays.fill(retVal, "");
+            for (int i = 0; i < values.length; i++) {
                 Number n = values[i];
-                if((n.doubleValue() != -9999)&&(!Double.isNaN(n.doubleValue()))) {
+                if ((n.doubleValue() != -9999)
+                        && (!Double.isNaN(n.doubleValue()))) {
                     retVal[i] = n.toString();
                 }
             }
@@ -1266,9 +1277,9 @@ public class PlotModelFactory2 {
 
         public PlotPythonScript getScript() throws JepException {
             if (script != null) {
-                if (Thread.currentThread() == scriptThread)
+                if (Thread.currentThread() == scriptThread) {
                     return script;
-                else {
+                } else {
                     statusHandler.handle(Priority.ERROR,
                             "Plot model scripting was not properly disposed.");
                     script = null;
@@ -1284,8 +1295,9 @@ public class PlotModelFactory2 {
         public void disposeScript() throws JepException {
             if (script != null) {
                 try {
-                    if (Thread.currentThread() == scriptThread)
+                    if (Thread.currentThread() == scriptThread) {
                         script.dispose();
+                    }
                 } finally {
                     script = null;
                     scriptThread = null;
@@ -1294,32 +1306,39 @@ public class PlotModelFactory2 {
         }
 
         private PlotPythonScript createScript() throws JepException {
-            PlotPythonScript script;
-
-            Map<LocalizationLevel, LocalizationFile> map = PathManagerFactory
-                    .getPathManager().getTieredLocalizationFile(
-                            LocalizationType.CAVE_STATIC, "plotModels");
-            ArrayList<LocalizationLevel> keys = new ArrayList<LocalizationLevel>(
-                    map.keySet());
-            Collections.sort(keys);
-            Collections.reverse(keys);
-            StringBuilder includePath = new StringBuilder();
-            for (LocalizationLevel ll : keys) {
-                LocalizationFile lf = map.get(ll);
-                if (includePath.length() > 0)
-                    includePath.append(File.pathSeparator);
-                includePath.append(lf.getFile().getAbsolutePath());
+            synchronized (PlotModelFactory2.class) {
+                if (cachedIncludePath == null) {
+                    IPathManager pm = PathManagerFactory.getPathManager();
+                    LocalizationFile[] files = pm
+                            .listFiles(
+                                    pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
+                                    PLOT_MODEL_DIR, null, false, false);
+                    StringBuilder includePath = new StringBuilder();
+                    for (LocalizationFile lf : files) {
+                        if (lf.exists() && lf.isDirectory()) {
+                            if (includePath.length() > 0) {
+                                includePath.append(File.pathSeparator);
+                            }
+                            includePath.append(lf.getFile().getAbsolutePath());
+                        }
+                    }
+                    cachedIncludePath = includePath.toString();
+                }
             }
 
             File baseFile = PathManagerFactory.getPathManager().getStaticFile(
-                    "plotModels/PlotModelInterface.py");
-            script = new PlotPythonScript(baseFile.getAbsolutePath(),
-                    includePath.toString(), plotDelegateName);
-            if (scriptText != null)
-                script.evaluate(scriptText);
-            script.executePlotDelegateMethod("init", "plotModelFactory",
+                    PLOT_MODEL_DIR + IPathManager.SEPARATOR
+                            + "PlotModelInterface.py");
+            PlotPythonScript localScript = new PlotPythonScript(
+                    baseFile.getAbsolutePath(), cachedIncludePath,
+                    plotDelegateName);
+
+            if (scriptText != null) {
+                localScript.evaluate(scriptText);
+            }
+            localScript.executePlotDelegateMethod("init", "plotModelFactory",
                     PlotModelFactory2.this);
-            return script;
+            return localScript;
         }
     }
 
@@ -1331,7 +1350,8 @@ public class PlotModelFactory2 {
 
         public PlotPythonScript(String filePath, String anIncludePath,
                 String plotDelegateName) throws JepException {
-            super(filePath, anIncludePath);
+            super(filePath, anIncludePath, PlotPythonScript.class
+                    .getClassLoader());
             jep.eval("def "
                     + CHEAT_RUN
                     + "(text):\n return eval(compile(text,'string','exec'),globals(),globals())");
@@ -1352,14 +1372,15 @@ public class PlotModelFactory2 {
                     map.put(argName, argValue);
                 }
                 return execute(methodName, plotDelegateName, map);
-            } else
+            } else {
                 return null;
+            }
         }
     }
 
     private File getTableFile(String fileName) {
         File rval = PathManagerFactory.getPathManager().getStaticFile(
-                plotmodelDir + File.separator + fileName);
+                PLOT_MODEL_DIR + IPathManager.SEPARATOR + fileName);
         return rval;
     }
 

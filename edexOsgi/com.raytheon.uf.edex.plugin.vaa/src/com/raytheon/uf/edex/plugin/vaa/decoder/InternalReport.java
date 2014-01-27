@@ -32,7 +32,7 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Data structure for a Volcanic Ash Advisory
  * 
  * <pre>
  * 
@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 19, 2009            jkorman     Initial creation
+ * Nov 26, 2013 2582       njensen     Fix where OBS DTG is on separate lines
  * 
  * </pre>
  * 
@@ -49,22 +50,26 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 
 public class InternalReport {
-    // private static Log logger = LogFactory.getLog(InternalReport.class);
 
-    public static final String VAAC_CNTR_P = "^((VAAC)(?:\\:) +(.*))";
+    public static final Pattern VAAC_CNTR_P = Pattern
+            .compile("^((VAAC)(?:\\:) +(.*))");
 
     // PSN: N1642 W06210
     // LOCATION: N1642 W06210
-    public static final String VOL_PSN_P = "(^(LOCATION|PSN)(?:\\:) +(.*))";
+    public static final Pattern VOL_PSN_P = Pattern
+            .compile("(^(LOCATION|PSN)(?:\\:) +(.*))");
 
-    public static final String LAT_LON_P = "([NS])(\\d{2,2})(\\d{2,2}) +([EW])(\\d{3,3})(\\d{2,2})";
+    public static final Pattern LAT_LON_P = Pattern
+            .compile("([NS])(\\d{2,2})(\\d{2,2}) +([EW])(\\d{3,3})(\\d{2,2})");
 
-    public static final String DTG_P = "^(OBS) +(VA|ASH) +DTG: +(.*)";
+    public static final Pattern DTG_P = Pattern
+            .compile("^(OBS) +(VA|ASH) +DTG: +(.*)");
 
-    public static final String ANAL_P = "^(OBS) +(VA|ASH) +(CLD|CLOUD): +(.*)";
+    public static final Pattern ANAL_P = Pattern
+            .compile("^(OBS) +(VA|ASH) +(CLD|CLOUD): +(.*)");
 
-    //
-    public static final String FCST_P = "^(FCST) +(VA|ASH) +(CLD|CLOUD) \\+(\\d{1,2})HR: +(.*)";
+    public static final Pattern FCST_P = Pattern
+            .compile("^(FCST) +(VA|ASH) +(CLD|CLOUD) \\+(\\d{1,2})HR: +(.*)");
 
     //
     // public static final String DATE_LINE =
@@ -167,26 +172,21 @@ public class InternalReport {
         }
         List<String> lines = separateLines(message);
         if (lines != null) {
-            Pattern p1 = Pattern.compile(VAAC_CNTR_P);
-            Pattern p2 = Pattern.compile(VOL_PSN_P);
-            Pattern p3 = Pattern.compile(FCST_P);
-            Pattern p4 = Pattern.compile(ANAL_P);
-            Pattern p5 = Pattern.compile(DTG_P);
-
             Matcher m;
+            String previousLine = null;
             for (String s : lines) {
                 if (s.length() > 0) {
-                    m = p1.matcher(s);
+                    m = VAAC_CNTR_P.matcher(s);
                     if (m.find()) {
                         reports.add(new InternalReport(InternalType.VAAC_CNTR,
                                 m.group(3)));
                     } else {
-                        m = p2.matcher(s);
+                        m = VOL_PSN_P.matcher(s);
                         if (m.find()) {
                             reports.add(new InternalReport(
                                     InternalType.VOLCANO_PSN, s));
                         } else {
-                            m = p3.matcher(s);
+                            m = FCST_P.matcher(s);
                             if (m.find()) {
                                 reports.add(new InternalReport(
                                         InternalType.FCST, s));
@@ -196,9 +196,15 @@ public class InternalReport {
                                 reports.add(new InternalReport(
                                         InternalType.ADVISORY_LEAD, s));
                             } else if (s.startsWith("DTG:")) {
-                                reports.add(new InternalReport(
-                                        InternalType.MESSAGE_DTG, s
-                                                .substring(5)));
+                                if (previousLine != null
+                                        && previousLine.startsWith("OBS")) {
+                                    reports.add(new InternalReport(
+                                            InternalType.OBS_DTG, s));
+                                } else {
+                                    reports.add(new InternalReport(
+                                            InternalType.MESSAGE_DTG, s
+                                                    .substring(5)));
+                                }
                             } else if (s.startsWith("VOLCANO:")) {
                                 reports.add(new InternalReport(
                                         InternalType.VOLCANO_ID, s.substring(9)));
@@ -222,12 +228,12 @@ public class InternalReport {
                                         InternalType.ERUPTION_DETAIL, s
                                                 .substring(18)));
                             } else if (s.startsWith("OBS")) {
-                                m = p4.matcher(s);
+                                m = ANAL_P.matcher(s);
                                 if (m.find()) {
                                     reports.add(new InternalReport(
                                             InternalType.OBS, s));
                                 } else {
-                                    m = p5.matcher(s);
+                                    m = DTG_P.matcher(s);
                                     if (m.find()) {
                                         reports.add(new InternalReport(
                                                 InternalType.OBS_DTG, s));
@@ -253,7 +259,7 @@ public class InternalReport {
                         }
                     }
                 }
-
+                previousLine = s;
             } // for
         }
         return adjust(reports);
@@ -302,7 +308,6 @@ public class InternalReport {
      * @return The adjusted report list.
      */
     private static List<InternalReport> adjust(List<InternalReport> reports) {
-        boolean advisoryLead = false;
         if (reports != null) {
             InternalReport currRpt = null;
             for (int i = 0; i < reports.size();) {
@@ -314,7 +319,6 @@ public class InternalReport {
                     break;
                 }
                 case ADVISORY_LEAD: {
-                    advisoryLead = true;
                     // fall through
                 }
                 case MESSAGE_DTG:
@@ -360,11 +364,9 @@ public class InternalReport {
     }
 
     public static final void main(String[] args) {
-
-        Pattern p = Pattern.compile(VOL_PSN_P);
         Matcher m;
 
-        m = p.matcher("PSN: N1642 W06210");
+        m = VOL_PSN_P.matcher("PSN: N1642 W06210");
         if (m.find()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 System.out.println(String.format(" %3d  %s", i, m.group(i)));
@@ -372,7 +374,7 @@ public class InternalReport {
         }
         System.out
                 .println("--------------------------------------------------------");
-        m = p.matcher("LOCATION: N1642 W06210");
+        m = VOL_PSN_P.matcher("LOCATION: N1642 W06210");
         if (m.find()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 System.out.println(String.format(" %3d  %s", i, m.group(i)));
@@ -380,8 +382,7 @@ public class InternalReport {
         }
         System.out
                 .println("--------------------------------------------------------");
-        p = Pattern.compile(VAAC_CNTR_P);
-        m = p.matcher("VAAC: WASHINGTON");
+        m = VAAC_CNTR_P.matcher("VAAC: WASHINGTON");
         if (m.find()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 System.out.println(String.format(" %3d  %s", i, m.group(i)));
@@ -389,8 +390,7 @@ public class InternalReport {
         }
         System.out
                 .println("--------------------------------------------------------");
-        p = Pattern.compile(LAT_LON_P);
-        m = p.matcher("N1642 W06210");
+        m = LAT_LON_P.matcher("N1642 W06210");
         if (m.find()) {
             for (int i = 1; i <= m.groupCount(); i++) {
                 System.out.println(String.format(" %3d  %s", i, m.group(i)));
@@ -403,7 +403,7 @@ public class InternalReport {
 
         String FCST_1_P = "(\\d{2}/\\d{4}Z +)";
 
-        p = Pattern.compile(FCST_P);
+        Pattern p = Pattern.compile(FCST_P);
         // m =
         // p.matcher("FCST VA CLD +6HR: 05/0130Z SFC/FL220 5NM WIDE LINE N1638 W06614 - N1643 W06214");
         // m =

@@ -33,11 +33,11 @@ import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.tcg.TCGStormType;
 import com.raytheon.uf.common.dataplugin.tcg.TropicalCycloneGuidance;
-import com.raytheon.uf.common.dataplugin.tcg.dao.TropicalCycloneGuidanceDao;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.plugin.tcg.TropicalCycloneGuidanceDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**

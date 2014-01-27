@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--  default keep 3 hours -->
+<purgeRuleSet>
+        <!-- Purge keys must match paths keys exactly.  
+             Please see MadisDao for details on purging. -->
+	<defaultRule>
+		<period>00-03:00:00</period>
+	</defaultRule>
+</purgeRuleSet>

@@ -32,7 +32,9 @@
       <property name="monitorEndpoint" value="edex.alerts.msg"/>
    </bean>
 
-   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="getInstance"/>
+   <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
+        <constructor-arg value="org.geotools.util.logging.Log4JLoggerFactory"/>
+   </bean>
    
    <!-- These util:constant beans should not be required, they overwrite the ones in *-common.xml files for CAVE since
         CAVE just gets a ClassNotFoundException on boot... 
@@ -67,5 +69,10 @@
 		</property>
 		<property name="arguments" ref="recordFactory" />
 	</bean>
+	    
+    <bean id="vizSubClassLocator" class="com.raytheon.uf.viz.core.reflect.SubClassLocator"/>
+    <bean class="com.raytheon.uf.common.style.StyleManager" factory-method="getInstance">
+        <property name="subClassLocator" ref="vizSubClassLocator" />
+    </bean>
 
 </beans>

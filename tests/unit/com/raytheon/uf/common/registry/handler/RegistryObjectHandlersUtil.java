@@ -36,7 +36,8 @@ import com.raytheon.uf.common.util.TestUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 4, 2012  1241      djohnson     Initial creation
+ * Oct 04, 2012  1241      djohnson     Initial creation
+ * Jul 10, 2013 2106       djohnson     Spring file path moved to SpringFiles for reuse.
  * 
  * </pre>
  * 
@@ -47,8 +48,6 @@ import com.raytheon.uf.common.util.TestUtil;
 public class RegistryObjectHandlersUtil {
 
     private static final String MOCK_DATADELIVERY_HANDLERS_XML = "/datadelivery/mock-datadelivery-handlers.xml";
-
-    private static final String MEMORY_DATADELIVERY_HANDLERS_XML = "/datadelivery/memory-datadelivery-handlers.xml";
 
     /**
      * Initializes the handlers with the set of production implementations,
@@ -69,7 +68,7 @@ public class RegistryObjectHandlersUtil {
      * Initializes the handlers with a set of in-memory implementations.
      */
     public static void initMemory() {
-        initHandlersFromSpringFile(MEMORY_DATADELIVERY_HANDLERS_XML);
+        initHandlersFromSpringFile(SpringFiles.MEMORY_DATADELIVERY_HANDLERS_XML);
     }
 
     /**

@@ -36,7 +36,6 @@ import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorData;
 import com.raytheon.viz.ui.dialogs.colordialog.ColorEditComposite;
 import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;
@@ -52,6 +51,7 @@ import com.raytheon.viz.ui.dialogs.colordialog.IColorEditCompCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 18, 2010            mschenke     Initial creation
+ * Nov 11, 2013 2361       njensen      Use ColorMap.JAXB for XML processing
  * 
  * </pre>
  * 
@@ -161,8 +161,7 @@ public class ColorMapEditor extends EditorPart implements
         IFileEditorInput fei = (IFileEditorInput) input;
         File file = fei.getFile().getRawLocation().toFile();
         try {
-            IColorMap cmap = (IColorMap) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file);
+            IColorMap cmap = ColorMap.JAXB.unmarshalFromXmlFile(file);
             fakeParameters = new ColorMapParameters();
             fakeParameters.setColorMap(cmap);
             fakeParameters.setColorMapMin(0);

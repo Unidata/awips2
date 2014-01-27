@@ -32,6 +32,7 @@
 #    10/09/12                      rjpeter       Optimized __getGroup for retrievals
 #    01/17/13        DR 15294      D. Friedman   Clear out data in response
 #    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
+#    Nov 14, 2013       2393       bclement      removed interpolation
 #
 #
 
@@ -64,7 +65,6 @@ dataRecordMap = {
 
 DEFAULT_CHUNK_SIZE = 256
 FILESYSTEM_BLOCK_SIZE = 4096
-DOWNSCALE_THRESHOLD = 512
 REQUEST_ALL = Request()
 REQUEST_ALL.setType('ALL')
 
@@ -88,10 +88,7 @@ class H5pyDataStore(IDataStore.IDataStore):
             t0=time.time()
             for r in recs:
                 try:
-                    if r.getProps() and r.getProps().getDownscaled():
-                        ss = self.__storeInterpolated(f, r, op)
-                    else:
-                        ss = self.__writeHDF(f, r, op)
+                    ss = self.__writeHDF(f, r, op)
                 except:
                     logger.warn("Exception occurred on file " + fn + ":" + IDataStore._exc())
                     exc.append(IDataStore._exc())
@@ -134,11 +131,6 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             ss = self.__writeHDFDataset(f, data, record.getDimension(), record.getSizes(), record.getName(),
                                    group, props, self.__getHdf5Datatype(record), storeOp, record)
-
-            if props and props.getDownscaled():
-                intName = record.getGroup() + '/' + record.getName() + '-interpolated'
-                intGroup = self.__getNode(rootNode, intName, None, create=True)
-                self.__link(intGroup, '0', group[record.getName()])
 
         f.flush()
         if logger.isEnabledFor(logging.DEBUG):
@@ -256,47 +248,6 @@ class H5pyDataStore(IDataStore.IDataStore):
             for key in attrs:
                 dataset.attrs[key] = attrs[key]
 
-    def __storeInterpolated(self, f, rec, op):
-        if op != 'REPLACE' and op != 'STORE_ONLY':
-            raise StorageException("Only replace and store modes are supported with interpolation enabled")
-
-        # store the base product
-        ss = self.__writeHDF(f, rec, op)
-
-        sizes = rec.getSizes()
-        newSzX = sizes[1]
-        newSzY = sizes[0]
-        originalName = rec.getName()
-        originalGroup = rec.getGroup()
-        level = 0
-
-        # avoid recursive links by turning off downscaling
-        rec.getProps().setDownscaled(False)
-        from PIL import Image
-        import time
-
-        while newSzX > DOWNSCALE_THRESHOLD or newSzY > DOWNSCALE_THRESHOLD:
-            data = rec.retrieveDataObject()
-            # data is potentially 1-dimensional from serialization, ensure it goes to correct 2 dimensions
-            data = data.reshape([newSzX, newSzY])
-            newSzX = newSzX / 2
-            newSzY = newSzY / 2
-            level += 1
-            rec.setName(str(level))
-            rec.setGroup(originalGroup + '/' + originalName + '-interpolated')
-            # satellite data comes in as signed bytes but pil requires unsigned bytes
-            data = numpy.array(data + 127, dtype=numpy.uint8)
-            image = Image.fromarray(data)
-            image = image.resize((newSzY, newSzX))
-            downsized = numpy.array(image)
-            # transform back to signed bytes
-            downsized = numpy.array(downsized - 127, dtype=numpy.int8)
-            rec.putDataObject(downsized)
-            rec.setSizes([newSzY, newSzX])
-            self.__writeHDF(f, rec, op)
-
-        return ss
-
     def __writePartialHDFDataset(self, f, data, dims, szDims, ds, props,
                                                 minIndex):
         # reverse sizes for hdf5
@@ -405,7 +356,7 @@ class H5pyDataStore(IDataStore.IDataStore):
                 result = [self.__retrieveInternal(ds, req)]
             else:
                 groupNode = self.__getNode(rootNode, group)
-                result = self.__retrieve(groupNode, request.getIncludeInterpolated())
+                result = self.__retrieve(groupNode)
             resp = RetrieveResponse()
             resp.setRecords(result)
             return resp
@@ -418,18 +369,12 @@ class H5pyDataStore(IDataStore.IDataStore):
 
 
 
-    def __retrieve(self, group, includeInterpolated=False):
+    def __retrieve(self, group):
         records = []
         datasets = group.keys()
         for ds in datasets:
-            interpDs = ds.endswith('-interpolated')
-            if includeInterpolated and interpDs:
-                subresults = self.__retrieve(group[ds], False)
-                if subresults:
-                    records += subresults
-            elif not interpDs:
-                rec = self.__retrieveInternal(group[ds], REQUEST_ALL)
-                records.append(rec)
+            rec = self.__retrieveInternal(group[ds], REQUEST_ALL)
+            records.append(rec)
 
         return records
 

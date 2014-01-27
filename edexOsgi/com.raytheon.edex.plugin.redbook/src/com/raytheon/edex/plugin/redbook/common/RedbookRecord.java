@@ -31,14 +31,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.hibernate.annotations.Index;
 
-import com.raytheon.uf.common.dataplugin.IDecoderGettable;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -72,6 +67,7 @@ import com.raytheon.uf.common.time.DataTime;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Nov 04, 2013 2361       njensen     Remove XML annotations
  * 
  * </pre>
  * 
@@ -87,8 +83,6 @@ import com.raytheon.uf.common.time.DataTime;
  */
 @org.hibernate.annotations.Table(appliesTo = "redbook", indexes = { @Index(name = "redbook_refTimeIndex", columnNames = {
         "refTime", "forecastTime" }) })
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class RedbookRecord extends PersistablePluginDataObject implements
         IPersistable, Cloneable {
@@ -99,57 +93,48 @@ public class RedbookRecord extends PersistablePluginDataObject implements
 
     // Time of the observation.
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Calendar timeObs;
 
     @DataURI(position = 1)
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
     private String wmoTTAAii;
 
     // Text of the WMO header
     @Column(length = 16)
-    @XmlAttribute
     @DynamicSerializeElement
     private String wmoCCCCdt;
 
     // Correction indicator from wmo header
     @DataURI(position = 3)
     @Column(length = 8)
-    @XmlAttribute
     @DynamicSerializeElement
     private String corIndicator;
 
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer retentionHours;
 
     @DataURI(position = 5)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer fcstHours;
 
     // varchar(15)
     @DataURI(position = 2)
     @Column(length = 15)
-    @XmlAttribute
     @DynamicSerializeElement
     private String productId;
 
     @DataURI(position = 6)
     @Column
-    @XmlAttribute
     @DynamicSerializeElement
     private Integer fileId;
 
     // varchar(4)
     @DataURI(position = 4)
     @Column(length = 4)
-    @XmlAttribute
     @DynamicSerializeElement
     private String originatorId;
 
@@ -333,16 +318,6 @@ public class RedbookRecord extends PersistablePluginDataObject implements
      */
     public void setRedBookData(byte[] redBookData) {
         this.redBookData = redBookData;
-    }
-
-    /**
-     * Get the IDecoderGettable reference for this record.
-     * 
-     * @return This class does not implement IDecoderGettable, return null.
-     */
-    @Override
-    public IDecoderGettable getDecoderGettable() {
-        return null;
     }
 
     /**

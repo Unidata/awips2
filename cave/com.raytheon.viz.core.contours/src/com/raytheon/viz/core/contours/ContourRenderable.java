@@ -30,10 +30,11 @@ import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -45,7 +46,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -59,6 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 10, 2008	#1233	    chammack	Initial creation
+ * Jul 18, 2013 #2199       mschenke    Made code only smooth data once
+ * Aug 23, 2013 #2157       dgilling    Remove meteolib dependency.
  * 
  * </pre>
  * 
@@ -85,6 +87,8 @@ public abstract class ContourRenderable implements IRenderable {
     private int outlineWidth;
 
     private final String uuid;
+
+    private IDataRecord[] data;
 
     // This is the width of CONUS
     private static final double METERS_AT_BASE_ZOOMLEVEL = 5878649.0;
@@ -118,6 +122,20 @@ public abstract class ContourRenderable implements IRenderable {
         this.descriptor = descriptor;
         uuid = UUID.randomUUID().toString();
         this.requestMap = new HashMap<String, ContourCreateRequest>();
+    }
+
+    private IDataRecord[] getContourData() throws VizException {
+        if (data == null) {
+            data = getData();
+            if (data != null) {
+                GeneralGridGeometry gridGeometry = getGridGeometry();
+                ContourPreferences contourPrefs = getPreferences();
+                if (gridGeometry != null && contourPrefs != null) {
+                    data = smoothData(data, gridGeometry, contourPrefs);
+                }
+            }
+        }
+        return data;
     }
 
     /**
@@ -254,11 +272,6 @@ public abstract class ContourRenderable implements IRenderable {
                                 || contourGroup[i].lastDensity != density
                                 || pdRatio > 2 || pdRatio < 0.5) {
 
-                            IDataRecord[] dataRecord = getData();
-                            if (dataRecord == null) {
-                                return;
-                            }
-
                             GeneralGridGeometry gridGeometry = getGridGeometry();
                             ContourPreferences contourPrefs = getPreferences();
 
@@ -267,8 +280,10 @@ public abstract class ContourRenderable implements IRenderable {
                                 return;
                             }
 
-                            dataRecord = smoothData(dataRecord, gridGeometry,
-                                    contourPrefs);
+                            IDataRecord[] dataRecord = getContourData();
+                            if (dataRecord == null) {
+                                return;
+                            }
 
                             ContourGroup cg = null;
                             // generate the identifier
@@ -425,7 +440,7 @@ public abstract class ContourRenderable implements IRenderable {
                     data[j] = 1.0E37f;
                 }
             }
-            data = Controller.dist_filter(data, npts, nx, 0, 0, nx, ny);
+            data = DistFilter.filter(data, npts, nx, ny, 1);
             // Replace their NaN with our NaN
             for (int j = 0; j < data.length; j++) {
                 if (data[j] == 1.0E37f) {

@@ -35,10 +35,10 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.procedures.Bundle;
+import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.UiUtil;
@@ -50,9 +50,11 @@ import com.raytheon.viz.ui.UiUtil;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Jan 29, 2007             chammack    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2007           chammack    Initial Creation.
+ * Oct 22, 2013  2491     bsteffen    Switch serialization to
+ *                                    ProcedureXmlManager
  * 
  * </pre>
  * 
@@ -108,7 +110,7 @@ public class SaveBundle extends AbstractHandler {
 
         try {
             Bundle bundle = extractCurrentBundle();
-            SerializationUtil.jaxbMarshalToXmlFile(bundle, fileName);
+            ProcedureXmlManager.getInstance().marshalToFile(bundle, fileName);
         } catch (Exception e) {
             Status status = new Status(Status.ERROR, UiPlugin.PLUGIN_ID, 0,
                     "Error occurred during bundle save.", e);

@@ -35,7 +35,7 @@ import com.raytheon.edex.msg.ResponseMessageInline;
 import com.raytheon.edex.uengine.ResponseUtil;
 import com.raytheon.edex.uengine.exception.MicroEngineException;
 import com.raytheon.edex.uengine.tasks.ScriptTask;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Makes an inline response message. Derived from old uEngine
@@ -85,7 +85,7 @@ public class MakeResponseInline extends ScriptTask {
             imageData.add(dataItem);
         } else {
             throw new MicroEngineException("unknown data type "
-                    + Util.printString(dataItem.getClass().getName())
+                    + StringUtil.printString(dataItem.getClass().getName())
                     + " unable to continue.");
         }
         // create the return object - need to call the create method.

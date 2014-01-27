@@ -29,6 +29,7 @@ import java.util.List;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SharedSubscriptionFixture;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.AbstractRegistryTest;
  * ------------ ---------- ----------- --------------------------
  * May 29, 2013 1650       djohnson     Initial creation
  * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
+ * Oct 21, 2013   2292     mpduff      Implemented point data type
  * 
  * </pre>
  * 
@@ -60,9 +62,9 @@ public class SubscriptionHandlerTest extends AbstractRegistryTest {
     public void canDeleteMixedSiteAndSharedSubscriptions()
             throws RegistryHandlerException {
         final SiteSubscription siteSubscription = SiteSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
         final SharedSubscription sharedSubscription = SharedSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
 
         final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();
@@ -81,9 +83,9 @@ public class SubscriptionHandlerTest extends AbstractRegistryTest {
     public void canDeleteMixedSiteAndSharedSubscriptionsWithUsername()
             throws RegistryHandlerException {
         final SiteSubscription siteSubscription = SiteSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
         final SharedSubscription sharedSubscription = SharedSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
 
         final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();
@@ -102,7 +104,7 @@ public class SubscriptionHandlerTest extends AbstractRegistryTest {
     public void getByIdReturnsSharedSubscription()
             throws RegistryHandlerException {
         final SharedSubscription sharedSubscription = SharedSubscriptionFixture.INSTANCE
-                .get();
+                .get(DataType.GRID);
 
         final ISubscriptionHandler subscriptionHandler = DataDeliveryHandlers
                 .getSubscriptionHandler();

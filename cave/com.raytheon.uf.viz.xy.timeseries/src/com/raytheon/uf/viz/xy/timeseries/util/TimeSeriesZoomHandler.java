@@ -22,7 +22,11 @@ package com.raytheon.uf.viz.xy.timeseries.util;
 import java.util.Stack;
 
 import org.eclipse.swt.widgets.Event;
+import org.geotools.geometry.DirectPosition2D;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.xy.AbstractGraphInputHandler;
@@ -42,6 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2009            mschenke     Initial creation
+ * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate for zoom
  * 
  * </pre>
  * 
@@ -50,6 +55,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TimeSeriesZoomHandler.class);
 
     private MousePreferenceManager prefManager = MousePreferenceManager
             .getInstance();
@@ -103,7 +111,7 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
 
     private boolean zoomIn(int x, int y) {
         IDisplayPaneContainer editor = display.getContainer();
-        Coordinate grid = editor.translateClick(x, y);
+        Coordinate grid = translateClick(x, y);
         if (grid == null) {
             return false;
         }
@@ -129,7 +137,7 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
 
     private boolean zoomOut(int x, int y) {
         IDisplayPaneContainer editor = display.getContainer();
-        Coordinate grid = editor.translateClick(x, y);
+        Coordinate grid = translateClick(x, y);
         if (grid == null) {
             return false;
         }
@@ -151,6 +159,30 @@ public class TimeSeriesZoomHandler extends AbstractGraphInputHandler {
             zoomIndex--;
         }
         return true;
+    }
+
+    private Coordinate translateClick(int x, int y) {
+        IDisplayPaneContainer editor = display.getContainer();
+        XyGraphDescriptor desc = (XyGraphDescriptor) editor
+                .getActiveDisplayPane().getDescriptor();
+        Coordinate grid = editor.translateClick(x, y);
+        if (grid == null) {
+            return null;
+        }
+        /* Convert from the overall display coordinate space to the coordinate
+         * space for our resource.
+         */
+        DirectPosition2D dp = new DirectPosition2D(grid.x, grid.y);
+        try {
+            desc.getGridGeometry().getGridToCRS().transform(dp, dp);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error converting coordinate", e);
+        }
+        grid.x = dp.x;
+        grid.y = dp.y;
+        grid.z = 0;
+        return grid;
     }
 
 }

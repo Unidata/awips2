@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -58,6 +57,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.constants.StatusConstants;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -723,9 +723,9 @@ public final class GhgConfigData {
      */
     public void addNamedFilter(String name, GhgDataFilter filter)
             throws VizException {
-        if (Util.isEmptyString(name) || (filter == null)) {
+        if (StringUtil.isEmptyString(name) || (filter == null)) {
             throw new VizException("Invalid filter save request - name = "
-                    + Util.printString(name));
+                    + StringUtil.printString(name));
         }
         filters.put(name, filter);
     }
@@ -740,9 +740,9 @@ public final class GhgConfigData {
      *             if the named filter does not exist
      */
     public void deleteNamedFilter(String name) throws VizException {
-        if (Util.isEmptyString(name) || !filters.containsKey(name)) {
+        if (StringUtil.isEmptyString(name) || !filters.containsKey(name)) {
             throw new VizException("Invalid filter delete request, name "
-                    + Util.printString(name) + " does not exist");
+                    + StringUtil.printString(name) + " does not exist");
         }
         if (filters.get(name).name.equals(currentFilter.name)) {
             setDefaultAsCurrent(FeatureEnum.FILTERS);

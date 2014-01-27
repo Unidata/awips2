@@ -40,6 +40,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.data.ContactsData;
 import com.raytheon.viz.hydrocommon.datamanager.ContactsDataManager;
@@ -55,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------	----------	-----------	--------------------------
  * Sep 10, 2008				lvenable	Initial creation
  * Feb 13, 2013 15794       wkwock      Make Sequence number goes up to 99
+ * Jul 10, 2013 2088        rferrel     Make dialog non-blocking.
  * 
  * </pre>
  * 
@@ -62,6 +66,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * @version 1.0
  */
 public class ContactsDlg extends CaveSWTDialog {
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ContactsDlg.class);
 
     /**
      * control font.
@@ -102,10 +108,11 @@ public class ContactsDlg extends CaveSWTDialog {
      * Concerns text control.
      */
     private Text concernsTF;
+
     /**
      * text from the remark text box
      */
-    private String currentConcernsText=null;
+    private String currentConcernsText = null;
 
     /**
      * Delete button.
@@ -156,13 +163,19 @@ public class ContactsDlg extends CaveSWTDialog {
      */
     public ContactsDlg(Shell parent, String titleInfo, boolean fullControls,
             String lid) {
-        super(parent);
+        super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Contacts" + titleInfo);
 
         this.fullControls = fullControls;
         this.locationId = lid;
+        setReturnValue(lid);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, false);
@@ -172,14 +185,25 @@ public class ContactsDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
-        setReturnValue(false);
 
         contactArray = new ArrayList<ContactsData>();
         controlFont = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
@@ -294,17 +318,17 @@ public class ContactsDlg extends CaveSWTDialog {
         gd.horizontalSpan = 3;
         concernsTF = new Text(infoGroup, SWT.BORDER | SWT.MULTI | SWT.WRAP);
         concernsTF.setLayoutData(gd);
-        currentConcernsText=concernsTF.getText();
+        currentConcernsText = concernsTF.getText();
         ModifyListener listener = new ModifyListener() {
-        	@Override
-        	public void modifyText(ModifyEvent e) {
-        		if (concernsTF.getText().length()>255){
-        			concernsTF.setText(currentConcernsText);
-        			shell.getDisplay().beep();
-        		}
-        		else
-        			currentConcernsText=concernsTF.getText();
-        	}
+            @Override
+            public void modifyText(ModifyEvent e) {
+                if (concernsTF.getText().length() > 255) {
+                    concernsTF.setText(currentConcernsText);
+                    shell.getDisplay().beep();
+                } else {
+                    currentConcernsText = concernsTF.getText();
+                }
+            }
         };
 
         concernsTF.addModifyListener(listener);
@@ -331,7 +355,7 @@ public class ContactsDlg extends CaveSWTDialog {
         okBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 if (updateInsertContactData() == true) {
-                    shell.dispose();
+                    close();
                 }
             }
         });
@@ -355,7 +379,7 @@ public class ContactsDlg extends CaveSWTDialog {
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
 
@@ -367,6 +391,7 @@ public class ContactsDlg extends CaveSWTDialog {
         newBtn.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
                 newContactFlag = true;
+                updateInsertContactData();
                 clearInformationFields();
             }
         });
@@ -413,46 +438,55 @@ public class ContactsDlg extends CaveSWTDialog {
             return false;
         }
 
+        boolean state = true;
+
         if (newContactFlag == true) {
+            boolean contactExits = false;
             try {
-                /*
-                 * Check if the contact already exists.
-                 */
-                if (ContactsDataManager.getInstance().recordExists(locationId,
-                        contactNameTF.getText().trim()) == true) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.OK | SWT.CANCEL);
-                    mb.setText("Insert");
-                    mb
-                            .setMessage("The contact you want to insert already exists.\n"
-                                    + "Do you wish to update the existing data?");
-                    int result = mb.open();
+                contactExits = ContactsDataManager.getInstance().recordExists(
+                        locationId, contactNameTF.getText().trim());
+            } catch (VizException e) {
+                statusHandler.handle(Priority.ERROR,
+                        "Unable to determine if contact exits: ", e);
+                return false;
+            }
 
-                    if (result == SWT.CANCEL) {
-                        return false;
-                    }
+            /*
+             * Check if the contact already exists.
+             */
+            if (contactExits == true) {
+                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
+                        | SWT.OK | SWT.CANCEL);
+                mb.setText("Insert");
+                mb.setMessage("The contact you want to insert already exists.\n"
+                        + "Do you wish to update the existing data?");
+                int result = mb.open();
 
-                    updateContact();
+                if (result == SWT.CANCEL) {
+                    state = false;
                 } else {
-                    insertNewContact();
+                    state = updateContact();
                 }
-
-            } catch (VizException ve) {
-                ve.printStackTrace();
+            } else {
+                state = insertNewContact();
             }
         } else {
-            updateContact();
+            state = updateContact();
         }
 
-        updateContactListControl();
+        if (state == true) {
+            updateContactListControl();
+        }
 
-        return true;
+        return state;
     }
 
     /**
      * Insert a new contact into the database.
+     * 
+     * @return true when insert successful
      */
-    private void insertNewContact() {
+    private boolean insertNewContact() {
         try {
             ContactsData data = new ContactsData();
             data.setLid(locationId);
@@ -464,14 +498,19 @@ public class ContactsDlg extends CaveSWTDialog {
 
             ContactsDataManager.getInstance().insertContactData(data);
         } catch (VizException ve) {
-            ve.printStackTrace();
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to insert new contact: ", ve);
+            return false;
         }
+        return true;
     }
 
     /**
      * Update the edited contact data.
+     * 
+     * @return true when update successful
      */
-    private void updateContact() {
+    private boolean updateContact() {
         try {
             ContactsData data = new ContactsData();
             data.setLid(locationId);
@@ -484,8 +523,11 @@ public class ContactsDlg extends CaveSWTDialog {
             ContactsDataManager.getInstance().updateContactData(data,
                     originalContactName);
         } catch (VizException ve) {
-            ve.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to update contact: ",
+                    ve);
+            return false;
         }
+        return true;
     }
 
     /**
@@ -554,7 +596,8 @@ public class ContactsDlg extends CaveSWTDialog {
         try {
             ContactsDataManager.getInstance().deleteRecord(data);
         } catch (VizException ve) {
-            ve.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to delete contact: ",
+                    ve);
         }
 
         updateContactListControl();
@@ -585,7 +628,7 @@ public class ContactsDlg extends CaveSWTDialog {
             contactArray = ContactsDataManager.getInstance().getContactData(
                     locationId);
         } catch (VizException e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Unable to get contacts: ", e);
         }
     }
 

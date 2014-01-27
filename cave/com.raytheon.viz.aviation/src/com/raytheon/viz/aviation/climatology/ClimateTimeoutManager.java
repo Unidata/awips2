@@ -21,6 +21,7 @@ import com.raytheon.viz.aviation.xml.ClimateTimeouts;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 4, 2011  8896       rferrel     Initial creation
+ * Aug 9, 2013  2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -52,9 +53,9 @@ public class ClimateTimeoutManager {
 
     private void initTimeouts() {
         StringBuilder path = new StringBuilder();
-        path.append("aviation").append(File.separator).append("config")
-                .append(File.separator).append("gui").append(File.separator)
-                .append("ClimateTimeouts.xml");
+        path.append("aviation").append(IPathManager.SEPARATOR).append("config")
+                .append(IPathManager.SEPARATOR).append("gui")
+                .append(IPathManager.SEPARATOR).append("ClimateTimeouts.xml");
         IPathManager pm = PathManagerFactory.getPathManager();
         File fname = pm.getStaticFile(path.toString());
         try {

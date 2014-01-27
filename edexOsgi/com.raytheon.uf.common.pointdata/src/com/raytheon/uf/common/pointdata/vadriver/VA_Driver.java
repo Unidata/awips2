@@ -37,15 +37,17 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Driver for using the VA_Advanced progressive disclosure to generate
+ * localizaed spi files.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 24, 2011            bfarmer     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 24, 2011           bfarmer     Initial creation
+ * Dec 02, 2013  2537     bsteffen    Ensure streams are closed.
  * 
  * </pre>
  * 
@@ -128,8 +130,11 @@ public class VA_Driver {
         String line;
         String[] splitLine;
         ns = 0;
+        BufferedReader fis = null;
+        BufferedReader pis = null;
+        BufferedWriter fos = null;
         try {
-            BufferedReader fis = new BufferedReader(new InputStreamReader(
+            fis = new BufferedReader(new InputStreamReader(
                     new FileInputStream(goodnessFile)));
             for (line = fis.readLine(); line != null; line = fis.readLine()) {
                 if (line.startsWith("#"))
@@ -180,7 +185,7 @@ public class VA_Driver {
                 ++ns;
             }
             if (primary != null) {
-                BufferedReader pis = new BufferedReader(new InputStreamReader(
+                pis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(primary)));
                 int g = 0x7FFFFFFF;
                 for (String pline = pis.readLine(); pline != null; pline = pis
@@ -205,7 +210,7 @@ public class VA_Driver {
             distInput = vaa
                     .getVaAdvanced(latLonInput, goodnessInput, distInput);
             // Write the output.
-            BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+            fos = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(output)));
             String nameFormat = String.format("%s%ds", "%", max_name);
             for (int i = 0; i < ns; ++i) {
@@ -216,12 +221,40 @@ public class VA_Driver {
                         distInput[i]));
                 fos.newLine();
             }
-            fos.close();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block. Please revise as appropriate.
             statusHandler.handle(Priority.PROBLEM, "Could not read File ", e);
 
         } catch (IOException e) {
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException ioe) {
+                    statusHandler.handle(Priority.SIGNIFICANT,
+                            "Error closing input file ["
+                                    + goodnessFile.getName() + "]");
+                }
+            }
+            if (pis != null) {
+                try {
+                    pis.close();
+                } catch (IOException ioe) {
+                    statusHandler.handle(
+                            Priority.SIGNIFICANT,
+                            "Error closing input file ["
+                                    + primary.getName() + "]");
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException ioe) {
+                    statusHandler.handle(Priority.SIGNIFICANT,
+                            "Error closing output file [" + output.getName()
+                                    + "]");
+                }
+            }
         }
 
     }

@@ -16,7 +16,7 @@
     <fcst>259200</fcst>
   </valtimeMINUSreftime>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_MSR</short_name>
+    <short_name>tpMSR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; MSR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -31,7 +31,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_RHA</short_name>
+    <short_name>tpRHA</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; RHA</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -46,7 +46,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_RSA</short_name>
+    <short_name>tpRSA</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; RSA</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -61,7 +61,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_HPC</short_name>
+    <short_name>tpHPC</short_name>
     <long_name>6 hr Total Precip</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -76,7 +76,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_ALR</short_name>
+    <short_name>tpALR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; ALR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -91,7 +91,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_FWR</short_name>
+    <short_name>tpFWR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; FWR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -106,7 +106,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_TUA</short_name>
+    <short_name>tpTUA</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; TUA</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -121,7 +121,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_TIR</short_name>
+    <short_name>tpTIR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; TIR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -136,7 +136,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_ACR</short_name>
+    <short_name>tpACR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; ACR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -151,7 +151,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_ORN</short_name>
+    <short_name>tpORN</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; ORN</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -166,7 +166,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_PTR</short_name>
+    <short_name>tpPTR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; PTR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -181,7 +181,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_STR</short_name>
+    <short_name>tpSTR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; STR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -196,7 +196,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_KRF</short_name>
+    <short_name>tpKRF</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; KRF</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>
@@ -211,7 +211,7 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tp_TAR</short_name>
+    <short_name>tpTAR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; TAR</long_name>
     <units>mm</units>
     <udunits>millimeter</udunits>

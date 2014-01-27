@@ -27,10 +27,26 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
+/**
+ * 
+ * Contains the grib fields that map to a specific grid dataset.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
+ * 
+ * </pre>
+ * 
+ * @author unknown
+ * @version 1.0
+ * @see GribModelLookup
+ */
 @XmlAccessorType(XmlAccessType.NONE)
-public class GridModel implements ISerializableObject {
+public class GridModel {
 
     /** The title of the model */
     @XmlElement

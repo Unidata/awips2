@@ -27,53 +27,49 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlRootElement(name = "ScanConfigDMDTable")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SCANConfigDmdXML extends SCANAbstractXML implements ISerializableObject
-{
+public class SCANConfigDmdXML extends SCANAbstractXML {
     @XmlElement(name = "LinkToFrame")
     private boolean linkToFrame;
-    
+
     @XmlElement(name = "VertOption")
     private boolean vertOption;
-    
+
     @XmlElement(name = "TipsOption")
     private boolean tipsOption;
-    
+
     @XmlElement(name = "FilterOption")
     private boolean filterOption;
-    
+
     @XmlElement(name = "ZoomFactor")
     private int zoomFactor;
-    
+
     @XmlElement(name = "OverlapOpt")
     private boolean overlapOpt;
-    
+
     @XmlElement(name = "TrackOpt")
     private boolean trackOpt;
-    
+
     @XmlElement(name = "ClutterControl")
     private String clutterControl;
-    
+
     @XmlElement(name = "DefaultRank")
     private String defaultRank;
-    
+
     @XmlElement(name = "RadVar")
     private String radVar;
-    
+
     @XmlElement(name = "AlarmsDisabled")
     private boolean alarmsDisabled;
-    
+
     @XmlElement(name = "AlarmBellOn")
     private boolean alarmBellOn;
-    
-    @XmlElements( { @XmlElement(name = "Attribute", type = SCANAttributesXML.class) })
+
+    @XmlElements({ @XmlElement(name = "Attribute", type = SCANAttributesXML.class) })
     private ArrayList<SCANAttributesXML> attributesData;
 
-    public SCANConfigDmdXML()
-    {        
+    public SCANConfigDmdXML() {
     }
 
     public boolean getLinkToFrame() {
@@ -155,7 +151,7 @@ public class SCANConfigDmdXML extends SCANAbstractXML implements ISerializableOb
     public void setRadVar(String radVar) {
         this.radVar = radVar;
     }
-    
+
     public boolean getAlarmsDisabled() {
         return alarmsDisabled;
     }
@@ -163,7 +159,7 @@ public class SCANConfigDmdXML extends SCANAbstractXML implements ISerializableOb
     public void setAlarmsDisabled(boolean alarmsDisabled) {
         this.alarmsDisabled = alarmsDisabled;
     }
-    
+
     public boolean getAlarmBell() {
         return alarmBellOn;
     }

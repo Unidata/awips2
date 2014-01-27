@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -71,20 +72,20 @@ public class RetrievalPluginDataObjectsFixture extends
                 .get(seedValue);
         List<RetrievalResponseWrapper> retrievalAttributePluginDataObjects = new ArrayList<RetrievalResponseWrapper>();
         try {
-            for (final RetrievalAttribute attribute : requestRecord
+            for (final RetrievalAttribute<GriddedTime, GriddedCoverage> attribute : requestRecord
                     .getRetrievalObj().getAttributes()) {
                 retrievalAttributePluginDataObjects
                         .add(new RetrievalResponseWrapper(
                                 new MockOpenDapRetrievalAdapter()
-                                        .performRequest(new IRetrievalRequestBuilder() {
+                                        .performRequest(new IRetrievalRequestBuilder<GriddedTime, GriddedCoverage>() {
                                             @Override
                                             public String processTime(
-                                                    Time prtXML) {
+                                                    GriddedTime prtXML) {
                                                 return "" + prtXML;
                                             }
 
                                             @Override
-                                            public String processCoverage() {
+                                            public String processCoverage(GriddedCoverage coverage) {
                                                 return "noCoverage";
                                             }
 
@@ -94,7 +95,7 @@ public class RetrievalPluginDataObjectsFixture extends
                                             }
 
                                             @Override
-                                            public RetrievalAttribute getAttribute() {
+                                            public RetrievalAttribute<GriddedTime, GriddedCoverage> getAttribute() {
                                                 return attribute;
                                             }
                                         })));

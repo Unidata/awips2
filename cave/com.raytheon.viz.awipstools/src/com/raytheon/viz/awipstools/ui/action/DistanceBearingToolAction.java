@@ -19,42 +19,35 @@
  **/
 package com.raytheon.viz.awipstools.ui.action;
 
-import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.uf.viz.core.rsc.tools.action.AbstractGenericToolAction;
-import com.raytheon.viz.awipstools.ui.layer.DistanceBearingToolLayer;
+import org.eclipse.core.commands.ExecutionEvent;
+
+import com.raytheon.viz.ui.actions.LoadBundleHandler;
 
 /**
  * Handles the Distance Bearing Tools Action.
  * 
  * <pre>
  * 
- *  SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Sep272007    #455        ebabin      Initial Creation.
- *  Oct012007    #471        ebabin      Clean up Clear handling.
- *  10-21-09     #1711       bsteffen    Refactor to common MovableTool model
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 30, 2013  2310     bsteffen    Rewritten to extend LoadBundleHandler.
  * 
  * </pre>
  * 
- * @author ebabin
- * @version 1
+ * @author bsteffen
+ * @version 2.0
+ * @deprecated Use {@link LoadBundleHandler} with
+ *             bundleFile="bundles/tools/DistanceBearing.xml".
  */
+@Deprecated
 public class DistanceBearingToolAction extends
-        AbstractGenericToolAction<DistanceBearingToolLayer> {
+ LoadBundleHandler {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.ui.action.MapToolAction#getResourceData()
-     */
     @Override
-    protected GenericToolsResourceData<DistanceBearingToolLayer> getResourceData() {
-        return new GenericToolsResourceData<DistanceBearingToolLayer>(
-                DistanceBearingToolLayer.DEFAULT_NAME,
-                DistanceBearingToolLayer.class);
+    protected String getBundleFile(ExecutionEvent event) {
+        return "bundles/tools/DistanceBearing.xml";
     }
 
 }

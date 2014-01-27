@@ -45,68 +45,170 @@ import com.raytheon.uf.common.monitor.scan.xml.SCANAttributesXML;
 import com.raytheon.uf.common.monitor.scan.xml.SCANConfigCellXML;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
+/**
+ * Storm Cell ID Display Dialog
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 24 Jul 2013  #2143      skorolev    Changes for non-blocking dialogs.
+ * 15 Aug 2013   2143      mpduff      Remove resize.
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
 public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         ICommonDialogAction {
 
+    /**
+     * Large Label Font
+     */
     private Font lrgLabelFont;
 
+    /**
+     * Small Label Font
+     */
     private Font smLabelFont;
 
+    /**
+     * High Hexagon Checkbox
+     */
     private Button highHexagonChk;
 
+    /**
+     * Middle Hexagon Checkbox
+     */
     private Button midHexagonChk;
 
+    /**
+     * Low Hexagon Checkbox
+     */
     private Button lowHexagonChk;
 
+    /**
+     * Future Tracks Checkbox
+     */
     private Button futureTracksChk;
 
+    /**
+     * Past Traks Checkbox
+     */
     private Button pastTracksChk;
 
+    /**
+     * Low Arrow Checkbox
+     */
     private Button lowArrowsChk;
 
+    /**
+     * Middle Arrow Checkbox
+     */
     private Button midArrowsChk;
 
+    /**
+     * High Arrow Checkbox
+     */
     private Button highArrowsChk;
 
+    /**
+     * High ID Checkbox
+     */
     private Button highIdsChk;
 
+    /**
+     * Middle ID Checkbox
+     */
     private Button midIdsChk;
 
+    /**
+     * Low ID Checkbox
+     */
     private Button lowIdsChk;
 
+    /**
+     * Radius Ring Two Value Slider
+     */
     private TwoValueSliderCanvas radiusRngSlider;
 
+    /**
+     * Radius Interpolation Two Value Slider
+     */
     private TwoValueSliderCanvas radiusInterpolSlider;
 
+    /**
+     * Clutter Three Value Slider
+     */
     private ThreeValueSliderCanvas clutterSlider;
 
+    /**
+     * Radius Interpolation Combo Control
+     */
     private Combo radInterpolCbo;
 
+    /**
+     * Unit Label Width
+     */
     private final int unitLabelWidth = 100;
 
+    /**
+     * Attribute Unit Map
+     */
     private LinkedHashMap<String, String> attrUnitMap;
 
+    /**
+     * Radius Interpolation Unit Label
+     */
     private Label raduisInterpolUnitLbl;
 
+    /**
+     * SCAN Configuration
+     */
     private SCANConfig scanCfg;
 
+    /**
+     * Full Shaft Checkbox
+     */
     private Button fullShaftChk;
 
+    /**
+     * Conversion
+     */
     private Spinner conversionSpnr;
 
+    /**
+     * Clutter combo control
+     */
     private Combo clutterThreshCbo;
 
+    /**
+     * Threshold Unit Label
+     */
     private Label thresholdUnitLbl;
 
     private final IStormCellDisplayUpdate stormCellCB;
 
+    /**
+     * Constructor
+     * 
+     * @param parentShell
+     * @param cb
+     */
     public StormCellIdDisplayDlg(Shell parentShell, IStormCellDisplayUpdate cb) {
-        super(parentShell);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Storm Cell Identification Display Parameters");
 
         stormCellCB = cb;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -116,12 +218,24 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
     @Override
     protected void disposed() {
         lrgLabelFont.dispose();
         smLabelFont.dispose();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         // Initialize all of the controls and layouts
@@ -144,6 +258,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         clutterAction();
     }
 
+    /**
+     * Create Symbols Controls
+     */
     private void createSymbolsControls() {
         SCANConfigCellXML cellCfgXML = ((CellConfigMgr) scanCfg
                 .getAbsConfigMgr(ScanTables.CELL)).getScanCellCfgXML();
@@ -240,6 +357,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
 
     }
 
+    /**
+     * Create Hexagon Controls
+     */
     private void createHexagonControls() {
         SCANConfigCellXML cellCfgXML = ((CellConfigMgr) scanCfg
                 .getAbsConfigMgr(ScanTables.CELL)).getScanCellCfgXML();
@@ -312,6 +432,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         raduisInterpolUnitLbl.setLayoutData(gd);
     }
 
+    /**
+     * Create Arrow Controls
+     */
     private void createArrowControls() {
         SCANConfigCellXML cellCfgXML = ((CellConfigMgr) scanCfg
                 .getAbsConfigMgr(ScanTables.CELL)).getScanCellCfgXML();
@@ -362,6 +485,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         conversionUnitsLbl.setLayoutData(gd);
     }
 
+    /**
+     * Create Clutter Controls
+     */
     private void createClutterControls() {
         SCANConfigCellXML cellCfgXML = ((CellConfigMgr) scanCfg
                 .getAbsConfigMgr(ScanTables.CELL)).getScanCellCfgXML();
@@ -409,6 +535,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         thresholdUnitLbl.setLayoutData(gd);
     }
 
+    /**
+     * Create Bottom Buttons
+     */
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(3, true));
@@ -453,6 +582,11 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         });
     }
 
+    /**
+     * Populate Attribute Combo Box
+     * 
+     * @param cellCfgXML
+     */
     private void populateAttributeCombo(SCANConfigCellXML cellCfgXML) {
         Set<String> keys = attrUnitMap.keySet();
 
@@ -467,6 +601,11 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         radInterpolCbo.select(index);
     }
 
+    /**
+     * Populate Clutter Combo Box
+     * 
+     * @param cellCfgXML
+     */
     private void populateClutterCombo(SCANConfigCellXML cellCfgXML) {
         Set<String> keys = attrUnitMap.keySet();
 
@@ -481,6 +620,11 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         clutterThreshCbo.select(index);
     }
 
+    /**
+     * Radius Interpolation Action
+     * 
+     * @param startup
+     */
     private void radiusInterpolationAction(boolean startup) {
         String attribute = radInterpolCbo.getItem(radInterpolCbo
                 .getSelectionIndex());
@@ -550,6 +694,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Clutter Action
+     */
     private void clutterAction() {
         String attribute = clutterThreshCbo.getItem(clutterThreshCbo
                 .getSelectionIndex());
@@ -609,6 +756,12 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         }
     }
 
+    /**
+     * Get Increment
+     * 
+     * @param attribute
+     * @return
+     */
     private double getIncrement(String attribute) {
         if (CELLTable.HSIZE.getColName().compareTo(attribute) == 0) {
             return 0.25;
@@ -619,6 +772,11 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         return 1.0;
     }
 
+    /**
+     * Add Separator
+     * 
+     * @param parentComp
+     */
     private void addSeparator(Composite parentComp) {
         GridLayout gl = (GridLayout) parentComp.getLayout();
 
@@ -628,6 +786,9 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         sepLbl.setLayoutData(gd);
     }
 
+    /**
+     * Apply Action
+     */
     private void applyAction() {
         /*
          * TODO : set all of the configuration variables
@@ -690,9 +851,15 @@ public class StormCellIdDisplayDlg extends CaveSWTDialog implements
         stormCellCB.stormCellUpdated();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.scan.commondialogs.ICommonDialogAction#
+     * closeDialog()
+     */
     @Override
     public void closeDialog() {
-        shell.dispose();
+        close();
     }
 
     /**

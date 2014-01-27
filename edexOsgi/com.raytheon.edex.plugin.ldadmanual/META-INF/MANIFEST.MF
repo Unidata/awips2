@@ -9,9 +9,8 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.13",
  javax.persistence;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  org.geotools;bundle-version="2.5.2",
- org.apache.log4j;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.localization;bundle-version="1.11.13",
  com.raytheon.edex.plugin.ldad;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.edex.plugin.ldadmanual.dao
+Import-Package: org.apache.commons.logging

@@ -19,13 +19,6 @@
  **/
 package com.raytheon.uf.common.localization;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,34 +30,30 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * May 12, 2008				randerso	Initial creation
+ * Oct 01, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
-public class FileUpdatedMessage implements ISerializableObject {
+public class FileUpdatedMessage {
     public static enum FileChangeType {
         ADDED, UPDATED, DELETED
     };
 
     @DynamicSerializeElement
-    @XmlElement
     private LocalizationContext context;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private String fileName;
 
     @DynamicSerializeElement
-    @XmlElement
     private FileChangeType changeType;
 
     @DynamicSerializeElement
-    @XmlAttribute
     private long timeStamp;
 
     public FileUpdatedMessage() {
