@@ -20,25 +20,19 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
+import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.w3.v1999.xlink.ActuateType;
 import org.w3.v1999.xlink.ShowType;
 import org.w3.v1999.xlink.TypeType;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -66,52 +60,51 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "SimpleLink")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SimpleLinkType")
 @DynamicSerialize
-@Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "SimpleLink")
+@Embeddable
 public class SimpleLinkType {
 
-    @Id
-    @SequenceGenerator(name = "SimpleLinkTypeGenerator", schema = "ebxml", sequenceName = "ebxml.SimpleLink_sequence")
-    @GeneratedValue(generator = "SimpleLinkTypeGenerator")
-    @XmlTransient
-    private Integer key;
-
-    public Integer getKey() {
-        return key;
-    }
-
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected TypeType type;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String href;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String role;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String arcrole;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String title;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected ShowType show;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @Transient
     protected ActuateType actuate;
 
@@ -340,6 +333,27 @@ public class SimpleLinkType {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SimpleLinkType \n[type=");
+        builder.append(type);
+        builder.append(", \nhref=");
+        builder.append(href);
+        builder.append(", \nrole=");
+        builder.append(role);
+        builder.append(", \narcrole=");
+        builder.append(arcrole);
+        builder.append(", \ntitle=");
+        builder.append(title);
+        builder.append(", \nshow=");
+        builder.append(show);
+        builder.append(", \nactuate=");
+        builder.append(actuate);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

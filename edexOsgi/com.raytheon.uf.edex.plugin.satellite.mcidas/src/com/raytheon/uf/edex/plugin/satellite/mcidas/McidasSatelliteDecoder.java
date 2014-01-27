@@ -325,7 +325,7 @@ public class McidasSatelliteDecoder {
             lo2 = (float) prnlon(lo2);
 
             result = SatSpatialFactory.getInstance().getMapCoverage(
-                    SatMapCoverage.PROJ_MERCATOR, nx, ny, (float) dx,
+                    SatSpatialFactory.PROJ_MERCATOR, nx, ny, (float) dx,
                     (float) dy, (float) clon, (float) clat, la1, lo1, la2, lo2);
         } else {
             unimplemented(String.format("navigation type \"%s\"", navType));

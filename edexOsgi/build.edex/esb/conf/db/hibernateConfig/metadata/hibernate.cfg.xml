@@ -31,7 +31,7 @@
 			org.postgresql.Driver
 		</property>
 		<property name="dialect">
-                        org.hibernate.dialect.PostgreSQLDialect
+			org.hibernatespatial.postgis.PostgisDialect
 		</property>
 		<property name="connection.url">
 			jdbc:postgresql://${db.addr}:${db.port}/metadata
@@ -51,16 +51,17 @@
 		<!-- Pretty print the SQL in the log and console -->
 		<property name="hibenate.format_sql">false</property>
 
-		<!-- If turned on, Hibernate will generate comments inside the SQL, for easier debugging, defaults to false -->
+		<!-- If turned on, Hibernate will generate comments inside the SQL, for 
+			easier debugging, defaults to false -->
 		<property name="hibernate.use_sql_comments">false</property>
 
-	     <!--  Use c3p0 connection pooling -->
-	    <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+		<!-- Use c3p0 connection pooling -->
+		<property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
 
 		<!-- c3p0 Connection Pool Properties -->
 		<!-- Additional properties may be added to c3p0.properties -->
 		<property name="hibernate.c3p0.idle_test_period">60</property>
-		<property name="hibernate.c3p0.timeout">1800</property>
+		<property name="hibernate.c3p0.timeout">${db.metadata.pool.timeout}</property>
 		<property name="hibernate.c3p0.max_statements">10</property>
 		<property name="hibernate.c3p0.acquire_increment">5</property>
 		<property name="hibernate.c3p0.min_size">${db.metadata.pool.min}</property>

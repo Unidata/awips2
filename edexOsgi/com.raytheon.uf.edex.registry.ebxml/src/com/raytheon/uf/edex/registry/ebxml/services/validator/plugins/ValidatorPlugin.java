@@ -30,13 +30,10 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseStatus;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsRequest;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidateObjectsResponse;
-import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
-import com.raytheon.uf.common.registry.constants.ErrorSeverity;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator;
 import com.raytheon.uf.edex.registry.ebxml.services.validator.IRegistryObjectReferenceValidator.ValidateObjectTypeResponse;
+import com.raytheon.uf.edex.registry.ebxml.services.validator.ValidatorImpl;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 /**
@@ -59,9 +56,6 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlExceptionUtil;
 
 public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         Validator {
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ValidatorPlugin.class);
 
     protected IRegistryObjectReferenceValidator registryObjectReferenceValidator;
 
@@ -86,10 +80,10 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         final RegistryObjectListType originalObjects = validateObjectsRequest
                 .getOriginalObjects();
         if (originalObjects == null) {
-            final String message = "The Validator plugin invocation MUST specify the target objects for that set using the OriginalObjects element";
-            throw EbxmlExceptionUtil.createMsgRegistryException(message,
-                    InvalidRequestExceptionType.class, "", message, message,
-                    ErrorSeverity.ERROR, null, statusHandler);
+            throw EbxmlExceptionUtil
+                    .createInvalidRequestExceptionType(
+                            ValidatorImpl.VALIDATOR_ERROR_MSG,
+                            "The Validator plugin invocation MUST specify the target objects for that set using the OriginalObjects element");
         }
 
         ValidateObjectsResponse response = new ValidateObjectsResponse();
@@ -124,8 +118,9 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
                 : registryObjectReferenceValidator.isValidReference(reference);
         if (!validReference) {
             exceptions.add(EbxmlExceptionUtil
-                    .createUnresolvedReferenceException(null, reference,
-                            statusHandler));
+                    .createUnresolvedReferenceExceptionType(
+                            ValidatorImpl.VALIDATOR_ERROR_MSG, reference)
+                    .getFaultInfo());
         }
     }
 
@@ -152,18 +147,16 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         switch (validationResponse) {
         case DOESNT_EXIST:
             exceptions.add(EbxmlExceptionUtil
-                    .createUnresolvedReferenceException(null, reference,
-                            statusHandler));
+                    .createUnresolvedReferenceExceptionType(
+                            ValidatorImpl.VALIDATOR_ERROR_MSG, reference)
+                    .getFaultInfo());
             break;
         case WRONG_TYPE:
-            exceptions.add(EbxmlExceptionUtil.createRegistryException(
-                    ValidationExceptionType.class,
-                    "",
-                    "Referenced object has the wrong type",
+            exceptions.add(EbxmlExceptionUtil.createValidationExceptionType(
+                    ValidatorImpl.VALIDATOR_ERROR_MSG,
                     "Referenced object with id [" + reference
                             + "] is not of type ["
-                            + expectedType.getCanonicalName(),
-                    ErrorSeverity.ERROR, statusHandler));
+                            + expectedType.getCanonicalName()).getFaultInfo());
             break;
         case VALID:
             break;
@@ -184,12 +177,10 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
     protected void validateNotNull(Object value, String fieldName,
             String registryObjectId, List<RegistryExceptionType> exceptions) {
         if (value == null) {
-            String exceptionMessage = "[" + fieldName
-                    + "] must not be null on registry object ["
-                    + registryObjectId + "]";
-            exceptions.add(EbxmlExceptionUtil.createRegistryException(
-                    ValidationExceptionType.class, "", exceptionMessage,
-                    exceptionMessage, ErrorSeverity.ERROR, statusHandler));
+            exceptions.add(EbxmlExceptionUtil.createValidationExceptionType(
+                    ValidatorImpl.VALIDATOR_ERROR_MSG,
+                    "[" + fieldName + "] must not be null on registry object ["
+                            + registryObjectId + "]").getFaultInfo());
         }
     }
 
@@ -207,11 +198,10 @@ public abstract class ValidatorPlugin<T extends RegistryObjectType> implements
         final Class<T> registryObjectTypeClass = getRegistryObjectTypeClass();
         if (!registryObjectTypeClass
                 .isAssignableFrom(registryObject.getClass())) {
-            final String message = "This Validator plugin should only be passed registry objects of type ["
-                    + registryObjectTypeClass + "]!";
-            throw EbxmlExceptionUtil.createMsgRegistryException(message,
-                    InvalidRequestExceptionType.class, "", message, message,
-                    ErrorSeverity.ERROR, null, statusHandler);
+            throw EbxmlExceptionUtil.createInvalidRequestExceptionType(
+                    ValidatorImpl.VALIDATOR_ERROR_MSG,
+                    "This Validator plugin should only be passed registry objects of type ["
+                            + registryObjectTypeClass + "]!");
         }
         return registryObjectTypeClass.cast(registryObject);
     }

@@ -29,7 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -73,29 +74,41 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "InternationalString")
 @XmlAccessorType(XmlAccessType.FIELD)
 @DynamicSerialize
 @XmlType(name = "InternationalStringType", propOrder = { "localizedString" })
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
-@Table(schema = "ebxml", name = "InternationalString")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "InternationalString")
 public class InternationalStringType implements Serializable {
 
     private static final long serialVersionUID = 2414977045816695691L;
 
     @Id
-    @SequenceGenerator(name = "InternationalStringTypeGenerator", schema = "ebxml", sequenceName = "ebxml.InternationalString_sequence")
+    @SequenceGenerator(name = "InternationalStringTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".InternationalString_sequence")
     @GeneratedValue(generator = "InternationalStringTypeGenerator")
     @XmlTransient
-    private Integer key;
+    private Integer id;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "string_id", nullable = false, referencedColumnName = "id")
     @XmlElement(name = "LocalizedString")
     @DynamicSerializeElement
-    @JoinTable(schema = "ebxml")
     protected List<LocalizedStringType> localizedString;
 
     public InternationalStringType() {
@@ -186,12 +199,18 @@ public class InternationalStringType implements Serializable {
         return true;
     }
 
-    public Integer getKey() {
-        return key;
+    @Override
+    public String toString() {
+        return "InternationalStringType [id=" + id + ", localizedString="
+                + localizedString + "]";
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
 }

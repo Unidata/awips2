@@ -62,6 +62,8 @@ import org.apache.commons.io.IOUtils;
  * May 16, 2013 1966       rferrel     Add sizeOfDirectory and listDirFiles method.
  * Oct  9, 2013 2467       randerso    Change coypFile to use apache instead of FileChannel 
  *                                     to improve memory utilization
+ * Oct 18, 2013 2267       bgonzale    Add listPaths method.
+ *                                     to improve memory utilization
  * 
  * </pre>
  * 
@@ -893,5 +895,38 @@ public class FileUtil {
         }
         return size;
     }
+
+    // TODO Java 1.7 potential code
+    // /**
+    // * List files/directories that match a FileFilter.
+    // *
+    // * @param directory
+    // * @param filter
+    // * @param recurse
+    // * @return
+    // * @throws IOException
+    // */
+    // public static List<Path> listPaths(File directory,
+    // DirectoryStream.Filter<? super Path> filter, boolean recurse)
+    // throws IOException {
+    // // List of files / directories
+    // List<Path> files = new LinkedList<Path>();
+    //
+    // // Get files / directories in the directory accepted by the filter.
+    // Path dirPath = FileSystems.getDefault().getPath(
+    // directory.getAbsolutePath());
+    // DirectoryStream<Path> stream = null;
+    // try {
+    // stream = Files.newDirectoryStream(dirPath, filter);
+    // for (final Iterator<Path> it = stream.iterator(); it.hasNext();) {
+    // files.add(it.next());
+    // }
+    // } finally {
+    // if (stream != null) {
+    // stream.close();
+    // }
+    // }
+    // return files;
+    // }
 
 }

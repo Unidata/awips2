@@ -20,10 +20,13 @@
 package com.raytheon.uf.edex.activetable;
 
 import com.raytheon.uf.common.activetable.GetNextEtnRequest;
+import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 
 /**
- * TODO Add Description
+ * Request handler for <code>GetNextEtnRequest</code>. Returns the next ETN to
+ * use for the given office id, phensig, and active table (PRACTICE or
+ * OPERATIONAL).
  * 
  * <pre>
  * 
@@ -31,6 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 15, 2011            rjpeter     Initial creation
+ * Oct 21, 2013  #1843     dgilling    Change return type.
  * 
  * </pre>
  * 
@@ -41,11 +45,14 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 public class GetNextEtnHandler implements IRequestHandler<GetNextEtnRequest> {
 
     @Override
-    public Integer handleRequest(GetNextEtnRequest request) throws Exception {
-        Integer nextEtn = ActiveTable.getNextEtn(request.getSiteID(),
-                request.getMode(), request.getPhensig(),
-                request.getCurrentTime(), request.isLockEtn());
-        return nextEtn;
+    public GetNextEtnResponse handleRequest(GetNextEtnRequest request)
+            throws Exception {
+        GetNextEtnResponse response = GetNextEtnUtil.getNextEtn(
+                request.getSiteID(), request.getMode(), request.getPhensig(),
+                request.getCurrentTime(), request.isLockEtn(),
+                request.isPerformISC(), request.isReportConflictOnly(),
+                request.getEtnOverride());
+        return response;
     }
 
 }

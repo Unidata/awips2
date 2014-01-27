@@ -1,7 +1,0 @@
-com.raytheon.viz.core.style.image.ImagePreferences
-com.raytheon.viz.core.style.contour.ContourPreferences
-com.raytheon.viz.core.style.arrow.ArrowPreferences
-com.raytheon.viz.core.style.graph.GraphPreferences
-com.raytheon.viz.core.rsc.BestResResourceData
-com.raytheon.viz.core.rsc.BlendedResourceData
-com.raytheon.viz.core.topo.TopoResourceData

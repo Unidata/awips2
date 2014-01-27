@@ -26,7 +26,6 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetMetaDataDatesQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetMetaDataFilterableQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -41,8 +40,9 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 03, 2012 1241      djohnson     Initial creation
- * Oct 17, 2012 0726      djohnson     Move in {@link #getByDataSet}.
+ * Oct 03, 2012 1241       djohnson    Initial creation
+ * Oct 17, 2012 0726       djohnson    Move in {@link #getByDataSet}.
+ * Jun 24, 2013 2106       djohnson    Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -65,8 +65,8 @@ public abstract class BaseDataSetMetaDataHandler<T extends DataSetMetaData, QUER
         query.setDataSetName(dataSetName);
         query.setProviderName(providerName);
 
-        RegistryQueryResponse<ImmutableDate> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<ImmutableDate> response = registryHandler
+                .getObjects(query);
 
         checkResponse(response, "getDatesForDataSet");
 
@@ -83,8 +83,7 @@ public abstract class BaseDataSetMetaDataHandler<T extends DataSetMetaData, QUER
         query.setDataSetName(dataSetName);
         query.setProviderName(providerName);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getByDataSet");
 

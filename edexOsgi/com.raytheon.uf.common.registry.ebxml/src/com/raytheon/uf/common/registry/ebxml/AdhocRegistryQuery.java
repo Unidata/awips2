@@ -12,6 +12,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import com.raytheon.uf.common.registry.BaseQuery;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
+import com.raytheon.uf.common.registry.constants.QueryLanguages;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jun 21, 2012 736        djohnson    Add thrift serialization annotations.
  * Aug 02, 2012 955        djohnson    Add generics and results retrieval to registry queries.
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
+ * 10/10/2013   1683       bphillip    Using correct id value for the HQL query language
  * </pre>
  * 
  * @author jspinks
@@ -147,7 +149,8 @@ public abstract class AdhocRegistryQuery<T> extends BaseQuery<T> {
     @Override
     public List<SlotType> getSlots() {
         List<SlotType> slots = new ArrayList<SlotType>();
-        slots.add(RegistryUtil.newStringSlot("queryLanguage", "HQL"));
+        slots.add(RegistryUtil.newStringSlot("queryLanguage",
+                QueryLanguages.HQL));
         slots.add(RegistryUtil.newStringSlot("queryExpression", getHQL()));
         return slots;
     }

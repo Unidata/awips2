@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.viz.datadelivery.services;
 
+import com.raytheon.uf.common.auth.req.IPermissionsService;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthService;
 import com.raytheon.uf.common.datadelivery.service.IGroupDefinitionService;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.common.datadelivery.service.subscription.ISubscriptionOverlapService;
-import com.raytheon.uf.viz.datadelivery.subscription.IPermissionsService;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 /**
@@ -39,6 +39,8 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
  * ------------ ---------- ----------- --------------------------
  * Nov 09, 2012 1286       djohnson     Initial creation
  * May 20, 2013 2000       djohnson     Add subscription overlap service.
+ * Jul 26, 2031   2232     mpduff       Moved IPermissionsService to common.
+ * Oct 21, 2013   2292     mpduff       Added generics.
  * 
  * </pre>
  * 
@@ -48,7 +50,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
 
 public final class DataDeliveryServices {
 
-    private static IBandwidthService bandwidthService;
+    private static IBandwidthService<?, ?> bandwidthService;
 
     private static ISubscriptionService subscriptionService;
 
@@ -58,17 +60,17 @@ public final class DataDeliveryServices {
 
     private static IGroupDefinitionService groupDefinitionService;
 
-    private static ISubscriptionOverlapService subscriptionOverlapService;
+    private static ISubscriptionOverlapService<?, ?> subscriptionOverlapService;
 
     /**
      * Spring only constructor. All access should be through static methods.
      */
-    private DataDeliveryServices(IBandwidthService bandwidthService,
+    private DataDeliveryServices(IBandwidthService<?, ?> bandwidthService,
             ISubscriptionService subscriptionService,
             ISubscriptionNotificationService subscriptionNotificationService,
             IPermissionsService permissionsService,
             IGroupDefinitionService groupDefinitionService,
-            ISubscriptionOverlapService subscriptionOverlapService) {
+            ISubscriptionOverlapService<?, ?> subscriptionOverlapService) {
         DataDeliveryServices.bandwidthService = bandwidthService;
         DataDeliveryServices.subscriptionService = subscriptionService;
         DataDeliveryServices.subscriptionNotificationService = subscriptionNotificationService;
@@ -91,7 +93,7 @@ public final class DataDeliveryServices {
      * 
      * @return the bandwidthService
      */
-    public static IBandwidthService getBandwidthService() {
+    public static IBandwidthService<?, ?> getBandwidthService() {
         return DataDeliveryServices.bandwidthService;
     }
 
@@ -127,7 +129,7 @@ public final class DataDeliveryServices {
      * 
      * @return the subscriptionOverlapService
      */
-    public static ISubscriptionOverlapService getSubscriptionOverlapService() {
+    public static ISubscriptionOverlapService<?, ?> getSubscriptionOverlapService() {
         return DataDeliveryServices.subscriptionOverlapService;
     }
 }

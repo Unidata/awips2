@@ -26,7 +26,6 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.registry.DataSetName;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetNameObjectQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetNameQuery;
-import com.raytheon.uf.common.registry.RegistryManager;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
@@ -40,7 +39,8 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 3, 2012  1241      djohnson     Initial creation
+ * Oct 03, 2012 1241       djohnson     Initial creation
+ * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * 
  * </pre>
  * 
@@ -50,8 +50,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 
 public class DataSetNameHandler extends
         BaseRegistryObjectHandler<DataSetName, DataSetNameObjectQuery>
-        implements
-        IDataSetNameHandler {
+        implements IDataSetNameHandler {
 
     /**
      * {@inheritDoc}
@@ -78,9 +77,9 @@ public class DataSetNameHandler extends
         DataSetNameQuery query = new DataSetNameQuery();
         query.setDataSetTypes(dataTypes);
 
-        RegistryQueryResponse<String> response = RegistryManager
-                .getRegistyObjects(query);
-        
+        RegistryQueryResponse<String> response = registryHandler
+                .getObjects(query);
+
         checkResponse(response, "getByDataTypes");
 
         return new HashSet<String>(response.getResults());

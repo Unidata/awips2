@@ -30,9 +30,9 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 
-import com.raytheon.uf.viz.core.maps.scales.MapScales;
-import com.raytheon.uf.viz.core.maps.scales.MapScales.MapScale;
 import com.raytheon.uf.viz.core.maps.scales.MapScales.PartId;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.d2d.ui.actions.ChangeD2DLayoutAction;
 import com.raytheon.uf.viz.d2d.ui.map.SideView;
 import com.raytheon.viz.ui.UiUtil;
@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.UiUtil;
  * ------------	----------	-----------	--------------------------
  * 7/1/06                   chammack    Initial Creation.
  * Mar 21, 2013       1638  mschenke    Changed map scales not tied to d2d
+ * Oct 10, 2013       2104  mschenke    Switched to use MapScalesManager
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class D2D5Pane implements IPerspectiveFactory {
         List<String> baseViewsToAdd = new ArrayList<String>();
         Set<String> addedViews = new HashSet<String>();
 
-        for (MapScale scale : MapScales.getInstance().getScales()) {
+        for (ManagedMapScale scale : MapScalesManager.getInstance().getScales()) {
             for (PartId part : scale.getPartIds()) {
                 if (part.getId().startsWith(BASE_VIEW_ID_PREFIX)
                         && baseViewsToAdd.contains(part.getId()) == false) {
@@ -122,7 +123,7 @@ public class D2D5Pane implements IPerspectiveFactory {
         addedViews.addAll(baseViewsToAdd);
 
         List<String> extraViews = new ArrayList<String>();
-        for (MapScale scale : MapScales.getInstance().getScales()) {
+        for (ManagedMapScale scale : MapScalesManager.getInstance().getScales()) {
             for (PartId part : scale.getPartIds()) {
                 if (part.isView() && addedViews.contains(part.getId()) == false) {
                     extraViews.add(part.getId());

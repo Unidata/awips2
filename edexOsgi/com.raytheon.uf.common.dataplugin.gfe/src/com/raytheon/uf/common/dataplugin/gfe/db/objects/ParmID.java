@@ -41,11 +41,11 @@ import org.hibernate.annotations.Immutable;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import com.raytheon.edex.util.Util;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.ParmIDAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * 
@@ -315,11 +315,11 @@ public class ParmID implements Comparable<ParmID> {
             return false;
         }
 
-        if (!Util.isAlnum(parmName)) {
+        if (!StringUtil.isAlnum(parmName)) {
             return false;
         }
 
-        if (!Util.isAlnum(parmLevel)) {
+        if (!StringUtil.isAlnum(parmLevel)) {
             return false;
         }
 

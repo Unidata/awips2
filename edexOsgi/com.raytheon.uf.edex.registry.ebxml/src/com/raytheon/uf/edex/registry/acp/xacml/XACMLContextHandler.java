@@ -90,6 +90,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Oct 01, 2012 1187         djohnson    Commented out code throwing {@link ClassCastException}s.
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802        bphillip     Added additional object checking
+ * 10/23/2013   1538        bphillip     Changed constructor call for QueryRequest
  * </pre>
  * 
  * @author bphillip
@@ -304,8 +305,9 @@ public class XACMLContextHandler {
         ResponseOptionType responseOption = EbxmlObjectUtil.queryObjectFactory
                 .createResponseOptionType();
         responseOption.setReturnType(QueryReturnTypes.REGISTRY_OBJECT);
-        QueryResponse queryResponse = queryManager.executeQuery(responseOption,
-                query);
+        QueryRequest queryRequest = new QueryRequest("XACML evaluation query",
+                query, responseOption);
+        QueryResponse queryResponse = queryManager.executeQuery(queryRequest);
         if (queryResponse.getStatus().equals(RegistryResponseStatus.SUCCESS)
                 || queryResponse.getStatus().equals(
                         RegistryResponseStatus.PARTIAL_SUCCESS)) {

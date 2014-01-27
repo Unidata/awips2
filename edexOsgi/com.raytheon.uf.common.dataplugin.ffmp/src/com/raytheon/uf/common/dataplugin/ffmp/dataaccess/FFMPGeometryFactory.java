@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
+import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPTemplates.MODE;
@@ -64,7 +65,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2013   1552     mpduff      Initial creation
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
- * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
+ * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
+ * Aug,20, 2013 2250       mnash       Change some methods that were not working in all cases
  * 
  * </pre>
  * 
@@ -204,14 +206,22 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
         String siteKey = (String) request.getIdentifiers().get(SITE_KEY);
         String cwa = (String) request.getIdentifiers().get(WFO);
 
+        if (dataKey == null) {
+            dataKey = siteKey;
+        }
+
         FFMPBasinData basinData = rec.getBasinData();
 
         Map<Long, FFMPBasin> basinDataMap = basinData.getBasins();
 
         HucLevelGeometriesFactory geomFactory = HucLevelGeometriesFactory
                 .getInstance();
+        // BAL - Switched to use siteKey instead of dataKey.
+        // Map<Long, Geometry> geomMap = geomFactory.getGeometries(templates,
+        // dataKey, cwa, huc);
         Map<Long, Geometry> geomMap = geomFactory.getGeometries(templates,
-                dataKey, cwa, huc);
+                siteKey, cwa, huc);
+
         FFMPSourceConfigurationManager srcConfigMan = FFMPSourceConfigurationManager
                 .getInstance();
         SourceXML sourceXml = srcConfigMan.getSource(rec.getSourceName());
@@ -243,10 +253,23 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
                 }
 
                 FFMPBasin basin = basinDataMap.get(pfaf);
+                Float value = null;
+
                 if (basin == null) {
                     continue;
                 }
-                Float value = basin.getValue(rec.getDataTime().getRefTime());
+
+                if (basin instanceof FFMPGuidanceBasin) {
+                    /*
+                     * Bryon L - Added test for FFMPGuidanceBasin object.
+                     * Couldn't use getValue(Date, Sourcename) here. Odd problem
+                     * with date key reference.
+                     */
+                    value = ((FFMPGuidanceBasin) basin).getValue(
+                            rec.getSourceName(), 1000);
+                } else {
+                    value = basin.getValue(rec.getDataTime().getRefTime());
+                }
                 String parameter = rec.getSourceName();
                 String unitStr = sourceXml.getUnit();
 

@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
+import com.google.common.base.Strings;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.viz.datadelivery.common.ui.AreaComp;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 10, 2012   1259     bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
  * Feb 20, 2013   1589     mpduff     Fix to allow saving custom areas.
  * Jun 14, 2013   2064     mpudff     Force an update of region controls.
+ * Oct 11, 2013   2386     mpduff     Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -220,8 +222,7 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
      * @return Region Name
      */
     public String getRegionSaveText() {
-        String saveName = savedRegionTxt.getText().trim();
-        return saveName;
+        return savedRegionTxt.getText().trim();
     }
 
     /**
@@ -321,7 +322,7 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
         String regionName = area.getRegionName();
 
         // set the region name in the combo box
-        if (regionName != null) {
+        if (!Strings.isNullOrEmpty(regionName)) {
             int i = 0;
             areaComp.setRegion(regionName);
 
@@ -335,7 +336,7 @@ public class SpatialSubsetTab extends SubsetTab implements IDataSize {
             }
 
         }
-        
+
         areaComp.updateRegionControls();
     }
 

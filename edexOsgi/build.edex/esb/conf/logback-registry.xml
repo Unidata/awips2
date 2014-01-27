@@ -1,0 +1,225 @@
+<configuration debug="false" scan="true">
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender">       
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+   
+   <!-- hibernate log -->
+   <appender name="HibernateLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-hibernate-%d{yyyyMMdd}.log</fileNamePattern>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+
+   <!-- harvester log --> 
+   <appender name="HarvesterLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-harvester-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+   
+   <!-- BandwidthManager log --> 
+   <appender name="BandwidthManagerLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-bandwidth-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender> 
+
+   <!-- data delivery log --> 
+   <appender name="DataDeliveryLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-datadelivery-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender> 
+   
+   <!-- data delivery Notification log --> 
+   <appender name="NotificationLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-notification-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender> 
+   
+   <!-- data delivery Retrieval log --> 
+   <appender name="RetrievalLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-retrieval-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender> 
+
+   <!-- Purge log -->
+   <appender name="PurgeLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-purge-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy>
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>      
+   </appender>
+
+   <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
+      <threadPatterns>HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*,RetrievalLog:retrievalThreadPool.*,retrievalThreadPool.*,Retrieval.*</threadPatterns>
+      <defaultAppender>console</defaultAppender>
+      <appender-ref ref="console"/>
+      <appender-ref ref="HarvesterLog"/>
+      <appender-ref ref="RetrievalLog"/>
+   </appender>
+  
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <!-- used by c3p0 -->
+   <logger name="com.mchange">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.camel.impl.converter.DefaultTypeConverter">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.qpid.client.BasicMessageProducer_0_10">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.quartz">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.hibernate" additivity="false">
+      <level value="ERROR"/>
+      <appender-ref ref="HibernateLog" />
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="edu">
+      <level value="WARN" />
+   </logger>
+   <logger name="org.apache.cxf">
+   	  <level value="ERROR"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.common.datadelivery" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.service" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.request" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="DataDeliveryLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.event" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.event" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.registry.ebxml.services.notification" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.registry.federation" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.registry.replication" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="NotificationLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.common.datadelivery.retrieval" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="RetrievalLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.retrieval" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="RetrievalLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.common.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.datadelivery.bandwidth" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="BandwidthManagerLog"/>
+   </logger>
+
+   <logger name="com.raytheon.uf.edex.datadelivery.harvester.purge" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="PurgeLog"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/>
+      <appender-ref ref="ThreadBasedLog"/>
+    </root> 
+</configuration> 

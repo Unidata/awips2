@@ -155,8 +155,9 @@ public class ObservedSoundingQuery {
             } else {
                 return pf;
             }
-			fields.add("validTime");// the synoptic time field name defined in UAObs
-			values.add(refTimeCal); 
+            fields.add("dataTime.refTime");// the synoptic time field name
+                                           // defined in UAObs
+            values.add(refTimeCal.getTime());
             dao = new CoreDao(DaoConfig.forClass(UAObs.class));
             try {
                 lUairRecords = (List<UAObs>) dao

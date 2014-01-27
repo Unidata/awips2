@@ -48,6 +48,17 @@ import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
+import com.raytheon.uf.common.style.StyleManager;
+import com.raytheon.uf.common.style.StyleManager.StyleType;
+import com.raytheon.uf.common.style.StyleRule;
+import com.raytheon.uf.common.style.arrow.ArrowPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
+import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
@@ -73,26 +84,13 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.style.AbstractStylePreferences;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.ParamLevelMatchCriteria;
-import com.raytheon.uf.viz.core.style.StyleManager;
-import com.raytheon.uf.viz.core.style.StyleManager.StyleType;
-import com.raytheon.uf.viz.core.style.StyleRule;
-import com.raytheon.uf.viz.core.style.VizStyleException;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.contours.ContourRenderable;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
-import com.raytheon.viz.core.contours.util.VectorGraphicsRenderableFactory;
-import com.raytheon.viz.core.drawables.ColorMapParameterFactory;
+import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
 import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
-import com.raytheon.viz.core.style.arrow.ArrowPreferences;
-import com.raytheon.viz.core.style.contour.ContourPreferences;
-import com.raytheon.viz.core.style.image.ImagePreferences;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -106,14 +104,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 09, 2011            bsteffen    Initial creation
- * May 08, 2013 1980       bsteffen    Set paint status in GridResources for
- *                                     KML.
- * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013 2287       randerso    Added new parameters required by GriddedVectorDisplay
- *                                     and GriddedIconDisplay
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2011           bsteffen    Initial creation
+ * May 08, 2013  1980     bsteffen    Set paint status in GridResources for
+ *                                    KML.
+ * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013  2287     randerso    Added new parameters required by 
+ *                                    GriddedVectorDisplay and
+ *                                    GriddedIconDisplay
+ * Sep 24, 2013  2404     bclement    colormap params now created using match criteria
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -125,6 +126,12 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         extends AbstractVizResource<T, IMapDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGridResource.class);
+
+    /* Unknown source, provides acceptable vector size. */
+    private static final double VECTOR_SIZE = 25.6;
+
+    /* Unknown source, provides acceptable density. */
+    private static final double VECTOR_DENSITY_FACTOR = 1.875;
 
     public static final String INTERROGATE_VALUE = "value";
 
@@ -303,7 +310,11 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        initStylePreferences();
+        try {
+            initStylePreferences();
+        } catch (StyleException e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
         initSampling();
     }
 
@@ -351,9 +362,9 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     /**
      * Gets style preferences from the StyleManager
      * 
-     * @throws VizStyleException
+     * @throws StyleException
      */
-    protected void initStylePreferences() throws VizStyleException {
+    protected void initStylePreferences() throws StyleException {
         DisplayType displayType = getDisplayType();
         StyleRule styleRule = null;
         MatchCriteria criteria = getMatchCriteria();
@@ -493,10 +504,30 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         case ARROW:
         case DUALARROW:
             convertData(data);
-            VectorGraphicsRenderableFactory factory = new VectorGraphicsRenderableFactory();
+            VectorGraphicsConfig config = new VectorGraphicsConfig();
+            config.setBaseSize(VECTOR_SIZE);
+            if (displayType != DisplayType.BARB) {
+                config.setArrowHeadSizeRatio(0.15625);
+                config.setMinimumMagnitude(VECTOR_SIZE
+                        * config.getArrowHeadSizeRatio());
+                config.disableCalmCircle();
+                if (stylePreferences != null
+                        && stylePreferences instanceof ArrowPreferences) {
+                    double scale = ((ArrowPreferences) stylePreferences)
+                            .getScale();
+                    if (scale >= 0.0) {
+                        config.setLinearArrowScaleFactor(scale);
+                    } else {
+                        config.setArrowScaler(new LogArrowScaler(-1 * scale));
+                    }
+                } else {
+                    config.setLinearArrowScaleFactor(1.0);
+                }
+            }
             GriddedVectorDisplay vectorDisplay = new GriddedVectorDisplay(
                     data.getMagnitude(), data.getDirection(), descriptor,
-                    gridGeometry, 64, 0.75, true, displayType, factory);
+                    gridGeometry, VECTOR_DENSITY_FACTOR, true, displayType,
+                    config);
             vectorDisplay.setColor(getCapability(ColorableCapability.class)
                     .getColor());
             vectorDisplay.setLineStyle(getCapability(OutlineCapability.class)
@@ -507,11 +538,6 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     .getDensity());
             vectorDisplay.setMagnification(getCapability(
                     MagnificationCapability.class).getMagnification());
-            if (stylePreferences != null
-                    && stylePreferences instanceof ArrowPreferences) {
-                factory.setScale(((ArrowPreferences) stylePreferences)
-                        .getScale());
-            }
             renderable = vectorDisplay;
             break;
         case ICON:
@@ -577,27 +603,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     protected ColorMapParameters createColorMapParameters(GeneralGridData data)
             throws VizException {
         ParamLevelMatchCriteria criteria = getMatchCriteria();
-        String parameter = null;
-        Unit<?> parameterUnits = data.getDataUnit();
-        SingleLevel level = null;
-        String creatingEntity = null;
-        if (criteria.getParameterNames() != null
-                && !criteria.getParameterNames().isEmpty()) {
-            parameter = criteria.getParameterNames().get(0);
+        ColorMapParameters newParameters;
+        try {
+            newParameters = ColorMapParameterFactory.build(data.getScalarData()
+                    .array(), data.getDataUnit(), criteria);
+        } catch (StyleException e) {
+            throw new VizException("Unable to build colormap parameters", e);
         }
-        if (criteria.getLevels() != null && !criteria.getLevels().isEmpty()) {
-            Level styleLevel = criteria.getLevels().get(0);
-            if (styleLevel instanceof SingleLevel) {
-                level = (SingleLevel) styleLevel;
-            }
-        }
-        if (criteria.getCreatingEntityNames() != null
-                && !criteria.getCreatingEntityNames().isEmpty()) {
-            creatingEntity = criteria.getCreatingEntityNames().get(0);
-        }
-        ColorMapParameters newParameters = ColorMapParameterFactory.build(data
-                .getScalarData().array(), parameter, parameterUnits, level,
-                creatingEntity);
         ColorMapParameters oldParameters = this.getCapability(
                 ColorMapCapability.class).getColorMapParameters();
         if (oldParameters != null

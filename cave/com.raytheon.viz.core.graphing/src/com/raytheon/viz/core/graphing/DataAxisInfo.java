@@ -20,7 +20,7 @@
 
 package com.raytheon.viz.core.graphing;
 
-import com.raytheon.viz.core.style.graph.GraphPreferences;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
 
 /**
  * Ported from D2D

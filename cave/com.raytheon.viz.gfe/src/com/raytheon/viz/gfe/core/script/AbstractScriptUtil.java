@@ -31,21 +31,34 @@ import java.util.regex.Pattern;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonFileFilter;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEException;
 import com.raytheon.viz.gfe.smarttool.SmartToolConstants;
 
 /**
  * An abstract base class that provides a default implementation of IScriptUtil.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 09, 2013  #2033     dgilling    Use new templates directory.
+ * 
+ * </pre>
  * 
  * @author wldougher
  * 
@@ -263,6 +276,7 @@ public abstract class AbstractScriptUtil implements IScriptUtil {
     /**
      * @see com.raytheon.viz.gfe.core.script.IScriptUtil#getScriptType()
      */
+    @Override
     abstract public String getScriptType();
 
     /*
@@ -271,6 +285,7 @@ public abstract class AbstractScriptUtil implements IScriptUtil {
      * @see
      * com.raytheon.viz.gfe.core.script.IScriptUtil#getScriptTypePathPrefix()
      */
+    @Override
     abstract public String getScriptTypePathPrefix();
 
     /**
@@ -306,17 +321,23 @@ public abstract class AbstractScriptUtil implements IScriptUtil {
      * @throws GFEException
      */
     protected void initVelocity() throws GFEException {
-        LocalizationContext baseCtx = pathManager.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-        File templateFile = pathManager.getFile(baseCtx,
-                SmartToolConstants.TEMPLATES_DIR);
-        Properties properties = new Properties();
-        properties.setProperty("file.resource.loader.path", templateFile
-                .getPath());
         try {
-            Velocity.init(properties);
-        } catch (Exception e) {
-            throw new GFEException("Error initializing Velocity", e);
+            File templateFile = new File(FileLocator.resolve(
+                    FileLocator.find(Activator.getDefault().getBundle(),
+                            new Path(SmartToolConstants.TEMPLATES_DIR), null))
+                    .getPath());
+            Properties properties = new Properties();
+            properties.setProperty("file.resource.loader.path",
+                    templateFile.getPath());
+
+            try {
+                Velocity.init(properties);
+            } catch (Exception e) {
+                throw new GFEException("Error initializing Velocity", e);
+            }
+        } catch (IOException e) {
+            throw new GFEException(
+                    "Error locating script templates directory.", e);
         }
     }
 

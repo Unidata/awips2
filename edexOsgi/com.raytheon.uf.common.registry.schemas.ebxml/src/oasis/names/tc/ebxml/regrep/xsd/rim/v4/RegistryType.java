@@ -20,9 +20,9 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -35,7 +35,10 @@ import javax.xml.datatype.Duration;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -71,16 +74,32 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "Registry")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryType")
 @DynamicSerialize
 @Entity
-@Cache(region="registryObjects",usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Registry")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Registry")
 public class RegistryType extends RegistryObjectType {
+
+    private static final long serialVersionUID = -7896396916703130423L;
 
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "anyURI")
@@ -89,18 +108,21 @@ public class RegistryType extends RegistryObjectType {
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String operator;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String specificationVersion;
 
-    @Transient
+    @Column
+    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.DurationType")
     @XmlAttribute
     @DynamicSerializeElement
     protected Duration replicationSyncLatency;
 
-    @Transient
+    @Column
+    @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.DurationType")
     @XmlAttribute
     @DynamicSerializeElement
     protected Duration catalogingLatency;
@@ -109,6 +131,22 @@ public class RegistryType extends RegistryObjectType {
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @DynamicSerializeElement
     protected String conformanceProfile;
+
+    public RegistryType() {
+        super();
+
+    }
+
+    public RegistryType(String id, String lid, String objectType, String owner,
+            String status, String name, String description) {
+        super(id, lid, objectType, owner, status, name, description);
+
+    }
+
+    public RegistryType(String id, String lid) {
+        super(id, lid);
+
+    }
 
     /**
      * Gets the value of the baseURL property.
@@ -238,6 +276,117 @@ public class RegistryType extends RegistryObjectType {
      */
     public void setConformanceProfile(String value) {
         this.conformanceProfile = value;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((baseURL == null) ? 0 : baseURL.hashCode());
+        result = prime
+                * result
+                + ((catalogingLatency == null) ? 0 : catalogingLatency
+                        .hashCode());
+        result = prime
+                * result
+                + ((conformanceProfile == null) ? 0 : conformanceProfile
+                        .hashCode());
+        result = prime * result
+                + ((operator == null) ? 0 : operator.hashCode());
+        result = prime
+                * result
+                + ((replicationSyncLatency == null) ? 0
+                        : replicationSyncLatency.hashCode());
+        result = prime
+                * result
+                + ((specificationVersion == null) ? 0 : specificationVersion
+                        .hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryType other = (RegistryType) obj;
+        if (baseURL == null) {
+            if (other.baseURL != null)
+                return false;
+        } else if (!baseURL.equals(other.baseURL))
+            return false;
+        if (catalogingLatency == null) {
+            if (other.catalogingLatency != null)
+                return false;
+        } else if (!catalogingLatency.equals(other.catalogingLatency))
+            return false;
+        if (conformanceProfile == null) {
+            if (other.conformanceProfile != null)
+                return false;
+        } else if (!conformanceProfile.equals(other.conformanceProfile))
+            return false;
+        if (operator == null) {
+            if (other.operator != null)
+                return false;
+        } else if (!operator.equals(other.operator))
+            return false;
+        if (replicationSyncLatency == null) {
+            if (other.replicationSyncLatency != null)
+                return false;
+        } else if (!replicationSyncLatency.equals(other.replicationSyncLatency))
+            return false;
+        if (specificationVersion == null) {
+            if (other.specificationVersion != null)
+                return false;
+        } else if (!specificationVersion.equals(other.specificationVersion))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryType \n[name=");
+        builder.append(name);
+        builder.append(", \ndescription=");
+        builder.append(description);
+        builder.append(", \nversionInfo=");
+        builder.append(versionInfo);
+        builder.append(", \nclassification=");
+        builder.append(classification);
+        builder.append(", \nexternalIdentifier=");
+        builder.append(externalIdentifier);
+        builder.append(", \nexternalLink=");
+        builder.append(externalLink);
+        builder.append(", \nlid=");
+        builder.append(lid);
+        builder.append(", \nobjectType=");
+        builder.append(objectType);
+        builder.append(", \nowner=");
+        builder.append(owner);
+        builder.append(", \nstatus=");
+        builder.append(status);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nbaseURL=");
+        builder.append(baseURL);
+        builder.append(", \noperator=");
+        builder.append(operator);
+        builder.append(", \nspecificationVersion=");
+        builder.append(specificationVersion);
+        builder.append(", \nreplicationSyncLatency=");
+        builder.append(replicationSyncLatency);
+        builder.append(", \ncatalogingLatency=");
+        builder.append(catalogingLatency);
+        builder.append(", \nconformanceProfile=");
+        builder.append(conformanceProfile);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

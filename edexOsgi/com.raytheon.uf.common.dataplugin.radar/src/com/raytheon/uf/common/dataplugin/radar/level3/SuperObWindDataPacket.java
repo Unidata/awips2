@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1-26-2009    465         mnash    Initial Creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -58,13 +59,6 @@ public class SuperObWindDataPacket extends SymbologyPacket implements
 
     public SuperObWindDataPacket() {
 
-    }
-
-    private static final int SUPER_OB_WIND_DATA_PACKET27 = 27;
-
-    static {
-        PacketFactory.registerPacketType(SuperObWindDataPacket.class,
-                SUPER_OB_WIND_DATA_PACKET27);
     }
 
     @DynamicSerialize

@@ -16,6 +16,7 @@ import com.raytheon.uf.common.datadelivery.registry.Provider;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2011    218      dhladky     Initial creation
+ * Sept 30, 2013   1797     dhladky     Generics
  * 
  * </pre>
  * 
@@ -25,8 +26,8 @@ import com.raytheon.uf.common.datadelivery.registry.Provider;
 
 public interface IParseMetaData {
 
-    List<DataSetMetaData> parseMetaData(Provider provider, LinkStore store,
+    List<DataSetMetaData<?>> parseMetaData(Provider provider, LinkStore store,
             Collection collection, String dataDateFormat);
 
-    void storeMetaData(List<DataSetMetaData> metaDatas, DataSet dataSet);
+    void storeMetaData(List<DataSetMetaData<?>> metaDatas, DataSet dataSet);
 }

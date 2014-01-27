@@ -2,8 +2,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
       http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <tx:annotation-driven transaction-manager="metadataTxManager"
         proxy-target-class="true" />
@@ -21,57 +20,40 @@
         <property name="dao" ref="bandwidthAllocationDao" />
     </bean>
 
+    <bean id="retrievalAgentManager"
+        class="com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalAgentManager"
+        init-method="start">
+        <constructor-arg ref="retrievalAgentNotifier" />
+        <constructor-arg ref="retrievalAgents" />
+        <constructor-arg ref="retrievalDao" />
+    </bean>
+
     <!-- Used as the context for creating the BandwidthManager -->
     <bean id="bandwidthContextFactory"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory">
         <!-- The bandwidth dao implementation -->
         <constructor-arg ref="hibernateBandwidthDao" />
-        <!-- The bandwidth manager initializer -->
+        <!-- TODO: Switch to use database bandwidth buckets 
+        <constructor-arg ref="hibernateBandwidthBucketDao" /> -->
         <constructor-arg>
             <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
-                <constructor-arg>
-                    <bean
-                        class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
-                        <constructor-arg ref="subscriptionRoutesToSchedule" />
-                    </bean>
-                </constructor-arg>
-            </bean>
+                class="com.raytheon.uf.edex.datadelivery.bandwidth.InMemoryBandwidthBucketDao" />
         </constructor-arg>
+        <!-- The bandwidth manager initializer -->
+        <constructor-arg ref="bandwidthInitializer" />
         <!-- The strategy for how to create the bandwidth manager -->
         <constructor-arg ref="bandwidthManagerCreator" />
         <!-- The db initializer -->
         <constructor-arg ref="hibernateBandwidthDbInit" />
+        <!-- Registry handlers required for EdexBandwidthManager -->
+        <constructor-arg ref="DataSetMetaDataHandler" />
+        <constructor-arg ref="SubscriptionHandler" />
+        <constructor-arg ref="subscriptionNotificationService" />
     </bean>
 
     <bean id="dataSetAvailabilityCalculator"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.util.ProviderDataTypeAvailabilityCalculator">
         <constructor-arg ref="ProviderHandler" />
     </bean>
-
-    <camelContext id="BandwidthManager-context"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="bandwidthManagerProcessWork">
-            <from
-                uri="jms-durable:queue:matureSubscriptions"/>
-            <doTry>
-                <pipeline>
-                    <bean ref="serializationUtil" method="transformFromThrift" />
-                    <bean ref="BandwidthManagerProcessor" method="process" />
-                    <bean ref="BandwidthManagerRetrieval" method="generateRetrieval" />
-
-                    <!-- notify retrieval threads, if data delivery made 
-                        into cluster this should move to topic post -->
-                    <to uri="direct-vm:notifyRetrieval" />
-                </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:BandwidthManagerProcess?level=ERROR" />
-                </doCatch>
-            </doTry>
-        </route>
-    </camelContext>
 
 </beans>

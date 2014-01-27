@@ -37,7 +37,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
-import com.raytheon.uf.viz.ui.menus.xml.AbstractMenuContributionItem;
+import com.raytheon.uf.viz.ui.menus.xml.IContribItemProvider;
 import com.raytheon.uf.viz.ui.menus.xml.MenuXMLMap;
 
 /**
@@ -46,11 +46,12 @@ import com.raytheon.uf.viz.ui.menus.xml.MenuXMLMap;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 26, 2009            chammack     Initial creation
- * May 08, 2013 1978       bsteffen    Perform variable substitution on subMenu
- *                                     IDs.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Mar 26, 2009           chammack    Initial creation
+ * May 08, 2013  1978     bsteffen    Perform variable substitution on subMenu
+ *                                    IDs.
+ * Dec 11, 2013  2602     bsteffen    Update MenuXMLMap.
  * 
  * </pre>
  * 
@@ -120,8 +121,8 @@ public class SubmenuContributionItem extends MenuManager {
 
             for (int i = 0; i < contribs.length; i++) {
                 try {
-                    AbstractMenuContributionItem<?> amc = MenuXMLMap.xmlMapping
-                            .get(contribs[i].getClass());
+                    IContribItemProvider amc = MenuXMLMap
+                            .getProvider(contribs[i].getClass());
                     contributionItems[i] = amc.getContributionItems(
                             contribs[i], this.subs, this.removals);
 

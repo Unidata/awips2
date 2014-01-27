@@ -7,7 +7,7 @@
     <bean id="sfcobsDecoder" class="com.raytheon.edex.plugin.sfcobs.SfcObsDecoder" />
     <bean id="sfcobsSeparator" class="com.raytheon.edex.plugin.sfcobs.SfcObsSeparator" />
 
-    <bean id="sfcobsPointData" class="com.raytheon.uf.common.dataplugin.sfcobs.dao.SfcObsPointDataTransform">
+    <bean id="sfcobsPointData" class="com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
 

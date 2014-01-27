@@ -20,6 +20,7 @@
 package com.raytheon.viz.gfe;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,8 @@ import java.util.NoSuchElementException;
 
 import jep.JepException;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -35,15 +38,12 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.util.SafeRunnable;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Preference store for reading from legacy GFE config files.
@@ -55,6 +55,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2009            njensen     Initial creation
  * Jun 22, 2011  9897      ryu         allow new GFE config and send notification
+ * Sep 05, 2013  #2307     dgilling    Use better PythonScript constructor.
+ * Sep 11, 2013  #2033     dgilling    Don't load loadConfig.py from 
+ *                                     localization store.
  * 
  * </pre>
  * 
@@ -70,7 +73,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
     private final List<IPropertyChangeListener> propertyChangeListeners;
 
     private final List<IConfigurationChangeListener> configurationChangeListeners;
-    
+
     private Map<String, Object> baseConfiguration;
 
     private Map<String, Object> selectedConfiguration;
@@ -80,33 +83,34 @@ public class PythonPreferenceStore implements IPreferenceStore,
     public PythonPreferenceStore(String configName) {
         this.propertyChangeListeners = new ArrayList<IPropertyChangeListener>();
         this.configurationChangeListeners = new ArrayList<IConfigurationChangeListener>();
-        
+
         this.loadConfiguration(configName);
     }
-        
-    @SuppressWarnings("unchecked")
-	public void loadConfiguration(String configName) {
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        String utilityDir = pathMgr.getFile(
-                pathMgr.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE),
-                com.raytheon.uf.common.util.FileUtil.join("gfe", "utility"))
-                .getPath();
 
+    @SuppressWarnings("unchecked")
+    public void loadConfiguration(String configName) {
         String configPath = GfePyIncludeUtil.getConfigIncludePath();
         String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
 
         PythonScript py = null;
         try {
-            py = new PythonScript(
-                    utilityDir + File.separator + "loadConfig.py",
-                    PyUtil.buildJepIncludePath(configPath, vtecPath));
+            File scriptFile = new File(FileLocator.resolve(
+                    FileLocator.find(
+                            Activator.getDefault().getBundle(),
+                            new Path(FileUtil.join("python", "utility",
+                                    "loadConfig.py")), null)).getPath());
+            py = new PythonScript(scriptFile.getPath(),
+                    PyUtil.buildJepIncludePath(configPath, vtecPath), this
+                            .getClass().getClassLoader());
         } catch (JepException e) {
             statusHandler.handle(Priority.CRITICAL,
                     "Unable to load GFE config", e);
+        } catch (IOException e) {
+            statusHandler.handle(Priority.CRITICAL,
+                    "Unable to find loadConfig.py in internal bundle.", e);
         }
 
-        Map<String, Object> args = new HashMap<String, Object>(1);
+        Map<String, Object> args = new HashMap<String, Object>(1, 1f);
         args.put("configName", "gfeConfig");
         try {
             baseConfiguration = (Map<String, Object>) py.execute("loadConfig",
@@ -116,7 +120,8 @@ public class PythonPreferenceStore implements IPreferenceStore,
                     "Unable to load baseline GFE config", e);
         }
 
-        //Map<String, Object> originalSelectedConfiguration = selectedConfiguration;
+        // Map<String, Object> originalSelectedConfiguration =
+        // selectedConfiguration;
         args.put("configName", configName);
         try {
             selectedConfiguration = (Map<String, Object>) py.execute(
@@ -131,7 +136,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
         if (py != null) {
             py.dispose();
         }
-        
+
         fireConfigurationChangeEvent(configName);
         this.configName = configName;
     }
@@ -156,10 +161,11 @@ public class PythonPreferenceStore implements IPreferenceStore,
     }
 
     @Override
-    public void addConfigurationChangeListener(IConfigurationChangeListener listener) {
+    public void addConfigurationChangeListener(
+            IConfigurationChangeListener listener) {
         this.configurationChangeListeners.add(listener);
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -191,6 +197,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
         for (final IPropertyChangeListener listener : this.propertyChangeListeners) {
             SafeRunnable.run(new SafeRunnable(JFaceResources
                     .getString("PreferenceStore.changeError")) { //$NON-NLS-1$
+                        @Override
                         public void run() {
                             listener.propertyChange(pe);
                         }
@@ -203,13 +210,14 @@ public class PythonPreferenceStore implements IPreferenceStore,
         for (final IConfigurationChangeListener listener : this.configurationChangeListeners) {
             SafeRunnable.run(new SafeRunnable(JFaceResources
                     .getString("PreferenceStore.changeError")) { //$NON-NLS-1$
+                        @Override
                         public void run() {
                             listener.configurationChanged(config);
                         }
                     });
-        }        
+        }
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -433,9 +441,11 @@ public class PythonPreferenceStore implements IPreferenceStore,
     }
 
     @Override
-    public void removeConfigurationChangeListener(IConfigurationChangeListener listener) {
+    public void removeConfigurationChangeListener(
+            IConfigurationChangeListener listener) {
         this.configurationChangeListeners.remove(listener);
     }
+
     /*
      * (non-Javadoc)
      * 

@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.lf5.util.StreamUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Ignore;
 
@@ -60,6 +60,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Sep 07, 2012 1102       djohnson     Add test for more specification defined properties of hashCode/equals.
  * Oct 23, 2012 1286       djohnson     setupTestClassDir() takes any class.
  * Jun 05, 2013 2038       djohnson     Add constant for metadata tx manager.
+ * Jul 08, 2013 2106       djohnson     Use IOUtils instead of log4j for stream copying.
  * 
  * </pre>
  * 
@@ -182,7 +183,7 @@ public final class TestUtil {
         try {
             is = callingClass.getResourceAsStream(file);
 
-            StreamUtils.copy(is, bos);
+            IOUtils.copy(is, bos);
 
             String contents = bos.toString("UTF-8");
 
@@ -324,7 +325,7 @@ public final class TestUtil {
         try {
             is = callingClass.getResourceAsStream(resource);
             try {
-                StreamUtils.copy(is, bos);
+                IOUtils.copy(is, bos);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

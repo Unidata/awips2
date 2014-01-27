@@ -21,6 +21,7 @@ package com.raytheon.uf.common.monitor.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationFileObserver;
@@ -34,7 +35,10 @@ import com.raytheon.uf.common.monitor.events.MonitorConfigEvent;
 import com.raytheon.uf.common.monitor.events.MonitorConfigListener;
 import com.raytheon.uf.common.monitor.xml.FFMPTemplateXML;
 import com.raytheon.uf.common.monitor.xml.VGBXML;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Template area configuration xml.
@@ -45,7 +49,9 @@ import com.raytheon.uf.common.serialization.SerializationUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2009            lvenable     Initial creation
- * Oct 25, 2012 DR 15514   gzhang		Adding getHucLevelsInArray()
+ * Oct 25, 2012 DR 15514   gzhang       Adding getHucLevelsInArray()
+ * Aug 18, 2013  1742      dhladky      Concurrent mod exception on update fixed
+ * Oct 02, 2013  2361      njensen      Use JAXBManager for XML
  * </pre>
  * 
  * @author dhladky
@@ -59,6 +65,9 @@ public class FFMPTemplateConfigurationManager implements
     private static final String CONFIG_FILE_NAME = "ffmp" + File.separatorChar
             + "FFMPTemplateConfig.xml";
 
+    private static final SingleTypeJAXBManager<FFMPTemplateXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(FFMPTemplateXML.class);
+
     /**
      * FFMP Source Configuration XML object.
      */
@@ -71,7 +80,10 @@ public class FFMPTemplateConfigurationManager implements
 
     private LocalizationFile lf = null;
 
-    private ArrayList<MonitorConfigListener> listeners = new ArrayList<MonitorConfigListener>();
+    private CopyOnWriteArrayList<MonitorConfigListener> listeners = new CopyOnWriteArrayList<MonitorConfigListener>();
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(FFMPTemplateConfigurationManager.class);
 
     /* Private Constructor */
     private FFMPTemplateConfigurationManager() {
@@ -118,8 +130,8 @@ public class FFMPTemplateConfigurationManager implements
         }
 
         File file = lf.getFile();
-        FFMPTemplateXML configXmltmp = (FFMPTemplateXML) SerializationUtil
-                .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+        FFMPTemplateXML configXmltmp = jaxb.unmarshalFromXmlFile(file
+                .getAbsolutePath());
         configXml = configXmltmp;
     }
 
@@ -145,13 +157,14 @@ public class FFMPTemplateConfigurationManager implements
         try {
             // System.out.println("Saving -- "
             // + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
 
             lf = newXmlFile;
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.ERROR, "Couldn't save config file.",
+                    e);
         }
     }
 
@@ -244,8 +257,9 @@ public class FFMPTemplateConfigurationManager implements
 
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
-        try {
-            if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+
+        if (message.getFileName().equals(CONFIG_FILE_NAME)) {
+            try {
                 readConfigXml();
                 // inform listeners
                 synchronized (listeners) {
@@ -253,48 +267,53 @@ public class FFMPTemplateConfigurationManager implements
                         fl.configChanged(new MonitorConfigEvent(this));
                     }
                 }
+            } catch (Exception e) {
+                statusHandler.handle(
+                        Priority.WARN,
+                        "FFMPTemplateConfigurationManager: "
+                                + message.getFileName()
+                                + " couldn't be updated.", e);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     /**
      * DR 15514: based on getHucLevels()
      */
-    public String[] getHucLevelsInArray() {    	
-    	
-    	Integer hucNum = 4;
-    	Boolean isVirtual = true;
-    	String[] result = null;    	
-    	java.util.concurrent.locks.ReentrantLock lock = new java.util.concurrent.locks.ReentrantLock();    	
-    	
-    	synchronized(configXml){
-    		hucNum = getNumberOfHuc();
-    		isVirtual = getVirtual();
-    	}   	
-    	
-    	lock.lock();    	
-    	try{
-    		java.util.List<String> list = new ArrayList<String>();
-	    	list.add("ALL");
-	    	list.add("COUNTY");
-	    	
-	    	if(isVirtual){	
-	    		list.add("VIRTUAL");
-	    	}
-	    	
-	    	for (int i = hucNum - 1; i >= 0; i--){ 
-	    		list.add("HUC"+i);	    	
-	    	}
-	    	
-	    	result = list.toArray(new String[]{});
-	    	
-    	}finally{
-    		if(result==null) result = new String[]{};// guaranteed not null
-    		lock.unlock();
-    	}
-    	
+    public String[] getHucLevelsInArray() {
+
+        Integer hucNum = 4;
+        Boolean isVirtual = true;
+        String[] result = null;
+        java.util.concurrent.locks.ReentrantLock lock = new java.util.concurrent.locks.ReentrantLock();
+
+        synchronized (configXml) {
+            hucNum = getNumberOfHuc();
+            isVirtual = getVirtual();
+        }
+
+        lock.lock();
+        try {
+            java.util.List<String> list = new ArrayList<String>();
+            list.add("ALL");
+            list.add("COUNTY");
+
+            if (isVirtual) {
+                list.add("VIRTUAL");
+            }
+
+            for (int i = hucNum - 1; i >= 0; i--) {
+                list.add("HUC" + i);
+            }
+
+            result = list.toArray(new String[] {});
+
+        } finally {
+            if (result == null)
+                result = new String[] {};// guaranteed not null
+            lock.unlock();
+        }
+
         return result;
     }
 

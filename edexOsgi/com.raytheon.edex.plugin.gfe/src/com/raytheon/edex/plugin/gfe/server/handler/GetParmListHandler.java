@@ -22,7 +22,6 @@ package com.raytheon.edex.plugin.gfe.server.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetParmListRequest;
@@ -39,12 +38,14 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * 04/08/08     #875       bphillip    Initial Creation
  * 09/22/09     3058       rjpeter     Converted to IRequestHandler
  * 05/02/13     #1969      randerso    Fixed null pointer if getParmList fails
+ * 06/13/13     2044       randerso     Refactored to use IFPServer
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class GetParmListHandler implements IRequestHandler<GetParmListRequest> {
+public class GetParmListHandler extends BaseGfeRequestHandler implements
+        IRequestHandler<GetParmListRequest> {
     @Override
     public ServerResponse<List<ParmID>> handleRequest(GetParmListRequest request)
             throws Exception {
@@ -52,7 +53,8 @@ public class GetParmListHandler implements IRequestHandler<GetParmListRequest> {
         List<ParmID> retVal = new ArrayList<ParmID>();
         ServerResponse<List<ParmID>> sr = new ServerResponse<List<ParmID>>();
         for (DatabaseID id : request.getDbIds()) {
-            ServerResponse<List<ParmID>> ssr = GridParmManager.getParmList(id);
+            ServerResponse<List<ParmID>> ssr = getIfpServer(request)
+                    .getGridParmMgr().getParmList(id);
             if (ssr.isOkay()) {
                 retVal.addAll(ssr.getPayload());
             } else {

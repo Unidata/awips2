@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Time;
+
 /**
  * Implementation of {@link AbstractBandwidthDaoTest} for
  * {@link InMemoryBandwidthDao}.
@@ -30,6 +33,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2012 1286       djohnson     Initial creation
+ * Oct 3,  2013 1797       dhladky      crazy generics
  * 
  * </pre>
  * 
@@ -37,13 +41,13 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
  * @version 1.0
  */
 
-public class InMemoryBandwidthDaoTest extends
-        AbstractBandwidthDaoTest<InMemoryBandwidthDao> {
+public class InMemoryBandwidthDaoTest<T extends Time, C extends Coverage> extends
+        AbstractBandwidthDaoTest<T, C, InMemoryBandwidthDao<T, C>> {
     /**
      * {@inheritDoc}
      */
     @Override
-    protected InMemoryBandwidthDao getDao() {
-        return new InMemoryBandwidthDao();
+    protected InMemoryBandwidthDao<T, C> getDao() {
+        return new InMemoryBandwidthDao<T, C>();
     }
 }

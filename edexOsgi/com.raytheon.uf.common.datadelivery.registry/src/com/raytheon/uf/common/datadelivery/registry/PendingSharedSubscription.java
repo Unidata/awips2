@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.registry.annotations.AssociationMapping;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 04, 2013 1841       djohnson     Initial creation
+ * Sept 30, 2013 1797      dhladky      Generics
  * 
  * </pre>
  * 
@@ -54,8 +54,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT }, associationMappings = { @AssociationMapping(associationType = AssociationTypes.RELATED_TO, keyFields = {
         Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT }, required = false, targetObject = SharedSubscription.class) })
-public class PendingSharedSubscription extends InitialPendingSharedSubscription
-        implements PendingSubscription, ISerializableObject {
+public class PendingSharedSubscription<T extends Time, C extends Coverage> extends InitialPendingSharedSubscription<T, C>
+        implements PendingSubscription<T, C> {
 
     private static final long serialVersionUID = 7607153845750089310L;
 
@@ -63,7 +63,7 @@ public class PendingSharedSubscription extends InitialPendingSharedSubscription
 
     }
 
-    public PendingSharedSubscription(SharedSubscription subscription,
+    public PendingSharedSubscription(SharedSubscription<T, C> subscription,
             String currentUser) {
         super(subscription, currentUser);
     }

@@ -14,10 +14,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.ui,
  com.raytheon.viz.pointdata,
  javax.measure,
- com.raytheon.edex.meteolib,
  org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.python;bundle-version="1.11.17",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174"
+ com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.core.graphing,
  com.raytheon.viz.core.graphing.axis,
@@ -25,3 +25,4 @@ Export-Package: com.raytheon.viz.core.graphing,
  com.raytheon.viz.core.graphing.util,
  com.raytheon.viz.core.graphing.xy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.wxmath

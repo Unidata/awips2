@@ -9,7 +9,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  javax.measure,
  org.geotools,
- org.apache.commons.logging,
  javax.persistence,
  com.raytheon.uf.common.localization;bundle-version="1.11.16"
 Export-Package: com.raytheon.edex.plugin.goessounding,
@@ -20,4 +19,5 @@ Import-Package: com.raytheon.uf.common.dataplugin.goessounding,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.spatial,
  com.raytheon.uf.common.status,
- com.raytheon.uf.edex.pointdata
+ com.raytheon.uf.edex.pointdata,
+ org.apache.commons.logging

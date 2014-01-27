@@ -33,20 +33,21 @@ import com.raytheon.uf.common.localization.ILocalizationFileObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Collection of {@link HeightScale} objects used by the volume browser and
+ * several height displays to scale verticle data.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 24, 2009            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 24, 2009           mschenke    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -55,7 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class HeightScales implements ISerializableObject {
+public class HeightScales {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(HeightScales.class);
 

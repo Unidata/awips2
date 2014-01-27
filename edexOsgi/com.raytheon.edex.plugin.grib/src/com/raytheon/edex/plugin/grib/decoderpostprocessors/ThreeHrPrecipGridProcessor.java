@@ -29,9 +29,6 @@ import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
@@ -44,10 +41,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date           Ticket#    Engineer          Description
- * ------------   ---------- -----------       --------------------------
- * Jan 24, 2012   14299      M. Porricelli     Initial creation
- * Aug 30, 2013   2298       rjpeter           Make getPluginName abstract
+ * Date          Ticket#  Engineer      Description
+ * ------------- -------- ------------- --------------------------
+ * Jan 24, 2012  14299    M. Porricelli Initial creation
+ * Aug 30, 2013  2298     rjpeter       Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen      Removed deprecated and unused code.
  * 
  * </pre>
  * 
@@ -56,8 +54,6 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  */
 public abstract class ThreeHrPrecipGridProcessor implements
         IDecoderPostProcessor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(ThreeHrPrecipGridProcessor.class);
 
     /** The number of seconds in 3 hours */
     protected static final int SECONDS_IN_3_HRS = 10800;
@@ -88,13 +84,11 @@ public abstract class ThreeHrPrecipGridProcessor implements
      *            grid
      * @param precipInventory
      *            The current run accumulated grid inventory
-     * @param precip3hrInventory
-     *            The current 3hr precipitation inventory
      * @return The generated 3hr precipitation grid
      * @throws GribException
      */
     protected List<GridRecord> generate3hrPrecip(GridRecord record,
-            List<GridRecord> precipInventory, List<Integer> precip3hrInventory)
+            List<GridRecord> precipInventory)
             throws GribException {
         List<GridRecord> tp3hrRecords = new ArrayList<GridRecord>();
         int currentFcstTime = record.getDataTime().getFcstTime();
@@ -218,11 +212,5 @@ public abstract class ThreeHrPrecipGridProcessor implements
         // Reset the datauri since the datauri contains the DataTime
         record.setDataTime(newDataTime);
         record.setDataURI(null);
-        try {
-            record.constructDataURI();
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error constructing dataURI!", e);
-        }
     }
 }

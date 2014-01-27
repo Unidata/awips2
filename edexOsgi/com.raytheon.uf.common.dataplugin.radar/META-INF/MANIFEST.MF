@@ -3,62 +3,27 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Radar
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.radar
 Bundle-Version: 1.0.0.qualifier
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.viz.core, org.geotools
-Bundle-Activator: com.raytheon.uf.common.dataplugin.radar.Activator
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.common.geospatial
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.core.runtime,
+Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.datastorage,
- org.geotools;bundle-version="2.6.4",
- javax.measure,
- com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.edex.common,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.site;bundle-version="1.12.1174",
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
- com.raytheon.uf.common.units;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ javax.persistence;bundle-version="1.0.0",
+ org.hibernate;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: com.raytheon.uf.common.dataplugin.radar;
-  uses:="com.raytheon.uf.common.dataplugin.persist,
-   com.raytheon.uf.common.dataplugin.radar.level3,
-   com.raytheon.uf.common.dataplugin,
-   com.raytheon.uf.common.geospatial,
-   javax.measure.unit,
-   org.osgi.framework,
-   com.vividsolutions.jts.geom,
-   com.raytheon.uf.common.dataplugin.radar.util,
-   org.opengis.referencing.crs,
-   com.raytheon.uf.common.serialization,
-   com.raytheon.uf.common.time",
- com.raytheon.uf.common.dataplugin.radar.level3;uses:="com.raytheon.uf.common.dataplugin.radar.level3.generic,com.raytheon.uf.common.serialization",
- com.raytheon.uf.common.dataplugin.radar.level3.generic;uses:="com.raytheon.uf.common.serialization",
+Export-Package: com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.dataplugin.radar.level3,
+ com.raytheon.uf.common.dataplugin.radar.level3.generic,
  com.raytheon.uf.common.dataplugin.radar.projection,
- com.raytheon.uf.common.dataplugin.radar.request;uses:="com.raytheon.uf.common.serialization.comm",
+ com.raytheon.uf.common.dataplugin.radar.request,
  com.raytheon.uf.common.dataplugin.radar.units,
- com.raytheon.uf.common.dataplugin.radar.util;
-  uses:="com.raytheon.uf.common.dataplugin.radar,
-   com.raytheon.uf.common.datastorage,
-   org.geotools.coverage.grid,
-   com.raytheon.uf.common.dataplugin.radar.level3,
-   javax.measure.converter,
-   com.raytheon.uf.common.dataplugin.radar.level3.generic,
-   com.vividsolutions.jts.geom,
-   com.raytheon.uf.edex.wmo.message,
-   org.opengis.referencing.crs"
-Import-Package: com.raytheon.edex.exception,
- com.raytheon.edex.util,
- com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.dataplugin.text,
- com.raytheon.uf.common.dataplugin.text.db,
- com.raytheon.uf.common.derivparam.tree,
- com.raytheon.uf.common.geospatial,
- com.raytheon.uf.common.localization,
- com.raytheon.uf.common.menus.xml,
- com.raytheon.uf.common.status,
- com.raytheon.uf.common.time,
- com.raytheon.uf.edex.wmo.message,
- javax.measure.converter,
- javax.persistence,
- org.apache.commons.logging,
- org.opengis.referencing.crs
+ com.raytheon.uf.common.dataplugin.radar.util

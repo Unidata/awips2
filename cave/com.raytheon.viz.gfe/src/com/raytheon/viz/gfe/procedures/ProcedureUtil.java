@@ -44,8 +44,9 @@ import com.raytheon.viz.gfe.smarttool.PreviewInfo;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2010            njensen     Initial creation
- * 4/26/2012    14748     ryu         Use edit area and time range from preview info
+ * Feb 09, 2010            njensen     Initial creation
+ * Apr 26, 2012  14748     ryu         Use edit area and time range from preview info
+ * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * 
  * </pre>
  * 
@@ -123,7 +124,7 @@ public class ProcedureUtil {
             });
         }
 
-        ProcedureJob.enqueue(dm, req);
+        dm.getProcedureJobPool().schedule(req);
         return req.getResult();
     }
 }

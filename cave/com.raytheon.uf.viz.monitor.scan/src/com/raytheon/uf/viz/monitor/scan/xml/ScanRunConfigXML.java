@@ -24,28 +24,27 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Scan Run Configuration accessor.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 20, 2011            mpduff     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 20, 2011           mpduff      Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement(name = "scanRunConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScanRunConfigXML implements ISerializableObject {
+public class ScanRunConfigXML {
     @XmlElement(name="vcpList")
     private ScanVcpListXML vcpList;
 

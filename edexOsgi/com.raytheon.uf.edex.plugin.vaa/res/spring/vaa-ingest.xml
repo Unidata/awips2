@@ -3,9 +3,7 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="vaaDecoder" class="com.raytheon.uf.edex.plugin.vaa.VAADecoder">
-        <constructor-arg ref="vaaPluginName" />
-    </bean>
+    <bean id="vaaDecoder" class="com.raytheon.uf.edex.plugin.vaa.VAADecoder"/>
 
     <bean id="vaaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
@@ -46,7 +44,7 @@
                     <pipeline>
                         <bean ref="stringToFile" />
                         <bean ref="vaaDecoder" method="decode" />
-                        <to uri="direct-vm:persistIndexAlert" />
+                        <to uri="direct-vm:indexAlert" />
                     </pipeline>
                     <doCatch>
                         <exception>java.lang.Throwable</exception>

@@ -27,8 +27,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Monitoring area configuration xml.
  * 
@@ -45,23 +43,23 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AreaIdXML implements ISerializableObject {
-    
-    @XmlElements( { @XmlElement(name = "StationID", type = StationIdXML.class) })
+public class AreaIdXML {
+
+    @XmlElements({ @XmlElement(name = "StationID", type = StationIdXML.class) })
     private ArrayList<StationIdXML> stationIds = new ArrayList<StationIdXML>();
-    
+
     @XmlAttribute(name = "id")
     private String areaId;
-    
+
     @XmlAttribute(name = "type")
     private ZoneType type;
-    
+
     @XmlAttribute(name = "cLat", required = false)
     private Double cLat;
-    
+
     @XmlAttribute(name = "cLon", required = false)
     private Double cLon;
-    
+
     public enum ZoneType {
         MARITIME, REGULAR;
     };
@@ -85,7 +83,8 @@ public class AreaIdXML implements ISerializableObject {
     }
 
     /**
-     * @param areaId the areaId to set
+     * @param areaId
+     *            the areaId to set
      */
     public void setAreaId(String areaId) {
         this.areaId = areaId;
@@ -103,7 +102,8 @@ public class AreaIdXML implements ISerializableObject {
     }
 
     /**
-     * @param type the type to set
+     * @param type
+     *            the type to set
      */
     public void setType(ZoneType type) {
         this.type = type;
@@ -117,7 +117,8 @@ public class AreaIdXML implements ISerializableObject {
     }
 
     /**
-     * @param lat the cLat to set
+     * @param lat
+     *            the cLat to set
      */
     public void setCLat(Double lat) {
         cLat = lat;
@@ -131,7 +132,8 @@ public class AreaIdXML implements ISerializableObject {
     }
 
     /**
-     * @param lon the cLon to set
+     * @param lon
+     *            the cLon to set
      */
     public void setCLon(Double lon) {
         cLon = lon;

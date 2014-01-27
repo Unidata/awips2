@@ -20,7 +20,7 @@
 
 package com.raytheon.edex.plugin.satellite.dao;
 
-import com.raytheon.edex.util.satellite.SatelliteSectorId;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSectorId;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 

@@ -30,8 +30,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.gfe.procedures.ProcedureJob;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolJob;
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
@@ -44,6 +43,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2011            rferrel     Initial creation
+ * Dec 10, 2013  #2367     dgilling    Rewrite to use new ProcedureJobPool and
+ *                                     SmartToolJobPool.
  * 
  * </pre>
  * 
@@ -54,13 +55,16 @@ public class KillJobsOnExitDialog extends CaveJFACEDialog {
 
     private Composite top;
 
+    private final DataManager dataMgr;
+
     /**
      * Use defaults of -240, minimum and 240 max.
      */
-    public KillJobsOnExitDialog(Shell parent) {
+    public KillJobsOnExitDialog(Shell parent, DataManager dataMgr) {
         super(parent);
         int style = this.getShellStyle() | SWT.MODELESS | SWT.TITLE | SWT.CLOSE;
         this.setShellStyle(style);
+        this.dataMgr = dataMgr;
     }
 
     @Override
@@ -77,9 +81,9 @@ public class KillJobsOnExitDialog extends CaveJFACEDialog {
 
     private void initializeComponents() {
 
-        int cnt[] = ProcedureJob.getJobCount();
+        int cnt[] = dataMgr.getProcedureJobPool().getWorkRemaining();
         GridData data = null;
-        if (cnt[0] > 0 || cnt[1] > 0) {
+        if ((cnt[0] > 0) || (cnt[1] > 0)) {
             Label lab = new Label(top, SWT.NONE);
             lab.setText(String
                     .format("Have %d procedure(s) running and %d procedures(s) pending",
@@ -88,8 +92,8 @@ public class KillJobsOnExitDialog extends CaveJFACEDialog {
             lab.setLayoutData(data);
         }
 
-        cnt = SmartToolJob.getJobCount();
-        if (cnt[0] > 0 || cnt[1] > 0) {
+        cnt = dataMgr.getSmartToolJobPool().getWorkRemaining();
+        if ((cnt[0] > 0) || (cnt[1] > 0)) {
             Label lab = new Label(top, SWT.NONE);
             lab.setText(String
                     .format("Have %d Smart tool(s) running and %d Smart tool(s) pending",

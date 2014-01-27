@@ -8,9 +8,9 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.edex.plugin,
  com.raytheon.uf.common.dataplugin,
  gov.noaa.nws.ncep.common.log.logger,
+ javax.servlet,
+ javax.servlet.http,
  org.hibernate
 Require-Bundle: gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  com.raytheon.edex.common,
- org.apache.http;bundle-version="3.0.1",
- javax.servlet;bundle-version="2.5.0",
- org.apache.log4j;bundle-version="1.0.0"
+ org.apache.http;bundle-version="4.1.2"

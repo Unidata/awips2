@@ -30,9 +30,11 @@ import javax.media.opengl.GL;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 21, 2011            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2011           mschenke    Initial creation
+ * Oct 16, 2013  2333     mschenke    Removed Buffer from GLColorMapData
+ * Nov 18, 2013  2543     bsteffen    Add more buffer compatibility checks.
  * 
  * </pre>
  * 
@@ -84,6 +86,16 @@ public abstract class AbstractGLColorMapDataFormat {
     public abstract double getDataFormatMax();
 
     /**
+     * Returns true if the data format is a signed data format (values in format
+     * can be less than 0), false otherwise
+     * 
+     * @return true if signed format
+     */
+    public boolean isSignedFormat() {
+        return getDataFormatMin() < 0;
+    }
+
+    /**
      * Create a buffer object for specified data for copying data from out of GL
      * 
      * @param data
@@ -93,8 +105,7 @@ public abstract class AbstractGLColorMapDataFormat {
 
     /**
      * Specifies if the data format type's values are scaled when copied to GL
-     * and referenced in shader. True means the values will by default be scaled
-     * to -1 to 1, false indicates shader will receive values as is
+     * and referenced in shader.
      * 
      * @return
      */
@@ -108,9 +119,11 @@ public abstract class AbstractGLColorMapDataFormat {
      * @param x
      * @param y
      * @param data
+     * @param dataBuffer
      * @return
      */
-    public abstract Number getValue(int x, int y, GLColorMapData data);
+    public abstract Number getValue(int x, int y, GLColorMapData data,
+            Buffer dataBuffer);
 
     /**
      * Get the number of bytes each pixel takes up
@@ -153,7 +166,19 @@ public abstract class AbstractGLColorMapDataFormat {
      * @return
      */
     public Buffer formatForGL(Buffer buffer, GLColorMapData data) {
-        return handleBufferSizing(data, buffer, data.getDimensions());
+        buffer = handleBufferSizing(data, buffer);
+        if (!buffer.isDirect() && !buffer.hasArray()) {
+            /*
+             * Things like ByteBuffer.allocate(n).asFloatBuffer() cause problems
+             * in GL. This will copy any such buffers into a new, more
+             * compatible buffer.
+             */
+            buffer.position(0);
+            Buffer newBuffer = getCopybackBuffer(data);
+            copyRow(buffer, newBuffer, 0);
+            buffer = newBuffer;
+        }
+        return buffer;
     }
 
     /**
@@ -195,17 +220,17 @@ public abstract class AbstractGLColorMapDataFormat {
     /**
      * If the data needs to be padded for alignment in GL, this handles that.
      * 
+     * @param data
+     *            - dimensions and type of the buffer.
      * @param buffer
      *            - the original data
-     * @param datasetBounds
-     *            - the bounds of this data within the totalDatasetDimensions
      * @return a buffer padded appropriately, or a the same buffer if it was
      *         good
      */
-    protected Buffer handleBufferSizing(GLColorMapData data, Buffer buffer,
-            int[] dimensions) {
+    protected Buffer handleBufferSizing(GLColorMapData data, Buffer buffer) {
+        int[] dimensions = data.getDimensions();
         int sliceWidth = dimensions[0] * getValuesPerPixel();
-        int sliceHeight = dimensions[1];
+        int sliceHeight = dimensions.length > 1 ? dimensions[1] : 1;
         int paddedSliceWidth = getAlignedWidth(sliceWidth);
 
         int totalDataSize = buffer.capacity();

@@ -75,6 +75,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * 03/15/13     #1795      njensen     Added updatePublishTime()
  * 04/23/13     #1949      rjpeter     Removed excess validation on retrieval, added 
  *                                     inventory for a given time range.
+ * 06/13/13     #2044      randerso    Refactored to use non-singleton LockManager
  * </pre>
  * 
  * @author bphillip
@@ -92,11 +93,16 @@ public class GridParm {
     /** The parm ID associated with this GridParm */
     private ParmID id;
 
+    private LockManager lockMgr;
+
     /** The grid database associated with this GridParm */
     private GridDatabase db;
 
     List<TimeRange> badDataTimes = new ArrayList<TimeRange>();
 
+    /**
+     * @return the bad data times
+     */
     public List<TimeRange> getBadDataTimes() {
         return badDataTimes;
     }
@@ -113,15 +119,20 @@ public class GridParm {
      * 
      * @param id
      *            The parm ID associated with this GridParm
+     * @param lockMgr
+     *            the LockManager instance to be used by this GridParm
      * @param db
      *            The GridDatabase associated with this GridParm
      */
-    public GridParm(ParmID id, GridDatabase db) {
+    public GridParm(ParmID id, LockManager lockMgr, GridDatabase db) {
         this.id = id;
+        this.lockMgr = lockMgr;
         this.db = db;
-
     }
 
+    /**
+     * @return true if this GridParm's ParmID is valid
+     */
     public boolean isValid() {
         return id.isValid();
     }
@@ -139,6 +150,8 @@ public class GridParm {
      * Returns the grid inventory for this parameter that overlaps the given
      * timeRange
      * 
+     * @param tr
+     *            the timeRange
      * @return The server response containing the grid inventory
      */
     public ServerResponse<List<TimeRange>> getGridInventory(TimeRange tr) {
@@ -166,7 +179,7 @@ public class GridParm {
      *            the histories to alter in the database
      * @param publishTime
      *            the publish time to update to
-     * @return
+     * @return ServerResponse containing status only
      */
     public ServerResponse<?> updatePublishTime(
             Collection<List<GridDataHistory>> history, Date publishTime) {
@@ -213,7 +226,7 @@ public class GridParm {
      * @return The server response
      */
     public ServerResponse<?> saveGridData(SaveGridRequest saveRequest,
-            WsId requesterId, String siteID) {
+            WsId requesterId) {
 
         ServerResponse<?> sr = new ServerResponse<String>();
 
@@ -260,7 +273,7 @@ public class GridParm {
 
         // ensure the locks are okay
         sr.addMessages(checkLocks(saveRequest.getReplacementTimeRange(),
-                requesterId, siteID));
+                requesterId, this.id.getDbId().getSiteId()));
         if (!sr.isOkay()) {
             return sr;
         }
@@ -355,7 +368,7 @@ public class GridParm {
      */
     public ServerResponse<Integer> timePurge(Date purgeTime,
             List<GridUpdateNotification> gridNotifications,
-            List<LockNotification> lockNotifications, String siteID) {
+            List<LockNotification> lockNotifications) {
 
         ServerResponse<Integer> sr = new ServerResponse<Integer>();
         lockNotifications.clear();
@@ -375,9 +388,10 @@ public class GridParm {
         WsId wsId = new WsId(null, "timePurge", "EDEX");
         List<LockTable> lts = new ArrayList<LockTable>(0);
 
+        String siteID = this.id.getDbId().getSiteId();
         LockTableRequest lockreq = new LockTableRequest(this.id);
-        ServerResponse<List<LockTable>> ssr2 = LockManager.getInstance()
-                .getLockTables(lockreq, wsId, siteID);
+        ServerResponse<List<LockTable>> ssr2 = this.lockMgr.getLockTables(
+                lockreq, wsId);
         sr.addMessages(ssr2);
         lts = ssr2.getPayload();
         if (!sr.isOkay() || (lts.size() != 1)) {
@@ -418,8 +432,8 @@ public class GridParm {
             lreqs.add(new LockRequest(id, tr, LockMode.BREAK_LOCK));
         }
 
-        ServerResponse<List<LockTable>> lockResponse = LockManager
-                .getInstance().requestLockChange(lreqs, wsId, siteID);
+        ServerResponse<List<LockTable>> lockResponse = lockMgr
+                .requestLockChange(lreqs, wsId);
         sr.addMessages(lockResponse);
         if (!sr.isOkay()) {
             sr.addMessage("Cannot timePurge since the break lock failed");
@@ -450,13 +464,6 @@ public class GridParm {
         }
         return sr;
 
-    }
-
-    /**
-     * Routine to output statistical information about this instance
-     */
-    public void dumpStatistics() {
-        // TODO: Do we need this method
     }
 
     @Override
@@ -559,8 +566,8 @@ public class GridParm {
         // Get the lock table for this parameter
         LockTableRequest req = new LockTableRequest(id);
         List<LockTable> lockTables = new ArrayList<LockTable>();
-        ServerResponse<List<LockTable>> ssr = LockManager.getInstance()
-                .getLockTables(req, requestor, siteID);
+        ServerResponse<List<LockTable>> ssr = lockMgr.getLockTables(req,
+                requestor);
         lockTables = ssr.getPayload();
         sr.addMessages(ssr);
         if (!sr.isOkay() || (lockTables.size() != 1)) {

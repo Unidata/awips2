@@ -86,6 +86,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 22, 2012   0743     djohnson   Add new TimeXML sub-classes.
  * Apr 25, 2013   1820     mpduff     Implement deletion of config file.
  * Jun 04, 2013    223     mpduff     Refactor method rename and add new class to JaxB context.
+ * Sep 04, 2013   2314     mpduff     Made non-blocking.
  * 
  * </pre>
  * 
@@ -201,7 +202,7 @@ public class LoadSaveConfigDlg extends CaveSWTDialog {
     public LoadSaveConfigDlg(Shell parent, DialogType type,
             String fileNamePath, String excludedNameForSaving,
             boolean showPreview) {
-        super(parent, SWT.TITLE);
+        super(parent, SWT.TITLE | SWT.APPLICATION_MODAL, CAVE.DO_NOT_BLOCK);
 
         if (type == DialogType.OPEN) {
             setText("Load Configuration");

@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Feb 22, 2012 14413         zhao         modified to reduce calls to database
  * Nov 16, 2012 1297          skorolev     Changes for non-blocking dialog.
  * Feb 06, 2013 1578          skorolev     Fixed a cursor problem for checkboxes.
+ * Oct 07, 2013 #2443         lvenable     Fixed image memory leak.
  * 
  * </pre>
  * 
@@ -1378,5 +1379,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     @Override
     protected void disposed() {
         controlFont.dispose();
+        arrowUpImg.dispose();
+        arrowDownImg.dispose();
     }
 }

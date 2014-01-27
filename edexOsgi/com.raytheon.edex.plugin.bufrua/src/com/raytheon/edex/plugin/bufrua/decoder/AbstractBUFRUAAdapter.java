@@ -51,6 +51,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 03, 2008 969        jkorman     Initial implementation.
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Jul 19, 2013 1992       bsteffen    Remove redundant time columns from
+ *                                     bufrua.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * 
  * </pre>
@@ -113,13 +115,13 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                 // pickup the data.
                 obsData.setWmoHeader(wmoHeader.getWmoHeader());
 
-                Calendar validTime = obsData.getValidTime();
+                Calendar validTime = obsData.getDataTime()
+                        .getRefTimeAsCalendar();
 
                 // Now offset the "record" validTime using the hour mapping.
                 int hour = validTime.get(Calendar.HOUR_OF_DAY);
                 validTime.add(Calendar.HOUR_OF_DAY, HOUR_MAP[hour]);
                 // Set the new validTime back into the UAObs record.
-                obsData.setValidTime(validTime);
 
                 Calendar maxFutureTime = Calendar.getInstance();
                 maxFutureTime.add(Calendar.HOUR, 12);
@@ -128,7 +130,6 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
                     return null;
                 }
 
-                obsData.setRefHour(TimeTools.copy(validTime));
                 obsData.setDataTime(new DataTime(TimeTools.copy(validTime)));
 
                 // We have times now, so ok to get container.
@@ -184,7 +185,7 @@ public abstract class AbstractBUFRUAAdapter extends BUFRPointDataAdapter<UAObs> 
         Calendar obsTime = getTimeInfo(dataList);
         if (obsTime != null) {
             obsData = new UAObs();
-            obsData.setValidTime(obsTime);
+            obsData.setDataTime(new DataTime(obsTime));
         }
         if (isValidTime(obsData)) {
 

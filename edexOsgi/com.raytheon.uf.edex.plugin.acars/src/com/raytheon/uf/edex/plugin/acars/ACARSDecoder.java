@@ -114,7 +114,7 @@ public class ACARSDecoder extends AbstractDecoder {
 
     public static final void main(String [] args) {
         
-        com.raytheon.edex.util.Util.isEmptyString(" ");
+        com.raytheon.uf.common.util.StringUtil.isEmptyString(" ");
         
         ACARSRecord r = new ACARSRecord("/acars/2011-03-21_17:58:32.0/2TPYR4JA/null/42.85/-84.92/9754");
         System.out.println(r.getLatitude());

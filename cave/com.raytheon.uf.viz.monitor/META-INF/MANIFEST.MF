@@ -2,23 +2,21 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Monitor Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.monitor;singleton:=true
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.viz.ui, com.raytheon.uf.common.serialization
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Activator: com.raytheon.uf.viz.monitor.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ com.raytheon.uf.common.serialization,
  com.raytheon.viz.core;bundle-version="1.10.13",
  com.raytheon.viz.ui;bundle-version="1.10.13",
  org.geotools;bundle-version="2.4.0",
  com.raytheon.viz.alerts;bundle-version="1.10.13",
- com.raytheon.viz.aviation;bundle-version="1.11.1",
- com.raytheon.edex.meteolib;bundle-version="1.11.1",
- com.raytheon.uf.edex.plugin.mesowest;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  com.raytheon.uf.common.monitor;bundle-version="1.11.17",
- org.apache.commons.lang;bundle-version="2.3.0"
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.common.wxmath
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.monitor,
  com.raytheon.uf.viz.monitor.data,

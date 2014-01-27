@@ -52,6 +52,9 @@ class DefaultDataRequest(IDataRequest):
     def addIdentifier(self, key, value):
         self.identifiers[key] = value
     
+    def removeIdentifier(self, key):
+        del self.identifiers[key]
+    
     def setParameters(self, *params):
         self.parameters = map(str, params)
     

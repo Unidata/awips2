@@ -1,0 +1,87 @@
+<configuration debug="false" scan="false">
+   <!-- general application log --> 
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+      <filter class="com.raytheon.uf.common.status.logback.InvertedThresholdFilter">
+         <level>INFO</level>         
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target> 
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+      </filter> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+   
+   <appender name="AlertVizAdminLogAppender" class="com.raytheon.uf.common.status.logback.EnvConfigurableRollingFileAppender">
+      <!--  file and fileNamePattern will be overridden by the env variable if present, but are required by logback -->
+      <file>alertviz-admin.log</file>
+      <envLogVar>LOGFILE_ALERTVIZ</envLogVar>
+      <rollingPolicy class="com.raytheon.uf.common.status.logback.EnvConfigurableFixedWindowRollingPolicy">
+         <fileNamePattern>alertviz-admin.log%i</fileNamePattern>
+         <envLogVar>LOGFILE_ALERTVIZ</envLogVar>
+         <minIndex>1</minIndex>
+         <maxIndex>5</maxIndex>
+      </rollingPolicy>
+      <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+         <maxFileSize>2GB</maxFileSize>
+      </triggeringPolicy>
+      <append>true</append>
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender> 
+   
+   <logger name="AlertVizAdminLogger" additivity="false">
+      <level value="ALL"/>
+      <appender-ref ref="AlertVizAdminLogAppender"/>
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.commons.beanutils">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+
+   <!-- default logging --> 
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+    </root> 
+</configuration> 

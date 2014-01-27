@@ -28,8 +28,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Container class defining composite models.
  * 
@@ -37,9 +35,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/09/10      4638        bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 09, 2010  4638     bphillip    Initial Creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * 
  * </pre>
  * 
@@ -48,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "compositeModel")
 @XmlAccessorType(XmlAccessType.NONE)
-public class CompositeModel implements ISerializableObject {
+public class CompositeModel {
 
     /** The composite model name */
     @XmlElement

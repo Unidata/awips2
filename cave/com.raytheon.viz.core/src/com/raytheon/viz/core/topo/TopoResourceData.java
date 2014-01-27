@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.topo.TopoUtils;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
@@ -42,7 +43,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            chammack    Initial creation
- * Apr 24, 2013       1638 mschenke    Made topo configurable for source data
+ * Apr 24, 2013 1638       mschenke    Made topo configurable for source data
+ * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
  * 
  * </pre>
  * 
@@ -52,10 +54,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 @XmlAccessorType(XmlAccessType.NONE)
 public class TopoResourceData extends AbstractResourceData {
 
-    protected static final String TOPO_DIR = "topo";
-
     @XmlElement
-    private String topoFile = "srtm30.hdf";
+    private String topoFile = TopoUtils.getDefaultTopoFile().getName();
 
     /** The human readable name */
     @XmlElement
@@ -84,7 +84,8 @@ public class TopoResourceData extends AbstractResourceData {
     @Override
     public TopoResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        return new TopoResource(this, loadProperties, new File(TOPO_DIR
+        return new TopoResource(this, loadProperties, new File(TopoUtils
+                .getDefaultTopoFile().getParent()
                 + IPathManager.SEPARATOR + getTopoFile()));
     }
 

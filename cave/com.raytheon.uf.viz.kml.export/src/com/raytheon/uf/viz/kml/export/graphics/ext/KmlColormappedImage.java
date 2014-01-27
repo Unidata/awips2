@@ -24,6 +24,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import javax.measure.unit.Unit;
+
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -64,6 +66,8 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
 
     private ColorMapParameters colorMapParameters;
 
+    private Unit<?> dataUnit;
+
     public KmlColormappedImage(IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters colorMapParameters) {
         this.dataCallback = dataCallback;
@@ -72,6 +76,7 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
 
     public DataSource getData(GridGeometry2D geometry) throws VizException {
         ColorMapData data = dataCallback.getColorMapData();
+        this.dataUnit = data.getDataUnit();
         switch (data.getDataType()) {
         case FLOAT:
             return new FloatBufferWrapper(((FloatBuffer) data.getBuffer()),
@@ -120,6 +125,17 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
     @Override
     public double getValue(int x, int y) {
         return 0;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
+     */
+    @Override
+    public Unit<?> getDataUnit() {
+        return dataUnit == null ? getColorMapParameters().getDataUnit()
+                : dataUnit;
     }
 
 }

@@ -8,13 +8,11 @@ Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.common
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174",
- org.apache.commons.logging,
  org.jep,
  javax.measure,
  com.raytheon.uf.common.localization,
  javax.persistence,
  com.raytheon.uf.common.serialization,
- org.junit;bundle-version="1.0.0",
  com.raytheon.uf.edex.plugin.grid,
  com.raytheon.uf.common.topo;bundle-version="1.12.1174",
  com.raytheon.edex.common,
@@ -69,5 +67,6 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.common.time.util,
  com.raytheon.uf.edex.activetable,
  com.raytheon.uf.edex.site,
+ org.apache.commons.logging,
  org.hibernate
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

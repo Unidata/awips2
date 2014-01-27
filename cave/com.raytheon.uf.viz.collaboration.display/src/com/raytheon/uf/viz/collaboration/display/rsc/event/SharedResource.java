@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 
 /**
@@ -36,9 +35,11 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 10, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 10, 2012           mschenke    Initial creation
+ * Oct 31, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
-public class SharedResource implements ISerializableObject {
+public class SharedResource {
 
     @XmlAttribute
     private int displayId;

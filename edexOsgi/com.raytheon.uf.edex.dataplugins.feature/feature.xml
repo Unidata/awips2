@@ -123,7 +123,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.edex.plugin.airep"
+         id="gov.noaa.nws.ncep.edex.plugin.airep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -186,7 +186,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.edex.plugin.pirep"
+         id="gov.noaa.nws.ncep.edex.plugin.pirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -201,13 +201,6 @@
 
    <plugin
          id="com.raytheon.edex.plugin.profiler"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.edex.plugin.recco"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -270,13 +263,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.edex.plugin.mesowest"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.edex.plugin.qc"
          download-size="0"
          install-size="0"
@@ -319,14 +305,14 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.airep"
+         id="gov.noaa.nws.ncep.common.dataplugin.airep"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.pirep"
+         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -341,6 +327,20 @@
 
    <plugin
          id="com.raytheon.uf.edex.tafqueue"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.madis"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.edex.plugin.madis"
          download-size="0"
          install-size="0"
          version="0.0.0"

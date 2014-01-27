@@ -3,6 +3,7 @@ package com.raytheon.viz.grid.util;
 import java.util.regex.Pattern;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.projection.MapProjection;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -23,41 +24,47 @@ import com.raytheon.viz.grid.xml.GridReprojectionRules.Reproject;
 import com.raytheon.viz.grid.xml.GridReprojectionRules.Rule;
 
 /**
- * Determines if a grid should be reprojected based display properties and
- * a configuration file.
- *
+ * Determines if a grid should be reprojected based display properties and a
+ * configuration file.
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer         Description
  * ------------ ---------- ---------------- --------------------------
  * Sep 23, 2013 DR 15972   D. Friedman      Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  */
 public class ReprojectionUtil {
     private static final String RULES_PATH = "styleRules/gridReprojectionRules.xml";
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(ReprojectionUtil.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReprojectionUtil.class);
 
     private static ReprojectionUtil instance;
 
     static ReprojectionUtil getInstance() {
         if (instance == null) {
             synchronized (ReprojectionUtil.class) {
-                if (instance == null)
+                if (instance == null) {
                     instance = new ReprojectionUtil();
+                }
             }
         }
         return instance;
     }
 
     GridReprojectionRules rules;
+
     AutoUpdatingLocalizationFile file;
+
     boolean fileChanged = false;
 
-    public static boolean shouldReproject(GridRecord record, DisplayType displayType, GeneralGridGeometry dstGridGeometry) {
+    public static boolean shouldReproject(GridRecord record,
+            GridGeometry2D gridGeometry, DisplayType displayType,
+            GeneralGridGeometry dstGridGeometry) {
         GridReprojectionRules rules = getInstance().getRules();
         if (rules != null) {
             for (Rule rule : rules.getRules()) {
@@ -67,9 +74,9 @@ public class ReprojectionUtil {
                         return true;
                     } else if (reproject == Reproject.NEVER) {
                         return false;
-                    } else if (reproject == Reproject.TEST || reproject == null) {
-                        return !ConformalityUtil.testConformality(record
-                                .getLocation().getGridGeometry(),
+                    } else if ((reproject == Reproject.TEST)
+                            || (reproject == null)) {
+                        return !ConformalityUtil.testConformality(gridGeometry,
                                 dstGridGeometry);
                     } else {
                         throw new RuntimeException(
@@ -82,17 +89,20 @@ public class ReprojectionUtil {
         return false;
     }
 
-    private static boolean matches(Rule rule, GridRecord record, DisplayType displayType,
-            GeneralGridGeometry dstGridGeometry) {
-        return matches(rule.getModelName(), record.getDatasetId()) &&
-                matches(rule.getSrcProjection(), getProjectionName(record.getLocation())) &&
-                matches(rule.getDstProjection(), getProjectionName(dstGridGeometry)) &&
-                matches(rule.getDisplayType(), displayType.toString());
+    private static boolean matches(Rule rule, GridRecord record,
+            DisplayType displayType, GeneralGridGeometry dstGridGeometry) {
+        return matches(rule.getModelName(), record.getDatasetId())
+                && matches(rule.getSrcProjection(),
+                        getProjectionName(record.getLocation()))
+                && matches(rule.getDstProjection(),
+                        getProjectionName(dstGridGeometry))
+                && matches(rule.getDisplayType(), displayType.toString());
     }
 
     private static boolean matches(String pattern, String value) {
-        if (pattern == null)
+        if (pattern == null) {
             return true;
+        }
         return Pattern.matches(pattern, value != null ? value : "");
     }
 
@@ -101,7 +111,8 @@ public class ReprojectionUtil {
     }
 
     private static String getProjectionName(GeneralGridGeometry gridGeometry) {
-        return gridGeometry != null ? getProjectionName(gridGeometry.getCoordinateReferenceSystem()) : null;
+        return gridGeometry != null ? getProjectionName(gridGeometry
+                .getCoordinateReferenceSystem()) : null;
     }
 
     private static String getProjectionName(CoordinateReferenceSystem crs) {
@@ -111,34 +122,37 @@ public class ReprojectionUtil {
 
     public GridReprojectionRules getRules() {
         try {
-            synchronized(this) {
+            synchronized (this) {
                 if (checkFileChanged()) {
                     GridReprojectionRules newRules = file.loadObject(
                             new JAXBManager(GridReprojectionRules.class),
                             GridReprojectionRules.class);
-                    if (newRules == null)
-                        throw new LocalizationException("No " + RULES_PATH + "found");
+                    if (newRules == null) {
+                        throw new LocalizationException("No " + RULES_PATH
+                                + "found");
+                    }
                     rules = newRules;
                 }
             }
         } catch (Exception e) {
-            statusHandler.handle(
-                    Priority.PROBLEM,
-                    "Error occurred loading grid reproject rules",
-                    e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error occurred loading grid reproject rules", e);
         }
         return rules;
     }
 
-    private synchronized boolean checkFileChanged() throws LocalizationException {
+    private synchronized boolean checkFileChanged()
+            throws LocalizationException {
         if (file == null) {
-            file = new AutoUpdatingLocalizationFile(RULES_PATH, LocalizationType.CAVE_STATIC);
+            file = new AutoUpdatingLocalizationFile(RULES_PATH,
+                    LocalizationType.COMMON_STATIC);
             file.addListener(new AutoUpdatingFileChangedListener() {
                 @Override
                 public void fileChanged(AutoUpdatingLocalizationFile file) {
                     synchronized (ReprojectionUtil.this) {
                         fileChanged = true;
-                    };
+                    }
+                    ;
                 }
             });
             return true;

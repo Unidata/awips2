@@ -19,5 +19,6 @@ export CLASSPATH=$DB_DRIVER_PATH
 CLASSPATH=$CLASSPATH:$WHFS_BIN_DIR/fcstservice.jar
 
 #Execute Lhvm
+unset GNOME_DESKTOP_SESSION_ID
 xterm -T "fcstservice" -iconic \
 -e $SYS_JAVA_DIR/bin/java ohd.hseb.fcstservice.LhvmApplicationWindow $JDBCURL &

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.core;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.core.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -41,10 +41,12 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.alertmonitor;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
  com.raytheon.uf.common.velocity;bundle-version="1.0.0",
- org.apache.log4j;bundle-version="1.0.0"
+ ch.qos.logback;bundle-version="1.0.13",
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ org.reflections;bundle-version="0.9.9"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: org.apache.velocity, org.apache.log4j, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm, ch.qos.logback
 Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.alerts,
  com.raytheon.uf.viz.core.auth,
@@ -63,18 +65,19 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.geom,
  com.raytheon.uf.viz.core.globals,
  com.raytheon.uf.viz.core.icon,
+ com.raytheon.uf.viz.core.image,
  com.raytheon.uf.viz.core.interp,
  com.raytheon.uf.viz.core.jobs,
  com.raytheon.uf.viz.core.legend,
  com.raytheon.uf.viz.core.level,
  com.raytheon.uf.viz.core.localization,
- com.raytheon.uf.viz.core.log,
  com.raytheon.uf.viz.core.map,
  com.raytheon.uf.viz.core.notification,
  com.raytheon.uf.viz.core.notification.jobs,
  com.raytheon.uf.viz.core.notification.observers,
  com.raytheon.uf.viz.core.preferences,
  com.raytheon.uf.viz.core.procedures,
+ com.raytheon.uf.viz.core.reflect,
  com.raytheon.uf.viz.core.requests,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.viz.core.rsc.capabilities,
@@ -82,11 +85,8 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.rsc.updater,
  com.raytheon.uf.viz.core.sampling,
  com.raytheon.uf.viz.core.status,
- com.raytheon.uf.viz.core.style,
- com.raytheon.uf.viz.core.style.level,
  com.raytheon.uf.viz.core.tile,
  com.raytheon.uf.viz.core.time,
- com.raytheon.viz.core.slice,
  com.raytheon.viz.core.slice.request,
  com.raytheon.viz.core.units
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

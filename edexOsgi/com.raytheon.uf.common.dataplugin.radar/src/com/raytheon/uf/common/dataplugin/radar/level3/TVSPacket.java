@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -56,12 +57,6 @@ public class TVSPacket extends SymbologyPacket implements ISerializableObject {
     }
 
     protected final boolean isElevated = false;
-
-    private static final int TVS_PACKET12 = 12;
-
-    static {
-        PacketFactory.registerPacketType(TVSPacket.class, TVS_PACKET12);
-    }
 
     @DynamicSerialize
     public static class TVSPoint implements SymbologyPoint, ISerializableObject {

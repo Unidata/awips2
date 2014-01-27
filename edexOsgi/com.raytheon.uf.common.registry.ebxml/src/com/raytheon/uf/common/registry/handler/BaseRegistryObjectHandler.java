@@ -27,7 +27,7 @@ import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.OperationStatus;
-import com.raytheon.uf.common.registry.RegistryManager;
+import com.raytheon.uf.common.registry.RegistryHandler;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.RegistryResponse;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
@@ -54,6 +54,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Sep 21, 2012 1187       djohnson     Add bulk delete operations.
  * Oct 05, 2012 1195       djohnson     Remove executeQuery method, add getById.
  * 3/18/2013    1802       bphillip     Implemented transaction boundaries
+ * Jun 24, 2013 2106       djohnson     Composes the registryHandler.
  * </pre>
  * 
  * @author djohnson
@@ -63,6 +64,8 @@ import com.raytheon.uf.common.util.CollectionUtil;
 public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQuery<T>>
         implements IRegistryObjectHandler<T> {
 
+    protected RegistryHandler registryHandler;
+
     /**
      * {@inheritDoc}
      */
@@ -71,8 +74,7 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
         IdQuery<T> query = new IdQuery<T>(getRegistryObjectClass());
         query.setID(id);
 
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getById");
 
@@ -85,8 +87,7 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
     @Override
     public List<T> getAll() throws RegistryHandlerException {
         QUERY query = getQuery();
-        RegistryQueryResponse<T> response = RegistryManager
-                .getRegistyObjects(query);
+        RegistryQueryResponse<T> response = registryHandler.getObjects(query);
 
         checkResponse(response, "getAll");
 
@@ -98,7 +99,8 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
      */
     @Override
     public void store(T obj) throws RegistryHandlerException {
-        RegistryResponse<T> response = RegistryManager.storeRegistryObject(obj);
+        RegistryResponse<T> response = registryHandler
+                .storeObject(obj);
 
         checkResponse(response, obj, "store");
     }
@@ -108,8 +110,8 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
      */
     @Override
     public void update(T obj) throws RegistryHandlerException {
-        RegistryResponse<T> response = RegistryManager
-                .storeOrReplaceRegistryObject(obj);
+        RegistryResponse<?> response = registryHandler
+                .storeOrReplaceObject(obj);
 
         checkResponse(response, obj, "update");
     }
@@ -180,8 +182,8 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
         IdQuery<T> registryQuery = new IdQuery<T>(getRegistryObjectClass());
         registryQuery.setIDs(registryIds);
 
-        RegistryResponse<T> response = RegistryManager.removeRegistyObjects(
-                username, registryQuery);
+        RegistryResponse<T> response = registryHandler.removeObjects(username,
+                registryQuery);
 
         checkResponse(response, "deleteByIds");
 
@@ -238,6 +240,14 @@ public abstract class BaseRegistryObjectHandler<T, QUERY extends AdhocRegistryQu
                 throw new RegistryHandlerException(message);
             }
         }
+    }
+
+    /**
+     * @param registryHandler
+     *            the registryHandler to set
+     */
+    public void setRegistryHandler(RegistryHandler registryHandler) {
+        this.registryHandler = registryHandler;
     }
 
     /**
