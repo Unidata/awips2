@@ -23,11 +23,7 @@ package com.raytheon.edex.plugin.grib.decoderpostprocessors;
 import java.util.Calendar;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -48,10 +44,11 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Mar 09, 2011 4243        porricel    Initial Creation
- * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2011  4243     porricel    Initial Creation
+ * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
+ * Oct 15, 2013  2473     bsteffen    Removed deprecated and unused code.
  * 
  * </pre>
  * 
@@ -59,8 +56,6 @@ import com.raytheon.uf.common.time.DataTime;
  * @version
  */
 public class CPCoutlookGribPostProcessor implements IDecoderPostProcessor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(CPCoutlookGribPostProcessor.class);
 
     @Override
     public GridRecord[] process(GridRecord record) throws GribException {
@@ -83,12 +78,6 @@ public class CPCoutlookGribPostProcessor implements IDecoderPostProcessor {
         record.setDataTime(newDataTime);
         record.setDataURI(null);
 
-        try {
-            record.constructDataURI();
-        } catch (PluginException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error constructing dataURI!", e);
-        }
         return new GridRecord[] { record };
     }
 }

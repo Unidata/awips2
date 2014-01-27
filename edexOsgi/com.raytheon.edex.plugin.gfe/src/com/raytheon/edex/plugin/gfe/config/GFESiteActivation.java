@@ -21,9 +21,7 @@ package com.raytheon.edex.plugin.gfe.config;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -31,26 +29,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import com.google.common.util.concurrent.MoreExecutors;
-import com.raytheon.edex.plugin.gfe.cache.d2dparms.D2DParmIdCache;
-import com.raytheon.edex.plugin.gfe.cache.gridlocations.GridLocationCache;
-import com.raytheon.edex.plugin.gfe.cache.ifpparms.IFPParmIdCache;
-import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.exception.GfeMissingConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IRTManager;
-import com.raytheon.edex.plugin.gfe.reference.MapManager;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
-import com.raytheon.edex.plugin.gfe.server.database.D2DGridDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.D2DSatDatabaseManager;
-import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
-import com.raytheon.edex.plugin.gfe.server.database.NetCDFDatabaseManager;
-import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
-import com.raytheon.edex.plugin.gfe.smartinit.SmartInitRecord;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
@@ -60,7 +44,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.core.IMessageProducer;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
@@ -88,7 +71,7 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
  *                                    activation.
  * Mar 20, 2013  #1774    randerso    Changed to use GFED2DDao
  * May 02, 2013  #1969    randerso    Moved updateDbs method into IFPGridDatabase
- * Sep 13, 2013  2368     rjpeter     Used durable jms settings.
+ * Jun 13, 2013  #2044    randerso    Refactored to use IFPServer
  * Oct 16, 2013  #2475    dgilling    Better error handling for IRT activation.
  * </pre>
  * 
@@ -112,7 +95,7 @@ public class GFESiteActivation implements ISiteActivationListener {
     // minutes
     private static final int SMART_INIT_TIMEOUT = 1800000;
 
-    private static GFESiteActivation instance;
+    private static GFESiteActivation instance = new GFESiteActivation();
 
     private boolean intialized = false;
 
@@ -120,11 +103,17 @@ public class GFESiteActivation implements ISiteActivationListener {
             .getExitingExecutorService((ThreadPoolExecutor) Executors
                     .newCachedThreadPool());
 
-    public static synchronized GFESiteActivation getInstance() {
-        if (instance == null) {
-            instance = new GFESiteActivation();
-        }
+    /**
+     * @return the singleton instance
+     */
+    public static GFESiteActivation getInstance() {
         return instance;
+    }
+
+    /**
+     * private constructor for singleton class
+     */
+    private GFESiteActivation() {
     }
 
     @Override
@@ -258,21 +247,15 @@ public class GFESiteActivation implements ISiteActivationListener {
         } catch (GfeMissingConfigurationException e) {
             sendActivationFailedNotification(siteID);
             // Stack trace is not printed per requirement for DR14360
-            statusHandler.handle(Priority.PROBLEM, siteID
-                    + " will not be activated: " + e.getLocalizedMessage());
+            statusHandler.warn(siteID + " will not be activated: "
+                    + e.getLocalizedMessage());
             throw e;
         } catch (Exception e) {
             sendActivationFailedNotification(siteID);
-            statusHandler.handle(Priority.PROBLEM, siteID
-                    + " Error activating site " + siteID, e);
+            statusHandler.error(siteID + " Error activating site " + siteID, e);
             throw e;
         }
         sendActivationCompleteNotification(siteID);
-    }
-
-    public void cycleSite(String siteID) throws Exception {
-        this.deactivateSite(siteID);
-        this.activateSite(siteID);
     }
 
     /**
@@ -309,59 +292,12 @@ public class GFESiteActivation implements ISiteActivationListener {
         IFPServerConfig config = null;
 
         try {
-            statusHandler.handle(Priority.EVENTA, "Activating " + siteID
-                    + "...");
+            statusHandler.info("Activating " + siteID + "...");
 
-            statusHandler.handle(Priority.EVENTA,
-                    "IFPServerConfigManager initializing...");
+            statusHandler.info("IFPServerConfigManager initializing...");
             config = IFPServerConfigManager.initializeSite(siteID);
-            statusHandler.handle(Priority.EVENTA,
-                    "TopoDatabaseManager initializing...");
-            TopoDatabaseManager.initializeTopoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "ClimoDatabaseManager initializing...");
-            // ClimoDatabaseManager.initializeClimoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "HLSDatabaseManager initializing...");
-            // HLSTopoDatabaseManager.initializeHLSTopoDatabase(siteID);
-            // statusHandler.handle(Priority.EVENTA,
-            // "D2DSatDatabaseManager initializing...");
-            D2DSatDatabaseManager.initializeD2DSatDatabase(siteID, config);
-
-            statusHandler.handle(Priority.EVENTA,
-                    "NetCDFDatabaseManager initializing...");
-            NetCDFDatabaseManager.initializeNetCDFDatabases(config);
-
-            statusHandler.handle(Priority.EVENTA, "MapManager initializing...");
-            // should be cluster locked
-            new MapManager(config);
-
-            statusHandler
-                    .handle(Priority.EVENTA, "Getting GFE db inventory...");
-            List<DatabaseID> inventory = GridParmManager.getDbInventory(siteID)
-                    .getPayload();
-            Map<String, List<DatabaseID>> ifpInventory = new HashMap<String, List<DatabaseID>>();
-            for (DatabaseID dbId : inventory) {
-                if (!dbId.getDbType().equals("D2D")) {
-                    if (!ifpInventory.keySet().contains(dbId.getSiteId())) {
-                        ifpInventory.put(dbId.getSiteId(),
-                                new ArrayList<DatabaseID>());
-                    }
-                    ifpInventory.get(dbId.getSiteId()).add(dbId);
-                }
-            }
-            statusHandler.handle(Priority.EVENTA,
-                    "Checking for IFPGridDatabase updates...");
-            for (String site : ifpInventory.keySet()) {
-                for (DatabaseID dbid : ifpInventory.get(site)) {
-                    GridDatabase db = GridParmManager.getDb(dbid);
-                    // cluster locked since IFPGridDatabase can modify the grids
-                    // based on changes to grid size, etc
-                    if ((db instanceof IFPGridDatabase) && db.databaseIsValid()) {
-                        ((IFPGridDatabase) db).updateDbs();
-                    }
-                }
-            }
+            statusHandler.info("Activating IFPServer...");
+            IFPServer ifpServer = IFPServer.activateServer(siteID, config);
         } finally {
             statusHandler
                     .handle(Priority.INFO,
@@ -370,7 +306,7 @@ public class GFESiteActivation implements ISiteActivationListener {
         }
 
         // Doesn't need to be cluster locked
-        statusHandler.handle(Priority.EVENTA, "Checking ISC configuration...");
+        statusHandler.info("Checking ISC configuration...");
         boolean isIscActivated = false;
         if (config.requestISC()) {
             String host = InetAddress.getLocalHost().getCanonicalHostName();
@@ -383,10 +319,9 @@ public class GFESiteActivation implements ISiteActivationListener {
             // but don't hard code request
             if (host.contains(hostNameToCompare)
                     && System.getProperty("edex.run.mode").equals("request")) {
-                statusHandler.handle(Priority.EVENTA, "Enabling ISC...");
+                statusHandler.info("Enabling ISC...");
                 try {
-                    IRTManager.getInstance().enableISC(siteID,
-                            config.getMhsid());
+                    IRTManager.getInstance().enableISC(siteID, config);
                     isIscActivated = true;
                 } catch (Exception e) {
                     statusHandler
@@ -394,114 +329,18 @@ public class GFESiteActivation implements ISiteActivationListener {
                                     e);
                 }
             } else {
-                statusHandler.handle(Priority.EVENTA,
-                        "ISC Enabled but will use another EDEX instance");
+                statusHandler
+                        .info("ISC Enabled but will use another EDEX instance");
             }
 
         } else {
-            statusHandler.handle(Priority.EVENTA, "ISC is not enabled.");
+            statusHandler.info("ISC is not enabled.");
         }
 
         // doesn't need to be cluster locked
-        statusHandler.handle(Priority.EVENTA, "Building the D2DParmIDCache...");
-        D2DParmIdCache.getInstance().buildCache(siteID);
         final IFPServerConfig configRef = config;
 
-        // TODO: should only be done once at
-        // initial start of the configuration, or at least only once per
-        // startup, use a separate cluster lock that won't run if lock
-        // within last 5 minutes, move outside of site activation as this
-        // just need to be done, doesn't matter that site isn't fully
-        // activated, in fact would be best to only be done once site is
-        // fully activated.
-        Runnable smartInit = new Runnable() {
-            @Override
-            public void run() {
-                long startTime = System.currentTimeMillis();
-                // wait for system startup or at least 3 minutes
-                while (!EDEXUtil.isRunning()
-                        || (System.currentTimeMillis() > (startTime + 180000))) {
-                    try {
-                        Thread.sleep(15000);
-                    } catch (InterruptedException e) {
-
-                    }
-                }
-
-                ClusterTask ct = ClusterLockUtils.lookupLock(TASK_NAME,
-                        SMART_INIT_TASK_DETAILS + siteID);
-                if ((ct.getLastExecution() + SMART_INIT_TIMEOUT) < System
-                        .currentTimeMillis()) {
-                    ct = ClusterLockUtils.lock(TASK_NAME,
-                            SMART_INIT_TASK_DETAILS + siteID,
-                            SMART_INIT_TIMEOUT, false);
-                    if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
-                        boolean clearTime = false;
-                        try {
-                            List<String> d2dModels = configRef.getD2dModels();
-                            List<List<String>> idsByVersion = new ArrayList<List<String>>(
-                                    5);
-                            for (String d2dModelName : d2dModels) {
-
-                                String gfeModel = configRef
-                                        .gfeModelNameMapping(d2dModelName);
-
-                                if ((d2dModelName != null)
-                                        && (gfeModel != null)) {
-                                    int versions = configRef
-                                            .desiredDbVersions(new DatabaseID(
-                                                    siteID, DataType.GRID, "",
-                                                    gfeModel));
-                                    List<DatabaseID> dbIds = D2DGridDatabase
-                                            .getD2DDatabaseIdsFromDb(configRef,
-                                                    d2dModelName, versions);
-
-                                    while (versions > idsByVersion.size()) {
-                                        idsByVersion.add(new ArrayList<String>(
-                                                d2dModels.size()));
-                                    }
-
-                                    int index = 0;
-                                    for (DatabaseID id : dbIds) {
-                                        List<String> ids = idsByVersion
-                                                .get(index++);
-                                        ids.add(id.toString());
-                                    }
-                                }
-                            }
-                            IMessageProducer producer = EDEXUtil
-                                    .getMessageProducer();
-                            for (List<String> ids : idsByVersion) {
-                                for (String id : ids) {
-                                    statusHandler.handle(Priority.EVENTA,
-                                            "Firing smartinit for " + id);
-                                    try {
-                                        producer.sendAsyncUri(
-                                                "jms-durable:queue:manualSmartInit",
-                                                id
-                                                        + ":0::"
-                                                        + SmartInitRecord.SITE_ACTIVATION_INIT_PRIORITY);
-                                    } catch (EdexException e) {
-                                        statusHandler.handle(Priority.PROBLEM,
-                                                "Failed to fire smart init for: "
-                                                        + id);
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            statusHandler.handle(Priority.ERROR,
-                                    "Error occurred firing Smart Inits", e);
-                            clearTime = true;
-                        } finally {
-                            ClusterLockUtils.unlock(ct, clearTime);
-                        }
-                    }
-                }
-            }
-        };
-        postActivationTaskExecutor.submit(smartInit);
-
-        if (config.tableFetchTime() > 0 && isIscActivated) {
+        if ((config.tableFetchTime() > 0) && isIscActivated) {
             Runnable activateFetchAT = new Runnable() {
 
                 @Override
@@ -546,11 +385,9 @@ public class GFESiteActivation implements ISiteActivationListener {
             postActivationTaskExecutor.submit(activateFetchAT);
         }
 
-        statusHandler.handle(Priority.EVENTA, "Adding " + siteID
-                + " to active sites list.");
+        statusHandler.info("Adding " + siteID + " to active sites list.");
         IFPServerConfigManager.addActiveSite(siteID);
-        statusHandler.handle(Priority.EVENTA, siteID
-                + " successfully activated");
+        statusHandler.info(siteID + " successfully activated");
     }
 
     /**
@@ -562,7 +399,7 @@ public class GFESiteActivation implements ISiteActivationListener {
     public void deactivateSite(String siteID) throws Exception {
 
         sendDeactivationBeginNotification(siteID);
-        if (!IFPServerConfigManager.getActiveSites().contains(siteID)) {
+        if (!IFPServer.getActiveSites().contains(siteID)) {
             statusHandler.handle(Priority.DEBUG, "Site [" + siteID
                     + "] not active.  Cannot deactivate.");
             sendDeactivationCompleteNotification(siteID);
@@ -582,37 +419,13 @@ public class GFESiteActivation implements ISiteActivationListener {
 
             }
 
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(siteID);
-            if (config.requestISC()) {
-                IRTManager.getInstance().disableISC(config.getMhsid(), siteID);
-            }
+            IFPServer.deactivateServer(siteID);
+            statusHandler.info(siteID + " successfully deactivated");
 
-            try {
-                new IscSendRecordDao().deleteForSite(siteID);
-            } catch (DataAccessLayerException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Could not clear IscSendRecords for site " + siteID
-                                + " from queue.", e);
-            }
-
-            TopoDatabaseManager.removeTopoDatabase(siteID);
-            // for (String source : ClimoDatabaseManager.getClimoSources()) {
-            // ClimoDatabaseManager.removeClimoDatabase(siteID, source);
-            // }
-
-            NetCDFDatabaseManager.removeDatabases(siteID);
-
-            D2DSatDatabaseManager.removeSatDatabase(siteID);
-            D2DParmIdCache.getInstance().removeSiteDbs(siteID);
-            IFPParmIdCache.getInstance().removeSiteDbs(siteID);
-            GridParmManager.purgeDbCache(siteID);
-            GridLocationCache.removeGridLocationsForSite(siteID);
-            statusHandler.handle(Priority.EVENTA, siteID
-                    + " successfully deactivated");
-
+            // TODO eventually this should go away
             IFPServerConfigManager.removeSite(siteID);
             IFPServerConfigManager.removeActiveSite(siteID);
+
         } catch (GfeConfigurationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to get server config for site [" + siteID + "]", e);

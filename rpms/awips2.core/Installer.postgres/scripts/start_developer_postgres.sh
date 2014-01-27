@@ -11,9 +11,6 @@ prefix="${POSTGRESQL_INSTALL}/postgresql"
 # Data Directory
 PGDATA="${POSTGRESQL_INSTALL}/data"
 
-# Port to start the database with
-PGPORT=5432
-
 # Where to keep a log file
 PGLOG="$PGDATA/serverlog"
 
@@ -40,7 +37,7 @@ set -e
 test -x $DAEMON || exit 0
 
 echo -n "Starting PostgreSQL: "
-$DAEMON -D $PGDATA -p $PGPORT
+$DAEMON -D $PGDATA
 
 
 

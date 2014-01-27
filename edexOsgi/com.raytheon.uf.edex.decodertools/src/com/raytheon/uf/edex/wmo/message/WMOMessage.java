@@ -33,6 +33,7 @@ import com.raytheon.edex.esb.Headers;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2009            jkorman     Initial creation
+ * Nov 08, 2013 2506       bgonzale    Setting messageBody is done only through setter method.
  * 
  * </pre>
  * 
@@ -67,9 +68,6 @@ public class WMOMessage implements Serializable {
      */
     public WMOMessage(String wmoMessage, Headers headers) {
         this(wmoMessage.getBytes(), headers);
-        if (messageBody != null) {
-            bodyText = new String(messageBody);
-        }
     }
 
     /**
@@ -84,9 +82,10 @@ public class WMOMessage implements Serializable {
                 wmoHeader = header;
 
                 int bodyLen = wmoMessage.length - header.getMessageDataStart();
-                messageBody = new byte[bodyLen];
+                byte[] messageBodyData = new byte[bodyLen];
                 System.arraycopy(wmoMessage, header.getMessageDataStart(),
-                        messageBody, 0, bodyLen);
+                        messageBodyData, 0, bodyLen);
+                setMessageBody(messageBodyData);
             }
         }
     }
@@ -267,7 +266,7 @@ public class WMOMessage implements Serializable {
     }
 
     /**
-     * The the binary data that comprises the body of this message.
+     * Get the binary data that comprises the body of this message.
      * 
      * @return The binary data.
      */
@@ -276,7 +275,7 @@ public class WMOMessage implements Serializable {
     }
 
     /**
-     * The the binary data that comprises the body of this message.
+     * Set the binary data that comprises the body of this message.
      * 
      * @return The binary data.
      */

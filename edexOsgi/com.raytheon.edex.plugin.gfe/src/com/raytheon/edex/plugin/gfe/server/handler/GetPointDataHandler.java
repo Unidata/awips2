@@ -35,7 +35,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
@@ -69,6 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 11, 2009            njensen     Initial creation
  * Mar 06, 2013 1735       rferrel     Change to retrieve multiple points
  *                                      in a single grid request.
+ * Jun 13, 2013     #2044  randerso    Refactored to use IFPServer
+ * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * 
  * </pre>
  * 
@@ -76,7 +77,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class GetPointDataHandler implements
+public class GetPointDataHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetPointDataRequest> {
 
     protected final transient Log logger = LogFactory.getLog(getClass());
@@ -168,7 +169,8 @@ public class GetPointDataHandler implements
             try {
                 ServerResponse<List<IGridSlice>> sr = null;
                 if (getSlices) {
-                    sr = GridParmManager.getGridData(reqList);
+                    sr = getIfpServer(request).getGridParmMgr().getGridData(
+                            reqList);
                 }
 
                 for (Coordinate coordinate : coordinates) {
@@ -212,7 +214,7 @@ public class GetPointDataHandler implements
                             } else if (slice instanceof DiscreteGridSlice) {
                                 DiscreteGridSlice gs = (DiscreteGridSlice) slice;
                                 byte value = gs.getDiscreteGrid().get(x, y);
-                                String key = gs.getKey()[value].toString();
+                                String key = gs.getKeys()[value].toString();
                                 Type type = Type.STRING;
                                 view.setData(param, type, unit, key);
                             }

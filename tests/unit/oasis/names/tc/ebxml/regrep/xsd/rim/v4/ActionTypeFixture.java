@@ -20,6 +20,7 @@
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import java.util.Random;
+import java.util.UUID;
 
 import com.raytheon.uf.common.registry.constants.EventTypes;
 import com.raytheon.uf.common.util.AbstractFixture;
@@ -55,7 +56,7 @@ public class ActionTypeFixture extends AbstractFixture<ActionType> {
     protected ActionType getInstance(long seedValue, Random random) {
         final ActionType instance = new ActionType();
         instance.setEventType(EventTypes.CREATED);
-        instance.setKey(random.nextInt());
+        instance.setId(UUID.randomUUID().toString());
 
         return instance;
     }

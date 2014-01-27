@@ -38,6 +38,7 @@ import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -66,12 +67,16 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Sep 07, 2012 1102        djohnson    Add missing JAXB annotations.
- * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
- * Nov 02, 2012 1302        djohnson    Remove commented out code.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 07, 2009  1994     bphillip    Initial Creation
+ * Sep 07, 2012  1102     djohnson    Add missing JAXB annotations.
+ * Sep 10, 2012  15270    D. Friedman Fix subgrid model name handling.
+ * Nov 02, 2012  1302     djohnson    Remove commented out code.
+ * Jul 16, 2013  2181     bsteffen    Convert geometry types to use hibernate-
+ *                                    spatial
+ * Oct 15, 2013  2473     bsteffen    add @XmlSeeAlso for self contained JAXB
+ *                                    context.
  * 
  * </pre>
  * 
@@ -83,6 +88,9 @@ import com.vividsolutions.jts.geom.Geometry;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @SequenceGenerator(name = "GRIDCOVERAGE_GENERATOR", sequenceName = "gridcoverage_seq", allocationSize = 1)
 @XmlAccessorType(XmlAccessType.NONE)
+@XmlSeeAlso({ LambertConformalGridCoverage.class, LatLonGridCoverage.class,
+        MercatorGridCoverage.class, PolarStereoGridCoverage.class,
+        StereographicGridCoverage.class })
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
         implements ISpatialObject {
@@ -113,8 +121,8 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     protected String description;
 
     /** Geometry object holding the corner points of the grid */
-    @Column(name = "the_geom", columnDefinition = "geometry")
-    @Type(type = "com.raytheon.edex.db.objects.hibernate.GeometryType")
+    @Column(name = "the_geom")
+    @Type(type = "org.hibernatespatial.GeometryUserType")
     @XmlJavaTypeAdapter(value = GeometryAdapter.class)
     @DynamicSerializeElement
     protected Geometry geometry;

@@ -20,6 +20,9 @@
 
 package com.raytheon.viz.hydro.impactstatement;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -28,6 +31,7 @@ import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.viz.hydrocommon.HydroDisplayManager;
 import com.raytheon.viz.hydrocommon.impactstatement.ImpactStatementDlg;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Action for Impact Statement Dialog.
@@ -40,6 +44,7 @@ import com.raytheon.viz.hydrocommon.impactstatement.ImpactStatementDlg;
  * ------------	----------	-----------	--------------------------
  * 6/27/08                  lvenable    Initial creation.
  * 10/20/2008   1617        grichard    Support impact statement.
+ * 07/15/2013   2088        rferrel     Changes for non-blocking ImpactStatementDlg.
  * 
  * </pre>
  * 
@@ -47,6 +52,18 @@ import com.raytheon.viz.hydrocommon.impactstatement.ImpactStatementDlg;
  * 
  */
 public class ImpactStatementAction extends AbstractHandler {
+    /**
+     * Allow one instance per station.
+     */
+    Map<String, ImpactStatementDlg> impactStatmentDlgMap = new HashMap<String, ImpactStatementDlg>();
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.eclipse.core.commands.AbstractHandler#execute(org.eclipse.core.commands
+     * .ExecutionEvent)
+     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
@@ -55,16 +72,36 @@ public class ImpactStatementAction extends AbstractHandler {
         HydroDisplayManager manager = HydroDisplayManager.getInstance();
         if (manager.isCurrentLidSelected(shell)) {
             String lid = manager.getCurrentLid();
-            String name = manager.getCurrentData().getName();
+            ImpactStatementDlg impactStatmentDlg = impactStatmentDlgMap
+                    .get(lid);
 
-            String displayString = " - "
-                    + lid
-                    + ((name != null && name.compareTo("") != 0) ? " - " + name
-                            : "");
+            if (impactStatmentDlg == null || impactStatmentDlg.isDisposed()) {
+                String name = manager.getCurrentData().getName();
 
-            ImpactStatementDlg impactStatmentDlg = new ImpactStatementDlg(
-                    shell, displayString, lid, false);
-            impactStatmentDlg.open();
+                StringBuilder displayString = new StringBuilder(" - ");
+                displayString.append(lid);
+
+                if (name != null && name.length() > 0) {
+                    displayString.append(" - ").append(name);
+                }
+
+                impactStatmentDlg = new ImpactStatementDlg(shell,
+                        displayString.toString(), lid, false);
+                impactStatmentDlg.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof String) {
+                            String lid = returnValue.toString();
+                            impactStatmentDlgMap.remove(lid);
+                        }
+                    }
+                });
+                impactStatmentDlg.open();
+                impactStatmentDlgMap.put(lid, impactStatmentDlg);
+            } else {
+                impactStatmentDlg.bringToTop();
+            }
         }
 
         return null;

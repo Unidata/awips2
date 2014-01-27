@@ -1,0 +1,52 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  	http://cxf.apache.org/jaxws
+    http://cxf.apache.org/schemas/jaxws.xsd
+    http://cxf.apache.org/jaxrs
+    http://cxf.apache.org/schemas/jaxrs.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	
+	<import resource="classpath:res/spring/registry-datadelivery.xml" />
+	<import resource="classpath:res/spring/registry-federation-datadelivery.xml"/>
+
+	<bean id="registryDataAccessService"
+		class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryDataAccessService">
+		<property name="registryObjectDao" ref="registryObjectDao" />
+		<property name="lcm" ref="lcmServiceImpl" />
+		<property name="queryDefinitionDao" ref="queryDefinitionDao" />
+	</bean>
+
+	<bean id="registryAvailabilityService"
+		class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryAvailableRestService" />
+		
+	<bean id="registryStatus" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryFederationStatus">
+		<property name="registryDao" ref="registryDao"/>
+		<property name="subscriptionDao" ref="subscriptionTypeDao"/>
+		<property name="federationManager" ref="RegistryFederationManager"/>
+		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
+		<property name="registrySoapServices" ref="registryWebServiceClient"/>
+	</bean>
+	
+	<bean id="defineRegistryQuery" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryQueryDefinitionService">
+		<property name="registryObjectDao" ref="registryObjectDao"/>
+	</bean>
+
+
+	<!-- REST Service Definitions -->
+	<jaxrs:server id="dataDeliveryRestServices" address="/dataDelivery">
+		<jaxrs:inInterceptors>
+			<ref bean="webServiceInInterceptor" />
+		</jaxrs:inInterceptors>
+		<jaxrs:serviceBeans>
+			<ref bean="registryDataAccessService" />
+			<ref bean="registryAvailabilityService" />
+			<ref bean="registryStatus"/>
+			<ref bean="defineRegistryQuery"/>
+		</jaxrs:serviceBeans>
+	</jaxrs:server>
+</beans>

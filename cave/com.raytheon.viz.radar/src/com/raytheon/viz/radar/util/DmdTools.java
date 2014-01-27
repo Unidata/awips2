@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
-import com.raytheon.edex.meteoLib.Controller;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataPoint;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -39,9 +38,27 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
+import com.raytheon.uf.common.wxmath.ZToPsa;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 
+/**
+ * TODO Add Description
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??? ??, ????            xxxxxxxx     Initial creation
+ * Aug 14, 2013  #2262     dgilling     Use new wxmath method for ztopsa.
+ * 
+ * </pre>
+ * 
+ * @author xxxxxxxx
+ * @version 1.0
+ */
 public class DmdTools {
 
     public static final String[] levels3d = { "LowLyr", "MaxShear", "MaxWind",
@@ -87,7 +104,7 @@ public class DmdTools {
             }
         }
         if (parameter.equals("P") && value != null) {
-            value = Controller.ztopsa(value);
+            value = ZToPsa.ztopsa(value);
         }
         if (value == null) {
             return -9999;

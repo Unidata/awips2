@@ -14,7 +14,20 @@ function installCAVERepository([string]$feature_group, [string]$repo)
     if ($? -ne $true) { echo "ERROR: Unable to install feature: $feature_group."; echo "FATAL: Build Failed!"; EXIT 1; }
     
     Remove-Item -recurse -force ${A2_PREPARE_CAVE_DIR}/$repo
-    if ($? -ne $true) { EXIT 1; } 
+    if ($? -ne $true) { EXIT 1; }
+    
+    pushd .
+    cd plugins
+    dir -rec | where { if (($_.fullname.split("\")).count -eq 7 -and `
+        $_.name.equals("localization")){$_}} | ForEach-Object -process `
+        { $localizationDirectory = $_.fullname; `
+        echo $localizationDirectory; `
+        Copy-Item -force -recurse -path "${localizationDirectory}\*" -destination ${A2_PREPARE_CAVE_DIR}\cave\etc; `
+        if ($? -ne $true) { EXIT 1; }; `
+        Remove-Item -force -recurse ${localizationDirectory}; `
+        if ($? -ne $true) { EXIT 1; } }
+    if ($? -ne $true) { EXIT 1; }
+    popd 
     
     echo "`n"
 }
@@ -22,6 +35,10 @@ function installCAVERepository([string]$feature_group, [string]$repo)
 pushd .
 
 cd ${A2_PREPARE_CAVE_DIR}\cave
+
+New-Item -path ${A2_PREPARE_CAVE_DIR}\cave `
+    -name etc -type directory | Out-Null
+if ($? -ne $true) { EXIT 1; }
 
 echo "`n"
 $feature_list = Get-Content "${A2_PREPARE_CAVE_DIR}\features.txt"

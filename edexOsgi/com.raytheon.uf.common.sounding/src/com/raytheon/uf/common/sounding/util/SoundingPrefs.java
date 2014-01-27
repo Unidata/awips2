@@ -21,6 +21,7 @@ package com.raytheon.uf.common.sounding.util;
 
 import java.io.File;
 
+import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,40 +29,43 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * 
- * TODO Add Description
+ * Allows the temperature range visible on a skewT chart to be changed by the
+ * user/site.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 15, 2011            bsteffen     Initial creation
- *
+ * Jun 15, 2011            bsteffen    Initial creation
+ * Aug 21, 2013 2259       bsteffen    Add javadoc
+ * Nov 08, 2013 2361       njensen     Use JAXB instead of SerializationUtil
+ * 
+ * 
  * </pre>
- *
+ * 
  * @author bsteffen
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class SoundingPrefs {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
-    .getHandler(SoundingPrefs.class);
-    
+            .getHandler(SoundingPrefs.class);
+
     private static final String SOUNDING_PREFS_FILE = "sounding/soundingPrefs.xml";
-    
+
     @XmlElement
     private double temperatureOffset = 0.0;
 
@@ -72,29 +76,30 @@ public class SoundingPrefs {
     public void setTemperatureOffset(double temperatureOffset) {
         this.temperatureOffset = temperatureOffset;
     }
-    
+
     private static SoundingPrefs soundingPrefs;
-    
+
     public static SoundingPrefs getSoundingPrefs() {
-        if(soundingPrefs == null) {
+        if (soundingPrefs == null) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
             File file = pathMgr.getFile(lc, SOUNDING_PREFS_FILE);
-            if(file == null || !file.exists()) {
-                 lc = pathMgr.getContext(
-                        LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-                 file = pathMgr.getFile(lc, SOUNDING_PREFS_FILE);
+            if (file == null || !file.exists()) {
+                lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE);
+                file = pathMgr.getFile(lc, SOUNDING_PREFS_FILE);
             }
             try {
-                soundingPrefs = (SoundingPrefs) SerializationUtil.jaxbUnmarshalFromXmlFile(file);
-            } catch (SerializationException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                soundingPrefs = JAXB.unmarshal(file, SoundingPrefs.class);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
                 soundingPrefs = new SoundingPrefs();
             }
         }
         return soundingPrefs;
-                
+
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package com.raytheon.uf.common.datadelivery.registry;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,7 +10,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -21,7 +21,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 20, 2011    357      dhladky     Initial creation
+ * Mar 20, 2011 0357       dhladky     Initial creation
+ * Jun 24, 2013 2106       djohnson    Implement serializable.
  * 
  * </pre>
  * 
@@ -32,7 +33,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Ensemble implements ISerializableObject {
+public class Ensemble implements Serializable {
+
+    private static final long serialVersionUID = 5226308994976901382L;
 
     /**
      * names of the various ensemble members

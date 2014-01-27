@@ -60,7 +60,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/17/2009   1981       dhladky    Initial Creation.
- * 01/07/2013	DR 15647   gzhang	  Use logger.warn for null earlyVilURI/earlyCZURI.		
+ * 01/07/2013	DR 15647   gzhang	  Use logger.warn for null earlyVilURI/earlyCZURI.	
+ * 11/11/2013   2377       bclement   setRadarRecords returns bool for success
  * </pre>
  * 
  * @author dhladky
@@ -346,8 +347,10 @@ public class QPFConfig {
      * 
      * @param vilmap
      * @param czMap
+     * @return false if previous data for QPF is missing
+     * @throws Exception
      */
-    private void setRadarRecords(HashMap<Date, String> vilmap,
+    private boolean setRadarRecords(HashMap<Date, String> vilmap,
             HashMap<Date, String> czMap) throws Exception {
 
         // find similar time stamp
@@ -373,8 +376,7 @@ public class QPFConfig {
 
         if (earlyVilURI == null || earlyCZURI == null) {
         	qpfgen.logger.warn("QPFConfig: No previous data for QPF. Check the RADAR OP Mode.");// DR 15647
-            //throw new Exception("QPFConfig " + icao
-                    //+ ": Radar Record request failed, no previous data.");
+            return false;
         }
 
         try {
@@ -387,6 +389,7 @@ public class QPFConfig {
             throw new Exception("QPFConfig " + icao
                     + ": Radar Record request failed. ", e);
         }
+        return true;
     }
 
     /**
@@ -514,9 +517,8 @@ public class QPFConfig {
                     + "\' and reftime < \'"
                     + getFarInterval(currentCzuTime).toString() + "\'";
 
-            setRadarRecords(getDataVolumeTimes(vilsql),
+            return setRadarRecords(getDataVolumeTimes(vilsql),
                     getDataVolumeTimes(czsql));
-            return true;
         } catch (Exception e) {
             qpfgen.logger
                     .error("QPFConfig: Some RadarRecords cannot be created: "

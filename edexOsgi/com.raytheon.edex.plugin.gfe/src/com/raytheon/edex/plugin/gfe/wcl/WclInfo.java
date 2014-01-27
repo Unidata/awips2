@@ -26,40 +26,39 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * A class for the information in a WCL.
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * --/--/----               wldougher   Initial creation
+ * 09/30/2013   2361        njensen     Removed XML annotations
+ * 
+ * </pre>
+ * 
+ * 
  * @author wldougher
  * 
  */
-@XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class WclInfo implements ISerializableObject {
+public class WclInfo {
 
-    private static final long serialVersionUID = 1L;
-
-    @XmlAttribute
     @DynamicSerializeElement
     private Date issueTime;
 
-    @XmlElement
     @DynamicSerializeElement
     private List<String> lines;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private String completeProductPil;
 
-    @XmlAttribute
     @DynamicSerializeElement
     private Boolean notify;
 

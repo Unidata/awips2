@@ -18,14 +18,30 @@ import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.style.level.Level;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.style.level.Level;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 
+/**
+ * Allows GFE data to be rendered on an XY display in D2D.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Sep 5, 2013            mnash     Initial javadoc creation; we aren't able to pinpoint initial creation
+ * 
+ * </pre>
+ * 
+ * @author mnash
+ * @version 1.0
+ */
 public class GfeTimeSeriesAdapter extends AbstractTimeSeriesAdapter<GFERecord> {
 
     private Unit<?> unit = Unit.ONE;

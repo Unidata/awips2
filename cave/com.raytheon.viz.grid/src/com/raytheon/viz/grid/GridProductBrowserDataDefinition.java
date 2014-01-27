@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,11 +36,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
-import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -53,8 +49,6 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
@@ -75,6 +69,7 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  * May 26, 2010            mnash        Used ProductBrowserLabel implementation instead of requery
  * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
  *                                     DbQueryRequest.
+ * Sep 19, 2013  2391      mpduff      refactored some methods to common class.
  * 
  * </pre>
  * 
@@ -83,33 +78,14 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  */
 public class GridProductBrowserDataDefinition extends
         AbstractRequestableProductBrowserDataDefinition<GridResourceData> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridProductBrowserDataDefinition.class);
 
-    private static final String SHOW_DERIVED_PARAMS = "Show Derived Parameters";
+    private final String SHOW_DERIVED_PARAMS = "Show Derived Parameters";
 
-    private static final Comparator<Level> levelComparator = new Comparator<Level>() {
-
-        @Override
-        public int compare(Level o1, Level o2) {
-            if (o1.isRangeLevel() == o2.isRangeLevel()) {
-                int val = Double.compare(o1.getLevelonevalue(),
-                        o2.getLevelonevalue());
-                if (val == 0) {
-                    val = Double.compare(o1.getLeveltwovalue(),
-                            o2.getLeveltwovalue());
-                }
-                return val;
-            }
-            if (o1.isRangeLevel()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-
-    };
-
+    /**
+     * Constructor.
+     */
     public GridProductBrowserDataDefinition() {
         productName = GridInventory.PLUGIN_NAME;
         displayName = "Grid";
@@ -307,70 +283,17 @@ public class GridProductBrowserDataDefinition extends
     @Override
     public List<ProductBrowserLabel> formatData(String param,
             String[] parameters) {
-        List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
         try {
-            if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
-                DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
-                for (int i = 0; i < parameters.length; i++) {
-                    DatasetInfo info = lookup.getInfo(parameters[i]);
-                    if (info == null) {
-                        labels.add(new ProductBrowserLabel(parameters[i],
-                                parameters[i]));
-                    } else {
-                        labels.add(new ProductBrowserLabel(info.getTitle()
-                                + " (" + parameters[i] + ")", parameters[i]));
-                    }
-                }
-                Collections.sort(labels);
-                return labels;
-            } else if (GridInventory.PARAMETER_QUERY.equals(param)) {
-                Map<String, DerivParamDesc> library = DerivedParameterGenerator
-                        .getDerParLibrary();
-                for (int i = 0; i < parameters.length; i++) {
-                    DerivParamDesc desc = library.get(parameters[i]);
-                    if (desc == null || desc.getName().isEmpty()) {
-                        labels.add(new ProductBrowserLabel(parameters[i],
-                                parameters[i]));
-                    } else {
-                        labels.add(new ProductBrowserLabel(desc.getName()
-                                + " (" + parameters[i] + ")", parameters[i]));
-                    }
-                }
-                Collections.sort(labels);
-                return labels;
-            } else if (GridInventory.LEVEL_ID_QUERY.equals(param)) {
-                Level[] levels = new Level[parameters.length];
-                LevelFactory lf = LevelFactory.getInstance();
-                for (int i = 0; i < levels.length; i++) {
-                    levels[i] = lf.getLevel(parameters[i]);
-                }
-                Arrays.sort(levels, levelComparator);
-                for (int i = 0; i < parameters.length; i++) {
-                    String levelName = levels[i].toString().replace("_", "-");
-                    levelName = levelName.replace(levels[i].getMasterLevel()
-                            .getName(), " "
-                            + levels[i].getMasterLevel().getName());
-                    labels.add(new ProductBrowserLabel(levelName, Long
-                            .toString(levels[i].getId())));
-                }
-                return labels;
-            } else if (GridInventory.MASTER_LEVEL_QUERY.equals(param)) {
-                LevelFactory lf = LevelFactory.getInstance();
-                for (int i = 0; i < parameters.length; i++) {
-                    MasterLevel masterLevel = lf.getMasterLevel(parameters[i]);
-                    labels.add(new ProductBrowserLabel(masterLevel
-                            .getDescription()
-                            + " ("
-                            + masterLevel.getName()
-                            + ")", masterLevel.getName()));
-                }
-                Collections.sort(labels);
+            List<ProductBrowserLabel> labels = GridProductBrowserDataFormatter
+                    .formatGridData(param, parameters);
+            if (labels != null && !labels.isEmpty()) {
                 return labels;
             }
         } catch (CommunicationException e) {
             statusHandler.handle(Priority.ERROR, "Unable to format data for "
                     + productName, e);
         }
+
         return super.formatData(param, parameters);
     }
 

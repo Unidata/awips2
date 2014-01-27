@@ -24,21 +24,26 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.annotations.Immutable;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.gfe.serialize.DatabaseIDAdapter;
@@ -60,6 +65,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * 01/18/13     1504       randerso    Removed setters since class should be immutable
  * 03/28/13     1949       rjpeter     Normalized database structure.
  * 06/20/13     2127       rjpeter     Removed unused bidirectional relationship.
+ * 06/13/13     2044       randerso    Code cleanup
+ * 07/31/13     2057       randerso    Added removedDate
  * </pre>
  * 
  * @author bphillip
@@ -68,12 +75,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @Entity
 @Table(name = "gfe_dbid", uniqueConstraints = { @UniqueConstraint(columnNames = {
         "siteId", "modelName", "modelTime", "dbType" }) })
-@Immutable
 @DynamicSerialize
 @DynamicSerializeTypeAdapter(factory = DatabaseIDAdapter.class)
 public class DatabaseID implements Comparable<DatabaseID> {
-
-    private static final long serialVersionUID = 5792890762609478694L;
 
     /**
      * String signifying this database does not use a model time (i.e. is a
@@ -81,9 +85,12 @@ public class DatabaseID implements Comparable<DatabaseID> {
      */
     public static final String NO_MODEL_TIME = "00000000_0000";
 
+    /**
+     * Format for model run time in a DatabaseID
+     */
     public static final String MODEL_TIME_FORMAT = "yyyyMMdd_HHmm";
 
-    public static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
+    private static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
 
         @Override
         protected SimpleDateFormat initialValue() {
@@ -97,7 +104,11 @@ public class DatabaseID implements Comparable<DatabaseID> {
 
     /** Denotes what type of database */
     public enum DataType {
-        NONE, GRID
+        /** Invalid DatabseID */
+        NONE,
+
+        /** Normal GRID database */
+        GRID
     };
 
     /**
@@ -135,6 +146,10 @@ public class DatabaseID implements Comparable<DatabaseID> {
     @DataURI(position = 2)
     private String modelTime = NO_MODEL_TIME;
 
+    /** Date database was removed from localConfig.py. */
+    @Column(nullable = true)
+    private Date removedDate;
+
     /** The model identifier */
     @Transient
     private String modelId;
@@ -142,6 +157,15 @@ public class DatabaseID implements Comparable<DatabaseID> {
     /** The short model identifier */
     @Transient
     private String shortModelId;
+
+    /**
+     * Used only for hibernate mappings to allow a cascade delete to all child
+     * parmIds when the databaseId is deleted. These should not be loaded by or
+     * referenced normally from code from this object.
+     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dbId", cascade = { CascadeType.REMOVE })
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<ParmID> parmIds;
 
     /**
      * Creates a new DatabaseID
@@ -232,7 +256,7 @@ public class DatabaseID implements Comparable<DatabaseID> {
     /**
      * Returns the id field, auto-generated surrogate key.
      * 
-     * @return
+     * @return the id
      */
     public int getId() {
         return id;
@@ -458,6 +482,21 @@ public class DatabaseID implements Comparable<DatabaseID> {
     }
 
     /**
+     * @return the removedDate
+     */
+    public Date getRemovedDate() {
+        return removedDate;
+    }
+
+    /**
+     * @param removedDate
+     *            the removedDate to set
+     */
+    public void setRemovedDate(Date removedDate) {
+        this.removedDate = removedDate;
+    }
+
+    /**
      * @return the modelId
      */
 
@@ -490,14 +529,14 @@ public class DatabaseID implements Comparable<DatabaseID> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (dbType == null ? 0 : dbType.hashCode());
-        result = prime * result + (format == null ? 0 : format.hashCode());
+        result = (prime * result) + (dbType == null ? 0 : dbType.hashCode());
+        result = (prime * result) + (format == null ? 0 : format.hashCode());
         String localModelId = getModelId();
-        result = prime * result
+        result = (prime * result)
                 + (localModelId == null ? 0 : localModelId.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + (modelTime == null ? 0 : modelTime.hashCode());
-        result = prime * result + (siteId == null ? 0 : siteId.hashCode());
+        result = (prime * result) + (siteId == null ? 0 : siteId.hashCode());
         return result;
     }
 
@@ -519,7 +558,7 @@ public class DatabaseID implements Comparable<DatabaseID> {
     }
 
     /**
-     * @return the modelDate
+     * @return the modelDate or null for singleton databases
      */
 
     public Date getModelDate() {
@@ -535,6 +574,11 @@ public class DatabaseID implements Comparable<DatabaseID> {
     }
 
     // TODO: DELETE THIS METHOD
+    /**
+     * @return the model time as a Date
+     * @deprecated use getModelDate instead
+     */
+    @Deprecated
     public Date getModelTimeAsDate() {
         if (this.modelTime.equals(NO_MODEL_TIME)) {
             return new Date(0);
@@ -560,29 +604,35 @@ public class DatabaseID implements Comparable<DatabaseID> {
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
     @Override
-    public int compareTo(DatabaseID o) {
+    public int compareTo(DatabaseID other) {
 
-        int site = this.siteId.compareTo(o.getSiteId());
+        int site = this.siteId.compareTo(other.getSiteId());
         if (site != 0) {
             return site;
         }
 
-        int format = this.format.compareTo(o.getFormat());
+        int format = this.format.compareTo(other.getFormat());
         if (format != 0) {
             return format;
         }
 
-        int type = this.dbType.compareTo(o.getDbType());
+        int type = this.dbType.compareTo(other.getDbType());
         if (type != 0) {
             return type;
         }
 
-        int model = this.modelName.compareTo(o.getModelName());
+        int model = this.modelName.compareTo(other.getModelName());
         if (model != 0) {
             return model;
         }
 
-        int time = -this.getModelTimeAsDate().compareTo(o.getModelTimeAsDate());
+        Date thisDate = this.getModelDate();
+        Date otherDate = other.getModelDate();
+
+        long thisTime = (thisDate == null ? 0 : thisDate.getTime());
+        long otherTime = (otherDate == null ? 0 : otherDate.getTime());
+
+        int time = (thisTime < otherTime ? 1 : (thisTime == otherTime ? 0 : -1));
         return time;
     }
 }

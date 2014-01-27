@@ -44,6 +44,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      number of files purged.
  * Sep 03, 2013 2224       rferrel     Add check to enable/disable purger.
  * Nov 05, 2013 2499       rjpeter     Repackaged
+ * Dec 17, 2013 2603       rjpeter     Reload configuration every run of purge.
  * </pre>
  * 
  * @author bgonzale
@@ -67,6 +68,7 @@ public class ArchivePurger {
             timer.start();
             statusHandler.info("Archive Purge started.");
             ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+            manager.reset();
             Collection<ArchiveConfig> archives = manager.getArchives();
             for (ArchiveConfig archive : archives) {
                 ITimer archiveTimer = TimeUtil.getTimer();

@@ -20,10 +20,6 @@
 package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,20 +27,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.common.xml.ColumnXML;
 import com.raytheon.uf.viz.datadelivery.subscription.xml.SubscriptionManagerConfigXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
@@ -66,6 +53,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Jan 03, 2013  1437      bgonzale   Removed xml attribute, use SubscriptionConfigurationManager
  *                                    instead.  Added configuration file management controls to
  *                                    this dialog.
+ * Sep 04, 2013  2314      mpduff     Load/save config dialog now non-blocking.
+ * Nov 06, 2013  2358      mpduff     Removed configuration file management from this dialog.
  * 
  * </pre>
  * 
@@ -74,13 +63,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  */
 
 public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
-
-    /** Status Handler */
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SubscriptionManagerDlg.class);
-
     /** Callback to SubscriptionManagerDialog */
-    private ITableChange callback;
+    private final ITableChange callback;
 
     /** Dual List Config */
     private DualListConfig dualConfig;
@@ -89,19 +73,9 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
     private DualList dualList;
 
     /**
-     * Configuration file selection combo.
-     */
-    private Combo fileCombo;
-
-    /**
-     * Map of context level:file name to LocalizationFile.
-     */
-    private Map<String, LocalizationFile> configFileMap;
-
-    /**
      * Configuration manager.
      */
-    private SubscriptionConfigurationManager configManager;
+    private final SubscriptionConfigurationManager configManager;
 
     /**
      * Initialization Constructor.
@@ -131,68 +105,8 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         shell.setLayout(gl);
         shell.setLayoutData(gd);
 
-        createTopControls();
         createMain();
         createBottomButtons();
-    }
-
-    private void createTopControls() {
-        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        GridLayout gl = new GridLayout(2, false);
-
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gl = new GridLayout(2, false);
-        Composite topComp = new Composite(shell, SWT.NONE);
-        topComp.setLayout(gl);
-        topComp.setLayoutData(gd);
-
-        Composite comp = new Composite(topComp, SWT.NONE);
-
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        gl = new GridLayout(4, false);
-        comp.setLayout(gl);
-        comp.setLayoutData(gd);
-
-        Label configurationFileLabel = new Label(comp, SWT.NONE);
-        configurationFileLabel.setText("Configuration:");
-
-        GridData comboData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        fileCombo = new Combo(comp, SWT.READ_ONLY);
-        fileCombo.setLayoutData(comboData);
-        fileCombo.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                try {
-                    handleConfigSelected();
-                } catch (JAXBException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                }
-            }
-        });
-        updateFileCombo();
-    }
-
-    /**
-     * Update the file combo based on the available configurations and currently
-     * selected config.
-     */
-    private void updateFileCombo() {
-        configFileMap = configManager.getConfigFileNameMap();
-        fileCombo.removeAll();
-
-        int index = 0;
-        for (Entry<String, LocalizationFile> entry : configFileMap.entrySet()) {
-            fileCombo.add(entry.getKey());
-            if (configManager.isCurrentConfig(entry.getValue())) {
-                fileCombo.select(index);
-            }
-            ++index;
-        }
-
-        if (fileCombo.getSelectionIndex() < 0 && index > 0) {
-            fileCombo.select(0);
-        }
     }
 
     private void createMain() {
@@ -279,63 +193,6 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
                 close();
             }
         });
-
-        Button newBtn = new Button(bottomComp, SWT.PUSH);
-        newBtn.setText("New");
-        newBtn.setLayoutData(btnData);
-        newBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                handleNew();
-            }
-        });
-        Button deleteBtn = new Button(bottomComp, SWT.PUSH);
-        deleteBtn.setText("Delete");
-        deleteBtn.setLayoutData(btnData);
-        deleteBtn.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                handleDelete();
-            }
-        });
-    }
-
-    /**
-     * Open dialog to remove a configuration.
-     */
-    protected void handleDelete() {
-        LoadSaveConfigDlg dialog = new LoadSaveConfigDlg(shell,
-                DialogType.DELETE, configManager.getLocalizationPath(),
-                configManager.getDefaultXMLConfig());
-        LocalizationFile file = (LocalizationFile) dialog.open();
-
-        if (file == null) {
-            return;
-        }
-        try {
-            file.delete();
-        } catch (LocalizationOpFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        updateFileCombo();
-        handleApply();
-    }
-
-    /**
-     * Open dialog for a new configuration.
-     */
-    protected void handleNew() {
-        LoadSaveConfigDlg loadDlg = new LoadSaveConfigDlg(shell,
-                DialogType.SAVE_AS, configManager.getLocalizationPath(),
-                configManager.getDefaultXMLConfig(), true);
-        LocalizationFile file = (LocalizationFile) loadDlg.open();
-
-        if (file == null) {
-            return;
-        }
-        configManager.saveXml(file);
-        handleApply();
-        updateFileCombo();
     }
 
     /**
@@ -360,19 +217,4 @@ public class SubscriptionManagerConfigDlg extends CaveSWTDialog {
         handleApply();
         close();
     }
-
-    /**
-     * Load a selected configuration.
-     * 
-     * @throws JAXBException
-     */
-    private void handleConfigSelected() throws JAXBException {
-        String selectedKey = fileCombo.getItem(fileCombo.getSelectionIndex());
-        LocalizationFile selectedFile = configFileMap.get(selectedKey);
-
-        configManager.setConfigFile(selectedFile);
-        updateDualListSelections();
-        callback.tableChanged();
-    }
-
 }

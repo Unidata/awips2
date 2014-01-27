@@ -32,13 +32,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.util.CollectionUtil;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IDataTimingSubsetView;
-import com.raytheon.uf.viz.datadelivery.subscription.subset.presenter.IGriddedDataTimingSubsetView;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SpecificDateTimeXML;
+import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.TimeXML;
 import com.raytheon.viz.ui.widgets.duallist.DualList;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 
 /**
- * {@link IDataTimingSubsetView} implementation for Gridded data.
+ * Implementation for Gridded data.
  * 
  * <pre>
  * 
@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Sep 07, 2012 0684       mpduff       Clear fcstHour selection before setting new selection.
  * Sep 24, 2012 1209       djohnson     Display text when there are no available cycles, move validation to presenter.
  * Jan 10, 2013 1444       mpduff       Add updateSelectedForecastHours method.
+ * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * 
  * </pre>
  * 
@@ -58,8 +59,8 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * @version 1.0
  */
 
-public class GriddedTimingSubsetTab extends DataTimingSubsetTab implements
-        IGriddedDataTimingSubsetView {
+public class GriddedTimingSubsetTab extends DataTimingSubsetTab {// implements
+// IGriddedDataTimingSubsetView {
 
     /** Forecast dual list */
     private DualList fcstDualList;
@@ -67,27 +68,27 @@ public class GriddedTimingSubsetTab extends DataTimingSubsetTab implements
     /** Forecast dual configuration */
     private final DualListConfig forecastHoursDualConfig = new DualListConfig();
 
+    /** Forecast Group */
     private Group forecastGrp;
 
     /**
      * Constructor.
      * 
      * @param parentComp
-     * @param dataSet
+     *            Parent composite
      * @param callback
+     *            The callback class
      * @param shell
+     *            the shell
      */
     public GriddedTimingSubsetTab(Composite parentComp, IDataSize callback,
             Shell shell) {
         super(parentComp, callback, shell);
+
+        init();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void init() {
-        super.init();
+    private void init() {
 
         GridLayout gl = new GridLayout(1, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -114,18 +115,20 @@ public class GriddedTimingSubsetTab extends DataTimingSubsetTab implements
     }
 
     /**
+     * Get the selected forecast hours
      * 
-     * {@inheritDoc}
+     * @return the selected forecast hours
      */
-    @Override
     public String[] getSelectedFcstHours() {
         return this.fcstDualList.getSelectedListItems();
     }
 
     /**
-     * {@inheritDoc}
+     * List of hours to set
+     * 
+     * @param fcstHours
+     *            list of fcst hours
      */
-    @Override
     public void setSelectedForecastHours(List<String> fcstHours) {
         fcstDualList.clearSelection();
 
@@ -136,17 +139,21 @@ public class GriddedTimingSubsetTab extends DataTimingSubsetTab implements
     }
 
     /**
-     * {@inheritDoc}
+     * Set the available forecast hours
+     * 
+     * @param forecastHours
+     *            list of fcst hours
      */
-    @Override
     public void setAvailableForecastHours(List<String> forecastHours) {
         fcstDualList.setFullList(new ArrayList<String>(forecastHours));
     }
 
     /**
-     * {@inheritDoc}
+     * Update the selected forecast hours.
+     * 
+     * @param fcstHours
+     *            list of fcst hours
      */
-    @Override
     public void updateSelectedForecastHours(List<String> fcstHours) {
         List<String> selectedHrs = new ArrayList<String>();
         String[] selectedItems = fcstDualList.getSelectedSelection();
@@ -175,5 +182,29 @@ public class GriddedTimingSubsetTab extends DataTimingSubsetTab implements
         }
         fcstDualList.selectItems(selectedHrs.toArray(new String[selectedHrs
                 .size()]));
+    }
+
+    /**
+     * Are the data valid?
+     * 
+     * @return true if valid
+     */
+    public boolean isValid() {
+        if (fcstDualList.getSelectedListItems().length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get the save info for the tab.
+     * 
+     * @return TimeXML object
+     */
+    public TimeXML getSaveInfo() {
+        SpecificDateTimeXML time = new SpecificDateTimeXML();
+        time.setFcstHours(new ArrayList<String>(Arrays.asList(fcstDualList
+                .getSelectedListItems())));
+        return time;
     }
 }

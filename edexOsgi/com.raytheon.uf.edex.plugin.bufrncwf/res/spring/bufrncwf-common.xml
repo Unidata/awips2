@@ -9,8 +9,8 @@
     <bean id="bufrncwfProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="bufrncwfPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.bufrncwf" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.ncwf.dao.BUFRncwfDao" />
-        <property name="record" value="com.raytheon.uf.common.dataplugin.ncwf.BUFRncwf" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.bufrncwf.BUFRncwfDao" />
+        <property name="record" value="com.raytheon.uf.common.dataplugin.bufrncwf.BUFRncwf" />
     </bean>
     
     <bean factory-bean="pluginRegistry" factory-method="register">

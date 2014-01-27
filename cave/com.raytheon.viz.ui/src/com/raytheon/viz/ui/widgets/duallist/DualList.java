@@ -56,6 +56,10 @@ import com.raytheon.viz.ui.widgets.duallist.ButtonImages.ButtonImage;
  * Sep 07, 2012    684     mpduff      Deselect selection prior to selecting new items.
  * Dec 17, 2012   1431     mpduff      Fix filter problem when deselecting items.
  * Jan 07, 2013   1456     bgonzale    Added setSelectedList(ArrayList<String>).
+ * Aug 20, 2013   1733     mpduff      Search now uses SearchUtils.
+ * Sep 27, 2013  #2419     lvenable    Removed the ability to get the dual config list
+ *                                     and added some convenience methods to clear and add
+ *                                     to the include list.
  * 
  * </pre>
  * 
@@ -258,11 +262,7 @@ public class DualList extends Composite {
         availableList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (availableList.getSelectionCount() > 0) {
-                    moveRightBtn.setEnabled(true);
-                } else {
-                    moveRightBtn.setEnabled(false);
-                }
+                enableDisableLeftRightButtons();
             }
         });
 
@@ -375,12 +375,7 @@ public class DualList extends Composite {
         selectedList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (selectedList.getSelectionCount() > 0) {
-                    moveLeftBtn.setEnabled(true);
-                } else {
-                    moveLeftBtn.setEnabled(false);
-                }
-
+                enableDisableLeftRightButtons();
                 enableDisableUpDownButtons();
             }
         });
@@ -455,7 +450,7 @@ public class DualList extends Composite {
      * @param fullList
      *            all users listed in notification table
      */
-    public void setFullList(ArrayList<String> fullList) {
+    public void setFullList(java.util.List<String> fullList) {
         config.setFullList(fullList);
         populateLists();
     }
@@ -487,13 +482,7 @@ public class DualList extends Composite {
             }
         }
 
-        if (availableList.getItemCount() > 0) {
-            moveAllRightBtn.setEnabled(true);
-        }
-
-        if (selectedList.getItemCount() > 0) {
-            moveAllLeftBtn.setEnabled(true);
-        }
+        enableDisableLeftRightButtons();
 
         entriesUpdated();
     }
@@ -551,14 +540,11 @@ public class DualList extends Composite {
             } else {
                 selectedList.setSelection(selectedList.getItemCount() - 1);
             }
-        } else {
-            moveLeftBtn.setEnabled(false);
         }
-
-        moveAllRightBtn.setEnabled(true);
 
         entriesUpdated();
         enableDisableUpDownButtons();
+        enableDisableLeftRightButtons();
     }
 
     /**
@@ -570,23 +556,19 @@ public class DualList extends Composite {
         moveAllLeft = true;
 
         for (String sl : selectedList.getItems()) {
-
             if (!list.contains(sl)) {
                 selectedList.remove(sl);
             }
-
         }
 
         reloadAvailableList();
-        moveLeftBtn.setEnabled(false);
-        moveAllLeftBtn.setEnabled(false);
-        moveAllRightBtn.setEnabled(true);
 
         if (callEntriesUpdated == true) {
             entriesUpdated();
         }
 
         enableDisableUpDownButtons();
+        enableDisableLeftRightButtons();
     }
 
     /**
@@ -621,12 +603,10 @@ public class DualList extends Composite {
         }
 
         availableList.removeAll();
-        moveRightBtn.setEnabled(false);
-        moveAllRightBtn.setEnabled(false);
-        moveAllLeftBtn.setEnabled(true);
 
         entriesUpdated();
         enableDisableUpDownButtons();
+        enableDisableLeftRightButtons();
     }
 
     /**
@@ -647,9 +627,7 @@ public class DualList extends Composite {
 
         availableList.remove(availableList.getSelectionIndices());
 
-        if (availableList.getItemCount() == 0) {
-            moveRightBtn.setEnabled(false);
-        } else {
+        if (availableList.getItemCount() > 0) {
             if (firstIdxSelected > availableList.getItemCount() - 1) {
                 availableList.select(availableList.getItemCount() - 1);
             } else {
@@ -657,10 +635,9 @@ public class DualList extends Composite {
             }
         }
 
-        moveAllLeftBtn.setEnabled(true);
-
         entriesUpdated();
         enableDisableUpDownButtons();
+        enableDisableLeftRightButtons();
     }
 
     /**
@@ -702,7 +679,6 @@ public class DualList extends Composite {
 
         String[] selectedStrings = availableList.getSelection();
         ArrayList<String> availableListNew = new ArrayList<String>();
-        String search = config.getSearchField();
 
         String[] selectedItemArray = selectedList.getItems();
         ArrayList<String> selectedItemList = new ArrayList<String>();
@@ -745,29 +721,15 @@ public class DualList extends Composite {
             if (moveAllLeft) {
                 availableList.removeAll();
 
-                // Add all matching search field text to available list
-                for (String s : config.getFullList()) {
-                    if (!config.isCaseFlag()) {
-                        if (s.toLowerCase().contains(search.toLowerCase())) {
-                            if (!config.isExcludeFlag()) {
-                                availableList.add(s);
-                            }
-                        } else {
-                            if (config.isExcludeFlag()) {
-                                availableList.add(s);
-                            }
-                        }
-                    } else {
-                        if (s.contains(search)) {
-                            if (!config.isExcludeFlag()) {
-                                availableList.add(s);
-                            }
-                        } else {
-                            if (config.isExcludeFlag()) {
-                                availableList.add(s);
-                            }
-                        }
-                    }
+                String[] fullList = config.getFullList().toArray(
+                        new String[config.getFullList().size()]);
+                java.util.List<String> filteredList = SearchUtils.search(
+                        config.getSearchField(), fullList,
+                        config.getMatchAny(), config.isCaseFlag(),
+                        config.isExcludeFlag());
+
+                for (String s : filteredList) {
+                    availableList.add(s);
                 }
             } else if (moveLeft) {
                 // Add selected item matching search field text to available
@@ -952,21 +914,30 @@ public class DualList extends Composite {
     }
 
     /**
-     * Get the configuration.
-     * 
-     * @return the configuration.
+     * Clear the include list. The include list is the list of items that will
+     * always be present in the selected list control.
      */
-    public DualListConfig getConfig() {
-        return config;
+    public void clearIncludeList() {
+        config.getIncludeList().clear();
     }
 
     /**
-     * Set the configuration.
+     * Add an item to the include list.
      * 
-     * @param config
-     *            the configuration.
+     * @param item
+     *            Item to add to the include list.
      */
-    public void setConfig(DualListConfig config) {
-        this.config = config;
+    public void addToIncludeList(String item) {
+        config.getIncludeList().add(item);
+    }
+
+    /**
+     * Enable/disable left/right movement buttons
+     */
+    public void enableDisableLeftRightButtons() {
+        moveAllRightBtn.setEnabled(availableList.getItemCount() > 0);
+        moveAllLeftBtn.setEnabled(selectedList.getItemCount() > 0);
+        moveRightBtn.setEnabled(availableList.getSelectionCount() > 0);
+        moveLeftBtn.setEnabled(selectedList.getSelectionCount() > 0);
     }
 }

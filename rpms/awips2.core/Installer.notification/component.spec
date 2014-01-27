@@ -1,6 +1,7 @@
 %define _component_name           awips2-notification
 %define _component_project_dir    awips2.core/Installer.notification
 %define _component_default_prefix /awips2/notification
+%define _cdt_build_loc %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define _build_arch %(uname -i)
 %if %_build_arch == "x86_64"
    %define   _lib_dir lib64
@@ -49,6 +50,12 @@ if [ -d ${RPM_BUILD_ROOT} ]; then
       exit 1
    fi
 fi
+if [ -d %{_cdt_build_loc} ]; then
+   rm -rf %{_cdt_build_loc}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+fi
 
 %build
 
@@ -87,15 +94,15 @@ if [ $? -ne 0 ]; then
 fi
 
 BUILD_NATIVE="%{_baseline_workspace}/build.native"
+mkdir -p %{_cdt_build_loc}
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 
 pushd . > /dev/null 2>&1
 cd ${BUILD_NATIVE}
 /bin/bash build-notification.sh %{_baseline_workspace} \
-   %{_uframe_eclipse} ${RPM_BUILD_ROOT}
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-rm -rf ${RPM_BUILD_ROOT}/workspace_
+   %{_uframe_eclipse} %{_cdt_build_loc} ${RPM_BUILD_ROOT}
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -107,22 +114,12 @@ cp %{_baseline_workspace}/${PROFILE_D_DIR}/* ${RPM_BUILD_ROOT}/etc/profile.d
 copyLegal "awips2/notification"
 
 %pre
-if [ "${1}" = "2" ]; then
-   exit 0
-fi
-
 %post
-if [ "${1}" = "2" ]; then   
-   exit 0
-fi
-
 %postun
-if [ "${1}" = "1" ]; then
-   exit 0
-fi
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{_cdt_build_loc}
 
 %files
 %defattr(644,awips,fxalpha,755)

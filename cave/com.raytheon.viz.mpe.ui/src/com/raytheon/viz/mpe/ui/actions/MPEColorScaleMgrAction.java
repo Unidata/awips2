@@ -33,6 +33,7 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.colors.MPEColorManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * TODO Add Description
@@ -43,6 +44,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
  * ------------ ---------- ----------- --------------------------
  * Dec 5, 2008            mschenke     Initial creation
  * Apr 18, 2013    1920   mpduff       Set new ColorMap.
+ * Jul 02, 2013  2088      rferrel     Changes for non-blocking ColorScaleMgrDlg.
  * </pre>
  * 
  * @author mschenke
@@ -56,40 +58,47 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
 
-        String username = LocalizationManager.getInstance().getCurrentUser();
+        if (colorScaleDlg == null || colorScaleDlg.isDisposed()) {
+            String username = LocalizationManager.getInstance()
+                    .getCurrentUser();
 
-        System.out.println("***** Username = >" + username + "<");
-
-        Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                .getShell();
-        if (colorScaleDlg == null) {
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                    .getShell();
             colorScaleDlg = new ColorScaleMgrDlg(shell, username);
             colorScaleDlg.setTitle("MPE Color Scale Manager - User: "
                     + username);
             colorScaleDlg.setColorManager(new MPEColorManager());
+            colorScaleDlg.setCloseCallback(new ICloseCallback() {
+
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    colorScaleDlg = null;
+
+                    MPEFieldResource displayedFieldResource = MPEDisplayManager
+                            .getCurrent().getDisplayedFieldResource();
+
+                    if (displayedFieldResource != null) {
+                        MPEFieldResourceData resourceData = displayedFieldResource
+                                .getResourceData();
+                        displayedFieldResource
+                                .getCapability(ColorMapCapability.class)
+                                .setColorMapParameters(
+                                        MPEDisplayManager.createColorMap(
+                                                resourceData.getCvUseString(),
+                                                resourceData
+                                                        .getDurationInHours(),
+                                                resourceData.getDataUnits(),
+                                                resourceData.getDisplayUnits()));
+                        DisplayFieldData dt = MPEDisplayManager.getCurrent()
+                                .getDisplayFieldType();
+
+                        MPEDisplayManager.getCurrent().displayFieldData(dt);
+                    }
+                }
+            });
             colorScaleDlg.open();
-            colorScaleDlg = null;
         } else {
-            colorScaleDlg.open();
-        }
-
-        MPEFieldResource displayedFieldResource = MPEDisplayManager
-                .getCurrent().getDisplayedFieldResource();
-
-        if (displayedFieldResource != null) {
-            MPEFieldResourceData resourceData = displayedFieldResource
-                    .getResourceData();
-            displayedFieldResource.getCapability(ColorMapCapability.class)
-                    .setColorMapParameters(
-                            MPEDisplayManager.createColorMap(
-                                    resourceData.getCvUseString(),
-                                    resourceData.getDurationInHours(),
-                                    resourceData.getDataUnits(),
-                                    resourceData.getDisplayUnits()));
-            DisplayFieldData dt = MPEDisplayManager.getCurrent()
-                    .getDisplayFieldType();
-
-            MPEDisplayManager.getCurrent().displayFieldData(dt);
+            colorScaleDlg.bringToTop();
         }
 
         return null;

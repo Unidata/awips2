@@ -35,7 +35,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -89,7 +88,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/10/2012   1229       rferrel     Changes for non-blocking TimeSelectorDlg.
  * 10/15/2012   1229       rferrel     Changes for non-blocking HelpUsageDlg.
  * 11/26/2012   1298       rferrel     Non-blocking dialog code cleanup.
- * 
+ * 12 Aug 2013  #2256      lvenable    Disposed of masterImage.
  * 
  * </pre>
  * 
@@ -189,8 +188,6 @@ public class WeatherPlotDialog extends CaveSWTDialog {
      */
     private Composite graphComp;
 
-    private Cursor waitCursor = null;
-
     /**
      * Status message type.
      */
@@ -262,7 +259,6 @@ public class WeatherPlotDialog extends CaveSWTDialog {
     protected void disposed() {
         busyCnt = 0;
         font.dispose();
-        waitCursor.dispose();
     }
 
     @Override
@@ -276,7 +272,6 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         mainComp.setLayoutData(gd);
 
         font = new Font(shell.getDisplay(), "Monospace", 10, SWT.NORMAL);
-        waitCursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
 
         // Initialize the data and all of the controls and layouts
         initData();
@@ -533,6 +528,7 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         ImageLoader loader = new ImageLoader();
         loader.data = new ImageData[] { masterImage.getImageData() };
         loader.save(filename, style);
+        masterImage.dispose();
     }
 
     /**
@@ -792,7 +788,7 @@ public class WeatherPlotDialog extends CaveSWTDialog {
         }
         if (state) {
             ++busyCnt;
-            shell.setCursor(waitCursor);
+            shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         } else {
             --busyCnt;
             if (busyCnt == 0) {

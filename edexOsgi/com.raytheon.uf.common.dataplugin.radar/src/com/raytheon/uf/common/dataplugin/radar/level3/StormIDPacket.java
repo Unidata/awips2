@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 5, 2008            mnash     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * </pre>
  * 
  * @author mnash
@@ -52,13 +53,6 @@ public class StormIDPacket extends SymbologyPacket implements
 
     public StormIDPacket() {
 
-    }
-
-    private static final int STORM_ID_PACKET15 = 15;
-
-    static {
-        PacketFactory
-                .registerPacketType(StormIDPacket.class, STORM_ID_PACKET15);
     }
 
     @DynamicSerialize

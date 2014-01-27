@@ -38,10 +38,11 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 8/31/10      5875        bphillip    Initial Creation
- * Mar 26, 2013 1821        bsteffen    Optimize FFG version query.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 31, 2010  5875     bphillip    Initial Creation
+ * Mar 26, 2013  1821     bsteffen    Optimize FFG version query.
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated method calls.
  * 
  * </pre>
  * 
@@ -58,7 +59,6 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
                     .getPluginDao(GridConstants.GRID);
             record.setSecondaryId("%");
             record.setDataURI(null);
-            record.constructDataURI();
 
             DatabaseQuery query = new DatabaseQuery(GridRecord.class);
             query.addReturnedField(GridConstants.SECONDARY_ID);
@@ -91,7 +91,6 @@ public class FFGGribPostProcessor implements IDecoderPostProcessor {
             record.setSecondaryId("Version" + (maxVersion + 1));
             record.getInfo().setId(null);
             record.setDataURI(null);
-            record.constructDataURI();
         } catch (Exception e) {
             throw new GribException("Error decoding FFG grid", e);
         }

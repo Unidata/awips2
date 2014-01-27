@@ -9,7 +9,7 @@
     <bean id="lclstrmrptProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
         <property name="pluginName" ref="lclstrmrptPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.lsr" />
-        <property name="dao" value="com.raytheon.uf.common.dataplugin.lsr.dao.LocalStormReportDao" />
+        <property name="dao" value="com.raytheon.uf.edex.plugin.lsr.LocalStormReportDao" />
         <property name="record" value="com.raytheon.uf.common.dataplugin.lsr.LocalStormReport" />
     </bean>
     

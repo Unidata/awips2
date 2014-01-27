@@ -1,3 +1,4 @@
+##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -15,6 +16,7 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+##
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
@@ -23,7 +25,6 @@ class StorageProperties(object):
     def __init__(self):
         self.compression = None
         self.chunked = None
-        self.downscaled = None
 
     def getCompression(self):
         return self.compression
@@ -36,10 +37,4 @@ class StorageProperties(object):
 
     def setChunked(self, chunked):
         self.chunked = chunked
-
-    def getDownscaled(self):
-        return self.downscaled
-
-    def setDownscaled(self, downscaled):
-        self.downscaled = downscaled
 

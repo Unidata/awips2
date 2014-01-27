@@ -44,6 +44,7 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Adjustfactor;
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
  * 
  * </pre>
  * 
@@ -52,42 +53,32 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Adjustfactor;
  */
 @Entity
 @Table(name = "shefpe")
-@javax.xml.bind.annotation.XmlRootElement
-@javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class Shefpe extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable, com.raytheon.uf.common.serialization.ISerializableObject {
+public class Shefpe extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject implements java.io.Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String pe;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String name;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String engUnit;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private String metUnit;
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Datalimits> datalimitses = new HashSet<Datalimits>(0);
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Adjustfactor> adjustfactors = new HashSet<Adjustfactor>(0);
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Ofsdatatrans> ofsdatatranses = new HashSet<Ofsdatatrans>(0);
 
-    @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Set<Locdatalimits> locdatalimitses = new HashSet<Locdatalimits>(0);
 

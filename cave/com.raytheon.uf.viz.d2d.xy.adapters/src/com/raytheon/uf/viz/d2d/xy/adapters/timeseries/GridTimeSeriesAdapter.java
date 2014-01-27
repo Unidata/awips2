@@ -33,6 +33,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -43,17 +44,16 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 import com.raytheon.viz.core.graphing.xy.XYIconImageData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.grid.GridLevelTranslator;
 
 /**
  * Adapter providing a TimeSeries view of GridData.

@@ -1,9 +1,0 @@
-com.raytheon.viz.grid.xml.ParameterList
-com.raytheon.viz.grid.xml.ParameterMapping
-com.raytheon.viz.grid.rsc.GridResourceData
-com.raytheon.viz.grid.rsc.FfgVizGroupResourceData
-com.raytheon.viz.grid.rsc.RcmResourceData
-com.raytheon.viz.grid.rsc.GridLoadProperties
-com.raytheon.viz.grid.rsc.DataMappedGridResourceData
-com.raytheon.viz.grid.rsc.general.DifferenceGridResourceData
-com.raytheon.viz.grid.GridProductBrowserDataDefinition

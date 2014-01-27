@@ -45,6 +45,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Mar 29, 2013 1841       djohnson    Subscription is now UserSubscription.
  * Apr 02, 2013 1841       djohnson    InitialPendingSubscription is now InitialPendingUserSubscription.
  * May 21, 2013 2020       mpduff      Rename UserSubscription to SiteSubscription.
+ * Sept 30, 2013 1797      dhladky     Some Generics
+ * Nov 14, 2013   2548     mpduff      Add a subscription type slot.
  * 
  * </pre>
  * 
@@ -57,9 +59,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @RegistryObject(value = { Subscription.PROVIDER_NAME_SLOT,
         Subscription.NAME_SLOT, Subscription.DATA_SET_SLOT,
         Subscription.OWNER_SLOT,
-        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT })
-public class InitialPendingSiteSubscription extends SiteSubscription implements
-        InitialPendingSubscription {
+        InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT,
+        Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
+public class InitialPendingSiteSubscription<T extends Time, C extends Coverage>
+        extends SiteSubscription<T, C> implements
+        InitialPendingSubscription<T, C> {
     private static final long serialVersionUID = 2779084460608459754L;
 
     /** ID of the user requesting the change */
@@ -77,18 +81,19 @@ public class InitialPendingSiteSubscription extends SiteSubscription implements
      * Constructor
      */
     public InitialPendingSiteSubscription() {
-        //empty
+        // empty
     }
 
     /**
      * Constructor
-     *
+     * 
      * @param subscription
-     *           subscription object
+     *            subscription object
      * @param user
-     *           user
+     *            user
      */
-    public InitialPendingSiteSubscription(SiteSubscription subscription, String user) {
+    public InitialPendingSiteSubscription(SiteSubscription<T, C> subscription,
+            String user) {
         super(subscription);
 
         this.setChangeReqId(user);
@@ -96,10 +101,9 @@ public class InitialPendingSiteSubscription extends SiteSubscription implements
         this.setId(RegistryUtil.getRegistryObjectKey(this));
     }
 
-
-
     /**
-     * @param changeReqId the changeReqId to set
+     * @param changeReqId
+     *            the changeReqId to set
      */
     @Override
     public void setChangeReqId(String changeReqId) {
@@ -123,7 +127,8 @@ public class InitialPendingSiteSubscription extends SiteSubscription implements
     }
 
     /**
-     * @param changeReason the changeReason to set
+     * @param changeReason
+     *            the changeReason to set
      */
     @Override
     public void setChangeReason(String changeReason) {
@@ -134,7 +139,8 @@ public class InitialPendingSiteSubscription extends SiteSubscription implements
      * {@inheritDoc}
      */
     @Override
-    public Subscription subscription() {
-        return new SiteSubscription(this);
+    public Subscription<T, C> subscription() {
+        return new SiteSubscription<T, C>(this);
     }
+
 }

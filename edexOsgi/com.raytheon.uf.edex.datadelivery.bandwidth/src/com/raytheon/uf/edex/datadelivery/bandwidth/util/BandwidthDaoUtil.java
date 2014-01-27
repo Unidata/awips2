@@ -29,8 +29,15 @@ import java.util.TreeSet;
 
 import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
+import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
+import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -58,6 +65,17 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Feb 14, 2013 1595       djohnson     Fix not using calendar copies, and backwards max/min operations.
  * Jun 03, 2013 2038       djohnson     Add ability to schedule down to minute granularity.
  * Jun 04, 2013  223       mpduff       Refactor changes.
+ * Sept 10, 2013 2351      dhladky      Made adhoc queries for pointdata work
+ * Sept 17, 2013 2383      bgonzale     setAdhocMostRecentUrlAndTime returns null if grid and
+ *                                      no metadata found.
+ * Sept 24, 2013 1797      dhladky      separated time from GriddedTime
+ * Oct 10, 2013 1797       bgonzale     Refactored registry Time objects.
+ * Oct 30, 2013  2448      dhladky      Fixed pulling data before and after activePeriod starting and ending.
+ * Nov 5, 2013  2521       dhladky      Fixed DataSetMetaData update failures for URL's in pointdata.
+ * Nov 12, 2013 2448       dhladky      Fixed stop/start subscription scheduling problem.
+ * Nov 20, 2013 2448       bgonzale     Fix for subscription start time set to first cycle time.
+ *                                      Fix for subscription end time set to end of day.
+ * Dec 02, 2013 2545       mpduff       Fix for delay starting retrievals, execute adhoc upon subscribing.
  * 
  * </pre>
  * 
@@ -65,12 +83,12 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * @version 1.0
  */
 
-public class BandwidthDaoUtil {
+public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BandwidthDaoUtil.class);
 
-    private final IBandwidthDao bandwidthDao;
+    private final IBandwidthDao<T, C> bandwidthDao;
 
     private final RetrievalManager retrievalManager;
 
@@ -82,7 +100,7 @@ public class BandwidthDaoUtil {
      * @param retrievalManager
      *            the retrieval manager
      */
-    public BandwidthDaoUtil(IBandwidthDao bandwidthDao,
+    public BandwidthDaoUtil(IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager) {
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
@@ -96,8 +114,8 @@ public class BandwidthDaoUtil {
      * @param cycles
      * @return
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
-            SortedSet<Integer> cycles) {
+    public SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, SortedSet<Integer> cycles) {
         return getRetrievalTimes(subscription, cycles,
                 Sets.newTreeSet(Arrays.asList(0)));
     }
@@ -111,8 +129,8 @@ public class BandwidthDaoUtil {
      *            the retrieval interval
      * @return the retrieval times
      */
-    public SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
-            int retrievalInterval) {
+    public SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, int retrievalInterval) {
         // Add all hours of the days
         final SortedSet<Integer> hours = Sets.newTreeSet();
         for (int i = 0; i < TimeUtil.HOURS_PER_DAY; i++) {
@@ -138,8 +156,9 @@ public class BandwidthDaoUtil {
      * @param minutes
      * @return
      */
-    private SortedSet<Calendar> getRetrievalTimes(Subscription subscription,
-            SortedSet<Integer> hours, SortedSet<Integer> minutes) {
+    private SortedSet<Calendar> getRetrievalTimes(
+            Subscription<T, C> subscription, SortedSet<Integer> hours,
+            SortedSet<Integer> minutes) {
 
         SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
 
@@ -150,92 +169,130 @@ public class BandwidthDaoUtil {
 
         Calendar planEnd = plan.getPlanEnd();
         Calendar planStart = plan.getPlanStart();
+        Calendar activePeriodStart = null;
+        Calendar activePeriodEnd = null;
 
         // Make sure the RetrievalPlan's start and end times intersect
         // the Subscription's active period.
-        Date activePeriodEnd = subscription.getActivePeriodEnd();
+        if (subscription.getActivePeriodEnd() != null
+                && subscription.getActivePeriodStart() != null) {
 
-        if (activePeriodEnd != null) {
-            Date activePeriodStart = subscription.getActivePeriodStart();
-            Calendar active = BandwidthUtil.copy(activePeriodStart);
-
+            activePeriodStart = TimeUtil.newCalendar(subscription
+                    .getActivePeriodStart());
             // Substitute the active periods month and day for the
             // plan start month and day.
-            Calendar s = BandwidthUtil.copy(planStart);
-            s.set(Calendar.MONTH, active.get(Calendar.MONTH));
-            s.set(Calendar.DAY_OF_MONTH, active.get(Calendar.DAY_OF_MONTH));
-
-            // If the active period start in outside the plan bounds,
+            Calendar start = BandwidthUtil.planToPeriodCompareCalendar(
+                    planStart, activePeriodStart);
+            // If the active period start is outside the plan bounds,
             // there is no intersection - just return an empty set.
-            if (s.before(planStart) && s.after(planEnd)) {
+            if (start.after(planEnd)) {
                 return subscriptionTimes;
             }
 
             // Do the same for active plan end..
-            activePeriodStart = subscription.getActivePeriodEnd();
-            active = BandwidthUtil.copy(activePeriodStart);
-
+            activePeriodEnd = TimeUtil.newCalendar(subscription
+                    .getActivePeriodEnd());
             // Substitute the active periods month and day for the
             // plan ends month and day.
-            s = BandwidthUtil.copy(planStart);
-            s.set(Calendar.MONTH, active.get(Calendar.MONTH));
-            s.set(Calendar.DAY_OF_MONTH, active.get(Calendar.DAY_OF_MONTH));
-
+            Calendar end = BandwidthUtil.planToPeriodCompareCalendar(planStart,
+                    activePeriodEnd);
             // If the active period end is before the start of the plan,
             // there is no intersection - just return an empty set.
-            if (s.before(planStart)) {
+            if (end.before(planStart)) {
                 return subscriptionTimes;
             }
         }
 
         // Now check the Subscription start and end times for intersection
         // with the RetrievalPlan...
-
         // Figure out the 'active' period for a subscription..
-
-        Calendar subscriptionEndDate = BandwidthUtil.copy(subscription
+        Calendar subscriptionEnd = TimeUtil.newCalendar(subscription
                 .getSubscriptionEnd());
-        Calendar subscriptionStartDate = null;
+        Calendar subscriptionStart = null;
         // Check to see if this is a non-expiring subscription
-        if (subscriptionEndDate == null) {
+        if (subscriptionEnd == null) {
             // If there is no subscription start end dates then the largest
             // window that can be scheduled is the RetrievalPlan size..
-            subscriptionEndDate = BandwidthUtil.copy(planEnd);
-            subscriptionStartDate = BandwidthUtil.copy(planStart);
+            subscriptionEnd = TimeUtil.newCalendar(planEnd);
+            subscriptionStart = TimeUtil.newCalendar(planStart);
         } else {
             // If there is a start and end time, then modify the start and
             // end times to 'fit' within the RetrievalPlan times
-            subscriptionStartDate = BandwidthUtil.copy(BandwidthUtil.max(
+            subscriptionStart = TimeUtil.newCalendar(BandwidthUtil.max(
                     subscription.getSubscriptionStart(), planStart));
-            subscriptionEndDate = BandwidthUtil.copy(BandwidthUtil.min(
+            subscriptionEnd = TimeUtil.newCalendar(BandwidthUtil.min(
                     subscription.getSubscriptionEnd(), planEnd));
         }
 
-        // Create a Set of Calendars for all the baseReferenceTimes that a
-        // Subscription can contain...
-        TimeUtil.minCalendarFields(subscriptionStartDate, Calendar.MILLISECOND,
-                Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+        // setup active period checks if necessary
+        if (activePeriodStart != null && activePeriodEnd != null) {
+            // need to add the current year in order to make the checks relevant
+            activePeriodStart = TimeUtil
+                    .addCurrentYearCalendar(activePeriodStart);
+            activePeriodEnd = TimeUtil.addCurrentYearCalendar(activePeriodEnd);
 
-        outerloop: while (!subscriptionStartDate.after(subscriptionEndDate)) {
+            // Create a Set of Calendars for all the baseReferenceTimes that a
+            // Subscription can contain...
+            TimeUtil.minCalendarFields(activePeriodStart, Calendar.MILLISECOND,
+                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+            TimeUtil.maxCalendarFields(activePeriodEnd, Calendar.MILLISECOND,
+                    Calendar.SECOND, Calendar.MINUTE, Calendar.HOUR_OF_DAY);
+        }
+
+        Calendar start = (Calendar) subscriptionStart.clone();
+        outerloop: while (!start.after(subscriptionEnd)) {
 
             for (Integer cycle : hours) {
-                subscriptionStartDate.set(Calendar.HOUR_OF_DAY, cycle);
-                for (Integer minute : minutes) {
-                    subscriptionStartDate.set(Calendar.MINUTE, minute);
-                    if (subscriptionStartDate.after(subscriptionEndDate)) {
-                        break outerloop;
-                    } else {
-                        Calendar time = TimeUtil.newCalendar();
-                        time.setTimeInMillis(subscriptionStartDate
-                                .getTimeInMillis());
-                        subscriptionTimes.add(time);
+                start.set(Calendar.HOUR_OF_DAY, cycle);
+
+                // start equal-to-or-after subscriptionStart
+                if (start.compareTo(subscriptionStart) >= 0) {
+                    for (Integer minute : minutes) {
+                        start.set(Calendar.MINUTE, minute);
+
+                        // start equal-to-or-after subscriptionStart
+                        if (start.compareTo(subscriptionStart) >= 0) {
+                            // Check for nonsense
+                            if (start.after(subscriptionEnd)) {
+                                break outerloop;
+                            } else {
+                                Calendar time = TimeUtil.newGmtCalendar();
+                                time.setTimeInMillis(start.getTimeInMillis());
+                                /**
+                                 * Fine grain check by hour and minute, for
+                                 * subscription(start/end),
+                                 * activePeriod(start/end)
+                                 **/
+                                // Subscription Start and End time first
+                                if (start != null && subscriptionEnd != null) {
+                                    if (time.after(subscriptionEnd)
+                                            || time.before(start)) {
+                                        // don't schedule this retrieval time,
+                                        // outside subscription window
+                                        continue;
+                                    }
+                                }
+                                // Check Active Period Second
+                                if (activePeriodStart != null
+                                        && activePeriodEnd != null) {
+                                    if (time.after(activePeriodEnd)
+                                            || time.before(activePeriodStart)) {
+                                        // don't schedule this retrieval time,
+                                        // outside activePeriod window
+                                        continue;
+                                    }
+                                }
+
+                                subscriptionTimes.add(time);
+                            }
+                        }
                     }
                 }
             }
 
             // Start the next day..
-            subscriptionStartDate.add(Calendar.DAY_OF_YEAR, 1);
-            subscriptionStartDate.set(Calendar.HOUR_OF_DAY, hours.first());
+            start.add(Calendar.DAY_OF_YEAR, 1);
+            start.set(Calendar.HOUR_OF_DAY, hours.first());
         }
 
         // Now walk the subscription times and throw away anything outside the
@@ -246,7 +303,7 @@ public class BandwidthDaoUtil {
         while (itr.hasNext()) {
 
             Calendar time = itr.next();
-            Calendar withAvailabilityDelay = BandwidthUtil.copy(time);
+            Calendar withAvailabilityDelay = TimeUtil.newCalendar(time);
             withAvailabilityDelay.add(Calendar.MINUTE, availabilityDelay);
 
             // We allow base reference times that are still possible to retrieve
@@ -304,50 +361,105 @@ public class BandwidthDaoUtil {
      * @return the adhoc subscription, or null if no matching metadata could be
      *         found
      */
-    public AdhocSubscription setAdhocMostRecentUrlAndTime(
-            AdhocSubscription adhoc, boolean mostRecent) {
-        AdhocSubscription retVal = null;
+    @SuppressWarnings("rawtypes")
+    public AdhocSubscription<T, C> setAdhocMostRecentUrlAndTime(
+            AdhocSubscription<T, C> adhoc, boolean mostRecent) {
+        AdhocSubscription<T, C> retVal = null;
 
-        List<BandwidthDataSetUpdate> dataSetMetaDataUpdates = bandwidthDao
-                .getBandwidthDataSetUpdate(adhoc.getProvider(),
-                        adhoc.getDataSetName());
-        if (!dataSetMetaDataUpdates.isEmpty()) {
-            // getDataSetMetaData returns the dataset meta-data in descending
-            // order of time, so walk the iterator finding the first subscribed
-            // to cycle
-            BandwidthDataSetUpdate daoToUse = null;
-            Time adhocTime = adhoc.getTime();
-            for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
-                if (mostRecent
-                        || adhocTime.getCycleTimes().contains(
-                                current.getDataSetBaseTime().get(
-                                        Calendar.HOUR_OF_DAY))) {
-                    daoToUse = current;
-                    break;
-                }
+        if (adhoc.getDataSetType() == DataType.POINT) {
+
+            List<DataSetMetaData> dataSetMetaDatas = null;
+            try {
+                dataSetMetaDatas = DataDeliveryHandlers
+                        .getDataSetMetaDataHandler().getByDataSet(
+                                adhoc.getDataSetName(), adhoc.getProvider());
+            } catch (RegistryHandlerException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "No DataSetMetaData matching query! DataSetName: "
+                                + adhoc.getDataSetName() + " Provider: "
+                                + adhoc.getProvider(), e);
             }
 
-            if (daoToUse == null) {
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler
-                            .debug(String
-                                    .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%s].",
-                                            adhoc.getName()));
-                }
-            } else {
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler
-                            .debug(String
-                                    .format("Found most recent metadata for adhoc subscription [%s], using url [%s]",
-                                            adhoc.getName(), daoToUse.getUrl()));
-                }
-                adhoc.setUrl(daoToUse.getUrl());
-                adhocTime.setStartDate(daoToUse.getDataSetBaseTime().getTime());
+            if (dataSetMetaDatas != null && !dataSetMetaDatas.isEmpty()) {
+                // No guarantee on ordering, have to find most recent time
+                @SuppressWarnings("unchecked")
+                DataSetMetaData<PointTime> selectedDataSet = dataSetMetaDatas
+                        .get(0);
+                Date checkDate = selectedDataSet.getDate();
 
+                for (DataSetMetaData<PointTime> dsmd : dataSetMetaDatas) {
+                    if (dsmd.getDate().after(checkDate)) {
+                        checkDate = dsmd.getDate();
+                        selectedDataSet = dsmd;
+                    }
+                }
+
+                adhoc.setUrl(selectedDataSet.getUrl());
                 retVal = adhoc;
             }
 
+        } else if (adhoc.getDataSetType() == DataType.GRID) {
+
+            // if the start time is there, it already has it, skip
+            if (adhoc.getTime().getStart() == null) {
+
+                List<BandwidthDataSetUpdate> dataSetMetaDataUpdates = bandwidthDao
+                        .getBandwidthDataSetUpdate(adhoc.getProvider(),
+                                adhoc.getDataSetName());
+
+                if (dataSetMetaDataUpdates != null
+                        && !dataSetMetaDataUpdates.isEmpty()) {
+                    // getDataSetMetaData returns the dataset meta-data in
+                    // descending
+                    // order of time, so walk the iterator finding the first
+                    // subscribed
+                    // to cycle
+                    BandwidthDataSetUpdate daoToUse = null;
+                    Time adhocTime = adhoc.getTime();
+                    for (BandwidthDataSetUpdate current : dataSetMetaDataUpdates) {
+                        if (mostRecent
+                                || ((GriddedTime) adhocTime)
+                                        .getCycleTimes()
+                                        .contains(
+                                                current.getDataSetBaseTime()
+                                                        .get(Calendar.HOUR_OF_DAY))) {
+                            daoToUse = current;
+                            break;
+                        }
+                    }
+
+                    if (daoToUse == null) {
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                            statusHandler
+                                    .debug(String
+                                            .format("There wasn't applicable most recent dataset metadata to use for the adhoc subscription [%s].",
+                                                    adhoc.getName()));
+                        }
+                    } else {
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                            statusHandler
+                                    .debug(String
+                                            .format("Found most recent metadata for adhoc subscription [%s], using url [%s]",
+                                                    adhoc.getName(),
+                                                    daoToUse.getUrl()));
+                        }
+
+                        adhoc.setUrl(daoToUse.getUrl());
+                        adhocTime.setStart(daoToUse.getDataSetBaseTime()
+                                .getTime());
+
+                        retVal = adhoc;
+                    }
+                }
+            } else {
+                retVal = adhoc;
+            }
+        } else {
+            throw new IllegalArgumentException("DataType: "
+                    + adhoc.getDataSetType()
+                    + " Not yet implemented for adhoc subscriptions");
         }
+
         return retVal;
     }
 }

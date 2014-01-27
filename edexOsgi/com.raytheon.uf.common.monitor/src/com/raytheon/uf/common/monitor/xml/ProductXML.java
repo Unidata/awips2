@@ -42,10 +42,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlAccessorType(XmlAccessType.NONE)
-public class ProductXML implements ISerializableObject {
+public class ProductXML {
 
     @XmlAttribute(name = "primarySource")
     protected String primarySource;

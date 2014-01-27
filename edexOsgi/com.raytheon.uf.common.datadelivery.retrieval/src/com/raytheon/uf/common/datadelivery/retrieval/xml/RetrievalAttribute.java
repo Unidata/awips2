@@ -32,7 +32,6 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Ensemble;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -44,8 +43,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 17, 2011    191      dhladky     Initial creation
- * Feb 15, 2013 1543       djohnson     Allow any type of Coverage instance without a JAXB adapter.
+ * Jan 17, 2011  191       dhladky     Initial creation
+ * Feb 15, 2013 1543       djohnson    Allow any type of Coverage instance without a JAXB adapter.
+ * Oct 01, 2013 1797       dhladky     Generics
+ * Nov 07, 2013 2361       njensen     Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -55,7 +56,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class RetrievalAttribute implements ISerializableObject, Serializable {
+public class RetrievalAttribute<T extends Time, C extends Coverage> implements
+        Serializable {
 
     /**
      * 
@@ -95,11 +97,11 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
 
     @XmlAnyElement(lax = true)
     @DynamicSerializeElement
-    private Coverage coverage;
+    private C coverage;
 
     @XmlElement(name = "time", type = Time.class)
     @DynamicSerializeElement
-    private Time time;
+    private T time;
 
     @XmlElement
     @DynamicSerializeElement
@@ -113,7 +115,7 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
 
     }
 
-    public Coverage getCoverage() {
+    public C getCoverage() {
         return coverage;
     }
 
@@ -129,11 +131,11 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
         return provider;
     }
 
-    public Time getTime() {
+    public T getTime() {
         return time;
     }
 
-    public void setCoverage(Coverage coverage) {
+    public void setCoverage(C coverage) {
         this.coverage = coverage;
     }
 
@@ -149,7 +151,7 @@ public class RetrievalAttribute implements ISerializableObject, Serializable {
         this.provider = provider;
     }
 
-    public void setTime(Time time) {
+    public void setTime(T time) {
         this.time = time;
     }
 

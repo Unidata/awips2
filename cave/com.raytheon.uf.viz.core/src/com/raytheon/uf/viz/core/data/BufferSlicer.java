@@ -35,7 +35,9 @@ import java.nio.ShortBuffer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 22, 2011            mschenke     Initial creation
+ * Nov 22, 2011            mschenke    Initial creation
+ * Jun 20, 2013     2122   mschenke    Made work with slicing from data with
+ *                                     bounds not starting at 0,0
  * 
  * </pre>
  * 
@@ -61,7 +63,7 @@ public class BufferSlicer {
                 || dataBounds.getMinY() < totalBounds.getMinY()
                 || dataBounds.getMaxX() > totalBounds.getMaxX()
                 || dataBounds.getMaxY() > totalBounds.getMaxY()) {
-            throw new RuntimeException(
+            throw new IndexOutOfBoundsException(
                     "Data bounds defines region outside of buffer's total bounds");
         }
 
@@ -111,10 +113,12 @@ public class BufferSlicer {
             newData = ByteBuffer.allocate(dataSize);
         }
 
+        int xOffset = (dataBounds.x - totalBounds.x);
+        int yOffset = (dataBounds.y - totalBounds.y);
         newData.position(0);
         byte[] bytes = new byte[dataBounds.width];
         for (int i = 0; i < dataBounds.height; ++i) {
-            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+            data.position((yOffset * totalBounds.width + xOffset) + i
                     * totalBounds.width);
             data.get(bytes);
             newData.put(bytes);
@@ -134,10 +138,12 @@ public class BufferSlicer {
             newData = ShortBuffer.allocate(dataSize);
         }
 
+        int xOffset = (dataBounds.x - totalBounds.x);
+        int yOffset = (dataBounds.y - totalBounds.y);
         newData.position(0);
         short[] shorts = new short[dataBounds.width];
         for (int i = 0; i < dataBounds.height; ++i) {
-            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+            data.position((yOffset * totalBounds.width + xOffset) + i
                     * totalBounds.width);
             data.get(shorts);
             newData.put(shorts);
@@ -157,10 +163,12 @@ public class BufferSlicer {
             newData = IntBuffer.allocate(dataSize);
         }
 
+        int xOffset = (dataBounds.x - totalBounds.x);
+        int yOffset = (dataBounds.y - totalBounds.y);
         newData.position(0);
         int[] ints = new int[dataBounds.width];
         for (int i = 0; i < dataBounds.height; ++i) {
-            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+            data.position((yOffset * totalBounds.width + xOffset) + i
                     * totalBounds.width);
             data.get(ints);
             newData.put(ints);
@@ -180,10 +188,12 @@ public class BufferSlicer {
             newData = FloatBuffer.allocate(dataSize);
         }
 
+        int xOffset = (dataBounds.x - totalBounds.x);
+        int yOffset = (dataBounds.y - totalBounds.y);
         newData.position(0);
         float[] floats = new float[dataBounds.width];
         for (int i = 0; i < dataBounds.height; ++i) {
-            data.position((dataBounds.y * totalBounds.width + dataBounds.x) + i
+            data.position((yOffset * totalBounds.width + xOffset) + i
                     * totalBounds.width);
             data.get(floats);
             newData.put(floats);

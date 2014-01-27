@@ -28,10 +28,10 @@ from time import gmtime, strftime
 from java.io import File
 from com.raytheon.uf.common.time import TimeRange
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridLocation
+from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfig
 from com.raytheon.edex.plugin.gfe.config import IFPServerConfigManager
-from com.raytheon.uf.common.serialization import SerializationUtil
 from com.raytheon.uf.common.localization import LocalizationFile
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext
@@ -71,7 +71,7 @@ def getEditArea(name, siteID):
 
     try:
         if os.path.exists(file.getPath()):
-            refData = SerializationUtil.jaxbUnmarshalFromXmlFile(file.getPath());
+            refData = ReferenceData.getJAXBManager().unmarshalFromXmlFile(file.getPath());
         else:
             LogStream.logProblem("EDIT AREA NOT FOUND: ", name, " for site ", siteID)
     except:
@@ -87,7 +87,7 @@ def saveEditAreaGrid(maskName, iscMask, siteID):
     commonStaticConfig.setContextName(siteID)
     sitePath = pathMgr.getFile(commonStaticConfig, "gfe/editAreas").getPath()
     editAreaPath = str(sitePath) + "/" + maskName + ".xml"
-    SerializationUtil.jaxbMarshalToXmlFile(iscMask, editAreaPath)
+    ReferenceData.getJAXBManager().marshalToXmlFile(iscMask, editAreaPath)
 
 def deleteEditArea(name, siteID):
     pathMgr = PathManagerFactory.getPathManager()

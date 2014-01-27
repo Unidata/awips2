@@ -36,7 +36,8 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 9, 2010            njensen     Initial creation
+ * Feb 09, 2010            njensen     Initial creation
+ * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * 
  * </pre>
  * 
@@ -67,8 +68,7 @@ public class ProcedureSelectionDlg extends SelectionDlg {
                         .transformVarDict(getValues());
                 req.setVarDict(varDict);
                 req.setPreview(pi);
-                // ProcedureJob.getInstance(dataMgr).enqueue(req);
-                ProcedureJob.enqueue(dataMgr, req);
+                dataMgr.getProcedureJobPool().schedule(req);
             }
         }
     }

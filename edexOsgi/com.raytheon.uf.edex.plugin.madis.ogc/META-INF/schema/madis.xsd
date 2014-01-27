@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- This schema is used by the WFS service to describe the available columns for 
+     use in selecting madis records through the WFS.
+     This is the output document format for a madis in WFS.
+ -->
+<xsd:schema version="1.0" targetNamespace="http://madis.edex.uf.raytheon.com"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:madis="http://madis.edex.uf.raytheon.com"
+    xmlns:gml="http://www.opengis.net/gml"
+    elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.opengis.net/gml"
+        schemaLocation="http://schemas.opengis.net/gml/3.1.1/base/gml.xsd"/>
+
+    <xsd:element name="madis" type="madis:madis"
+        substitutionGroup="gml:_Feature"/>
+        
+    <xsd:complexType name="madis">
+        <xsd:complexContent>
+            <xsd:extension base="gml:AbstractFeatureType">
+                <xsd:sequence>
+                    <xsd:element name="provider" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="sub_provider" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="timeObs" type="xsd:dateTime" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="obsLocation" type="madis:obsLocation" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="dataset" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="restriction" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+                    <xsd:element name="dewpoint" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="dewpoint_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="dewpoint_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="dewpoint_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="rh" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="rh_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="rh_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="rh_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="altimeter" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="altimeter_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="altimeter_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="altimeter_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="temperature" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="temperature_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="temperature_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="temperature_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windDirection" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windDirection_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windDirection_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windDirection_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipRate" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipRate_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipRate_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipRate_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windSpeed" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windSpeed_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windSpeed_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windSpeed_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windGust" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windGust_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windGust_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="windGust_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipitalWater" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipitalWater_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipitalWater_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="precipitalWater_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="pressure" type="xsd:float" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="pressure_qcd" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="pressure_qca" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                    <xsd:element name="pressure_qcr" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="obsLocation">
+        <xsd:sequence>
+            <xsd:element name="location" type="gml:PointType"/>
+        </xsd:sequence>
+        <xsd:attribute name="stationId" type="xsd:string"/>
+        <xsd:attribute name="elevation" type="xsd:int"/>
+    </xsd:complexType>
+
+</xsd:schema>

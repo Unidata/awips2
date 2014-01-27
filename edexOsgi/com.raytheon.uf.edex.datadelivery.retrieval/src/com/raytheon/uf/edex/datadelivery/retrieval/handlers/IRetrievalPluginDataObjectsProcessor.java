@@ -20,10 +20,11 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter.TranslationException;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
- * Processes {@link RetrievalResponseXml} that were generated from a
- * retrieval.
+ * Processes {@link RetrievalResponseXml} that were generated from a retrieval.
  * 
  * <pre>
  * 
@@ -32,6 +33,9 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
+ * Oct 01, 2013 2267       bgonzale     Removed request parameter.  Return associated
+ *                                      RetrievalRequestRecord.
  * 
  * </pre>
  * 
@@ -43,14 +47,17 @@ public interface IRetrievalPluginDataObjectsProcessor {
 
     /**
      * Process plugin data objects that were created as a result of a data
-     * delivery retrieval.
+     * delivery retrieval request.
      * 
      * @param retrievalPluginDataObjects
      *            the retrieval plugin data objects
+     * @return the RetrievalRequestRecord associated with the processed
+     *         retrievals
      * @throws SerializationException
      *             on error with serialization
+     * @throws TranslationException
      */
-    void processRetrievedPluginDataObjects(
+    RetrievalRequestRecord processRetrievedPluginDataObjects(
             RetrievalResponseXml retrievalPluginDataObjects)
-            throws Exception;
+            throws SerializationException, TranslationException;
 }

@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -40,9 +39,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 2, 2009             chammack    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 02, 2009           chammack    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * 
  * </pre>
  * 
@@ -50,7 +51,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractResourceData implements ISerializableObject {
+public abstract class AbstractResourceData {
 
     /** The generator used to generate names for labels */
     protected AbstractNameGenerator nameGenerator = null;

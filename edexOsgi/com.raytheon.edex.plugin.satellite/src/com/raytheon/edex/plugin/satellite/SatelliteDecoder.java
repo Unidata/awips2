@@ -28,29 +28,28 @@ import java.nio.ByteBuffer;
 import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.satellite.dao.SatelliteDao;
+import com.raytheon.edex.plugin.satellite.gini.SatellitePosition;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteUnit;
 import com.raytheon.edex.util.satellite.SatSpatialFactory;
-import com.raytheon.edex.util.satellite.SatellitePosition;
-import com.raytheon.edex.util.satellite.SatelliteUnit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteMessageData;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.ArraysUtil;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
-import com.raytheon.uf.edex.wmo.message.WMOHeader;
+import com.raytheon.uf.common.util.header.WMOHeaderFinder;
 
 /**
  * Decoder implementation for satellite plugin.
@@ -88,7 +87,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * @author bphillip
  * @version 1
  */
-public class SatelliteDecoder extends AbstractDecoder {
+public class SatelliteDecoder {
+
+    private IUFStatusHandler statusHandler = UFStatus.getHandler(getClass());
 
     private final String traceId = "";
 
@@ -126,7 +127,7 @@ public class SatelliteDecoder extends AbstractDecoder {
             try {
                 removeWmoHeader(byteBuffer);
             } catch (DecoderException e) {
-                logger.error(e);
+                statusHandler.error("Error removing WMO header", e);
                 byteBuffer = null;
             }
             if (byteBuffer != null) {
@@ -189,11 +190,6 @@ public class SatelliteDecoder extends AbstractDecoder {
                 if (unit != null) {
                     record.setUnits(unit.getUnitName());
                 }
-                // read the number of records
-                record.setNumRecords((int) byteBuffer.getShort(4));
-
-                // read the size of each record
-                record.setSizeRecords((int) byteBuffer.getShort(6));
 
                 // read the century
                 intValue = 1900 + byteBuffer.get(8);
@@ -273,9 +269,10 @@ public class SatelliteDecoder extends AbstractDecoder {
                     SatellitePosition position = dao
                             .getSatellitePosition(record.getCreatingEntity());
                     if (position == null) {
-                        logger.info("Unable to determine geostationary location of ["
-                                + record.getCreatingEntity()
-                                + "].  Zeroing out fields.");
+                        statusHandler
+                                .info("Unable to determine geostationary location of ["
+                                        + record.getCreatingEntity()
+                                        + "].  Zeroing out fields.");
                     } else {
                         record.setSatSubPointLat(position.getLatitude());
                         record.setSatSubPointLon(position.getLongitude());
@@ -284,7 +281,8 @@ public class SatelliteDecoder extends AbstractDecoder {
                 }
 
                 if (navCalIndicator != 0) {
-                    logger.info("Nav/Cal info provided.  Currently unused.");
+                    statusHandler
+                            .info("Nav/Cal info provided.  Currently unused.");
                 }
 
                 // get number of points along x-axis
@@ -342,21 +340,11 @@ public class SatelliteDecoder extends AbstractDecoder {
                 // get the scanning mode
                 scanMode = byteBuffer.get(37);
 
-                // Get latitude of upper right hand corner
-                byteBuffer.position(55);
-                byteBuffer.get(threeBytesArray, 0, 3);
-                record.setUpperRightLat(transformLatitude(threeBytesArray));
-
-                // Get longitude of upper right hand corner
-                byteBuffer.position(58);
-                byteBuffer.get(threeBytesArray, 0, 3);
-                record.setUpperRightLon(transformLongitude(threeBytesArray));
-
                 float dx = 0.0f, dy = 0.0f, lov = 0.0f, lo2 = 0.0f, la2 = 0.0f;
                 // Do specialized decoding and retrieve spatial data for Lambert
                 // Conformal and Polar Stereographic projections
-                if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
-                        || (mapProjection == SatMapCoverage.PROJ_POLAR_STEREO)) {
+                if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
+                        || (mapProjection == SatSpatialFactory.PROJ_POLAR)) {
                     byteBuffer.position(30);
                     byteBuffer.get(threeBytesArray, 0, 3);
                     dx = byteArrayToFloat(threeBytesArray) / 10;
@@ -369,11 +357,9 @@ public class SatelliteDecoder extends AbstractDecoder {
                     byteBuffer.get(threeBytesArray, 0, 3);
                     lov = transformLongitude(threeBytesArray);
                 }
-
                 // Do specialized decoding and retrieve spatial data for
-                // Mercator
-                // projection
-                else if (mapProjection == SatMapCoverage.PROJ_MERCATOR) {
+                // Mercator projection
+                else if (mapProjection == SatSpatialFactory.PROJ_MERCATOR) {
                     dx = byteBuffer.getShort(33);
                     dy = byteBuffer.getShort(35);
 
@@ -397,7 +383,7 @@ public class SatelliteDecoder extends AbstractDecoder {
                      * This is a temporary workaround for DR14724, hopefully to
                      * be removed after NESDIS changes the product header
                      */
-                    if ((mapProjection == SatMapCoverage.PROJ_LAMBERT)
+                    if ((mapProjection == SatSpatialFactory.PROJ_LAMBERT)
                             && (record.getPhysicalElement()
                                     .equalsIgnoreCase("Imager 13 micron (IR)"))
                             && (record.getSectorID()
@@ -437,9 +423,6 @@ public class SatelliteDecoder extends AbstractDecoder {
                 if (record != null) {
                     record.setTraceId(traceId);
                     record.setCoverage(mapCoverage);
-                    record.setPersistenceTime(TimeTools.getSystemCalendar()
-                            .getTime());
-                    record.constructDataURI();
                     // Create the data record.
                     IDataRecord dataRec = messageData.getStorageRecord(record,
                             SatelliteRecord.SAT_DATASET_NAME);
@@ -484,8 +467,7 @@ public class SatelliteDecoder extends AbstractDecoder {
             message[i] = (char) (messageData.get() & 0xFF);
         }
         String msgStr = new String(message);
-        Matcher matcher = null;
-        matcher = Pattern.compile(WMOHeader.WMO_HEADER).matcher(msgStr);
+        Matcher matcher = WMOHeaderFinder.WMO_PATTERN.matcher(msgStr);
         if (matcher.find()) {
             int headerStart = matcher.start();
             if (SAT_HDR_TT.equals(msgStr

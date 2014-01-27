@@ -41,8 +41,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -60,6 +59,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *    Aug 26, 2008 #1502       bclement    Added JAXB annotations
  *    May 26, 2010 #4649       Qinglu Lin  Made including TO.A and SV.A mandatory
  *    Apr 24, 2013  1943       jsanchez    Marked areaConfig as Deprecated.
+ *    Oct 22, 2013  2361       njensen     Removed ISerializableObject
  * 
  * </pre>
  * 
@@ -68,11 +68,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "warngenConfig")
-public class WarngenConfiguration implements ISerializableObject {
+public class WarngenConfiguration {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenConfiguration.class);
 
-    private static Pattern p = Pattern
+    private static final SingleTypeJAXBManager<WarngenConfiguration> jaxb = SingleTypeJAXBManager
+            .createWithoutException(WarngenConfiguration.class);
+
+    private static final Pattern p = Pattern
             .compile("<\\s{0,}include\\s{1,}file\\s{0,}=\\s{0,}\"(.*)\"\\s{0,}/>");
 
     @XmlElement
@@ -178,7 +182,7 @@ public class WarngenConfiguration implements ISerializableObject {
                             + " in template " + templateName, e);
         }
 
-        config = (WarngenConfiguration) SerializationUtil.unmarshalFromXml(xml);
+        config = (WarngenConfiguration) jaxb.unmarshalFromXml(xml);
 
         // Sets the lists of bullets and dam bullets
         if (config.getBulletActionGroups() != null) {
@@ -204,7 +208,8 @@ public class WarngenConfiguration implements ISerializableObject {
         }
 
         // AreaConfiguration is deprecated. This is only meant for backwards
-        // compatibility while areaConfig is phased out with updated templates from the template team.
+        // compatibility while areaConfig is phased out with updated templates
+        // from the template team.
         if (config.getAreaConfig() != null) {
             ArrayList<AreaSourceConfiguration> areaSources = null;
 

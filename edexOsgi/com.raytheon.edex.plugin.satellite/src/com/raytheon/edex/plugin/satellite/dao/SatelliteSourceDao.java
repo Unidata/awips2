@@ -22,7 +22,7 @@ package com.raytheon.edex.plugin.satellite.dao;
 
 import java.util.List;
 
-import com.raytheon.edex.util.satellite.SatelliteSource;
+import com.raytheon.edex.plugin.satellite.gini.SatelliteSource;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;

@@ -32,7 +32,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.DataManager;
-import com.raytheon.viz.gfe.procedures.ProcedureJob;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.procedures.ProcedureRequest;
 import com.raytheon.viz.gfe.procedures.ProcedureSelectionDlg;
 import com.raytheon.viz.gfe.procedures.ProcedureUtil;
@@ -47,8 +47,9 @@ import com.raytheon.viz.gfe.ui.runtimeui.SelectionDlg;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 4, 2008            njensen     Initial creation
- * Nov 15, 2012 1298       rferrel     Changes for non-blocking ProcedureSelectionDlg.
+ * Nov 04, 2008            njensen     Initial creation
+ * Nov 15, 2012  #1298     rferrel     Changes for non-blocking ProcedureSelectionDlg.
+ * Dec 09, 2013  #2367     dgilling    Use new ProcedureJobPool.
  * </pre>
  * 
  * @author njensen
@@ -69,11 +70,11 @@ public class RunProcedureAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         String procedureName = event.getParameter("name");
-        DataManager dm = DataManager.getCurrentInstance();
+        DataManager dm = DataManagerUIFactory.getCurrentInstance();
         try {
             List<FieldDefinition> varList = dm.getProcedureInterface()
                     .getVarDictWidgets(procedureName);
-            if (varList == null || varList.size() == 0) {
+            if (varList == null || varList.isEmpty()) {
                 // no VariableList found on procedure, just run it
                 PreviewInfo pi = ProcedureUtil.checkAndBuildPreview(dm,
                         procedureName);
@@ -81,7 +82,7 @@ public class RunProcedureAction extends AbstractHandler {
                     ProcedureRequest req = ProcedureUtil.buildProcedureRequest(
                             procedureName, dm);
                     if (req != null) {
-                        ProcedureJob.enqueue(dm, req);
+                        dm.getProcedureJobPool().schedule(req);
                     }
                 }
             } else {

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ogc Registry
+Bundle-SymbolicName: com.raytheon.uf.edex.ogc.registry
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.raytheon.uf.edex.ogc.common;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.harvester;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ org.geotools;bundle-version="2.6.4",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174",
+ com.raytheon.uf.common.time;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ org.apache.commons.lang;bundle-version="2.3.0",
+ com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.retrieval;bundle-version="1.0.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.wfs;bundle-version="1.0.0"
+Export-Package: com.raytheon.uf.edex.ogc.registry

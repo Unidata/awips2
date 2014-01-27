@@ -2,20 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Profiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.profiler
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.13.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.dataplugin.profiler,
  com.raytheon.uf.common.dataplugin.profiler.dao
-Require-Bundle: com.raytheon.edex.common,
- com.raytheon.uf.common.pointdata;bundle-version="1.11.8",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.8",
- org.geotools,
- org.apache.commons.logging,
- javax.persistence,
- javax.measure,
- com.raytheon.uf.common.localization;bundle-version="1.11.16"
-Import-Package: com.raytheon.uf.common.status,
- com.raytheon.uf.edex.decodertools.core,
- com.raytheon.uf.edex.decodertools.time
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.dataaccess,
+ javax.measure

@@ -52,13 +52,10 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.database.cluster.handler.CurrentTimeClusterLockHandler;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.database.query.DatabaseQuery;
@@ -81,6 +78,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * May 14, 2013    1842    dgilling    Also delete cluster locks when purging
  *                                     PRACTICE active table.
  * Jun 11, 2013    2083    randerso   Log active table changes
+ * Aug 29, 2013    1843    dgilling    Move ETN related methods to 
+ *                                     GetNextEtnUtil.
  * 
  * </pre>
  * 
@@ -94,8 +93,6 @@ public class ActiveTable {
 
     private static final Logger changeLog = Logger
             .getLogger("ActiveTableChange");
-
-    private static final String NEXT_ETN_LOCK = "ActiveTableNextEtn";
 
     private static String filePath;
 
@@ -226,73 +223,6 @@ public class ActiveTable {
 
         return queryTable(siteId, mode, phensigList, act, etn, null, false,
                 false);
-    }
-
-    public static Integer getNextEtn(String siteId, ActiveTableMode mode,
-            String phensig, Calendar currentTime, boolean isLock) {
-        String lockName = getEtnClusterLockName(siteId, mode);
-        ClusterTask ct = null;
-        CurrentTimeClusterLockHandler lockHandler = null;
-        if (isLock) {
-            lockHandler = new CurrentTimeClusterLockHandler(15000, false);
-            do {
-                ct = ClusterLockUtils
-                        .lock(lockName, phensig, lockHandler, true);
-            } while (!ct.getLockState().equals(LockState.SUCCESSFUL));
-            statusHandler.info("Locking::[lockName = " + lockName
-                    + ", phensig = " + phensig + "]");
-        } else {
-            ct = ClusterLockUtils.lookupLock(lockName, phensig);
-        }
-
-        int nextEtn = 1;
-        List<ActiveTableRecord> records = queryTable(siteId, mode, phensig,
-                null, null, currentTime, false, true);
-
-        if (records != null && records.size() > 0) {
-            // should only be 1
-            nextEtn = Integer.parseInt(records.get(0).getEtn()) + 1;
-        }
-
-        String year = "" + currentTime.get(Calendar.YEAR);
-        String eInfo = ct.getExtraInfo();
-        if (eInfo != null && eInfo.startsWith(year)) {
-            // parse year info
-            try {
-                int ctNextEtn = Integer
-                        .parseInt(eInfo.substring(year.length() + 1)) + 1;
-                if (ctNextEtn > nextEtn) {
-                    nextEtn = ctNextEtn;
-                }
-            } catch (Exception e) {
-                statusHandler.error(
-                        "Caught excetion parsing etn from cluster_task", e);
-            }
-        }
-
-        if (isLock) {
-            lockHandler.setExtraInfo(year + ":" + nextEtn);
-            ClusterLockUtils.unlock(ct, false);
-            statusHandler.info("Unlocking::[nextEtn = " + nextEtn + "]");
-        }
-
-        return new Integer(nextEtn);
-    }
-
-    /**
-     * Returns the EDEX cluster lock name for the given site and active table
-     * mode.
-     * 
-     * @param siteId
-     *            4-char site identifier
-     * @param mode
-     *            The active table mode
-     * @return The cluster lock name for the given site and active table.
-     */
-    private static String getEtnClusterLockName(String siteId,
-            ActiveTableMode mode) {
-        String lockName = NEXT_ETN_LOCK + "_" + siteId + "_" + mode.name();
-        return lockName;
     }
 
     /**
@@ -602,7 +532,7 @@ public class ActiveTable {
         dao.executeNativeSql(sql);
 
         sql = "delete from cluster_task where name ='"
-                + getEtnClusterLockName(requestedSiteId,
+                + GetNextEtnUtil.getEtnClusterLockName(requestedSiteId,
                         ActiveTableMode.PRACTICE) + "';";
         dao.executeNativeSql(sql);
     }
@@ -613,4 +543,34 @@ public class ActiveTable {
         return file;
     }
 
+    /**
+     * Get the last assigned ETN for the specified site and phensig combination.
+     * 
+     * @param siteId
+     *            The 4-character site identifier.
+     * @param mode
+     *            The active table to search.
+     * @param phensig
+     *            The phenomenon and significance combination to search for.
+     * @param currentTime
+     *            <code>Calendar</code> representing time to perform search from
+     *            (needed for DRT mode).
+     * @return The last ETN assigned to the particular site and phensig
+     *         combination, or <code>null</code> if no ETNs have been assigned
+     *         to this combination.
+     */
+    public static Integer getLastUsedEtn(String siteId, ActiveTableMode mode,
+            String phensig, Calendar currentTime) {
+        Integer lastEtn = null;
+        List<ActiveTableRecord> records = ActiveTable.queryTable(siteId, mode,
+                phensig, null, null, currentTime, false, true);
+        if (!CollectionUtil.isNullOrEmpty(records)) {
+            // queryTable will return ActiveTableRecords sorted by ETN in
+            // descending order, so the first record's ETN will always be the
+            // last used ETN.
+            lastEtn = Integer.parseInt(records.get(0).getEtn());
+        }
+
+        return lastEtn;
+    }
 }

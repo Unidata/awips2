@@ -21,6 +21,8 @@ package com.raytheon.uf.viz.core.drawables.ext.colormap;
 
 import java.awt.image.RenderedImage;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.Colormapper;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -58,6 +60,8 @@ public class ColormappedImage implements IColormappedImage,
     private IColorMapDataRetrievalCallback callback;
 
     private ColorMapParameters parameters;
+
+    private Unit<?> dataUnit;
 
     public ColormappedImage(IGraphicsTarget target,
             IColorMapDataRetrievalCallback callback,
@@ -103,9 +107,7 @@ public class ColormappedImage implements IColormappedImage,
      */
     @Override
     public void dispose() {
-        if (image != null) {
-            image.dispose();
-        }
+        image.dispose();
     }
 
     /*
@@ -209,11 +211,15 @@ public class ColormappedImage implements IColormappedImage,
      */
     @Override
     public RenderedImage getImage() throws VizException {
-        if (parameters == null || parameters.getColorMap() == null) {
-            return null;
+        RenderedImage image = null;
+        if (parameters != null && parameters.getColorMap() != null) {
+            ColorMapData colorMapData = callback.getColorMapData();
+            if (colorMapData != null) {
+                this.dataUnit = colorMapData.getDataUnit();
+                image = Colormapper.colorMap(colorMapData, parameters);
+            }
         }
-        ColorMapData colorMapData = callback.getColorMapData();
-        return Colormapper.colorMap(colorMapData, parameters);
+        return image;
     }
 
     /*
@@ -235,6 +241,17 @@ public class ColormappedImage implements IColormappedImage,
     @Override
     public void stage() throws VizException {
         image.stage();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
+     */
+    @Override
+    public Unit<?> getDataUnit() {
+        return dataUnit == null ? getColorMapParameters().getDataUnit()
+                : dataUnit;
     }
 
 }

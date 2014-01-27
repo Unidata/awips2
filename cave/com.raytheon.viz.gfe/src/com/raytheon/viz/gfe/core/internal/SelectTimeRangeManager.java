@@ -61,6 +61,7 @@ import com.raytheon.viz.gfe.core.msgs.SelectTimeRangesChangedMsg;
  * ------------ ---------- ----------- --------------------------
  * Dec 3, 2009       #3135 randerso    Initial creation
  * Aug 1, 2012       #965  dgilling    Change location of SelectTimeRange.
+ * Aug 6, 2013       #1561 njensen     Use pm.listFiles() instead of pm.listStaticFiles()
  * 
  * </pre>
  * 
@@ -209,8 +210,9 @@ public class SelectTimeRangeManager implements ISelectTimeRangeManager,
 
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
-        LocalizationFile[] files = pathManager.listStaticFiles(FILE_PATH,
-                new String[] { FILE_EXT }, false, true);
+        LocalizationFile[] files = pathManager.listFiles(pathManager
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC),
+                FILE_PATH, new String[] { FILE_EXT }, false, true);
 
         List<SelectTimeRange> ranges = new ArrayList<SelectTimeRange>(
                 files.length);

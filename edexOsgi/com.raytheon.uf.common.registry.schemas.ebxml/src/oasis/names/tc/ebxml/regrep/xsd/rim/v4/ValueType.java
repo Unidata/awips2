@@ -37,6 +37,8 @@ import javax.xml.bind.annotation.XmlType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -60,9 +62,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "Value")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ValueType")
 @XmlSeeAlso({ StringValueType.class, DateTimeValueType.class,
@@ -72,21 +86,65 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
         DurationValueType.class, CollectionValueType.class })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Value")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Value")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public abstract class ValueType {
+public abstract class ValueType implements IPersistableDataObject<Integer> {
 
     @Id
-    @SequenceGenerator(name = "ValueTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Value_sequence")
+    @SequenceGenerator(name = "ValueTypeGenerator", schema = RegrepUtil.EBXML_SCHEMA, sequenceName = RegrepUtil.EBXML_SCHEMA
+            + ".Value_sequence")
     @GeneratedValue(generator = "ValueTypeGenerator")
     @XmlTransient
-    protected Integer key;
+    protected Integer id;
 
-    public abstract <T extends Object> T getValue();
+    protected ValueType() {
 
-    public abstract void setValue(Object obj);
+    }
 
-    public abstract String getColumnName();
+    protected ValueType(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public Integer getIdentifier() {
+        return id;
+    }
+
+    public abstract <T> T getValue();
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ValueType other = (ValueType) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ValueType \n[id=");
+        builder.append(id);
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

@@ -27,8 +27,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.measure.converter.UnitConverter;
-import javax.measure.unit.SI;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Pressure;
+import javax.measure.quantity.Temperature;
 import javax.measure.unit.Unit;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -36,6 +38,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.raytheon.uf.common.dataplugin.npp.crimss.CrimssRecord;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.d2d.nsharp.SoundingLayerBuilder;
 import com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData;
 
 /**
@@ -47,7 +50,8 @@ import com.raytheon.uf.viz.npp.sounding.rsc.AbstractNPPNSharpResourceData;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 5, 2011            bsteffen     Initial creation
+ * Dec 05, 2011            bsteffen    Initial creation
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -92,120 +96,67 @@ public class CrimssNSharpResourceData extends AbstractNPPNSharpResourceData {
 
     private static NcSoundingLayer getSurfacePressureLayer(PointDataView pdv) {
         float surfacePressure = pdv.getFloat(CrimssRecord.PDV_SURFACE_PRESSURE);
-        Unit<?> surfacePressureUnit = pdv
-                .getUnit(CrimssRecord.PDV_SURFACE_PRESSURE);
-        if (PRESSURE_UNIT.isCompatible(surfacePressureUnit)) {
-            UnitConverter converter = surfacePressureUnit
-                    .getConverterTo(PRESSURE_UNIT);
-            surfacePressure = (float) converter.convert(surfacePressure);
-        }
-        return new NcSoundingLayer(surfacePressure, NcSoundingLayer.MISSING,
-                NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                NcSoundingLayer.MISSING);
+        Unit<Pressure> surfacePressureUnit = pdv.getUnit(
+                CrimssRecord.PDV_SURFACE_PRESSURE).asType(Pressure.class);
+        SoundingLayerBuilder builder = new SoundingLayerBuilder();
+        builder.addPressure(surfacePressure, surfacePressureUnit);
+        return builder.toNcSoundingLayer();
     }
 
     private static List<NcSoundingLayer> getHeightLayers(PointDataView pdv) {
         List<NcSoundingLayer> layers = new ArrayList<NcSoundingLayer>();
-        UnitConverter heightConverter = UnitConverter.IDENTITY;
-        Unit<?> heightUnit = pdv.getUnit(CrimssRecord.PDV_ALTITUDE);
-        if (HEIGHT_UNIT.isCompatible(heightUnit)) {
-            heightConverter = heightUnit.getConverterTo(HEIGHT_UNIT);
-        }
-        UnitConverter pressureConverter = UnitConverter.IDENTITY;
-        Unit<?> pressureUnit = pdv.getUnit(CrimssRecord.PDV_P_ALTITUDE);
-        if (PRESSURE_UNIT.isCompatible(pressureUnit)) {
-            pressureConverter = pressureUnit.getConverterTo(PRESSURE_UNIT);
-        }
+        Unit<Length> heightUnit = pdv.getUnit(CrimssRecord.PDV_ALTITUDE)
+                .asType(Length.class);
+        Unit<Pressure> pressureUnit = pdv.getUnit(CrimssRecord.PDV_P_ALTITUDE)
+                .asType(Pressure.class);
         Number[] altitudeArray = pdv
                 .getNumberAllLevels(CrimssRecord.PDV_ALTITUDE);
         Number[] pressureArray = pdv
                 .getNumberAllLevels(CrimssRecord.PDV_P_ALTITUDE);
         for (int j = 0; j < altitudeArray.length; j++) {
-            float altitude = altitudeArray[j].floatValue();
-            altitude = (float) heightConverter.convert(altitude);
-            float pressure = pressureArray[j].floatValue();
-            pressure = (float) pressureConverter.convert(pressure);
-            NcSoundingLayer layer = new NcSoundingLayer(pressure, altitude,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING);
-            layers.add(layer);
+            SoundingLayerBuilder builder = new SoundingLayerBuilder();
+            builder.addPressure(pressureArray[j].doubleValue(), pressureUnit);
+            builder.addHeight(altitudeArray[j].doubleValue(), heightUnit);
+            layers.add(builder.toNcSoundingLayer());
         }
         return layers;
     }
 
     private static List<NcSoundingLayer> getTemperatureLayers(PointDataView pdv) {
         List<NcSoundingLayer> layers = new ArrayList<NcSoundingLayer>();
-        UnitConverter temperatureConverter = UnitConverter.IDENTITY;
-        Unit<?> temperatureUnit = pdv.getUnit(CrimssRecord.PDV_TEMPERATURE);
-        if (TEMPERATURE_UNIT.isCompatible(temperatureUnit)) {
-            temperatureConverter = temperatureUnit
-                    .getConverterTo(TEMPERATURE_UNIT);
-        }
-        UnitConverter pressureConverter = UnitConverter.IDENTITY;
-        Unit<?> pressureUnit = pdv.getUnit(CrimssRecord.PDV_P_TEMPERATURE);
-        if (PRESSURE_UNIT.isCompatible(pressureUnit)) {
-            pressureConverter = pressureUnit.getConverterTo(PRESSURE_UNIT);
-        }
+        Unit<Temperature> temperatureUnit = pdv.getUnit(
+                CrimssRecord.PDV_TEMPERATURE).asType(Temperature.class);
+        Unit<Pressure> pressureUnit = pdv.getUnit(
+                CrimssRecord.PDV_P_TEMPERATURE).asType(Pressure.class);
         Number[] temperatureArray = pdv
                 .getNumberAllLevels(CrimssRecord.PDV_TEMPERATURE);
         Number[] pressureArray = pdv
                 .getNumberAllLevels(CrimssRecord.PDV_P_TEMPERATURE);
 
         for (int j = 0; j < temperatureArray.length; j++) {
-            float temperature = temperatureArray[j].floatValue();
-            temperature = (float) temperatureConverter.convert(temperature);
-            float pressure = pressureArray[j].floatValue();
-            pressure = (float) pressureConverter.convert(pressure);
-            NcSoundingLayer layer = new NcSoundingLayer(pressure,
-                    NcSoundingLayer.MISSING, temperature,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING);
-            layers.add(layer);
+            SoundingLayerBuilder builder = new SoundingLayerBuilder();
+            builder.addPressure(pressureArray[j].doubleValue(), pressureUnit);
+            builder.addTemperature(temperatureArray[j].doubleValue(),
+                    temperatureUnit);
+            layers.add(builder.toNcSoundingLayer());
         }
         return layers;
     }
 
     private static List<NcSoundingLayer> getDewpointLayers(PointDataView pdv) {
         List<NcSoundingLayer> layers = new ArrayList<NcSoundingLayer>();
-        UnitConverter h2oConverter = UnitConverter.IDENTITY;
-        Unit<?> h2oUnit = pdv.getUnit(CrimssRecord.PDV_H2O);
-        if (H2O_UNIT.isCompatible(h2oUnit)) {
-            h2oConverter = h2oUnit.getConverterTo(H2O_UNIT);
-        }
-        UnitConverter dewpointConverter = UnitConverter.IDENTITY;
-        Unit<?> dewpointUnit = SI.KELVIN;
-        if (DEWPOINT_UNIT.isCompatible(dewpointUnit)) {
-            dewpointConverter = dewpointUnit.getConverterTo(DEWPOINT_UNIT);
-        }
-        UnitConverter pressureConverter = UnitConverter.IDENTITY;
-        Unit<?> pressureUnit = pdv.getUnit(CrimssRecord.PDV_P_H2O);
-        if (PRESSURE_UNIT.isCompatible(pressureUnit)) {
-            pressureConverter = pressureUnit.getConverterTo(PRESSURE_UNIT);
-        }
+        Unit<Dimensionless> h2oUnit = pdv.getUnit(CrimssRecord.PDV_H2O).asType(
+                Dimensionless.class);
+        Unit<Pressure> pressureUnit = pdv.getUnit(CrimssRecord.PDV_P_H2O)
+                .asType(Pressure.class);
         Number[] h2oArray = pdv.getNumberAllLevels(CrimssRecord.PDV_H2O);
         Number[] pressureArray = pdv.getNumberAllLevels(CrimssRecord.PDV_P_H2O);
 
         for (int j = 0; j < h2oArray.length; j++) {
-            float pressure = pressureArray[j].floatValue();
-            pressure = (float) pressureConverter.convert(pressure);
-            float h2o = h2oArray[j].floatValue();
-            float dpt = convertH2OtoDewpoint(h2o, pressure);
-            dpt = (float) dewpointConverter.convert(dpt);
-            NcSoundingLayer layer = new NcSoundingLayer(pressure,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    (float) dpt, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING,
-                    NcSoundingLayer.MISSING, NcSoundingLayer.MISSING, h2o,
-                    NcSoundingLayer.MISSING);
-            layers.add(layer);
+            SoundingLayerBuilder builder = new SoundingLayerBuilder();
+            builder.addPressure(pressureArray[j].doubleValue(), pressureUnit);
+            builder.addSpecificHumidity(h2oArray[j].doubleValue(), h2oUnit);
+            layers.add(builder.toNcSoundingLayer());
         }
         return layers;
     }

@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2011            rjpeter     Initial creation
  * Nov 05, 2013 2499       rjpeter     Repackaged, updated to use System properties.
+ * Dec 11, 2013 2555       rjpeter     archivePath overridable via System properties.
  * </pre>
  * 
  * @author rjpeter
@@ -60,6 +61,8 @@ public class DataArchiver {
     // allows for disabling of specific plugins if desired
     private final static String DISABLE_PROPERTY = "archive.disable";
 
+    private final static String PATH_PROPERTY = "archive.path";
+
     private final boolean ARCHIVING_ENABLED;
 
     private final Set<String> DISABLED_PLUGINS;
@@ -68,10 +71,9 @@ public class DataArchiver {
 
     private final List<IDataArchiver> dataArchivers = new LinkedList<IDataArchiver>();
 
-    private String archivePath = null;
+    private final String archivePath;
 
-    public DataArchiver(String archivePath) {
-        this.archivePath = archivePath;
+    public DataArchiver() {
         ARCHIVING_ENABLED = Boolean.getBoolean(ENABLE_PROPERTY);
         String disabledPluginList = System.getProperty(DISABLE_PROPERTY);
         if (disabledPluginList != null) {
@@ -83,6 +85,9 @@ public class DataArchiver {
         } else {
             DISABLED_PLUGINS = Collections.emptySet();
         }
+
+        // default to /archive
+        archivePath = System.getProperty(PATH_PROPERTY, "/archive");
     }
 
     public void archivePlugins() {

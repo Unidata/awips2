@@ -5,23 +5,28 @@ import java.util.Iterator;
 import java.util.TimeZone;
 
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
- * TODO Add Description
+ * A single DataTime object representing 2 DataTimes, useful for products which
+ * are a combination of other products with potentially different times.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 10, 2011            rgeorge     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 10, 2011           rgeorge     Initial creation
+ * Aug 08, 2013  2245     bsteffen    Make all DataTime comparisons consistent.
+ * Oct 28, 2013  2491     bsteffen    Add @XmlTransient
  * 
  * </pre>
  * 
  * @author rgeorge
  * @version 1.0
  */
+@XmlTransient
 public class CombinedDataTime extends DataTime {
 
     private static final long serialVersionUID = 1L;
@@ -45,8 +50,6 @@ public class CombinedDataTime extends DataTime {
         this.primaryDataTime = primaryDataTime;
         this.fcstTime = primaryDataTime.fcstTime;
         this.levelValue = primaryDataTime.levelValue;
-        this.majorKey = primaryDataTime.majorKey;
-        this.minorKey = primaryDataTime.minorKey;
         this.refTime = primaryDataTime.refTime;
         this.utilityFlags = primaryDataTime.utilityFlags;
         this.validPeriod = new TimeRange(this.refTime,
@@ -88,8 +91,6 @@ public class CombinedDataTime extends DataTime {
         result = prime * result + fcstTime;
         result = prime * result
                 + ((levelValue == null) ? 0 : levelValue.hashCode());
-        result = prime * result + ((majorKey == null) ? 0 : majorKey.ordinal());
-        result = prime * result + ((minorKey == null) ? 0 : minorKey.ordinal());
         if (utilityFlags == null) {
             result = prime * result + 0;
         } else {
@@ -248,106 +249,4 @@ public class CombinedDataTime extends DataTime {
         }
     }
 
-    /**
-     * Returns true if the left hand side is greater than the right hand side
-     * 
-     * @param rhs
-     *            the right hand side
-     * @return true if left hand side is greater than
-     */
-    public boolean greaterThan(DataTime rhs) {
-
-        if (rhs.getRefTime() == null) {
-            return (fcstTime > rhs.getFcstTime());
-
-        } else {
-            if (matchMode) {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getRefTime().getTime() == 0)
-                        return false;
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchValid() > rhs.getMatchValid())
-                        return true;
-                    if (getMatchValid() < rhs.getMatchValid())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (getMatchRef() > rhs.getMatchRef())
-                        return true;
-                    if (getMatchRef() < rhs.getMatchRef())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getMatchFcst() > rhs.getMatchFcst())
-                        return true;
-                    if (getMatchFcst() < rhs.getMatchFcst())
-                        return false;
-                }
-                if (getLevelValue() > rhs.getLevelValue()) {
-                    return true;
-                }
-            } else {
-                switch (majorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.refTime.getTime())
-                        return false;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    if (fcstTime < rhs.fcstTime)
-                        return false;
-                    break;
-                case VALID_TIME:
-                    if (getValidTime().getTimeInMillis() > rhs.getValidTime()
-                            .getTimeInMillis())
-                        return true;
-                    if (getValidTime().getTimeInMillis() < rhs.getValidTime()
-                            .getTimeInMillis())
-                        return false;
-                    if (refTime.getTime() > rhs.getRefTime().getTime())
-                        return true;
-                    if (refTime.getTime() < rhs.getRefTime().getTime())
-                        return false;
-                }
-                switch (minorKey) {
-                case INITIAL_TIME:
-                    if (refTime.getTime() > rhs.refTime.getTime())
-                        return true;
-                    break;
-                case FORECAST_TIME:
-                    if (fcstTime > rhs.fcstTime)
-                        return true;
-                    break;
-                case VALID_TIME:
-                    if (refTime.getTime() + (fcstTime * 1000) > rhs.refTime
-                            .getTime() + (rhs.fcstTime * 1000))
-                        return true;
-                }
-            }
-        }
-        return false;
-
-    }
 }

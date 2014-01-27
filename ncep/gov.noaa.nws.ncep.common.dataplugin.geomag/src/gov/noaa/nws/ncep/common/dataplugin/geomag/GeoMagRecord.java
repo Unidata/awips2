@@ -33,6 +33,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                            annotation.
  * Jun 26, 2013 989        qzhou              Added lots of fields.
  * Jul 22, 2013 1977       rjpeter            Added getDataURI and annotations.
+ * Jul 26, 2013 989        qzhou              Added lots of fields.
  * Aug 30, 2013 2298       rjpeter            Make getPluginName abstract
  * </pre>
  * 
@@ -755,7 +756,7 @@ public class GeoMagRecord extends PersistablePluginDataObject {
     public String getDataURI() {
         return super.getDataURI();
     }
-    
+
     @Override
     public IHDFFilePathProvider getHDFPathProvider() {
         return GeoMagPathProvider.getInstance();

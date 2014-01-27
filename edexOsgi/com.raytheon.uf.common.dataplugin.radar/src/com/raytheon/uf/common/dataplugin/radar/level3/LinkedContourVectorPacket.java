@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            mnash     Initial creation
+ * 07/29/2013   2148       mnash     Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -47,6 +48,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public class LinkedContourVectorPacket extends SymbologyPacket implements
         ISerializableObject {
+
+    private static final int CONTOUR_VECTOR_PACKET0E03 = 0x0E03;
+
+    private static final int CONTOUR_VECTOR_PACKET0802 = 0x0802;
 
     private static int color = -1;
 
@@ -62,15 +67,6 @@ public class LinkedContourVectorPacket extends SymbologyPacket implements
 
     public LinkedContourVectorPacket() {
 
-    }
-
-    private static final int CONTOUR_VECTOR_PACKET0E03 = 0x0E03;
-
-    private static final int CONTOUR_VECTOR_PACKET0802 = 0x0802;
-
-    static {
-        PacketFactory.registerPacketType(LinkedContourVectorPacket.class,
-                CONTOUR_VECTOR_PACKET0E03, CONTOUR_VECTOR_PACKET0802);
     }
 
     @DynamicSerializeElement

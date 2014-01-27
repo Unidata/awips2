@@ -1,6 +1,5 @@
 package com.raytheon.uf.common.monitor.scan.xml;
 
-
 import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,7 +9,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.scan.ThreatLocation;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+
 /**
  * CWAT locations Configuration XML .
  * 
@@ -29,14 +28,15 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "CWATLocationsXML")
 @XmlAccessorType(XmlAccessType.NONE)
-public class CWATLocationsXML implements ISerializableObject {
-    
-    @XmlElements( { @XmlElement(name = "threats", type = ThreatLocation.class) })
+public class CWATLocationsXML {
+
+    @XmlElements({ @XmlElement(name = "threats", type = ThreatLocation.class) })
     private ArrayList<ThreatLocation> threats;
 
     public ArrayList<ThreatLocation> getThreats() {
         return threats;
     }
+
     public void setThreats(ArrayList<ThreatLocation> threats) {
         this.threats = threats;
     }

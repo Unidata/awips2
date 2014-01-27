@@ -35,6 +35,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.Element;
 
+import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -57,7 +58,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -70,19 +82,19 @@ public class ResourceType {
     @DynamicSerializeElement
     protected List<Object> content;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink", required = true)
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI, required = true)
     @DynamicSerializeElement
     protected TypeType type;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String role;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @DynamicSerializeElement
     protected String title;
 
-    @XmlAttribute(namespace = "http://www.w3.org/1999/xlink")
+    @XmlAttribute(namespace = EbxmlNamespaces.XLINK_URI)
     @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
     @DynamicSerializeElement
     protected String label;

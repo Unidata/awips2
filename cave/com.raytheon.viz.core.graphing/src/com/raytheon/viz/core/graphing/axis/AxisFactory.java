@@ -29,10 +29,12 @@ import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.style.graph.AxisScale;
+import com.raytheon.uf.common.style.graph.GraphPreferences;
+import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.style.level.SingleLevel;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.core.graphing.DataAxisInfo;
 import com.raytheon.viz.core.graphing.GraphUtil;
@@ -40,8 +42,6 @@ import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.util.GraphUtilPorted;
 import com.raytheon.viz.core.slice.request.HeightScale;
 import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
-import com.raytheon.viz.core.style.graph.AxisScale;
-import com.raytheon.viz.core.style.graph.GraphPreferences;
 
 /**
  * Factory methods for generating axes.
@@ -158,9 +158,10 @@ public class AxisFactory {
         } else if (firstInfo == null || secondInfo == null) {
             compatible = false;
         } else {
-            compatible = GraphUtilPorted.verifyDataAxisInfo(firstInfo
-                    .getDataMin(), dataAtZero, ABS_MIN, firstInfo.getDataMax(),
-                    units, firstInfo.getStyle(), secondInfo, true);
+            compatible = GraphUtilPorted.verifyDataAxisInfo(
+                    firstInfo.getDataMin(), dataAtZero, ABS_MIN,
+                    firstInfo.getDataMax(), units, firstInfo.getStyle(),
+                    secondInfo, true);
         }
 
         return compatible;
@@ -239,8 +240,8 @@ public class AxisFactory {
         rangeAxis.setRange(minLevel, maxLevel);
 
         // TODO should be configurable
-        GraphPreferences style = GraphPrefsFactory.buildSimplePreferences(scale
-                .getScale() == ScaleType.LOG, minLevel, maxLevel);
+        GraphPreferences style = GraphPrefsFactory.buildSimplePreferences(
+                scale.getScale() == ScaleType.LOG, minLevel, maxLevel);
         style.getAxisScale().setMaxValue(maxLevel);
         style.getAxisScale().setMinValue(minLevel);
         DataAxisInfo info = GraphUtilPorted.initDataAxisInfo((float) minLevel,

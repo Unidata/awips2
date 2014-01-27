@@ -23,12 +23,11 @@ import java.io.File;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.common.monitor.cpg.MonitorStateXML;
+import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * Monitor State Configuration XML File Manager.
@@ -39,6 +38,7 @@ import com.raytheon.uf.common.monitor.cpg.MonitorStateXML;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 05, 2009            dhladky     Initial creation
+ * Oct 01, 2013 2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -47,23 +47,28 @@ import com.raytheon.uf.common.monitor.cpg.MonitorStateXML;
  */
 
 public class MonitorStateConfigurationManager {
+
+    /** Path to Monitoring Area Configuration XML. */
+    private static final String CONFIG_FILE_NAME = "monitoring"
+            + File.separatorChar + "MonitorPluginState.xml";
+
+    private static final SingleTypeJAXBManager<MonitorStateXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(MonitorStateXML.class);
+
     /** Singleton instance of this class */
     private static MonitorStateConfigurationManager instance = null;
 
-    /** Path to Monitoring Area Configuration XML. */
-    private static final String CONFIG_FILE_NAME = "monitoring" + File.separatorChar + "MonitorPluginState.xml";
-    
     /**
      * Monitoring State Configuration XML object.
      */
     private MonitorStateXML configXml;
-    
+
     /* Private Constructor */
     private MonitorStateConfigurationManager() {
         configXml = new MonitorStateXML();
         readConfigXml();
     }
-    
+
     /**
      * Get an instance of this singleton.
      * 
@@ -73,10 +78,10 @@ public class MonitorStateConfigurationManager {
         if (instance == null) {
             instance = new MonitorStateConfigurationManager();
         }
-       
+
         return instance;
     }
-    
+
     /**
      * Save the XML configuration data to the current XML file name.
      */
@@ -99,29 +104,28 @@ public class MonitorStateConfigurationManager {
         try {
             System.out.println("Saving -- "
                     + newXmlFile.getFile().getAbsolutePath());
-            SerializationUtil.jaxbMarshalToXmlFile(configXml, newXmlFile
-                    .getFile().getAbsolutePath());
+            jaxb.marshalToXmlFile(configXml, newXmlFile.getFile()
+                    .getAbsolutePath());
             newXmlFile.save();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         readConfigXml();
     }
-    
+
     /**
      * Read the XML configuration data for the current XML file name.
      */
     public void readConfigXml() {
         try {
             IPathManager pm = PathManagerFactory.getPathManager();
-            LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.BASE);
+            LocalizationContext lc = pm.getContext(
+                    LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
             File file = pm.getFile(lc, CONFIG_FILE_NAME);
-            System.out.println("Reading -- "
-                    + file.getAbsolutePath());
-            MonitorStateXML configXmltmp = (MonitorStateXML) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(file.getAbsolutePath());
+            System.out.println("Reading -- " + file.getAbsolutePath());
+            MonitorStateXML configXmltmp = jaxb.unmarshalFromXmlFile(file
+                    .getAbsolutePath());
             configXml = configXmltmp;
 
         } catch (Exception e) {
@@ -129,69 +133,76 @@ public class MonitorStateConfigurationManager {
             System.err.println("No configuration file found");
         }
     }
-    
+
     /**
      * FFMP state
+     * 
      * @return
      */
     public boolean getFFMPState() {
         return configXml.isFfmp();
     }
-    
+
     /**
      * CWAT state
+     * 
      * @return
      */
     public boolean getCWATState() {
         return configXml.isCwat();
     }
-    
+
     /**
      * VIL state
+     * 
      * @return
      */
     public boolean getVILState() {
         return configXml.isVil();
     }
-    
+
     /**
      * QPF state
+     * 
      * @return
      */
     public boolean getQPFState() {
         return configXml.isQpf();
     }
-    
+
     /**
      * Fog state
+     * 
      * @return
      */
     public boolean getFogState() {
         return configXml.isFog();
     }
-    
+
     /**
      * Fog state
+     * 
      * @return
      */
     public boolean getPrecipRateState() {
         return configXml.isPrecipRate();
     }
-    
+
     /**
      * Fog state
+     * 
      * @return
      */
     public boolean getScanState() {
         return configXml.isScan();
     }
-    
+
     /**
      * Fog state
+     * 
      * @return
      */
-    public boolean getFSSState(){
+    public boolean getFSSState() {
         return configXml.isFssobs();
     }
 }
-

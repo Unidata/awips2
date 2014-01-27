@@ -30,7 +30,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import com.raytheon.edex.services.MonitorSrv;
-import com.raytheon.edex.util.Util;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Uses JMX to obtain latency information for an end-point. Reports queue size,
@@ -176,7 +176,7 @@ public class EdexLatencyMonitor extends AEdexMonitor {
             Integer queueSize = (Integer)connection.getAttribute(theObject, "QueueSize");
             Long queuedEvents = (Long)connection.getAttribute(theObject, "QueuedEvents");
             Long averageTime = (Long)connection.getAttribute(theObject, "AverageExecutionTime");
-            logger.info(String.format(REPORT_FORMAT,Util.printString(beanName),
+            logger.info(String.format(REPORT_FORMAT,StringUtil.printString(beanName),
                     queueSize,queuedEvents,averageTime));
         } catch (Exception e) {
             e.printStackTrace();

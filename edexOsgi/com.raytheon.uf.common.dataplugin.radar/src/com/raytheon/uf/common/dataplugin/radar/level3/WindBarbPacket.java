@@ -37,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 1-23-2009               mnash     Initial creation
+ * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 
  * </pre>
  * 
@@ -54,13 +55,6 @@ public class WindBarbPacket extends SymbologyPacket implements
 
     public WindBarbPacket() {
 
-    }
-
-    private static final int WINDBARB_PACKET4 = 4;
-
-    static {
-        PacketFactory
-                .registerPacketType(WindBarbPacket.class, WINDBARB_PACKET4);
     }
 
     @DynamicSerialize

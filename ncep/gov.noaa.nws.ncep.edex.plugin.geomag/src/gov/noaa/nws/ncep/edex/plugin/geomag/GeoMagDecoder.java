@@ -41,13 +41,13 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * <pre>
  * 
- * OFTWARE HISTORY
+ * SOFTWARE HISTORY
  *                   
- * ate          Ticket#     Engineer    Description
- * -----------  ----------  ----------- --------------------------
- * 03/27/2013   #975        sgurung     Initial Creation
- * 04/26/2013   #975        qzhou       Added unit checkup. Declared missingVal.
- * 06/07/2013   #975        qzhou       Fixed error on conversion
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 03/27/2013   975         sgurung     Initial Creation
+ * 04/26/2013   975         qzhou       Added unit checkup. Declared missingVal.
+ * 06/07/2013   975         qzhou       Fixed error on conversion
  * 07/16/2013   975         qzhou       Decoder redesign:  
  * 										Changed the data entries in postgreSQL to minute(1440 entries). 
  *                                      Changed data overwrite to insert new data. Added insertion loop.
@@ -56,11 +56,12 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                      Get source priority from GeoMagStaiton.xml
  *                                      Added handles for same stations but with or without header
  *                                      Fixed HAD, NGK, CNB default value
+ * Aug 30, 2013 2298       rjpeter      Make getPluginName abstract
  * </pre>
  * 
  * @author sgurung, qzhou
  * @version 1
- * */
+ */
 
 public class GeoMagDecoder extends AbstractDecoder {
     private GeoMagDao dao;
@@ -551,8 +552,8 @@ public class GeoMagDecoder extends AbstractDecoder {
             }
 
             try {
-                dataRec = dataStore.retrieve(newUri); // obs_time,
-                                                      // compx...//size 7
+               // obs_time, compx...//size 7
+               dataRec = dataStore.retrieve(newUri);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
             } catch (StorageException e1) {

@@ -47,11 +47,14 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.BufruaNSharpResourceData;
+import com.raytheon.uf.viz.d2d.nsharp.rsc.GoesSndNSharpResourceData;
 import com.raytheon.uf.viz.d2d.nsharp.rsc.MdlSndNSharpResourceData;
+import com.raytheon.uf.viz.d2d.nsharp.rsc.PoesSndNSharpResourceData;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeheight.rsc.TimeHeightResourceData;
+import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
@@ -73,6 +76,9 @@ import com.vividsolutions.jts.geom.LineString;
  * May 08, 2013 DR14824 mgamazaychikov Added alterProductParameters method
  * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
  *                                     work without dataURI.
+ * Aug 15, 2013 2258       bsteffen    Convert profiler sounding to var height
+ *                                     with hodo.
+ * Aug 15, 2013 2260       bsteffen    Switch poessounding to NSharp.
  * 
  * </pre>
  * 
@@ -407,24 +413,24 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected AbstractRequestableResourceData getResourceData(
             IDataCatalogEntry catalogEntry, ResourceType resourceType) {
+        String sourceKey = catalogEntry.getSelectedData().getSourcesKey();
+        String sourceText = catalogEntry.getSelectedData().getSourcesText();
 
         switch (resourceType) {
         case PLAN_VIEW:
             OAResourceData rscData = new OAResourceData();
             // TODO this should be configurable
-            if (catalogEntry.getSelectedData().getSourcesText()
-                    .equals("RaobOA")) {
+            if (sourceText.equals("RaobOA")) {
                 BinOffset binOffset = new BinOffset(3600, 3600);
                 rscData.setBinOffset(binOffset);
-            } else if (catalogEntry.getSelectedData().getSourcesText()
-                    .equals("MetarOA")) {
+            } else if (sourceText.equals("MetarOA")) {
                 BinOffset binOffset = new BinOffset(1800, 1800);
                 rscData.setBinOffset(binOffset);
             }
             rscData.setParameter(catalogEntry.getSelectedData().getFieldsKey());
             rscData.setParameterName(catalogEntry.getSelectedData()
                     .getFieldsText());
-            rscData.setSource(catalogEntry.getSelectedData().getSourcesText());
+            rscData.setSource(sourceText);
             String levelKey = catalogEntry.getSelectedData().getPlanesKey();
             rscData.setLevelKey(levelKey);
             rscData.setRetrieveData(false);
@@ -434,11 +440,11 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             AbstractRequestableResourceData resourceData = super
                     .getResourceData(catalogEntry, resourceType);
             // TODO this should be configurable, and shared with PLAN_VIEW
-            if (catalogEntry.getSelectedData().getSourcesText()
+            if (sourceText
                     .equals("RaobOA")) {
                 BinOffset binOffset = new BinOffset(3600, 3600);
                 resourceData.setBinOffset(binOffset);
-            } else if (catalogEntry.getSelectedData().getSourcesText()
+            } else if (sourceText
                     .equals("MetarOA")) {
                 BinOffset binOffset = new BinOffset(1800, 1800);
                 resourceData.setBinOffset(binOffset);
@@ -448,7 +454,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             resourceData = getResourceData(catalogEntry, resourceType,
                     new TimeHeightResourceData());
 
-            String sourceKey = catalogEntry.getSelectedData().getSourcesKey();
             Coordinate coordinate = getPointCoordinate(catalogEntry);
             SurfaceObsLocation closestLoc = getClosestStation(coordinate,
                     sourceKey);
@@ -469,7 +474,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             LineString line = ToolsDataManager.getInstance()
                     .getBaseline(letter);
             Coordinate[] newLine = new Coordinate[line.getNumPoints()];
-            sourceKey = catalogEntry.getSelectedData().getSourcesKey();
             for (int i = 0; i < line.getNumPoints(); i++) {
                 SurfaceObsLocation loc = getClosestStation(
                         line.getCoordinateN(i), sourceKey, closest);
@@ -485,14 +489,24 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             ((CrossSectionResourceData) resourceData).setStationIDs(closest);
             return resourceData;
         case SOUNDING:
-            if (catalogEntry.getSelectedData().getSourcesKey().equals("bufrua")) {
+            if (getPlugin(sourceKey).equals("bufrua")) {
                 return new BufruaNSharpResourceData();
-            } else if (catalogEntry.getSelectedData().getSourcesKey()
-                    .equals("modelsoundingETA")) {
-                return resourceData = new MdlSndNSharpResourceData("NAMSND");
-            } else if (catalogEntry.getSelectedData().getSourcesKey()
-                    .equals("modelsoundingGFS")) {
-                return resourceData = new MdlSndNSharpResourceData("GFSSND");
+            } else if (sourceKey.equals("modelsoundingETA")) {
+                return new MdlSndNSharpResourceData("NAMSND");
+            } else if (sourceKey.equals("modelsoundingGFS")) {
+                return new MdlSndNSharpResourceData("GFSSND");
+            } else if (sourceKey.equals("poessounding")) {
+                return new PoesSndNSharpResourceData();
+            } else if (sourceKey.equals("goessounding")) {
+                return new GoesSndNSharpResourceData();
+            } else if (sourceKey.equals("profiler")) {
+                VarHeightResourceData vhData = new VarHeightResourceData();
+                vhData.setPoint(getPointCoordinate(catalogEntry));
+                vhData.setParameter("Wind");
+                vhData.setParameterName("Wind");
+                vhData.setPointLetter(getPointLetter(catalogEntry));
+                vhData.setSource(sourceText);
+                return vhData;
             }
         default:
             return super.getResourceData(catalogEntry, resourceType);

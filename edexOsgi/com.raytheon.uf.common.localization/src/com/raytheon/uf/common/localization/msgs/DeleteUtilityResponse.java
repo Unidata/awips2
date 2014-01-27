@@ -20,11 +20,6 @@
 
 package com.raytheon.uf.common.localization.msgs;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -37,19 +32,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 30, 2007            njensen     Initial creation
- * May 19, 2007     #1127   randerso    Implemented error reporting
+ * May 19, 2007  #1127     randerso    Implemented error reporting
  * Aug 22, 2008  #1502     bclement    Added JAXB/Serializable annotations
+ * Oct 01, 2013   2361     njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author njensen
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class DeleteUtilityResponse extends AbstractUtilityResponse {
 
-    @XmlAttribute
     @DynamicSerializeElement
     private long timeStamp;
 

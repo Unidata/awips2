@@ -18,11 +18,11 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.1",
  gov.noaa.nws.ncep.viz.common,
  gov.noaa.nws.ncep.viz.localization,
  gov.noaa.nws.ncep.viz.rsc.pgen;bundle-version="1.0.0",
- com.raytheon.uf.common.sounding
+ com.raytheon.uf.common.sounding,
+ com.raytheon.viz.core.graphing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Import-Package: com.raytheon.edex.meteoLib,
- com.raytheon.edex.plugin.modelsounding.common,
+Import-Package: com.raytheon.edex.plugin.modelsounding.common,
  com.raytheon.edex.plugin.modelsounding.dao,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.sounding,
@@ -36,8 +36,6 @@ Import-Package: com.raytheon.edex.meteoLib,
  com.raytheon.uf.viz.d2d.core.time,
  com.raytheon.uf.viz.d2d.ui.perspectives,
  com.raytheon.uf.viz.sounding,
- com.raytheon.viz.core.graphing,
- com.raytheon.viz.skewt,
  com.vividsolutions.jts.geom,
  gov.noaa.nws.ncep.common.dataplugin.ncuair,
  gov.noaa.nws.ncep.edex.common.ncinventory,

@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -40,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 20 Oct, 2012   1163      dhladky     Initial creation
+ * 07 Nov, 2013   2361      njensen      Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -49,7 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class Pattern implements ISerializableObject {
+public class Pattern {
 
     private static final String SEPARATOR = ",";
 

@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.datadelivery.notification;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableFind;
@@ -77,6 +79,11 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Nov 29, 2012  1285      bgonzale     Added a refresh pause button to the Notification Center Dialog.
  * Jan 22, 2013  1520      mpduff       Update javadoc.
  * Apr 25, 2013  1820      mpduff       Get the column list every time.
+ * Aug 30, 2013  2314      mpduff       Sort the table data on load.
+ * Sep 16, 2013  2375      mpduff       Removed initial sorting.
+ * Sep 26, 2013  2417      mpduff       Fix the find all row selection.
+ * Oct 15, 2013  2451      skorolev     Get highlighted rows after message update.
+ * Nov 01, 2013  2431      skorolev     Changed labels on the table.
  * </pre>
  * 
  * @author lvenable
@@ -196,6 +203,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     /** Count of messages receieved when the dialog is paused. */
     private int messageReceivedWhilePausedCount = 0;
 
+    /** Highlighted row ids */
+    private Set<Integer> selectedRowIds = new HashSet<Integer>();
+
     /**
      * Constructor.
      * 
@@ -227,13 +237,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      */
     private void init() {
 
-        startIndex = 0;
-        endIndex = pageConfig - 1;
-
         pImage = new PriorityImages(this.getShell());
         pImage.setPriorityDisplay(PriorityDisplay.ColorNumName);
 
         createColumns();
+
+        startIndex = 0;
+        endIndex = pageConfig - 1;
+
         createBottomPageControls();
 
     }
@@ -502,6 +513,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         int endRow = endIndex + 1;
         String selection = null;
 
+        // Total number of enable rows
+        int numTotal = this.getMasterTableList().getDataArray().size();
+
         // Total number of rows in the filteredTableList used in bottom right
         // hand corner
         numRows = filteredTableList.getDataArray().size();
@@ -555,18 +569,19 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                     .setText("No rows to display. Please check the configuration and "
                             + "filtering options.");
         } else if (startIndex == endIndex) {
-            numRowsLbl.setText(ROW + startRow + " of " + numRows);
+            numRowsLbl.setText(ROW + startRow + " from " + numRows + " of "
+                    + numTotal);
             // Initial Load with over the number of configured records per page
         } else if (startIndex == 0 && (numRows > pageConfig)) {
-            numRowsLbl.setText(ROWS + startRow + " - " + pageConfig + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + pageConfig + " from "
+                    + numRows + " of " + numTotal);
             // Number of records are less than the page config
         } else if (numRows < pageConfig) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
+                    + numRows + " of " + numTotal);
         } else if (numRowsLbl != null) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " of "
-                    + numRows);
+            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
+                    + numRows + " of " + numTotal);
         }
 
         deleteFlag = false;
@@ -791,14 +806,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     public void populateTableDataRows(
             ArrayList<NotificationRecord> notificationRecords) {
         List<NotificationRecord> notificationList = new ArrayList<NotificationRecord>();
-
+        MessageLoadXML messageLoad = null;
         NotificationConfigManager configMan = NotificationConfigManager
                 .getInstance();
         ArrayList<String> users = configMan.getFilterXml().getUserFilterXml()
                 .getUserList();
 
         if (notificationRecords == null) {
-            MessageLoadXML messageLoad = msgLoadCallback.getMessageLoad();
+            messageLoad = msgLoadCallback.getMessageLoad();
             handler = new NotificationHandler();
             notificationList = handler.intialLoad(messageLoad, users);
             masterTableList.clearAll();
@@ -806,7 +821,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         } else {
             for (NotificationRecord rec : notificationRecords) {
                 // prevents duplicates
-                if (currentRecordIds.contains(rec.getId()) == false) {
+                if (!currentRecordIds.contains(rec.getId())) {
                     notificationList.add(rec);
                 }
             }
@@ -843,7 +858,54 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             }
         }
 
+        messageLoad = msgLoadCallback.getMessageLoad();
+        if (messageLoad != null) {
+            if (!messageLoad.isLoadAllMessages()) {
+                // Sort data by time
+                sortByTime(filteredTableList);
+
+                int loadLast = messageLoad.getLoadLast();
+
+                // Keep only the specified number of rows
+                if (messageLoad.isNumMessages()) {
+                    int numRecs = filteredTableList.getDataArray().size();
+                    List<NotificationRowData> removeList = new ArrayList<NotificationRowData>();
+                    if (numRecs > loadLast) {
+                        for (int i = loadLast; i < numRecs; i++) {
+                            removeList.add(filteredTableList.getDataRow(i));
+                        }
+                    }
+                    if (!removeList.isEmpty()) {
+                        filteredTableList.removeAll(removeList);
+                    }
+                } else {
+                    long backTime = loadLast * TimeUtil.MILLIS_PER_HOUR;
+                    long currentTime = TimeUtil.currentTimeMillis();
+                    List<NotificationRowData> dataList = filteredTableList
+                            .getDataArray();
+                    List<Integer> indicesToRemove = new ArrayList<Integer>();
+                    for (int i = 0; i < dataList.size(); i++) {
+                        if (currentTime - dataList.get(i).getDate().getTime() > backTime) {
+                            indicesToRemove.add(i);
+                        }
+                    }
+
+                    for (int i : indicesToRemove) {
+                        filteredTableList.removeDataRow(i);
+                    }
+                }
+            }
+        }
+
+        // Now do the configured sort
         updateSortDirection(this.sortedColumn, filteredTableList, false);
+        filteredTableList.sortData();
+    }
+
+    private void sortByTime(TableDataManager<NotificationRowData> data) {
+        data.setSortDirection(SortDirection.DESCENDING);
+        data.setSortColumn("Time");
+        data.sortData();
     }
 
     /**
@@ -1025,31 +1087,20 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                     tc.setResizable(false);
                 }
 
-                if (!initialized) {
-                    // Find which column is configured to be the sort column
-                    boolean sortCol = column.isSortColumn();
-                    if (sortCol) {
-                        sortedColumn = tc;
-                    }
-
-                    // Check if any columns set to descending
-                    boolean sortAsc = column.isSortAsc();
-                    if (!sortAsc) {
-                        sortDir = SortDirection.ASCENDING;
-                    }
-
-                    sortDirectionMap.put(colName, sortDir);
-                } else {
-                    if (tc.getText().equals(sortedColumnName)) {
-                        sortedColumn = tc;
-                        sortDirectionMap.put(tc.getText(), sortedDirectionName);
-                    }
+                // Find which column is configured to be the sort column
+                if (column.isSortColumn()) {
+                    sortedColumn = tc;
                 }
 
+                // Check if any columns set to descending
+                sortDir = SortDirection.DESCENDING;
+                if (column.isSortAsc()) {
+                    sortDir = SortDirection.ASCENDING;
+                }
+
+                sortDirectionMap.put(colName, sortDir);
             }
-
         }
-
     }
 
     /**
@@ -1110,12 +1161,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         if (indices != null) {
             if (indices.length > 0) {
                 for (int index : indices) {
-
                     if (index >= startIndex && index <= endIndex) {
                         if (startIndex == 0) {
                             highlightIndex = index;
                         } else if (selectedPage > 0) {
-                            int extra = (selectedPage * pageConfig);
+                            int extra = ((selectedPage - 1) * pageConfig);
                             highlightIndex = index - extra;
                         } else {
                             highlightIndex = index - pageConfig;
@@ -1134,6 +1184,30 @@ public class NotificationTableComp extends TableComp implements ITableFind {
                 }
 
                 table.select(indicesArr);
+            }
+        } else {
+            // Highlight the rows which was selected on the table page.
+            if (!selectedRowIds.isEmpty()) {
+                Set<Integer> ids = new HashSet<Integer>();
+                for (int i = 0; i < filteredTableList.getDataArray().size(); i++) {
+                    NotificationRowData row = filteredTableList.getDataArray()
+                            .get(i);
+                    int idx = row.getId();
+                    if (selectedRowIds.contains(idx)) {
+                        ids.add(i);
+                    }
+                }
+
+                int[] hlts = new int[ids.size()];
+                int counter = 0;
+
+                Iterator<Integer> itr = ids.iterator();
+                while (itr.hasNext()) {
+                    hlts[counter] = itr.next();
+                    ++counter;
+                }
+
+                table.select(hlts);
             }
         }
 
@@ -1164,6 +1238,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     protected void handleTableSelection(SelectionEvent e) {
         if (tableChangeCallback != null) {
             tableChangeCallback.tableSelection();
+            int[] indices = table.getSelectionIndices();
+            selectedRowIds.clear();
+            // Extract selected notification ids from the table page
+            for (int index : indices) {
+                NotificationRowData rowData = filteredTableList
+                        .getDataRow(index);
+                selectedRowIds.add(rowData.getId());
+            }
         }
     }
 
@@ -1194,6 +1276,9 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             String selection = pageCbo.getItem(pageCbo.getSelectionIndex());
             selectedPage = Integer.parseInt(selection);
         }
+
+        // Clean highlighted selections on the page
+        selectedRowIds.clear();
 
         // Calculate indices
         if (selectedPage >= 1) {
@@ -1276,10 +1361,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     @Override
     public void selectIndices(int[] indices) {
         this.indices = indices;
-
-        // highlight table rows
-        table.select(indices);
-        handlePageSelection();
+        if (indices != null && indices.length > 0) {
+            // highlight table rows
+            table.select(indices);
+            handlePageSelection();
+        }
     }
 
     /**
@@ -1309,5 +1395,10 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      */
     public boolean isLocked() {
         return pauseButton.getSelection();
+    }
+
+    @Override
+    public void clearSelections() {
+        table.deselectAll();
     }
 }

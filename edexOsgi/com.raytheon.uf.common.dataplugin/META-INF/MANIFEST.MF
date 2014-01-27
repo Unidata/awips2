@@ -6,12 +6,6 @@ Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Import-Package: com.raytheon.uf.common.time,
- com.raytheon.uf.common.time.util,
- javax.measure.unit,
- javax.persistence,
- org.apache.commons.beanutils,
- org.hibernate.annotations
 Export-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.defaults,
@@ -20,6 +14,11 @@ Export-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.request
 Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time;bundle-version="1.12.1174";visibility:=reexport,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.comm,
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.util;bundle-version="1.12.1174",
+ org.apache.commons.beanutils;bundle-version="1.8.3",
+ javax.measure;bundle-version="1.0.0",
+ javax.persistence;bundle-version="1.0.0";visibility:=reexport,
+ org.hibernate;bundle-version="1.0.0";visibility:=reexport

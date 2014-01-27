@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.core.contours.rsc.displays;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,16 +33,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
-import org.geotools.coverage.grid.InvalidGridGeometryException;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.datum.PixelInCell;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.NoninvertibleTransformException;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -62,14 +53,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 23, 2010            bsteffen     Initial creation
- * Aug 27, 2013     #2287  randerso     Replaced hard coded constant with densityFactor
- *                                      parameter to allow application specific density
- *                                      scaling to better match A1 displays
- * Sep 10, 2013 DR 16257   MPorricelli  Fix so that wind for global grids displays on
- *                                      mercator maps.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 23, 2010           bsteffen    Initial creation
+ * Aug 07, 2013  2077     bsteffen    Revise pixel size calculations.
+ * Aug 27, 2013  2287     randerso    Replaced hard coded constant with
+ *                                    densityFactor parameter to allow
+ *                                    application specific density scaling to
+ *                                    better match A1 displays
+ * Sep 10, 2013  16257    MPorricelli Fix so that wind for global grids displays on
+ *                                    mercator maps.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -114,7 +108,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
     protected IGraphicsTarget target;
 
-    protected final int size;
+    protected final double size;
 
     protected final double densityFactor;
 
@@ -139,7 +133,7 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
      *            adjustment factor to make density match A1
      */
     public AbstractGriddedDisplay(IMapDescriptor descriptor,
-            GeneralGridGeometry gridGeometryOfGrid, int size,
+            GeneralGridGeometry gridGeometryOfGrid, double size,
             double densityFactor) {
         this.calculationQueue = new ConcurrentLinkedQueue<Coordinate>();
 
@@ -158,41 +152,44 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
         plotLocations = PlotLocationCache.getInstance().getPlotLocations(
                 GridGeometry2D.wrap(gridGeometryOfGrid),
                 GridGeometry2D.wrap(descriptor.getGridGeometry()));
+
+        // Calculate pixel size also.
+        Rectangle descBounds = GridGeometry2D
+                .wrap(descriptor.getGridGeometry()).getGridRange2D();
+
+        double totalPixelSize = 0;
+        int totalCount = 0;
+        for (int x = 1; x < gridDims[0]; x += 1) {
+            for (int y = 1; y < gridDims[1]; y += 1) {
+                double x1 = plotLocations[(x - 1) * 2 * gridDims[1]
+                        + ((y - 1) * 2)];
+                double y1 = plotLocations[((x - 1) * 2 * gridDims[1] + ((y - 1) * 2)) + 1];
+                double x2 = plotLocations[x * 2 * gridDims[1] + (y * 2)];
+                double y2 = plotLocations[(x * 2 * gridDims[1] + (y * 2)) + 1];
+                if (descBounds.contains(x1, y1) && descBounds.contains(x2, y2)) {
+                    /*
+                     * For every grid cell which is on the descriptor this will
+                     * add the diagonal distance in display pixels.
+                     */
+                    totalPixelSize += Math.sqrt((x1 - x2) * (x1 - x2)
+                            + (y1 - y2) * (y1 - y2));
+                    totalCount += 1l;
+                }
+            }
+        }
+        if (totalCount == 0) {
+            /*
+             * There is one or less things to draw anyway so picking a
+             * relatively large number forces full progressive disclosure.
+             */
+            pixelSize = descBounds.width;
+        } else {
+            pixelSize = totalPixelSize / totalCount;
+        }
     }
 
     public void setASync(boolean async) {
         this.async = async;
-    }
-
-    public double getPixelWidth(GridGeometry2D gridGeometry,
-            IMapDescriptor descriptor) throws VizException {
-        try {
-            double[] input = new double[] { 0, 0, 1, 1 };
-            double[] output = new double[input.length];
-
-            MathTransform mathTransform = gridGeometry
-                    .getGridToCRS(PixelInCell.CELL_CORNER);
-            // convert the point s to lat/lon
-            mathTransform.transform(input, 0, output, 0, input.length / 2);
-            DirectPosition2D s1 = new DirectPosition2D(output[0], output[1]);
-            DirectPosition2D d1 = new DirectPosition2D(output[2], output[3]);
-            GeodeticCalculator gc = new GeodeticCalculator(
-                    gridGeometry.getCoordinateReferenceSystem());
-            gc.setStartingPosition(s1);
-            gc.setDestinationPosition(d1);
-
-            return gc.getOrthodromicDistance();
-        }
-
-        catch (org.opengis.referencing.operation.NoninvertibleTransformException e) {
-            throw new VizException(e);
-
-        } catch (TransformException e) {
-            throw new VizException(e);
-
-        } catch (InvalidGridGeometryException e) {
-            throw new VizException(e);
-        }
     }
 
     /*
@@ -207,42 +204,8 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
             throws VizException {
         this.target = target;
 
-        MathTransform grid2grid = getGeometryToDescriptorGridTransform();
-
         PaintProperties pp = new PaintProperties(paintProps);
         pp.setAlpha(1.0f);
-
-        // This distance is the diagonal distance between two gridCells in
-        // pixel
-        // space
-        // Linear distance(between (0,0) and (0,1) makes more sense but
-        // looks to sparse.
-        DirectPosition2D p1 = new DirectPosition2D();
-        DirectPosition2D p2 = new DirectPosition2D();
-
-        boolean doneTryingCoords = false;
-        int i = -1;
-        // starting with coords (0,0), (1,1), try until tranform succeeds,
-        // or until have gone through a set of diagonal coords
-        do {
-            try {
-                i++;
-                if (i + 1 < gridDims[0] && i + 1 < gridDims[1]) {
-                    p1.x = p1.y = i;
-                    p2.x = p2.y = i + 1;
-                    grid2grid.transform(p1, p1);
-                    grid2grid.transform(p2, p2);
-                    doneTryingCoords = true;
-                }
-            } catch (TransformException e) {
-                if (i + 1 >= gridDims[0] || i + 1 >= gridDims[1]) {
-                    doneTryingCoords = true;
-                    throw new VizException(e);
-                }
-            }
-        } while (!doneTryingCoords);
-
-        pixelSize = p1.distance(p2);
 
         IExtent viewPixelExtent = paintProps.getView().getExtent();
         int canvasWidth = paintProps.getCanvasBounds().width;
@@ -250,14 +213,14 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
 
         double adjSize = size * ratio * magnification;
 
-        // Casting to an int always rounds down, this is an arbitrary
-        // rounding
-        // decision, actually rounding would seem to make more sense but
-        // causes
-        // it to look a bit to sparse
-        // If it is 0, then go with 1, 0 infinite loops
-
         List<GridCellRenderable> renderables = new ArrayList<GridCellRenderable>();
+
+        /*
+         * Casting to an int always rounds down, this is an arbitrary rounding
+         * decision, actually rounding would seem to make more sense but causes
+         * it to look a bit to sparse. If it rounds to 0, then use 1 because 0
+         * infinite loops.
+         */
         int increment = Math.max(
                 (int) Math.ceil(adjSize * densityFactor / pixelSize / density),
                 1);
@@ -412,29 +375,6 @@ public abstract class AbstractGriddedDisplay<T> implements IRenderable {
     protected void issueRefresh() {
         if (target != null) {
             target.setNeedsRefresh(true);
-        }
-    }
-
-    private MathTransform getGeometryToDescriptorGridTransform()
-            throws VizException {
-        try {
-
-            MathTransform grid2crs = gridGeometryOfGrid.getGridToCRS();
-            MathTransform crs2crs = CRS
-                    .findMathTransform(gridGeometryOfGrid
-                            .getCoordinateReferenceSystem(), descriptor
-                            .getGridGeometry().getCoordinateReferenceSystem());
-            MathTransform crs2grid = descriptor.getGridGeometry()
-                    .getGridToCRS().inverse();
-
-            return ConcatenatedTransform.create(
-                    ConcatenatedTransform.create(grid2crs, crs2crs), crs2grid);
-        } catch (InvalidGridGeometryException e) {
-            throw new VizException(e);
-        } catch (NoninvertibleTransformException e) {
-            throw new VizException(e);
-        } catch (FactoryException e) {
-            throw new VizException(e);
         }
     }
 

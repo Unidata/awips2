@@ -68,11 +68,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 2, 2008            randerso     Initial creation
- * May 01,2013  15920     lbousaidi    gages get updated after clicking on 
+ * Sep 02, 2008            randerso    Initial creation
+ * May 01, 2013  15920     lbousaidi   gages get updated after clicking on 
  *                                     Regenerate Hour Fields without closing 7x7 Gui.
- * Jun 05,2013  15961     lbousaidi    added routines for set Bad/set not bad buttons
+ * Jun 05, 2013  15961     lbousaidi    added routines for set Bad/set not bad buttons
  *                                     to reflect the state of the gages.                                   
+ * Jul 02, 2013   2160     mpduff      Changed to not call deprecated resource.getData() method.
  * </pre>
  * 
  * @author randerso
@@ -116,7 +117,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
     private static Rectangle extent;
 
     private MPEFieldResource resource;
-    
+
     private static MPEGageData selectedGage;
 
     private static MPEGageData workingGage;
@@ -131,7 +132,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private ColorMapParameters parameters;
 
-    private DisplayFieldData[] displayTypes = MPEDisplayManager.mpe_qpe_fields;
+    private final DisplayFieldData[] displayTypes = MPEDisplayManager.mpe_qpe_fields;
 
     private Combo prodSetCbo;
 
@@ -183,7 +184,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
         if (gData != null) {
             workingGage = new MPEDataManager.MPEGageData();
-            workingGage = gData;       
+            workingGage = gData;
         } else if (editGage.containsKey(selectedGage.getId())) {
             workingGage = editGage.get(selectedGage.getId());
             undoEn = true;
@@ -268,7 +269,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
             }
 
             try {
-                short[] xmData = resource.getData();
+                short[] xmData = resource.getData(MPEDisplayManager
+                        .getCurrent().getCurrentDisplayedDate());
+
                 for (int i = 0; i < 7; ++i) {
                     for (int j = 0; j < 7; ++j) {
                         short val = -999;
@@ -485,7 +488,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 undoMissing.setEnabled(undoEn);
                 String wid = workingGage.getId();
                 editGage.put(wid, workingGage);
-                
+
                 if (!editGage.isEmpty()) {
                     Iterator<MPEGageData> x = editGage.values().iterator();
                     for (int i = 0; i < editGage.size(); i++) {
@@ -568,7 +571,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 oldManedit = workingGage.isManedit();
                 workingGage.setManedit(true);
                 editGage.put(wid, workingGage);
-                
+
                 if (!editGage.isEmpty()) {
                     Iterator<MPEGageData> x = editGage.values().iterator();
                     for (int i = 0; i < editGage.size(); i++) {
@@ -621,11 +624,11 @@ public class Display7x7Dialog extends CaveSWTDialog {
                     badGage.remove(wid);
                     notBadGage.add(wid);
                     MPEDataManager.getInstance().addEditedGage(workingGage);
-                    //remove bad gage from list
+                    // remove bad gage from list
                     if (!notBadGage.isEmpty() && !editGage.isEmpty()) {
                         for (int i = 0; i < notBadGage.size(); i++) {
                             String gd = notBadGage.get(i);
-                            MPEDataManager.getInstance().removeBadGage(gd);                            
+                            MPEDataManager.getInstance().removeBadGage(gd);
                         }
                     }
                     if ((workingGage.getGval() == -999.f)
@@ -639,7 +642,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                         gval = String.format("%.2f", workingGage.getGval());
                         String xval = gval + " in.";
                         gageValue.setText(xval);
-                        workingGage.setEdit(gval);                       
+                        workingGage.setEdit(gval);
                         valueLabel.setText(gval);
                         valueScale.setSelection(((int) (100 * Float
                                 .parseFloat(gval))));
@@ -663,7 +666,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                         notBadGage.remove(wid);
                     }
                     setBad.setText("Set Not Bad");
-                    //add bad gage to the list.
+                    // add bad gage to the list.
                     if (!badGage.isEmpty() && !editGage.isEmpty()) {
                         for (int i = 0; i < badGage.size(); i++) {
                             String gd = badGage.get(i);
@@ -671,7 +674,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                         }
                     }
                 }
-                //when you set bad or not bad add gage or remove it from list
+                // when you set bad or not bad add gage or remove it from list
                 if ((!notBadGage.isEmpty() || !badGage.isEmpty())
                         && !editGage.isEmpty()) {
                     MPEDataManager.getInstance().writeBadGageList();
@@ -927,10 +930,10 @@ public class Display7x7Dialog extends CaveSWTDialog {
         if (gageVal.equalsIgnoreCase("bad")) {
             setBad.setText("Set Not Bad");
         } else {
-        	setBad.setText("Set Bad");
+            setBad.setText("Set Bad");
         }
-                
-        undoMissing.setEnabled(false); 
+
+        undoMissing.setEnabled(false);
         updateGridField(displayTypes[prodSetCbo.getSelectionIndex()]);
     }
 
@@ -938,7 +941,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
         MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
         if (selectedFieldData != fieldType) {
             selectedFieldData = fieldType;
-            mgr.displayFieldData(fieldType);           
+            mgr.displayFieldData(fieldType);
         }
         populateGrid();
         gridComp.notifyListeners(SWT.Paint, new Event());

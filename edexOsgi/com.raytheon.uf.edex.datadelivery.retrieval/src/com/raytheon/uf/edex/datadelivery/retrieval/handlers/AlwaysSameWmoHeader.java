@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
+import java.util.Date;
+
 /**
  * Applies a WMO header that is always the same.
  * 
@@ -29,6 +31,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 04, 2013 1647       djohnson     Initial creation
+ * Aug 09, 2013 1822       bgonzale     Added parameters to IWmoHeaderApplier.applyWmoHeader().
  * 
  * </pre>
  * 
@@ -47,7 +50,8 @@ public class AlwaysSameWmoHeader implements IWmoHeaderApplier {
      * {@inheritDoc}
      */
     @Override
-    public String applyWmoHeader(String data) {
+    public String applyWmoHeader(String dataProvider, String dataFormat,
+            String sourceType, Date date, String data) {
         return wmoHeader + "\n" + data;
     }
 

@@ -15,7 +15,6 @@ Require-Bundle: org.eclipse.ui,
  org.jep,
  javax.persistence,
  net.sf.cglib,
- com.facebook.thrift,
  com.raytheon.uf.common.localization;visibility:=reexport,
  com.raytheon.uf.common.serialization;visibility:=reexport,
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174";visibility:=reexport,
@@ -28,12 +27,13 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm,
  org.eclipse.core.expressions,
- com.raytheon.uf.viz.application;bundle-version="1.0.0"
+ com.raytheon.uf.viz.application;bundle-version="1.0.0",
+ com.raytheon.uf.common.topo;bundle-version="1.12.1174",
+ com.raytheon.uf.common.style;bundle-version="1.0.0"
 Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.edex.common, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status
+Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.common.geospatial, com.raytheon.uf.common.serialization, com.raytheon.uf.common.status
 Export-Package: 
  com.raytheon.viz.core,
- com.raytheon.viz.core.drawables,
  com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.interval,
  com.raytheon.viz.core.map,
@@ -44,10 +44,6 @@ Export-Package:
  com.raytheon.viz.core.rsc.hdf5,
  com.raytheon.viz.core.rsc.jts,
  com.raytheon.viz.core.spatial,
- com.raytheon.viz.core.style.arrow,
- com.raytheon.viz.core.style.contour,
- com.raytheon.viz.core.style.graph,
- com.raytheon.viz.core.style.image,
  com.raytheon.viz.core.topo
 Bundle-Vendor: Raytheon
 Bundle-Activator: com.raytheon.viz.core.CorePlugin

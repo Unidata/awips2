@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager;
 import com.raytheon.uf.common.monitor.config.FFMPSourceConfigurationManager.SOURCE_TYPE;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * XML
@@ -28,7 +27,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "FFMPRunXML")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ProductRunXML implements ISerializableObject {
+public class ProductRunXML {
 
     @XmlAttribute(name = "name")
     private String productName;

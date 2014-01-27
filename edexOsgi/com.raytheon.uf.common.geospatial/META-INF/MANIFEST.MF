@@ -5,8 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.common.geospatial
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-BuddyPolicy: ext, registered, global
-Eclipse-RegisterBuddy: com.raytheon.viz.core
+Eclipse-BuddyPolicy: registered
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, org.geotools
 Require-Bundle: org.geotools;bundle-version="2.5.2";visibility:=reexport,
  org.apache.commons.collections;bundle-version="3.2.0",
  org.apache.commons.lang;bundle-version="2.3.0",
@@ -20,6 +20,7 @@ Require-Bundle: org.geotools;bundle-version="2.5.2";visibility:=reexport,
 Export-Package: com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.geospatial.interpolation,
  com.raytheon.uf.common.geospatial.interpolation.data,
+ com.raytheon.uf.common.geospatial.projection,
  com.raytheon.uf.common.geospatial.request,
  com.raytheon.uf.common.geospatial.spi,
  com.raytheon.uf.common.geospatial.util

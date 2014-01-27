@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,9 +57,13 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 8, 2008	#878	    chammack	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * May 08, 2008 878         chammack    Initial creation
+ * Aug 02, 2013 2202        bsteffen    Add edex specific connectivity checking.
+ * Aug 09, 2013 2033        mschenke    Made CAVE_STATIC BASE search all plugins
+ *                                      if not found in etc base dir if no context
+ *                                      name set
  * 
  * </pre>
  * 
@@ -68,13 +73,30 @@ import com.raytheon.uf.common.util.FileUtil;
 
 public class CAVELocalizationAdapter implements ILocalizationAdapter {
 
-    private static final LocalizationManager manager = LocalizationManager
-            .getInstance();
+    protected static final String BUNDLE_LOCALIZATION_DIR = "localization";
 
-    private final Map<LocalizationType, LocalizationContext[]> contexts;
+    private static final Map<LocalizationType, LocalizationContext[]> contexts = new HashMap<LocalizationType, LocalizationContext[]>();
 
-    public CAVELocalizationAdapter() {
-        this.contexts = new HashMap<LocalizationType, LocalizationContext[]>();
+    private static final Map<String, File> caveStaticBaseFiles = new HashMap<String, File>();
+
+    protected static final LocalizationContext CAVE_STATIC_BASE = new LocalizationContext(
+            LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
+
+    protected static final LocalizationContext CAVE_CONFIG_BASE = new LocalizationContext(
+            LocalizationType.CAVE_CONFIG, LocalizationLevel.BASE);
+
+    protected static boolean isCaveStaticBase(LocalizationContext ctx) {
+        return ctx.getLocalizationType() == CAVE_STATIC_BASE
+                .getLocalizationType()
+                && ctx.getLocalizationLevel() == CAVE_STATIC_BASE
+                        .getLocalizationLevel();
+    }
+
+    protected static boolean isCaveConfigBase(LocalizationContext ctx) {
+        return ctx.getLocalizationType() == CAVE_CONFIG_BASE
+                .getLocalizationType()
+                && ctx.getLocalizationLevel() == CAVE_CONFIG_BASE
+                        .getLocalizationLevel();
     }
 
     /**
@@ -104,39 +126,59 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
      */
     @Override
     public File getPath(LocalizationContext context, String fileName) {
-
-        String baseDir = null;
-        String typeString = getDirNameForType(context.getLocalizationType());
         LocalizationLevel level = context.getLocalizationLevel();
-        if (level == LocalizationLevel.BASE) {
-            if (context.getLocalizationType() == LocalizationType.COMMON_STATIC
-                    || context.getLocalizationType() == LocalizationType.CAVE_CONFIG) {
-                // Common files are downloaded for all levels, including base
-                baseDir = FileUtil.join(LocalizationManager.getUserDir(),
-                        typeString, "base");
+        String typeDir = getDirNameForType(context.getLocalizationType());
+        String levelDir = level.toString().toLowerCase();
+        if (isCaveStaticBase(context)) {
+            // Check to see if it is resident in a bundle first
+            // else go to the cave static dir
+            if (context.getContextName() != null) {
+                return BundleScanner.searchInBundle(context.getContextName(),
+                        BUNDLE_LOCALIZATION_DIR, fileName);
             } else {
-                if (context.getLocalizationType() == LocalizationType.CAVE_STATIC) {
-                    // Check to see if it is resident in a bundle first
-                    // else go to the cave static dir
-                    if (context.getContextName() != null) {
-                        return BundleScanner.searchInBundle(
-                                context.getContextName(), fileName);
+                File file = new File(FileUtil.join(
+                        LocalizationManager.getBaseDir(), typeDir, fileName));
+                if (file.exists()) {
+                    return file;
+                } else {
+                    File bundleFile = null;
+                    boolean containsKey = false;
+                    synchronized (caveStaticBaseFiles) {
+                        containsKey = caveStaticBaseFiles.containsKey(fileName);
+                        if (containsKey) {
+                            bundleFile = caveStaticBaseFiles.get(fileName);
+                        }
                     }
+                    if (!containsKey) {
+                        for (String bundle : BundleScanner
+                                .getListOfBundles(BUNDLE_LOCALIZATION_DIR)) {
+                            file = BundleScanner.searchInBundle(bundle,
+                                    BUNDLE_LOCALIZATION_DIR, fileName);
+                            if (file != null && file.exists()) {
+                                bundleFile = file;
+                                break;
+                            }
+                        }
+                        synchronized (caveStaticBaseFiles) {
+                            caveStaticBaseFiles.put(fileName, bundleFile);
+                        }
+                    }
+                    return bundleFile;
                 }
-                baseDir = FileUtil.join(LocalizationManager.getBaseDir(),
-                        typeString);
             }
         } else if (level != LocalizationLevel.UNKNOWN) {
-            baseDir = FileUtil.join(LocalizationManager.getUserDir(),
-                    typeString, level.name().toLowerCase(),
-                    context.getContextName());
+            String baseDir = FileUtil.join(LocalizationManager.getUserDir(),
+                    typeDir, levelDir);
+            if (context.getContextName() != null) {
+                baseDir = FileUtil.join(baseDir, context.getContextName());
+            }
+            return new LocalizationInternalFile(
+                    FileUtil.join(baseDir, fileName));
         } else {
             throw new IllegalArgumentException(
                     "Unsupported localization level: "
                             + context.getLocalizationLevel());
         }
-
-        return new LocalizationInternalFile(FileUtil.join(baseDir, fileName));
     }
 
     /*
@@ -156,8 +198,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         List<LocalizationContext> localContexts = new ArrayList<LocalizationContext>(
                 context.length);
         for (LocalizationContext ctx : context) {
-            if (ctx.getLocalizationType() == LocalizationType.CAVE_CONFIG
-                    && ctx.getLocalizationLevel() == LocalizationLevel.BASE) {
+            if (isCaveConfigBase(ctx)) {
                 // No need to check CAVE_CONFIG - BASE as they are locally
                 // available and are not "protectable"
                 localContexts.add(ctx);
@@ -169,9 +210,10 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         List<ListResponse> responses = new ArrayList<ListResponse>(
                 context.length);
 
-        if (serverContexts.size() > 0) {
-            List<ListResponseEntry[]> entriesList = manager
-                    .getListResponseEntry(context, fileName, true, false);
+        if (serverContexts.isEmpty() == false) {
+            List<ListResponseEntry[]> entriesList = LocalizationManager
+                    .getInstance().getListResponseEntry(context, fileName,
+                            false, false);
 
             for (int i = 0; i < context.length; i++) {
                 ListResponseEntry[] entries = entriesList.get(i);
@@ -217,13 +259,11 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         // cave_static.base and cave_config.base is baselined locally, not on
         // the server
 
-        if ((context.getLocalizationLevel() == LocalizationLevel.BASE)
-                && ((context.getLocalizationType() == LocalizationType.CAVE_STATIC) || (context
-                        .getLocalizationType() == LocalizationType.CAVE_CONFIG))) {
+        if (isCaveConfigBase(context) || isCaveStaticBase(context)) {
             return;
         }
 
-        manager.retrieve(file);
+        LocalizationManager.getInstance().retrieve(file);
     }
 
     /*
@@ -241,8 +281,9 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             InputStream in = null;
             try {
                 in = new LockingFileInputStream(localFile);
-                long serverModTime = manager.upload(file.getContext(),
-                        file.getFileName(), in, localFile.length());
+                long serverModTime = LocalizationManager.getInstance().upload(
+                        file.getContext(), file.getFileName(), in,
+                        localFile.length());
                 // Success! set potentially changed fields
                 file.setTimeStamp(new Date(serverModTime));
                 file.setIsAvailableOnServer(true);
@@ -275,8 +316,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
      */
     @Override
     public LocalizationContext[] getLocalSearchHierarchy(LocalizationType type) {
-        synchronized (this.contexts) {
-            LocalizationContext[] ctx = this.contexts.get(type);
+        synchronized (contexts) {
+            LocalizationContext[] ctx = contexts.get(type);
             LocalizationLevel[] levels = getAvailableLevels();
 
             if (ctx != null) {
@@ -296,26 +337,11 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 Arrays.sort(levels, LocalizationLevel.REVERSE_COMPARATOR);
 
                 ctx = new LocalizationContext[levels.length];
-                for (int i = 0; i < levels.length - 1; ++i) {
+                for (int i = 0; i < levels.length; ++i) {
                     ctx[i] = getContext(type, levels[i]);
                 }
 
-                if (type == LocalizationType.CAVE_STATIC) {
-                    // only search bundles for cave_static
-                    Set<String> bndls = BundleScanner.getListOfBundles();
-
-                    ctx = Arrays.copyOf(ctx, ctx.length + bndls.size());
-
-                    int i = levels.length - 1;
-                    for (String b : bndls) {
-                        ctx[i] = getContext(type, LocalizationLevel.BASE);
-                        ctx[i].setContextName(b);
-                        i++;
-                    }
-                }
-
-                ctx[ctx.length - 1] = getContext(type, LocalizationLevel.BASE);
-                this.contexts.put(type, ctx);
+                contexts.put(type, ctx);
             }
 
             // return a copy for safety in case someone messes with references
@@ -337,10 +363,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
      */
     @Override
     public LocalizationType[] getStaticContexts() {
-        LocalizationType[] type = new LocalizationType[] {
-                LocalizationType.CAVE_STATIC, LocalizationType.COMMON_STATIC };
-
-        return type;
+        return new LocalizationType[] { LocalizationType.CAVE_STATIC,
+                LocalizationType.COMMON_STATIC };
     }
 
     /*
@@ -356,15 +380,23 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             String path, boolean recursive, boolean filesOnly)
             throws LocalizationOpFailedException {
         Set<String> addedFiles = new HashSet<String>();
-        List<LocalizationContext> serverContexts = new ArrayList<LocalizationContext>(
+        Set<LocalizationContext> serverContexts = new LinkedHashSet<LocalizationContext>(
                 contexts.length);
-        List<LocalizationContext> localContexts = new ArrayList<LocalizationContext>(
+        Set<LocalizationContext> localContexts = new LinkedHashSet<LocalizationContext>(
                 contexts.length);
         for (LocalizationContext context : contexts) {
-            if ((context.getLocalizationType() == LocalizationType.CAVE_STATIC || context
-                    .getLocalizationType() == LocalizationType.CAVE_CONFIG)
-                    && context.getLocalizationLevel() == LocalizationLevel.BASE) {
-                // CAVE_STATIC and CAVE_CONFIG - BASE are locally available
+            if (isCaveStaticBase(context)) {
+                localContexts.add(context);
+                if (context.getContextName() == null) {
+                    // Also search bundles if CAVE_STATIC without context name
+                    for (String bundle : BundleScanner
+                            .getListOfBundles(BUNDLE_LOCALIZATION_DIR)) {
+                        localContexts.add(new LocalizationContext(context
+                                .getLocalizationType(), context
+                                .getLocalizationLevel(), bundle));
+                    }
+                }
+            } else if (isCaveConfigBase(context)) {
                 localContexts.add(context);
             } else {
                 serverContexts.add(context);
@@ -374,7 +406,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         List<ListResponse> responses = new ArrayList<ListResponse>(
                 contexts.length);
 
-        if (serverContexts.size() > 0) {
+        LocalizationManager manager = LocalizationManager.getInstance();
+        if (serverContexts.isEmpty() == false) {
             List<ListResponseEntry[]> entryList = manager.getListResponseEntry(
                     serverContexts
                             .toArray(new LocalizationContext[serverContexts
@@ -426,7 +459,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
             }
         }
 
-        if (commands.size() > 0) {
+        if (commands.isEmpty() == false) {
             UtilityRequestMessage msg = new UtilityRequestMessage(
                     commands.toArray(new AbstractUtilityCommand[commands.size()]));
 
@@ -469,7 +502,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     @Override
     public boolean delete(ModifiableLocalizationFile file)
             throws LocalizationOpFailedException {
-        long deleteTime = manager.delete(file.getContext(), file.getFileName());
+        long deleteTime = LocalizationManager.getInstance().delete(
+                file.getContext(), file.getFileName());
 
         // Made it here! file on server succesfully deleted! Delete local file
         // reference. If that fails, doesn't matter since file does not exist!
@@ -491,9 +525,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
         lr.date = entry.getDate();
         lr.fileName = entry.getFileName();
         lr.checkSum = entry.getChecksum();
-        if (context.getLocalizationLevel() == LocalizationLevel.BASE
-                && (context.getLocalizationType() == LocalizationType.CAVE_CONFIG || context
-                        .getLocalizationType() == LocalizationType.CAVE_STATIC)) {
+        if (isCaveConfigBase(context) || isCaveStaticBase(context)) {
             File file = getPath(context, lr.fileName);
             lr.isDirectory = file != null && file.isDirectory();
         } else {
@@ -595,7 +627,8 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
     @Override
     public String[] getContextList(LocalizationLevel level)
             throws LocalizationOpFailedException {
-        List<ListResponseEntry[]> entriesList = manager.getContextList(level);
+        List<ListResponseEntry[]> entriesList = LocalizationManager
+                .getInstance().getContextList(level);
         Set<String> fileList = new HashSet<String>();
         for (ListResponseEntry[] entryArr : entriesList) {
             for (ListResponseEntry entry : entryArr) {
