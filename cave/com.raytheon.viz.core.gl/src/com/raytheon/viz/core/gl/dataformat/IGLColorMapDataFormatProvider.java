@@ -53,7 +53,7 @@ public interface IGLColorMapDataFormatProvider {
         public AbstractGLColorMapDataFormat getGLColorMapDataFormat(
                 ColorMapData colorMapData) {
             return GLColorMapDataFormatFactory
-                    .getGLColorMapDataFormat(colorMapData);
+                    .getGLColorMapDataFormat(colorMapData.getDataType());
         }
     };
 

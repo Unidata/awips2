@@ -24,8 +24,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * SCAN Sample Configuration XML.
  * 
@@ -33,9 +31,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 5, 2011            mpduff     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 5, 2011            mpduff      Initial creation
+ * Oct 23, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -45,7 +44,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlRootElement(name = "ScanSampleConfig")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ScanSampleConfigXML implements ISerializableObject {
+public class ScanSampleConfigXML {
     
     @XmlElement(name="cellSampleConfig", type=CellXML.class)
     private CellXML cellSampleConfig;

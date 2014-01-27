@@ -55,6 +55,8 @@ import com.raytheon.uf.common.time.TimeRange;
  * 01/30/2008              chammack    Stubbed-out class based on AWIPS I
  * 02/20/2008   879        rbell       Legacy conversion
  * 06/10/2009   2159       rjpeter     Updated checkDims to check scalarGrid for null
+ * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
+ *                                     debugger when trying to display the grid
  * </pre>
  * 
  * @author chammack
@@ -172,8 +174,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         if (rhsScalarGrid != null) {
             Grid2DFloat scalarGrid = getScalarGrid();
-            if (scalarGrid.getXdim() != rhsScalarGrid.getXdim()
-                    || scalarGrid.getYdim() != rhsScalarGrid.getYdim()) {
+            if ((scalarGrid.getXdim() != rhsScalarGrid.getXdim())
+                    || (scalarGrid.getYdim() != rhsScalarGrid.getYdim())) {
                 throw new IllegalArgumentException(
                         "Supplied grid is not of same dimension");
             }
@@ -191,7 +193,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
      * @return the scalar grid
      */
     public Grid2DFloat getScalarGrid() {
-        if (useCache && cacheId != null) {
+        if (useCache && (cacheId != null)) {
             try {
                 @SuppressWarnings("unchecked")
                 ICache<IGrid2D> diskCache = CacheFactory.getInstance()
@@ -304,8 +306,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         Grid2DFloat thisGrid = getScalarGrid();
         Grid2DFloat rhsGrid = rhs.getScalarGrid();
 
-        if (thisGrid.getXdim() != rhsGrid.getXdim()
-                || thisGrid.getYdim() != rhsGrid.getYdim()) {
+        if ((thisGrid.getXdim() != rhsGrid.getXdim())
+                || (thisGrid.getYdim() != rhsGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and supplied grid have different dimensions");
         }
@@ -370,8 +372,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     @Override
     public void limitValue(float minValue, float maxValue, Grid2DBit editArea) {
         Grid2DFloat grid = getScalarGrid();
-        if (editArea.getXdim() != grid.getXdim()
-                || editArea.getYdim() != grid.getYdim()) {
+        if ((editArea.getXdim() != grid.getXdim())
+                || (editArea.getYdim() != grid.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and edit area have different dimensions");
         }
@@ -425,8 +427,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         Grid2DFloat thisGrid = getScalarGrid();
         Grid2DFloat rhsGrid = rhs.getScalarGrid();
 
-        if (thisGrid.getXdim() != rhsGrid.getXdim()
-                || thisGrid.getYdim() != rhsGrid.getYdim()) {
+        if ((thisGrid.getXdim() != rhsGrid.getXdim())
+                || (thisGrid.getYdim() != rhsGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This and supplied GridSlice are different dimensions");
         }
@@ -458,8 +460,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
 
         Grid2DFloat thisGrid = getScalarGrid();
         Grid2DFloat rhsGrid = rhs.getScalarGrid();
-        if (thisGrid.getXdim() != rhsGrid.getXdim()
-                || thisGrid.getYdim() != rhsGrid.getYdim()) {
+        if ((thisGrid.getXdim() != rhsGrid.getXdim())
+                || (thisGrid.getYdim() != rhsGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This and supplied GridSlice are different dimensions");
         }
@@ -485,8 +487,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     public void operateEquals(Op op, float value, Grid2DBit editArea) {
         Grid2DFloat grid = getScalarGrid();
 
-        if (grid.getXdim() != editArea.getXdim()
-                || grid.getYdim() != editArea.getYdim()) {
+        if ((grid.getXdim() != editArea.getXdim())
+                || (grid.getYdim() != editArea.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and edit area have different dimensions");
         }
@@ -577,13 +579,13 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         Grid2DFloat thisGrid = getScalarGrid();
         Grid2DFloat rhsGrid = rhs.getScalarGrid();
 
-        if (thisGrid.getXdim() != editArea.getXdim()
-                || thisGrid.getYdim() != editArea.getYdim()) {
+        if ((thisGrid.getXdim() != editArea.getXdim())
+                || (thisGrid.getYdim() != editArea.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and edit area have different dimensions");
         }
-        if (thisGrid.getXdim() != rhsGrid.getXdim()
-                || thisGrid.getYdim() != rhsGrid.getYdim()) {
+        if ((thisGrid.getXdim() != rhsGrid.getXdim())
+                || (thisGrid.getYdim() != rhsGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and supplied grid have different dimensions");
         }
@@ -649,8 +651,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         Grid2DFloat thisGrid = getScalarGrid();
         Grid2DFloat rhsGrid = rhs.getScalarGrid();
 
-        if (thisGrid.getXdim() != rhsGrid.getXdim()
-                || thisGrid.getYdim() != rhsGrid.getYdim()) {
+        if ((thisGrid.getXdim() != rhsGrid.getXdim())
+                || (thisGrid.getYdim() != rhsGrid.getYdim())) {
             throw new IllegalArgumentException(
                     "This grid and supplied grid have different dimensions");
         }
@@ -743,15 +745,6 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     }
 
     @Override
-    public String toString() {
-        StringBuilder rVal = new StringBuilder(super.toString());
-
-        rVal.append(" Scalar grid: ").append(getScalarGrid()).append("\n");
-
-        return rVal.toString();
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
@@ -810,8 +803,8 @@ public class ScalarGridSlice extends AbstractGridSlice implements
         x = grid.getXdim();
         y = grid.getYdim();
 
-        if (x != gridParmInfo.getGridLoc().getNx()
-                || y != gridParmInfo.getGridLoc().getNy()) {
+        if ((x != gridParmInfo.getGridLoc().getNx())
+                || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
                     + x
                     + ","
@@ -844,7 +837,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
             float f;
             for (int i = 0; i < b.capacity(); i++) {
                 f = b.get(i);
-                if (f < minV || f > maxV) {
+                if ((f < minV) || (f > maxV)) {
                     return "Data Values Exceeded in Grid at coordinate: "
                             + (i % grid.getXdim()) + ',' + (i / grid.getXdim())
                             + " Value=" + f + " MinAllowed=" + minV
@@ -944,7 +937,7 @@ public class ScalarGridSlice extends AbstractGridSlice implements
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getScalarGrid().getFloats() };
     }
 

@@ -37,12 +37,17 @@ import javax.measure.unit.Unit;
  * ------------ ---------- ----------- --------------------------
  * 20071129            472 jkorman     Initial Coding.
  * 20090402            952 jsanchez    Added PIREP constants.
+ * Oct 14, 2013 2361       njensen     Deprecated
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
+ * @deprecated With the pointdata APIs, this class is deprecated. Anything using
+ *             this should be removed from the system or converted to use the
+ *             pointdata APIs.
  */
+@Deprecated
 public interface IDecoderGettable {
 
     public static class Amount {
@@ -147,19 +152,19 @@ public interface IDecoderGettable {
     public static final String UA_PRESSURE = "UA.PRESSURE";
 
     public static final String UA_GEOHGT = "UA.GEOPOTENTIAL_HGT";
-    
+
     public static final String UA_FLTLVL = "UA.FLT_LVL";
-    
+
     public static final String UA_ICETYPE = "UA.ICE_TYPE";
-    
+
     public static final String UA_ICEINTENSE = "UA.ICE_INTENSITY";
-    
+
     public static final String UA_TURBFREQ = "UA.TURB_FREQ";
-    
+
     public static final String UA_TURBINTENSE = "UA.TURB_INTENSITY";
-    
+
     public static final String UA_TOPHGT = "UA.TOP_HGT";
-    
+
     public static final String UA_BOTHGT = "UA.BOTTOM_HGT";
 
 }

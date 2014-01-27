@@ -19,28 +19,24 @@
  **/
 package com.raytheon.edex.plugin.gfe.smartinit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
-import com.raytheon.edex.plugin.gfe.server.database.TopoDatabaseManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
-import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.notify.UserMessageNotification;
-import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
+import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * Init Client used by smart init for retrieving specific info
@@ -50,7 +46,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Apr 29, 2008				njensen	    Initial creation
- * Jul 25, 2012  #957       dgilling    Implement getEditAreaNames().
+ * Jul 25, 2012       #957  dgilling    Implement getEditAreaNames().
+ * Jun 13, 2013      #2044  randerso    Refactored to use IFPServer
+ * Nov 20, 2013      #2331  randerso    Changed return type of getTopoData
  * 
  * </pre>
  * 
@@ -60,24 +58,38 @@ import com.raytheon.uf.common.time.TimeRange;
 
 public class InitClient {
 
-    private static final transient IUFStatusHandler logger = UFStatus
+    private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(InitClient.class);
 
-    private DatabaseID destinationDB;
+    private final DatabaseID destinationDB;
 
-    public InitClient(String dbId) {
+    private final IFPServer ifpServer;
+
+    /**
+     * @param dbId
+     * @throws GfeException
+     */
+    public InitClient(String dbId) throws GfeException {
         destinationDB = new DatabaseID(dbId);
+        if (!destinationDB.isValid()) {
+            throw new GfeException("Invalid databaseID: " + dbId);
+        }
+
+        ifpServer = IFPServer.getActiveServer(destinationDB.getSiteId());
+        if (ifpServer == null) {
+            throw new GfeException("No active IFPServer for site: "
+                    + destinationDB.getSiteId());
+        }
     }
 
     /**
      * Returns a list of the databases in the system
      * 
-     * @return
-     * @throws GfeException
+     * @return list of databases
      */
-    public List<DatabaseID> getKeys() throws GfeException {
-        List<DatabaseID> dbIds = GridParmManager.getDbInventory(
-                destinationDB.getSiteId()).getPayload();
+    public List<DatabaseID> getKeys() {
+        List<DatabaseID> dbIds = ifpServer.getGridParmMgr().getDbInventory()
+                .getPayload();
         return dbIds;
     }
 
@@ -85,35 +97,35 @@ public class InitClient {
      * Creates a new database with the specified name
      * 
      * @param key
-     * @throws GfeException
      */
-    public void createDB(String key) throws GfeException {
+    public void createDB(String key) {
         DatabaseID id = new DatabaseID(key);
-        GridParmManager.createNewDb(id);
+        ServerResponse<?> sr = ifpServer.getGridParmMgr().createNewDb(id);
+        if (!sr.isOkay()) {
+            statusHandler.error("Error creating database " + id + ": "
+                    + sr.message());
+        }
     }
 
     /**
      * Returns a list of the singleton databases as specified in the server
      * config
      * 
-     * @return
-     * @throws GfeException
+     * @return list of singleton databases
      */
-    public List<DatabaseID> getSingletonIDs() throws GfeException {
-        List<DatabaseID> list = null;
-        try {
-            list = IFPServerConfigManager.getServerConfig(
-                    destinationDB.getSiteId()).getSingletonDatabases();
-        } catch (GfeException e) {
-            throw new GfeException("Error determining singleton databases", e);
-        }
-
-        return list;
+    public List<DatabaseID> getSingletonIDs() {
+        return ifpServer.getConfig().getSingletonDatabases();
     }
 
-    // returning an array here instead of a List because arrays get converted to
-    // Python lists automatically by Jep
+    /**
+     * Get list of edit area names
+     * 
+     * @return array of edit area names, possibly empty
+     */
     public String[] getEditAreaNames() {
+        // returning an array here instead of a List because arrays get
+        // converted to
+        // Python lists automatically by Jep
         try {
             String siteId = destinationDB.getSiteId();
             IFPServerConfig config = IFPServerConfigManager
@@ -130,51 +142,42 @@ public class InitClient {
 
                 return l;
             } else {
-                logger.error("Unable to retrieve edit area inventory: "
+                statusHandler.error("Unable to retrieve edit area inventory: "
                         + sr.message());
             }
         } catch (Exception e) {
-            logger.error("Unable to retrieve edit area inventory.", e);
+            statusHandler.error("Unable to retrieve edit area inventory.", e);
         }
 
         return new String[0];
     }
 
+    /**
+     * Get topo data
+     * 
+     * @return the topo grid slice
+     * @throws GfeException
+     */
     public IGridSlice getTopo() throws GfeException {
         IGridSlice topo = null;
-        try {
-            List<ParmID> parms = GridParmManager.getParmList(
-                    TopoDatabaseManager.getTopoDbId(destinationDB.getSiteId()))
-                    .getPayload();
-            if (parms.size() == 1) {
-                ParmID p = parms.get(0);
-                GetGridRequest req = new GetGridRequest();
-                req.setParmId(p);
-                GFERecord gfeRec = new GFERecord(p, TimeRange.allTimes());
-                ArrayList<GFERecord> gfeList = new ArrayList<GFERecord>();
-                gfeList.add(gfeRec);
-                req.setRecords(gfeList);
-                ArrayList<GetGridRequest> reqList = new ArrayList<GetGridRequest>();
-                reqList.add(req);
-
-                List<IGridSlice> data = GridParmManager.getGridData(reqList)
-                        .getPayload();
-                if (data != null && data.size() == 1) {
-                    topo = data.get(0);
-                } else {
-                    throw new GfeException("Error getting grid data for "
-                            + p.toString()
-                            + ". Smart init requires topo and will stop.");
-                }
-            } else {
-                throw new GfeException("Multiple topos, update InitClient");
-            }
-        } catch (GfeException e) {
-            throw new GfeException("Error with topography for grid location", e);
+        GridLocation gloc = ifpServer.getConfig().dbDomain();
+        ServerResponse<ScalarGridSlice> sr = ifpServer.getTopoMgr()
+                .getTopoData(gloc);
+        if (sr.isOkay()) {
+            topo = sr.getPayload();
+        } else {
+            throw new GfeException("Error retrieving topo data: "
+                    + sr.message());
         }
         return topo;
     }
 
+    /**
+     * Sends a user message
+     * 
+     * @param msg
+     * @param group
+     */
     public void sendUserMessage(String msg, String group) {
         UserMessageNotification message = new UserMessageNotification(msg,
                 Priority.EVENTA, group, destinationDB.getSiteId());

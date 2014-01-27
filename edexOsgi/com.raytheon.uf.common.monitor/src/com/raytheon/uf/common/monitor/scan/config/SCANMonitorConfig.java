@@ -23,55 +23,68 @@ import java.io.File;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.monitor.scan.xml.SCANMonitorConfigXML;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
-public class SCANMonitorConfig
-{
+/**
+ * 
+ * Configuration manager for SCAN monitor
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * --/--/----                          Initial creation
+ * Oct 02, 2013 2361       njensen     Use JAXBManager for XML
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
+ */
+public class SCANMonitorConfig {
+
+    private static final SingleTypeJAXBManager<SCANMonitorConfigXML> jaxb = SingleTypeJAXBManager
+            .createWithoutException(SCANMonitorConfigXML.class);
+
     private SCANMonitorConfigXML scanMonitorCfg;
-    
-    public SCANMonitorConfig()
-    {
+
+    public SCANMonitorConfig() {
         readScanMonitorConfig();
     }
-    
-    public double getCellTilt()
-    {
+
+    public double getCellTilt() {
         return scanMonitorCfg.getCellTilt();
     }
-    
-    public double getDmdTilt()
-    {
+
+    public double getDmdTilt() {
         return scanMonitorCfg.getDmdTilt();
     }
-    
-    public String[] getPlugins()
-    {
+
+    public String[] getPlugins() {
         return scanMonitorCfg.getPlugins().split(" ");
     }
-       
-    public int getInterval()
-    {
+
+    public int getInterval() {
         return scanMonitorCfg.getInterval();
     }
 
-    private void readScanMonitorConfig()
-    {
+    private void readScanMonitorConfig() {
         scanMonitorCfg = null;
-        
-        try
-        {
+
+        try {
             String fs = String.valueOf(File.separatorChar);
-            
+
             IPathManager pm = PathManagerFactory.getPathManager();
-            String path = pm.getStaticFile("scan" + fs + "config" + fs
-                            + "SCANMonitorConfig.xml").getAbsolutePath();
-            
-            scanMonitorCfg = (SCANMonitorConfigXML) SerializationUtil.jaxbUnmarshalFromXmlFile(path.toString());
-        }
-        catch (Exception e)
-        {
+            String path = pm.getStaticFile(
+                    "scan" + fs + "config" + fs + "SCANMonitorConfig.xml")
+                    .getAbsolutePath();
+
+            scanMonitorCfg = jaxb.unmarshalFromXmlFile(path.toString());
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    }   
+    }
 }

@@ -10,7 +10,7 @@
    <bean id="fogProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="fogPluginName" />
 		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.fog" />
-		<property name="dao" value="com.raytheon.uf.common.dataplugin.fog.dao.FogDao" />
+		<property name="dao" value="com.raytheon.uf.edex.plugin.fog.FogDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.fog.FogRecord" />
    </bean>   
    

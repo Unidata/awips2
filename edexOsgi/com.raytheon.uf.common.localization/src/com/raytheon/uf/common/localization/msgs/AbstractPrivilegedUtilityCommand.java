@@ -1,10 +1,5 @@
 package com.raytheon.uf.common.localization.msgs;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -17,22 +12,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2010            rgeorge     Initial creation
+ * Jun 3, 2010             rgeorge     Initial creation
+ * Oct 1, 2013  2361       njensen     Removed XML annotations
  * 
  * </pre>
  * 
  * @author rgeorge
  * @version 1.0
  */
-@XmlAccessorType(XmlAccessType.NONE)
+
 @DynamicSerialize
 public class AbstractPrivilegedUtilityCommand extends AbstractCommand {
 
-    @XmlAttribute
     @DynamicSerializeElement
     protected String filename;
 
-    @XmlElement
     @DynamicSerializeElement
     protected String myContextName;
 

@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.d2d.nsharp.rsc.D2DNSharpResourceData;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionRenderableDisplay;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
+import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightRenderableDisplay;
 import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesRenderableDisplay;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
@@ -86,11 +87,8 @@ import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.core.slice.request.HeightScales;
-import com.raytheon.viz.core.slice.request.VerticalPointRequest.TimeDirection;
-import com.raytheon.viz.skewt.SkewtDisplay;
-import com.raytheon.viz.skewt.rscdata.SkewTResourceData;
-import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.BundleProductLoader;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.editor.AbstractEditor;
@@ -114,12 +112,14 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 8, 2009  #2161      lvenable     Initial creation
- * Mar 27, 2012 #14506     Qinglu Lin   For cross section plot along a line of 
- *                                      latitude, swap xStart and xEnd.
- * Jan 16, 2013 #1492      rferrel      Changes for non-blocking InventoryDlg.
- * Jan 25, 2013 #15529     kshresth     Fixed cross section "Unhandled event loop exception"
- *                                      when loading contours and Image combo
+ * Jun 08, 2009 2161       lvenable    Initial creation
+ * Mar 27, 2012 14506      Qinglu Lin  For cross section plot along a line of
+ *                                     latitude, swap xStart and xEnd.
+ * Jan 16, 2013 1492       rferrel     Changes for non-blocking InventoryDlg.
+ * Jan 25, 2013 15529      kshresth    Fixed cross section "Unhandled event loop
+ *                                     exception"  when loading contours and
+ *                                     Image combo
+ * Aug 20, 2013 2259       bsteffen    Delete old skewt plugin.
  * </pre>
  * 
  * @author lvenable
@@ -925,7 +925,7 @@ public class ProductTableComp extends Composite {
             csDesc.setRenderableDisplay(csDisplay);
 
             selectNewTableItem();
-            
+
             IDataCatalogEntry catalogEntry = getSelectedData().get(0)
                     .getCatalogEntry();
             VBMenuBarItemsMgr.SpaceTimeMenu currentSpaceTime = dialogSettings
@@ -1022,13 +1022,10 @@ public class ProductTableComp extends Composite {
             // need to handle both legacy skeqwT and nsharp skewT at the same
             // time.
             List<ResourcePair> varheightSkewtResources = new ArrayList<ResourcePair>();
-            List<ResourcePair> legacySkewtResources = new ArrayList<ResourcePair>();
             List<ResourcePair> nsharpSkewtResources = new ArrayList<ResourcePair>();
             for (ResourcePair pair : resourceList) {
                 if (pair.getResourceData() instanceof D2DNSharpResourceData) {
                     nsharpSkewtResources.add(pair);
-                } else if (pair.getResourceData() instanceof SkewTResourceData) {
-                    legacySkewtResources.add(pair);
                 } else if (pair.getResourceData() instanceof VarHeightResourceData) {
                     varheightSkewtResources.add(pair);
                 }
@@ -1036,16 +1033,6 @@ public class ProductTableComp extends Composite {
             if (!nsharpSkewtResources.isEmpty()) {
                 display = new NsharpSkewTPaneDisplay();
                 display.setDescriptor(new NsharpSkewTPaneDescriptor());
-                if (!legacySkewtResources.isEmpty()) {
-                    resourceList.removeAll(legacySkewtResources);
-                    loadResources(difference, legacySkewtResources);
-                }
-                if (!varheightSkewtResources.isEmpty()) {
-                    resourceList.removeAll(varheightSkewtResources);
-                    loadResources(difference, varheightSkewtResources);
-                }
-            } else if (!legacySkewtResources.isEmpty()) {
-                display = new SkewtDisplay();
                 if (!varheightSkewtResources.isEmpty()) {
                     resourceList.removeAll(varheightSkewtResources);
                     loadResources(difference, varheightSkewtResources);
@@ -1118,7 +1105,7 @@ public class ProductTableComp extends Composite {
         return (prodIndexes.length == 2
                 && getProductData(prodIndexes[0]).getCatalogEntry()
                         .getDialogSettings().getViewSelection() != ViewMenu.SOUNDING && getProductData(
-                prodIndexes[0]).getDisplayTypeSet().equals(
+                    prodIndexes[0]).getDisplayTypeSet().equals(
                 getProductData(prodIndexes[1]).getDisplayTypeSet()));
     }
 

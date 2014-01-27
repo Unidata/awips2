@@ -7,10 +7,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 @XmlAccessorType(XmlAccessType.NONE)
-public class FFTISetXML implements ISerializableObject {
+public class FFTISetXML {
+
     @XmlElement(name = "type")
     private String type;
 

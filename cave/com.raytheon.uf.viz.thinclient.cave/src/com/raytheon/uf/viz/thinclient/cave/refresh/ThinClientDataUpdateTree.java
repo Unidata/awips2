@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
@@ -39,7 +38,6 @@ import com.raytheon.uf.common.time.msgs.GetServerTimeRequest;
 import com.raytheon.uf.common.time.msgs.GetServerTimeResponse;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -103,22 +101,14 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
             metadata = new HashMap<String, RequestConstraint>(metadata);
             metadata.put("insertTime", new RequestConstraint(time,
                     ConstraintType.GREATER_THAN));
-            LayerProperty property = new LayerProperty();
             try {
-                property.setEntryQueryParameters(metadata, false);
-                List<Object> records = DataCubeContainer.getData(property,
-                        60000);
-                if (records != null && !records.isEmpty()) {
-                    for (Object record : records) {
-                        if (record instanceof PluginDataObject) {
-                            PluginDataObject pdo = (PluginDataObject) record;
-                            AlertMessage am = new AlertMessage();
-                            am.dataURI = pdo.getDataURI();
-                            am.decodedAlert = RecordFactory.getInstance()
-                                    .loadMapFromUri(am.dataURI);
-                            messages.add(am);
-                        }
-                    }
+                PluginDataObject[] pdos = DataCubeContainer.getData(metadata);
+                for (PluginDataObject pdo : pdos) {
+                    AlertMessage am = new AlertMessage();
+                    am.dataURI = pdo.getDataURI();
+                    am.decodedAlert = RecordFactory.getInstance()
+                            .loadMapFromUri(am.dataURI);
+                    messages.add(am);
                 }
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),

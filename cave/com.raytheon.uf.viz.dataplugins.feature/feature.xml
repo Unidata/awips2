@@ -31,14 +31,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.acarssounding"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="com.raytheon.uf.common.dataplugin.airep"
+         id="gov.noaa.nws.ncep.common.dataplugin.airep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -136,7 +129,7 @@
          unpack="false"/>
 
    <plugin
-         id="com.raytheon.uf.common.dataplugin.pirep"
+         id="gov.noaa.nws.ncep.common.dataplugin.pirep"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -154,7 +147,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"
-         unpack="false"/>
+         unpack="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.qc"
@@ -207,6 +200,13 @@
 
    <plugin
          id="com.raytheon.edex.plugin.bufrmos"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.madis"
          download-size="0"
          install-size="0"
          version="0.0.0"

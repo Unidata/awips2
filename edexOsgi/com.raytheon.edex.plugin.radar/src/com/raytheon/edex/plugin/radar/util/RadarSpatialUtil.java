@@ -37,10 +37,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 19, 2010 #4473      rjpeter     Initial creation.
- * Mar 19, 2013 1804       bsteffen    Cache db queries in radar decoder.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 19, 2010  #4473    rjpeter     Initial creation.
+ * Mar 19, 2013  1804     bsteffen    Cache db queries in radar decoder.
+ * Oct 09, 2013  2457     bsteffen    Eliminate NullPointerException for rpg
+ *                                    ids that are not in the database.
  * 
  * </pre>
  * 
@@ -110,8 +112,11 @@ public class RadarSpatialUtil {
         RadarStation station = rpgIdDec2radarStation.get(rpgIdDec);
         if (station == null) {
             RadarStationDao stat = new RadarStationDao();
-            station = stat.queryByRpgIdDec(String.format("%03d", rpgIdDec));
-            rpgIdDec2radarStation.put(rpgIdDec, station);
+            String rpgId = String.format("%03d", rpgIdDec);
+            station = stat.queryByRpgIdDec(rpgId);
+            if (station != null) {
+                rpgIdDec2radarStation.put(rpgIdDec, station);
+            }
         }
         return station;
     }

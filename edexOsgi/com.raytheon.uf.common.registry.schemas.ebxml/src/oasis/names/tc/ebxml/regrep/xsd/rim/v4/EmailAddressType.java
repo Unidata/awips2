@@ -20,23 +20,19 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -61,24 +57,29 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "EmailAddress")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "EmailAddressType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "EmailAddress")
-public class EmailAddressType extends ExtensibleObjectType implements
-        Serializable {
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "EmailAddress")
+public class EmailAddressType extends ExtensibleObjectType {
     private static final long serialVersionUID = -2958054699149020163L;
-
-    @Id
-    @SequenceGenerator(name = "EmailAddressTypeGenerator", schema = "ebxml", sequenceName = "ebxml.EmailAddress_sequence")
-    @GeneratedValue(generator = "EmailAddressTypeGenerator")
-    @XmlTransient
-    private Integer key;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
@@ -86,10 +87,11 @@ public class EmailAddressType extends ExtensibleObjectType implements
 
     @XmlAttribute
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String type;
 
-    public Integer getKey() {
-        return key;
+    public EmailAddressType() {
+        super();
     }
 
     /**
@@ -180,6 +182,21 @@ public class EmailAddressType extends ExtensibleObjectType implements
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("EmailAddressType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \naddress=");
+        builder.append(address);
+        builder.append(", \ntype=");
+        builder.append(type);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -20,23 +20,21 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
+import com.raytheon.uf.common.registry.schemas.ebxml.util.annotations.RegistryObjectReference;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -62,33 +60,44 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "Query")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryType")
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "Query")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Query")
 public class QueryType extends ExtensibleObjectType {
 
-    @Id
-    @SequenceGenerator(name = "QueryTypeGenerator", schema = "ebxml", sequenceName = "ebxml.Query_sequence")
-    @GeneratedValue(generator = "QueryTypeGenerator")
-    @XmlTransient
-    private Integer key;
+    private static final long serialVersionUID = -8618442367033794467L;
 
     @XmlAttribute(required = true)
     @DynamicSerializeElement
+    @RegistryObjectReference
     protected String queryDefinition;
 
     public QueryType() {
-
+        super();
     }
 
-    public QueryType(String queryDefinition, Collection<SlotType> slots) {
-        super(slots);
+    public QueryType(String queryDefinition, List<SlotType> slots) {
+        super(queryDefinition, slots);
         this.queryDefinition = queryDefinition;
     }
 
@@ -117,15 +126,47 @@ public class QueryType extends ExtensibleObjectType {
      * 
      */
     public void setQueryDefinition(String value) {
+        this.id = value;
         this.queryDefinition = value;
     }
 
-    public Integer getKey() {
-        return key;
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((queryDefinition == null) ? 0 : queryDefinition.hashCode());
+        return result;
     }
 
-    public void setKey(Integer key) {
-        this.key = key;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        QueryType other = (QueryType) obj;
+        if (queryDefinition == null) {
+            if (other.queryDefinition != null)
+                return false;
+        } else if (!queryDefinition.equals(other.queryDefinition))
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("QueryType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \nqueryDefinition=");
+        builder.append(queryDefinition);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

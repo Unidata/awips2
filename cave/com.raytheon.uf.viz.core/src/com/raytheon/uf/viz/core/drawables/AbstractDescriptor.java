@@ -74,7 +74,10 @@ import com.raytheon.uf.viz.core.time.TimeMatchingJob;
  *    ------------ ----------  ----------- --------------------------
  *    Aug 15, 2007             chammack    Initial Creation.
  *    Nov 30, 2007 461         bphillip    Using VizTime now for time matching
- *    Oct  22, 2009   #3348    bsteffen    added ability to limit number of frames
+ *    Oct 22, 2009 3348        bsteffen    added ability to limit number of
+ *                                         frames
+ *    Jul 03, 2013 2154        bsteffen    Ensure all resource groups get
+ *                                         removed from the time matcher.
  * </pre>
  * 
  * @author chammack
@@ -246,9 +249,15 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             synchronized (timeManager) {
                 timeMatchingMap.remove(resource);
             }
-            if (resource.getResourceData() instanceof IResourceGroup) {
-                ResourceList rl = ((IResourceGroup) resource.getResourceData())
+            ResourceList rl = null;
+            if (resource instanceof IResourceGroup) {
+                rl = ((IResourceGroup) resource)
                         .getResourceList();
+            } else if (resource.getResourceData() instanceof IResourceGroup) {
+                rl = ((IResourceGroup) resource.getResourceData())
+                        .getResourceList();
+            }
+            if (rl != null) {
                 synchronized (rl) {
                     for (ResourcePair rp : rl) {
                         AbstractVizResource<?, ?> rsc = rp.getResource();

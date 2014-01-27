@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Nov 2, 2011  #7391      bkowal      Ensure that the generated WsId is properly formatted to be
  *                                     included in a url.
  * May 09, 2013 1814       rjpeter     Updated prefetch to 10.
+ * Aug 16, 2013 2169       bkowal      CAVE will now synchronously acknowledge messages.
  * Aug 27, 2013 2295       bkowal      The entire connection string is now provided by EDEX; so, it
  *                                     no longer needs to be constructed. Replaced stacktrace
  *                                     printing with UFStatus.

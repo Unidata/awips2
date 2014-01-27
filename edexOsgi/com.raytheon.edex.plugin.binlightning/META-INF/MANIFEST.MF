@@ -3,12 +3,16 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Binlightning Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.binlightning
 Bundle-Version: 1.12.1174.qualifier
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.edex.common
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.apache.commons.logging,
- com.raytheon.edex.common,
- com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
- javax.persistence,
- com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.12.1174";visibility:=reexport
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.edex.plugin.binlightning.dao
+Import-Package: com.raytheon.edex.esb,
+ com.raytheon.edex.exception,
+ com.raytheon.edex.plugin,
+ org.apache.commons.logging
+Require-Bundle: com.raytheon.uf.common.dataplugin.binlightning;bundle-version="1.12.1174",
+ com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
+ com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.core;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.database;bundle-version="1.0.0",
+ com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"

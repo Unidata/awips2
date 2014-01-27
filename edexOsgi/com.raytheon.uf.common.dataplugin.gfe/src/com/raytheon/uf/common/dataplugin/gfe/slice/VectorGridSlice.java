@@ -55,6 +55,9 @@ import com.raytheon.uf.common.time.TimeRange;
  * 02/22/2008   879        rbell       Legacy conversion, extended ScalarSlice
  * 06/10/2009   2159       rjpeter     Updated checkDims to check dirGrid for null
  * 04/23/2013   1949       rjpeter     Updated wind checks to keep float precision.
+ * 08/13/2013   1571       randerso    Removed toString to stop it from hanging the 
+ *                                     debugger when trying to display the grid
+ * 
  * </pre>
  * 
  * @author chammack
@@ -315,23 +318,6 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
         return thisDirGrid.equals(rhsDirGrid);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        StringBuilder rVal = new StringBuilder(super.toString());
-
-        rVal.append("Vector Magnitude grid: ").append(getMagGrid())
-                .append("\n");
-        rVal.append("Vector Direction grid: ").append(getDirGrid())
-                .append("\n");
-
-        return rVal.toString();
-    }
-
     /**
      * Makes a vector grid slice from u and v components.
      * 
@@ -356,8 +342,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 magGrid.set(
                         i,
                         j,
-                        (float) Math.sqrt(u.get(i, j) * u.get(i, j)
-                                + v.get(i, j) * v.get(i, j)));
+                        (float) Math.sqrt((u.get(i, j) * u.get(i, j))
+                                + (v.get(i, j) * v.get(i, j))));
                 float dir = (float) Math.toDegrees(Math.atan2(u.get(i, j),
                         v.get(i, j)));
                 while (dir < 0.0f) {
@@ -401,8 +387,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
                 magGrid.set(
                         i,
                         j,
-                        (float) Math.sqrt(u.get(i, j) * u.get(i, j)
-                                + v.get(i, j) * v.get(i, j)));
+                        (float) Math.sqrt((u.get(i, j) * u.get(i, j))
+                                + (v.get(i, j) * v.get(i, j))));
                 float dir = (float) Math.toDegrees(Math.atan2(u.get(i, j),
                         v.get(i, j)));
                 while (dir < 0.0f) {
@@ -613,8 +599,8 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
 
         // u and v components
         // (convert from knots to meters per second 1.94384 knots / m/s )
-        float uw = (float) (Math.sin(rads) * mGrid.get(xc, yc) / 1.94384);
-        float vw = (float) (Math.cos(rads) * mGrid.get(xc, yc) / 1.94384);
+        float uw = (float) ((Math.sin(rads) * mGrid.get(xc, yc)) / 1.94384);
+        float vw = (float) ((Math.cos(rads) * mGrid.get(xc, yc)) / 1.94384);
 
         // (you might already have uw and vw to work with;
         // make sure they are in meters per second.)
@@ -631,7 +617,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
 
         // multiply (dot product) wind vector by slope vector
         // to get the value of the vertical air motion.
-        vertAirSpeed = uw * svx + vw * svy;
+        vertAirSpeed = (uw * svx) + (vw * svy);
 
         return vertAirSpeed; // meters per second, positive upward.
     }
@@ -1239,7 +1225,7 @@ public class VectorGridSlice extends ScalarGridSlice implements Cloneable,
     }
 
     @Override
-    public Object[] getNumPy() {
+    public Object[] getNumpy() {
         return new Object[] { this.getMagGrid().getFloats(),
                 this.getDirGrid().getFloats() };
     }

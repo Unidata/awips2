@@ -28,10 +28,12 @@ import java.util.regex.Pattern;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009            mnash     Initial creation
- * 03/04/2013   DCS51      zwang     Add a map type for GFM product
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 18, 2009           mnash       Initial creation
+ * Mar 04, 2013  DCS51    zwang       Add a map type for GFM product
+ * Jul 15, 2013  2149     bsteffen    Fix radar mesocyclone regex.
+ * Oct 10, 2013  2376     bsteffen    Fix STI regex.
  * 
  * </pre>
  * 
@@ -103,7 +105,7 @@ public class RadarConstants {
     /*
      * For parsing the tabular block for the sti product
      */
-    public static final String STI_REGEX = "\\s+(.\\w+)\\s+(.{7})\\s+(.{7})\\s+(.{7})\\s+(.{7})\\s+(.{7})\\s+(.{7})\\s+(.{8})\\s+(.{8})";
+    public static final String STI_REGEX = "\\s+(.\\w+)\\s{2,}(.{7})\\s{2,}(.{7})\\s{2,}(.{7})\\s{2,}(.{7})\\s{2,}(.{7})\\s{2,}(.{7})\\s{2,}(.{8})\\s{2,}(.{8})";
 
     /*
      * For breaking the HI header out and being able to use the regex below
@@ -134,7 +136,7 @@ public class RadarConstants {
     /*
      * For parsing the tabular block for the meso product
      */
-    public static final String MESO_REGEX = "\\s*(.\\w+)\\s+(.{7})\\s+(.\\w+)\\s+(.{2})\\s+(.{2})\\s+(.{3})\\s+(.{3})\\s+(.{3})\\s+(.\\w+)\\s+(.\\w+)\\s+(.\\w+)\\s+(.\\w+)\\s\\s(.{7})\\s+(.{5})";
+    public static final String MESO_REGEX = "\\s*(\\w+)\\s+(.{7})\\s+(\\w+)\\s+(.{2})\\s+(.{2})\\s+(.{3})\\s+(.{3})\\s+(.{3})\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s+(\\w+)\\s\\s(.{7})\\s+(.{5})";
 
     /*
      * For breaking the MESO header out and being able to use the regex below
@@ -259,4 +261,7 @@ public class RadarConstants {
 
     public static final String[] rpgNarrowbandStatus = {
             "Commanded Disconnect", "Narrowband Loadshed" };
+
+    public static final String NO_DATA = "NO DATA";
+
 }

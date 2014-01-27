@@ -98,6 +98,22 @@ public class GLTrueColorImage extends GLDelegateImage<GLImage> implements
     }
 
     /**
+     * Returns a bitmask of the expected RGB components to render
+     * 
+     * @return
+     */
+    public int getColorMask() {
+        int colorMask = 0;
+        for (Channel channel : Channel.values()) {
+            DrawableImage[] images = getImages(channel);
+            if (images != null && images.length > 0) {
+                colorMask |= (1 << channel.ordinal());
+            }
+        }
+        return colorMask;
+    }
+
+    /**
      * @return the imageExtent
      */
     public IExtent getImageExtent() {

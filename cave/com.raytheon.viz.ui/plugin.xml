@@ -21,6 +21,7 @@
 
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="displayCustomizer" name="displayCustomizer" schema="schema/displayCustomizer.exsd"/>
    <extension-point id="contextualMenu" name="contextualMenu" schema="schema/contextualMenu.exsd"/>
    <extension-point id="perspectiveManager" name="perspectiveManager" schema="schema/perspectiveManager.exsd"/>
    <extension-point id="com.raytheon.uf.viz.ui.mouse.action" name="Mouse Preference" schema="schema/mousePreference.exsd"/>
@@ -356,6 +357,27 @@
             id="com.raytheon.viz.ui.actions.printScreenReverseAction"
             name="Print Screen Reverse">
       </command>
+      <command
+            defaultHandler="com.raytheon.viz.ui.actions.LoadBundleHandler"
+            description="Load a bundle from a file"
+            id="com.raytheon.uf.viz.ui.loadbundle"
+            name="Load Bundle">
+         <commandParameter
+               id="bundleFile"
+               name="Bundle File Location"
+               optional="false">
+         </commandParameter>
+         <commandParameter
+               id="editorType"
+               name="Editer Type"
+               optional="true">
+         </commandParameter>
+         <commandParameter
+               id="fullBundleLoad"
+               name="Full Bundle Load"
+               optional="true">
+         </commandParameter>
+      </command>
 
 </extension>
 <extension
@@ -641,7 +663,7 @@
        point="com.raytheon.uf.viz.localization.localizationpath">
        <path
           application="CAVE"
-          localizationType="CAVE_STATIC"
+          localizationType="COMMON_STATIC"
           name="Color Maps"
           value="colormaps" 
           recursive="true">

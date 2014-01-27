@@ -34,6 +34,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -61,67 +62,99 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Removed generic methods, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "DurationValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DurationValueType", propOrder = { "durationValue" })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "DurationValue")
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "DurationValue")
 public class DurationValueType extends ValueType {
 
     @XmlElement(name = "Value")
     @DynamicSerializeElement
     @Type(type = "com.raytheon.uf.common.registry.schemas.ebxml.util.DurationType")
-    @Column(name = COLUMN_NAME)
+    @Column
     protected Duration durationValue;
 
-    private static final String COLUMN_NAME = "durationValue";
-
     public DurationValueType() {
+        super();
+    }
 
+    public DurationValueType(Integer id) {
+        super(id);
     }
 
     public DurationValueType(Duration durationValue) {
+        super();
+        this.durationValue = durationValue;
+    }
+
+    public DurationValueType(Integer id, Duration durationValue) {
+        super(id);
+        this.durationValue = durationValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getValue() {
+        return (T) getDurationValue();
+    }
+
+    public Duration getDurationValue() {
+        return durationValue;
+    }
+
+    public void setDurationValue(Duration durationValue) {
         this.durationValue = durationValue;
     }
 
     @Override
-    public String getColumnName() {
-        return COLUMN_NAME;
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((durationValue == null) ? 0 : durationValue.hashCode());
+        return result;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return possible object is {@link Duration }
-     * 
-     */
     @Override
-    public Duration getValue() {
-        return durationValue;
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        DurationValueType other = (DurationValueType) obj;
+        if (durationValue == null) {
+            if (other.durationValue != null)
+                return false;
+        } else if (!durationValue.equals(other.durationValue))
+            return false;
+        return true;
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *            allowed object is {@link Duration }
-     * 
-     */
     @Override
-    public void setValue(Object value) {
-        this.durationValue = (Duration) value;
-    }
-
-    public Duration getDurationValue() {
-        return getValue();
-    }
-
-    public void setDurationValue(Duration durationValue) {
-        setValue(durationValue);
+    public String toString() {
+        return "DurationValueType [durationValue=" + durationValue + ", id="
+                + id + "]";
     }
 
 }

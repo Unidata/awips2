@@ -22,22 +22,23 @@ package com.raytheon.uf.viz.monitor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
+import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecordTransform;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
-import com.raytheon.uf.viz.core.catalog.ScriptCreator;
-import com.raytheon.uf.viz.core.comm.Connector;
+import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
@@ -52,6 +53,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2010 4759       dhladky     Initial creation.
  * Mar 15, 2012 14510      zhao        modified processProductAtStartup()
+ * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
  * 
  * </pre>
  * 
@@ -66,17 +68,17 @@ public abstract class ObsMonitor extends Monitor {
 
     @Override
     protected abstract void nullifyMonitor();
-    
+
     /**
      * these are the over-arching "First line" checked patterns by plugin, first
      * letter of icao
      **/
     protected ArrayList<Pattern> pluginPatterns = new ArrayList<Pattern>();
-    
+
     /** these are the patterns for the stations **/
     protected ArrayList<Pattern> stationPatterns = new ArrayList<Pattern>();
 
-	/** Current CWA **/
+    /** Current CWA **/
     public static String cwa = LocalizationManager.getInstance().getSite();
 
     /**
@@ -86,7 +88,7 @@ public abstract class ObsMonitor extends Monitor {
      */
     protected abstract void process(ObReport result)
 			throws Exception;
-    
+
     protected abstract void processAtStartup(ObReport report);
 
     @Override
@@ -100,7 +102,7 @@ public abstract class ObsMonitor extends Monitor {
 
     @Override
     public abstract void configUpdate(IMonitorConfigurationEvent me);
-    
+
     /**
      * use this to do the initial filtering
      */
@@ -120,7 +122,7 @@ public abstract class ObsMonitor extends Monitor {
             return false;
         }
     }
-    
+
     /**
      * Process the incoming dataURI
      * 
@@ -128,151 +130,103 @@ public abstract class ObsMonitor extends Monitor {
      * @param filtered
      */
     public void processURI(String dataURI, AlertMessage filtered) {
-
-		// Map<String, Object> attribs = filtered.decodedAlert;
-        HashMap<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-        LayerProperty lp = new LayerProperty();
         try {
-			// vals.put("cwa", new RequestConstraint(cwa));
-            vals.put("dataURI", new RequestConstraint(dataURI));
-			vals.put("pluginName", new RequestConstraint("fssobs"));
-			// vals.put("monitorUse",
-			// new RequestConstraint(attribs.get("monitorUse").toString()));
-
-            lp.setDesiredProduct(ResourceType.PLAN_VIEW);
-            lp.setEntryQueryParameters(vals);
-
-            String script = null;
-            try {
-                script = ScriptCreator.createScript(lp);
-            } catch (IllegalArgumentException e) {
-                System.out.println("Unsupported plugin name: " + pluginName
-                        + " encountered");
-            }
-            if (script != null) {
-                Object[] resp = Connector.getInstance().connect(script, null,
-                        60000);
-                if ((resp != null) && (resp.length > 0)) {
-                    final PluginDataObject objectToSend = (PluginDataObject) resp[0];
-                    try {
-                        Display.getDefault().asyncExec(new Runnable() {
-                            public void run() {
-                                try {
-                                    // ObReport obReport = new ObReport();
-                                    // obReport.init();
-                                    if (objectToSend instanceof FSSObsRecord
-                                            && ((FSSObsRecord) objectToSend)
-                                                    .getTimeObs() != null) {
-                                        ObReport result = GenerateFSSObReport.generateObReport(objectToSend);
-                                        System.out
-                                                .println("New FSSrecord ===> "
-                                                        + objectToSend
-                                                                .getDataURI());
-                                        process(result);
-                                    }
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
+            Map<String, RequestConstraint> constraints = RequestConstraint
+                    .toConstraintMapping(DataURIUtil.createDataURIMap(dataURI));
+            FSSObsRecord[] pdos = requestFSSObs(constraints, null);
+            if (pdos.length > 0 && pdos[0].getTimeObs() != null) {
+                final FSSObsRecord objectToSend = pdos[0];
+                try {
+                    Display.getDefault().asyncExec(new Runnable() {
+                        public void run() {
+                            try {
+                                ObReport result = GenerateFSSObReport
+                                        .generateObReport(objectToSend);
+                                System.out.println("New FSSrecord ===> "
+                                        + objectToSend.getDataURI());
+                                process(result);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                } else if (resp == null) {
-
-                } else if (resp.length == 0) {
-
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (final VizException e) {
+        } catch (final Exception e) {
             System.err.println("ObsMonitor: URI: " + dataURI
-                    + " failed to process. "+e.getMessage());
+                    + " failed to process. " + e.getMessage());
         }
     }
 
-	/**
-	 * Process products at startup
-	 * 
-	 * @param monitorUse
-	 * 
-	 */
-	public void processProductAtStartup(String monitorUse) {
+    /**
+     * Process products at startup
+     * 
+     * @param monitorUse
+     * 
+     */
+    public void processProductAtStartup(String monitorUse) {
 
-		/**
-		 * Assume this number for MaxNumObsTimes is larger enough to cover data
-		 * of all observations (at least 24 hours' worth of data) in database
-		 * [changed from 10 to 240 on May, 18, 2010 for DR #6015, zhao]
-		 */
-		int MaxNumObsTimes = 240;
-		HashMap<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
-		LayerProperty lp = new LayerProperty();
-		try {
-			vals.put("cwa", new RequestConstraint(cwa));
-			vals.put("pluginName", new RequestConstraint("fssobs"));
-			vals.put("monitorUse", new RequestConstraint(monitorUse));
+        /**
+         * Assume this number for MaxNumObsTimes is larger enough to cover data
+         * of all observations (at least 24 hours' worth of data) in database
+         * [changed from 10 to 240 on May, 18, 2010 for DR #6015, zhao]
+         */
+        int MaxNumObsTimes = 240;
+        Map<String, RequestConstraint> vals = new HashMap<String, RequestConstraint>();
+        try {
+            vals.put("cwa", new RequestConstraint(cwa));
+            vals.put(FSSObsRecord.PLUGIN_NAME_ID, new RequestConstraint(
+                    FSSObsRecord.PLUGIN_NAME));
+            vals.put("monitorUse", new RequestConstraint(monitorUse));
 
-			lp.setDesiredProduct(ResourceType.PLAN_VIEW);
-			lp.setEntryQueryParameters(vals);
+            DataTime[] dataTimesAvailable = DataCubeContainer.performTimeQuery(
+                    vals, false);
+            DataTime[] selectedTimes = dataTimesAvailable;
 
-			// Ensure that the latest product is retrieved.
-			// [Modified: retrieve at most MaxNumObsTimes data
-			// points, Feb
-			// 19, 2010, zhao]
-			DataTime[] dataTimesAvailable = lp.getEntryTimes();
-			Arrays.sort(dataTimesAvailable);
-			if (dataTimesAvailable.length != 0) {
-				// at most, MaxNumObsTimes observation times are
-				// considered
-				if (dataTimesAvailable.length > MaxNumObsTimes) {
-					DataTime[] obsDataTime = new DataTime[MaxNumObsTimes];
-					System.arraycopy(dataTimesAvailable,
-							dataTimesAvailable.length - MaxNumObsTimes,
-							obsDataTime, 0, MaxNumObsTimes);
-					lp.setSelectedEntryTimes(obsDataTime);
-				} else {
-					lp.setSelectedEntryTimes(dataTimesAvailable);
-				}
-			}
-			String script = null;
-			try {
-				script = ScriptCreator.createScript(lp);
-			} catch (IllegalArgumentException e) {
-				System.out.println("Unsupported plugin name encountered");
-			}
-			if (script != null) {
-                final Object[] resp = Connector.getInstance().connect(script,
-                        null,
-						60000);
-				System.out.println("ObsMonitor: Retriving data for monitor: " + monitorUse);
-				if ((resp != null) && (resp.length > 0)) {
+            // Ensure that the latest product is retrieved.
+            // [Modified: retrieve at most MaxNumObsTimes data
+            // points, Feb
+            // 19, 2010, zhao]
+            if (dataTimesAvailable.length > 0) {
+                Arrays.sort(dataTimesAvailable);
+                // at most, MaxNumObsTimes observation times are
+                // considered
+                if (dataTimesAvailable.length > MaxNumObsTimes) {
+                    selectedTimes = new DataTime[MaxNumObsTimes];
+                    System.arraycopy(dataTimesAvailable,
+                            dataTimesAvailable.length - MaxNumObsTimes,
+                            selectedTimes, 0, MaxNumObsTimes);
+                }
 
-                   //Display.getDefault().syncExec(new Runnable() {
-                        //public void run() {
-                            for (int j = 0; j < resp.length; j++) {
-                                PluginDataObject objectToSend = (PluginDataObject) resp[j];
-                                ObReport result = GenerateFSSObReport.generateObReport(objectToSend);
-                                processAtStartup(result);
-                            }
-                        //}
+                FSSObsRecord[] obsRecords = requestFSSObs(vals, selectedTimes);
+                for (PluginDataObject objectToSend : obsRecords) {
+                    ObReport result = GenerateFSSObReport
+                            .generateObReport(objectToSend);
+                    processAtStartup(result);
+                }
+            }
+        } catch (final VizException e) {
+            System.err
+                    .println("No data in database at startup.  " + monitorUse);
+        }
+    }
 
-                    //});
-
-				} else if (resp == null) {
-					System.out
-							.println("Null Response From Script Created For: "
-									+ monitorUse);
-				} else if (resp.length == 0) {
-					System.out
-							.println("Zero Length Response From Script Created For: "
-									+ monitorUse);
-				}
-			} else {
-				System.out.println("Null script return For: " + monitorUse);
-			}
-		} catch (final VizException e) {
-			System.err
-					.println("No data in database at startup.  " + monitorUse);
-		}
-	}
+    private FSSObsRecord[] requestFSSObs(
+            Map<String, RequestConstraint> constraints, DataTime[] times)
+            throws VizException {
+        if (times != null) {
+            String[] timeStrs = new String[times.length];
+            for (int i = 0; i < times.length; ++i) {
+                timeStrs[i] = times[i].toString();
+            }
+            constraints.put(PluginDataObject.DATATIME_ID,
+                    new RequestConstraint(timeStrs));
+        }
+        PointDataContainer pdc = DataCubeContainer.getPointData(
+                FSSObsRecord.PLUGIN_NAME, FSSObsRecordTransform.FSSOBS_PARAMS,
+                constraints);
+        return FSSObsRecordTransform.toFSSObsRecords(pdc);
+    }
 }

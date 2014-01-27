@@ -23,6 +23,7 @@ import static com.raytheon.uf.edex.decodertools.bufr.packets.DataPacketTypes.Rep
 
 import java.util.List;
 
+import com.raytheon.edex.plugin.bufrua.util.SigWindHeightConversionManager;
 import com.raytheon.uf.common.dataplugin.bufrua.LayerTools;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.pointdata.Dimension;
@@ -34,15 +35,16 @@ import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.pointdata.PointDataPluginDao;
 
 /**
- * TODO Add Description
+ * Convert bufr packets into level data for bufrua significant levels.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 21, 2009            jkorman     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 21, 2009           jkorman     Initial creation
+ * Dec 05, 2013  2612     bsteffen    Convert heights for sig wind layers.
  * 
  * </pre>
  * 
@@ -190,6 +192,8 @@ public class BUFRUASigLevelAdapter extends AbstractBUFRUAAdapter {
                         .getValue();
                 int sig = getInt(p.get(1), IDecoderConstants.VAL_MISSING);
                 double height = getDouble(p.get(0), -9999);
+                height = SigWindHeightConversionManager.convertHeight(
+                        pointData, height);
                 if (sig == 2) {
                     if ((height > 0) && (height < 30000)) {
                         view.setFloat(LayerTools.HT_SIGW, (float) height,

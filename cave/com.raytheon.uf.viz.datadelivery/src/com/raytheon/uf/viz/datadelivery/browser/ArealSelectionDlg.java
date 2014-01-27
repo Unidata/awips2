@@ -50,6 +50,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 31, 2012  1278      mpduff     Change validation method call.
  * Dec 07, 2012  1278      bgonzale   Coordinate Array initialization in ctor.
  * Dec 10, 2012  1259      bsteffen   Switch Data Delivery from LatLon to referenced envelopes.
+ * Jul 12, 2013  2141      mpduff     Fix typo.
  * 
  * </pre>
  * 
@@ -92,7 +93,7 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
      */
     @Override
@@ -102,7 +103,7 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayoutData()
      */
@@ -113,7 +114,7 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
      * .eclipse.swt.widgets.Shell)
@@ -131,7 +132,7 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
         btnComp.setLayout(gl);
         btnComp.setLayoutData(gd);
 
-        //OK button
+        // OK button
         Button okBtn = new Button(btnComp, SWT.PUSH);
         okBtn.setText("OK");
         okBtn.setLayoutData(new GridData(70, SWT.DEFAULT));
@@ -139,9 +140,10 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 if (!areaComp.isEnvelopeValid()) {
-                    DataDeliveryUtils.showMessage(getShell(), SWT.OK,
-                            "Validation Error",
-                                    "The defined area area is invalid\nAdjust the selected area and try again.");
+                    DataDeliveryUtils
+                            .showMessage(getShell(), SWT.OK,
+                                    "Validation Error",
+                                    "The defined area is invalid\nAdjust the selected area and try again.");
                     return;
                 }
 
@@ -154,15 +156,17 @@ public class ArealSelectionDlg extends CaveSWTDialog implements IDataSize {
             }
         });
 
-        //Cancel button
+        // Cancel button
         Button cancelBtn = new Button(btnComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(new GridData(70, SWT.DEFAULT));
         cancelBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                int answer = DataDeliveryUtils.showMessage(getShell(), SWT.YES | SWT.NO, "Cancel Changes?",
-                        "Are you sure you wish to close without selecting an area?");
+                int answer = DataDeliveryUtils
+                        .showMessage(getShell(), SWT.YES | SWT.NO,
+                                "Cancel Changes?",
+                                "Are you sure you wish to close without selecting an area?");
                 if (answer == SWT.YES) {
                     setReturnValue(false);
                     close();

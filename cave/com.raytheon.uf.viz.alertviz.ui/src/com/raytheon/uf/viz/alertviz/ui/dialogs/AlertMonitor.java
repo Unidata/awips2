@@ -48,14 +48,23 @@ import com.raytheon.uf.viz.alertviz.config.Source;
 import com.raytheon.uf.viz.alertviz.ui.Activator;
 
 /**
+ * 
  * Manage monitor icon and label in Alert viz toolbar.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Aug 26, 2013 #2293      lvenable    Fixed color memory leak.
+ * 
+ * </pre>
+ * 
+ * @author lvenable
+ * @version 1.0
  */
-
 public class AlertMonitor {
-
-    public static final RGB WHITE = new RGB(255, 255, 255);
-
-    public static final RGB BLACK = new RGB(0, 0, 0);
 
     private Label label;
 
@@ -75,9 +84,9 @@ public class AlertMonitor {
 
     private Priority priority;
 
-    private RGB background;
+    private Color backgroundColor;
 
-    private RGB foreground;
+    private Color foregroundColor;
 
     public AlertMonitor(String name, String imageName) {
         this.name = name;
@@ -113,10 +122,23 @@ public class AlertMonitor {
         return name;
     }
 
+    /**
+     * Dispose resources.
+     */
     public void dispose() {
-        if (this.image != null) {
+
+        if (image != null) {
             this.image.dispose();
         }
+
+        if (backgroundColor != null) {
+            this.backgroundColor.dispose();
+        }
+
+        if (foregroundColor != null) {
+            this.backgroundColor.dispose();
+        }
+
     }
 
     public void updateImage(StatusMessage statusMessage, Configuration config,
@@ -146,8 +168,8 @@ public class AlertMonitor {
                 if (pd.colors == null) {
                     pd.colors = new RGB[2];
                 }
-                pd.colors[0] = this.foreground;
-                pd.colors[1] = this.background;
+                pd.colors[0] = this.foregroundColor.getRGB();
+                pd.colors[1] = this.backgroundColor.getRGB();
             }
             this.image = new Image(display, this.imageData);
             if (this.label != null && !this.label.isDisposed()) {
@@ -168,11 +190,11 @@ public class AlertMonitor {
         AlertMetadata alertMeta = configItem.lookup(this.priority);
 
         if (alertMeta == null) {
-            this.background = WHITE;
-            this.foreground = BLACK;
+            setFgBgColors(display, display.getSystemColor(SWT.COLOR_BLACK)
+                    .getRGB(), display.getSystemColor(SWT.COLOR_WHITE).getRGB());
         } else {
-            this.background = alertMeta.getBackground();
-            this.foreground = alertMeta.getForeground();
+            setFgBgColors(display, alertMeta.getForeground(),
+                    alertMeta.getBackground());
         }
 
         if (this.imageName == null) {
@@ -186,6 +208,27 @@ public class AlertMonitor {
         updateImageData(display);
     }
 
+    /**
+     * Set the foreground and background colors.
+     * 
+     * @param foreground
+     *            Foreground color.
+     * @param background
+     *            Background color.
+     */
+    private void setFgBgColors(Display display, RGB foreground, RGB background) {
+        if (foregroundColor != null) {
+            foregroundColor.dispose();
+        }
+
+        if (backgroundColor != null) {
+            backgroundColor.dispose();
+        }
+
+        foregroundColor = new Color(display, foreground);
+        backgroundColor = new Color(display, background);
+    }
+
     private void setMonitorMessage(String message, Configuration config,
             Display display) {
         this.monitorMessage = message;
@@ -196,8 +239,8 @@ public class AlertMonitor {
         this.label.setData(MonitorToolTip.tooltipTextKey, this.monitorMessage);
 
         this.loadConfig(config, display);
-        this.label.setBackground(new Color(display, background));
-        this.label.setForeground(new Color(display, foreground));
+        this.label.setBackground(backgroundColor);
+        this.label.setForeground(foregroundColor);
     }
 
     public void init(Composite comp, final Configuration config,

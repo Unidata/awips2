@@ -9,7 +9,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.1",
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.pointdata,
  javax.measure;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
  org.geotools;bundle-version="2.5.2",
  com.raytheon.uf.common.site;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.edex.decodertools.aircraft,
@@ -23,3 +22,4 @@ Export-Package: com.raytheon.uf.edex.decodertools.aircraft,
  com.raytheon.uf.edex.decodertools.core.filterimpl,
  com.raytheon.uf.edex.decodertools.time,
  com.raytheon.uf.edex.wmo.message
+Import-Package: org.apache.commons.logging

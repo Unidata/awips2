@@ -26,7 +26,7 @@
 #    Jun 05, 2013    2043          bsteffen       Ported from meteolib C
 
 from numpy import zeros
-from com.raytheon.uf.viz.derivparam.python.function import DCapeFunc
+from com.raytheon.uf.viz.derivparam.python.function import DCapeFuncPythonAdapter as DCapeFunc
 
 
 def execute(threeDtemperature, threeDdewpoint, pressure, potentialTemperature, specificHumidity,maxEvaporation,maxRelativeHumidity,useVirtualTemp):

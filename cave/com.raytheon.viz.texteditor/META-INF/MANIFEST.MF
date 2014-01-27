@@ -23,10 +23,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.text;bundle-version="1.11.30",
  com.raytheon.uf.common.site;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
- org.apache.commons.logging,
  com.raytheon.uf.viz.localization,
  com.raytheon.uf.common.auth;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin.warning;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.warning;bundle-version="1.12.1174",
+ com.raytheon.uf.common.activetable
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.texteditor,
  com.raytheon.viz.texteditor.alarmalert.dialogs,
@@ -39,8 +39,7 @@ Export-Package: com.raytheon.viz.texteditor,
  com.raytheon.viz.texteditor.scripting.runner,
  com.raytheon.viz.texteditor.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.activetable,
- com.raytheon.uf.common.comm,
+Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.warning.util,
  com.raytheon.uf.common.dissemination,
  com.raytheon.uf.common.message,

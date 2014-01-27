@@ -22,6 +22,8 @@
  */
 package com.raytheon.viz.ui.actions;
 
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
@@ -37,12 +39,15 @@ import com.raytheon.uf.viz.core.globals.IGlobalChangedListener;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2007            randerso    Initial Creation.
+ * Oct 10, 2013       2104 mschenke    Will truncate text if too long
  * 
  * &#064;author randerso
  * 
  */
 public class ScaleButtonHandler extends AbstractGlobalsButtonHandler implements
         IElementUpdater, IGlobalChangedListener {
+
+    private static final int TEXT_LIMIT = 100;
 
     public ScaleButtonHandler() {
         super(VizConstants.SCALE_ID);
@@ -52,7 +57,25 @@ public class ScaleButtonHandler extends AbstractGlobalsButtonHandler implements
     protected void updateGlobalValue(IWorkbenchWindow changedWindow,
             UIElement element, Object value) {
         String scale = (String) value;
+        String tooltip = scale;
+
+        GC gc = new GC(Display.getCurrent());
+        if (gc.textExtent(scale).x > TEXT_LIMIT) {
+            String suffix = "...";
+            String text = scale.substring(0, suffix.length()) + suffix;
+            for (int i = suffix.length() + 1; i < scale.length(); ++i) {
+                String test = scale.substring(0, i) + suffix;
+                if (gc.textExtent(test).x < TEXT_LIMIT) {
+                    text = test;
+                } else {
+                    break;
+                }
+            }
+            scale = text;
+        }
+        gc.dispose();
         element.setText(scale);
+        element.setTooltip("Scale: " + tooltip);
     }
 
 }

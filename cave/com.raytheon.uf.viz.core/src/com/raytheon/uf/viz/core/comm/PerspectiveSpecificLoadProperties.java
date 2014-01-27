@@ -22,8 +22,6 @@ package com.raytheon.uf.viz.core.comm;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Abstract Base Class for load properties that are specific to a perspective.
  * Use as nested properties in LoadProperties.
@@ -31,9 +29,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 6, 2009            bgonzale     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 06, 2009           bgonzale    Initial creation
+ * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -41,6 +40,5 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class PerspectiveSpecificLoadProperties implements
-        ISerializableObject {
+public abstract class PerspectiveSpecificLoadProperties {
 }

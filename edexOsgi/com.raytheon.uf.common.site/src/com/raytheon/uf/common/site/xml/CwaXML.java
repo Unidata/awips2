@@ -27,26 +27,25 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * TODO Add Description
+ * Xml format of a cwa including its id and the ids of adjacent cwas.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 22, 2009            mpduff     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 22, 2009           mpduff      Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class CwaXML implements ISerializableObject {
+public class CwaXML {
     @XmlAttribute(name = "id")
     private String id;
     

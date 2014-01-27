@@ -47,11 +47,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 23, 2010            bsteffen     Initial creation
- * Aug 27, 2013     #2287  randerso     Added densityFactor to allow application specific 
- *                                      adjustment of density.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 23, 2010           bsteffen    Initial creation
+ * Aug 27, 2013  2287     randerso    Added densityFactor to allow application
+ *                                    specific adjustment of density.
+ * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * 
  * </pre>
  * 
@@ -109,7 +110,7 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
     @Override
     protected IImage createResource(Coordinate coord) throws VizException {
         if (iconFactory == null) {
-            iconFactory = new PointIconFactory(color, size);
+            iconFactory = new PointIconFactory(color, (int) size);
         }
         int i = getValue(coord);
         IImage image = images.get(i);

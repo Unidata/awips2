@@ -9,9 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.10.13",
  gov.noaa.nws.ncep.edex.common;bundle-version="1.0.0",
  javax.persistence;bundle-version="1.0.0",
- org.apache.commons.logging;bundle-version="1.0.4",
- org.apache.log4j;bundle-version="1.0.0",
- org.junit;bundle-version="1.0.0",
  gov.noaa.nws.ncep.common.dataplugin.ncscd;bundle-version="1.0.0",
  com.raytheon.uf.edex.pointdata;bundle-version="1.12.1174",
  org.geotools
@@ -23,4 +20,6 @@ Import-Package: com.raytheon.edex.exception,
  com.raytheon.uf.edex.wmo.message,
  gov.noaa.nws.ncep.common.dataplugin.ncscd,
  gov.noaa.nws.ncep.common.dataplugin.tcm,
- gov.noaa.nws.ncep.common.tools
+ gov.noaa.nws.ncep.common.tools,
+ org.apache.commons.logging,
+ org.apache.log4j

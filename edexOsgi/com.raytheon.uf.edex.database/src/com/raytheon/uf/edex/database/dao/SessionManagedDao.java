@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -54,11 +55,14 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 07, 2013 1543       djohnson     Initial creation
+ * Feb 07, 2013 1543       djohnson    Initial creation
  * 3/18/2013    1802       bphillip    Added additional database functions. Enforcing mandatory transaction propogation
  * 3/27/2013    1802       bphillip    Changed transaction propagation of query methods
  * 4/9/2013     1802       bphillip    Modified how arguments are passed in to query methods
- * May 1st, 2013   1967  njensen   Fixed autoboxing for Eclipse 3.8
+ * May 01, 2013 1967       njensen     Fixed autoboxing for Eclipse 3.8
+ * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
+ * 10/8/2013    1682       bphillip    Added the createCriteria method
+ * 12/9/2013    2613       bphillip    Added flushAndClearSession method
  * 
  * </pre>
  * 
@@ -142,7 +146,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public ENTITY getById(Serializable id) {
+    public ENTITY getById(IDENTIFIER id) {
         final Class<ENTITY> entityClass = getEntityClass();
         return entityClass.cast(template.get(entityClass, id));
     }
@@ -357,7 +361,12 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
                     .createQuery(statement).setCacheable(true)
                     .setCacheRegion(QUERY_CACHE_REGION);
             for (int i = 0; i < params.length; i += 2) {
-                query.setParameter((String) params[i], params[i + 1]);
+                if (params[i + 1] instanceof Collection<?>) {
+                    query.setParameterList((String) params[i],
+                            (Collection<?>) params[i + 1]);
+                } else {
+                    query.setParameter((String) params[i], params[i + 1]);
+                }
             }
             return query.executeUpdate();
         } catch (Throwable e) {
@@ -403,12 +412,30 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     }
 
     /**
+     * Creates and returns a criteria instance
+     * 
+     * @return The criteria instance
+     */
+    protected Criteria createCriteria() {
+        return template.getSessionFactory().getCurrentSession()
+                .createCriteria(getEntityClass());
+    }
+
+    /**
      * Get the hibernate dialect.
      * 
      * @return the dialect.
      */
     public Dialect getDialect() {
         return ((SessionFactoryImpl) template.getSessionFactory()).getDialect();
+    }
+
+    /**
+     * Flushes and clears the current Hibernate Session
+     */
+    public void flushAndClearSession() {
+        this.getSessionFactory().getCurrentSession().flush();
+        this.getSessionFactory().getCurrentSession().clear();
     }
 
     protected SessionFactory getSessionFactory() {

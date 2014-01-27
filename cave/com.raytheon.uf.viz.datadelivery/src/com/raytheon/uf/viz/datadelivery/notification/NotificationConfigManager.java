@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.datadelivery.notification.xml.NotificationFilterXML;
  * Aug 15, 2012    430     jpiatt     Added reRead method.
  * Oct 22, 2012   1284     mpduff     Code Cleanup.
  * Apr 25, 2013   1820     mpduff     Add deleteXml method.
+ * Aug 30, 2013   2314     mpduff     Removed initial XML read, added null check.
  * </pre>
  * 
  * @author mpduff
@@ -112,7 +113,6 @@ public class NotificationConfigManager {
      */
     private NotificationConfigManager() {
         createContext();
-        readXML();
     }
 
     /**
@@ -239,7 +239,7 @@ public class NotificationConfigManager {
                         "Error deleting " + file.getName());
             }
 
-            if (currentConfigFile.equals(file)) {
+            if (currentConfigFile == null) {
                 setConfigFile(this.defaultConfigFile);
             }
         } catch (LocalizationOpFailedException e) {

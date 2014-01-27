@@ -28,13 +28,6 @@
             renderingOrderId="IMAGE_LOCAL"
             resourceType="PLAN_VIEW"/>
    </extension>
-   <extension
-         point="com.raytheon.uf.viz.core.scriptTemplate">
-      <scriptTemplate
-            pluginName="cwat"
-            scriptLibrary="BaseRequest">
-      </scriptTemplate>
-   </extension>
    
       <!-- for making CWAT available on Localization Perspective in CAVE: 2012-05-14 from DHladky -->
    

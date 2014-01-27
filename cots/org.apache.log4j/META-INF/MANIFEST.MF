@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: log4j-1.2.16.jar,
  log4j.extras-1.0.jar,
  .
-Require-Bundle: javax.jms
 Export-Package: org.apache.log4j,
  org.apache.log4j.chainsaw,
  org.apache.log4j.config,

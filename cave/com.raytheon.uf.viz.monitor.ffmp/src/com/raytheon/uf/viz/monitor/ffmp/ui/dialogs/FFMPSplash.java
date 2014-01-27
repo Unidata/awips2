@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.monitor.ffmp.ui.dialogs;
 
-import java.io.File;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
@@ -50,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Dec 7, 2012  1353       rferrel     Covert to CaveSWTDialog and make non-blocking.
+ * Aug 9, 2013  2033       mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 
  * </pre>
  * 
@@ -194,8 +193,9 @@ public class FFMPSplash extends CaveSWTDialog {
     private String loadImage() {
         IPathManager pm = PathManagerFactory.getPathManager();
         String path = pm.getStaticFile(
-                "ffmp" + File.separatorChar + "images" + File.separatorChar
-                        + "ffmpLoading.png").getAbsolutePath();
+                "ffmp" + IPathManager.SEPARATOR + "images"
+                        + IPathManager.SEPARATOR + "ffmpLoading.png")
+                .getAbsolutePath();
         return path;
     }
 

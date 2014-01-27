@@ -24,16 +24,15 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * A generic description for a type of point data
@@ -46,7 +45,8 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            chammack     Initial creation
+ * Apr 8, 2009             chammack    Initial creation
+ * Oct 9, 2013  2361       njensen     Use JAXBManager for XML
  * 
  * </pre>
  * 
@@ -56,7 +56,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "pointDataDescription")
-public class PointDataDescription implements ISerializableObject {
+public class PointDataDescription {
 
     private static final int DEFAULT_LEVELSIZE = 64;
 
@@ -66,6 +66,9 @@ public class PointDataDescription implements ISerializableObject {
     };
 
     public static final int FILL_VALUE_INT = -9999;
+
+    private static final SingleTypeJAXBManager<PointDataDescription> jaxb = SingleTypeJAXBManager
+            .createWithoutException(PointDataDescription.class);
 
     @XmlElement(name = "dimension")
     public Dimension[] dimensions;
@@ -84,19 +87,10 @@ public class PointDataDescription implements ISerializableObject {
      * @return
      * @throws JAXBException
      */
-    public static PointDataDescription fromFile(File file) throws JAXBException {
-        PointDataDescription pdd = null;
-
-        JAXBContext ctx = JAXBContext.newInstance(PointDataDescription.class);
-        if (ctx != null) {
-            Unmarshaller um = ctx.createUnmarshaller();
-            if (um != null) {
-                pdd = (PointDataDescription) um.unmarshal(file);
-            }
-        }
-
+    public static PointDataDescription fromFile(File file)
+            throws SerializationException {
+        PointDataDescription pdd = jaxb.unmarshalFromXmlFile(file);
         pdd.resolveDimensions();
-
         return pdd;
     }
 
@@ -107,17 +101,9 @@ public class PointDataDescription implements ISerializableObject {
      * @throws JAXBException
      */
     public static PointDataDescription fromStream(InputStream is)
-            throws JAXBException {
-        PointDataDescription pdd = null;
-
-        JAXBContext ctx = JAXBContext.newInstance(PointDataDescription.class);
-        if (ctx != null) {
-            Unmarshaller um = ctx.createUnmarshaller();
-            if (um != null) {
-                pdd = (PointDataDescription) um.unmarshal(is);
-            }
-        }
-
+            throws SerializationException {
+        PointDataDescription pdd = (PointDataDescription) jaxb
+                .unmarshalFromInputStream(is);
         pdd.resolveDimensions();
 
         return pdd;

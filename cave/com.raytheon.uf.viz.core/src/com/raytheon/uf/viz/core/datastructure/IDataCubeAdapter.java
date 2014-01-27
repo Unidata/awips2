@@ -29,7 +29,6 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.catalog.LayerProperty;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
@@ -131,18 +130,19 @@ public interface IDataCubeAdapter {
             String dataset) throws VizDataCubeException;
 
     /**
-     * Builds a list of responses for the specified LayerPropterty. This
-     * includes looking at the derived parameter library and determining if any
-     * derived parameter satisfies the request. The list should contain the
-     * record type the is expected by the resource. For example, a GribRecord
-     * would be returned from a GRIB IDataCubeAdapter instance.
+     * Builds an array of {@link PluginDataObject}s for the specified metadata
+     * map and times. This includes looking at the derived parameter library and
+     * determining if any derived parameter satisfies the request. The list
+     * should contain the record type the is expected by the resource. For
+     * example, a GribRecord would be returned from a GRIB IDataCubeAdapter
+     * instance.
      * 
-     * @param property
-     *            the layer property
-     * @return A list of records that are expected by the resource
+     * @param request
+     * @return
      * @throws VizException
      */
-    public List<Object> getData(LayerProperty property, int timeOut)
+    public PluginDataObject[] getData(
+            Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
             throws VizException;
 
     /**

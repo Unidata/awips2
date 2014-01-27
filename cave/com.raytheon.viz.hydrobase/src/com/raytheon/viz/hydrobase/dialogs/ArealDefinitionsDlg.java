@@ -28,12 +28,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -62,6 +63,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants.ArealTypeSelection;
 import com.raytheon.viz.hydrocommon.texteditor.TextEditorDlg;
 import com.raytheon.viz.hydrocommon.whfslib.GeoUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -74,6 +76,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02 Sep 2008             lvenable    Initial creation.
  * 09 Sep 2009  2772       mpduff      Implemented Dialog.
  * 16 Apr 2013  1790       rferrel     Made dialog non-blocking.
+ * 16 Jul 2013  2088       rferrel     Changes for non-blocking TextEditorDlg.
  * 
  * </pre>
  * 
@@ -147,9 +150,8 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
     /** Log file open flag */
     private boolean logFileOpen = false;
 
-    private Cursor waitCursor = null;
-
-    private Cursor arrowCursor = null;
+    /** Allow single instance of editor for a given file. */
+    private final Map<File, TextEditorDlg> textEditorDlgMap = new HashMap<File, TextEditorDlg>();
 
     /**
      * Constructor.
@@ -160,9 +162,6 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
     public ArealDefinitionsDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Areal Definitions");
-
-        waitCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_WAIT);
-        arrowCursor = new Cursor(parent.getDisplay(), SWT.CURSOR_ARROW);
     }
 
     /*
@@ -335,8 +334,24 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 File f = getAreaFilename();
                 if (f != null) {
-                    TextEditorDlg teDlg = new TextEditorDlg(shell, false, f);
-                    teDlg.open();
+                    TextEditorDlg teDlg = textEditorDlgMap.get(f);
+                    if (teDlg == null || teDlg.isDisposed()) {
+                        teDlg = new TextEditorDlg(shell, false, f);
+                        teDlg.setCloseCallback(new ICloseCallback() {
+
+                            @Override
+                            public void dialogClosed(Object returnValue) {
+                                if (returnValue instanceof File) {
+                                    File f = (File) returnValue;
+                                    textEditorDlgMap.remove(f);
+                                }
+                            }
+                        });
+                        teDlg.open();
+                        textEditorDlgMap.put(f, teDlg);
+                    } else {
+                        teDlg.bringToTop();
+                    }
                 }
             }
         });
@@ -444,14 +459,14 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
     }
 
     private void handleImport() {
-        shell.setCursor(waitCursor);
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         File importFile = getAreaFilename();
 
         /*
          * if the file was not accessible don't continue with the import
          */
         if (importFile == null) {
-            shell.setCursor(arrowCursor);
+            shell.setCursor(null);
             return;
         }
 
@@ -497,7 +512,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             }
         }
 
-        shell.setCursor(arrowCursor);
+        shell.setCursor(null);
     }
 
     /**
@@ -563,8 +578,24 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
         File f = getLogFilename();
 
         if (f.exists()) {
-            TextEditorDlg ted = new TextEditorDlg(shell, true, f);
-            ted.open();
+            TextEditorDlg ted = textEditorDlgMap.get(f);
+            if (ted == null || ted.isDisposed()) {
+                ted = new TextEditorDlg(shell, true, f);
+                ted.setCloseCallback(new ICloseCallback() {
+
+                    @Override
+                    public void dialogClosed(Object returnValue) {
+                        if (returnValue instanceof File) {
+                            File f = (File) returnValue;
+                            textEditorDlgMap.remove(f);
+                        }
+                    }
+                });
+                ted.open();
+                textEditorDlgMap.put(f, ted);
+            } else {
+                ted.bringToTop();
+            }
         } else {
             MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
             mb.setText("File Not Found");
@@ -852,11 +883,9 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                 return;
             }
 
-            int numBlock = 0;
             for (GeoAreaData data : geoDataList) {
                 /* load the data into the database if good data */
                 if (data.isSaveDataBlock()) {
-                    numBlock++;
                     try {
                         int status = dman.putGeoArea(data);
                         if (status < 0) {
@@ -926,11 +955,9 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
      */
     private ArrayList<Coordinate> getPointsFromArea(GeoAreaData data) {
         ArrayList<Coordinate> points = new ArrayList<Coordinate>();
-        int pointCount = 0;
 
         /* init the first point */
         Coordinate coord = new Coordinate(data.getLon()[0], data.getLat()[0]);
-        pointCount++;
         points.add(coord);
         double[] lat = data.getLat();
         double[] lon = data.getLon();
@@ -945,7 +972,6 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             if ((lat[i] != lat[i - 1]) || (lon[i] != lon[i - 1])) {
                 coord = new Coordinate(lon[i], lat[i]);
                 points.add(coord);
-                pointCount++;
             }
         }
 

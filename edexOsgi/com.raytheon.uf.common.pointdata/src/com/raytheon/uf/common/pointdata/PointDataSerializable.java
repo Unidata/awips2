@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.pointdata.elements.AbstractPointDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * A serialization helper class for serializing pointdata maps
@@ -33,9 +32,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 16, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 16, 2009           chammack    Initial creation
+ * Dec 02, 2013  2537     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -43,13 +43,12 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class PointDataSerializable implements ISerializableObject {
+public class PointDataSerializable {
 
     @XmlElement(name = "item")
     public PointDataItemSerializable[] items;
 
-    public static class PointDataItemSerializable implements
-            ISerializableObject {
+    public static class PointDataItemSerializable {
 
         @XmlAttribute
         public String key;

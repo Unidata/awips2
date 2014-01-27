@@ -25,9 +25,7 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.config.GridDbConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -43,6 +41,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 08/21/09      1995       bphillip    Initial port
+ * 06/13/13      2044       randerso    Refactored to use IFPServer
  * 
  * </pre>
  * 
@@ -51,20 +50,25 @@ import com.raytheon.uf.common.time.TimeRange;
  */
 public class ServiceISCRequest {
 
+    /**
+     * @param parmNameAndLevels
+     * @param requestorDestinationXML
+     * @param siteID
+     * @throws GfeException
+     */
     public static void serviceRequest(List<String> parmNameAndLevels,
             String requestorDestinationXML, String siteID) throws GfeException {
 
-        IFPServerConfig config = null;
-        try {
-            config = IFPServerConfigManager.getServerConfig(siteID);
-        } catch (GfeConfigurationException e) {
-            throw new GfeException("Unable to get Server config for site["
-                    + siteID + "]", e);
+        IFPServer ifpServer = IFPServer.getActiveServer(siteID);
+        if (ifpServer == null) {
+            throw new GfeException("No active IFPServer for site: " + siteID);
         }
+
+        IFPServerConfig config = ifpServer.getConfig();
 
         // find the forecast database
         List<String> parmsAvailable = new ArrayList<String>();
-        List<DatabaseID> dbs = GridParmManager.getDbInventory(siteID)
+        List<DatabaseID> dbs = ifpServer.getGridParmMgr().getDbInventory()
                 .getPayload();
         DatabaseID db = null;
 

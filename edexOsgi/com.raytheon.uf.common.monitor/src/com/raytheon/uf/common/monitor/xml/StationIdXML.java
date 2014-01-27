@@ -23,8 +23,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
  * Monitoring area configuration xml.
  * 
@@ -41,18 +39,18 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class StationIdXML implements ISerializableObject {
-    
+public class StationIdXML {
+
     @XmlAttribute(name = "type")
     private String type;
-    
+
     @XmlAttribute(name = "name")
     private String name;
-    
+
     public static final String MARITIME = "MARITIME";
-    
+
     public static final String METAR = "METAR";
-    
+
     public static final String MESONET = "MESONET";
 
     public StationIdXML() {
@@ -74,7 +72,8 @@ public class StationIdXML implements ISerializableObject {
     }
 
     /**
-     * @param name the name to set
+     * @param name
+     *            the name to set
      */
     public void setName(String name) {
         this.name = name;

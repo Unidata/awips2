@@ -20,20 +20,26 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
+import java.util.UUID;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -59,30 +65,49 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 10/23/2013    1538       bphillip    Added sequence generator and unique key so refs will not be shared
+ *                                      among multiple ref lists
+ * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "ObjectRef")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ObjectRefType")
 @XmlSeeAlso({ DynamicObjectRefType.class })
 @DynamicSerialize
 @Entity
-@Cache(region = "registryObjects", usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = "ebxml", name = "ObjectRef")
-public class ObjectRefType extends ExtensibleObjectType implements
-        IPersistableDataObject<String> {
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "ObjectRef")
+public class ObjectRefType implements IPersistableDataObject<String> {
 
     @Id
+    @XmlTransient
+    private String key;
+
     @XmlAttribute(required = true)
     @DynamicSerializeElement
     protected String id;
 
     public ObjectRefType() {
-
+        this.key = UUID.randomUUID().toString();
     }
 
     public ObjectRefType(String id) {
         this.id = id;
+        this.key = UUID.randomUUID().toString();
     }
 
     /**
@@ -109,6 +134,25 @@ public class ObjectRefType extends ExtensibleObjectType implements
     @Override
     public String getIdentifier() {
         return getId();
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ObjectRefType \n[key=");
+        builder.append(key);
+        builder.append(", \nid=");
+        builder.append(id);
+        builder.append("]");
+        return builder.toString();
     }
 
 }

@@ -20,8 +20,8 @@
 package com.raytheon.uf.viz.npp.viirs.style;
 
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
-import com.raytheon.uf.viz.core.style.MatchCriteria;
-import com.raytheon.uf.viz.core.style.VizStyleException;
+import com.raytheon.uf.common.style.MatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 
 /**
  * Match criteria for a populated {@link VIIRSDataRecord} object
@@ -32,7 +32,8 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 26, 2012            mschenke     Initial creation
+ * Jul 26, 2012            mschenke    Initial creation
+ * Nov 22, 2013 2361       njensen     Added no-arg constructor
  * 
  * </pre>
  * 
@@ -42,13 +43,22 @@ import com.raytheon.uf.viz.core.style.VizStyleException;
 
 public class VIIRSDataRecordCriteria extends MatchCriteria {
 
-    private final String parameter;
+    private String parameter;
 
-    private final Double wavelength;
+    private Double wavelength;
 
-    private final String channelType;
+    private String channelType;
 
-    private final String region;
+    private String region;
+
+    /**
+     * Constructor that exists to keep the StyleManager's JAXBManager happy.
+     * JAXB will throw an error when introspecting this class if there's not a
+     * no-arg constructor.
+     */
+    protected VIIRSDataRecordCriteria() {
+
+    }
 
     public VIIRSDataRecordCriteria(VIIRSDataRecord record) {
         this.parameter = record.getParameter();
@@ -60,12 +70,11 @@ public class VIIRSDataRecordCriteria extends MatchCriteria {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.core.style.MatchCriteria#matches(com.raytheon.uf.
-     * viz.core.style.MatchCriteria)
+     * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon.uf.
+     * common.style.MatchCriteria)
      */
     @Override
-    public int matches(MatchCriteria aCriteria) throws VizStyleException {
+    public int matches(MatchCriteria aCriteria) throws StyleException {
         int rval = -1;
         if (aCriteria instanceof VIIRSDataMatchCriteria) {
             return matches(this, (VIIRSDataMatchCriteria) aCriteria);

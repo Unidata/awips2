@@ -1,7 +1,5 @@
 package gov.noaa.nws.ncep.viz.resources.manager;
 
-import gov.noaa.nws.ncep.viz.common.area.PredefinedArea;
-import gov.noaa.nws.ncep.viz.common.area.PredefinedAreaFactory;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsDescriptor;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsPaneManager;
 import gov.noaa.nws.ncep.viz.common.display.INatlCntrsRenderableDisplay;
@@ -21,6 +19,7 @@ import gov.noaa.nws.ncep.viz.ui.display.NcPaneLayout;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -32,14 +31,16 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.jaxb.JAXBClassLocator;
+import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.VariableSubstitutionUtil;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.reflect.SubClassLocator;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
@@ -62,7 +63,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *    11/25/12       #630      Greg Hull   getDefaultRBD()
  *    02/22/10       #972      Greg Hull   created from old RbdBundle
  *    05/14/13       #862      Greg Hull   implement INatlCntrsPaneManager
- *
+ *    10/29/13       #2491     bsteffen    Use custom JAXB context instead of SerializationUtil.
+ * 
  * </pre>
  * 
  * @author ghull
@@ -71,7 +73,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public abstract class AbstractRBD<T extends AbstractRenderableDisplay> 
-			implements INatlCntrsPaneManager, ISerializableObject, Comparable<AbstractRBD<?>> {
+        implements INatlCntrsPaneManager, Comparable<AbstractRBD<?>> {
+
+    private static JAXBManager jaxb;
 
     @XmlElement
     protected NcDisplayType displayType = NcDisplayType.NMAP_DISPLAY;
@@ -259,7 +263,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
 			File tempRbdFile = File.createTempFile("tempRBD-", ".xml");
 	        
-			SerializationUtil.jaxbMarshalToXmlFile( rbdBndl, 
+            getJaxbManager().marshalToXmlFile(rbdBndl,
 									tempRbdFile.getAbsolutePath() );
 			
 			AbstractRBD<?> clonedRbd = getRbd( tempRbdFile );
@@ -289,6 +293,8 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
     		
 		} catch (SerializationException e) {
 			throw  new VizException( e );
+        } catch (JAXBException e) {
+            throw new VizException(e);
 		} catch (VizException e) {
 			throw new VizException("Error loading rbd "+rbdBndl.rbdName+" :"+e.getMessage()  );
 		} catch (IOException e) { // from createTempFile
@@ -396,7 +402,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
 
     public String toXML() throws VizException {
         try {
-            return SerializationUtil.marshalToXml(this);
+            return getJaxbManager().marshalToXml(this);
         } catch (JAXBException e) {
             throw new VizException(e);
         }
@@ -588,7 +594,7 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
             String substStr = VariableSubstitutionUtil.processVariables(
                     bundleStr, variables);
 
-            Object xmlObj = SerializationUtil.unmarshalFromXml(substStr);
+            Object xmlObj = getJaxbManager().unmarshalFromXml(substStr);
             if (!(xmlObj instanceof AbstractRBD)) {
                 System.out.println("Unmarshalled rbd file is not a valid RBD?");
                 return null;
@@ -658,6 +664,36 @@ public abstract class AbstractRBD<T extends AbstractRenderableDisplay>
         } catch (Exception e) {
             throw new VizException("Error loading bundle", e);
         }
+    }
+
+    /**
+     * Builds and returns a JAXB manager which has the ability to
+     * marshal/unmarshall all AbstractRBD types.
+     * 
+     * @return a JAXBManager to use for marshalling/unmarshalling RBDs.
+     * @throws JAXBException
+     *             if there are illegal JAXB annotations.
+     */
+    public static synchronized JAXBManager getJaxbManager()
+            throws JAXBException {
+        if (jaxb == null) {
+            SubClassLocator locator = new SubClassLocator();
+            Collection<Class<?>> classes = JAXBClassLocator.getJAXBClasses(
+                    locator, AbstractRBD.class);
+            locator.save();
+
+            Class<?>[] jaxbClasses = new Class<?>[classes.size() + 1];
+            classes.toArray(jaxbClasses);
+            /*
+             * Add JaxbDummyObject at the begining so properties are loaded
+             * correctly
+             */
+            jaxbClasses[jaxbClasses.length - 1] = jaxbClasses[0];
+            jaxbClasses[0] = JaxbDummyObject.class;
+
+            jaxb = new JAXBManager(jaxbClasses);
+        }
+        return jaxb;
     }
 
     public NCTimeMatcher getTimeMatcher() {

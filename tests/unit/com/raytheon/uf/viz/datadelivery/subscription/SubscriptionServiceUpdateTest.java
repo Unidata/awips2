@@ -24,7 +24,6 @@ import static org.mockito.Mockito.verify;
 
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
-import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService.ISubscriptionServiceResult;
 
 /**
  * Test 
@@ -48,7 +47,7 @@ public class SubscriptionServiceUpdateTest extends SubscriptionServiceStoreTest 
      * {@inheritDoc}
      */
     @Override
-    ISubscriptionServiceResult performServiceInteraction()
+    SubscriptionServiceResult performServiceInteraction()
             throws RegistryHandlerException {
         return service.update(sub1, mockPromptDisplayText);
     }

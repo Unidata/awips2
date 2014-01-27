@@ -20,6 +20,8 @@
 
 package oasis.names.tc.ebxml.regrep.xsd.rs.v4;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -33,6 +35,10 @@ import oasis.names.tc.ebxml.regrep.xsd.spi.v4.CatalogingExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.FilteringExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.spi.v4.ValidationExceptionType;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import com.raytheon.uf.common.registry.RegrepUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -60,9 +66,23 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * &lt;/complexType>
  * </pre>
  * 
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * 2012                     bphillip    Initial implementation
+ * 10/17/2013    1682       bphillip    Added software history
+ * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
+ *                                      modified persistence annotations, added 
+ *                                      constructors, hashCode, toString and equals
+ * </pre>
+ * 
+ * @author bphillip
+ * @version 1
  */
-@XmlRootElement
+@XmlRootElement(name = "RegistryException")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "RegistryExceptionType")
 @XmlSeeAlso({ ObjectNotFoundExceptionType.class,
@@ -75,7 +95,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         FilteringExceptionType.class, ValidationExceptionType.class,
         CatalogingExceptionType.class })
 @DynamicSerialize
+@Entity
+@Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "RegistryException")
 public class RegistryExceptionType extends ExtensibleObjectType {
+
+    private static final long serialVersionUID = -811672255660498468L;
 
     @XmlAttribute
     @DynamicSerializeElement
@@ -92,6 +117,10 @@ public class RegistryExceptionType extends ExtensibleObjectType {
     @XmlAttribute
     @DynamicSerializeElement
     protected String severity;
+
+    public RegistryExceptionType() {
+        super();
+    }
 
     /**
      * Gets the value of the code property.
@@ -183,19 +212,65 @@ public class RegistryExceptionType extends ExtensibleObjectType {
 
     @Override
     public String toString() {
-        StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append("\n").append(this.getClass().getName()).append("\n");
-        if (code == null) {
-            strBuilder.append("    CODE: [").append("NONE SPECIFIED")
-                    .append("]\n");
-        } else {
-            strBuilder.append("    CODE: [").append(code).append("]\n");
-        }
-
-        strBuilder.append("SEVERITY: [").append(severity).append("]\n");
-        strBuilder.append(" MESSAGE: [").append(message).append("]\n");
-        strBuilder.append("  DETAIL: [").append(detail).append("]\n");
-
-        return strBuilder.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append("RegistryExceptionType \n[id=");
+        builder.append(id);
+        builder.append(", \nslot=");
+        builder.append(slot);
+        builder.append(", \ncode=");
+        builder.append(code);
+        builder.append(", \ndetail=");
+        builder.append(detail);
+        builder.append(", \nmessage=");
+        builder.append(message);
+        builder.append(", \nseverity=");
+        builder.append(severity);
+        builder.append("]");
+        return builder.toString();
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((code == null) ? 0 : code.hashCode());
+        result = prime * result + ((detail == null) ? 0 : detail.hashCode());
+        result = prime * result + ((message == null) ? 0 : message.hashCode());
+        result = prime * result
+                + ((severity == null) ? 0 : severity.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RegistryExceptionType other = (RegistryExceptionType) obj;
+        if (code == null) {
+            if (other.code != null)
+                return false;
+        } else if (!code.equals(other.code))
+            return false;
+        if (detail == null) {
+            if (other.detail != null)
+                return false;
+        } else if (!detail.equals(other.detail))
+            return false;
+        if (message == null) {
+            if (other.message != null)
+                return false;
+        } else if (!message.equals(other.message))
+            return false;
+        if (severity == null) {
+            if (other.severity != null)
+                return false;
+        } else if (!severity.equals(other.severity))
+            return false;
+        return true;
+    }
+
 }

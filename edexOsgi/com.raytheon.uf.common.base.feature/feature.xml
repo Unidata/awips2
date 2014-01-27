@@ -18,7 +18,7 @@
    </license>
 
    <plugin
-         id="com.facebook.thrift"
+         id="org.apache.thrift"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -123,12 +123,6 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-
-   <plugin
-         id="org.junit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
 
    <plugin
          id="com.raytheon.uf.common.message"
@@ -266,23 +260,10 @@
          unpack="false"/>
 
    <plugin
-         id="org.apache.commons.logging"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.http"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="org.apache.log4j"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="org.apache.velocity"
@@ -292,6 +273,12 @@
 
    <plugin
          id="org.geotools"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="org.javassist"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -405,4 +392,29 @@
          install-size="0"
          version="0.0.0"/>
 
+   <plugin
+         id="ch.qos.logback"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.topo"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.common.style"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="org.reflections"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 </feature>

@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlList;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 
 /**
  * A sub grid definition
@@ -36,9 +35,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 25, 2010            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 25, 2010           rjpeter     Initial creation
+ * Oct 15, 2013  2473     bsteffen    Remove deprecated ISerializableObject.
  * 
  * </pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class SubGridDef implements ISerializableObject {
+public class SubGridDef {
     /** The model names this sub grid applies to */
     @XmlElement(required = true)
     @XmlList

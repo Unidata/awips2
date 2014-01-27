@@ -62,7 +62,8 @@ import com.raytheon.uf.viz.monitor.scan.commondialogs.EllipseData.EllipseType;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 11, 2010            lvenable     Initial creation
+ * Mar 11, 2010            lvenable    Initial creation
+ * Oct 14, 2013 #2474      lvenable    Fixed font memory leak.
  * 
  * </pre>
  * 
@@ -135,12 +136,12 @@ public class TimeHeightGraph {
      * X coord of the ending time label.
      */
     private final int RIGHT_TIME_LBL_XCOORD = RIGHT_TIMELINE_XCOORD - 25;
-    
+
     /**
      * Kilometers to thousands of feet conversion.
      */
     private final double KM_TO_KFT = 3.2808;
-    
+
     /**
      * Nautical Miles to km conversion.
      */
@@ -152,14 +153,14 @@ public class TimeHeightGraph {
      * Used from CvtAzmRngToLatLon.H - RKmPerNm
      */
     private final double METERS_PER_SEC_TO_KTS = 3600 / 1.852 / 1000;
-    
+
     /**
      * Time span convered by the graph.
      */
     private final int GRAPH_WIDTH_SECONDS = (60 + 2) * 60;
-    
+
     private final int GRAPH_RIGHT_MARGIN_SECONDS = 1 * 60;
-    
+
     /**
      * Height per pixel increment.
      */
@@ -236,8 +237,8 @@ public class TimeHeightGraph {
     private EllipseData ellipseData;
 
     /**
-     * Graph data that will be drawn.
-     * Volume Scan Time in millis -> DMDTableDataRow
+     * Graph data that will be drawn. Volume Scan Time in millis ->
+     * DMDTableDataRow
      */
     private TreeMap<Long, DMDTableDataRow> graphData;
 
@@ -271,7 +272,10 @@ public class TimeHeightGraph {
      * suspend drawing while the data is being updated.
      */
     private boolean redrawFlag = true;
-    
+
+    /** No Data Available font. */
+    private Font noDataFont;
+
     /**
      * Constructor.
      * 
@@ -289,7 +293,7 @@ public class TimeHeightGraph {
         this.timeHeightCB = timeHeightCB;
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         display = this.parentComp.getDisplay();
-        
+
         initData();
         createCanvas();
     }
@@ -312,6 +316,7 @@ public class TimeHeightGraph {
 
         // Create the text font
         textFont = new Font(display, "Monospace", 10, SWT.BOLD);
+        noDataFont = new Font(display, "Monospace", 30, SWT.BOLD);
 
         // Create the time labels and make other calculations
         createTimeLabels();
@@ -365,6 +370,7 @@ public class TimeHeightGraph {
             @Override
             public void widgetDisposed(DisposeEvent e) {
                 textFont.dispose();
+                noDataFont.dispose();
             }
         });
     }
@@ -380,7 +386,7 @@ public class TimeHeightGraph {
         if (redrawFlag == false) {
             return;
         }
-        
+
         gc.setAntialias(SWT.ON);
         gc.setFont(textFont);
 
@@ -389,8 +395,7 @@ public class TimeHeightGraph {
         gc.fillRectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
         if (graphData == null) {
-            Font tmpFont = new Font(display, "Monospace", 30, SWT.BOLD);
-            gc.setFont(tmpFont);
+            gc.setFont(noDataFont);
             gc.setForeground(display.getSystemColor(SWT.COLOR_WHITE));
             gc.drawString("NO DATA AVAILABLE", 100, CANVAS_HEIGHT / 2, true);
 
@@ -464,12 +469,15 @@ public class TimeHeightGraph {
         while (iter.hasNext()) {
             long timeMillis = iter.next();
             DMDTableDataRow dataRow = graphData.get(timeMillis);
-            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds past midnight
+            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds
+                                                                       // past
+                                                                       // midnight
             ArrayList<Double> heightList = dataRow.getTimeHeightHeight();
-            ArrayList<Double> angleList = dataRow.getTimeHeightElevationIndexes();
+            ArrayList<Double> angleList = dataRow
+                    .getTimeHeightElevationIndexes();
             ArrayList<Double> llDiamList = dataRow.getTimeHeightDiam();
-            
-            // Get the data 
+
+            // Get the data
             if (attr.equalsIgnoreCase("llgtg")) {
                 dataList = dataRow.getTimeHeightGtgMax();
             } else if (attr.equalsIgnoreCase("llShr")) {
@@ -479,14 +487,14 @@ public class TimeHeightGraph {
                 dataList = new ArrayList<Double>();
                 tmp = dataRow.getTimeHeightRotvel();
                 // Convert to kts
-                for (Double d: tmp) {
+                for (Double d : tmp) {
                     long val = Math.round(d * METERS_PER_SEC_TO_KTS);
                     dataList.add(new Double(val));
                 }
-            } else if (attr.equalsIgnoreCase("llDiam")) {  
+            } else if (attr.equalsIgnoreCase("llDiam")) {
                 dataList = new ArrayList<Double>();
-                // Convert to nautical miles                
-                for (Double d: llDiamList) {
+                // Convert to nautical miles
+                for (Double d : llDiamList) {
                     dataList.add(d * NAUTICAL_MILES_TO_KM);
                 }
             } else if (attr.equalsIgnoreCase("stRank")) {
@@ -500,7 +508,7 @@ public class TimeHeightGraph {
             if (timeList.size() < angleList.size()) {
                 maxIdx = timeList.size();
             }
-            
+
             volScanCal.setTimeInMillis(timeMillis);
             int volScanSecondPastMidnight = getSecondsPastMidnight(volScanCal);
             volScanCal.set(Calendar.HOUR_OF_DAY, 0);
@@ -508,7 +516,7 @@ public class TimeHeightGraph {
             volScanCal.set(Calendar.SECOND, 0);
             volScanCal.set(Calendar.MILLISECOND, 0);
             long volScanMidnight = volScanCal.getTimeInMillis();
-            
+
             for (int i = 0; i < angleList.size(); i++) {
                 Double angleIdx = angleList.get(i);
                 Double seconds = timeList.get(angleIdx.intValue());
@@ -517,12 +525,14 @@ public class TimeHeightGraph {
                 }
                 if (seconds < volScanSecondPastMidnight)
                     seconds += 86400;
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-                
-                cal.setTimeInMillis(volScanMidnight + (long) (double) seconds * 1000);
+                Calendar cal = Calendar
+                        .getInstance(TimeZone.getTimeZone("GMT"));
+
+                cal.setTimeInMillis(volScanMidnight + (long) (double) seconds
+                        * 1000);
                 double heightKft = heightList.get(idx) * KM_TO_KFT;
-                drawCirculation(gc, cal.getTimeInMillis(),
-                        heightKft, dataList.get(idx), llDiamList.get(idx));
+                drawCirculation(gc, cal.getTimeInMillis(), heightKft,
+                        dataList.get(idx), llDiamList.get(idx));
                 idx++;
             }
         }
@@ -571,7 +581,7 @@ public class TimeHeightGraph {
 
         for (Long timeMillis : graphData.keySet()) {
             // Invalid times have been removed by setGraphData()
-            cal.setTimeInMillis(timeMillis);    
+            cal.setTimeInMillis(timeMillis);
             timeMillisOffset = (cal.getTimeInMillis() - startingTimeMillis)
                     / millisPerPixel;
             xCoord = (int) Math.round(timeMillisOffset + LEFT_TIME_LBL_XCOORD);
@@ -591,7 +601,7 @@ public class TimeHeightGraph {
     private void drawElevationLinesAndAngles(GC gc) {
         gc.setForeground(display.getSystemColor(SWT.COLOR_GRAY));
         gc.setLineWidth(8);
-        
+
         for (double angle : elevLinesAngMap.keySet()) {
             ArrayList<Integer> list = elevLinesAngMap.get(angle);
             if (list.size() == 0) {
@@ -599,7 +609,7 @@ public class TimeHeightGraph {
             }
             int[] intArr = new int[list.size() + 4];
             int i = 0;
-            for (i = 0; i < intArr.length - 2; i++) {                
+            for (i = 0; i < intArr.length - 2; i++) {
                 if (i == 0) {
                     intArr[i] = list.get(i) - 40;
                     i++;
@@ -608,18 +618,18 @@ public class TimeHeightGraph {
                 }
                 intArr[i] = list.get(i - 2);
             }
-            
+
             int lastY = intArr[i - 1];
             intArr[i] = RIGHT_TIMELINE_XCOORD;
             i++;
-            intArr[i] = lastY;            
+            intArr[i] = lastY;
             gc.drawPolyline(intArr);
         }
         gc.setLineWidth(1);
 
         /*
          * Loop through the array of elevation lines. Use the first set of x,y
-         * coords to draw the left side labels.  Use the last one to draw the 
+         * coords to draw the left side labels. Use the last one to draw the
          * right side labels.
          */
         int newTextXCoord = 0;
@@ -632,17 +642,19 @@ public class TimeHeightGraph {
             if (elevLinesAngMap.get(angle).size() == 0) {
                 continue;
             }
-            
+
             ArrayList<Integer> intList = elevLinesAngMap.get(angle);
-            
+
             newTextXCoord = intList.get(0) - (4 * textWidth) - 50;
             newTextYCoord = (int) Math.round(intList.get(1) - textHeight / 2.0);
             gc.drawString(String.format("%4.1f", angle), newTextXCoord,
                     newTextYCoord, true);
-                        
-            lastTextXCoord = intList.get(intList.size() - 2) + (4 * textWidth) + 50;
-            lastTextYCoord = (int) Math.round(intList.get(intList.size() - 1) - textHeight / 2.0);
-            
+
+            lastTextXCoord = intList.get(intList.size() - 2) + (4 * textWidth)
+                    + 50;
+            lastTextYCoord = (int) Math.round(intList.get(intList.size() - 1)
+                    - textHeight / 2.0);
+
             gc.drawString(String.format("%4.1f", angle), newTextXCoord,
                     newTextYCoord, true);
             lastMap.put(angle, new int[] { lastTextXCoord, lastTextYCoord });
@@ -651,10 +663,10 @@ public class TimeHeightGraph {
         /*
          * Draw the elevation angles on the right side of the graph.
          */
-        for (double angle: lastMap.keySet()) {
+        for (double angle : lastMap.keySet()) {
             int[] pts = lastMap.get(angle);
-            gc.drawString(String.format("%4.1f", angle), RIGHT_TIMELINE_XCOORD + 30,
-                    pts[1], true);
+            gc.drawString(String.format("%4.1f", angle),
+                    RIGHT_TIMELINE_XCOORD + 30, pts[1], true);
         }
     }
 
@@ -688,7 +700,7 @@ public class TimeHeightGraph {
         if (xyCoords.x >= RIGHT_TIMELINE_XCOORD) {
             return;
         }
-        
+
         // Check if the oval need to be drawn
         if (drawSettings.diamOverlay == true) {
             gc.setBackground(threshColor);
@@ -818,11 +830,10 @@ public class TimeHeightGraph {
         gc.dispose();
         image.dispose();
     }
-    
+
     private static int getSecondsPastMidnight(Calendar cal) {
-        return cal.get(Calendar.HOUR_OF_DAY) * 3600 +
-            cal.get(Calendar.MINUTE) * 60 +
-            cal.get(Calendar.SECOND);
+        return cal.get(Calendar.HOUR_OF_DAY) * 3600 + cal.get(Calendar.MINUTE)
+                * 60 + cal.get(Calendar.SECOND);
     }
 
     /**
@@ -832,15 +843,18 @@ public class TimeHeightGraph {
         Date d = timeHeightCB.getDialogTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTime(d);
-        
-        if ((graphData != null) && ! graphData.isEmpty()) {     
-            Map.Entry<Long, DMDTableDataRow> lastEntry = graphData.lastEntry(); 
 
-            Calendar volScanCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        if ((graphData != null) && !graphData.isEmpty()) {
+            Map.Entry<Long, DMDTableDataRow> lastEntry = graphData.lastEntry();
+
+            Calendar volScanCal = Calendar.getInstance(TimeZone
+                    .getTimeZone("GMT"));
             volScanCal.setTimeInMillis(lastEntry.getKey());
-            
+
             DMDTableDataRow dataRow = lastEntry.getValue();
-            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds past midnight
+            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds
+                                                                       // past
+                                                                       // midnight
 
             if ((timeList != null) && (timeList.size() > 0)) {
                 int seconds = (int) (double) timeList.get(timeList.size() - 1);
@@ -858,14 +872,14 @@ public class TimeHeightGraph {
 
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        
+
         cal.add(Calendar.SECOND, GRAPH_RIGHT_MARGIN_SECONDS);
         long endMillis = cal.getTimeInMillis();
-        
+
         startingTimeMillis = endMillis - GRAPH_WIDTH_SECONDS * 1000;
         millisPerPixel = (endMillis - startingTimeMillis)
                 / (RIGHT_TIME_LBL_XCOORD - LEFT_TIME_LBL_XCOORD);
-}
+    }
 
     /**
      * Find the maximum height value for the graph.
@@ -938,8 +952,10 @@ public class TimeHeightGraph {
                 invalidTimes.add(l);
                 continue;
             }
-            /* TODO: Was startingTimeMillis > graphData.get(l).getTime().getValidTime().getTimeInMillis(),
-             * but that is currently not the volume scan time.
+            /*
+             * TODO: Was startingTimeMillis >
+             * graphData.get(l).getTime().getValidTime().getTimeInMillis(), but
+             * that is currently not the volume scan time.
              */
             if (startingTimeMillis > l) {
                 invalidTimes.add(l);
@@ -948,7 +964,7 @@ public class TimeHeightGraph {
                 DMDTableDataRow dataRow = graphData.get(l);
                 ArrayList<Double> heightList = dataRow.getTimeHeightHeight();
 
-                for (Double height: heightList) {
+                for (Double height : heightList) {
                     if (height * KM_TO_KFT > maxHeight) {
                         maxHeight = height * KM_TO_KFT;
                     }
@@ -962,7 +978,7 @@ public class TimeHeightGraph {
                 graphData.remove(l);
             }
         }
-        
+
         recalcHeightVarables(maxHeight);
 
         /*
@@ -975,25 +991,30 @@ public class TimeHeightGraph {
         for (Long timeSec : graphData.keySet()) {
             DMDTableDataRow dataRow = graphData.get(timeSec);
 
-            ArrayList<Double> elevAngles = dataRow.getTimeHeightElevationAngles();
-            ArrayList<Double> elevAnglesIndices = dataRow.getTimeHeightElevationIndexes();
-            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds past midnight
+            ArrayList<Double> elevAngles = dataRow
+                    .getTimeHeightElevationAngles();
+            ArrayList<Double> elevAnglesIndices = dataRow
+                    .getTimeHeightElevationIndexes();
+            ArrayList<Double> timeList = dataRow.getTimeHeightTimes(); // seconds
+                                                                       // past
+                                                                       // midnight
             ArrayList<Double> heightList = dataRow.getTimeHeightHeight();
-//            ArrayList<Double> rankList = dataRow.getTimeHeightRank();
-  
-//System.out.println("=======================");
-//System.out.println("timesec: " + timeSec + "   " + sdf.format(new Date(timeSec)));
-//System.out.println("Angles = " + elevAngles);
-//System.out.println("Angle Indices = " + elevAnglesIndices);
+            // ArrayList<Double> rankList = dataRow.getTimeHeightRank();
 
-//System.out.println("Times = " + timeList);
-//System.out.println("Height = " + heightList);
+            // System.out.println("=======================");
+            // System.out.println("timesec: " + timeSec + "   " + sdf.format(new
+            // Date(timeSec)));
+            // System.out.println("Angles = " + elevAngles);
+            // System.out.println("Angle Indices = " + elevAnglesIndices);
 
-//System.out.println("RankList = " + rankList);
-//System.out.println("Shear = " + dataRow.getTimeHeightShear());
-//System.out.println("Diam = " + dataRow.getTimeHeightDiam());
-//System.out.println("GTGMax = " + dataRow.getTimeHeightGtgMax());
-//System.out.println("Rotvel = " + dataRow.getTimeHeightRotvel());
+            // System.out.println("Times = " + timeList);
+            // System.out.println("Height = " + heightList);
+
+            // System.out.println("RankList = " + rankList);
+            // System.out.println("Shear = " + dataRow.getTimeHeightShear());
+            // System.out.println("Diam = " + dataRow.getTimeHeightDiam());
+            // System.out.println("GTGMax = " + dataRow.getTimeHeightGtgMax());
+            // System.out.println("Rotvel = " + dataRow.getTimeHeightRotvel());
             Point xyCoord;
             volScanPoints.clear();
             int idx = 0;
@@ -1001,7 +1022,7 @@ public class TimeHeightGraph {
             if (timeList.size() < elevAnglesIndices.size()) {
                 maxIdx = timeList.size();
             }
-            
+
             volScanCal.setTimeInMillis(timeSec);
             int volScanSecondPastMidnight = getSecondsPastMidnight(volScanCal);
             volScanCal.set(Calendar.HOUR_OF_DAY, 0);
@@ -1009,18 +1030,20 @@ public class TimeHeightGraph {
             volScanCal.set(Calendar.SECOND, 0);
             volScanCal.set(Calendar.MILLISECOND, 0);
             long volScanMidnight = volScanCal.getTimeInMillis();
-            
+
             for (Double angleIdx : elevAnglesIndices) {
                 if (idx >= maxIdx) {
                     continue;
                 }
-                // Calculate the time offset of each angle by adding 
+                // Calculate the time offset of each angle by adding
                 // the time value to the midnite time value
-                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                Calendar cal = Calendar
+                        .getInstance(TimeZone.getTimeZone("GMT"));
                 Double seconds = timeList.get(angleIdx.intValue());
                 if (seconds < volScanSecondPastMidnight)
                     seconds += 86400;
-                cal.setTimeInMillis(volScanMidnight + (long) (double) seconds * 1000);
+                cal.setTimeInMillis(volScanMidnight + (long) (double) seconds
+                        * 1000);
                 xyCoord = calcTimeHeightToXY(cal.getTimeInMillis(),
                         heightList.get(idx) * KM_TO_KFT);
                 if (xyCoord.x < RIGHT_TIMELINE_XCOORD) {
@@ -1030,8 +1053,8 @@ public class TimeHeightGraph {
                 if (elevLinesAngMap.containsKey(angle) == false) {
                     elevLinesAngMap.put(angle, new ArrayList<Integer>());
                 }
-                if (!elevLinesAngMap.get(angle).contains(xyCoord.x) &&
-                        (xyCoord.x < RIGHT_TIMELINE_XCOORD)) {
+                if (!elevLinesAngMap.get(angle).contains(xyCoord.x)
+                        && (xyCoord.x < RIGHT_TIMELINE_XCOORD)) {
                     elevLinesAngMap.get(angle).add(xyCoord.x);
                     elevLinesAngMap.get(angle).add(xyCoord.y);
                 }
@@ -1049,7 +1072,7 @@ public class TimeHeightGraph {
 
             volScanLines.add(tmpArray);
         }
-        
+
         /*
          * Redraw the graph
          */
@@ -1058,7 +1081,7 @@ public class TimeHeightGraph {
 
         // printGraphData();
     }
-    
+
     /**
      * Redraw the canvas.
      */
@@ -1076,39 +1099,39 @@ public class TimeHeightGraph {
          * structure of the data to be graphed
          */
 
-//        System.out.println("*******************************************");
-//        System.out.println("***** SETTING TIME HEIGHT GRAPH DATA ******");
-//        System.out.println("*******************************************");
-//
-//        Calendar cal = Calendar.getInstance();
-//
-//        TreeMap<Double, DMDTimeHeight> recordMap;
-//
-//        Set<Long> millisKeys = graphData.keySet();
-//
-//        for (Long timeInMillis : millisKeys) {
-//            cal.setTimeInMillis(timeInMillis);
-//            System.out.println("---" + timeInMillis);
-//            System.out.println("---" + cal.getTime().toString());
-//
-//            recordMap = graphData.get(timeInMillis);
-//
-//            Set<Double> recordKeys = recordMap.keySet();
-//            if (recordKeys.size() == 0) {
-//                System.out.println("++++++ NO DATA FOR: " + timeInMillis);
-//            }
-//
-//            for (Double dbl : recordKeys) {
-//                System.out.println("++++++" + dbl);
-//
-//                DMDTimeHeight dth = recordMap.get(dbl);
-//                System.out.println("++++++ Hgt    = " + dth.getHeight());
-//                System.out.println("++++++ LLDiam = " + dth.getLlDiam());
-//                System.out.println("++++++ Offset = " + dth.getOffset());
-//                System.out.println("++++++ in Sec = "
-//                        + (dth.getOffset() / 1000.0));
-//                System.out.println("++++++ Val    = " + dth.getValue());
-//            }
-//        }
+        // System.out.println("*******************************************");
+        // System.out.println("***** SETTING TIME HEIGHT GRAPH DATA ******");
+        // System.out.println("*******************************************");
+        //
+        // Calendar cal = Calendar.getInstance();
+        //
+        // TreeMap<Double, DMDTimeHeight> recordMap;
+        //
+        // Set<Long> millisKeys = graphData.keySet();
+        //
+        // for (Long timeInMillis : millisKeys) {
+        // cal.setTimeInMillis(timeInMillis);
+        // System.out.println("---" + timeInMillis);
+        // System.out.println("---" + cal.getTime().toString());
+        //
+        // recordMap = graphData.get(timeInMillis);
+        //
+        // Set<Double> recordKeys = recordMap.keySet();
+        // if (recordKeys.size() == 0) {
+        // System.out.println("++++++ NO DATA FOR: " + timeInMillis);
+        // }
+        //
+        // for (Double dbl : recordKeys) {
+        // System.out.println("++++++" + dbl);
+        //
+        // DMDTimeHeight dth = recordMap.get(dbl);
+        // System.out.println("++++++ Hgt    = " + dth.getHeight());
+        // System.out.println("++++++ LLDiam = " + dth.getLlDiam());
+        // System.out.println("++++++ Offset = " + dth.getOffset());
+        // System.out.println("++++++ in Sec = "
+        // + (dth.getOffset() / 1000.0));
+        // System.out.println("++++++ Val    = " + dth.getValue());
+        // }
+        // }
     }
 }

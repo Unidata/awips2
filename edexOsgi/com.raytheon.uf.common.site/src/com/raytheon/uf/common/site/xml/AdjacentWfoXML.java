@@ -27,28 +27,27 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
-
 /**
- * TODO Add Description
+ * XML format for a list of {@link CwaXML}.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 22, 2009            mpduff     Initial creation
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 22, 2009           mpduff      Initial creation
+ * Oct 24, 2013  2491     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 @XmlRootElement(name = "adjacentWFO")
 @XmlAccessorType(XmlAccessType.NONE)
-public class AdjacentWfoXML implements ISerializableObject{
+public class AdjacentWfoXML {
     @XmlElements( { @XmlElement(name = "cwa", type = CwaXML.class) })
     private ArrayList<CwaXML> areaIds;
 

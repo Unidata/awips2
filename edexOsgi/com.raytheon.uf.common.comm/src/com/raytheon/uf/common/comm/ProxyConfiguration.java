@@ -29,6 +29,7 @@ package com.raytheon.uf.common.comm;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 3, 2013    1786     mpduff      Initial creation
+ * 8/28/2013    1538       bphillip    Added nonProxyHosts field
  * 
  * </pre>
  * 
@@ -41,6 +42,8 @@ public class ProxyConfiguration {
     private String host;
 
     private int port;
+
+    private String nonProxyHosts;
 
     /**
      * Default constructor.
@@ -60,6 +63,20 @@ public class ProxyConfiguration {
     public ProxyConfiguration(String host, String port) {
         this.host = host;
         this.port = Integer.parseInt(port);
+    }
+
+    /**
+     * Constructor.
+     * 
+     * @param host
+     *            The host string
+     * @param port
+     *            The port string
+     */
+    public ProxyConfiguration(String host, String port, String nonProxyHosts) {
+        this.host = host;
+        this.port = Integer.parseInt(port);
+        this.nonProxyHosts = nonProxyHosts;
     }
 
     /**
@@ -100,4 +117,13 @@ public class ProxyConfiguration {
     public String getPortString() {
         return String.valueOf(port);
     }
+
+    public String getNonProxyHosts() {
+        return nonProxyHosts;
+    }
+
+    public void setNonProxyHosts(String nonProxyHosts) {
+        this.nonProxyHosts = nonProxyHosts;
+    }
+
 }

@@ -47,11 +47,12 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 23, 2011            bsteffen     Initial creation
- * Dec 06, 2012   1396     njensen      Added setting VizServers
- * Jan 14, 2013   1469     bkowal       Removed setting the hdf5 data directory
- * Aug 27, 2013   2295     bkowal       The entire jms connection string is
- *                                      now provided by EDEX.
+ * Nov 23, 2011            bsteffen    Initial creation
+ * Dec 06, 2012 1396       njensen     Added setting VizServers
+ * Jan 14, 2013 1469       bkowal      Removed setting the hdf5 data directory
+ * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Aug 27, 2013   2295     bkowal      The entire jms connection string is
+ *                                     now provided by EDEX.
  * 
  * </pre>
  * 
