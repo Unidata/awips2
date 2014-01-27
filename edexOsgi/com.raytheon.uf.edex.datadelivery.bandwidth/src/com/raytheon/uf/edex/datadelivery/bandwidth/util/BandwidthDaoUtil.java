@@ -79,6 +79,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jan 08, 2014 2615       bgonzale     Refactored getRetrievalTimes into RecurringSubscription
  *                                      calculateStart and calculateEnd methods.
  * Jan 24, 2014 2636       mpduff       Refactored retrieval time generation.
+ * Jan 24, 2013 2709       bgonzale     Added inActivePeriodWindow check during retrieval time calculations
+ *                                      because the calculate start and end time methods no longer use
+ *                                      active period.
  * </pre>
  * 
  * @author djohnson
@@ -173,11 +176,11 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         Calendar planStart = plan.getPlanStart();
 
         // starting time when when subscription is first valid for scheduling
-        // based on plan start, subscription start, and active period start.
+        // based on plan start and subscription start.
         Calendar subscriptionCalculatedStart = subscription
                 .calculateStart(planStart);
         // end time when when subscription is last valid for scheduling based on
-        // plan end, subscription end, and active period end.
+        // plan end and subscription end.
         Calendar subscriptionCalculatedEnd = subscription.calculateEnd(planEnd);
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
             statusHandler.debug("**** PlanStart: " + planStart.getTime());
@@ -218,7 +221,9 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                                  **/
                                 // Subscription Start and End time first
                                 if (time.after(subscriptionCalculatedEnd)
-                                        || time.before(start)) {
+                                        || time.before(start)
+                                        || !subscription
+                                                .inActivePeriodWindow(time)) {
                                     // don't schedule this retrieval time,
                                     // outside subscription window
                                     continue;
