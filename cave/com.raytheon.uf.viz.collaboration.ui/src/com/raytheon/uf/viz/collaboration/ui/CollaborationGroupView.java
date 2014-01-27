@@ -111,6 +111,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.LogoutAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.RemoveFromRosterAction;
+import com.raytheon.uf.viz.collaboration.ui.actions.SendSubReqAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ShowVenueAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.UserSearchAction;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
@@ -138,6 +139,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  *                                     removed option to create empty group
+ * Jan 27, 2014 2700       bclement    fixed context menu for roster entries
  * 
  * </pre>
  * 
@@ -391,18 +393,33 @@ public class CollaborationGroupView extends CaveFloatingView implements
             manager.add(new ArchiveViewerAction((IVenueSession) o));
             return;
         } else if (o instanceof RosterEntry) {
-            // roster entries that are not in a group
             RosterEntry entry = (RosterEntry) o;
             UserId user = IDConverter.convertFrom(entry);
             addOnlineMenuOptions(manager, selection, user);
             addAliasAction(manager, selection, user);
             manager.add(new ArchiveViewerAction(user));
-            manager.add(new AddToGroupAction(entry));
-            manager.add(new RemoveFromRosterAction(entry));
+            manager.add(new AddToGroupAction(getSelectedUsers()));
+            String groupName = null;
+            Object group = selection.getPaths()[0].getFirstSegment();
+            if (group instanceof RosterGroup) {
+                groupName = ((RosterGroup) group).getName();
+                manager.add(new RemoveFromGroupAction(groupName,
+                        getSelectedUsers()));
+            } else if (!(group instanceof SharedGroup)) {
+                manager.add(new RemoveFromRosterAction(entry));
+            }
+            if (ContactsManager.isBlocked(entry)) {
+                manager.add(new SendSubReqAction(entry));
+            }
         } else if (o instanceof UserId) {
-            // the user, both the logged in user as well as entries in groups
+            // the user
             UserId user = (UserId) o;
-            fillContextMenu(manager, selection, user);
+            CollaborationConnection connection = CollaborationConnection
+                    .getConnection();
+            UserId me = connection.getUser();
+            if (me.isSameUser(user)) {
+                createMenu(manager);
+            }
         } else if (o instanceof RosterGroup || o instanceof SharedGroup) {
             manager.add(createSessionAction);
             if (o instanceof RosterGroup) {
@@ -412,36 +429,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 aliasAction.setText("Rename Group");
                 manager.add(aliasAction);
             }
-        }
-    }
-    
-    /**
-     * Populate menu for roster entries. Checks for current user to create
-     * appropriate menu.
-     * 
-     * @param manager
-     * @param selection
-     * @param user
-     */
-    private void fillContextMenu(IMenuManager manager, TreeSelection selection,
-            UserId user) {
-        CollaborationConnection connection = CollaborationConnection
-                .getConnection();
-        UserId me = connection.getUser();
-        if (me.isSameUser(user)) {
-            createMenu(manager);
-            return;
-        }
-        addOnlineMenuOptions(manager, selection, user);
-        addAliasAction(manager, selection, user);
-
-        manager.add(new ArchiveViewerAction(user));
-        manager.add(new AddToGroupAction(getSelectedUsers()));
-        String groupName = null;
-        Object group = selection.getPaths()[0].getFirstSegment();
-        if (group instanceof RosterGroup) {
-            groupName = ((RosterGroup) group).getName();
-            manager.add(new RemoveFromGroupAction(groupName, getSelectedUsers()));
         }
     }
 
@@ -905,6 +892,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     @Override
     public void groupDeleted(RosterGroup group) {
+        refreshUsersTreeViewerAsync(group);
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
     }
 

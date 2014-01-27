@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
+import com.raytheon.uf.viz.collaboration.ui.prefs.AutoSubscribePropertyListener;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
@@ -69,7 +70,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            njensen     Initial creation
  * Dec 18, 2013 2562      bclement    fixed venue invite
- * Jan 14, 2014 2630       bclement    added away timeout
+ * Jan 14, 2014 2630      bclement    added away timeout
+ * Jan 27, 2014 2700      bclement    added auto subscribe property listener
  * 
  * </pre>
  * 
@@ -89,7 +91,11 @@ public class ConnectionSubscriber {
     private final AwayTimeOut awayTimeOut = new AwayTimeOut();
 
     private ConnectionSubscriber() {
-
+        Activator
+                .getDefault()
+                .getPreferenceStore()
+                .addPropertyChangeListener(
+                        AutoSubscribePropertyListener.getInstance());
     }
 
     /**
@@ -121,6 +127,9 @@ public class ConnectionSubscriber {
 
     private void setup(final CollaborationConnection connection) {
         if (connection != null) {
+            AutoSubscribePropertyListener autoSub = AutoSubscribePropertyListener
+                    .getInstance();
+            autoSub.initialize(connection);
             // Register handlers and events for the new sessionManager.
             connection.registerEventHandler(this);
             try {
@@ -164,6 +173,9 @@ public class ConnectionSubscriber {
                         "Error unregistering peer to peer handler", e);
             }
             connection.unregisterEventHandler(this);
+            AutoSubscribePropertyListener autoSub = AutoSubscribePropertyListener
+                    .getInstance();
+            autoSub.close();
         }
         PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
     }
