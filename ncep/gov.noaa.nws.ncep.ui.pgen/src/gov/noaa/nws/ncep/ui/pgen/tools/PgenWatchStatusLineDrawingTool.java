@@ -18,6 +18,7 @@ import gov.noaa.nws.ncep.ui.pgen.display.IAttribute;
 import gov.noaa.nws.ncep.ui.pgen.elements.Line;
 import gov.noaa.nws.ncep.ui.pgen.elements.WatchBox;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
@@ -34,6 +35,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 03/10					B. Yin   	Initial Creation.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 03/12        #697        Q. Zhou     Fixed line arrow head size for watch
+ * 12/13		TTR 800		B. Yin		Add a flag when opening the specification dialog.
  * </pre>
  * 
  * @author	B. Yin
@@ -63,6 +65,8 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 		super.activateTool();
 
 		((LineAttrDlg)attrDlg).setSmoothLvl(0);
+		((LineAttrDlg)attrDlg).setColor(new Color[]{Color.RED, Color.RED });
+
 		if ( event.getTrigger() instanceof WatchBox ) wb = (WatchBox)event.getTrigger(); 
 
 		return;
@@ -150,7 +154,7 @@ public class PgenWatchStatusLineDrawingTool extends AbstractPgenDrawingTool{
 					
 					//open and initialize watch box attr dialog
 					WatchBoxAttrDlg wbdlg = WatchBoxAttrDlg.getInstance(null);
-					wbdlg.openSpecDlg();
+					wbdlg.openSpecDlg( false );
 					wbdlg.setDrawableElement(wb);
 					wbdlg.setMouseHandlerName("Pgen Select");
 					wbdlg.setAttrForDlg( (IAttribute)wb );
