@@ -75,7 +75,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -100,6 +99,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 1, 2012            rferrel     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    reworked participant event logic
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -585,14 +585,9 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         label.setLayoutData(data);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
-            IVenueInfo info;
-            try {
-                info = session.getVenue().getInfo();
-                labelInfo.append(info.getVenueSubject());
-                label.setToolTipText(info.getVenueSubject());
-            } catch (CollaborationException e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-            }
+            String subject = session.getVenue().getSubject();
+            labelInfo.append(subject);
+            label.setToolTipText(subject);
         }
         label.setText(labelInfo.toString());
     }
@@ -628,14 +623,7 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         if (session == null) {
             return sessionId;
         }
-        try {
-            IVenueInfo info = session.getVenue().getInfo();
-            return info.getVenueDescription();
-        } catch (CollaborationException e) {
-            statusHandler.error("Unable to get venue info", e);
-            return session.getVenue().getName();
-        }
-
+        return session.getVenue().getName();
     }
 
     @Subscribe
