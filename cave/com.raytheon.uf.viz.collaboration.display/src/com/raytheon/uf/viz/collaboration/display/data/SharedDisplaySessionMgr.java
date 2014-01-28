@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.ui.IEditorPart;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.display.roles.DataProviderEventController;
@@ -43,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.display.roles.ParticipantEventControlle
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            njensen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed false throws statement
  * 
  * </pre>
  * 
@@ -63,8 +61,7 @@ public class SharedDisplaySessionMgr {
     }
 
     public static void joinSession(ISharedDisplaySession session,
-            SharedDisplayRole initialRole, SessionColorManager colors)
-            throws CollaborationException {
+            SharedDisplayRole initialRole, SessionColorManager colors) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
