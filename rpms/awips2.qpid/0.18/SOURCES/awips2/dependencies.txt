@@ -1,5 +1,4 @@
 org.apache.commons.cli/commons-cli-1.2.jar
-org.apache.commons.logging/commons-logging-1.1.2.jar
 org.apache.ws.security/xalan-2.7.1.jar
 org.apache.commons.beanutils/commons-beanutils-1.8.3.jar
 org.apache.commons.digester/commons-digester-1.8.1.jar
