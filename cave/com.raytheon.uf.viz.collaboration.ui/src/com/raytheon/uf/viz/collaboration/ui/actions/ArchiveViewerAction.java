@@ -44,6 +44,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Jan 28, 2014 2698       bclement    changed sessionName to sessionId
  * 
  * </pre>
  * 
@@ -56,32 +57,32 @@ public class ArchiveViewerAction extends Action {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ArchiveViewerAction.class);
 
-    private final String sessionName;
+    private final String sessionId;
 
     public ArchiveViewerAction() {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = null;
+        sessionId = null;
         setEnabled(CollaborationConnection.getConnection() != null);
     }
 
     public ArchiveViewerAction(UserId user) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = user.getName();
+        sessionId = user.getName();
     }
 
     public ArchiveViewerAction(IVenueSession session) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = session.getVenue().getName();
+        sessionId = session.getVenue().getId();
     }
 
     @Override
     public void run() {
         UserId user = CollaborationConnection.getConnection().getUser();
         String logDir = SessionMsgArchive.getLogFilePath(user.getHost(),
-                user.getName(), sessionName);
+                user.getName(), sessionId);
 
         try {
             CaveWorkbenchPageManager
