@@ -40,7 +40,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -58,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -114,7 +114,7 @@ public class InviteAction extends Action {
             }
             invite.setMessage(inviteMessage);
             invite.setSessionId(session.getSessionId());
-            invite.setSubject(session.getVenue().getInfo().getVenueSubject());
+            invite.setSubject(session.getVenue().getSubject());
             List<UserId> inviteList = new ArrayList<UserId>();
             UserId inviter = CollaborationConnection.getConnection().getUser();
             for (UserId user : users) {
@@ -210,16 +210,8 @@ public class InviteAction extends Action {
 
         private void fill() {
             for (IVenueSession session : getNewSessions()) {
-                String desc;
-                try {
-                    IVenueInfo info = session.getVenue().getInfo();
-                    desc = info.getVenueDescription();
-                } catch (CollaborationException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                    desc = session.getVenue().getName();
-                }
-                Action action = new InviteAction(session, desc, users);
+                String name = session.getVenue().getName();
+                Action action = new InviteAction(session, name, users);
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
             }
