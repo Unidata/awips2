@@ -77,6 +77,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      among multiple ref lists
  * 12/2/2013     1829       bphillip    Modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * 01/21/2014    2613       bphillip    Added equals and hashcode
  * </pre>
  * 
  * @author bphillip
@@ -142,6 +143,31 @@ public class ObjectRefType implements IPersistableDataObject<String> {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ObjectRefType other = (ObjectRefType) obj;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        return true;
     }
 
     @Override
