@@ -20,21 +20,32 @@
 
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
+import oasis.names.tc.ebxml.regrep.xsd.query.v4.ResponseOptionType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ActionType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.DateTimeValueType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.raytheon.uf.common.registry.constants.ActionTypes;
+import com.raytheon.uf.common.registry.constants.QueryReturnTypes;
+import com.raytheon.uf.common.registry.services.RegistrySOAPServices;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -58,6 +69,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 9/11/2013    2354       bphillip    Modified queries to find deleted objects
  * 10/23/2013   1538       bphillip    Changed send time slot to be DateTimeValue instead of integer
  * 12/2/2013    1829       bphillip    Changed to use non generic getter of value type
+ * 01/21/2014   2613       bphillip    Modified queries to better handle deletes
  * 
  * </pre>
  * 
@@ -79,14 +91,14 @@ public class AuditableEventTypeDao extends
             + "left outer join action.affectedObjectRefs as AffectedObjectRefs "
             + "left outer join AffectedObjects.registryObject as RegistryObjects "
             + "left outer join AffectedObjectRefs.objectRef as ObjRefs "
-            + "where (ObjRefs.id in (:ids) OR RegistryObjects.id in (:ids) OR action.eventType = :eventType) and event.timestamp >= :startTime";
+            + "where (ObjRefs.id in (:ids) OR RegistryObjects.id in (:ids)) and event.timestamp >= :startTime";
 
     /**
      * Query to find deleted events
      */
     private static final String FIND_DELETED_EVENTS_OF_INTEREST_QUERY = "select event from AuditableEventType as event "
             + "left outer join event.action as action "
-            + "where action.eventType = :eventType and event.timestamp >= :startTime";
+            + "where action.eventType = 'urn:oasis:names:tc:ebxml-regrep:ActionType:delete' and event.timestamp > :startTime";
 
     /** Optional end time clause */
     private static final String END_TIME_CLAUSE = " and event.timestamp <= :endTime";
@@ -103,6 +115,17 @@ public class AuditableEventTypeDao extends
     /** Query to get Expired AuditableEvents */
     private static final String GET_EXPIRED_EVENTS_QUERY = "FROM AuditableEventType event where event.timestamp < :"
             + GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER;
+
+    /** The registry soap services */
+    private RegistrySOAPServices soapService;
+
+    /** Sorter for sorting events */
+    private static final Comparator<AuditableEventType> EVENT_TIME_COMPARATOR = new Comparator<AuditableEventType>() {
+        @Override
+        public int compare(AuditableEventType o1, AuditableEventType o2) {
+            return o2.getTimestamp().compare(o1.getTimestamp());
+        }
+    };
 
     /**
      * Constructor.
@@ -135,6 +158,100 @@ public class AuditableEventTypeDao extends
     }
 
     /**
+     * Gets all auditable events which reference the objects of interest.
+     * 
+     * @param subscription
+     *            The subscription to get the events for
+     * @param serviceAddress
+     *            The address to the registry to use to verify deleted objects
+     * @param startTime
+     *            The start time boundary of the query
+     * @param endTime
+     *            The end time boundary of the query
+     * @param objectsOfInterest
+     *            The objects of interest to get events for
+     * @return The list of auditable events referencing the objects of interest
+     * @throws EbxmlRegistryException
+     * @throws MsgRegistryException
+     */
+    public List<AuditableEventType> getEventsOfInterest(
+            SubscriptionType subscription, String serviceAddress,
+            XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
+            List<ObjectRefType> objectsOfInterest)
+            throws EbxmlRegistryException, MsgRegistryException {
+        List<AuditableEventType> events = new ArrayList<AuditableEventType>(0);
+        if (!objectsOfInterest.isEmpty()) {
+            events = getEventsOfInterest(FIND_EVENTS_OF_INTEREST_QUERY,
+                    startTime, endTime, objectsOfInterest);
+        }
+        List<AuditableEventType> deleteEvents = getDeleteEventsOfInterest(
+                subscription, serviceAddress, startTime, endTime);
+        if (!deleteEvents.isEmpty()) {
+            events.addAll(deleteEvents);
+        }
+        Collections.sort(events, EVENT_TIME_COMPARATOR);
+        return events;
+    }
+
+    /**
+     * Gets applicable delete events
+     * 
+     * @param subscription
+     *            The subscription to get the events for
+     * @param serviceAddress
+     *            The address to the registry to use to verify deleted objects
+     * @param startTime
+     *            The start time boundary of the query
+     * @param endTime
+     *            The end time boundary of the query
+     * @return The list of auditable events referencing deleted objects
+     * @throws EbxmlRegistryException
+     * @throws MsgRegistryException
+     */
+    private List<AuditableEventType> getDeleteEventsOfInterest(
+            SubscriptionType subscription, String serviceAddress,
+            XMLGregorianCalendar startTime, XMLGregorianCalendar endTime)
+            throws EbxmlRegistryException, MsgRegistryException {
+
+        List<AuditableEventType> retVal = new LinkedList<AuditableEventType>();
+        List<AuditableEventType> deletedEvents = getEventsOfInterest(
+                FIND_DELETED_EVENTS_OF_INTEREST_QUERY, startTime, endTime, null);
+        try {
+            URL url = new URL(serviceAddress);
+            String baseURL = url.toString().replace(url.getPath(), "");
+            List<ObjectRefType> remoteRefs = soapService
+                    .getQueryServiceForHost(baseURL)
+                    .executeQuery(
+                            new QueryRequest(
+                                    "Deleted Objects of Interest Query for ["
+                                            + subscription.getId() + "]",
+                                    subscription.getSelector(),
+                                    new ResponseOptionType(
+                                            QueryReturnTypes.OBJECT_REF, false)))
+                    .getObjectRefList().getObjectRef();
+
+            for (AuditableEventType event : deletedEvents) {
+                for (ActionType action : event.getAction()) {
+                    if (action.getAffectedObjectRefs() != null
+                            && !action.getAffectedObjectRefs().getObjectRef()
+                                    .isEmpty()) {
+                        if (remoteRefs.contains(action.getAffectedObjectRefs()
+                                .getObjectRef().get(0))) {
+                            retVal.add(event);
+                        }
+                    }
+                }
+            }
+        } catch (MalformedURLException e) {
+            throw new EbxmlRegistryException(
+                    "Error parsing notification address", e);
+        }
+
+        return retVal;
+
+    }
+
+    /**
      * Gets the events of interest based on the start time, end time, and the
      * list of objects of interest
      * 
@@ -147,13 +264,10 @@ public class AuditableEventTypeDao extends
      * @return The list of auditable events of interest within the constrains of
      *         the start time, end time and including the objects of interest
      */
-    public List<AuditableEventType> getEventsOfInterest(
+    private List<AuditableEventType> getEventsOfInterest(String query,
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
             List<ObjectRefType> objectsOfInterest) {
-        String query = FIND_DELETED_EVENTS_OF_INTEREST_QUERY;
-        List<Object> queryParams = new ArrayList<Object>(4);
-        queryParams.add("eventType");
-        queryParams.add(ActionTypes.delete);
+        List<Object> queryParams = new ArrayList<Object>(2);
         queryParams.add("startTime");
         queryParams.add(startTime);
         if (!CollectionUtil.isNullOrEmpty(objectsOfInterest)) {
@@ -239,6 +353,10 @@ public class AuditableEventTypeDao extends
     @Override
     protected Class<AuditableEventType> getEntityClass() {
         return AuditableEventType.class;
+    }
+
+    public void setSoapService(RegistrySOAPServices soapService) {
+        this.soapService = soapService;
     }
 
 }
