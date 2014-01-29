@@ -27,12 +27,11 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/06/13        1447          dgilling       Initial Creation.
+#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
 # 
 #
 
 import cPickle
-import errno
-import logging
 import os
 import sys
 import tempfile
@@ -42,6 +41,7 @@ import xml.etree.ElementTree as ET
 import IrtAccess
 import siteConfig
 import VTECPartners
+import iscUtil
 
 from com.raytheon.uf.common.activetable import ActiveTableMode
 from com.raytheon.uf.common.time.util import TimeUtil
@@ -49,24 +49,12 @@ from com.raytheon.uf.edex.activetable import ActiveTable
 
 
 
-log = None
+logger = None
 
 def init_logging():
-    logPath = os.path.join(siteConfig.GFESUITE_LOGDIR, 
-                           time.strftime("%Y%m%d", time.gmtime()), 'requestAT.log')
-    try:
-        os.makedirs(os.path.dirname(logPath))
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            sys.stderr.write("Could not create log directory " + os.path.dirname(logPath))
-            sys.exit(-1)
-    
-    logging.basicConfig(filename=logPath, 
-                        format="%(levelname)s  %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s", 
-                        datefmt="%H:%M:%S", 
-                        level=logging.INFO)
-    global log
-    log = logging.getLogger("requestAT") 
+    import logging
+    global logger
+    logger = iscUtil.getLogger("requestAT", logLevel=logging.INFO)
 
 def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, ancf, 
                          bncf, xmtScript):
@@ -113,7 +101,7 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
         countDict[rec.getOfficeid()] = cnt + 1
 
     data = (mhsid, siteID, VTECPartners.VTEC_MERGE_SITES, countDict, issueTime)
-    log.info("Data: " + repr(data))
+    logger.info("Data: " + repr(data))
 
     tempdir = os.path.join(siteConfig.GFESUITE_HOME, "products", "ATBL")
     with tempfile.NamedTemporaryFile(suffix='.reqat', dir=tempdir, delete=False) as fp:
@@ -132,17 +120,17 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
     sourceServer = {'mhsid': mhsid, 'host': serverHost, 'port': serverPort,
       'protocol': serverProtocol, 'site': siteID}
     irt.addSourceXML(iscE, sourceServer)
-    log.info("Requesting Server: " + irt.printServerInfo(sourceServer))
+    logger.info("Requesting Server: " + irt.printServerInfo(sourceServer))
 
     # who is running the domains requested?
     sites = VTECPartners.VTEC_TABLE_REQUEST_SITES
     if not sites:
-        log.error('No sites defined for VTEC_TABLE_REQUEST_SITES')
+        logger.error('No sites defined for VTEC_TABLE_REQUEST_SITES')
         sys.exit(1)
 
     status, xml = irt.getServers(sites)
     if not status:
-        log.error('Failure to getServers from IRT')
+        logger.error('Failure to getServers from IRT')
         sys.exit(1)
 
     # decode the XML
@@ -150,11 +138,11 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
         serverTree = ET.ElementTree(ET.XML(xml))
         serversE = serverTree.getroot()
     except:
-        log.exception("Malformed XML on getServers()")
+        logger.exception("Malformed XML on getServers()")
         sys.exit(1)
 
     if serversE.tag != "servers":
-        log.error("Servers packet missing from web server")
+        logger.error("Servers packet missing from web server")
         sys.exit(1)
 
     # process each requested domain returned to us
@@ -226,13 +214,13 @@ def execute_request_at(serverHost, serverPort, serverProtocol, mhsid, siteID, an
     s = "Matching Servers:"
     for x in matchingServers:
         s += "\n" + irt.printServerInfo(x)
-    log.info(s)
+    logger.info(s)
 
     # Display the chosen set of servers
     s = "Chosen Servers:"
     for x in chosenServers:
         s += "\n" + irt.printServerInfo(x)
-    log.info(s)
+    logger.info(s)
 
     irt.addDestinationXML(iscE, chosenServers)
 
@@ -252,18 +240,18 @@ def runFromJava(serverHost, serverPort, serverProtocol, mhsid, siteID, ancf,
                 bncf, xmtScript):
     init_logging()
     
-    log.info('*********** requestAT ******************')
+    logger.info('*********** requestAT ******************')
     startT = time.time()
     
     try:
         execute_request_at(serverHost, serverPort, serverProtocol, mhsid, 
                              siteID, ancf, bncf, xmtScript)
     except:
-        log.exception('Error requesting active table')
+        logger.exception('Error requesting active table')
     
     #--------------------------------------------------------------------
     # Finish
     #--------------------------------------------------------------------
     endT = time.time()
-    log.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock()))
+    logger.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock()))
 

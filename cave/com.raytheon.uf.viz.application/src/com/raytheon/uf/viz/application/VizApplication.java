@@ -19,6 +19,10 @@
 
 package com.raytheon.uf.viz.application;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -40,6 +44,7 @@ import com.raytheon.uf.viz.application.component.IStandaloneComponent;
  * Dec 03, 2007 461        bphillip    Added persistence of workstation time to localization
  * Oct 07, 2008 1433       chammack    Added alertviz startup
  * Nov 27, 2013            mschenke    Removed ProgramArguments to make dependencies cleaner
+ * Jan 23, 2014            njensen     Added shutdown hook and printout
  * 
  * </pre>
  * 
@@ -55,6 +60,7 @@ public class VizApplication implements IApplication {
      * @seeorg.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.
      * IApplicationContext)
      */
+    @Override
     public Object start(IApplicationContext context) throws Exception {
         String appToRun = null;
         String[] arguments = Platform.getApplicationArgs();
@@ -86,6 +92,8 @@ public class VizApplication implements IApplication {
             return IApplication.EXIT_OK;
         }
 
+        addShutdownHook();
+
         return component.startComponent(appToRun);
     }
 
@@ -94,6 +102,7 @@ public class VizApplication implements IApplication {
      * 
      * @see org.eclipse.equinox.app.IApplication#stop()
      */
+    @Override
     public void stop() {
 
     }
@@ -129,6 +138,31 @@ public class VizApplication implements IApplication {
         }
 
         return standalone;
+    }
+
+    protected void addShutdownHook() {
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                /*
+                 * This may seem pointless but is actually quite helpful to
+                 * confirm how the process exited. If the process is killed by a
+                 * kill command on a terminal, the console output will have this
+                 * message but not the normal safe shutdown output (see
+                 * com.raytheon.uf.viz.core.Activator's stop() and
+                 * VizWorkbenchAdvisor's preShutdown()). In contrast, a
+                 * spontaneous death of the process or force kill will not have
+                 * this printout.
+                 */
+                SimpleDateFormat sdf = new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+                System.out.println(sdf.format(new Date())
+                        + " VizApplication's runtime shutdown hook triggered");
+            }
+        }) {
+
+        });
     }
 
 }

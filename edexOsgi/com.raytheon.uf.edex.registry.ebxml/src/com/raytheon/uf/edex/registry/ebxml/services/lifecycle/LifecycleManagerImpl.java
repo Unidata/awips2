@@ -107,6 +107,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * Nov 08, 2013 2506       bgonzale    Added RegistryObjectType to RemoveRegistryEvent.
  *                                     Separate update from create notifications.
  * 12/2/2013    1829       bphillip    Auditable events are not genereted via messages on the event bus
+ * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
  * 
  * 
  * </pre>
@@ -230,8 +231,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 statusHandler
                         .info("No results returned from remove objects query");
             } else {
-                statusHandler.info("Remove objects query returned "
-                        + queryResponse.getRegistryObjects() + " objects");
                 objectsToRemove.addAll(queryResponse.getRegistryObjects());
             }
         }
