@@ -39,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed false throws statements
  * 
  * </pre>
  * 
@@ -63,8 +64,7 @@ public abstract class BaseSession implements ISession {
      * @param externalBus
      * @param manager
      */
-    protected BaseSession(EventBus externalBus,
-            CollaborationConnection manager) throws CollaborationException {
+    protected BaseSession(EventBus externalBus, CollaborationConnection manager) {
         this(externalBus, manager, UUID.randomUUID().toString());
     }
 
@@ -76,8 +76,7 @@ public abstract class BaseSession implements ISession {
      * @param sessionId
      */
     protected BaseSession(EventBus externalBus,
-            CollaborationConnection manager, String sessionId)
-            throws CollaborationException {
+            CollaborationConnection manager, String sessionId) {
         // Set the session identifier.
         this.sessionId = sessionId;
         managerEventBus = externalBus;
