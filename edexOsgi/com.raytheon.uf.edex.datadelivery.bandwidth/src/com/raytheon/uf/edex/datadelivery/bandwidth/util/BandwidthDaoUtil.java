@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -79,6 +78,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Dec 20, 2013 2636       mpduff       Fix dataset offset.
  * Jan 08, 2014 2615       bgonzale     Refactored getRetrievalTimes into RecurringSubscription
  *                                      calculateStart and calculateEnd methods.
+ * Jan 24, 2014 2636       mpduff       Refactored retrieval time generation.
+ * Jan 24, 2013 2709       bgonzale     Added inActivePeriodWindow check during retrieval time calculations
+ *                                      because the calculate start and end time methods no longer use
+ *                                      active period.
  * </pre>
  * 
  * @author djohnson
@@ -173,19 +176,31 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         Calendar planStart = plan.getPlanStart();
 
         // starting time when when subscription is first valid for scheduling
-        // based on plan start, subscription start, and active period start.
+        // based on plan start and subscription start.
         Calendar subscriptionCalculatedStart = subscription
                 .calculateStart(planStart);
         // end time when when subscription is last valid for scheduling based on
-        // plan end, subscription end, and active period end.
+        // plan end and subscription end.
         Calendar subscriptionCalculatedEnd = subscription.calculateEnd(planEnd);
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("**** PlanStart: " + planStart.getTime());
+            statusHandler.debug("**** PlanEnd  : " + planEnd.getTime());
+            statusHandler.debug("**** CalculatedStart: "
+                    + subscriptionCalculatedStart.getTime());
+            statusHandler.debug("**** CalculatedEnd  : "
+                    + subscriptionCalculatedEnd.getTime());
+        }
 
+        // drop the start time by 6 hours to account for 4 cycle/day models
+        subscriptionCalculatedStart = TimeUtil.minCalendarFields(
+                subscriptionCalculatedStart, Calendar.MINUTE, Calendar.SECOND,
+                Calendar.MILLISECOND);
+        subscriptionCalculatedStart.add(Calendar.HOUR_OF_DAY, -6);
         Calendar start = (Calendar) subscriptionCalculatedStart.clone();
         outerloop: while (!start.after(subscriptionCalculatedEnd)) {
 
             for (Integer cycle : hours) {
                 start.set(Calendar.HOUR_OF_DAY, cycle);
-
                 // start base equal-to-or-after subscriptionStart
                 if (start.compareTo(subscriptionCalculatedStart) >= 0) {
                     for (Integer minute : minutes) {
@@ -206,7 +221,9 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
                                  **/
                                 // Subscription Start and End time first
                                 if (time.after(subscriptionCalculatedEnd)
-                                        || time.before(start)) {
+                                        || time.before(start)
+                                        || !subscription
+                                                .inActivePeriodWindow(time)) {
                                     // don't schedule this retrieval time,
                                     // outside subscription window
                                     continue;
@@ -222,35 +239,6 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             // Start the next day..
             start.add(Calendar.DAY_OF_YEAR, 1);
             start.set(Calendar.HOUR_OF_DAY, hours.first());
-        }
-
-        // Now walk the subscription times and throw away anything outside the
-        // plan hours, taking into account the availability delay...
-        int availabilityOffset = 0;
-        Iterator<Calendar> itr = subscriptionTimes.iterator();
-        while (itr.hasNext()) {
-            availabilityOffset = 0;
-            Calendar time = itr.next();
-
-            try {
-                availabilityOffset = BandwidthUtil.getDataSetAvailablityOffset(
-                        subscription, time);
-            } catch (RegistryHandlerException e) {
-                // Error occurred querying the registry. Log and continue on
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Unable to retrieve data availability offset, using 0 for the offset.",
-                                e);
-            }
-
-            Calendar withAvailabilityOffset = TimeUtil.newCalendar(time);
-            withAvailabilityOffset.add(Calendar.MINUTE, availabilityOffset);
-
-            // We allow base reference times that are still possible to retrieve
-            // within the availability window to be included
-            if (withAvailabilityOffset.before(planStart) || time.after(planEnd)) {
-                itr.remove();
-            }
         }
 
         return subscriptionTimes;
