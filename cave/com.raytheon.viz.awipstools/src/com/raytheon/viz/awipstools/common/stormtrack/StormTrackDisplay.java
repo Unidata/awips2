@@ -98,6 +98,8 @@ import com.vividsolutions.jts.geom.LineString;
  *  15Mar2013	15693	mgamazaychikov Made sure that magnification capability works.
  *  06-11-2013  DR 16234   D. Friedman Fix pivot index when frames count is reduced.
  *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
+ *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
+ *                                     count changes; made line width configurable.
  * 
  * </pre>
  * 
@@ -408,13 +410,13 @@ public class StormTrackDisplay implements IRenderable {
         // if mouseDownGeom set or not
         RGB lineColor = state.mouseDownGeom != null ? LIGHT_GRAY : state.color;
         // Paint the non dragging geom
-        paintLine(target, line.getCoordinates(), lineColor, state.isEditable(),
+        paintLine(target, line.getCoordinates(), lineColor, state.lineWidth, state.isEditable(),
                 circleSize, LineStyle.SOLID);
 
         if (state.mouseDownGeom != null) {
             // Paint the dragging geom
             paintLine(target, state.mouseDownGeom.getCoordinates(),
-                    state.color, state.isEditable(), circleSize,
+                    state.color, state.lineWidth, state.isEditable(), circleSize,
                     LineStyle.DOTTED);
             lineColor = LIGHT_GRAY;
         }
@@ -425,7 +427,7 @@ public class StormTrackDisplay implements IRenderable {
                             line,
                             gf.createPoint(state.futurePoints[state.futurePoints.length - 1].coord));
             if (endLine != null) {
-                paintLine(target, endLine.getCoordinates(), lineColor, false,
+                paintLine(target, endLine.getCoordinates(), lineColor, state.lineWidth, false,
                         0, LineStyle.DASHED_LARGE);
             }
         }
@@ -440,12 +442,13 @@ public class StormTrackDisplay implements IRenderable {
      *            coordinates in the line
      * @param color
      *            color of the line
+     * @param lineWidth 
      * @param editable
      *            if the line is editable
      * @throws VizException
      */
     private void paintLine(IGraphicsTarget target, Coordinate[] coords,
-            RGB color, boolean editable, double circleSize, LineStyle style)
+            RGB color, float lineWidth, boolean editable, double circleSize, LineStyle style)
             throws VizException {
         DrawableCircle circle = new DrawableCircle();
         circle.basics.color = color;
@@ -474,7 +477,7 @@ public class StormTrackDisplay implements IRenderable {
                             lastCoord.x, lastCoord.y });
 
                     target.drawLine(p1[0], p1[1], 0.0, p2[0], p2[1], 0.0,
-                            color, 1.0f, style);
+                            color, lineWidth, style);
                 }
             }
             lastCoord = currCoord;
@@ -716,6 +719,15 @@ public class StormTrackDisplay implements IRenderable {
                     || currentState.newDuration != -1 || update) {
                 if (currentState.timePoints != null
                         && currentState.timePoints.length != frameCount) {
+                    // need to set theAnchorPoint and theAnchorIndex here
+                    // because timePoints get erased before we get to updateAnchorPoint
+                    DataTime frameTime = paintProps.getDataTime();
+                    for (int j=0;j<currentState.timePoints.length;j++){
+                        if (frameTime.equals(currentState.timePoints[j].time)) {
+                            theAnchorPoint = currentState.timePoints[j].coord;
+                            theAnchorIndex = j;
+                        }
+                    }
                     currentState.timePoints = null;
                 }
 
