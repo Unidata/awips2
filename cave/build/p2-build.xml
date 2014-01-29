@@ -144,6 +144,12 @@
 		<!-- We Need To Build The p2 Repos In A Certain Order Due To
 		     Dependencies. -->
 
+		<!-- copy the com.raytheon.uf.viz.application.feature feature.
+		     Used by the com.raytheon.viz.feature.awips feature. -->
+                <copy todir="${basedir}/cave/p2/features" verbose="true">
+                	<fileset dir="${workspace.dir}"
+                		includes="com.raytheon.uf.viz.application.feature/**" />
+                </copy>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.feature.awips" />
