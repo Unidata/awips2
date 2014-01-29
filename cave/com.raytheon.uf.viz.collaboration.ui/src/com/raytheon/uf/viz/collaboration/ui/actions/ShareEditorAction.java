@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Menu;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
@@ -52,6 +51,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            mnash     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -142,14 +142,7 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
         if (editor != null) {
             List<ISharedDisplaySession> sessions = getSessions();
             for (final ISharedDisplaySession session : sessions) {
-                String sessionName;
-                try {
-                    IVenueInfo sessionInfo = session.getVenue().getInfo();
-                    sessionName = sessionInfo.getVenueDescription();
-                } catch (CollaborationException e1) {
-                    Activator.statusHandler.error(e1.getLocalizedMessage(), e1);
-                    sessionName = session.getVenue().getName();
-                }
+                String sessionName = session.getVenue().getName();
                 ActionContributionItem aci = new ActionContributionItem(
                         new Action(sessionName) {
                             @Override
