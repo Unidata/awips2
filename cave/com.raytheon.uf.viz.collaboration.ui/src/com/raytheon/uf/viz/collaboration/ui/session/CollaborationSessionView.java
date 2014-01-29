@@ -51,7 +51,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
@@ -92,6 +91,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -559,14 +559,9 @@ public class CollaborationSessionView extends SessionView implements
         Label label = new Label(comp, SWT.NONE);
         StringBuilder labelInfo = new StringBuilder();
         if (session != null) {
-            IVenueInfo info;
-            try {
-                info = ((IVenueSession) session).getVenue().getInfo();
-                labelInfo.append(info.getVenueSubject());
-                label.setToolTipText(info.getVenueSubject());
-            } catch (CollaborationException e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-            }
+            String subject = ((IVenueSession) session).getVenue().getSubject();
+            labelInfo.append(subject);
+            label.setToolTipText(subject);
         }
         label.setText(labelInfo.toString());
     }
