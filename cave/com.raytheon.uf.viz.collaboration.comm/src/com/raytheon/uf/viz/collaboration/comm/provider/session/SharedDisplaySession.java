@@ -54,7 +54,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
@@ -72,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2012            njensen     Initial creation
  * Dec 18, 2013 2562       bclement    moved data to packet extension
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -96,7 +96,7 @@ public class SharedDisplaySession extends VenueSession implements
     private XMPPConnection conn;
 
     public SharedDisplaySession(EventBus externalBus,
-            CollaborationConnection manager) throws CollaborationException {
+            CollaborationConnection manager) {
         super(externalBus, manager);
         init();
     }
@@ -270,16 +270,15 @@ public class SharedDisplaySession extends VenueSession implements
      * configureVenue(java.lang.String)
      */
     @Override
-    protected IVenueInfo configureVenue(String venueName)
+    protected void configureVenue(String venueName)
             throws CollaborationException {
-        IVenueInfo rval = super.configureVenue(venueName);
+        super.configureVenue(venueName);
         try {
             configureSubscription();
         } catch (XMPPException e) {
             throw new CollaborationException(
                     "Unable to configure subscription", e);
         }
-        return rval;
     }
 
     /**
@@ -332,9 +331,9 @@ public class SharedDisplaySession extends VenueSession implements
      * createVenue(java.lang.String, java.lang.String)
      */
     @Override
-    protected IVenueInfo createVenue(String venueName, String subject)
+    protected void createVenue(String venueName, String subject)
             throws CollaborationException {
-        IVenueInfo rval = super.createVenue(venueName, subject);
+        super.createVenue(venueName, subject);
         try {
             createNode(getSessionId());
         } catch (XMPPException e) {
@@ -344,9 +343,8 @@ public class SharedDisplaySession extends VenueSession implements
             configureSubscription();
         } catch (XMPPException e) {
             throw new CollaborationException(
-                    "Unable to configure subscription", e);
+                    "Unable to configure pubsub topic", e);
         }
-        return rval;
     }
 
     /**
