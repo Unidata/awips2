@@ -21,12 +21,7 @@ package com.raytheon.uf.viz.collaboration.display.roles;
 
 import org.eclipse.ui.PartInitException;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.display.editor.CollaborationEditorInput;
 import com.raytheon.uf.viz.collaboration.display.editor.ICollaborationEditor;
 import com.raytheon.viz.ui.VizWorkbenchManager;
@@ -41,6 +36,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -50,9 +46,6 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
 
 public class ParticipantEventController extends
         AbstractRoleEventController<ICollaborationEditor> {
-
-    private final IUFStatusHandler statusHandler = UFStatus.getHandler(this
-            .getClass());
 
     public ParticipantEventController(ISharedDisplaySession session) {
         super(session);
@@ -67,17 +60,9 @@ public class ParticipantEventController extends
      */
     @Override
     protected ICollaborationEditor createDisplayContainer() {
-        String desc;
-        try {
-            IVenueInfo info = session.getVenue().getInfo();
-            desc = info.getVenueDescription();
-        } catch (CollaborationException e1) {
-            statusHandler
-                    .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
-            desc = session.getVenue().getName();
-        }
+        String name = session.getVenue().getName();
         CollaborationEditorInput input = new CollaborationEditorInput(
-                session.getSessionId(), desc);
+                session.getSessionId(), name);
         try {
             return (ICollaborationEditor) VizWorkbenchManager.getInstance()
                     .getCurrentWindow().getActivePage()

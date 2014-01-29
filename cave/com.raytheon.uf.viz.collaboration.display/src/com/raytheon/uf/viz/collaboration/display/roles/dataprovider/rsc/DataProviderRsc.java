@@ -25,7 +25,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2012            njensen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -85,16 +86,9 @@ public class DataProviderRsc extends
         if (container != null) {
             session = container.getSession();
             colorManager = container.getColorManager();
-            IVenueInfo info;
-            try {
-                info = session.getVenue().getInfo();
-                roomName = info.getVenueDescription();
-                subject = info.getVenueSubject();
-            } catch (CollaborationException e) {
-                statusHandler.error(e.getLocalizedMessage(), e);
-                roomName = session.getVenue().getName();
-            }
-
+            IVenue venue = session.getVenue();
+            roomName = venue.getName();
+            subject = venue.getSubject();
         }
     }
 
