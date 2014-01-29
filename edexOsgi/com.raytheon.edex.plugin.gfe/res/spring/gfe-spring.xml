@@ -38,7 +38,7 @@
 
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="SPCWatch">
-            <from uri="vm:edex.spcWatch"/>
+            <from uri="vm:gfe.spcWatch"/>
             <doTry>
                 <bean ref="spcWatch" method="handleSpcWatch"/>
                 <doCatch>
@@ -50,7 +50,7 @@
         </route>
 
         <route id="TPCWatch">
-            <from uri="vm:edex.tpcWatch"/>
+            <from uri="vm:gfe.tpcWatch"/>
             <doTry>
                 <bean ref="tpcWatch" method="handleTpcWatch"/>
                 <doCatch>
@@ -63,7 +63,14 @@
 
         <route id="WCLWatch">
             <from uri="direct-vm:wclWatch"/>
-            <bean ref="wclWatch" method="handleWclWatch"/>
+            <doTry>
+                <bean ref="wclWatch" method="handleWclWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
         </route>
 
         <route id="smartInitTrigger">
