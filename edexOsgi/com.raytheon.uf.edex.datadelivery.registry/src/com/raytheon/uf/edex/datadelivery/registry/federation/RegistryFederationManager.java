@@ -156,6 +156,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/2/2013    1829        bphillip    Modified to use correct getters for slot values
  * 12/9/2013    2613        bphillip    Optimized registry sync function
  * 1/15/2014    2613        bphillip    Added leaveFederation method to prevent inactive registries from participating in the federation unintentionally.
+ * 1/21/2014    2613        bphillip    Changed max down time which requires a sync
  * </pre>
  * 
  * @author bphillip
@@ -188,8 +189,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
      * The maximum time a registry can be down before a full synchronization is
      * performed
      */
-    private static final long MAX_DOWN_TIME_DURATION = TimeUtil.MILLIS_PER_DAY
-            * 2 - TimeUtil.MILLIS_PER_HOUR;
+    private static final long MAX_DOWN_TIME_DURATION = TimeUtil.MILLIS_PER_HOUR * 6;
 
     /** The central registry mode string */
     private static final String CENTRAL_REGISTRY_MODE = "centralRegistry";
