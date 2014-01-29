@@ -29,7 +29,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -52,6 +51,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -120,9 +120,9 @@ public class CreateSessionAction extends Action {
                     if (users.length > 0) {
                         IVenueSession session = (IVenueSession) CollaborationConnection
                                 .getConnection().getSession(sessionId);
-                        IVenueInfo info = session.getVenue().getInfo();
+                        String subject = session.getVenue().getSubject();
                         InviteAction invite = new InviteAction(session,
-                                info.getVenueDescription(), users);
+                                subject, users);
                         invite.setInviteMessage(result.getInviteMessage());
                         invite.run();
                     }
