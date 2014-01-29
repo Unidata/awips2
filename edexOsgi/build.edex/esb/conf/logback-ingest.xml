@@ -200,8 +200,9 @@
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
-   <logger name="com.raytheon.edex.plugin.shef">
+   <logger name="com.raytheon.edex.plugin.shef" additivity="false">
       <level value="INFO"/>
+      <appender-ref ref="ShefLog" />
    </logger>
    <logger name="com.raytheon.edex.services.ArchiveSrv">
       <level value="WARN"/>
