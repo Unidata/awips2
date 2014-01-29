@@ -24,16 +24,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 
 /**
- * TODO Add Description
+ * Retrieve session objects from contacts list
  * 
  * <pre>
  * 
@@ -42,16 +38,14 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2012            rferrel     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-
 public class SessionGroupContainer {
-
-    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     public List<Object> getObjects() {
         CollaborationConnection connection = CollaborationConnection
@@ -63,17 +57,7 @@ public class SessionGroupContainer {
         List<Object> result = new ArrayList<Object>();
         for (ISession session : sessions) {
             if (session instanceof IVenueSession) {
-                IVenueSession vs = (IVenueSession) session;
-                IVenueInfo info;
-                try {
-                    info = vs.getVenue().getInfo();
-                } catch (CollaborationException e) {
-                    log.error("Unable to get venue info", e);
-                    continue;
-                }
-                if (info.isPersistent() == false) {
-                    result.add(session);
-                }
+                result.add(session);
             }
         }
         return result;
