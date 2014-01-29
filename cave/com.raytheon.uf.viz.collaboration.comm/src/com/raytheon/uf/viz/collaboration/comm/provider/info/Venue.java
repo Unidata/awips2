@@ -27,20 +27,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Provides information about a venue.
  * 
  * <pre>
  * 
@@ -50,34 +48,21 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-
 public class Venue implements IVenue {
 
     private final MultiUserChat muc;
-
-    private final XMPPConnection conn;
 
     private Map<String, Presence> presenceMap = new HashMap<String, Presence>();
 
     public Venue(XMPPConnection conn, MultiUserChat muc) {
         this.muc = muc;
-        this.conn = conn;
-    }
-
-    @Override
-    public IVenueInfo getInfo() throws CollaborationException {
-        try {
-            return new VenueInfo(MultiUserChat.getRoomInfo(conn, muc.getRoom()));
-        } catch (XMPPException e) {
-            throw new CollaborationException("Unable to get room information",
-                    e);
-        }
     }
 
     @Override
@@ -112,7 +97,39 @@ public class Venue implements IVenue {
      */
     @Override
     public String getName() {
+        return StringUtils.parseName(getId());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getId()
+     */
+    @Override
+    public String getId() {
         return muc.getRoom();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#
+     * getParticipantCount()
+     */
+    @Override
+    public int getParticipantCount() {
+        return muc.getOccupantsCount();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getSubject()
+     */
+    @Override
+    public String getSubject() {
+        return muc.getSubject();
     }
 
 }

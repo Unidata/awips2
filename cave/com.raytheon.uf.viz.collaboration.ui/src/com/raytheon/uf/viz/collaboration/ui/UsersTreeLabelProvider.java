@@ -36,11 +36,8 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.packet.Presence;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -60,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Dec 20, 2013 2563       bclement    fixed support for ungrouped roster items
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * Jan 27, 2014 2700       bclement    pass roster entries directly to userLabelProvider
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -67,8 +65,6 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * @version 1.0
  */
 public class UsersTreeLabelProvider extends ColumnLabelProvider {
-
-    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
 
     private AbstractUserLabelProvider userLabelProvider = new AbstractUserLabelProvider() {
 
@@ -146,14 +142,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             if (venue.getVenue() == null) {
                 return null;
             }
-            IVenueInfo info;
-            try {
-                info = venue.getVenue().getInfo();
-            } catch (CollaborationException e) {
-                log.error("Unable to get session information", e);
-                return null;
-            }
-            return info.getVenueDescription();
+            return venue.getVenue().getName();
         }
         return null;
     }
@@ -189,19 +178,14 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
         // portion of the view
         else if (element instanceof IVenueSession) {
             IVenueSession sessGroup = (IVenueSession) element;
-            IVenueInfo info;
-            try {
-                info = sessGroup.getVenue().getInfo();
-            } catch (CollaborationException e) {
-                log.error("Unable to get session tool tip text", e);
-                return "";
-            }
-            builder.append("ID: ").append(info.getVenueID());
-            builder.append("\nName: ").append(info.getVenueDescription())
+            IVenue venue = sessGroup.getVenue();
+            builder.append("ID: ").append(venue.getId());
+            builder.append("\nName: ").append(venue.getName())
                     .append("\n");
-            builder.append("Subject: ").append(info.getVenueSubject())
+            builder.append("Subject: ").append(venue.getSubject())
                     .append("\n");
-            builder.append("Participants: ").append(info.getParticipantCount());
+            builder.append("Participants: ")
+                    .append(venue.getParticipantCount());
             return builder.toString();
         } else {
             return null;
