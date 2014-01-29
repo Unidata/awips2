@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.plugin.madis.ogc.MadisLayer;
  * Sept 2, 2013 #2098      dhladky      Improved time management.
  * Sept 9, 2013 #2351      dhladky      Speed improvements
  * Jan 13, 2014 #2679      dhladky      multiple ingest layers for a single request window.
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  *
  * </pre>
  *
@@ -79,7 +80,7 @@ public class MadisRegistryCollectorAddon extends
 	 */
 	@Override
 	protected Date getTime(MadisRecord record) {
-		Date time = record.getTimeObs();
+		Date time = record.getTimeObs().getTime();
 		return time;
 	}
 
