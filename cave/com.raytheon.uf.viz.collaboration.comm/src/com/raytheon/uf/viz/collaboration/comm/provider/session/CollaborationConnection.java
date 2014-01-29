@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,13 +42,11 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.MultiUserChat;
-import org.jivesoftware.smackx.muc.RoomInfo;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.net.HostAndPort;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -60,7 +56,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
@@ -71,7 +66,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.info.VenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -111,6 +105,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Jan 08, 2014 2563       bclement    fixed custom port and service name in user id
  * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
  * Jan 24, 2014 2701       bclement    removed roster manager
+ * Jan 28, 2014 2698       bclement    fixed compression default
+ *                                     cleaned up createCollaborationVenue, removed getVenueInfo
  * 
  * </pre>
  * 
@@ -156,7 +152,10 @@ public class CollaborationConnection implements IEventPublisher {
 
     static {
         try {
-            COMPRESS = Boolean.getBoolean("collaboration.compression");
+            final String compressionProperty = "collaboration.compression";
+            if (System.getProperty(compressionProperty) != null) {
+                COMPRESS = Boolean.getBoolean(compressionProperty);
+            }
         } catch (Exception e) {
             // must not have permission to access system properties. ignore and
             // use default.
@@ -394,20 +393,15 @@ public class CollaborationConnection implements IEventPublisher {
     public ISharedDisplaySession createCollaborationVenue(String venueName,
             String subject) throws CollaborationException {
         SharedDisplaySession session = null;
-        try {
-            session = new SharedDisplaySession(eventBus, this);
+        session = new SharedDisplaySession(eventBus, this);
 
-            session.createVenue(venueName, subject);
-            session.setCurrentSessionLeader(user);
-            session.setCurrentDataProvider(user);
+        session.createVenue(venueName, subject);
+        session.setCurrentSessionLeader(user);
+        session.setCurrentDataProvider(user);
 
-            sessions.put(session.getSessionId(), session);
-            postEvent(session);
-            return session;
-        } catch (Exception e) {
-            throw new CollaborationException(
-                    "Error creating collaboration venue " + venueName, e);
-        }
+        sessions.put(session.getSessionId(), session);
+        postEvent(session);
+        return session;
     }
 
     /**
@@ -469,32 +463,6 @@ public class CollaborationConnection implements IEventPublisher {
     protected void removeSession(ISession session) {
         sessions.remove(session.getSessionId());
         postEvent(session);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public Collection<IVenueInfo> getVenueInfo() {
-        // Check to see if the container has been connected.
-        Collection<IVenueInfo> info = new ArrayList<IVenueInfo>();
-        if (isConnected()) {
-            Iterator<String> joinedRooms = MultiUserChat.getJoinedRooms(
-                    connection, connection.getUser());
-            while (joinedRooms.hasNext()) {
-                String room = joinedRooms.next();
-                RoomInfo roomInfo;
-                try {
-                    roomInfo = MultiUserChat.getRoomInfo(connection, room);
-                    info.add(new VenueInfo(roomInfo));
-                } catch (XMPPException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Unable to get info for room: " + room, e);
-                }
-            }
-        }
-
-        return info;
     }
 
     // ***************************
