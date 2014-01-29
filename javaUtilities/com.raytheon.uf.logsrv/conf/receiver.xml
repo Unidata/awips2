@@ -5,8 +5,8 @@
   
   <appender name="InternalLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
       <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-         <fileNamePattern>/home/njensen/logs/logService-internal-%d{yyyyMMdd}.log</fileNamePattern>
-         <maxHistory>30</maxHistory>
+         <fileNamePattern>${logSrvLogs}/logs/logService-internal-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>7</maxHistory>
       </rollingPolicy> 
       <encoder> 
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
