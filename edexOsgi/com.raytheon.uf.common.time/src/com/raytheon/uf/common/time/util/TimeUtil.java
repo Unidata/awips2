@@ -56,6 +56,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Nov 05, 2013 2499       rjpeter     Added prettyDuration.
  * Jan 08, 2014 2615       bgonzale    Added Calendar min and max methods.
  *                                     Added newGmtCalendar from a date method.
+ * Jan 28, 2014  2636      mpduff      Removed unused methods.
  * </pre>
  * 
  * @author njensen
@@ -180,6 +181,13 @@ public final class TimeUtil {
      * The strategy to retrieve the "current time" value from.
      */
     static ITimeStrategy timeStrategy = SYSTEM_TIME_STRATEGY;
+
+    /**
+     * Disabled constructor.
+     */
+    private TimeUtil() {
+
+    }
 
     /**
      * Converts a Calendar in the local time zone to a GMT date
@@ -325,30 +333,6 @@ public final class TimeUtil {
         return (laterCal.get(Calendar.DAY_OF_YEAR) > earlierCal
                 .get(Calendar.DAY_OF_YEAR))
                 || (laterCal.get(Calendar.YEAR) > earlierCal.get(Calendar.YEAR));
-    }
-
-    /**
-     * Min comparison of a Date and a Calendar; returns the lesser.
-     * 
-     * @param lhs
-     * @param rhs
-     * @return the lesser of a Data and a Calendar; returns null if either is
-     *         null.
-     */
-    public static Calendar min(Date lhs, Calendar rhs) {
-        return min(TimeUtil.newCalendar(lhs), rhs);
-    }
-
-    /**
-     * Max comparison of a Date and a Calendar; returns the greater.
-     * 
-     * @param lhs
-     * @param rhs
-     * @return the greater of a Data and a Calendar; returns null if either is
-     *         null.
-     */
-    public static Calendar max(Date lhs, Calendar rhs) {
-        return max(TimeUtil.newCalendar(lhs), rhs);
     }
 
     /**
@@ -578,13 +562,8 @@ public final class TimeUtil {
     }
 
     /**
-     * Disabled constructor.
-     */
-    private TimeUtil() {
-    }
-    
-    /**
      * New Calendar from a Date
+     * 
      * @param date
      * @return
      */
@@ -596,7 +575,7 @@ public final class TimeUtil {
         }
         return t;
     }
-    
+
     /**
      * New Calendar from an existing calendar
      * 
@@ -611,7 +590,7 @@ public final class TimeUtil {
         }
         return t;
     }
-    
+
     /**
      * New GMT Calendar from a Date
      * 
@@ -637,11 +616,11 @@ public final class TimeUtil {
      * @return
      */
     public static Calendar addCurrentYearCalendar(final Calendar calendar) {
-        
+
         Calendar yearTime = TimeUtil.newGmtCalendar();
         calendar.set(Calendar.YEAR, yearTime.get(Calendar.YEAR));
-        
+
         return calendar;
     }
-   
+
 }
