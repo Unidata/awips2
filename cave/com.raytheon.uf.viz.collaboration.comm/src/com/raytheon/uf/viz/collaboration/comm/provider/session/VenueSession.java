@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,7 +31,9 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Message.Type;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
@@ -47,7 +50,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
@@ -62,6 +64,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
+ * Represents a multi-user chat room
  * 
  * <ul>
  * <li>EventBus subscription events.</li>
@@ -89,6 +92,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Dec 19, 2013 2563       bclement    status listeners now send all events to bus
  * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
  * Jan 08, 2014 2563       bclement    fixed service name in user IDs from chat history
+ * Jan 28, 2014 2698       bclement    removed venue info, new rooms are now invite-only
+ *                                     improved error handling for when room already exists
  * 
  * </pre>
  * 
@@ -132,8 +137,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus, CollaborationConnection manager)
-            throws CollaborationException {
+    protected VenueSession(EventBus externalBus, CollaborationConnection manager) {
         super(externalBus, manager);
     }
 
@@ -253,7 +257,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @return
      * @throws CollaborationException
      */
-    protected IVenueInfo configureVenue(String venueName)
+    protected void configureVenue(String venueName)
             throws CollaborationException {
         CollaborationConnection manager = getSessionManager();
         XMPPConnection conn = manager.getXmppConnection();
@@ -261,7 +265,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
         this.muc = new MultiUserChat(conn, roomId);
         this.venue = new Venue(conn, muc);
         createListeners();
-        return this.venue.getInfo();
     }
 
     /**
@@ -284,7 +287,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#createVenue(java.lang.String,
      *      java.lang.String)
      */
-    protected IVenueInfo createVenue(String venueName, String subject)
+    protected void createVenue(String venueName, String subject)
             throws CollaborationException {
         try {
             CollaborationConnection manager = getSessionManager();
@@ -297,15 +300,68 @@ public class VenueSession extends BaseSession implements IVenueSession {
             createListeners();
             UserId user = manager.getUser();
             muc.create(user.getName());
-            muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+            muc.sendConfigurationForm(getRoomConfig(venueName));
             muc.changeSubject(subject);
             this.venue = new Venue(conn, muc);
             sendPresence(CollaborationConnection.getConnection().getPresence());
-            return this.venue.getInfo();
         } catch (XMPPException e) {
-            throw new CollaborationException("Error creating venue "
-                    + venueName, e);
+            XMPPError xmppError = e.getXMPPError();
+            String msg;
+            if (xmppError != null) {
+                int code = xmppError.getCode();
+                if (code == 409 || code == 407) {
+                    // 409: room already exists, can't join due to name conflict
+                    // 407: room already exists, can't join since it is private
+                    msg = "Session already exists. Pick a different name.";
+                } else {
+                    msg = xmppError.getCondition();
+                }
+            } else {
+                msg = "Error creating venue " + venueName;
+            }
+            throw new CollaborationException(msg, e);
         }
+    }
+
+    protected Form getRoomConfig(String roomName) throws CollaborationException {
+        Form form;
+        try {
+            form = muc.getConfigurationForm();
+        } catch (XMPPException e) {
+            throw new CollaborationException(
+                    "Unable to create room configuration form", e);
+        }
+        Form submitForm = form.createAnswerForm();
+        // Add default answers to the form to submit
+        for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
+            FormField field = fields.next();
+            if (!FormField.TYPE_HIDDEN.equals(field.getType())
+                    && field.getVariable() != null) {
+                // Sets the default value as the answer
+                submitForm.setDefaultAnswer(field.getVariable());
+            }
+        }
+        submitForm.setAnswer("muc#roomconfig_roomname", roomName);
+        submitForm.setAnswer("muc#roomconfig_roomdesc", roomName);
+        submitForm.setAnswer("muc#roomconfig_publicroom", false);
+        submitForm.setAnswer("muc#roomconfig_membersonly", true);
+        submitForm.setAnswer("muc#roomconfig_allowinvites", true);
+        submitForm.setAnswer("muc#roomconfig_whois",
+                Arrays.asList("moderators"));
+        return submitForm;
+    }
+
+    /**
+     * @param roomName
+     * @return true if room exists on server
+     * @throws XMPPException
+     */
+    public static boolean roomExistsOnServer(String roomName)
+            throws XMPPException {
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        XMPPConnection xmpp = conn.getXmppConnection();
+        String id = getRoomId(xmpp.getServiceName(), roomName);
+        return roomExistsOnServer(conn.getXmppConnection(), id);
     }
 
     /**
@@ -705,7 +761,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      */
     @Override
     public void sendPresence(Presence presence) throws CollaborationException {
-        presence.setTo(venue.getInfo().getVenueID());
+        presence.setTo(venue.getId());
         XMPPConnection conn = getConnection().getXmppConnection();
         conn.sendPacket(presence);
     }
