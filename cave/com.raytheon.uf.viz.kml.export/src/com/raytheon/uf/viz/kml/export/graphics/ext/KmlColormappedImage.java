@@ -51,9 +51,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 01, 2012           bsteffen    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Use data to get width and height.
  * 
  * </pre>
  * 
@@ -64,9 +65,9 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
 
     private final IColorMapDataRetrievalCallback dataCallback;
 
-    private ColorMapParameters colorMapParameters;
+    private ColorMapData data;
 
-    private Unit<?> dataUnit;
+    private ColorMapParameters colorMapParameters;
 
     public KmlColormappedImage(IColorMapDataRetrievalCallback dataCallback,
             ColorMapParameters colorMapParameters) {
@@ -74,9 +75,21 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
         this.colorMapParameters = colorMapParameters;
     }
 
+    /**
+     * Use the callback to retrieve the data, width, height, and dataUnit. If
+     * the data has not been loaded {@link #getDataUnit()}, {@link #getWidth()}.
+     * {@link #getHeight()} will not return correct values.
+     * 
+     * @throws VizException
+     */
+    public void loadData() throws VizException {
+        if (this.data == null) {
+            this.data = dataCallback.getColorMapData();
+        }
+    }
+
     public DataSource getData(GridGeometry2D geometry) throws VizException {
-        ColorMapData data = dataCallback.getColorMapData();
-        this.dataUnit = data.getDataUnit();
+        loadData();
         switch (data.getDataType()) {
         case FLOAT:
             return new FloatBufferWrapper(((FloatBuffer) data.getBuffer()),
@@ -127,15 +140,33 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.drawables.IColormappedImage#getDataUnit()
-     */
     @Override
     public Unit<?> getDataUnit() {
+        Unit<?> dataUnit = null;
+        if (data != null) {
+            dataUnit = data.getDataUnit();
+        }
         return dataUnit == null ? getColorMapParameters().getDataUnit()
                 : dataUnit;
     }
+
+    @Override
+    public int getWidth() {
+        if (data != null) {
+            return data.getDimensions()[0];
+        } else {
+            return super.getWidth();
+        }
+    }
+
+    @Override
+    public int getHeight() {
+        if (data != null) {
+            return data.getDimensions()[1];
+        } else {
+            return super.getHeight();
+        }
+    }
+
 
 }

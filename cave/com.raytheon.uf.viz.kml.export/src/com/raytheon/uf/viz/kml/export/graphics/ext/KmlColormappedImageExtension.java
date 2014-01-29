@@ -30,11 +30,13 @@ import java.util.Map.Entry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
+import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -44,6 +46,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableImage;
+import com.raytheon.uf.viz.core.IExtent;
+import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -63,9 +67,11 @@ import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 01, 2012           bsteffen    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Enable drawing with no mesh.
+ * 
  * 
  * </pre>
  * 
@@ -119,7 +125,43 @@ public class KmlColormappedImageExtension extends
             for (DrawableImage image : images) {
                 KmlColormappedImage kmlImage = (KmlColormappedImage) image
                         .getImage();
-                KmlMesh mesh = (KmlMesh) image.getCoverage().getMesh();
+                PixelCoverage coverage = image.getCoverage();
+                KmlMesh mesh = (KmlMesh) coverage.getMesh();
+                if (mesh == null){
+                    try {
+                        kmlImage.loadData();
+                    } catch (VizException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                        continue;
+                    }
+                    MathTransform grid2crs = gridGeometry.getGridToCRS();
+                    IExtent extent = coverage.getExtent();
+                    DirectPosition2D minCorner = new DirectPosition2D(
+                            extent.getMinX(), extent.getMinY());
+                    DirectPosition2D maxCorner = new DirectPosition2D(
+                            extent.getMaxX(), extent.getMaxY());
+                    try {
+                        grid2crs.transform(minCorner, minCorner);
+                        grid2crs.transform(maxCorner, maxCorner);
+                    } catch (TransformException e) {
+                        statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+                        continue;
+                    }
+                    
+                    CoordinateReferenceSystem crs = gridGeometry
+                            .getCoordinateReferenceSystem();
+                    minCorner.setCoordinateReferenceSystem(crs);
+                    maxCorner.setCoordinateReferenceSystem(crs);
+                    Envelope userRange = new Envelope2D(minCorner, maxCorner);
+                    GridEnvelope gridRange = new GridEnvelope2D(0, 0,
+                            kmlImage.getWidth(), kmlImage.getHeight());
+
+                    GridGeometry2D imageGeometry = new GridGeometry2D(
+                            gridRange, userRange);
+                    
+                    mesh = new KmlMesh(imageGeometry);
+                }
                 try {
                     if (params == null) {
                         params = kmlImage.getColorMapParameters();
