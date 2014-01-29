@@ -79,52 +79,60 @@ public class GfeImageExportDialog extends ImageExportDialog {
     @Override
     protected void okPressed() {
         if (selectedFrameRangeButton.getSelection()) {
-            DataManager dataManager = DataManagerUIFactory.getCurrentInstance();
-            ParmOp parmOp = dataManager.getParmOp();
-            TimeRange selectedRange = parmOp.getSelectionTimeRange();
-            if (selectedRange == null || !selectedRange.isValid()) {
-                MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR
-                        | SWT.OK);
-                mb.setText("No Time Range Selected");
-                mb.setMessage("No Time Range is selected, select a time range in the grid manager.");
-                mb.open();
-                return;
-            }
             IDisplayPaneContainer container = EditorUtil
                     .getActiveVizContainer();
             IDisplayPane pane = container.getActiveDisplayPane();
             IRenderableDisplay renderableDispaly = pane.getRenderableDisplay();
-            IDescriptor descriptor = renderableDispaly.getDescriptor();
-            FramesInfo fi = descriptor.getFramesInfo();
-            DataTime[] times = fi.getFrameTimes();
-            int start = -1;
-            int end = -1;
-            for (int i = 0; i < times.length; i += 1) {
-                if (times[i] == null) {
-                    continue;
-                }
-                TimeRange validRange = times[i].getValidPeriod();
-                if (selectedRange.overlaps(validRange)) {
-                    if (start == -1) {
-                        start = i;
-                    }
-                    end = i;
-                } else if (start != -1) {
-                    break;
-                }
-            }
-            if (start == -1) {
-                MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR
-                        | SWT.OK);
-                mb.setText("Invalid Selection");
-                mb.setMessage("The selected time range does not contain any data, choose a new range.");
-                mb.open();
+            int[] frameRange = getSelectedFrameRange(getShell(),
+                    renderableDispaly);
+            if(frameRange == null){
                 return;
             }
             options.setFrameSelection(FrameSelection.USER);
-            options.setFirstFrameIndex(start);
-            options.setLastFrameIndex(end + 1);
+            options.setFirstFrameIndex(frameRange[0]);
+            options.setLastFrameIndex(frameRange[1]);
         }
         super.okPressed();
+    }
+
+    public static int[] getSelectedFrameRange(Shell shell,
+            IRenderableDisplay renderableDispaly) {
+        DataManager dataManager = DataManagerUIFactory.getCurrentInstance();
+        ParmOp parmOp = dataManager.getParmOp();
+        TimeRange selectedRange = parmOp.getSelectionTimeRange();
+        if (selectedRange == null || !selectedRange.isValid()) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            mb.setText("No Time Range Selected");
+            mb.setMessage("No Time Range is selected, select a time range in the grid manager.");
+            mb.open();
+            return null;
+        }
+        IDescriptor descriptor = renderableDispaly.getDescriptor();
+        FramesInfo fi = descriptor.getFramesInfo();
+        DataTime[] times = fi.getFrameTimes();
+        int start = -1;
+        int end = -1;
+        for (int i = 0; i < times.length; i += 1) {
+            if (times[i] == null) {
+                continue;
+            }
+            TimeRange validRange = times[i].getValidPeriod();
+            if (selectedRange.overlaps(validRange)) {
+                if (start == -1) {
+                    start = i;
+                }
+                end = i;
+            } else if (start != -1) {
+                break;
+            }
+        }
+        if (start == -1) {
+            MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+            mb.setText("Invalid Selection");
+            mb.setMessage("The selected time range does not contain any data, choose a new range.");
+            mb.open();
+            return null;
+        }
+        return new int[] { start, end + 1 };
     }
 }
