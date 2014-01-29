@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
  * Dec 19, 2013 2563      bclement     added check for feed venue existence
+ * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
  * 
  * </pre>
  * 
@@ -94,7 +95,7 @@ public class DisplayFeedAction extends Action {
         for (ISession session : connection.getSessions()) {
             if (session instanceof IVenueSession) {
                 if (((IVenueSession) session).getVenue().getName()
-                        .startsWith(FEED_VENUE)) {
+                        .equalsIgnoreCase(FEED_VENUE)) {
                     sessionId = session.getSessionId();
                 }
             }
