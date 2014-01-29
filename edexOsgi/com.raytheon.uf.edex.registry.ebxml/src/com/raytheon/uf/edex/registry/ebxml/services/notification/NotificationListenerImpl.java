@@ -92,6 +92,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/30/2013   1538       bphillip    Changed to use non-static registry soap service client
  * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
  * 1/15/2014    2613       bphillip    Added batching of notification update queries to reduce number of web service calls
+ * 01/21/2014   2613       bphillip    Added home slot to remove objects request so delete events are properly handled
  * 
  * </pre>
  * 
@@ -192,6 +193,9 @@ public class NotificationListenerImpl implements NotificationListener {
                             "Notification delete object submission", null,
                             null, refList, false, true,
                             DeletionScope.DELETE_ALL);
+                    request.getSlot().add(
+                            new SlotType(EbxmlObjectUtil.HOME_SLOT_NAME,
+                                    new StringValueType(clientBaseURL)));
                     try {
                         lcm.removeObjects(request);
                     } catch (MsgRegistryException e) {

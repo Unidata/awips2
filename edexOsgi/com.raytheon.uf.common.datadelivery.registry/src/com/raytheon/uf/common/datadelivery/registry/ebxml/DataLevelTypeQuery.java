@@ -7,6 +7,7 @@ import java.util.Map;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 
+import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
@@ -59,7 +60,7 @@ public class DataLevelTypeQuery extends
             RegistryObjectType registryObjectType, IRegistryEncoder encoder)
             throws SerializationException {
 
-        Object object = encoder.decodeObject(registryObjectType);
+        Object object = DataDeliveryRegistryObjectTypes.getObject(registryObjectType, encoder);
 
         if (object instanceof DataSet) {
 

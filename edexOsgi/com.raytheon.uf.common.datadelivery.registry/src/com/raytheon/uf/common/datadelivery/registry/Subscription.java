@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
-
 /**
  * Definition of a subscription.
  * 
@@ -44,9 +43,10 @@ import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
  * Jul 11, 2013 2106       djohnson     SubscriptionPriority allows comparison.
  * Sept 30,2013 1797       dhladky      Abstracted and genericized.
  * Oct 23, 2013 2484       dhladky      Unique ID for subscriptions updated.
- * Nov 14, 2013   2548     mpduff       Add a subscription type information.
- * Jan 08, 2014   2615     bgonzale     Added calculate start and calculate end methods.
- * Jan 14, 2014   2459     mpduff       Change Subscription status code
+ * Nov 14, 2013 2548       mpduff       Add a subscription type information.
+ * Jan 08, 2014 2615       bgonzale     Added calculate start and calculate end methods.
+ * Jan 14, 2014 2459       mpduff       Change Subscription status code
+ * Jan 24, 2013 2709       bgonzale     Added method inActivePeriodWindow.
  * 
  * </pre>
  * 
@@ -339,6 +339,17 @@ public interface Subscription<T extends Time, C extends Coverage> {
      * @return the valid subscription end Date.
      */
     Calendar calculateEnd(Calendar endConstraint);
+
+    /**
+     * Check if the given value's month/day is in the Subscription's active
+     * window.
+     * 
+     * @param time
+     *            time with month/day value to check.
+     * 
+     * @return true if in the active period; false otherwise
+     */
+    boolean inActivePeriodWindow(Calendar time);
 
     /**
      * isNotify flag for subscription.
