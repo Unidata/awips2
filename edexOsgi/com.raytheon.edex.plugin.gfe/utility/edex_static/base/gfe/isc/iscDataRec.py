@@ -21,24 +21,6 @@
 # further licensing information.
 ##
 
-""":"
-
-CWD=`pwd`
-CONFIG_HOME=`dirname ${0} | sed "s%^\.%$CWD%"`
-
-. $CONFIG_HOME/site.sh
-
-# set environment variables so logStream will work
-export LOG_PREF="$GFESUITE_ETCDIR/BASE/logPref/iscDataRec.logPref"
-export LOG_DIR="$GFESUITE_LOGDIR"
-export COLLECTIVE_FILE="%L/%D/iscDataRec_%H"
-unset LOG_FILE
-
-# Ok now start iscDataRec
-cd $GFESUITE_HOME/bin
-exec $GFESUITE_HOME/bin/run/iscDataRec1 -S -O $0 ${1+"$@"}
-""" # for emacs -> "
-
 import iscMosaic,iscUtil
 import os, stat, sys, re, string, traceback, types
 import time, xml, LogStream, IrtAccess
@@ -60,6 +42,7 @@ from java.util import ArrayList
 #    03/12/13        1759          dgilling       Bypass command-line processing
 #                                                 for iscMosaic, support changes
 #                                                 to IscReceiveSrv.
+#    01/24/14        2504          randerso       removed obsolete A1 comments 
 #    
 # 
 #
