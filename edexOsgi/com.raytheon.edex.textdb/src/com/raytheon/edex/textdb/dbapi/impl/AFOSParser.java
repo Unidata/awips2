@@ -92,6 +92,7 @@ import com.raytheon.uf.common.site.SiteMap;
  * Mar 30, 2011   8561     J. Ortiz    Added enterEditor flag.
  * Jul 29, 2011  10237     R. Ferrel   parseCommand now properly validates
  *                                     commands with large index.
+ * Jan 29, 2014 DR14595 mgamazaychikov Added handling of M: command
  * </pre>
  * 
  * @author jkorman
@@ -103,6 +104,10 @@ public class AFOSParser {
     private String afosCommand;
 
     public static final String DRAFT_PIL = "WRKWG";
+
+    public static final String MCP_NNN = "MCP";
+
+    public static boolean isTemplate = false;
 
     private String productId;
 
@@ -142,6 +147,8 @@ public class AFOSParser {
      * 
      */
     private boolean parseCommand(String siteId) {
+
+        AFOSParser.isTemplate = false;
 
         StringBuilder cmd = new StringBuilder(afosCommand);
 
@@ -256,6 +263,13 @@ public class AFOSParser {
             nnn = cmd.substring(0, 3);
             xxx = cmd.substring(3);
             return true;
+        } else if (afosCommand.startsWith("M:")) {
+            // Remove the M: from afosCommand
+            cmd.delete(0, 2);
+            nnn = MCP_NNN;
+            xxx = cmd.toString();
+            AFOSParser.isTemplate = true;
+            afosCommand = nnn.trim()+xxx.trim();
         } else {
             // Check for SS.NNN request
             int i = cmd.indexOf(".");
