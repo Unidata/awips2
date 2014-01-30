@@ -24,7 +24,7 @@ import java.util.Stack;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -38,6 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            dgilling     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class InitialCollaborationData {
     private int displayId;
 
     @DynamicSerializeElement
-    private UserId userName;
+    private VenueParticipant userName;
 
     @DynamicSerializeElement
     private boolean sessionLeader;
@@ -77,7 +78,7 @@ public class InitialCollaborationData {
 
     }
 
-    public InitialCollaborationData(UserId userName, int displayId,
+    public InitialCollaborationData(VenueParticipant userName, int displayId,
             boolean sessionLeader, boolean drawingLocked,
             CollaborationDrawingToolLayer layer) {
         this.userName = userName;
@@ -89,11 +90,11 @@ public class InitialCollaborationData {
         this.redoData = layer.getRedoStack();
     }
 
-    public UserId getUserName() {
+    public VenueParticipant getUserName() {
         return userName;
     }
 
-    public void setUserName(UserId userName) {
+    public void setUserName(VenueParticipant userName) {
         this.userName = userName;
     }
 

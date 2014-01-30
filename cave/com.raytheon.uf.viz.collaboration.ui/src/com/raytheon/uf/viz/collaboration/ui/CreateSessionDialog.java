@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
@@ -85,6 +86,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 15, 2012            rferrel     Initial creation
  * Dec 19, 2013 2563       bclement    disable shared display option if not supported by server
  * Jan 28, 2014 2698       bclement    added error display text
+ * Jan 30, 2014 2698       bclement    added handle to join room with
  * 
  * </pre>
  * 
@@ -97,6 +99,8 @@ public class CreateSessionDialog extends CaveSWTDialog {
             .getHandler(CreateSessionDialog.class);
 
     private Text nameTF;
+
+    private Text handleTF;
 
     private Text subjectTF;
 
@@ -122,8 +126,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
     private Control createDialogArea(Composite parent) {
         Composite body = new Composite(parent, SWT.NONE);
         body.setLayout(new GridLayout(2, false));
-        // body.setLayoutData(new GridData(GridData.GRAB_HORIZONTAL
-        // | GridData.HORIZONTAL_ALIGN_FILL));
+
         Label label = null;
         label = new Label(body, SWT.NONE);
         label.setText("Name: ");
@@ -131,7 +134,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 200;
         nameTF.setLayoutData(gd);
-        nameTF.addVerifyListener(new VerifyListener() {
+        VerifyListener validNameListener = new VerifyListener() {
 
             @Override
             public void verifyText(VerifyEvent e) {
@@ -140,7 +143,15 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     // Toolkit.getDefaultToolkit().beep();
                 }
             }
-        });
+        };
+        nameTF.addVerifyListener(validNameListener);
+
+        label = new Label(body, SWT.NONE);
+        label.setText("Handle: ");
+        handleTF = new Text(body, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        handleTF.setLayoutData(gd);
+        handleTF.addVerifyListener(validNameListener);
 
         label = new Label(body, SWT.NONE);
         label.setText("Subject: ");
@@ -438,11 +449,20 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         focusField = nameTF;
                         errorMessages.add(err);
                     }
+                    err = validateHandle();
+                    String handle = handleTF.getText();
+                    if (err != null) {
+                        if (focusField == null) {
+                            focusField = handleTF;
+                        }
+                        errorMessages.add(err);
+                    }
 
                     if (focusField == null) {
                         CreateSessionData result = new CreateSessionData();
                         result.setName(name);
                         result.setSubject(subject);
+                        result.setHandle(handle);
                         result.setCollaborationSessioh(sharedSessionDisplay
                                 .getSelection());
                         if (inviteUsers == null) {
@@ -457,15 +477,15 @@ public class CreateSessionDialog extends CaveSWTDialog {
                             CollaborationConnection connection = CollaborationConnection
                                     .getConnection();
                             if (result.isCollaborationSession()) {
-                                session = connection.createCollaborationVenue(
-                                        result.getName(), result.getSubject());
+                                session = connection
+                                        .createCollaborationVenue(result);
                                 ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                                 SharedDisplaySessionMgr.joinSession(
                                         displaySession,
                                         SharedDisplayRole.DATA_PROVIDER, null);
                             } else {
-                                session = connection.createTextOnlyVenue(
-                                        result.getName(), result.getSubject());
+                                session = connection
+                                        .createTextOnlyVenue(result);
                             }
                             result.setSessionId(session.getSessionId());
                             setReturnValue(result);
@@ -513,7 +533,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         if (name.length() <= 0) {
             err = "Must have session name.";
         } else if (!Tools.isValidId(name)) {
-            err = "Name contains invalid characters.";
+            err = "Session name contains invalid characters.";
         } else {
             try {
                 if (VenueSession.roomExistsOnServer(name)) {
@@ -523,6 +543,16 @@ public class CreateSessionDialog extends CaveSWTDialog {
                 statusHandler.error("Unable to check room existence on server",
                         e);
             }
+        }
+        return err;
+    }
+
+    private String validateHandle() {
+        String handle = handleTF.getText().trim();
+        handleTF.setText(handle);
+        String err = null;
+        if (!Tools.isValidId(handle)) {
+            err = "Handle contains invalid characters.";
         }
         return err;
     }
