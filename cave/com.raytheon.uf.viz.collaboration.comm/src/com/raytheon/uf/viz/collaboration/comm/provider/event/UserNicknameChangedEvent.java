@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * An event to put on a CollaborationConnection event bus when a users nickname
@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012            bsteffen     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -42,16 +43,16 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class UserNicknameChangedEvent {
 
-    public final UserId user;
+    public final VenueParticipant user;
 
     public final String nickname;
 
-    public UserNicknameChangedEvent(UserId user, String nickname) {
+    public UserNicknameChangedEvent(VenueParticipant user, String nickname) {
         this.user = user;
         this.nickname = nickname;
     }
 
-    public UserId getUser() {
+    public VenueParticipant getUser() {
         return user;
     }
 

@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jul 5, 2012            bsteffen     Initial creation
  * Dec 19, 2013 2563      bclement     added check for feed venue existence
  * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
+ * Jan 30, 2014 2698       bclement    added default handle of username
  * 
  * </pre>
  * 
@@ -102,8 +103,9 @@ public class DisplayFeedAction extends Action {
         }
         if (sessionId == null && create) {
             try {
-                IVenueSession session = connection
-                        .joinTextOnlyVenue(FEED_VENUE);
+                // TODO auto join with handle from preferences
+                IVenueSession session = connection.joinTextOnlyVenue(
+                        FEED_VENUE, connection.getUser().getName());
                 sessionId = session.getSessionId();
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
