@@ -26,9 +26,10 @@ import org.jivesoftware.smack.packet.Presence;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * 
+ * Interface for multi user sessions
  * 
  * <ul>
  * <li>EventBus subscription events. Implementors are required to post the
@@ -50,7 +51,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            jkorman     Initial creation
+ * Mar 5, 2012             jkorman     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -80,9 +82,8 @@ public interface IVenueSession extends ISession {
      * 
      * @param id
      *            The target user for this invitation.
-     * @param subject
-     *            The intended subject of the venue conversation.
-     * @return
+     * @param invite
+     * @throws CollaborationException
      */
     public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException;
@@ -92,9 +93,8 @@ public interface IVenueSession extends ISession {
      * 
      * @param ids
      *            A list of target users for this invitation.
-     * @param body
-     *            Any text that the user may wish to include.
-     * @return
+     * @param invite
+     * @throws CollaborationException
      */
     public void sendInvitation(List<UserId> ids, VenueInvite invite)
             throws CollaborationException;
@@ -106,4 +106,9 @@ public interface IVenueSession extends ISession {
      */
     public void sendPresence(Presence presence) throws CollaborationException;
 
+    /**
+     * 
+     * @return
+     */
+    public VenueParticipant getUserID();
 }

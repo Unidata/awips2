@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 
 /**
@@ -58,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Jul 3, 2012            bsteffen     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -168,10 +170,10 @@ public class InviteAction extends Action {
                 .getSessions();
         for (ISession session : sessions) {
             if (session != null && session instanceof IVenueSession) {
-                Collection<UserId> participants = ((IVenueSession) session)
+                Collection<VenueParticipant> participants = ((IVenueSession) session)
                         .getVenue().getParticipants();
                 boolean notInRoom = true;
-                for (UserId pa : participants) {
+                for (VenueParticipant pa : participants) {
                     if (pa.isSameUser(user)) {
                         notInRoom = false;
                         break;
