@@ -48,7 +48,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 
 /**
- * TODO Add Description
+ * UI display for one-on-one chat sessions
  * 
  * <pre>
  * 
@@ -57,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionIt
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Jan 30, 2014 2698       bclement    added getDisplayName
  * 
  * </pre>
  * 
@@ -303,5 +304,18 @@ public class PeerToPeerView extends AbstractSessionView implements
         return "Conversation session with user " + getSessionName()
                 + ", Date: "
                 + dateFormatter.format(msgArchive.getCreationTime());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getDisplayName
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String getDisplayName(UserId userId) {
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        return conn.getContactsManager().getDisplayName(userId);
     }
 }
