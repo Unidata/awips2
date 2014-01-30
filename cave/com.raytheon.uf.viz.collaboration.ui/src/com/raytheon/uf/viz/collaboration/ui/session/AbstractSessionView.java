@@ -93,6 +93,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012 244        rferrel     Initial creation
  * Dec 19, 2013 2563       bclement    moved color lookup into runAsync block
+ * Jan 30, 2014 2698       bclement    get display name from child class
  * 
  * </pre>
  * 
@@ -318,6 +319,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
         appendMessage(userId, timestamp, body, subject);
     }
 
+    protected abstract String getDisplayName(UserId userId);
+
     public void appendMessage(final UserId userId, final long timestamp,
             final String body, final String subject) {
         VizApp.runAsync(new Runnable() {
@@ -339,8 +342,7 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 Date date = new Date(timestamp);
                 String time = dateFormatter.format(date);
 
-                String name = connection.getContactsManager().getDisplayName(
-                        userId);
+                String name = getDisplayName(userId);
 
                 UserId myUser = connection.getUser();
                 if (!myUser.equals(userId)
