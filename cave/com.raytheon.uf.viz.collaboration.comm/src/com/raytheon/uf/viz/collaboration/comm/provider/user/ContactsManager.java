@@ -47,7 +47,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.collections.UpdatingSet;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 
 /**
@@ -68,6 +67,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  *                                      added shared groups
  * Jan 27, 2014 2700       bclement     fixed ungrouped entries being out of date
  *                                      added utility methods for subscription status
+ * Jan 30, 2014 2698       bclement     removed unneeded nickname changed event
  * 
  * </pre>
  * 
@@ -403,7 +403,6 @@ public class ContactsManager {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
-            connection.postEvent(new UserNicknameChangedEvent(user, nickname));
         }
     }
 

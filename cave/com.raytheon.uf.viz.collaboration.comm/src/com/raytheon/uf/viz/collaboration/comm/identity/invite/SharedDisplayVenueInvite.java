@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity.invite;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Invitation to shared display venue
@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2012            mnash     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -44,24 +45,24 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 public class SharedDisplayVenueInvite extends VenueInvite {
 
     @DynamicSerializeElement
-    private UserId sessionLeader;
+    private VenueParticipant sessionLeader;
 
     @DynamicSerializeElement
-    private UserId dataProvider;
+    private VenueParticipant dataProvider;
 
-    public UserId getSessionLeader() {
+    public VenueParticipant getSessionLeader() {
         return sessionLeader;
     }
 
-    public void setSessionLeader(UserId sessionLeader) {
+    public void setSessionLeader(VenueParticipant sessionLeader) {
         this.sessionLeader = sessionLeader;
     }
 
-    public UserId getDataProvider() {
+    public VenueParticipant getDataProvider() {
         return dataProvider;
     }
 
-    public void setDataProvider(UserId dataProvider) {
+    public void setDataProvider(VenueParticipant dataProvider) {
         this.dataProvider = dataProvider;
     }
 
