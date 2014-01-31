@@ -14,7 +14,7 @@
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg value="OPSNET" />
+                <constructor-arg ref="retrievalQueue" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
