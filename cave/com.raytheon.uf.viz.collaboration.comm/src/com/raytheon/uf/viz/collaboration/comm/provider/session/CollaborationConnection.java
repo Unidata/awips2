@@ -71,6 +71,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * 
@@ -107,6 +108,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * Jan 24, 2014 2701       bclement    removed roster manager
  * Jan 28, 2014 2698       bclement    fixed compression default
  *                                     cleaned up createCollaborationVenue, removed getVenueInfo
+ * Jan 30, 2014 2698       bclement    changed arguments to create sessions, moved room connection from SessionView
  * 
  * </pre>
  * 
@@ -365,13 +367,14 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     public ISharedDisplaySession joinCollaborationVenue(
-            IVenueInvitationEvent invitation) throws CollaborationException {
+            IVenueInvitationEvent invitation, String handle)
+            throws CollaborationException {
         String venueName = invitation.getRoomId().getName();
         String sessionId = invitation.getInvite().getSessionId();
         SharedDisplaySession session = new SharedDisplaySession(eventBus, this,
                 sessionId);
-        session.configureVenue(venueName);
-
+        session.configureVenue(venueName, handle);
+        session.connectToRoom();
         if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
             SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
                     .getInvite();
@@ -390,14 +393,16 @@ public class CollaborationConnection implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public ISharedDisplaySession createCollaborationVenue(String venueName,
-            String subject) throws CollaborationException {
+    public ISharedDisplaySession createCollaborationVenue(CreateSessionData data)
+            throws CollaborationException {
         SharedDisplaySession session = null;
         session = new SharedDisplaySession(eventBus, this);
 
-        session.createVenue(venueName, subject);
-        session.setCurrentSessionLeader(user);
-        session.setCurrentDataProvider(user);
+        session.createVenue(data);
+        VenueParticipant leader = session.getUserID();
+        leader.setAlias(session.getHandle());
+        session.setCurrentSessionLeader(leader);
+        session.setCurrentDataProvider(leader);
 
         sessions.put(session.getSessionId(), session);
         postEvent(session);
@@ -410,11 +415,12 @@ public class CollaborationConnection implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public IVenueSession joinTextOnlyVenue(String venueName)
+    public IVenueSession joinTextOnlyVenue(String venueName, String handle)
             throws CollaborationException {
         try {
             VenueSession session = new VenueSession(eventBus, this);
-            session.configureVenue(venueName);
+            session.configureVenue(venueName, handle);
+            session.connectToRoom();
             sessions.put(session.getSessionId(), session);
             postEvent(session);
             return session;
@@ -447,10 +453,10 @@ public class CollaborationConnection implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public IVenueSession createTextOnlyVenue(String venueName, String subject)
+    public IVenueSession createTextOnlyVenue(CreateSessionData data)
             throws CollaborationException {
         VenueSession session = new VenueSession(eventBus, this);
-        session.createVenue(venueName, subject);
+        session.createVenue(data);
         sessions.put(session.getSessionId(), session);
         postEvent(session);
         return session;
