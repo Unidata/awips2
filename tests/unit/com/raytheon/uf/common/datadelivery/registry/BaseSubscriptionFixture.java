@@ -43,6 +43,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 15, 2013 1040       mpduff       Office Ids are now a list.
  * Oct 2   2013 1797       dhladky      subscription and time generics
  * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Jan 14, 2014   2459     mpduff       Change subscription status code
  * 
  * </pre>
  * 
@@ -77,7 +78,6 @@ public abstract class BaseSubscriptionFixture<M extends Subscription> {
 
     public M getInstance(long seedValue, Random random, DataType dataType) {
         M subscription = getSubscription();
-        subscription.setActive(random.nextBoolean());
         subscription.setActivePeriodStart(TimeUtil.newDate());
         subscription.setActivePeriodEnd(new Date(subscription
                 .getActivePeriodStart().getTime() + seedValue));

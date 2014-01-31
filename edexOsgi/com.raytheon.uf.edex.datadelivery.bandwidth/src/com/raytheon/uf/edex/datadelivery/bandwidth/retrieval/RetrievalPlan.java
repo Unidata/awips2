@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 17, 2013 2636       bgonzale     Check for removed buckets when removing BandwidthAllocations or 
  *                                      BandwidthReservations. Add constrained bucket addition method.
  *                                      Added debug logging.
+ * Jan 08, 2014 2615       bgonzale     Log registry bandwidth calculation errors.
  * 
  * </pre>
  * 
@@ -151,8 +152,15 @@ public class RetrievalPlan {
             // subtract registry traffic from total available bytes/per second
             for (BandwidthBucket bucket : bucketsDao.getAll(network)) {
                 long startMillis = bucket.getBucketStartTime();
-                int registryBytesPerSecond = rbs
-                        .getRegistryBandwidth(startMillis);
+                int registryBytesPerSecond = 0;
+                try {
+                    registryBytesPerSecond = rbs
+                            .getRegistryBandwidth(startMillis);
+                } catch (IllegalArgumentException e) {
+                    statusHandler
+                            .error("Failed to init registry bandwidth calculation.  Registry bandwidth will be ignored.",
+                                    e);
+                }
                 bucket.setBucketSize(bucket.getBucketSize()
                         - (registryBytesPerSecond * TimeUtil.SECONDS_PER_MINUTE * bucketMinutes));
             }
