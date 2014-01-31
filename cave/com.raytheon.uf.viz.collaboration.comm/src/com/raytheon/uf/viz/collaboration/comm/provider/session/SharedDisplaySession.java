@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Chat room with shared display
@@ -72,6 +73,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Apr 18, 2012            njensen     Initial creation
  * Dec 18, 2013 2562       bclement    moved data to packet extension
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ *                                     changed args to create/configure venue
  * 
  * </pre>
  * 
@@ -85,9 +88,9 @@ public class SharedDisplaySession extends VenueSession implements
     private static final transient IUFStatusHandler log = UFStatus
             .getHandler(SharedDisplaySession.class);
 
-    private UserId sessionLeader = null;
+    private VenueParticipant sessionLeader = null;
 
-    private UserId dataProvider = null;
+    private VenueParticipant dataProvider = null;
 
     private PubSubManager pubsubMgr;
 
@@ -102,8 +105,7 @@ public class SharedDisplaySession extends VenueSession implements
     }
 
     public SharedDisplaySession(EventBus externalBus,
-            CollaborationConnection manager, String sessionId)
-            throws CollaborationException {
+            CollaborationConnection manager, String sessionId) {
         super(externalBus, manager, sessionId);
         init();
     }
@@ -205,7 +207,7 @@ public class SharedDisplaySession extends VenueSession implements
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentDataProvider()
      */
     @Override
-    public UserId getCurrentDataProvider() {
+    public VenueParticipant getCurrentDataProvider() {
         return dataProvider;
     }
 
@@ -216,7 +218,7 @@ public class SharedDisplaySession extends VenueSession implements
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession#getCurrentSessionLeader()
      */
     @Override
-    public UserId getCurrentSessionLeader() {
+    public VenueParticipant getCurrentSessionLeader() {
         return sessionLeader;
     }
 
@@ -245,7 +247,7 @@ public class SharedDisplaySession extends VenueSession implements
      * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
      */
     @Override
-    public void setCurrentSessionLeader(UserId id) {
+    public void setCurrentSessionLeader(VenueParticipant id) {
         sessionLeader = id;
     }
 
@@ -258,7 +260,7 @@ public class SharedDisplaySession extends VenueSession implements
      * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
      */
     @Override
-    public void setCurrentDataProvider(UserId id) {
+    public void setCurrentDataProvider(VenueParticipant id) {
         dataProvider = id;
     }
 
@@ -270,9 +272,9 @@ public class SharedDisplaySession extends VenueSession implements
      * configureVenue(java.lang.String)
      */
     @Override
-    protected void configureVenue(String venueName)
+    protected void configureVenue(String venueName, String handle)
             throws CollaborationException {
-        super.configureVenue(venueName);
+        super.configureVenue(venueName, handle);
         try {
             configureSubscription();
         } catch (XMPPException e) {
@@ -331,9 +333,9 @@ public class SharedDisplaySession extends VenueSession implements
      * createVenue(java.lang.String, java.lang.String)
      */
     @Override
-    protected void createVenue(String venueName, String subject)
+    protected void createVenue(CreateSessionData data)
             throws CollaborationException {
-        super.createVenue(venueName, subject);
+        super.createVenue(data);
         try {
             createNode(getSessionId());
         } catch (XMPPException e) {

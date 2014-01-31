@@ -21,10 +21,10 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * 
+ * Interface for sessions that have displays shared between clients
  * 
  * <ul>
  * <li>EventBus subscription events. Implementors may to post the following
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -92,28 +93,28 @@ public interface ISharedDisplaySession extends IVenueSession {
      * 
      * @return
      */
-    public UserId getCurrentDataProvider();
+    public VenueParticipant getCurrentDataProvider();
 
     /**
      * Returns the current Session Leader for the session
      * 
      * @return
      */
-    public UserId getCurrentSessionLeader();
+    public VenueParticipant getCurrentSessionLeader();
 
     /**
      * Sets the current Data Provider for the session
      * 
      * @param participant
      */
-    public void setCurrentDataProvider(UserId participant);
+    public void setCurrentDataProvider(VenueParticipant participant);
 
     /**
      * Sets the current Session Leader for the session
      * 
      * @param participant
      */
-    public void setCurrentSessionLeader(UserId participant);
+    public void setCurrentSessionLeader(VenueParticipant participant);
 
     /**
      * Checks if the currently logged in user has the role on this session

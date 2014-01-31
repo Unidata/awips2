@@ -19,12 +19,12 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.info;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Presence;
@@ -35,7 +35,7 @@ import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Provides information about a venue.
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Mar 1, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, getSubject never returns null
  * 
  * </pre>
  * 
@@ -66,8 +67,8 @@ public class Venue implements IVenue {
     }
 
     @Override
-    public Collection<UserId> getParticipants() {
-        Set<UserId> participants = new HashSet<UserId>();
+    public Collection<VenueParticipant> getParticipants() {
+        List<VenueParticipant> participants = new ArrayList<VenueParticipant>();
         Iterator<String> iter = muc.getOccupants();
         while (iter.hasNext()) {
             String id = iter.next();
@@ -77,8 +78,8 @@ public class Venue implements IVenue {
     }
 
     @Override
-    public Presence getPresence(UserId user) {
-        Presence presence = presenceMap.get(user.getNormalizedId());
+    public Presence getPresence(VenueParticipant user) {
+        Presence presence = presenceMap.get(user.getAlias());
         if (presence == null) {
             presence = new Presence(Type.unavailable);
             presence.setMode(Mode.away);
@@ -86,8 +87,8 @@ public class Venue implements IVenue {
         return presence;
     }
 
-    public void handlePresenceUpdated(UserId fromID, Presence presence) {
-        presenceMap.put(fromID.getNormalizedId(), presence);
+    public void handlePresenceUpdated(VenueParticipant fromID, Presence presence) {
+        presenceMap.put(fromID.getAlias(), presence);
     }
 
     /*
@@ -129,7 +130,8 @@ public class Venue implements IVenue {
      */
     @Override
     public String getSubject() {
-        return muc.getSubject();
+        String rval = muc.getSubject();
+        return rval != null ? rval : "";
     }
 
 }
