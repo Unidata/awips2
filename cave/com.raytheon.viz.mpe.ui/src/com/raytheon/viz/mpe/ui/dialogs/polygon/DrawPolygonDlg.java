@@ -58,6 +58,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     with the "scale" action will no
  *                                     longer be divided by 100.
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
+ * Jan 29, 2014 16561      snaples     Updated processDrawPrecipValue to remove polygon wireframe after setting value.
+ * 
  * 
  * </pre>
  * 
@@ -739,6 +741,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
             polygonEdits.add(newEdit);
             PolygonEditManager.writePolygonEdits(displayedField, editDate,
                     polygonEdits);
+            resource.clearPolygons();
         } finally {
             shell.setCursor(prevCursor);
         }
