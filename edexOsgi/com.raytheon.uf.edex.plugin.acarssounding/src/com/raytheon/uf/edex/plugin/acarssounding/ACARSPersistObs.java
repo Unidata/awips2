@@ -35,11 +35,12 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.ACARSSoundingTools;
 import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 
 /**
- * TODO Add Description
+ * Class to process ACARS' persistent objects.
  * 
  * <pre>
  * 
@@ -48,6 +49,7 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 17, 2009            jkorman     Initial creation
+ * Jan 07, 2014 2658       rferrel     Ignore cut off time when allowing archive data.
  * 
  * </pre>
  * 
@@ -58,11 +60,12 @@ import com.raytheon.uf.edex.plugin.acarssounding.tools.SoundingBuilder;
 public class ACARSPersistObs {
 
     public static final int BASE_DIR_NULL = 1;
+
     public static final int DATA_DIR_NULL = 2;
-    
+
     public static final int NO_BASE_DIR = 3;
+
     public static final int NO_DATA_DIR = 4;
-    
 
     private Log logger = LogFactory.getLog(getClass());
 
@@ -73,7 +76,7 @@ public class ACARSPersistObs {
     // If a required resource is not available,
     // Set failSafe to true. This will "short circuit" processing.
     private boolean failSafe = false;
-    
+
     private int failReason = 0;
 
     /**
@@ -111,16 +114,23 @@ public class ACARSPersistObs {
                 FileWriter writer = null;
                 try {
                     writer = new FileWriter(out, out.exists());
-                    long cTime = ACARSSoundingTools.getCutoffTime(ACARSSoundingTools.CUTOFF_HOURS);
+
+                    // Value to ignore cut off time when archive allowed.
+                    long cTime = Long.MIN_VALUE;
+
+                    if (!TimeTools.allowArchive()) {
+                        cTime = ACARSSoundingTools
+                                .getCutoffTime(ACARSSoundingTools.CUTOFF_HOURS);
+                    }
 
                     for (PluginDataObject pdo : input) {
-                        if(pdo.getDataTime().getRefTime().getTime() > cTime) {
+                        if (pdo.getDataTime().getRefTime().getTime() > cTime) {
                             try {
                                 ACARSRecord acars = (ACARSRecord) pdo;
 
                                 writer.write(String.format(
-                                        ACARSSoundingTools.OUT_FMT, acars
-                                                .getTimeObs().getTimeInMillis(),
+                                        ACARSSoundingTools.OUT_FMT,
+                                        acars.getTimeObs().getTimeInMillis(),
                                         acars.getDataURI()));
 
                             } catch (Exception ee) {
@@ -152,6 +162,7 @@ public class ACARSPersistObs {
 
     /**
      * Get the failure reason.
+     * 
      * @return
      */
     public int getFailReason() {
@@ -190,9 +201,4 @@ public class ACARSPersistObs {
             logger.error("Attempting to setup files", e);
         }
     }
-
-    public static final void main(String[] args) {
-        System.out.println(ACARSSoundingTools.getFileName());
-    }
-
 }

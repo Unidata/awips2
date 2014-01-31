@@ -33,7 +33,6 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionType;
-import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -74,6 +73,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Oct 13,  2013 2460      dhladky     Added display of Adhoc subscriptions
  * Nov 19, 2013  2458      mpduff      Only pull subscriptions for the local site
  * Nov 21, 2013  2554      dhladky     Restored ADHOC's to working.
+ * Jan 14, 2014  2459      mpduff      Change Subscription status code
  * 
  * </pre>
  * 
@@ -403,7 +403,7 @@ public class DataDeliveryProductBrowserDataDefinition
 
         List<Subscription> subList = getSubscriptions();
         for (Subscription s : subList) {
-            if (SubscriptionStatus.ACTIVE.toString().equals(s.getStatus())
+            if (s.isActive()
                     || s.getSubscriptionType().equals(SubscriptionType.QUERY)) {
                 if (s.getDataSetType() == dataType) {
                     activeSubList.add(s);
