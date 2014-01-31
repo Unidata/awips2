@@ -21,7 +21,6 @@
 package com.raytheon.uf.common.gridcoverage;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -49,14 +48,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ----------  ----------- --------------------------
  * 4/7/09       1994        bphillip    Initial Creation
  * 09/10/2012   DR 15270    D. Friedman Fix subgrid model name handling.
- * 
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
 @Entity
-@Table(name = "grib_latlon_coverages")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
@@ -92,11 +90,11 @@ public class LatLonGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         // lower left is cell center, we want cell corners.
-        double minLon = getLowerLeftLon() - dx / 2;
-        double maxLon = minLon + dx * nx;
+        double minLon = getLowerLeftLon() - (dx / 2);
+        double maxLon = minLon + (dx * nx);
 
         double centralMeridian = (minLon + maxLon) / 2.0;
-        if (dx * nx <= 360) {
+        if ((dx * nx) <= 360) {
             centralMeridian = MapUtil.correctLon(centralMeridian);
         } else {
             // For almost all map projections geotools will clip all math

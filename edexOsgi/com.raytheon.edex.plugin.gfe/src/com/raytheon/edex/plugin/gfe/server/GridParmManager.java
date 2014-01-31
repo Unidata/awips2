@@ -1255,7 +1255,9 @@ public class GridParmManager {
                         d2dModelName, desiredVersions)) {
                     D2DGridDatabase db = D2DGridDatabase.getDatabase(config,
                             d2dModelName, refTime);
-                    addDB(db);
+                    if (db != null) {
+                        addDB(db);
+                    }
                 }
             } catch (Exception e) {
                 statusHandler.error("Error initializing D2D model: "

@@ -34,9 +34,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 03, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 03, 2013           dgilling    Initial creation
+ * Jan 06, 2014  2537     bsteffen    Store geometry index instead of WKT.
  * 
  * </pre>
  * 
@@ -51,13 +52,13 @@ public class GeometryResponseData extends AbstractResponseData {
     private Map<String, Object[]> dataMap;
 
     @DynamicSerializeElement
-    private String geometryWKT;
+    private int geometryWKTindex;
 
     public GeometryResponseData() {
         // no-op, for serialization
     }
 
-    public GeometryResponseData(final IGeometryData data) {
+    public GeometryResponseData(final IGeometryData data, final int geometryWKTindex) {
         super(data);
 
         Set<String> parameters = data.getParameters();
@@ -75,7 +76,7 @@ public class GeometryResponseData extends AbstractResponseData {
             }
             dataMap.put(param, dataTuple);
         }
-        geometryWKT = data.getGeometry().toText();
+        this.geometryWKTindex = geometryWKTindex;
     }
 
     public Map<String, Object[]> getDataMap() {
@@ -86,11 +87,11 @@ public class GeometryResponseData extends AbstractResponseData {
         this.dataMap = dataMap;
     }
 
-    public String getGeometryWKT() {
-        return geometryWKT;
+    public int getGeometryWKTindex() {
+        return geometryWKTindex;
     }
 
-    public void setGeometryWKT(String geometry) {
-        this.geometryWKT = geometry;
+    public void setGeometryWKTindex(int geometryWKTindex) {
+        this.geometryWKTindex = geometryWKTindex;
     }
 }
