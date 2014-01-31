@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Smack
 Bundle-SymbolicName: org.jivesoftware.smack
 Bundle-Version: 3.3.1
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ClassPath: smack.jar,
  .,
  smackx.jar
