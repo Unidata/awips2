@@ -62,7 +62,7 @@
 		<!-- Additional properties may be added to c3p0.properties -->
 		<property name="hibernate.c3p0.idle_test_period">60</property>
 		<property name="hibernate.c3p0.timeout">${db.metadata.pool.timeout}</property>
-		<property name="hibernate.c3p0.max_statements">10</property>
+		<property name="hibernate.c3p0.max_statements">${db.metadata.pool.max}</property>
 		<property name="hibernate.c3p0.acquire_increment">5</property>
 		<property name="hibernate.c3p0.min_size">${db.metadata.pool.min}</property>
 		<property name="hibernate.c3p0.max_size">${db.metadata.pool.max}</property>
@@ -71,7 +71,7 @@
 		<property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
 		<property name="hibernate.cache.use_second_level_cache">false</property>
 		<property name="hibernate.jdbc.use_streams_for_binary">false</property>
-		<property name="cache.use_query_cache">false</property>
+		<property name="hibernate.cache.use_query_cache">false</property>
 
 	</session-factory>
 </hibernate-configuration>

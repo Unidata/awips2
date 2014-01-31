@@ -2,6 +2,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.util;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Pattern;
 
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -34,6 +35,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 23, 2013 2180       mpduff      Implement changes to ProviderCredentialsUtil
  * Aug 06, 2013 2097       dhladky     WFS 2.0 compliance upgrade and switched to POST
  * Nov 20, 2013 2554       dhladky     Added GZIP capability to WFS requests.
+ * Jan 13, 2014 2697       dhladky     Added util to strip unique Id field from URL.
  * 
  * </pre>
  * 
@@ -45,6 +47,8 @@ public class WfsConnectionUtil {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsConnectionUtil.class);
+    
+    private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
     /**
      * Connect to the provided URL and return the xml response.
@@ -66,7 +70,7 @@ public class WfsConnectionUtil {
 
         try {
 
-            rootUrl = providerConn.getUrl();
+            rootUrl = getCleanUrl(providerConn.getUrl());
             http = HttpClient.getInstance();
             // accept gzipped data for WFS
             http.setGzipResponseHandling(true);
@@ -191,5 +195,14 @@ public class WfsConnectionUtil {
         public int getHttpPort() {
             return httpPort;
         }
+    }
+    
+    /**
+     * Removes un-needed unique Identifier from PointDataSetMetaData derived URL's
+     * @param rootUrl
+     * @return
+     */
+    private static String getCleanUrl(String providerUrl) {
+        return COMMA_PATTERN.split(providerUrl)[0];
     }
 }

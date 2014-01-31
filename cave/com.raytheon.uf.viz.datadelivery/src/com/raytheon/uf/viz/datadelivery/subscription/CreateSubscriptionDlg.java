@@ -72,7 +72,6 @@ import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionPriority;
 import com.raytheon.uf.common.datadelivery.registry.Time;
-import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetQuery;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
@@ -144,6 +143,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Oct 21, 2013   2292     mpduff      Close dialog on OK.
  * Nov 07, 2013   2291     skorolev    Used showText() method for "Unable to Create Subscription" message.
  * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is updated and created.
+ * Jan 14, 2014   2459     mpduff      Change Subscription status code
  * 
  * </pre>
  * 
@@ -1088,14 +1088,11 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                             .parse(endText);
                     subscription.setActivePeriodEnd(endPeriodDate);
                 }
-
-                subscription.setActive(true);
             } catch (ParseException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
         } else {
-            subscription.setActive(true);
             subscription.setActivePeriodStart(null);
             subscription.setActivePeriodEnd(null);
         }
@@ -1635,8 +1632,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
 
             // If currently in the window, assume starting from last year for
             // the start date
-            if (subscription.getStatus().equals(
-                    SubscriptionStatus.ACTIVE.toString())) {
+            if (subscription.isActive()) {
                 calendarYearToUse--;
             }
 
