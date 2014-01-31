@@ -27,6 +27,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 20, 2012   0743      djohnson    Store cycle in a slot.
  * Nov 19, 2012 1166        djohnson    Clean up JAXB representation of registry objects.
  * Sept 30, 2013 1797       dhladky     Generics
+ * Dec 20, 2013  2636       mpduff      Add equals/hashcode.
  * 
  * </pre>
  * 
@@ -85,4 +86,48 @@ public abstract class GriddedDataSetMetaData extends
         return cycle;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + cycle;
+        result = prime * result
+                + ((levelTypes == null) ? 0 : levelTypes.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof GriddedDataSetMetaData)) {
+            return false;
+        }
+        GriddedDataSetMetaData other = (GriddedDataSetMetaData) obj;
+        if (cycle != other.cycle) {
+            return false;
+        }
+        if (levelTypes == null) {
+            if (other.levelTypes != null) {
+                return false;
+            }
+        } else if (!levelTypes.equals(other.levelTypes)) {
+            return false;
+        }
+        return true;
+    }
 }
