@@ -30,6 +30,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
@@ -61,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mschenke     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -73,9 +75,9 @@ public class CollaborationDrawingResource extends
 
     private SessionContainer container;
 
-    private UserId myUser;
+    private VenueParticipant myUser;
 
-    private Map<UserId, DrawingToolLayer> layerMap;
+    private Map<VenueParticipant, DrawingToolLayer> layerMap;
 
     private CollaborationDrawingUIManager manager;
 
@@ -97,7 +99,7 @@ public class CollaborationDrawingResource extends
         }
 
         myUser = container.getSession().getUserID();
-        layerMap = new HashMap<UserId, DrawingToolLayer>();
+        layerMap = new HashMap<VenueParticipant, DrawingToolLayer>();
     }
 
     /*
@@ -111,7 +113,7 @@ public class CollaborationDrawingResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         EditableManager.makeEditable(this, true);
         if (layerMap == null) {
-            layerMap = new HashMap<UserId, DrawingToolLayer>();
+            layerMap = new HashMap<VenueParticipant, DrawingToolLayer>();
         }
 
         OutlineCapability outline = getCapability(OutlineCapability.class);
@@ -165,7 +167,7 @@ public class CollaborationDrawingResource extends
         OutlineCapability outline = getCapability(OutlineCapability.class);
 
         synchronized (layerMap) {
-            for (UserId user : layerMap.keySet()) {
+            for (VenueParticipant user : layerMap.keySet()) {
                 DrawingToolLayer layer = layerMap.get(user);
                 if (layer != null) {
                     layer.setEraserWidth(16); // Configure?
@@ -203,7 +205,7 @@ public class CollaborationDrawingResource extends
     /**
      * @return the myUser
      */
-    public UserId getMyUser() {
+    public VenueParticipant getMyUser() {
         return myUser;
     }
 
@@ -224,7 +226,7 @@ public class CollaborationDrawingResource extends
      * @param user
      * @return
      */
-    public DrawingToolLayer getDrawingLayerFor(UserId user) {
+    public DrawingToolLayer getDrawingLayerFor(VenueParticipant user) {
         if (layerMap != null) {
             synchronized (layerMap) {
                 DrawingToolLayer layer = layerMap.get(user);
@@ -321,7 +323,7 @@ public class CollaborationDrawingResource extends
 
     @Subscribe
     public void handleDrawEvent(CollaborationDrawingEvent event) {
-        UserId user = event.getUserName();
+        VenueParticipant user = event.getUserName();
         if (event.getDisplayId() != resourceData.getDisplayId()
                 || user.equals(myUser)) {
             // Early exit case, don't process my own events twice

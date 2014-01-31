@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
 
@@ -50,6 +51,8 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            mnash     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ *                                     added JID and display name if available
  * 
  * </pre>
  * 
@@ -103,10 +106,10 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
 
     @Override
     public Font getFont(Object element) {
-        if (!(element instanceof UserId)) {
+        if (!(element instanceof VenueParticipant)) {
             return null;
         }
-        UserId user = (UserId) element;
+        VenueParticipant user = (VenueParticipant) element;
         boolean leader = isSessionLeader(user);
         boolean provider = isDataProvider(user);
         if (leader && provider) {
@@ -139,10 +142,10 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
 
     @Override
     public Color getForeground(Object element) {
-        if (!(element instanceof UserId)) {
+        if (!(element instanceof VenueParticipant)) {
             return null;
         }
-        UserId user = ((UserId) element);
+        VenueParticipant user = ((VenueParticipant) element);
         RGB rgb = manager.getColorFromUser(user);
         if (rgb == null) {
             rgb = new RGB(0, 0, 0);
@@ -172,22 +175,22 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
         return connection.getSession(sessionId);
     }
 
-    protected boolean isSessionLeader(UserId user) {
+    protected boolean isSessionLeader(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
             UserId leader = ((SharedDisplaySession) session)
                     .getCurrentSessionLeader();
-            return user.equals(leader);
+            return user.getAlias().equals(leader.getAlias());
         }
         return false;
     }
 
-    protected boolean isDataProvider(UserId user) {
+    protected boolean isDataProvider(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
             UserId provider = ((SharedDisplaySession) session)
                     .getCurrentDataProvider();
-            return user.equals(provider);
+            return user.getAlias().equals(provider.getAlias());
         }
         return false;
     }
@@ -199,7 +202,7 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
             return null;
         }
         StringBuilder builder = new StringBuilder(toolTip);
-        UserId user = (UserId) element;
+        VenueParticipant user = (VenueParticipant) element;
         Presence presence = getPresence(user);
         if (presence != null) {
             String site = String.valueOf(presence
@@ -228,6 +231,11 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
                 // }
             }
         }
+        if (user.getName() != null) {
+            builder.append("\nJID: ").append(user.getNormalizedId());
+            builder.append("\nDisplay Name: ").append(
+                    super.getDisplayName(user));
+        }
         return builder.toString();
     }
 
@@ -246,6 +254,19 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     @Override
     protected Presence getPresence(UserId user) {
         IVenueSession session = (IVenueSession) getSession();
-        return session.getVenue().getPresence(user);
+        return session.getVenue().getPresence((VenueParticipant) user);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider#getDisplayName
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String getDisplayName(UserId user) {
+        return user.getAlias();
+    }
+
 }
