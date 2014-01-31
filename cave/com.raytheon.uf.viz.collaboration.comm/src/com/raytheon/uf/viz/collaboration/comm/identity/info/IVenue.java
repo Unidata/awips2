@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import org.jivesoftware.smack.packet.Presence;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Provides information about a venue.
@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012             jkorman     Initial creation
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public interface IVenue {
     /**
      * @return list of users in venue
      */
-    public Collection<UserId> getParticipants();
+    public Collection<VenueParticipant> getParticipants();
 
     /**
      * Get the presence for a user in the session.
@@ -55,7 +56,7 @@ public interface IVenue {
      * @param user
      * @return
      */
-    public Presence getPresence(UserId user);
+    public Presence getPresence(VenueParticipant user);
 
     /**
      * @return id of venue "name@service"

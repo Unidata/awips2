@@ -21,7 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 import org.jivesoftware.smack.packet.Presence;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Event fired when a venue participant has a change in status
@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
  * Dec 19, 2013 2563       bclement    added description getter
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ public interface IVenueParticipantEvent {
     /**
      * @return user id of participant
      */
-    public UserId getParticipant();
+    public VenueParticipant getParticipant();
 
     /**
      * @return presence of participant, may be null
