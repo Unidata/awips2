@@ -80,6 +80,8 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  *                                      to not create duplicate slots on objects
  * 11/20/2013   2534        bphillip    Moved method to get notification destinations to utility
  * 12/9/2013    2613        bphillip    Setting last run time of subscription now occurs before notification is sent
+ * 1/15/2014    2613        bphillip    Added Hibernate flush and clear after subscription processing
+ * 01/21/2014   2613        bphillip    Changed how last run time is updated for replication subscriptions
  * </pre>
  * 
  * @author bphillip
@@ -387,13 +389,25 @@ public class RegistrySubscriptionManager implements
             }
             statusHandler.info("Processing subscription [" + subscriptionName
                     + "]...");
-            updateLastRunTime(subscription, TimeUtil.currentTimeMillis());
-            notificationManager.sendNotifications(listeners
-                    .get(subscriptionName));
+            XMLGregorianCalendar startTime = subscription
+                    .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
+
+            if (startTime == null) {
+                startTime = subscription.getStartTime();
+            }
+            XMLGregorianCalendar lastEventTime = notificationManager
+                    .sendNotifications(listeners.get(subscriptionName),
+                            startTime);
+            if (lastEventTime != null) {
+                updateLastRunTime(subscription, lastEventTime
+                        .toGregorianCalendar().getTimeInMillis());
+            }
         } catch (Throwable e) {
             statusHandler.error(
                     "Errors occurred while processing subscription ["
                             + subscriptionName + "]", e);
+        } finally {
+            subscriptionDao.flushAndClearSession();
         }
 
     }

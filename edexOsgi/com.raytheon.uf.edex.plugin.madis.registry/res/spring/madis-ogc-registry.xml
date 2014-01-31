@@ -49,16 +49,18 @@
 	<bean id="madisRegistryAddon"
 		class="com.raytheon.uf.edex.plugin.madis.registry.MadisRegistryCollectorAddon"
 		depends-on="registerDataDeliveryHandlers, registerRequestRegistryRouter, registerMadisPlugin">
-		<constructor-arg value="madis" />
 	</bean>
-	
-	<bean id="madisRegistryAddonProvider" class="com.raytheon.uf.edex.ogc.registry.RegistryCollectorAddonProvider">
-		<constructor-arg ref="madisRegistryAddon"/>
+
+	<bean id="madisRegistryAddonProvider"
+		class="com.raytheon.uf.edex.ogc.registry.RegistryCollectorAddonProvider"
+		depends-on="madisRegistryAddon">
+		<constructor-arg ref="madisRegistryAddon" />
 	</bean>
+
+	<bean id="madisWfsTypeModifier"
+		class="com.raytheon.uf.edex.ogc.registry.RegistryFeatureTypeModifier" />
 	
-	<bean id="madisWfsTypeModifier" class="com.raytheon.uf.edex.ogc.registry.RegistryFeatureTypeModifier" />
-	
-	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor">
+	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor" depends-on="madisRegistryAddonProvider, madisRegistryAddon">
 		<constructor-arg>
 			<map>
 				<entry key="madisIngestFilter">
