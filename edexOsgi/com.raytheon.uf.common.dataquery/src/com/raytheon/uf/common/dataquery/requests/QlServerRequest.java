@@ -21,7 +21,6 @@ package com.raytheon.uf.common.dataquery.requests;
 
 import java.util.Map;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -32,9 +31,10 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 16, 2011 #8070      ekladstrup  Initial creation
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 16, 2011  8070     ekladstrup  Initial creation
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * @version 1.0
  */
 @DynamicSerialize
-public class QlServerRequest implements IServerRequest, ISerializableObject {
+public class QlServerRequest implements IServerRequest {
 
     @DynamicSerializeElement
     private Map<String, RequestConstraint> rcMap;

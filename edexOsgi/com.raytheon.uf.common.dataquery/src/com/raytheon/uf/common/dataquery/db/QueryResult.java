@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -35,16 +34,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/07/08     #1673      bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 07, 2008  1673     bphillip    Initial Creation
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 @DynamicSerialize
-public class QueryResult implements ISerializableObject {
+public class QueryResult {
 
     /** A mapping of the column names to their index in the result */
     @DynamicSerializeElement
@@ -167,12 +168,10 @@ public class QueryResult implements ISerializableObject {
      */
     public String[] getColumnNameArray() {
         String[] names = new String[columnNames.size()];
-        int i = 0;
         for (Iterator<String> it = columnNames.keySet().iterator(); it
                 .hasNext();) {
             String key = it.next();
             names[columnNames.get(key)] = key;
-            i++;
         }
         return names;
     }
