@@ -45,7 +45,9 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionState;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
@@ -94,6 +96,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 12, 2013 2460       dhladky      restored adhoc subscriptions to registry storage.
  * Oct 22, 2013  2292      mpduff       Removed subscriptionOverlapService.
  * Nov 07, 2013  2291      skorolev     Used showText() method for "Shared Subscription" message.
+ * Jan 26, 2014  2259      mpduff       Turn off subs to be deactivated.
  * 
  * </pre>
  * 
@@ -768,6 +771,10 @@ public class SubscriptionService implements ISubscriptionService {
                 continue;
             }
             unscheduledSub.setUnscheduled(true);
+            if (unscheduledSub instanceof RecurringSubscription) {
+                ((RecurringSubscription) unscheduledSub)
+                        .setSubscriptionState(SubscriptionState.OFF);
+            }
             subscriptionHandler.update(unscheduledSub);
         }
     }

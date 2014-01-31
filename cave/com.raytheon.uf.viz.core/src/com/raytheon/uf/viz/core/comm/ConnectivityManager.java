@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.core.comm;
 
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Mar 22, 2013 1786       mpduff      Changed to use HttpClient for
  *                                     connectivity.
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Jan 15, 2013            njensen     Added printConnectivityProblems()
  * 
  * </pre>
  * 
@@ -88,7 +91,8 @@ public class ConnectivityManager {
      * @return whether quit was selected. TODO: need to return two booleans, one
      *         for quit and one for connectivity
      */
-    public static void checkHttpServer(String server, IConnectivityCallback callback) {
+    public static void checkHttpServer(String server,
+            IConnectivityCallback callback) {
         boolean good = false;
         try {
             HttpClient client = HttpClient.getInstance();
@@ -97,7 +101,7 @@ public class ConnectivityManager {
             client.executeRequest(request);
             good = true;
         } catch (Exception e) {
-            // ignore
+            printConnectivityProblem(server, "http", e);
         }
         callback.connectionChecked(new ConnectivityResult(good, server));
     }
@@ -108,12 +112,13 @@ public class ConnectivityManager {
      * @param server
      *            server to check
      */
-    public static void checkLocalizationServer(String server, IConnectivityCallback callback) {
+    public static void checkLocalizationServer(String server,
+            IConnectivityCallback callback) {
         boolean good = false;
         try {
             good = checkLocalizationServer(server, true) != null;
         } catch (Exception e) {
-            // ignore
+            printConnectivityProblem(server, "localization", e);
         }
         callback.connectionChecked(new ConnectivityResult(good, server));
     }
@@ -124,8 +129,8 @@ public class ConnectivityManager {
      * result is returned, otherwise the localization server is contacted to get
      * the response.
      */
-    public static GetServersResponse checkLocalizationServer(String server, boolean force)
-            throws VizException {
+    public static GetServersResponse checkLocalizationServer(String server,
+            boolean force) throws VizException {
         if (!force) {
             GetServersResponse resp = getServersResponseCache.get(server);
             if (resp != null) {
@@ -133,7 +138,8 @@ public class ConnectivityManager {
             }
         }
         GetServersRequest req = new GetServersRequest();
-        GetServersResponse resp = (GetServersResponse) ThriftClient.sendRequest(req, server);
+        GetServersResponse resp = (GetServersResponse) ThriftClient
+                .sendRequest(req, server);
         getServersResponseCache.put(server, resp);
         return resp;
 
@@ -154,8 +160,29 @@ public class ConnectivityManager {
             ActiveMQConnectionFactory f = new ActiveMQConnectionFactory(server);
             f.createConnection().close();
         } catch (JMSException e) {
+            printConnectivityProblem(server, "JMS", e);
             good = false;
         }
         callback.connectionChecked(new ConnectivityResult(good, server));
+    }
+
+    /**
+     * Prints the connectivity exception to the console, to help with diagnosing
+     * connection issues
+     * 
+     * @param server
+     *            the server address it attempted to connect to
+     * @param serverType
+     *            the type of server it attempted to connect to
+     * @param e
+     *            the exception that occurred
+     */
+    private static void printConnectivityProblem(String server,
+            String serverType, Exception e) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(sdf.format(new Date()) + "  MAY NOT BE AN ERROR:");
+        System.out.println("Couldn't connect to " + serverType + " server at "
+                + server);
+        e.printStackTrace(System.out);
     }
 }

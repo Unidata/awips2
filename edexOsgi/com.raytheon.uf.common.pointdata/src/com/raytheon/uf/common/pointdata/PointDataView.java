@@ -39,9 +39,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 8, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 08, 2009           chammack    Initial creation
+ * Dec 20, 2013  2537     bsteffen    add getFloat on a specified level.
  * 
  * </pre>
  * 
@@ -223,6 +224,24 @@ public class PointDataView {
 			}
 		}
 	}
+
+    public float getFloat(String parameter, int level) {
+        AbstractPointDataObject<?> p = getParamSafe(parameter);
+
+        if (!(p instanceof FloatPointDataObject)) {
+            return p.getNumber(getIndex(p) + level).floatValue();
+        } else if (level == 0) {
+            return ((FloatPointDataObject) p).getFloat(getIndex(p));
+        } else if (level >= p.getDescription().getDimensionAsInt()) {
+            throw new IllegalArgumentException("Level  " + level
+                    + " exceeds maxLevel size "
+                    + p.getDescription().getDimensionAsInt());
+        } else if (p.getDimensions() != 2) {
+            throw new IllegalArgumentException("Data is not two dimensional");
+        } else {
+            return ((FloatPointDataObject) p).getFloat(getIndex(p) + level);
+        }
+    }
 
 	public long getLong(String parameter) {
 		AbstractPointDataObject<?> p = getParamSafe(parameter);

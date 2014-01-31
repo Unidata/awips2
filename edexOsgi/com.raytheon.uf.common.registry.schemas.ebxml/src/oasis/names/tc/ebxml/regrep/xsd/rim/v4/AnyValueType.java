@@ -22,7 +22,6 @@ package oasis.names.tc.ebxml.regrep.xsd.rim.v4;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAnyElement;
@@ -74,6 +73,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/2/2013     1829       bphillip    Removed generic methods, 
  *                                      modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
@@ -82,7 +82,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "AnyValue")
 @XmlRootElement(name = "AnyValue")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnyValueType", propOrder = { "anyValue" })
@@ -131,25 +130,30 @@ public class AnyValueType extends ValueType {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((anyValue == null) ? 0 : anyValue.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AnyValueType other = (AnyValueType) obj;
         if (anyValue == null) {
-            if (other.anyValue != null)
+            if (other.anyValue != null) {
                 return false;
-        } else if (!anyValue.equals(other.anyValue))
+            }
+        } else if (!anyValue.equals(other.anyValue)) {
             return false;
+        }
         return true;
     }
 

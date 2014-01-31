@@ -50,6 +50,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryExceptionType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
 import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryResponseType;
 
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -91,6 +92,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, modified persistence annotations, added hashCode and equals
+ * 1/15/2014     2613       bphillip    Added batch size Slot field
  * </pre>
  * 
  * @author bphillip
@@ -124,6 +126,7 @@ public abstract class ExtensibleObjectType implements Serializable,
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", nullable = false, referencedColumnName = "id")
     @XmlElement(name = "Slot")
+    @BatchSize(size = 50)
     @DynamicSerializeElement
     protected List<SlotType> slot;
 
