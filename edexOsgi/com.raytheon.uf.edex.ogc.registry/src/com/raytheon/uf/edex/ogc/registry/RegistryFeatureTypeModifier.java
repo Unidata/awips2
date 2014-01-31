@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.ogc.common.OgcGeoBoundingBox;
 import com.raytheon.uf.edex.wfs.WfsFeatureType;
+import com.raytheon.uf.edex.wfs.reg.AbstractWfsSource;
 import com.raytheon.uf.edex.wfs.reg.IFeatureTypeModifier;
 
 /**
@@ -44,6 +45,7 @@ import com.raytheon.uf.edex.wfs.reg.IFeatureTypeModifier;
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2013            bclement     Initial creation
  * Aug 18, 2013  #2097     dhladky      Adapted to AWIPS
+ * Jan 13, 2014  #2679     dhladky      multiple layers mapping to single request window
  * 
  * </pre>
  * 
@@ -115,13 +117,10 @@ public class RegistryFeatureTypeModifier implements IFeatureTypeModifier {
         OgcGeoBoundingBox bbox = null;
 
         try {
-            ConfigLayer layer = getConfigLayer(name);
-            double upperLeftLon = layer.getMinx();
-            double lowerRightLon = layer.getMaxx();
-            double upperLeftLat = layer.getMaxy();
-            double lowerRightLat = layer.getMiny();
-            bbox = new OgcGeoBoundingBox(lowerRightLon, upperLeftLon,
-                    upperLeftLat, lowerRightLat);
+            // we default to whole earth now.
+            // We don't really care about the DataSet specific areas for the feature
+            // They are added together and treated as a whole for requests from the DPA
+            bbox = AbstractWfsSource.fullBbox;
 
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
@@ -142,8 +141,8 @@ public class RegistryFeatureTypeModifier implements IFeatureTypeModifier {
         String crs = null;
 
         try {
-            ConfigLayer layer = getConfigLayer(name);
-            crs = layer.getCrs();
+            // Default to WGS:84 
+            crs = AbstractWfsSource.defaultCRS;
         } catch (Exception e) {
             statusHandler.handle(Priority.ERROR,
                     "Couldn't retrieve CRS for feature: " + name
