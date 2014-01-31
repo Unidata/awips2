@@ -24,7 +24,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -73,6 +72,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/2/2013     1829       bphillip    Removed generic methods, 
  *                                      modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
@@ -80,7 +80,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity(name = "MapValue")
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "MapValue")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MapValueType", propOrder = { "mapValue" })
@@ -129,25 +128,30 @@ public class MapValueType extends ValueType {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((mapValue == null) ? 0 : mapValue.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         MapValueType other = (MapValueType) obj;
         if (mapValue == null) {
-            if (other.mapValue != null)
+            if (other.mapValue != null) {
                 return false;
-        } else if (!mapValue.equals(other.mapValue))
+            }
+        } else if (!mapValue.equals(other.mapValue)) {
             return false;
+        }
         return true;
     }
 

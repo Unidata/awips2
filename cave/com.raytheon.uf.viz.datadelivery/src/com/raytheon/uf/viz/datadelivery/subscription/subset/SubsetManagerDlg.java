@@ -51,6 +51,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionType;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.VizAppTaskExecutor;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
+import com.raytheon.uf.viz.datadelivery.handlers.VizSubscriptionHandler;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CreateSubscriptionDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
@@ -138,6 +140,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
  * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
  * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
+ * Jan 20, 2014   2538     mpduff       Call doesNameExist method to check for dupes
  * </pre>
  * 
  * @author mpduff
@@ -504,10 +508,13 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         if (valid) {
             // Check for existing subscription
-            ISubscriptionHandler handler = RegistryObjectHandlers
+            VizSubscriptionHandler handler = (VizSubscriptionHandler) RegistryObjectHandlers
                     .get(ISubscriptionHandler.class);
+            String name = nameText.getText();
+
             try {
-                if (handler.getByName(nameText.getText()) != null) {
+                if (handler.doesNameExist(name, SiteSubscription.class,
+                        SharedSubscription.class, AdhocSubscription.class)) {
                     String message = "A query with this name already exists.\n\nPlease enter a different query name.";
                     DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
                             "Duplicate Query Name", message);
@@ -603,7 +610,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
             sub.setSubscriptionStart(this.subscription.getSubscriptionStart());
             sub.setActivePeriodEnd(this.subscription.getActivePeriodEnd());
             sub.setActivePeriodStart(this.subscription.getActivePeriodStart());
-            sub.setActive(this.subscription.isActive());
             sub.setPriority(this.subscription.getPriority());
         }
 
