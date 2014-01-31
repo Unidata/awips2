@@ -23,7 +23,7 @@ import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Event that is posted when a participant's status changes
@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Mar 20, 2012            jkorman     Initial creation
  * Dec 19, 2013 2563       bclement    added description
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -47,19 +48,20 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
 
     private final ParticipantEventType eventType;
 
-    private final UserId participant;
+    private final VenueParticipant participant;
 
     private Presence presence;
 
     private String eventDescription;
 
-    public VenueParticipantEvent(UserId participant,
+    public VenueParticipantEvent(VenueParticipant participant,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
     }
 
-    public VenueParticipantEvent(UserId participant, Presence presence,
+    public VenueParticipantEvent(VenueParticipant participant,
+            Presence presence,
             ParticipantEventType eventType) {
         this.participant = participant;
         this.eventType = eventType;
@@ -78,7 +80,7 @@ public class VenueParticipantEvent implements IVenueParticipantEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent#getParticipant()
      */
     @Override
-    public UserId getParticipant() {
+    public VenueParticipant getParticipant() {
         return participant;
     }
 
