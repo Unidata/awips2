@@ -21,7 +21,6 @@
 package com.raytheon.uf.viz.image.export.handler;
 
 import java.awt.image.BufferedImage;
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -191,7 +190,7 @@ public class ExportImageHandler extends AbstractImageCaptureHandler {
         }
         ImageWriter writer = iter.next();
 
-        Closeable stream = null;
+        FileImageOutputStream stream = null;
         try {
             if (images.size() == 1) {
                 stream = new FileImageOutputStream(options.getFileLocation());
