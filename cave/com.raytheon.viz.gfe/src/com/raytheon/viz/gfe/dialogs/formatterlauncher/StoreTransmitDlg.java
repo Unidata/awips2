@@ -21,8 +21,8 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -79,6 +79,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 23 Oct 2013  1843       dgilling    Ensure that dialog is always closed,
  *                                     even on failure, changes for error handling
  *                                     of intersite ETN assignment.
+ * 18 Dec 2013  2641       dgilling    Support changes to GFEVtecUtil.getVtecLinesThatNeedEtn().
  * </pre>
  * 
  * @author lvenable
@@ -345,7 +346,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         if (!countdownThread.threadCancelled()) {
             boolean retrieveEtnFailed = false;
 
-            Set<VtecObject> vtecsToAssignEtn = GFEVtecUtil
+            List<VtecObject> vtecsToAssignEtn = GFEVtecUtil
                     .getVtecLinesThatNeedEtn(productText);
             // With GFE VTEC products, it's possible to have multiple segments
             // with

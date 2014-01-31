@@ -10,7 +10,7 @@
       </crossSectionAdapter>
       <crossSectionAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
-            class="com.raytheon.edex.plugin.modelsounding.common.SoundingSite"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
             name="Model Sounding Cross Section Adapter">
       </crossSectionAdapter>
       <crossSectionAdapter
@@ -119,7 +119,7 @@
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
-            class="com.raytheon.edex.plugin.modelsounding.common.SoundingSite"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
             name="Model Sounding Time Series Adapter">
       </timeSeriesAdapter>
    </extension>
@@ -175,7 +175,7 @@
       </varHeightAdapter>
       <varHeightAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
-            class="com.raytheon.edex.plugin.modelsounding.common.SoundingSite"
+            class="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite"
             name="Model Sounding Var Height Adapter">
       </varHeightAdapter>
    </extension>

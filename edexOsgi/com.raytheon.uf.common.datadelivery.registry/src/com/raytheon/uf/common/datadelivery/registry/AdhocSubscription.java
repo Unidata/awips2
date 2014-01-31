@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
@@ -48,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Oct 11, 2013 2460       dhladky      Restored Adhoc's to registryObject store, WFO only
  * Oct 23, 2013   2484     dhladky      Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff       Add a subscription type slot.
+ * jan 23, 2013   2584     dhladky     Versions.
  * 
  * </pre>
  * 
@@ -61,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @RegistryObject({ Subscription.PROVIDER_NAME_SLOT, Subscription.NAME_SLOT,
         Subscription.DATA_SET_SLOT, Subscription.OWNER_SLOT,
         Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
+@RegistryObjectVersion(value = 1.0f)
 public class AdhocSubscription<T extends Time, C extends Coverage> extends
         SiteSubscription<T, C> {
 
@@ -74,4 +77,5 @@ public class AdhocSubscription<T extends Time, C extends Coverage> extends
         super(subscription);
         setGroupName("Adhoc");
     }
+
 }

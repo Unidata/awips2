@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.BandwidthReservation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 
@@ -63,6 +63,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Nov 27, 2013 2545       mpduff       Get data by network
  * Dec 11, 2013 2566       bgonzale     handle case when there are no reservations.
  * Dec 17, 2013 2636       bgonzale     Refactored bucket fill in edex.
+ * Jan 23, 2014 2636       mpduff       Changed download window generation.
  * 
  * </pre>
  * 
@@ -96,9 +97,8 @@ class BandwidthGraphDataAdapter {
 
         Collection<RetrievalPlan> retrievalPlans = retrievalManager
                 .getRetrievalPlans().values();
-        Map<Long, SubscriptionRetrieval> retrievals = new HashMap<Long, SubscriptionRetrieval>();
-        Map<Long, List<BandwidthReservation>> reservations = new HashMap<Long, List<BandwidthReservation>>();
         Map<Network, List<SubscriptionWindowData>> networkMap = new HashMap<Network, List<SubscriptionWindowData>>();
+        SubscriptionAllocationMapping subAllocationMapping = new SubscriptionAllocationMapping();
 
         // One retrieval plan per network
         for (RetrievalPlan retrievalPlan : retrievalPlans) {
@@ -118,79 +118,71 @@ class BandwidthGraphDataAdapter {
             SortedSet<BandwidthBucketDescription> buckets = toDescriptions(bandwidthBuckets);
             bandwidthGraphData.addBucketDescriptions(network, buckets);
 
-            // Latency window data - accumulate all the reservations
-            for (BandwidthBucket bucket : bandwidthBuckets) {
-                final List<BandwidthAllocation> requests = retrievalPlan
-                        .getBandwidthAllocationsForBucket(bucket);
-                for (BandwidthAllocation allocation : requests) {
-                    if (allocation instanceof SubscriptionRetrieval) {
-                        final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
-                        retrievals.put(allocation.getId(), subRetrieval);
-                    }
-                }
+            // Latency window data
+            List<BandwidthAllocation> allocationList = EdexBandwidthContextFactory
+                    .getInstance().bandwidthDao
+                    .getBandwidthAllocations(network);
 
-                final List<BandwidthReservation> bandwidthReservations = retrievalPlan
-                        .getBandwidthReservationsForBucket(bucket);
-
-                if (bandwidthReservations != null) {
-                    for (BandwidthReservation reservation : bandwidthReservations) {
-                        if (!reservations.containsKey(reservation.getId())) {
-                            reservations.put(reservation.getId(),
-                                    new ArrayList<BandwidthReservation>());
-                        }
-                        reservations.get(reservation.getId()).add(reservation);
-                    }
+            for (BandwidthAllocation allocation : allocationList) {
+                if (allocation instanceof SubscriptionRetrieval) {
+                    final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
+                    String subName = subRetrieval.getBandwidthSubscription()
+                            .getName();
+                    subAllocationMapping.addAllocationForSubscription(subName,
+                            allocation);
                 }
             }
         }
 
-        // Create time windows for each subscription retrieval by aggregating
-        // them with any reservations they have
-        for (Long key : retrievals.keySet()) {
-            final SubscriptionRetrieval retrieval = retrievals.get(key);
-            BandwidthSubscription dao = retrieval.getBandwidthSubscription();
-            String subName = dao.getName();
-            SubscriptionPriority priority = dao.getPriority();
-            String registryId = retrieval.getBandwidthSubscription()
-                    .getRegistryId();
-            Network network = retrieval.getNetwork();
+        Map<String, List<BandwidthAllocation>> subAllocationMap = subAllocationMapping
+                .getSubAllocationMap();
+        for (Map.Entry<String, List<BandwidthAllocation>> entry : subAllocationMap
+                .entrySet()) {
+            String sub = entry.getKey();
+            for (BandwidthAllocation ba : entry.getValue()) {
+                if (ba instanceof SubscriptionRetrieval) {
+                    ((SubscriptionRetrieval) ba).getBandwidthSubscription()
+                            .getBaseReferenceTime();
+                    SubscriptionRetrieval sr = (SubscriptionRetrieval) ba;
+                    BandwidthSubscription dao = sr.getBandwidthSubscription();
+                    SubscriptionPriority priority = dao.getPriority();
+                    Calendar baseRefTime = ((SubscriptionRetrieval) ba)
+                            .getBandwidthSubscription().getBaseReferenceTime();
+                    int offset = ((SubscriptionRetrieval) ba)
+                            .getDataSetAvailablityDelay();
+                    String registryId = sr.getBandwidthSubscription()
+                            .getRegistryId();
+                    Network network = sr.getNetwork();
 
-            SubscriptionWindowData windowData = null;
+                    SubscriptionWindowData windowData = null;
+                    List<SubscriptionWindowData> subList = networkMap
+                            .get(network);
+                    for (SubscriptionWindowData subData : subList) {
+                        if (subData.getRegistryId().equals(registryId)) {
+                            windowData = subData;
+                            break;
+                        }
+                    }
 
-            List<SubscriptionWindowData> subList = networkMap.get(network);
-            for (SubscriptionWindowData subData : subList) {
-                if (subData.getRegistryId().equals(registryId)) {
-                    windowData = subData;
-                    break;
+                    if (windowData == null) {
+                        windowData = new SubscriptionWindowData();
+                        windowData.setNetwork(network);
+                        windowData.setPriority(priority);
+                        windowData.setRegistryId(registryId);
+                        windowData.setSubscriptionName(sub);
+                        networkMap.get(network).add(windowData);
+                    }
+
+                    final long startMillis = sr.getStartTime()
+                            .getTimeInMillis();
+                    final long endMillis = sr.getEndTime().getTimeInMillis();
+                    TimeWindowData window = new TimeWindowData(startMillis,
+                            endMillis);
+                    window.setBaseTime(baseRefTime.getTimeInMillis());
+                    window.setOffset(offset);
+                    windowData.addTimeWindow(window);
                 }
             }
-
-            if (windowData == null) {
-                windowData = new SubscriptionWindowData();
-                windowData.setNetwork(network);
-                windowData.setPriority(priority);
-                windowData.setRegistryId(registryId);
-                windowData.setSubscriptionName(subName);
-                networkMap.get(network).add(windowData);
-            }
-
-            final long startMillis = retrieval.getStartTime().getTimeInMillis();
-            final long endMillis = startMillis
-                    + (retrieval.getSubscriptionLatency() * TimeUtil.MILLIS_PER_MINUTE);
-            TimeWindowData window = new TimeWindowData(startMillis, endMillis);
-
-            List<Long> binStartTimes = new ArrayList<Long>();
-            binStartTimes.add(retrieval.getStartTime().getTimeInMillis());
-            List<BandwidthReservation> retrievalReservations = reservations
-                    .get(retrieval.getIdentifier());
-
-            if (retrievalReservations != null) {
-                for (BandwidthReservation reservation : retrievalReservations) {
-                    binStartTimes.add(reservation.getBandwidthBucket());
-                }
-            }
-            window.setBinStartTimes(binStartTimes);
-            windowData.addTimeWindow(window);
         }
 
         bandwidthGraphData.setNetworkDataMap(networkMap);
