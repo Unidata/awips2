@@ -55,7 +55,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TransferRoleCommand;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.IRemoteDisplayChangedListener;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplay;
@@ -92,6 +92,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -206,7 +207,8 @@ public class CollaborationSessionView extends SessionView implements
                 if (rgb != null) {
                     IStructuredSelection selection = (IStructuredSelection) usersTable
                             .getSelection();
-                    UserId entry = (UserId) selection.getFirstElement();
+                    VenueParticipant entry = (VenueParticipant) selection
+                            .getFirstElement();
                     ColorChangeEvent event = new ColorChangeEvent(entry, rgb);
                     try {
                         session.sendObjectToVenue(event);
@@ -478,7 +480,7 @@ public class CollaborationSessionView extends SessionView implements
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                UserId id = CollaborationConnection.getConnection().getUser();
+                VenueParticipant id = session.getUserID();
                 appendMessage(id, System.currentTimeMillis(), message, null);
                 ((IVenueSession) session).sendChatMessage(message);
             } catch (CollaborationException e) {
@@ -511,7 +513,8 @@ public class CollaborationSessionView extends SessionView implements
     public void modifyColors(ColorPopulator populator) {
         SessionColorManager colorMan = SharedDisplaySessionMgr
                 .getSessionContainer(sessionId).getColorManager();
-        for (Entry<UserId, RGB> entry : populator.getColors().entrySet()) {
+        for (Entry<VenueParticipant, RGB> entry : populator.getColors()
+                .entrySet()) {
             colorMan.setColorForUser(entry.getKey(), entry.getValue());
         }
         VizApp.runAsync(new Runnable() {

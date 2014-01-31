@@ -35,6 +35,7 @@ import org.jivesoftware.smackx.muc.Occupant;
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    reworked convertFromRoom for venue participants
  * 
  * </pre>
  * 
@@ -60,25 +61,31 @@ public class IDConverter {
         return rval;
     }
 
-    public static UserId convertFromRoom(MultiUserChat room, String id) {
-        String nickname = StringUtils.parseResource(id);
-        if (nickname == null || nickname.trim().isEmpty()) {
-            // this message is from the room itself
-            return convertFrom(id);
+    /**
+     * Parse userId from room id string "room@host/handle". Name field on
+     * returned id may be null.
+     * 
+     * @param room
+     * @param id
+     * @return
+     */
+    public static VenueParticipant convertFromRoom(MultiUserChat room, String id) {
+        String handle = StringUtils.parseResource(id);
+        if (handle == null || handle.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Room participant ids must have handle in resource");
         }
         String host = StringUtils.parseServer(id);
 
-        String name;
+        String name = null;
         Occupant occupant;
         if (room != null && (occupant = room.getOccupant(id)) != null) {
-            // get actual user name
-            name = StringUtils.parseName(occupant.getJid());
-        } else {
-            // fallback to using room nickname
-            name = nickname;
+            if (occupant.getJid() != null) {
+                // get actual user name
+                name = StringUtils.parseName(occupant.getJid());
+            }
         }
-
-        return new UserId(name, host);
+        return new VenueParticipant(name, host, handle);
     }
 
     public static String normalizeHostname(String hostname) {
@@ -91,6 +98,13 @@ public class IDConverter {
     public static boolean isFromRoom(String id) {
         String host = StringUtils.parseServer(id);
         return host.startsWith(CONF_ID);
+    }
+
+    public static boolean isRoomSystemMessage(String id) {
+        String handle = StringUtils.parseResource(id);
+        // system messages look like participant IDs, just without a handle
+        return isFromRoom(id)
+                && org.apache.commons.lang.StringUtils.isBlank(handle);
     }
 
 }
