@@ -85,7 +85,6 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
@@ -140,6 +139,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  *                                     removed option to create empty group
  * Jan 27, 2014 2700       bclement    fixed context menu for roster entries
+ * Jan 30, 2014 2698       bclement    fixed alias not working for roster entries
+ *                                     removed unneeded subscription for nickname changed events
  * 
  * </pre>
  * 
@@ -569,8 +570,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     }
 
     protected void changeText(Object selectedObj, String newText) {
-        if (selectedObj instanceof UserId) {
-            UserId user = (UserId) selectedObj;
+        if (selectedObj instanceof RosterEntry) {
+            UserId user = IDConverter.convertFrom((RosterEntry) selectedObj);
             user.setAlias(newText);
             CollaborationConnection.getConnection().getContactsManager()
                     .setNickname(user, newText);
@@ -904,11 +905,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
     @Override
     public void userDeleted(RosterGroup group, UserId user) {
         refreshUsersTreeViewerAsync(group);
-    }
-
-    @Subscribe
-    public void userNicknameChanged(UserNicknameChangedEvent e) {
-        refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
     }
 
     @Subscribe
