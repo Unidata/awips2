@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 27, 2014 2700       bclement     Initial creation
+ * Jan 31, 2014 2700       bclement     don't prompt for group if user is already in one
  * 
  * </pre>
  * 
@@ -129,10 +130,17 @@ public class SubRequestDialog extends Dialog {
         groupComposite.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT,
                 true, false));
         new Label(groupComposite, SWT.NONE).setText("Group: ");
-
         groupCombo = new Combo(groupComposite, SWT.BORDER | SWT.READ_ONLY
                 | SWT.DROP_DOWN);
         groupCombo.setItems(getGroupNames());
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        Collection<RosterGroup> groups = conn.getContactsManager().getGroups(
+                userid);
+        if (!groups.isEmpty()) {
+            // we already have this user in a group in our roster, no need to
+            // prompt
+            groupComposite.setVisible(false);
+        }
 
         return container;
     }
