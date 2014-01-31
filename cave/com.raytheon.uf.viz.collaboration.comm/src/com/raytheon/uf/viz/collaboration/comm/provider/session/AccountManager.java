@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.Roster.SubscriptionMode;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
@@ -64,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 07, 2013 2563       bclement    fixed id parsing in auto responder
  * Jan 27, 2014 2700       bclement    changes to subscription request responders
+ * Jan 31, 2014 2700       bclement    fixed subscribe back after accepting subscription
  * 
  * </pre>
  * 
@@ -154,16 +157,13 @@ public class AccountManager implements IAccountManager {
          */
         private void handleSubRequest(UserId fromId, boolean accept) {
             Presence.Type subscribedType;
-            
+            ContactsManager cm = sessionManager.getContactsManager();
+            boolean addToRoster = false;
             if (accept) {
-                ContactsManager cm = sessionManager.getContactsManager();
+                subscribedType = Presence.Type.subscribed;
                 RosterEntry entry = cm.getRosterEntry(fromId);
-                if (entry == null || ContactsManager.isBlocked(entry)) {
-                    // we aren't subscribed to them, subscribe back
-                    subscribedType = Presence.Type.subscribe;
-                } else {
-                    // we are already subscribed, let them know
-                    subscribedType = Presence.Type.subscribed;
+                if (entry == null) {
+                    addToRoster = true;
                 }
             } else {
                 subscribedType = Presence.Type.unsubscribed;
@@ -172,6 +172,9 @@ public class AccountManager implements IAccountManager {
             Presence presence = new Presence(subscribedType);
             try {
                 sendPresence(fromId, presence);
+                if (addToRoster) {
+                    cm.addToRoster(fromId);
+                }
             } catch (CollaborationException e) {
                 AccountManager.this.log.error("Unable to send presence", e);
             }
@@ -192,8 +195,10 @@ public class AccountManager implements IAccountManager {
     AccountManager(
             CollaborationConnection manager) {
         sessionManager = manager;
+        XMPPConnection xmppConnection = manager.getXmppConnection();
         smackManager = new org.jivesoftware.smack.AccountManager(
-                manager.getXmppConnection());
+                xmppConnection);
+        xmppConnection.getRoster().setSubscriptionMode(SubscriptionMode.manual);
         sessionManager.getXmppConnection().addPacketListener(subscriptionEventListener,
                 new PacketTypeFilter(Presence.class));
     }
