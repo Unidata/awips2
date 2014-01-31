@@ -24,7 +24,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.viz.core.ColorUtil;
 
 /**
@@ -38,6 +38,7 @@ import com.raytheon.viz.core.ColorUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 3, 2012            mnash     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ import com.raytheon.viz.core.ColorUtil;
 
 public class SessionColorManager {
 
-    private Map<UserId, RGB> colors;
+    private Map<VenueParticipant, RGB> colors;
 
     private static RGB[] rgbPresets = null;
 
@@ -56,7 +57,7 @@ public class SessionColorManager {
      */
     public SessionColorManager() {
         if (colors == null) {
-            colors = new HashMap<UserId, RGB>();
+            colors = new HashMap<VenueParticipant, RGB>();
             rgbPresets = ColorUtil.getResourceColorPresets();
         }
     }
@@ -64,22 +65,22 @@ public class SessionColorManager {
     /**
      * @return the colors
      */
-    public Map<UserId, RGB> getColors() {
+    public Map<VenueParticipant, RGB> getColors() {
         return colors;
     }
 
-    public void setColors(Map<UserId, RGB> map) {
+    public void setColors(Map<VenueParticipant, RGB> map) {
         colors = map;
     }
 
-    public RGB getColorFromUser(UserId user) {
+    public RGB getColorFromUser(VenueParticipant user) {
         if (colors.get(user) == null) {
             addUser(user);
         }
         return colors.get(user);
     }
 
-    public void setColorForUser(UserId id, RGB rgb) {
+    public void setColorForUser(VenueParticipant id, RGB rgb) {
         colors.put(id, rgb);
     }
 
@@ -88,7 +89,7 @@ public class SessionColorManager {
      * 
      * @param user
      */
-    public void addUser(UserId user) {
+    public void addUser(VenueParticipant user) {
         int count = colors.size();
         if (rgbPresets.length <= count) {
             count = count % rgbPresets.length;

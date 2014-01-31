@@ -17,10 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.ui;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
 /**
- * TODO Add Description
+ * Configuration used to create a new session
  * 
  * <pre>
  * 
@@ -29,15 +29,18 @@ package com.raytheon.uf.viz.collaboration.ui;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 7, 2012            rferrel     Initial creation
+ * Jan 30, 2014 2698       bclement    moved to collaboration.comm project from collaboration.ui
+ *                                     added handle
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-
 public class CreateSessionData {
     private String name;
+
+    private String handle;
 
     private String subject;
 
@@ -63,6 +66,21 @@ public class CreateSessionData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return the handle
+     */
+    public String getHandle() {
+        return handle;
+    }
+
+    /**
+     * @param handle
+     *            the handle to set
+     */
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public String getSubject() {

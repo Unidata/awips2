@@ -39,8 +39,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -72,6 +70,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 18, 2013 2562      bclement    fixed venue invite
  * Jan 14, 2014 2630      bclement    added away timeout
  * Jan 27, 2014 2700      bclement    added auto subscribe property listener
+ * Jan 30, 2014 2698       bclement    moved xmpp join logic to dialog so we can reprompt user on failure
  * 
  * </pre>
  * 
@@ -186,31 +185,15 @@ public class ConnectionSubscriber {
 
             @Override
             public void run() {
-                IQualifiedID inviter = event.getInviter();
-                IQualifiedID room = event.getRoomId();
                 Shell shell = new Shell(Display.getCurrent());
-                StringBuilder sb = new StringBuilder();
-                VenueInvite invite = event.getInvite();
-                boolean sharedDisplay = invite instanceof SharedDisplayVenueInvite;
-                sb.append("You are invited to a ");
-                if (sharedDisplay) {
-                    sb.append("collaboration session.");
-                } else {
-                    sb.append("chat room.");
-                }
-                InviteDialog inviteBox = new InviteDialog(shell, inviter
-                        .getName(), invite.getSubject(), room.getName(), sb
-                        .toString(), invite.getMessage());
+                InviteDialog inviteBox = new InviteDialog(shell, event);
                 if (!(Boolean) inviteBox.open()) {
                     return;
                 }
 
-                CollaborationConnection connection = CollaborationConnection
-                        .getConnection();
                 try {
-                    IVenueSession session;
-                    if (sharedDisplay) {
-                        session = connection.joinCollaborationVenue(event);
+                    IVenueSession session = inviteBox.getSession();
+                    if (inviteBox.isSharedDisplay()) {
                         ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
                         SessionColorManager man = new SessionColorManager();
                         SharedDisplaySessionMgr.joinSession(displaySession,
@@ -220,13 +203,10 @@ public class ConnectionSubscriber {
                                 CollaborationSessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     } else {
-                        session = connection.joinTextOnlyVenue(room.getName());
                         CaveWorkbenchPageManager.getActiveInstance().showView(
                                 SessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     }
-                } catch (CollaborationException e) {
-                    statusHandler.error("Unable to join session venue", e);
                 } catch (PartInitException e) {
                     statusHandler.error("Unable to display session view", e);
                 }
