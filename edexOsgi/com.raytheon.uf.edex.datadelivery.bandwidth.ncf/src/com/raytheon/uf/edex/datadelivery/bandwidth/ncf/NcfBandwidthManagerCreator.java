@@ -29,6 +29,7 @@ import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -62,6 +63,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
  *                                      Reschedule updated shared subscriptions.
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler 
  * 
  * </pre>
  * 
@@ -92,9 +94,10 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
+                IAdhocSubscriptionHandler adhocSubscriptionHandler,
                 ISubscriptionNotificationService subscriptionNotificationService) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler,
+                    dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
                     subscriptionNotificationService);
         }
 
@@ -151,9 +154,10 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService) {
         return new NcfBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler,
+                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
                 subscriptionNotificationService);
     }
 
