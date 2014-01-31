@@ -34,6 +34,7 @@ import org.jivesoftware.smack.RosterGroup;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.packet.RosterPacket.ItemStatus;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import org.jivesoftware.smack.packet.XMPPError;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Jan 27, 2014 2700       bclement     fixed ungrouped entries being out of date
  *                                      added utility methods for subscription status
  * Jan 30, 2014 2698       bclement     removed unneeded nickname changed event
+ * Jan 31, 2014 2700       bclement     added addToRoster, fixed add to group when in roster, but blocked
  * 
  * </pre>
  * 
@@ -182,9 +184,20 @@ public class ContactsManager {
         String id = user.getNormalizedId();
         RosterEntry entry = group.getEntry(id);
         if (entry != null) {
-            statusHandler
-                    .debug("Attempted to add user to group it was already in: "
-                            + id + " in " + groupName);
+            if (isBlocked(entry)) {
+                // entry is in roster, but we aren't subscribed. Request a
+                // subscription.
+                try {
+                    connection.getAccountManager().sendPresence(user,
+                            new Presence(Type.subscribe));
+                } catch (CollaborationException e) {
+                    statusHandler.error("Problem subscribing to user", e);
+                }
+            } else {
+                statusHandler
+                        .debug("Attempted to add user to group it was already in: "
+                                + id + " in " + groupName);
+            }
             return;
         }
         try {
@@ -222,6 +235,31 @@ public class ContactsManager {
         } else {
             // just need to update groups
             group.addEntry(entry);
+        }
+    }
+
+    /**
+     * Ensure that user is in roster.
+     * 
+     * @param user
+     * @throws CollaborationException
+     */
+    public void addToRoster(UserId user) throws CollaborationException {
+        RosterEntry entry = getRosterEntry(user);
+        if (entry == null) {
+            // we dont have user as a contact at all
+            // ensure that the user object is up-to-date
+            user = findUser(user.getName());
+            String alias = user.getAlias();
+            if (StringUtils.isBlank(alias)) {
+                alias = user.getName();
+            }
+            try {
+                getRoster().createEntry(user.getFQName(), alias, new String[0]);
+            } catch (XMPPException e) {
+                throw new CollaborationException(
+                        "Unable to add user to roster: " + user, e);
+            }
         }
     }
 
@@ -380,7 +418,7 @@ public class ContactsManager {
     public Collection<RosterGroup> getGroups(UserId user) {
         RosterEntry entry = getRoster().getEntry(user.getNormalizedId());
         if (entry == null) {
-            statusHandler.error("Requested groups for user not in roster: "
+            statusHandler.debug("Requested groups for user not in roster: "
                     + user);
             return Collections.emptyList();
         }
