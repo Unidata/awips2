@@ -21,10 +21,11 @@ package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 
 /**
  * Parsed user id string
@@ -38,6 +39,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Major refactor
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    removed unneeded isSameUser(string, string)
+ *                                     improved other isSameUser so it won't blow up on nulls
  * 
  * </pre>
  * 
@@ -247,23 +250,14 @@ public class UserId implements IQualifiedID {
      * @return if it is the same user
      */
     public boolean isSameUser(String id) {
-        String name = Tools.parseName(id);
-        String host = Tools.parseHost(id);
-        return isSameUser(name, host);
+        return isSameUser(IDConverter.convertFrom(id));
     }
 
     public boolean isSameUser(UserId other) {
-        return isSameUser(other.getName(), other.getHost());
-    }
-
-    public boolean isSameUser(String name, String host) {
-        boolean result = false;
-        if (name != null && host != null) {
-            if (this.name.equals(name) && this.host.equals(host)) {
-                result = true;
-            }
-        }
-        return result;
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(this.name, other.getName());
+        builder.append(this.host, other.getHost());
+        return builder.isEquals();
     }
 
 }

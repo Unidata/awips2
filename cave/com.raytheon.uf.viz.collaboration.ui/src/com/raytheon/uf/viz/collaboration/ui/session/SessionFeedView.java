@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    moved participant filter logic to one method
  * Jan 08, 2014 2563       bclement    changes to match SiteConfigurationManager user sites config
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -109,7 +111,7 @@ public class SessionFeedView extends SessionView {
         super.initComponents(parent);
         colors = SiteConfigurationManager.getSiteColors();
         if (colors != null) {
-            for (UserId user : session.getVenue().getParticipants()) {
+            for (VenueParticipant user : session.getVenue().getParticipants()) {
                 setColorForSite(user);
             }
         } else {
@@ -147,7 +149,8 @@ public class SessionFeedView extends SessionView {
                 // loop through all the entries in the list so we can set the
                 // color for all sites corresponding to "selectedSite"
                 if (site != null) {
-                    for (UserId user : session.getVenue().getParticipants()) {
+                    for (VenueParticipant user : session.getVenue()
+                            .getParticipants()) {
                         setColorForSite(user);
                     }
                 }
@@ -254,9 +257,9 @@ public class SessionFeedView extends SessionView {
         Object site = null;
         if (isHistory) {
             site = msg.getSubject();
-        } else if (msg.getFrom() instanceof UserId) {
+        } else if (msg.getFrom() instanceof VenueParticipant) {
             Presence presence = session.getVenue().getPresence(
-                    (UserId) msg.getFrom());
+                    (VenueParticipant) msg.getFrom());
             site = presence.getProperty(SiteConfigInformation.SITE_NAME);
         }
 
@@ -270,8 +273,8 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, UserId userId, String subject, List<StyleRange> ranges) {
-        if (subject != null) {
-            setColorForSite(userId, subject);
+        if (subject != null && userId instanceof VenueParticipant) {
+            setColorForSite((VenueParticipant) userId, subject);
         }
         super.styleAndAppendText(sb, offset, name, userId, subject, ranges);
     }
@@ -285,7 +288,8 @@ public class SessionFeedView extends SessionView {
     private String getSelectedSite() {
         IStructuredSelection selection = (IStructuredSelection) usersTable
                 .getSelection();
-        UserId selectedEntry = (UserId) selection.getFirstElement();
+        VenueParticipant selectedEntry = (VenueParticipant) selection
+                .getFirstElement();
         Presence pres = session.getVenue().getPresence(selectedEntry);
         Object selectedSite = pres.getProperty(
                 SiteConfigInformation.SITE_NAME);
@@ -299,7 +303,7 @@ public class SessionFeedView extends SessionView {
      * 
      * @param user
      */
-    private void setColorForSite(UserId user) {
+    private void setColorForSite(VenueParticipant user) {
         Presence presence = session.getVenue().getPresence(user);
         setColorForSite(user, presence);
     }
@@ -310,7 +314,7 @@ public class SessionFeedView extends SessionView {
      * @param id
      * @param presence
      */
-    private void setColorForSite(UserId id, Presence presence) {
+    private void setColorForSite(VenueParticipant id, Presence presence) {
         if (presence == null) {
             return;
         }
@@ -321,7 +325,7 @@ public class SessionFeedView extends SessionView {
         }
     }
 
-    private void setColorForSite(UserId id, String site) {
+    private void setColorForSite(VenueParticipant id, String site) {
         SiteColor siteColor = new SiteColor();
         siteColor.setSite(site.toString());
         int index = colors.indexOf(siteColor);
@@ -364,7 +368,7 @@ public class SessionFeedView extends SessionView {
      * java.lang.String)
      */
     @Override
-    protected void sendParticipantSystemMessage(UserId participant,
+    protected void sendParticipantSystemMessage(VenueParticipant participant,
             String message) {
         Presence presence = session.getVenue().getPresence(participant);
         Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
@@ -388,7 +392,7 @@ public class SessionFeedView extends SessionView {
      * org.jivesoftware.smack.packet.Presence)
      */
     @Override
-    protected void participantPresenceUpdated(UserId participant,
+    protected void participantPresenceUpdated(VenueParticipant participant,
             Presence presence) {
         setColorForSite(participant, presence);
         super.participantPresenceUpdated(participant, presence);
