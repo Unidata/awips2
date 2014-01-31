@@ -102,7 +102,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * Nov 19, 2013   1531     mpduff      Made graph resizable.
  * Nov 25, 2013   2545     mpduff      Default to Opsnet if Network not available yet.
- * Dec 17, 2013   2633     mpduff      Fix redraw problems.
+ * Dec 17, 2013   2633     mpduff      Fix redraw problems..
+ * Jan 09, 2013   2633     mpduff      On resize keep graph at bottom so data are always visible.
  * </pre>
  * 
  * @author lvenable
@@ -1478,6 +1479,9 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         if (cornerPointOffset.y > 0) {
             cornerPointOffset.y = 0;
         }
+
+        cornerPointOffset.y = (graphCanvasSettings.getImageHeight() - graphCanvasSettings
+                .getCanvasHeight()) * -1;
 
         verticalSlider.setSelection(cornerPointOffset.y * -1);
         horizontalSlider.setSelection(cornerPointOffset.x * -1);

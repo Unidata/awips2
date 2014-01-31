@@ -58,6 +58,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Jan 20, 2014 2538       mpduff       Added AdhocSubscriptionHandler.
  * 
  * </pre>
  * 
@@ -73,6 +74,8 @@ public class SubscriptionHandler implements ISubscriptionHandler {
 
     private final ISharedSubscriptionHandler sharedSubscriptionHandler;
 
+    private final IAdhocSubscriptionHandler adhocSubscriptionHandler;
+
     /**
      * Constructor.
      * 
@@ -83,9 +86,11 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      */
     public SubscriptionHandler(
             ISiteSubscriptionHandler siteSubscriptionHandler,
-            ISharedSubscriptionHandler sharedSubscriptionHandler) {
+            ISharedSubscriptionHandler sharedSubscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler) {
         this.siteSubscriptionHandler = siteSubscriptionHandler;
         this.sharedSubscriptionHandler = sharedSubscriptionHandler;
+        this.adhocSubscriptionHandler = adhocSubscriptionHandler;
     }
 
     /**
@@ -420,5 +425,26 @@ public class SubscriptionHandler implements ISubscriptionHandler {
                 sharedSubscriptionHandler.delete(username, sharedSubscriptions);
             }
         }
+    }
+
+    /**
+     * @return the siteSubscriptionHandler
+     */
+    public ISiteSubscriptionHandler getSiteSubscriptionHandler() {
+        return siteSubscriptionHandler;
+    }
+
+    /**
+     * @return the sharedSubscriptionHandler
+     */
+    public ISharedSubscriptionHandler getSharedSubscriptionHandler() {
+        return sharedSubscriptionHandler;
+    }
+
+    /**
+     * @return the adhocSubscriptionHandler
+     */
+    public IAdhocSubscriptionHandler getAdhocSubscriptionHandler() {
+        return adhocSubscriptionHandler;
     }
 }

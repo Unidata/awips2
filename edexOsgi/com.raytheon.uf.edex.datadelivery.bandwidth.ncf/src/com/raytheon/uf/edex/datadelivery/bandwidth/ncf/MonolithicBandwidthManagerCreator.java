@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.ncf;
 
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -49,6 +50,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * ------------ ---------- ----------- --------------------------
  * Nov 13, 2013 2545       bgonzale    Initial creation
  * Dec 04, 2013 2566       bgonzale    use bandwidthmanager method to retrieve spring files.
+ * Jan 14, 2014 2692       dhladky     AdhocSubscription handler 
  * 
  * </pre>
  * 
@@ -81,9 +83,10 @@ public class MonolithicBandwidthManagerCreator<T extends Time, C extends Coverag
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
+                IAdhocSubscriptionHandler adhocSubscriptionHandler,
                 ISubscriptionNotificationService subscriptionNotificationService) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler,
+                    dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
                     subscriptionNotificationService);
         }
 
@@ -103,10 +106,11 @@ public class MonolithicBandwidthManagerCreator<T extends Time, C extends Coverag
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService) {
         return new MonolithicBandwidthManager(dbInit, bandwidthDao,
                 retrievalManager,
-                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler,
+                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
                 subscriptionNotificationService);
     }
 
