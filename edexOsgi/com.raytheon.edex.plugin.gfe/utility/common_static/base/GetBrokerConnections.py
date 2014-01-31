@@ -26,6 +26,7 @@
 # Date       	Ticket#		Engineer	Description
 # ------------	----------	-----------	--------------------------
 # 03/21/13      1814        rjpeter     Updated to use rest API for java broker
+# 01/15/14      2660        randerso    Log status and reason if request fails
 ##
 import httplib
 import json
@@ -45,7 +46,8 @@ def getConnections(brokerHost, port=8180):
     response = httpConn.getresponse()
 
     if (response.status != 200):
-        raise Exception("Unable to post request to server")
+        msg = "Broker %s returned %d %s" % (brokerHost, response.status, response.reason)
+        raise Exception(msg)
 
     jsonStr = response.read()
     jsonObjArray = json.loads(jsonStr)

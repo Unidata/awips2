@@ -43,6 +43,7 @@ import javax.persistence.UniqueConstraint;
  *                                     Added GridParmInfo as a field.
  *                                     Added hibernate annotations
  * 10/22/2013   #2361      njensen     Remove ISerializableObject
+ * 01/15/2014   #1571      randerso    Added clone method and copy constructor
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "gfe_parminfo", uniqueConstraints = { @UniqueConstraint(columnNames = { "parmId_id" }) })
-public class ParmStorageInfo {
+public class ParmStorageInfo implements Cloneable {
 
     /**
      * Auto-generated surrogate key
@@ -101,6 +102,29 @@ public class ParmStorageInfo {
         this.dataMultiplier = dataMultiplier;
         this.dataType = dataType;
         this.gridParmInfo = gridParmInfo;
+    }
+
+    /**
+     * Copy constructor
+     * 
+     * @param orig
+     */
+    public ParmStorageInfo(final ParmStorageInfo orig) {
+        this.storageType = orig.storageType;
+        this.dataOffset = orig.dataOffset;
+        this.dataMultiplier = orig.dataMultiplier;
+        this.dataType = orig.dataType;
+        this.gridParmInfo = orig.gridParmInfo.clone();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#clone()
+     */
+    @Override
+    public ParmStorageInfo clone() {
+        return new ParmStorageInfo(this);
     }
 
     /**
