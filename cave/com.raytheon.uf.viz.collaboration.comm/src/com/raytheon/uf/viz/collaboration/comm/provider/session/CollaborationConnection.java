@@ -109,6 +109,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 28, 2014 2698       bclement    fixed compression default
  *                                     cleaned up createCollaborationVenue, removed getVenueInfo
  * Jan 30, 2014 2698       bclement    changed arguments to create sessions, moved room connection from SessionView
+ * Feb  3, 2014 2699       bclement    removed unneeded catch in joinTextOnlyVenue
  * 
  * </pre>
  * 
@@ -417,17 +418,12 @@ public class CollaborationConnection implements IEventPublisher {
      */
     public IVenueSession joinTextOnlyVenue(String venueName, String handle)
             throws CollaborationException {
-        try {
             VenueSession session = new VenueSession(eventBus, this);
             session.configureVenue(venueName, handle);
             session.connectToRoom();
             sessions.put(session.getSessionId(), session);
             postEvent(session);
             return session;
-        } catch (Exception e) {
-            throw new CollaborationException(
-                    "Error joining venue " + venueName, e);
-        }
     }
 
     /**
