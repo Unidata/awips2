@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.derivparam.DerivParamFunctionType.FunctionArgument;
  * Dec 16, 2010            mschenke    Initial creation
  * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
  *                                     concurrent python for threading.
- * 
+ * Jan 30, 2014  #2725     ekladstrup  Add name and extention get methods
+ *                                     after removing RCP extention point
  * </pre>
  * 
  * @author mschenke
@@ -86,4 +87,18 @@ public interface IDerivParamFunctionAdapter {
      * Stop the adapter and any child threads.
      */
     public void shutdown();
+
+    /**
+     * Return the name of the function type
+     * 
+     * @return
+     */
+    public String getName();
+
+    /**
+     * Return the file extension of the function type
+     * 
+     * @return
+     */
+    public String getExtension();
 }
