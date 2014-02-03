@@ -18,6 +18,7 @@ import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
@@ -261,7 +262,10 @@ public class McidasDecoder extends AbstractDecoder {
             record.setAreaName(areaName);
             String fileName = "";
             if (headers != null) {
-                fileName = (String) headers.get("traceId");
+                // fileName = (String) headers.get("traceId");
+                File ingestFile = new File(
+                        (String) headers.get(DecoderTools.INGEST_FILE_NAME));
+                fileName = ingestFile.getName();
             }
             record.setInputFileName(fileName);
 

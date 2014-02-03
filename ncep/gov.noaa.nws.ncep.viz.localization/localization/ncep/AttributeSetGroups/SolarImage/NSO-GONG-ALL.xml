@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resource>NSO-GONG</resource>
-    <attrSetGroupName>ALL</attrSetGroupName>
-    <attrSetNames>BB,CT,LE,ML,TC,TD,UD</attrSetNames>
+    <attrSetGroupName>NSO-GONG-ALL</attrSetGroupName>
+    <attrSetNames>BB,CT,LE,ML,TC,TD,UD,LE-func</attrSetNames>
 </AttributeSetGroup>
