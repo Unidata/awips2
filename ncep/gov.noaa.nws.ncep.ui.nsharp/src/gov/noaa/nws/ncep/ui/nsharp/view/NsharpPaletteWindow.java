@@ -15,10 +15,12 @@
  * 09/03/2013   1031        Greg Hull   try 5 times to initialize the inventory.
  * 01/08/2014               Chin Chen   Only initializing inventory when in NCP
  * 01/13/2014               Chin Chen   TTR829- when interpolation, edit graph is allowed 
+ * 01/22/2014	            Chin Chen   DR17003 issue:  NSHARP sounding display throws errors when swapping into main pane when show text is turned on.
+ *                                       
  * </pre>
  * 
  * @author Chin Chen
- * @version 1.0
+ * @verFsion 1.0
  */
 package gov.noaa.nws.ncep.ui.nsharp.view;
 
@@ -1550,7 +1552,7 @@ public class NsharpPaletteWindow extends ViewPart implements SelectionListener,
     @Override
     public void partClosed(IWorkbenchPart part) {
     	//System.out.println("view closed ");
-        /*FixMark:SwapPaneShowText
+        //*FixMark:SwapPaneShowText
         NsharpShowTextDialog textarea =  NsharpShowTextDialog.getAccess();
 		if(textarea != null){
 			textarea.close();
