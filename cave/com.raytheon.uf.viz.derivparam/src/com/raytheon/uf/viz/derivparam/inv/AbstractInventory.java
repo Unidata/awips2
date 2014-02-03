@@ -36,6 +36,7 @@ import java.util.concurrent.BlockingQueue;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.derivparam.tree.AbstractNode;
 import com.raytheon.uf.common.derivparam.tree.DataTree;
@@ -48,7 +49,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.data.FloatRequestableData;
 import com.raytheon.uf.viz.derivparam.library.DerivParamConstantField;
@@ -84,6 +84,8 @@ import com.raytheon.uf.viz.derivparam.tree.UnionLevelNode;
  * ------------- -------- ----------- --------------------------
  * Mar 17, 2010           bsteffen    Initial creation
  * Jan 23, 2014  2711     bsteffen    Get all levels from LevelFactory.
+ * Jan 30, 2014  #2725    ekladstrup  handle different exceptions for moving
+ *                                    derived parameters to common
  * 
  * </pre>
  * 
@@ -933,10 +935,14 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                     endCount += 1;
                     nodes.add(target);
                 }
-                SortedSet<Level> levels = LevelUtilities
-                        .getOrderedSetOfStandardLevels(
-                                level.getMasterLevel().getName()).subSet(
-                                lowerLevel, false, upperLevel, false);
+                SortedSet<Level> levels = null;
+                try {
+                    levels = LevelUtilities.getOrderedSetOfStandardLevels(
+                            level.getMasterLevel().getName()).subSet(
+                            lowerLevel, false, upperLevel, false);
+                } catch ( CommunicationException e ) {
+                    throw new VizCommunicationException(e);
+                }
                 for (Level fieldLevel : levels) {
                     target = resolveNode(sourceNode, param, fieldLevel, stack,
                             nodata);
@@ -1070,15 +1076,19 @@ public abstract class AbstractInventory implements DerivParamUpdateListener {
                 }
             } else {
                 SortedSet<Level> levels = null;
-                if (type == LevelType.Upper) {
-                    levels = LevelUtilities.getOrderedSetOfStandardLevels(
-                            level.getMasterLevel().getName()).tailSet(level,
-                            false);
-                } else {
-                    levels = LevelUtilities
-                            .getOrderedSetOfStandardLevels(
-                                    level.getMasterLevel().getName())
-                            .headSet(level, false).descendingSet();
+                try {
+                    if (type == LevelType.Upper) {
+                        levels = LevelUtilities.getOrderedSetOfStandardLevels(
+                                level.getMasterLevel().getName()).tailSet(
+                                level, false);
+                    } else {
+                        levels = LevelUtilities
+                                .getOrderedSetOfStandardLevels(
+                                        level.getMasterLevel().getName())
+                                .headSet(level, false).descendingSet();
+                    }
+                } catch ( CommunicationException e ) {
+                    throw new VizCommunicationException(e);
                 }
                 for (Level l : levels) {
                     target = resolveNode(fieldSourceNode, fieldParamAbbrev, l,
