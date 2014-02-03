@@ -4,6 +4,9 @@ Bundle-Name: DataDelivery Retrieval Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.datadelivery.retrieval
 Bundle-Version: 1.12.1174.qualifier
 Bundle-Vendor: RAYTHEON
-Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7"
+Require-Bundle: com.raytheon.edex.common;bundle-version="1.11.7",
+ com.raytheon.uf.edex.datadelivery.retrieval;bundle-version="1.0.0",
+ com.raytheon.uf.common.datadelivery.registry;bundle-version="1.0.0",
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
