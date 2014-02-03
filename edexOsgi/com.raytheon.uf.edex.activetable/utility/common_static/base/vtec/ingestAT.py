@@ -63,7 +63,7 @@ def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, 
     results = None        
     try:
         results = MergeVTEC.merge(activeTable, atName, incomingRecords, ztime, makeBackups,
-          logging.getLogger('MergeVTEC'))
+          logger)
     except:
         logger.exception("MergeVTEC fail:")
     return results
