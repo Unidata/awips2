@@ -29,15 +29,26 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.style.MatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 
+//import com.raytheon.uf.common.*;
+
+/**
+ * Match criteria in styleRule
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer             Description
+ * ------------ ---------- -----------          --------------------------
+ * 01/22/2014   958        qzhou                Initial creation
+ * 
+ * </pre>
+ * 
+ * @author qzhou
+ * @version 1.0
+ */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "solarImageMatches")
 public class SolarImageMatchCriteria extends MatchCriteria {
-
-    // private static final String INSTRUMENT = "instrument";
-    //
-    // private static final String WAVELENGTH = "wavelength";
-    //
-    // private static final String INT_TIME = "intTime";
 
     @XmlElement
     private String instrument;
@@ -74,33 +85,57 @@ public class SolarImageMatchCriteria extends MatchCriteria {
     /*
      * (non-Javadoc)
      * 
-     * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon
-     * .uf.common.style.MatchCriteria)
+     * @see com.raytheon.uf.common.style.MatchCriteria#matches(com.raytheon .uf.
+     * viz.core.style.MatchCriteria)
      */
     @Override
     public int matches(MatchCriteria aCriteria) throws StyleException {
         int rval = -1;
         if (aCriteria instanceof SolarImageMatchCriteria) {
             rval = 0;
+
             SolarImageMatchCriteria criteria = (SolarImageMatchCriteria) aCriteria;
 
             if (instrument != null
-                    && instrument.equalsIgnoreCase(criteria.instrument)) {
+                    && (instrument.contains(criteria.instrument) || (criteria.instrument != null && criteria.instrument
+                            .contains(instrument)))) {
                 rval++;
             }
-            if (intTime != null && intTime.equalsIgnoreCase(criteria.intTime)) {
-                rval++;
-            }
+
             if (wavelength != null
                     && wavelength.equalsIgnoreCase(criteria.wavelength)) {
                 rval++;
             }
+
+            if (intTime != null && intTime.equalsIgnoreCase(criteria.intTime)) {
+                rval++;
+            }
+
             /*
              * if (detector != null &&
              * detector.equalsIgnoreCase(criteria.detector)) { rval++; }
              */
+
+            if (rval == getTotalNotNullValues()) {
+                rval = 1;
+            } else {
+                rval = 0;
+            }
         }
         return rval;
+    }
+
+    public int getTotalNotNullValues() throws StyleException {
+
+        int tval = 0;
+        if (instrument != null)
+            tval++;
+        if (wavelength != null)
+            tval++;
+        if (intTime != null)
+            tval++;
+
+        return tval;
     }
 
     /**

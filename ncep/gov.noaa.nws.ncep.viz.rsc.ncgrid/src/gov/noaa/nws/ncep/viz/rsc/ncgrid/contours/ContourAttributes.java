@@ -31,8 +31,10 @@ public class ContourAttributes {
 	private String wind;
 	
 	private String marker;
-
+	
 	private String clrbar;
+	
+	private String text;
 
 	public String getGlevel() {
 		return glevel;
@@ -167,6 +169,14 @@ public class ContourAttributes {
 	public final void setClrbar(String clrbar) {
 		this.clrbar = clrbar;
 	}
+	
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
 
 	public boolean isMatch ( ContourAttributes attr) {
 		boolean match = false;
@@ -185,7 +195,8 @@ public class ContourAttributes {
 			 this.hlsym.trim().equalsIgnoreCase(attr.getHlsym()) &&
 			 this.wind.trim().equalsIgnoreCase(attr.getWind()) &&
 			 this.marker.trim().equalsIgnoreCase(attr.getMarker()) &&
-			 this.clrbar.trim().equalsIgnoreCase(attr.getClrbar())) {
+			 this.clrbar.trim().equalsIgnoreCase(attr.getClrbar()) &&
+			 this.text.trim().equalsIgnoreCase(attr.getText())) {
 			match = true;
 		}
 		return match;

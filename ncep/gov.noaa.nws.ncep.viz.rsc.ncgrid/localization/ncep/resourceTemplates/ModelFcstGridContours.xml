@@ -38,7 +38,7 @@
 						<hlsym>${HLSYM}</hlsym>
 						<wind>${WIND}</wind>
 					    <clrbar>${CLRBAR}</clrbar>
-          
+          				<text>${TEXT}</text>
           <metadataMap>
              <mapping key="pluginName">
                 <constraint constraintValue="${pluginName}" constraintType="EQUALS" />
