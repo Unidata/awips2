@@ -48,6 +48,7 @@ import org.itadaki.bzip2.BZip2InputStream;
 import com.raytheon.rcm.config.EndpointConfig;
 import com.raytheon.rcm.config.awips1.Awips1ProdDistInfoBuilder;
 import com.raytheon.rcm.event.ConfigEvent;
+import com.raytheon.rcm.event.ConfigEvent.Category;
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 import com.raytheon.rcm.message.GraphicProduct;
@@ -60,6 +61,19 @@ import com.raytheon.rcm.products.RadarProduct.Param;
 import com.raytheon.rcm.server.Log;
 import com.raytheon.rcm.server.RadarServer;
 
+/**
+ * Stores radar messages in a directory structure and notifies EDEX via JMS.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Refactor config events.
+ * </pre>
+ *
+ */
 public class DataArchiveEndpoint extends RadarEventAdapter {
     private RadarServer radarServer;
 
@@ -638,7 +652,7 @@ public class DataArchiveEndpoint extends RadarEventAdapter {
 
     @Override
     public void handleConfigEvent(ConfigEvent event) {
-        if (event.getRadarID() == null)
+        if (event.getCategory() == Category.GLOBAL_CONFIG)
             updateConfig();
     }
 

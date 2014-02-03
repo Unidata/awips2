@@ -44,6 +44,8 @@
 	<bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
 	<bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
 
+	<bean id="radarServerNdmListener" class="com.raytheon.edex.rpgenvdata.ndm.RadarServerNdmSubscriber"/>
+
 	<bean id="marineInfoListener" class="com.raytheon.uf.edex.site.ingest.MarineInfoSubscriber">
 		<constructor-arg value="${db.port}" />
 		<constructor-arg value="${edex.home}" />
@@ -180,5 +182,29 @@
 	<bean factory-bean="ndmProc" factory-method="registerListener">
 		<constructor-arg value="afosMasterPIL.txt" />
 		<constructor-arg ref="afosBrowserListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="prodList.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="tdwrProdList.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-RPGOP-tcp.clear-air" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-RPGOP-tcp.storm" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-SPGOP-tcp.storm" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="wmoSiteInfo.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
 	</bean>
 </beans>

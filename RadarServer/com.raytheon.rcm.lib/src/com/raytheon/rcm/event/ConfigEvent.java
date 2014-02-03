@@ -26,22 +26,46 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.rcm.config.RadarConfig;
 
 
+/**
+ * Represents events that can happen within the RadarServer.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 2009-04-22   #1693      D. Friedman Initial checkin
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Add Category enum
+ * </pre>
+ *
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigEvent {
+    public static enum Category { GLOBAL_CONFIG, RADAR_CONFIG, PROD_DISTRIBUTION, NATIONAL_RPS_LISTS }
+
 	private String radarID; // null indicates global configuration change.
 	private RadarConfig oldConfig;
 	private RadarConfig newConfig;
 	
+	private Category category;
+
+	/** Public constructor for deserialization.  Not intended for users. */
 	public ConfigEvent() {
-		
+
 	}
-	
+
+    public ConfigEvent(Category category) {
+        this.category = category;
+    }
+
 	public ConfigEvent(String radarID, RadarConfig oldConfig,
 			RadarConfig newConfig) {
 		this.radarID = radarID;
 		this.oldConfig = oldConfig;
 		this.newConfig = newConfig;
+		this.category = radarID == null ? Category.GLOBAL_CONFIG : Category.RADAR_CONFIG;
 	}
 
 	public String getRadarID() {
@@ -74,4 +98,12 @@ public class ConfigEvent {
 		else
 			return "{Global config change}";
 	}
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }
