@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 
 /**
- * TODO Add Description
+ * implementation for describing persistable capabilities
  * 
  * <pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 @XmlAccessorType(XmlAccessType.NONE)
 public class CylindricalCedCapability extends AbstractCapability {
 
-    private String cylind = "No Projection";
+    private String cylind = MenuConstants.projections[0];
 
     /**
      * @return the outlineWidth
@@ -62,7 +62,6 @@ public class CylindricalCedCapability extends AbstractCapability {
         }
     }
 
-    
     @Override
     public AbstractCapability clone() {
         CylindricalCedCapability oc = new CylindricalCedCapability();
