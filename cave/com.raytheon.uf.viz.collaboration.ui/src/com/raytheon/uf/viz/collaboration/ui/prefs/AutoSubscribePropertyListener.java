@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-import java.util.List;
-
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -51,6 +49,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2014 2700       bclement     Initial creation
+ * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * 
  * </pre>
  * 
@@ -198,11 +197,8 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
             private String getDisplayName(UserId fromID) {
                 String rval = null;
                 try {
-                    List<UserId> users = search.byUsername(fromID.getName());
-                    if ( users != null && !users.isEmpty()){
-                        UserId user = users.get(0);
-                        return user.getAlias();
-                    }
+                    UserId user = search.byExactUsername(fromID.getName());
+                    return user != null ? user.getAlias() : null;
                 } catch (XMPPException e) {
                     log.error("Unable to get display name for user: " + fromID,
                             e);
