@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 02/22/2013     #972       G. Hull     Only show resources for given NcDisplayType
  * 04/11/2013     #864       G. Hull     rm special case for taf and use USE_FCST_FRAME_INTERVAL_FROM_REF_TIME
  * 04/15/2013     #864       G. Hull     attach LViewers to positions and save previous width
+ * 10/24/2013     #1043      G. Hull     init Select Resource GUI to highlighted rsc
  *
  * </pre>
  * 
@@ -103,7 +104,7 @@ public class ResourceSelectionControl extends Composite {
 
 	// a map to store the previous selections for each category.
 	private static HashMap<ResourceCategory,ResourceName> prevCatSeldRscNames;
-	
+		
 	// this list must stay in sync with the cycleTimeCombo.
 	private ArrayList<DataTime> cycleTimes = new ArrayList<DataTime>();
 		
@@ -166,14 +167,7 @@ public class ResourceSelectionControl extends Composite {
         
         replaceBtnVisible =replaceVisible;
     	replaceBtnEnabled = replaceEnabled;
-        
-        if( seldResourceName == null ) {
-        	seldResourceName = new ResourceName();
-        } 
-        else {
-        	seldResourceName = initRscName;
-        }
-        
+                
         if( prevCatSeldRscNames == null ) {
             prevCatSeldRscNames = new HashMap<ResourceCategory,ResourceName>();        	        
         }
@@ -204,7 +198,7 @@ public class ResourceSelectionControl extends Composite {
         setContentProviders();
         addSelectionListeners();
 
-        initWidgets();    
+        initWidgets( initRscName );    
     }
 
     // create all the widgets in the Resource Selection (top) section of the sashForm.  
@@ -783,8 +777,14 @@ public class ResourceSelectionControl extends Composite {
    	
    	// set the initial values of the widgets. (base this on previously selected values??)
    	// 
-   	private void initWidgets() {
+   	protected void initWidgets( ResourceName initRscName ) {
  
+    	seldResourceName = new ResourceName( initRscName );
+    	
+    	if( seldResourceName != null ) {
+    		prevSeldCat = seldResourceName.getRscCategory();
+    	}
+
    		filterCombo.setItems( new String[] {"All"} );
    		filterCombo.select( 0 );
    		 
@@ -799,40 +799,25 @@ public class ResourceSelectionControl extends Composite {
 		addToAllPanesBtn.setSelection( false );
 		
 		// if 
-		if( prevSeldCat == ResourceCategory.NullCategory ) {
-   			// if no cat is selected, select the first
-			if( rscCatLViewer.getList().getItemCount() > 0 ) { 
-				rscCatLViewer.getList().select(0);
-				StructuredSelection seld_elem = (StructuredSelection)rscCatLViewer.getSelection();
-				seldResourceName.setRscCategory( (ResourceCategory)seld_elem.getFirstElement() );
-			}
-		}
-		else { // if a resource was previously selected for this category, select it
-    		  // 
-			seldResourceName.setRscCategory( prevSeldCat );    			
-
-			if( prevCatSeldRscNames.containsKey( prevSeldCat ) ) {
-    			seldResourceName = prevCatSeldRscNames.get( prevSeldCat );
-    		}
+		if( seldResourceName == null ||
+			seldResourceName.getRscCategory() == ResourceCategory.NullCategory ) {
+			return;
 		}
   			   			
-   		if( seldResourceName.getRscCategory() != ResourceCategory.NullCategory ) {
-   			for( int itmIndx=0 ; 
-   			itmIndx < rscCatLViewer.getList().getItemCount() ; itmIndx++ )  {
+		for( int itmIndx=0 ; 
+				itmIndx < rscCatLViewer.getList().getItemCount() ; itmIndx++ )  {
 
-   				if( rscCatLViewer.getList().getItem(itmIndx).equals( 
-   					seldResourceName.getRscCategory() ) ) {
-   					
-   					rscCatLViewer.getList().select( itmIndx );
-   					break;
-   				}
-   			}
+			if( rscCatLViewer.getList().getItem(itmIndx).equals( 
+					seldResourceName.getRscCategory().toString() ) ) {
 
-   			if( rscCatLViewer.getList().getSelectionCount() == 0 ) {
-   				seldResourceName = new ResourceName();
-   			}
-   		}
+				rscCatLViewer.getList().select( itmIndx );
+				break;
+			}
+		}
 
+		if( rscCatLViewer.getList().getSelectionCount() == 0 ) {
+			seldResourceName = new ResourceName();
+		}
 
 		updateResourceFilters( );
 		
@@ -991,8 +976,9 @@ public class ResourceSelectionControl extends Composite {
 			for( int itmIndx=0 ; 
 					 itmIndx < rscAttrSetLViewer.getList().getItemCount() ; itmIndx++ )  {
 				
-				if( rscAttrSetLViewer.getList().getItem(itmIndx).equals( 
-						                          seldResourceName.getRscAttrSetName() ) ) {
+				AttributeSet attrSet = (AttributeSet)rscAttrSetLViewer.getElementAt( itmIndx );
+				
+				if( attrSet.getName().equals( seldResourceName.getRscAttrSetName() ) ) {
 					rscAttrSetLViewer.getList().select( itmIndx );
 					break;
 				}

@@ -62,8 +62,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1.0
  */
 
-public class Sampling	{
-	
+public class Sampling {
+
     /**
      * The result of a hover operation: a set of strings and corresponding
      * colors
@@ -86,10 +86,10 @@ public class Sampling	{
 
     private VerticalAlignment verticalAlignment = VerticalAlignment.TOP;
 
-    public Sampling() {       
-        
+    public Sampling() {
+
     }
-    
+
     protected SampleResult doHover(ReferencedCoordinate coord,
             ResourceList resources) throws VizException {
         SampleResult result = new SampleResult();
@@ -97,10 +97,13 @@ public class Sampling	{
         List<RGB> colorList = new ArrayList<RGB>();
         try {
             int size = resources.size();
+
             for (int i = size - 1; i >= 0; --i) {
                 ResourcePair rp = resources.get(i);
                 String retVal = recursiveHoverSearch(rp, coord);
+
                 if (retVal != null && retVal.length() > 0) {
+
                     RGB color = null;
                     if (rp.getResource().hasCapability(
                             ColorableCapability.class)) {
@@ -120,11 +123,15 @@ public class Sampling	{
                         colorList.add(color);
                         labelList.add(retVal.substring(p1));
                     }
+
+                    break;
                 }
             }
         } catch (Throwable t) {
-            /*statusHandler.handle(Priority.PROBLEM, "Error sampling resources: "
-                    + t.getLocalizedMessage(), t);*/
+            /*
+             * statusHandler.handle(Priority.PROBLEM,
+             * "Error sampling resources: " + t.getLocalizedMessage(), t);
+             */
         }
 
         result.labels = labelList.toArray(new String[labelList.size()]);
@@ -150,15 +157,17 @@ public class Sampling	{
     }
 
     protected void paintResult(IGraphicsTarget target, IDescriptor descriptor,
-            PaintProperties paintProps, ReferencedCoordinate coord) throws VizException {    	
-    	
-    	hoverFont = target.initializeFont(target.getDefaultFont()
-                .getFontName(), 10, null);
-    	hoverFont.setSmoothing(false);
-    	hoverFont.setScaleFont(false);
-    	
-    	SampleResult result = doHover(coord, descriptor.getResourceList());    	
-    	
+            PaintProperties paintProps, ReferencedCoordinate coord)
+            throws VizException {
+        if (hoverFont == null) {
+            hoverFont = target.initializeFont(target.getDefaultFont()
+                    .getFontName(), 10, null);
+            hoverFont.setSmoothing(false);
+            hoverFont.setScaleFont(false);
+        }
+
+        SampleResult result = doHover(coord, descriptor.getResourceList());
+
         verticalAlignment = VerticalAlignment.TOP;
         target.clearClippingPlane();
         try {
@@ -244,13 +253,13 @@ public class Sampling	{
             }
             errorInHovering = false;
         } catch (Exception e) {
-            if (errorInHovering) {
-                // Keep down the number of error messages
-               /* statusHandler.handle(
-                        Priority.PROBLEM,
-                        "Error painting sample text: "
-                                + e.getLocalizedMessage(), e);*/
-            }
+            // if (errorInHovering) {
+            // // Keep down the number of error messages
+            // /*
+            // * statusHandler.handle( Priority.PROBLEM,
+            // * "Error painting sample text: " + e.getLocalizedMessage(), e);
+            // */
+            // }
             errorInHovering = true;
         }
     }
@@ -291,15 +300,13 @@ public class Sampling	{
                         while (j < split.length) {
                             String s = split[j];
                             if (s.length() + line.length() <= approxLenPerStr) {
-                                if (!s.isEmpty()){
-                                	if (j == split.length -1 && split[1].equalsIgnoreCase("=")) 
-                                	{
-                                	line = split[split.length-1];
-                                	}
-                                	else
-                                	{
-                                	line += " " + s;	
-                                	}
+                                if (!s.isEmpty()) {
+                                    if (j == split.length - 1
+                                            && split[1].equalsIgnoreCase("=")) {
+                                        line = split[split.length - 1];
+                                    } else {
+                                        line += " " + s;
+                                    }
                                 } else {
                                     line += " ";
                                 }
@@ -318,7 +325,8 @@ public class Sampling	{
                             alignments[i]);
                     if (alignment == alignments[i]
                             && (targetAlignment == null || alignment == targetAlignment)) {
-                        // the alignment was not changed and we are the target alignment, we are done
+                        // the alignment was not changed and we are the target
+                        // alignment, we are done
                         done = true;
                     } else {
                         if (targetAlignment == null) {
@@ -445,5 +453,9 @@ public class Sampling	{
         return referencePoint;
     }
 
-
+    public void dispose() {
+        if (hoverFont != null) {
+            hoverFont.dispose();
+        }
+    }
 }
