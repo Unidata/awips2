@@ -1,0 +1,48 @@
+# Code:table:4.5: Fixed surface types and units
+170:170:Ionospheric D-region level::IDRL
+171:171:Ionospheric E-region level::IERL
+172:172:Ionospheric F1-region level::IF1RL
+173:173:Ionospheric F2-region level::IF2RL
+174:174:Specified radius from the center of the Sun:m:SRCS
+175:175:Solar photosphere::SP
+#192-254 Reserved for local use
+200:200:Entire Atmosphere::EATM:EA
+201:201:Entire Ocean::EOCN
+204:204:Highest Tropospheric Freezing Level::HTFL
+206:206:Grid Scale Cloud Bottom Level::GCBL
+207:207:Grid Scale Cloud Top Level::GCTL
+209:209:Boundary Layer Cloud Bottom Level::BCBL
+210:210:Boundary Layer Cloud Top Level::BCTL
+211:211:Boundary Layer Cloud Layer::BCY
+212:212:Low Cloud Bottom Level::LCBL
+213:213:Low Cloud Top Level::LCTL
+214:214:Low Cloud Layer::LCY
+215:215:Cloud Ceiling::CLG
+220:220:Planetary Boundary Layer:: BLD 	
+221:221:Layer Between Two Hybrid Levels::LBTHL
+222:222:Middle Cloud Bottom Level::MCBL
+223:223:Middle Cloud Top Level::MCTL
+224:224:Middle Cloud Layer::MCY
+232:232:High Cloud Bottom Level::HCBL
+233:233:High Cloud Top Level::HCTL
+234:234:High Cloud Layer::HCL
+235:235:Ocean Isotherm Level:1/10 ℃:OITL
+236:236:Layer Between Two Depths Below Ocean Surface::OLYR
+237:237:Bottom of Ocean Mixed Layer (m):m:OBML
+238:238:Bottom of Ocean Isothermal Layer:m:OBIL
+239:239:Layer Ocean Surface and 26C Ocean Isothermal Level::LOS 	
+240:240:Ocean Mixed Layer::OML
+241:241:Ordered Sequence of Data::OSD
+242:242:Convective Cloud Bottom Level::CCBL
+243:243:Convective Cloud Top Level::CCTL
+244:244:Convective Cloud::CCY
+245:245:Lowest Level of the Wet Bulb Zero::WBZ
+246:246:Maximum Equivalent Potential Temperature level::MTHE:MEPT
+247:247:Equilibrium Level::EHLT:EL
+248:248:Shallow Convective Cloud Bottom Level::SCBL
+249:249:Shallow Convective Cloud Top Level::SCTL
+251:251:Deep Convective Cloud Bottom Level::DCBL
+252:252:Deep Convective Cloud Top Level::DCTL
+253:253:Lowest Bottom Level of Supercooled Liquid Water Layer::LSCLW
+254:254:Highest Top Level of Supercooled Liquid Water Layer::HSCLW
+255:255:Missing
