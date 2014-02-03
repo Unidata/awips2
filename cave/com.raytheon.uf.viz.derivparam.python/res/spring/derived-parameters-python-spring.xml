@@ -1,0 +1,14 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="pythonDerParFunctionAdapter"
+		class="com.raytheon.uf.viz.derivparam.python.DerivParamPythonFunctionAdapter" />
+
+	<bean id="registeredPythonDerParFunctionAdapter"
+		class="com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator"
+		factory-method="addFunctionAdapter">
+		<constructor-arg ref="pythonDerParFunctionAdapter" />
+	</bean>
+
+</beans>
