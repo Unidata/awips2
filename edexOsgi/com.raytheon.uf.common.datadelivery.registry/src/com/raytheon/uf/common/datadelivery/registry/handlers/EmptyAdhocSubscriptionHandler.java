@@ -20,7 +20,9 @@
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -37,6 +39,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2014   2538     mpduff      Initial creation
+ * Jan 29, 2014   2636     mpduff      Scheduling refactor.
  * 
  * </pre>
  * 
@@ -102,10 +105,10 @@ public class EmptyAdhocSubscriptionHandler implements IAdhocSubscriptionHandler 
     }
 
     @Override
-    public List<AdhocSubscription> getActiveForRoutes(Network... routes)
-            throws RegistryHandlerException {
-        // TODO Auto-generated method stub
-        return null;
+    public Map<Network, List<AdhocSubscription>> getActiveForRoutes(
+            Network... routes) throws RegistryHandlerException {
+        // an empty map
+        return new HashMap<Network, List<AdhocSubscription>>(0);
     }
 
     @Override
