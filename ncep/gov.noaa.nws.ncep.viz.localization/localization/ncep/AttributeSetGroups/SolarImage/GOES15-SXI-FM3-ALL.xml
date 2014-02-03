@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AttributeSetGroup xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
     <resource>GOES15-SXI-FM3</resource>
-    <attrSetGroupName>ALL</attrSetGroupName>
+    <attrSetGroupName>GOES15-SXI-FM3-ALL</attrSetGroupName>
     <attrSetNames>PTHNA-0026,PTHNA-04,PTHK-005,PTHK-04,TM-0026,TM-05,TM-26,BE12A-005,BE12A-1</attrSetNames>
 </AttributeSetGroup>
