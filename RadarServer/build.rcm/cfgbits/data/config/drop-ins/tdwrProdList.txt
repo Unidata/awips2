@@ -24,12 +24,12 @@
     41        0            NET          SDUS7
     48        0            NVW          SDUS3
     57        0            NVL          SDUS5
-    58        0            NST          SDUS6
+    58        0            NST          SDUS3
     59        0            NHI          SDUS6
     61        0            NTV          SDUS6
     78        0            N1P          SDUS3
     80        0            NTP          SDUS5
-    81        0            DPA          SDUS8
+    81        0            DPA          SDUS5
     82        0            SPD          SDUS6
    138        0            DSP          SDUS5
    141        0            NMD          SDUS3
