@@ -19,9 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -46,7 +44,8 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants.HandleOpti
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 3, 2014  2699      bclement     Initial creation
+ * Feb  3, 2014 2699       bclement     Initial creation
+ * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * 
  * </pre>
  * 
@@ -58,7 +57,7 @@ public class HandleUtil {
     private static final IUFStatusHandler log = UFStatus
             .getHandler(HandleUtil.class);
 
-    private static Map<String, String> fullNameMap = new HashMap<String, String>();
+    private static final Map<String, String> fullNameMap = new HashMap<String, String>();
 
     /**
      * @return default session handle from preferences
@@ -120,16 +119,14 @@ public class HandleUtil {
             if (fullName == null) {
                 String username = account.getName();
                 UserSearch search = conn.createSearch();
-                List<UserId> ids;
+                UserId result = null;
                 try {
-                    ids = search.byUsername(username);
+                    result = search.byExactUsername(username);
                 } catch (XMPPException e) {
                     log.error("Unable to search by username: " + username, e);
-                    ids = Collections.emptyList();
                 }
-                if (!ids.isEmpty()) {
-                    UserId id = ids.iterator().next();
-                    rval = id.getAlias();
+                if (result != null) {
+                    rval = result.getAlias();
                     fullNameMap.put(account.getNormalizedId(), rval);
                 } else {
                     log.warn("Unable to find collaboration account via server search: "
