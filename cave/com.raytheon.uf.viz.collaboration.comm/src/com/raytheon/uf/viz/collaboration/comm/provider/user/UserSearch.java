@@ -47,6 +47,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2013 2561       bclement     Initial creation
  * Jan 24, 2014 2701       bclement     distinction between userid and username
+ * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * 
  * </pre>
  * 
@@ -82,7 +83,8 @@ public class UserSearch {
     }
 
     /**
-     * Search by username (the part of the user id before the @)
+     * Search by username (the part of the user id before the @). This is case
+     * sensitive and matches any part of the string (^.*username.*$).
      * 
      * @param name
      * @return list of user ids that match that name
@@ -93,7 +95,28 @@ public class UserSearch {
     }
 
     /**
-     * Search for users by single criteria
+     * Search by username (the part of the user id before the @). This only
+     * returns a match if the entire username matches the entire entry.
+     * 
+     * @param username
+     * @return null if none found
+     * @throws XMPPException
+     */
+    public UserId byExactUsername(String username) throws XMPPException {
+        List<UserId> results = byUsername(username);
+        UserId rval = null;
+        for (UserId result : results) {
+            if (result.getName().equals(username)) {
+                rval = result;
+                break;
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Search for users by single criteria. This is case sensitive and matches
+     * any part of the string (^.*value.*$).
      * 
      * @param field
      * @param value
