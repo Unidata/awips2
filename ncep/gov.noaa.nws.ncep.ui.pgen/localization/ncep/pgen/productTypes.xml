@@ -10013,7 +10013,7 @@
             </ns3:PgenObjects>
         </ns3:PgenClass>
         <ns3:PgenSave outputFile="SAB_Precip.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
-    </ns3:ProductType>
+    </ns3:ProductType> 
     <ns3:ProductType Name="" Type="Convective Outlook" Subtype="None">
         <ns3:PgenControls>
             <ns3:Name>Open</ns3:Name>
@@ -10094,19 +10094,19 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="hail" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=HAIL" Name="hail" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="torn" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=TORN" Name="torn" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="wind" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=WIND" Name="wind" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="catg" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="catg" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="pr2cat" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK;outlook format flag=false" Name="pr2cat" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Convective_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10186,16 +10186,16 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="fire" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=FIREOUTL" Name="fire" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="cat" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=EXT_FIRE" Name="cat" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="dryt" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=TSTMOLK" Name="dryt" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="wind" OnOff="false" MonoColor="false" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=WIND" Name="wind" OnOff="false" MonoColor="false" Filled="false">
             <ns3:Color blue="0" red="255" green="255" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10233,6 +10233,7 @@
             <ns3:Name>Add Point Alt</ns3:Name>
             <ns3:Name>Distance</ns3:Name>
             <ns3:Name>IncDec</ns3:Name>
+            <ns3:Name>Clip</ns3:Name>
         </ns3:PgenActions>
         <ns3:PgenClass Name="Any">
             <ns3:PgenObjects/>
@@ -10247,10 +10248,13 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=FIREOUTL" Name="FIRE" OnOff="true" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day1.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
+        <ns3:ClipFlag>false</ns3:ClipFlag>
+        <ns3:ClipBoundsTable>cpcus_bnd</ns3:ClipBoundsTable>
+        <ns3:ClipBoundsName>CPC_US</ns3:ClipBoundsName>
     </ns3:ProductType>
     <ns3:ProductType Name="" Type="Fire Weather Outlook" Subtype="Day2">
         <ns3:PgenControls>
@@ -10300,7 +10304,7 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=FIREOUTL" Name="FIRE" OnOff="true" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day2.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10353,10 +10357,10 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="FIRE D1" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=FIREOUTL" Name="FIRE D1" OnOff="true" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="FIRE D2" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=FIREOUTL" Name="FIRE D2" OnOff="true" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day1-2.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
@@ -10409,25 +10413,25 @@
                 <ns3:Name>Outlook</ns3:Name>
             </ns3:PgenObjects>
         </ns3:PgenClass>
-        <ns3:PgenLayer Name="D3" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D3" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="255" red="255" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D4" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D4" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="0" red="255" green="0" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D5" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D5" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="238" red="145" green="44" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D6" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D6" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="0" red="0" green="139" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D7" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D7" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="16" green="78" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="D8" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=OUTLOOK" Name="D8" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="38" red="139" green="71" alpha="255"/>
         </ns3:PgenLayer>
-        <ns3:PgenLayer Name="CAT" OnOff="false" MonoColor="true" Filled="false">
+        <ns3:PgenLayer MetaInfo="outlook type=EXT_FIRE" Name="CAT" OnOff="false" MonoColor="true" Filled="true">
             <ns3:Color blue="139" red="139" green="0" alpha="255"/>
         </ns3:PgenLayer>
         <ns3:PgenSave outputFile="Fire_Weather_Outlook.Day3-8.DDMMYYYY.HH.xml" saveLayers="false" autoSave="true" autoSaveFreq="5"/>
