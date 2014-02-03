@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.core.level;
+package com.raytheon.uf.common.dataplugin.level.util;
 
 import java.text.ParsePosition;
 import java.util.Comparator;
@@ -36,7 +36,6 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 
 /**
  * Level utilities
@@ -49,6 +48,8 @@ import com.raytheon.uf.viz.core.exception.VizCommunicationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/21/2009    #3576     rjpeter     Initial version
+ * 01/30/2014    #2725     ekladstrup  Moved to common and removed
+ *                                     usage of VizCommunicationException
  * </pre>
  * 
  * @author rjpeter
@@ -67,23 +68,15 @@ public class LevelUtilities {
     }
 
     public static boolean isPressureLevel(long levelId)
-            throws VizCommunicationException {
-        try {
-            return isPressureLevel(LevelFactory.getInstance().getLevel(levelId)
-                    .getMasterLevel());
-        } catch (CommunicationException e) {
-            throw new VizCommunicationException(e);
-        }
+            throws CommunicationException {
+        return isPressureLevel(LevelFactory.getInstance().getLevel(levelId)
+                .getMasterLevel());
     }
 
     public static boolean isPressureLevel(String masterLevelName)
-            throws VizCommunicationException {
-        try {
-            return isPressureLevel(LevelFactory.getInstance().getMasterLevel(
-                    masterLevelName));
-        } catch (CommunicationException e) {
-            throw new VizCommunicationException(e);
-        }
+            throws CommunicationException {
+        return isPressureLevel(LevelFactory.getInstance().getMasterLevel(
+                masterLevelName));
     }
 
     public static boolean isPressureLevel(Level level) {
@@ -106,7 +99,7 @@ public class LevelUtilities {
      * @throws CommunicationException
      */
     public synchronized static NavigableSet<Level> getOrderedSetOfStandardLevels(
-            String masterLevelName) throws VizCommunicationException {
+            String masterLevelName) throws CommunicationException {
         if (masterLevelToOrderedSet == null) {
             Comparator<Level> levelComparator = new Comparator<Level>() {
 
@@ -125,13 +118,9 @@ public class LevelUtilities {
             };
             Map<String, NavigableSet<Level>> masterLevelToOrderedSet = new HashMap<String, NavigableSet<Level>>();
             Set<Level> allLevels;
-            try {
-                allLevels = LevelMappingFactory.getInstance(
-                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                        .getAllLevels();
-            } catch (CommunicationException e) {
-                throw new VizCommunicationException(e);
-            }
+            allLevels = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                    .getAllLevels();
             for (Level level : allLevels) {
                 NavigableSet<Level> levels = masterLevelToOrderedSet.get(level
                         .getMasterLevel().getName());
@@ -142,12 +131,8 @@ public class LevelUtilities {
                 }
                 if (level.isRangeLevel()) {
 
-                    try {
-                        levels.add(level.getUpperLevel());
-                        levels.add(level.getLowerLevel());
-                    } catch (CommunicationException e) {
-                        throw new VizCommunicationException(e);
-                    }
+                    levels.add(level.getUpperLevel());
+                    levels.add(level.getLowerLevel());
                 } else {
                     levels.add(level);
                 }

@@ -32,8 +32,8 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            bsteffen     Initial creation
+ * Jan 30, 2014  #2725     ekladstrup  remove usage of ThriftClient
  * 
  * </pre>
  * 
@@ -223,8 +224,12 @@ public class MetadataContainer {
         }
         DbQueryRequestSet requestSet = new DbQueryRequestSet();
         requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
-        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                .sendRequest(requestSet);
+        DbQueryResponseSet responseSet;
+        try {
+            responseSet = (DbQueryResponseSet) RequestRouter.route(requestSet);
+        } catch (Exception e) {
+            throw new VizException(e);
+        }
         for (int i = 0; i < nodes.size(); i++) {
             AbstractBaseDataNode node = nodes.get(i);
             dataCache.put(node, node.getData(originalConstraints,
