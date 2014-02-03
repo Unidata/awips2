@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
+
 /**
  * Collaboration preferences constants used to interact with preference store
  * 
@@ -31,6 +32,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Apr 24, 2012            njensen     Initial creation
  * Jan 14, 2014 2630       bclement    added away on idle constants
  * Jan 27, 2014 2700       bclement    added auto accept subscribe
+ * Feb  3, 2014 2699       bclement    added handle preferences
  * 
  * </pre>
  * 
@@ -55,11 +57,37 @@ public class CollabPrefConstants {
 
     public static final String AUTO_ACCEPT_SUBSCRIBE = "autoAcceptSubscribe";
 
+    public static final String DEFAULT_HANDLE = "defaultHandle";
+
+    public static final String CUSTOM_HANDLE = "customHandle";
+
     public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
 
     public class HttpCollaborationConfiguration {
         public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
 
         public static final String P_HTTP_SESSION_URL = "http.sessionURL";
+    }
+
+    public static enum HandleOption {
+        BLANK("Blank"), USERNAME("User Name"), FULLNAME("Full Name"), ROLE(
+                "Role"), CUSTOM(
+                "Custom");
+
+        public final String display;
+
+        private HandleOption(String display) {
+            this.display = display;
+        }
+
+        public static String[][] displayValues() {
+            HandleOption[] values = values();
+            String[][] rval = new String[values.length][2];
+            for (int i = 0; i < rval.length; ++i) {
+                HandleOption op = values[i];
+                rval[i] = new String[] { op.display, op.name() };
+            }
+            return rval;
+        }
     }
 }
