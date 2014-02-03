@@ -40,12 +40,11 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
@@ -63,6 +62,8 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * ------------ ---------- ----------- --------------------------
  * Apr 14, 2010            bsteffen    Initial creation
  * Jul 25, 2013 2112       bsteffen    Fix volume browser sounding errors.
+ * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
  * 
  * </pre>
  * 
@@ -291,7 +292,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                         levels = LevelUtilities
                                 .getOrderedSetOfStandardLevels(plane.replace(
                                         "spatial-", ""));
-                    } catch (VizCommunicationException e) {
+                    } catch (CommunicationException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
                     }

@@ -34,8 +34,8 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
 import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
  * Apr 11, 2012            bsteffen     Initial creation
  * Feb 25, 2013 1659       bsteffen    Stop derived parameters from sending
  *                                     empty requests for cached times
+ * Jan 30, 2014  #2725     ekladstrup  remove usage of ThriftClient
  * 
  * </pre>
  * 
@@ -178,8 +179,13 @@ public class AvailabilityContainer {
         if (!requests.isEmpty()) {
             DbQueryRequestSet requestSet = new DbQueryRequestSet();
             requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
-            DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                    .sendRequest(requestSet);
+            DbQueryResponseSet responseSet;
+            try {
+                responseSet = (DbQueryResponseSet) RequestRouter
+                        .route(requestSet);
+            } catch (Exception e) {
+                throw new VizException(e);
+            }
             DbQueryResponse[] responses = responseSet.getResults();
 
             for (int i = 0; i < responses.length; i++) {
