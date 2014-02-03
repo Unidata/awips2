@@ -17,7 +17,8 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.11.24",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- org.itadaki.bzip2;bundle-version="0.9.1"
+ org.itadaki.bzip2;bundle-version="0.9.1",
+ com.raytheon.uf.common.site;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.common.dataplugin.radar.request,
  com.raytheon.uf.common.ohd
