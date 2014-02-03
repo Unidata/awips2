@@ -30,6 +30,8 @@ import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -70,6 +72,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Oct 14, 2013 2361       njensen     Removed XML annotations and IDecoderGettable
  * Dec 10, 2013 2581       njensen     Removed dataURI column
  * Jan 15, 2014 2581       njensen     Changed constraint to use officeId instead of stationId
+ * Jan 30, 2014 2581       njensen     Added dataURI column back in
  * 
  * </pre>
  * 
@@ -79,8 +82,8 @@ import com.vividsolutions.jts.geom.Geometry;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "lsrseq")
 @Table(name = "lsr", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "latitude", "longitude", "officeId", "refTime", "forecastTime",
-        "eventType" }) })
+// "latitude", "longitude", "officeId", "refTime", "forecastTime", "eventType"
+"dataURI" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -508,5 +511,12 @@ public class LocalStormReport extends PersistablePluginDataObject implements
     @Override
     public String getPluginName() {
         return "lsr";
+    }
+
+    @Override
+    @Column
+    @Access(AccessType.PROPERTY)
+    public String getDataURI() {
+        return super.getDataURI();
     }
 }

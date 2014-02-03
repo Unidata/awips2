@@ -93,7 +93,9 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * 04/10/13      #864       Greg Hull    read/save new ResourceFilters file
  * 04/24/13      #838       B. Hebbard   Allow getAllResourceParameters to handle NTRANS (paramVal2 no longer assumed numeric/km)
  * 06/05/13      #998       Greg Hull    init subTypesList when creating new RD.
- * 08/2013       #1031      Greg Hull    retry on inventory directory request    
+ * 08/2013       #1031      Greg Hull    retry on inventory directory request
+ * 12/4/13       #1074      Greg Hull    another hack for the rscName<->parameterValues mapping; check for
+ *                                       'native' in satellite subType and set to 0 resolution.    
  *
  * </pre>
  * 
@@ -111,7 +113,7 @@ public class ResourceDefnsMngr {
     private NcPathManager pathMngr;
     
 	private HashMap<String,ResourceDefinition> resourceDefnsMap = null;
-		
+			
 	// a map from either the rscType or the rscImpl (depending on if AttrSetGroups apply)
 	// to a list of available Attribute Set Files returned from Localization.
 	private Map<String,Map<String,AttributeSet>> attrSetMap;
@@ -361,8 +363,8 @@ public class ResourceDefnsMngr {
 		resourceDefnsMap = new HashMap<String,ResourceDefinition>();
 
 		for( LocalizationFile lFile : lFiles.values() ) {			
-			try {				
-				readResourceDefn( lFile );
+			try {	
+				readResourceDefn( lFile  );
 				
 				
     			// TODO : add localization observer to update the Map when a localization file has
@@ -420,7 +422,7 @@ public class ResourceDefnsMngr {
 	    long t2 = System.currentTimeMillis();
 	    
 	    out.println("Time to read Attr Sets: " + (t2-t1) + " ms");
-		   
+
 	    List<String> errRdsList = findOrCreateInventoryForRscDefns( resourceDefnsMap.values() );
 	    
 	    // loop thru the ResourceDefns and enable those that have been initialized and
@@ -429,7 +431,7 @@ public class ResourceDefnsMngr {
 	    
 	    for( String rmRd : errRdsList ) {
 	    	resourceDefnsMap.remove( rmRd );
-	    }	    
+	    }
 	}
 
 	private void readResourceDefn( LocalizationFile lFile ) throws VizException {
@@ -438,7 +440,7 @@ public class ResourceDefnsMngr {
 		
 		try {
 			ResourceDefinition rscDefn = SerializationUtil.jaxbUnmarshalFromXmlFile( 
-					ResourceDefinition.class, rscDefnFile.getAbsolutePath() );
+					ResourceDefinition.class, rscDefnFile.getAbsolutePath()  );
 
 			// TODO : If the definitions are modified and written out, this will drop any invalid resourceDefns. 
 	    	// Should we save these write them out anyway? Make them disabled?
@@ -455,7 +457,7 @@ public class ResourceDefnsMngr {
 	    	}
 	    	else {
 	    		rscDefn.validateResourceParameters();
-
+	    		
 	    		if( resourceDefnsMap.containsKey( rscDefn.getResourceDefnName() ) ) {
 	    			throw new VizException("Failed to create Rsc Defn '"+rscDefn.getResourceDefnName()+
 	    					"' from file: "+rscDefnFile.getAbsolutePath()+ " because there is another Rsc Defn with this name.");
@@ -501,7 +503,7 @@ public class ResourceDefnsMngr {
 		} 
 		catch (SerializationException e) {
 			throw new VizException("Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
-		} 		
+		}
 		catch (Exception e ) {
 			throw new VizException( "Error parsing "+rscDefnFile.getAbsolutePath() +" - " + e.getMessage() );
 		}
@@ -606,7 +608,7 @@ public class ResourceDefnsMngr {
 			AttrSetGroup asg;
 			try {
 				asg = SerializationUtil.jaxbUnmarshalFromXmlFile( AttrSetGroup.class, asgFile.getAbsolutePath( ) );
-
+				
 			} catch (SerializationException e) {
 				throw new VizException("Error Parsing file "+asgFile.getAbsolutePath( ) +"\n"+e.getMessage());
 			} 
@@ -815,10 +817,10 @@ public class ResourceDefnsMngr {
 		if( invDefnsMap == null ) {
 			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
 		}
-	
+		
 	    List<NcInventoryDefinition> createInvDefns = new ArrayList<NcInventoryDefinition>();
 	    List<NcInventoryDefinition> errList = new ArrayList<NcInventoryDefinition>();
-		
+	    
 	    for( ResourceDefinition rd : rscDefnsToSetup ) {
 	    	try {	    		
 	    		HashMap<String,RequestConstraint> rc = 
@@ -921,34 +923,34 @@ public class ResourceDefnsMngr {
 	public Map<NcInventoryDefinition,NcInventoryDefinition> getInventoryDefinitions() throws VizException {
 		
 		Map<NcInventoryDefinition,NcInventoryDefinition> invDefnsMap = null; 
-			
-			// query the list of inventories that exist on edex and set the
-			// inventoryInitialized flag in the ResourceDefns 
-			NcInventoryRequestMsg dirRequest = NcInventoryRequestMsg.makeDirectoryRequest();
 
-			Object rslts = ThriftClient.sendRequest( dirRequest );
+		// query the list of inventories that exist on edex and set the
+		// inventoryInitialized flag in the ResourceDefns 
+		NcInventoryRequestMsg dirRequest = NcInventoryRequestMsg.makeDirectoryRequest();
 
-			if( rslts instanceof String ) {
-				throw new VizException( rslts.toString() );
-			}
-			if( !(rslts instanceof ArrayList<?>) ) {
-				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
-			}
-			else if( ((ArrayList<?>)rslts).isEmpty() ) {
-				out.println("Inventory Directory Request Warning: No Inventories initialized.???" );
-			}
-			else if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
-				throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
-			}
+		Object rslts = ThriftClient.sendRequest( dirRequest );
 
-			// used to set the inventory initialized flag
-			ArrayList<NcInventoryDefinition> invDefnsList = (ArrayList<NcInventoryDefinition>)rslts;
-			
-			invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+		if( rslts instanceof String ) {
+			throw new VizException( rslts.toString() );
+		}
+		if( !(rslts instanceof ArrayList<?>) ) {
+			throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
+		}
+		else if( ((ArrayList<?>)rslts).isEmpty() ) {
+			out.println("Inventory Directory Request Warning: No Inventories initialized.???" );
+		}
+		else if( !(((ArrayList<?>)rslts).get(0) instanceof NcInventoryDefinition) ) {
+			throw new VizException( "Inventory Directory Request Error: expecting ArrayList<NcInventoryDefinition>." );
+		}
 
-			for( NcInventoryDefinition invDefn : invDefnsList ) {
-				invDefnsMap.put( invDefn, invDefn );
-			}
+		// used to set the inventory initialized flag
+		ArrayList<NcInventoryDefinition> invDefnsList = (ArrayList<NcInventoryDefinition>)rslts;
+		
+		invDefnsMap = new HashMap<NcInventoryDefinition,NcInventoryDefinition>();
+
+		for( NcInventoryDefinition invDefn : invDefnsList ) {
+			invDefnsMap.put( invDefn, invDefn );
+		}
 		
 		return invDefnsMap;
 	}
@@ -997,7 +999,7 @@ public class ResourceDefnsMngr {
 
 		return true;
 	}
-
+	
 	// similar to validateResourceParameters except we are also checking for the attributes 
 //	public void verifyParametersExist( ResourceName rscName ) throws VizException {
 //		ResourceDefinition rscDefn = getResourceDefinition( rscName.getRscType() );
@@ -1338,6 +1340,10 @@ public class ResourceDefnsMngr {
 				String paramVal2 = subType.endsWith( "km" ) ?
 						subType.substring(indx+1, subType.length()-2) // NOTE; "km"
 						: subType.substring(indx+1, subType.length());
+				// TODO : get rid of these hacks and redesign the resoureName <-> parameter value mapping
+				if( paramVal2.equals("native") ) { 
+					paramVal2 = "0"; 
+				}
 				//  TODO -- Can't make following sanity-check / cleanup anymore because paramVal2
 				//          for NTRANS is productName, which isn't all numeric.  Trouble...?
 				//  try {
@@ -1351,7 +1357,7 @@ public class ResourceDefnsMngr {
 				paramsMap.put( subTypeGenParams[1], paramVal2 );
 			}
 		}
-		
+						
 		return paramsMap;		
 	}
 					
@@ -2094,7 +2100,7 @@ public class ResourceDefnsMngr {
 			} 
 
 			// add the ASG's in the list to the map. (PGEN is a special case since
-			// 1 'default' ASG applies to all PGEN resources.)
+			// 1 'default' ASG applies to all PGEN resources.)			
 			asg.setLocalizationFile( lFile );
 			
 			String rscImpl="";
@@ -2394,7 +2400,7 @@ public class ResourceDefnsMngr {
     	// if this is a new rsc the LocalizationFile should not be set but the name should be.
     	if( createRscDefn ) {    		
     		lFile = NcPathManager.getInstance().getLocalizationFile( userContext,
-    				   rscDefn.getLocalizationName() );
+    				   rscDefn.getLocalizationName() );    		
     	}
     	else {
     		lFile = rscDefn.getLocalizationFile();
@@ -2418,14 +2424,14 @@ public class ResourceDefnsMngr {
 			rdList.add( rscDefn );
 			
 			List<String> errList = findOrCreateInventoryForRscDefns( rdList );
-				
+
 			if( errList.isEmpty() ) {
 				resourceDefnsMap.put( rscDefn.getResourceDefnName(), rscDefn );				
 			}
-			else {
+			else {				
 				throw new VizException( "Error finding or Creating Inventory.");
 			}
-	
+			
 			// check to see if there is an inventory for this rscDefn or if
 			// we need to create one. 
 			// 
@@ -2484,7 +2490,7 @@ public class ResourceDefnsMngr {
 
     	return true;
     }
-    
+        
     public ResourceDefinition getLocatorResourceDefinition() {
     	return locatorRscDefn;
     }

@@ -44,6 +44,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/12		TTR 525		B. Yin		Make sure points don't move when selecting.
  * 05/12		TTR 534		B. Yin		Re-set the watch dialog attributes
  * 03/13		#927		B. Yin		Added constructor for the handler class.
+ * 12/13		TTR 800		B. Yin		Add a flag when opening the specification dialog.
+ * 01/14		TTR 800		B. Yin		Fixed the county lock issue.
  * 
  * </pre>
  * 
@@ -72,7 +74,7 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
     			drawingLayer.setSelected( ((WatchBoxAttrDlg)attrDlg).getWatchBox());
     			((WatchBoxAttrDlg)attrDlg).setAttrForDlg(((WatchBoxAttrDlg)attrDlg).getWatchBox() );
     			((WatchBoxAttrDlg)attrDlg).enableButtons();
-    			((WatchBoxAttrDlg)attrDlg).openSpecDlg();
+    			((WatchBoxAttrDlg)attrDlg).openSpecDlg( false );
     		}
     	}
         
@@ -250,10 +252,8 @@ public class PgenWatchBoxModifyTool extends PgenSelectingTool {
     			    	((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).setWatchBox(newEl);
     			    	WatchInfoDlg infoDlg = ((WatchBoxAttrDlg)PgenWatchBoxModifyTool.this.attrDlg).getWatchInfoDlg();
     			    	if ( infoDlg != null && infoDlg.getShell()!= null ){
-    			    		if ( infoDlg.isCountyLock()){
-    			    			newEl.setCountyList(el.getCountyList());
-    			    		}
-    			    		else {
+    			    		if ( ! infoDlg.isCountyLock()){
+    			    			newEl.clearCntyList();
     			    			infoDlg.clearCwaPane();
     			    		}
     			    		infoDlg.setStatesWFOs();

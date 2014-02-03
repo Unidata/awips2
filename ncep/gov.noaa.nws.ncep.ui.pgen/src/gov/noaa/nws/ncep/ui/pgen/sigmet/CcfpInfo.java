@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Point;
  * ---------	--------	----------	--------------------------
  * 09/10		322			G. Zhang 	Initial Creation.
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 12/13        TTR751      J. Wu       Update getCcfpTxt2().
  * </pre>
  * 
  * @author gzhang
@@ -701,20 +702,25 @@ public class CcfpInfo {
     }
 
     public static String[] getCcfpTxt2(Sigmet sig) {// used @239
+        // TTR 751 - when top > 400, display as ">400" also remove
+        // leading/trailing white spaces.
+        // For growth - display whatever it is.
 
         String tops = sig.getEditableAttrPhenom2();
         String gwth = sig.getEditableAttrPhenomLon();
 
         if (tops.contains("-"))
-            tops = " " + tops.substring(tops.indexOf("-") + 1);
+            tops = "" + tops.substring(tops.indexOf("-") + 1);
         else if (tops.contains("+"))
-            tops = " " + tops.replace("+", "");
+            tops = ">" + tops.replace("+", "");
 
-        if (gwth.contains("+"))
-            tops = tops + " " + gwth;
-        else
-            tops = tops + "   ";
+        // if (gwth.contains("+"))
+        // tops = tops + " " + gwth;
+        // else
+        // tops = tops + "   ";
 
-        return new String[] { tops };
+        tops = tops + " " + gwth;
+
+        return new String[] { tops.trim() };
     }
 }
