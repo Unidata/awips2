@@ -23,7 +23,10 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -39,7 +42,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
@@ -56,6 +61,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 19, 2013 2563      bclement     added check for feed venue existence
  * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
  * Jan 30, 2014 2698       bclement    added default handle of username
+ * Feb  3, 2014 2699       bclement    use preference handle default, display error if handle taken
  * 
  * </pre>
  * 
@@ -80,7 +86,7 @@ public class DisplayFeedAction extends Action {
                 .getActiveWorkbenchWindow().getActivePage();
         page.addPartListener(new PartListener(this));
         if (isEnabled()) {
-            String sessionId = getSessionId(false);
+            String sessionId = getSessionId();
             if (sessionId != null) {
                 IViewReference ref = page.findViewReference(SessionFeedView.ID,
                         sessionId);
@@ -89,7 +95,10 @@ public class DisplayFeedAction extends Action {
         }
     }
 
-    private static String getSessionId(boolean create) {
+    /**
+     * @return session ID of feed venue session or null if not found
+     */
+    private static String getSessionId() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         String sessionId = null;
@@ -101,18 +110,36 @@ public class DisplayFeedAction extends Action {
                 }
             }
         }
-        if (sessionId == null && create) {
-            try {
-                // TODO auto join with handle from preferences
-                IVenueSession session = connection.joinTextOnlyVenue(
-                        FEED_VENUE, connection.getUser().getName());
-                sessionId = session.getSessionId();
-            } catch (CollaborationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to join the collaboration feed", e);
-            }
-        }
         return sessionId;
+    }
+
+    /**
+     * Attempt to join the feed venue on server using the handle set in
+     * preferences. Displays and error and returns null if join wasn't
+     * successful.
+     * 
+     * @return
+     */
+    private String joinFeedVenue() {
+        try {
+            CollaborationConnection connection = CollaborationConnection
+                    .getConnection();
+            IVenueSession session = connection.joinTextOnlyVenue(FEED_VENUE,
+                    HandleUtil.getDefaultHandle());
+            return session.getSessionId();
+        } catch (CollaborationException e) {
+            final String msg = e.getLocalizedMessage()
+                    + "\n\nDefault handle options can be set in the Collaboration Preferences page.";
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    Shell shell = new Shell(Display.getCurrent());
+                    MessageDialog.openError(shell,
+                            "Unable to join collaboration feed", msg);
+                }
+            });
+            return null;
+        }
     }
 
     @Override
@@ -122,14 +149,27 @@ public class DisplayFeedAction extends Action {
         if (!connection.venueExistsOnServer(FEED_VENUE)) {
             statusHandler.info("Feed venue doesn't exist on server: "
                     + FEED_VENUE);
+            setChecked(false);
             return;
+        }
+
+        String sessionId;
+        if (isChecked()) {
+            sessionId = joinFeedVenue();
+            if (sessionId == null) {
+                // we couldn't join, stop action
+                setChecked(false);
+                return;
+            }
+        } else {
+            sessionId = getSessionId();
         }
 
         // handle if it is clicked to close or open the view as
         // necessary
         CaveWorkbenchPageManager page = CaveWorkbenchPageManager
                 .getActiveInstance();
-        String sessionId = getSessionId(isChecked());
+
         if (!isChecked()) {
             IViewReference ref = page.findViewReference(SessionFeedView.ID,
                     sessionId);
@@ -183,7 +223,7 @@ public class DisplayFeedAction extends Action {
             clean(part);
             if (part instanceof SessionFeedView) {
                 SessionFeedView view = (SessionFeedView) part;
-                if (view.getRoom().equals(getSessionId(false))) {
+                if (view.getRoom().equals(getSessionId())) {
                     setChecked(false);
                 }
             }
@@ -199,7 +239,7 @@ public class DisplayFeedAction extends Action {
             clean(part);
             if (part instanceof SessionFeedView) {
                 SessionFeedView view = (SessionFeedView) part;
-                if (view.getRoom().equals(getSessionId(false))) {
+                if (view.getRoom().equals(getSessionId())) {
                     setChecked(true);
                 }
             }
