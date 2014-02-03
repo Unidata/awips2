@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <requestPatterns xmlns:ns2="group">
-   <regex>^SXI_*</regex> 
+   <regex>^SIMPLE*</regex> 
 </requestPatterns>

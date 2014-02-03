@@ -46,7 +46,11 @@
                     <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
                         <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
                     </properties>
+                    
                     <resourceData xsi:type="NC-OverlayResourceGroupData" resourceName="OVERLAY/GeoPolitical/default" isEdited="false" >
+
+	                    <color>RGB {255, 228, 220}</color>
+
                         <resource>
                             <loadProperties loadWithoutData="false">
                                 <resourceType>PLAN_VIEW</resourceType>
@@ -93,7 +97,7 @@
                                 <geomField>the_geom</geomField>
                                 
 <!--   don't need this since displayLabelField is not set
-                                <labelField>name</labelField>
+		          <labelField>name</labelField>
   -->
                                 <color>RGB {255, 228, 220}</color>
                                 <lineWidth>1</lineWidth>
