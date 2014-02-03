@@ -21,9 +21,12 @@ package com.raytheon.rcm.config.std;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -40,8 +43,26 @@ import com.raytheon.rcm.config.awips1.Awips1ConfigProvider;
 import com.raytheon.rcm.server.Log;
 
 
+/**
+ * Constructs (and potentially updates) a StandardConfig based on
+ * various configuration files.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Handle updated NDM config files.
+ * </pre>
+ *
+ */
 public class StandardConfigProvider implements ConfigurationProvider {
 		
+    private static String WSR_88D_PROD_LIST_NAME = "prodList.txt";
+    private static String TDWR__PROD_LIST_NAME = "tdwrProdList.txt";
+    private static String WMO_SITE_INFO_NAME = "wmoSiteInfo.txt";
+
 	private static JAXBContext jaxbContext;
 	private static Unmarshaller u;
 	private static Marshaller m;
@@ -113,15 +134,20 @@ public class StandardConfigProvider implements ConfigurationProvider {
 			
 			config.setRadars(radars);
 		}
-		
-		StandardProductDistInfoDB db = config.getProdDistInfoDB();
-		tryAddProdList(db, false, "prodList.txt");
-		tryAddProdList(db, true, "tdwrProdList.txt");
+
+		loadProdListDB();
 
 		updateRegionCode();
 	}
 
-	// Ugh. Bleh. Duplicating code from Awips1ConfigProvider
+    private void loadProdListDB() {
+        StandardProductDistInfoDB db = new StandardProductDistInfoDB();
+        tryAddProdList(db, false, WSR_88D_PROD_LIST_NAME);
+        tryAddProdList(db, true, TDWR__PROD_LIST_NAME);
+        config.setProdDistInfoDB(db);
+    }
+
+    // TODO: Duplicating code from Awips1ConfigProvider
 	protected static boolean skipComments(Scanner s) {
 		try {
 			s.skip("^\\s*(#|//).*$");
@@ -133,9 +159,9 @@ public class StandardConfigProvider implements ConfigurationProvider {
 	
 	public void updateRegionCode() {
 		try {
-			readWmoSiteInfo(res.getNdmFile("wmoSiteInfo.txt"));
+			readWmoSiteInfo(res.getNdmFile(WMO_SITE_INFO_NAME));
 		} catch (Exception e) {
-			Log.errorf("Could not process wmoSiteInfo.txt: %s", e);
+			Log.errorf("Could not process %s.txt: %s", WMO_SITE_INFO_NAME, e);
 		}
 	}
 
@@ -209,4 +235,43 @@ public class StandardConfigProvider implements ConfigurationProvider {
 		return new File(res.getPrivateDir(), "config.xml");
 	}
 
+    public boolean storeNdmConfigFile(String name, byte[] data) {
+        File f = new File(name);
+        if (f.getParent() != null) {
+            Log.error("Attempt to store NDM config file with a specific directory: " + name);
+            return false;
+        }
+
+        File path = res.getDropInPath(name);
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            try {
+                fos.write(data);
+            } finally {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+        } catch (IOException e) {
+            Log.errorf("Failed to store NDM config file %s: %s", path, e);
+            return false;
+        }
+
+        Log.eventf("Stored new version of NDM config %s.", name);
+
+        if (WSR_88D_PROD_LIST_NAME.equals(name) ||
+                TDWR__PROD_LIST_NAME.equals(name)) {
+            loadProdListDB();
+        } else if (WMO_SITE_INFO_NAME.equals(name)) {
+            updateRegionCode();
+        } else if (Pattern.matches("^rps-.*OP.*$", name)) {
+            config.notifyNationalRpsLists();
+        } else {
+            Log.warnf("No action taken for new %s.  You may need to restart for changes to take affect.", name);
+        }
+
+        return true;
+    }
 }
