@@ -137,4 +137,8 @@
 	<alias base="GCBL">GCBL</alias>
 	<alias base="SCBL">SCBL</alias>
     <alias base="SCTL">SCTL</alias>
+    <alias base="SP">SPXX</alias>
+	<alias base="IDRL">IDRL</alias>
+	<alias base="SRCS">SRCS</alias>
+	<alias base="NTAT">NTAT</alias>    
 </aliasList>

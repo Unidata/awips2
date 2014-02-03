@@ -615,6 +615,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>TRV</stid>
+          <stnnum>000276</stnnum>
+          <stnname>TREASURE</stnname>
+          <state>FL</state>
+          <country>US</country>
+          <latitude>27.68</latitude>
+          <longitude>-80.49</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO TRV (ABOVE); KEEP VRB ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>VRB</stid>
           <stnnum>000276</stnnum>
           <stnname>VERO_BEACH</stnname>
@@ -759,6 +771,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>RSW</stid>
+          <stnnum>000104</stnnum>
+          <stnname>LEE_COUNTY</stnname>
+          <state>FL</state>
+          <country>US</country>
+          <latitude>26.53</latitude>
+          <longitude>-81.78</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station><!-- REPLACED BY RSW (ABOVE); KEEP FMY ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>FMY</stid>
           <stnnum>000104</stnnum>
           <stnname>FT_MEYERS</stnname>
@@ -1011,6 +1035,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>PZD</stid>
+          <stnnum>000004</stnnum>
+          <stnname>PECAN</stnname>
+          <state>GA</state>
+          <country>US</country>
+          <latitude>31.66</latitude>
+          <longitude>-84.29</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY PZD (ABOVE); KEEP ABY ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>ABY</stid>
           <stnnum>000004</stnnum>
           <stnname>ALBANY</stnname>
@@ -1131,6 +1167,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>IIU</stid>
+          <stnnum>000159</stnnum>
+          <stnname>LOUISVILLE</stnname>
+          <state>KY</state>
+          <country>US</country>
+          <latitude>38.10</latitude>
+          <longitude>-85.58</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO IIU (ABOVE); KEEP LOU ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>LOU</stid>
           <stnnum>000159</stnnum>
           <stnname>LOUISVILLE</stnname>
@@ -1395,6 +1443,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>AXC</stid>
+          <stnnum>000070</stnnum>
+          <stnname>ADDERS</stnname>
+          <state>IL</state>
+          <country>US</country>
+          <latitude>39.74</latitude>
+          <longitude>-88.86</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO AXC (ABOVE); KEEP DEC ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>DEC</stid>
           <stnnum>000070</stnnum>
           <stnname>DECATUR</stnname>
@@ -1491,6 +1551,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>MHZ</stid>
+          <stnnum>000142</stnnum>
+          <stnname>MAGNOLIA</stnname>
+          <state>MS</state>
+          <country>US</country>
+          <latitude>32.43</latitude>
+          <longitude>-90.10</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY MHZ (ABOVE); KEEP JAN ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>JAN</stid>
           <stnnum>000142</stnnum>
           <stnname>JACKSON</stnname>
@@ -1503,6 +1575,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>HRV</stid>
+          <stnnum>000195</stnnum>
+          <stnname>HARVEY</stnname>
+          <state>LA</state>
+          <country>US</country>
+          <latitude>29.85</latitude>
+          <longitude>-90.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY HRV (ABOVE); KEEP MSY ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>MSY</stid>
           <stnnum>000195</stnnum>
           <stnname>NEW_ORLEANS</stnname>
@@ -1887,6 +1971,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>MCI</stid>
+          <stnnum>000177</stnnum>
+          <stnname>KANSAS_CITY</stnname>
+          <state>MO</state>
+          <country>US</country>
+          <latitude>39.29</latitude>
+          <longitude>-94.74</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY MCI (ABOVE); KEEP MKC ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>MKC</stid>
           <stnnum>000177</stnnum>
           <stnname>KANSAS_CITY</stnname>
@@ -2055,6 +2151,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>TTT</stid>
+          <stnnum>000072</stnnum>
+          <stnname>MAVERICK</stnname>
+          <state>TX</state>
+          <country>US</country>
+          <latitude>32.87</latitude>
+          <longitude>-97.04</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY TTT (ABOVE); KEEP DFW ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>DFW</stid>
           <stnnum>000072</stnnum>
           <stnname>DALLAS-FT_WORTH</stnname>
@@ -2175,6 +2283,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>CWK</stid>
+          <stnnum>000020</stnnum>
+          <stnname>CENTEX</stnname>
+          <state>TX</state>
+          <country>US</country>
+          <latitude>30.38</latitude>
+          <longitude>-97.53</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- REPLACED BY CWK (ABOVE); KEEP AUS ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>AUS</stid>
           <stnnum>000020</stnnum>
           <stnname>AUSTIN</stnname>
@@ -2295,6 +2415,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>MMB</stid>
+          <stnnum>000110</stnnum>
+          <stnname>MITBEE</stnname>
+          <state>OK</state>
+          <country>US</country>
+          <latitude>36.34</latitude>
+          <longitude>-99.88</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO MMB (ABOVE); KEEP GAG ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>GAG</stid>
           <stnnum>000110</stnnum>
           <stnname>GAGE</stnname>
@@ -2679,6 +2811,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>CME</stid>
+          <stnnum>000233</stnnum>
+          <stnname>CHISUM</stnname>
+          <state>NM</state>
+          <country>US</country>
+          <latitude>33.34</latitude>
+          <longitude>-104.62</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO CME (ABOVE); KEEP ROW ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>ROW</stid>
           <stnnum>000233</stnnum>
           <stnname>ROSWELL</stnname>
@@ -2727,6 +2871,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>FTI</stid>
+          <stnnum>000163</stnnum>
+          <stnname>FT_UNION</stnname>
+          <state>NM</state>
+          <country>US</country>
+          <latitude>35.66</latitude>
+          <longitude>-105.14</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO FTI (ABOVE); KEEP LVS ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>LVS</stid>
           <stnnum>000163</stnnum>
           <stnname>LAS_VEGAS</stnname>
@@ -2919,6 +3075,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>RSK</stid>
+          <stnnum>000103</stnnum>
+          <stnname>RATTLESNAKE</stnname>
+          <state>NM</state>
+          <country>US</country>
+          <latitude>36.75</latitude>
+          <longitude>-108.10</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO RSK (ABOVE); KEEP FMN ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>FMN</stid>
           <stnnum>000103</stnnum>
           <stnname>FARMINGTON</stnname>
@@ -3759,6 +3927,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>HUH</stid>
+          <stnnum>000035</stnnum>
+          <stnname>WHATCOM</stnname>
+          <state>WA</state>
+          <country>US</country>
+          <latitude>48.95</latitude>
+          <longitude>-122.58</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>  <!-- RENAMED TO HUH (ABOVE); KEEP BLI ENTRY ONLY AS LONG AS NEEDED TO DECODE LEGACY PRODUCTS, THEN DISCARD -->
           <stid>BLI</stid>
           <stnnum>000035</stnnum>
           <stnname>BELLINGHAM</stnname>
@@ -4654,138 +4834,6 @@
           <country>US</country>
           <latitude>21.90</latitude>
           <longitude>-159.53</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>RSW</stid>
-          <stnnum>0</stnnum>
-          <stnname>LEE_COUNTY</stnname>
-          <state>FL</state>
-          <country>US</country>
-          <latitude>26.53</latitude>
-          <longitude>-81.78</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>PZD</stid>
-          <stnnum>0</stnnum>
-          <stnname>PECAN</stnname>
-          <state>GA</state>
-          <country>US</country>
-          <latitude>31.66</latitude>
-          <longitude>-84.29</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>IIU</stid>
-          <stnnum>0</stnnum>
-          <stnname>LOUISVILLE</stnname>
-          <state>KY</state>
-          <country>US</country>
-          <latitude>38.10</latitude>
-          <longitude>-85.58</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>HRV</stid>
-          <stnnum>0</stnnum>
-          <stnname>HARVEY</stnname>
-          <state>LA</state>
-          <country>US</country>
-          <latitude>29.85</latitude>
-          <longitude>-90.00</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>MCI</stid>
-          <stnnum>0</stnnum>
-          <stnname>KANSAS_CITY</stnname>
-          <state>MO</state>
-          <country>US</country>
-          <latitude>39.29</latitude>
-          <longitude>-94.74</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>TTT</stid>
-          <stnnum>0</stnnum>
-          <stnname>MAVERICK</stnname>
-          <state>TX</state>
-          <country>US</country>
-          <latitude>32.87</latitude>
-          <longitude>-97.04</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>CWK</stid>
-          <stnnum>0</stnnum>
-          <stnname>CENTEX</stnname>
-          <state>TX</state>
-          <country>US</country>
-          <latitude>30.38</latitude>
-          <longitude>-97.53</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>CME</stid>
-          <stnnum>0</stnnum>
-          <stnname>CHISUM</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>33.34</latitude>
-          <longitude>-104.62</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>FTI</stid>
-          <stnnum>0</stnnum>
-          <stnname>FT_UNION</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>35.66</latitude>
-          <longitude>-105.14</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>RSK</stid>
-          <stnnum>0</stnnum>
-          <stnname>RATTLESNAKE</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>36.75</latitude>
-          <longitude>-108.10</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>HUH</stid>
-          <stnnum>0</stnnum>
-          <stnname>WHATCOM</stnname>
-          <state>WA</state>
-          <country>US</country>
-          <latitude>48.95</latitude>
-          <longitude>-122.58</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
