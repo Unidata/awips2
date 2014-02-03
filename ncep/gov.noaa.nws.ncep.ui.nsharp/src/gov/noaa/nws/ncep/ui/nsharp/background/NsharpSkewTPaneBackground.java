@@ -291,7 +291,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         	presslinesNumbersShape.addLineSegment(lines);
         	//System.out.println("lines="+ lines[0] + "; "+ lines[1]);
         	//System.out.println("x1="+world.mapX(NsharpConstants.left)+"y1=" +world.mapY(coor.y)+"x2="+world.mapX(NsharpConstants.right)+"y2="+
-            //		world.mapY(coor.y));     
+            //		world.mapY(coor.y));
         }
         IExtent ext = desc.getRenderableDisplay().getExtent();
         double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
@@ -540,6 +540,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         double xmax = ext.getMaxX();  //Extent's viewable envelope min x and y
         double ymax = ext.getMaxY();
         double ymin = ext.getMinY();
+        //System.out.println(" xmin="+xmin+ " xmax="+ xmax+ " ymax="+ymax+" ymin="+ymin);
         double dispX = xmin + 20 * currentZoomLevel;
         double dispY = ymax - 20 * currentZoomLevel;
         //We are getting Y (pressure) level for plotting Temp number, therefore dispX here is not important for the
@@ -567,10 +568,9 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         	tempGap= 5;
         else if(currentZoomLevel <=0.75)
         	tempGap= 8;
-        /*tempGap = (int) ((currentZoomLevel * 10) /1);
-        if((currentZoomLevel * 10) %1 != 0)
-        	tempGap++;*/
-         for (int i = /*70*/(int)lowTempMax+tempOffset; i >= /*-70+*/(int)lowTempMin+tempOffset; i -= tempGap) {
+        //TT605593 assume temp range is from -100 to 100 at ground level
+        for (int i = 100; i >= -100; i -= tempGap) {
+        // for (int i = /*70*/(int)lowTempMax+tempOffset; i >= /*-70+*/(int)lowTempMin+tempOffset; i -= tempGap) {
             Coordinate coorS = NsharpWxMath.getSkewTXY(dispPressure, i);
             double startX1 = world.mapX(coorS.x);
             double startY1 = world.mapY(coorS.y);
@@ -591,8 +591,12 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         if((dispPressure -NsharpConstants.MIN_PRESSURE) <10)
         	dispPressure = NsharpConstants.MIN_PRESSURE+5*currentZoomLevel;
 
-        // top temp number
-        for (int i = (int)topTempMax+tempOffset; i >= (int)topTempMin+tempOffset; i -= tempGap) {
+        // top temp number.TT605593
+        //Chin: without zooming, highest level temp is assume around 70 degree lower than ground
+        // Also, to make sure top temp number is in sync with lower temp number, when consider tempGap
+        int topTMax = 100- (( 70 / tempGap ) +1) * tempGap; 
+        for (int i = topTMax; i >= topTMax - 200; i -= tempGap) {
+        //for (int i = (int)topTempMax+tempOffset; i >= (int)topTempMin+tempOffset; i -= tempGap) {
             Coordinate coorEnd1 = NsharpWxMath.getSkewTXY(dispPressure, i);
            double endX1 = world.mapX(coorEnd1.x);
             double endY1 = world.mapY(coorEnd1.y);
@@ -613,24 +617,25 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
     		Coordinate coorEnd = NsharpWxMath.getSkewTXY(100, i);
     		dispX=world.mapX(coorEnd.x);
     		dispY=world.mapY(coorEnd.y);
-    		//System.out.println("temp x="+dispX+" y="+dispY);
     		if(dispX>xmax){
     			// when temp line's top point's x coordinate is greater than view xman, the line will not be plotted.
+    			// Can not find a solution for that now. 
     			// therefore, we have to find this temp line's top point's Y coordinate at xman position.
     			// In other words, find the intersection  point of temp line with skewT rectangle's right side line.
-    			dispX = xmax-5;
-    			coorEnd = world.unMap(dispX, 0);
+    			dispX = xmax-20; // need to minus some number. Otherwise, it wont be plotted. 
+    			//TT605593
+    			coorEnd = world.unMap(xmax, 0);
     			double py= NsharpWxMath.getPressureYFromTemp(i, coorEnd.x); 			
     			dispY = world.mapY(py);
     		}
     		double [][] tlines = {{world.mapX(coorStart.x), world.mapY(coorStart.y)},
     				{dispX, dispY}};
-    		//System.out.println("temp="+i+" "+world.mapX(coorStart.x)+ "," +world.mapY(coorStart.y)+ " ;"
-    		//		+dispX+ "," + dispY);
+    		//System.out.println("temp="+i+" wLx="+world.mapX(coorStart.x)+" sLx="+coorStart.x+ ",wLy=" +world.mapY(coorStart.y)+ " ;wHx="
+    			//	+dispX+" sHx="+coorEnd.x+",wHy=" + dispY);
     		temperatureLineShape.addLineSegment(tlines);
     	}
     	temperatureLineShape.compile();
-
+    	//System.out.println("lower min"+ lowTempMin+ " lower nax "+ lowTempMax+ " upper min "+ topTempMin + " topTempMax "+ topTempMax);
     }
 
     //@SuppressWarnings("deprecation")
@@ -666,6 +671,7 @@ public class NsharpSkewTPaneBackground extends NsharpGenericPaneBackground {
         target.drawWireframeShape(tempNumbersShape, NsharpConstants.color_white, 1, LineStyle.DEFAULT, smallFont);
         drawPressureLineNumber(target);
         target.clearClippingPlane();
+        
     }
     //this function is used for printing
     public void paintForPrint( WGraphics world, GC gc){
