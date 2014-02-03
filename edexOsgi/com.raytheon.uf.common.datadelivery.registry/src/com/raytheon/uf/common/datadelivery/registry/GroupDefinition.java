@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.serialization.adapters.ReferencedEnvelopeAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Jan 02, 2013 1441       djohnson   Add constants.
  * Apr 08, 2013 1826       djohnson   Remove delivery options.
  * May 22, 2013 1650       djohnson   Remove option instance variable.
+ * Feb 4,  2014  2686      dhladky    This one got missed previously.
  * 
  * </pre>
  * 
@@ -46,6 +48,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ GroupDefinition.GROUP_NAME_SLOT })
+@RegistryObjectVersion(value = 1.0f)
 public class GroupDefinition {
 
     public static final String GROUP_NAME_SLOT = "groupName";

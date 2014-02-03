@@ -22,6 +22,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
  *                                      separate work method from loop control.
  * Nov 09, 2012 1286       djohnson     Add ability to kill the threads when BandwidthManager instance is replaced.
  * Mar 05, 2013 1647       djohnson     Sleep one minute between checks.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -36,6 +37,8 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RetrievalAgent.class);
+    
+    public static final String SUBSCRIPTION_AGENT = "SubscriptionAgent";
 
     private final Object notifier;
 
@@ -71,7 +74,7 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
     public void run() {
         try {
             // don't start immediately
-            Thread.sleep(60000);
+            Thread.sleep(SLEEP_TIME);
         } catch (InterruptedException e) {
             // ignore
         }
@@ -85,7 +88,7 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
                         .error("Unable to look up next retrieval request.  Sleeping for 1 minute before trying again.",
                                 e);
                 try {
-                    Thread.sleep(60000);
+                    Thread.sleep(SLEEP_TIME);
                 } catch (InterruptedException e1) {
                     // ignore
                 }
@@ -99,7 +102,7 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
      * @throws EdexException
      */
     public void doRun() throws EdexException {
-        statusHandler.info("Checking for bandwidth allocations to process...");
+        statusHandler.info(network+ ": Checking for bandwidth allocations to process...");
         BandwidthAllocation reservation = retrievalManager.nextAllocation(
                 network, getAgentType());
 
@@ -113,14 +116,14 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
         if (reservation != null) {
             ALLOCATION_TYPE allocation = getAllocationTypeClass().cast(
                     reservation);
-            statusHandler.info("Processing allocation id ["
+            statusHandler.info(network+": Processing allocation id ["
                     + allocation.getId() + "]");
 
             processAllocation(allocation);
         } else {
             synchronized (notifier) {
                 try {
-                    statusHandler.info("None found, sleeping for ["
+                    statusHandler.info(network+": None found, sleeping for ["
                             + SLEEP_TIME + "]");
 
                     notifier.wait(SLEEP_TIME);
@@ -156,4 +159,11 @@ public abstract class RetrievalAgent<ALLOCATION_TYPE extends BandwidthAllocation
      */
     abstract void processAllocation(ALLOCATION_TYPE allocation)
             throws EdexException;
+    /**
+     * Get the network
+     * @return
+     */
+    public Network getNetwork() {
+        return network;
+    }
 }
