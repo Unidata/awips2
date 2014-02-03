@@ -141,6 +141,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 25, 2014 2636       mpduff       Don't do an initial adhoc query for a new subscription.
  * Jan 24, 2013 2709       bgonzale     Before scheduling adhoc, check if in active period window.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -628,8 +629,6 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 bandwidthDaoUtil.update(retrieval);
             }
         }
-
-        retrievalManager.wakeAgents();
 
         return unscheduled;
     }
