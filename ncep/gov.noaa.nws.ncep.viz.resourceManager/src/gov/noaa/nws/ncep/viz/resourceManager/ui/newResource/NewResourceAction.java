@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 06/07/11       #445       Xilin Guo   Data Manager Performance Improvements
  * 10/22/11      #467        Greg Hull   add to all panes option
  * 02/22/13      #972        Greg Hull   NcDisplayType
+ * 10/24/13      #1043       Greg Hull   init to prev selected rsc
  * 
  * </pre>
  * 
@@ -61,6 +62,7 @@ public class NewResourceAction extends AbstractHandler {
 
 	private Shell shell=null;
 	
+	private static ResourceName prevSeldRscName = null;
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -118,6 +120,9 @@ public class NewResourceAction extends AbstractHandler {
    								boolean replace, // ignore the replace option 
    							    boolean addAllPanes, boolean done ) {
    				try {
+   					
+   					prevSeldRscName = rscName;
+   					
 //   	   			System.out.println("Loading Resource " + rscName );   	   				
    					ResourceSelection rscSel = ResourceFactory.createResource( rscName );
    					ResourcePair rscPair = rscSel.getResourcePair();
@@ -209,20 +214,20 @@ public class NewResourceAction extends AbstractHandler {
 							MessageDialog.ERROR, new String[]{"OK"}, 0);
 					errDlg.open();
    				}
-   				
-//   				if( done ) {
-   					rscSelDlg.close();
-//   				}
+   				 
+   				if( done ) {
+   					rscSelDlg.close(); 
+   				}
    			}
    		});
 
    		boolean isMultipane = (NcEditorUtil.getPaneLayout(editor).getNumberOfPanes() > 1 );
    		
-   		rscSelDlg.open( false, // no replaceResource option  
+   	    rscSelDlg.open( false, // no replaceResource option  
    						false, // replace button not enabled
-   						null, isMultipane,
+   						prevSeldRscName, isMultipane,
    						dispType,
-				SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
+   						SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL );
 		return null;
 	}
 }
