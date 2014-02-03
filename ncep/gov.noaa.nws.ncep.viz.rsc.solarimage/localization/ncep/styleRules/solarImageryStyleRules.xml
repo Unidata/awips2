@@ -21,7 +21,191 @@
 <styleRuleset>
 
 <!-- GOES SXI Rules -->
+<!-- GOES SXI has two set of rules. One is LINEAR and another is LOG. 
+     For same instrument, wavelength and intTime, the first rule on the xml is used.  
+     Users can comment out the first rule if they want to use the second rule. -->
+<!--  <styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>BE12A</wavelength>
+     <intTime>1.0</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>4096</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Blue</defaultColormap>
+     <colorbarLabeling>
+        <values>1024 2048 3072</values>
+	 </colorbarLabeling>	
+  </imageStyle>
+</styleRule>
 <styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>BE12A</wavelength>
+     <intTime>0.05</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>81920</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Blue</defaultColormap>
+     <colorbarLabeling>
+        <values>20480 40960 61440</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>PTHK</wavelength>
+     <intTime>0.4</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>10240</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+     <colorbarLabeling>
+        <values>2560 5120 7680</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>PTHK</wavelength>
+     <intTime>0.05</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>81920</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+     <colorbarLabeling>
+        <values>20480 40960 61440</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>PTHNA</wavelength>
+     <intTime>0.4</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>10240</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+     <colorbarLabeling>
+        <values>2560 5120 7680</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>PTHNA</wavelength>
+     <intTime>0.026</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>157540</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+     <colorbarLabeling>
+        <values>39385 78770 118155</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM1</instrument>
+     <wavelength>PTHNA</wavelength>
+     <intTime>0.026</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>157540</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+     <colorbarLabeling>
+        <values>39385 78770 118155</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>TM</wavelength>
+     <intTime>2.6</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>1575</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Yellow</defaultColormap>
+     <colorbarLabeling>
+        <values>394 788 1182</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>TM</wavelength>
+     <intTime>0.5</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>8192</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Yellow</defaultColormap>
+     <colorbarLabeling>
+        <values>2048 4096 6144</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM3</instrument>
+     <wavelength>TM</wavelength>
+     <intTime>0.026</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>157540</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Yellow</defaultColormap>
+     <colorbarLabeling>
+        <values>39385 78770 118155</values>
+	 </colorbarLabeling>
+  </imageStyle>
+</styleRule>  -->
+
+<styleRule>  
   <solarImageMatches>
      <instrument>SXI-FM3</instrument>
      <wavelength>BE12A</wavelength>
@@ -30,16 +214,42 @@
   <imageStyle>
      <displayUnits label="DN/sec"/>
      <range scale="LOG">
-        <minValue>0.</minValue>
+        <minValue>0</minValue>
         <maxValue>3.6122</maxValue>
      </range>
      <defaultColormap>SolarImage/Blue</defaultColormap>
 	<dataMapping>
-		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='0.9' label='1024' />
-		<entry pixelValue="128" displayValue='1.8' label='2048' />
-		<entry pixelValue="192" displayValue='2.71' label='3072' />
-		<entry pixelValue="250" displayValue='3.61236' label='4096' />
+	    <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="43" displayValue='0.60206' label='4' />
+		<entry pixelValue="85" displayValue='1.20412' label='16' />
+		<entry pixelValue="128" displayValue='1.80618' label='64' />
+		<entry pixelValue="171" displayValue='2.40824' label='256' />		
+		<entry pixelValue="213" displayValue='3.0103' label='1024' />
+		<entry pixelValue="255" displayValue='3.61236' label='4096' />
+	</dataMapping>
+  </imageStyle>
+</styleRule>
+<styleRule>  
+  <solarImageMatches>
+     <instrument>SXI-FM1</instrument>
+     <wavelength>BE12A</wavelength>
+     <intTime>1.0</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LOG">
+        <minValue>0</minValue>
+        <maxValue>3.6122</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Blue</defaultColormap>
+	<dataMapping>
+	    <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="43" displayValue='0.60206' label='4' />
+		<entry pixelValue="85" displayValue='1.20412' label='16' />
+		<entry pixelValue="128" displayValue='1.80618' label='64' />
+		<entry pixelValue="171" displayValue='2.40824' label='256' />		
+		<entry pixelValue="213" displayValue='3.0103' label='1024' />
+		<entry pixelValue="255" displayValue='3.61236' label='4096' />
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -57,11 +267,25 @@
      </range>
      <defaultColormap>SolarImage/Blue</defaultColormap>
 	<dataMapping>
-		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.228' label='20480' />
-		<entry pixelValue="128" displayValue='2.4567' label='40960' />
-		<entry pixelValue="192" displayValue='3.685' label='61440' />
-		<entry pixelValue="250" displayValue='4.91339' label='81920' />
+	    <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="28" displayValue='0.60206' label='4' />
+		<entry pixelValue="57" displayValue='1.20412' label='16' />
+		<entry pixelValue="85" displayValue='1.80618' label='64' />
+		<entry pixelValue="114" displayValue='2.40824' label='256' />
+		<entry pixelValue="142" displayValue='3.01030' label='1024' />
+		<entry pixelValue="171" displayValue='3.61236' label='4096' />
+		<entry pixelValue="199" displayValue='4.21442' label='16384' />
+		<entry pixelValue="228" displayValue='4.81648' label='65536' />
+		<entry pixelValue="255" displayValue='5.41854' label='262144' />
+		<!--  <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="36" displayValue='0.69898' label='5' />
+		<entry pixelValue="68" displayValue='1.30103' label='20' />
+		<entry pixelValue="99" displayValue='1.90309' label='80' />
+		<entry pixelValue="131" displayValue='2.50515' label='320' />
+		<entry pixelValue="162" displayValue='3.10721' label='1280' />
+		<entry pixelValue="193" displayValue='3.70927' label='5120' />
+		<entry pixelValue="224" displayValue='4.31133' label='20480' />
+		<entry pixelValue="255" displayValue='4.91339' label='81920' /> -->
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -79,11 +303,14 @@
      </range>
      <defaultColormap>SolarImage/Green</defaultColormap>
 	<dataMapping>
-		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.00' label='2560' />
-		<entry pixelValue="128" displayValue='2.005' label='5120' />
-		<entry pixelValue="192" displayValue='3.01' label='7680' />
-		<entry pixelValue="250" displayValue='4.0103' label='10240' />
+	    <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="37" displayValue='0.60206' label='4' />
+		<entry pixelValue="73" displayValue='1.20412' label='16' />
+		<entry pixelValue="109" displayValue='1.80618' label='64' />
+		<entry pixelValue="146" displayValue='2.40824' label='256' />
+		<entry pixelValue="182" displayValue='3.01030' label='1024' />
+		<entry pixelValue="219" displayValue='3.61236' label='4096' />
+		<entry pixelValue="255" displayValue='4.21442' label='16384' />		
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -102,16 +329,21 @@
      <defaultColormap>SolarImage/Green</defaultColormap>
 	<dataMapping>
 		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.228' label='20480' />
-		<entry pixelValue="128" displayValue='2.4567' label='40960' />
-		<entry pixelValue="192" displayValue='3.685' label='61440' />
-		<entry pixelValue="250" displayValue='4.91339' label='81920' />
+		<entry pixelValue="28" displayValue='0.60206' label='4' />
+		<entry pixelValue="57" displayValue='1.20412' label='16' />
+		<entry pixelValue="85" displayValue='1.80618' label='64' />
+		<entry pixelValue="114" displayValue='2.40824' label='256' />
+		<entry pixelValue="142" displayValue='3.01030' label='1024' />
+		<entry pixelValue="171" displayValue='3.61236' label='428096' />
+		<entry pixelValue="199" displayValue='4.21442' label='16384' />
+		<entry pixelValue="228" displayValue='4.81648' label='65536' />
+		<entry pixelValue="255" displayValue='5.41854' label='262144' />
 	</dataMapping>
   </imageStyle>
 </styleRule>
 <styleRule>
   <solarImageMatches>
-     <instrument>SXI-FM3</instrument>
+     <!--  <instrument>SXI-FM3</instrument>-->
      <wavelength>PTHNA</wavelength>
      <intTime>0.4</intTime>
   </solarImageMatches>
@@ -123,11 +355,14 @@
      </range>
      <defaultColormap>SolarImage/Green</defaultColormap>
 	<dataMapping>
-		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.00' label='2560' />
-		<entry pixelValue="128" displayValue='2.005' label='5120' />
-		<entry pixelValue="192" displayValue='3.01' label='7680' />
-		<entry pixelValue="250" displayValue='4.0103' label='10240' />
+	    <entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="37" displayValue='0.60206' label='4' />
+		<entry pixelValue="73" displayValue='1.20412' label='16' />
+		<entry pixelValue="109" displayValue='1.80618' label='64' />
+		<entry pixelValue="146" displayValue='2.40824' label='256' />
+		<entry pixelValue="182" displayValue='3.01030' label='1024' />
+		<entry pixelValue="219" displayValue='3.61236' label='4096' />
+		<entry pixelValue="255" displayValue='4.21442' label='16384' />
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -146,10 +381,43 @@
      <defaultColormap>SolarImage/Green</defaultColormap>
 	<dataMapping>
 		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.3' label='39385' />
-		<entry pixelValue="128" displayValue='2.6' label='78769' />
-		<entry pixelValue="192" displayValue='3.898' label='118154' />
-		<entry pixelValue="250" displayValue='5.19739' label='157538' />
+		<entry pixelValue="28" displayValue='0.60206' label='4' />
+		<entry pixelValue="57" displayValue='1.20412' label='16' />
+		<entry pixelValue="85" displayValue='1.80618' label='64' />
+		<entry pixelValue="114" displayValue='2.40824' label='256' />
+		<entry pixelValue="142" displayValue='3.01030' label='1024' />
+		<entry pixelValue="171" displayValue='3.61236' label='4096' />
+		<entry pixelValue="199" displayValue='4.21442' label='16384' />
+		<entry pixelValue="228" displayValue='4.81648' label='65536' />
+		<entry pixelValue="255" displayValue='5.41854' label='262144' />
+	</dataMapping>
+  </imageStyle>
+</styleRule>
+<styleRule>
+  <solarImageMatches>
+     <instrument>SXI-FM1</instrument>
+     <wavelength>PTHNA</wavelength>
+     <intTime>0.026</intTime>
+  </solarImageMatches>
+  <imageStyle>
+     <displayUnits label="DN/sec"/>
+     <range scale="LOG">
+        <minValue>0.</minValue>
+        <maxValue>5.1973</maxValue>
+     </range>
+     <defaultColormap>SolarImage/Green</defaultColormap>
+	<dataMapping>
+		<entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="28" displayValue='0.60206' label='4' />
+		<entry pixelValue="57" displayValue='1.20412' label='16' />
+		<entry pixelValue="85" displayValue='1.80618' label='64' />
+		<entry pixelValue="114" displayValue='2.40824' label='256' />
+		<entry pixelValue="142" displayValue='3.01030' label='1024' />
+		<entry pixelValue="171" displayValue='3.61236' label='4096' />
+		<entry pixelValue="199" displayValue='4.21442' label='16384' />
+		<entry pixelValue="228" displayValue='4.81648' label='65536' />
+		<entry pixelValue="255" displayValue='5.41854' label='262144' />
+		<!--  <entry pixelValue="250" displayValue='5.19739' label='157538' /> -->
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -167,11 +435,13 @@
      </range>
      <defaultColormap>SolarImage/Yellow</defaultColormap>
 	<dataMapping>
-		<entry  pixelValue="1" displayValue='0' label='1' />
-		<entry  pixelValue="64" displayValue='0.8' label='394' />
-		<entry  pixelValue="128" displayValue='1.6' label='787' />
-		<entry  pixelValue="192" displayValue='2.398' label='1182' />
-		<entry  pixelValue="250" displayValue='3.19739' label='1575' />
+	<entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="43" displayValue='0.60206' label='4' />
+		<entry pixelValue="85" displayValue='1.20412' label='16' />
+		<entry pixelValue="128" displayValue='1.80618' label='64' />
+		<entry pixelValue="171" displayValue='2.40824' label='256' />
+		<entry pixelValue="213" displayValue='3.01030' label='1024' />
+		<entry pixelValue="255" displayValue='3.61236' label='4096' />
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -189,11 +459,14 @@
      </range>
      <defaultColormap>SolarImage/Yellow</defaultColormap>
 	<dataMapping>
-		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='0.978' label='2048' />
-		<entry pixelValue="128" displayValue='1.9567' label='4096' />
-		<entry pixelValue="192" displayValue='2.935' label='6144' />
-		<entry pixelValue="250" displayValue='3.91339' label='8192' />
+	<entry pixelValue="1" displayValue='0' label='1' />
+		<entry pixelValue="37" displayValue='0.60206' label='4' />
+		<entry pixelValue="73" displayValue='1.20412' label='16' />
+		<entry pixelValue="109" displayValue='1.80618' label='64' />
+		<entry pixelValue="146" displayValue='2.40824' label='256' />
+		<entry pixelValue="182" displayValue='3.01030' label='1024' />
+		<entry pixelValue="219" displayValue='3.61236' label='4096' />
+		<entry pixelValue="255" displayValue='4.21442' label='16384' />
 	</dataMapping>
   </imageStyle>
 </styleRule>
@@ -212,13 +485,18 @@
      <defaultColormap>SolarImage/Yellow</defaultColormap>
 	<dataMapping>
 		<entry pixelValue="1" displayValue='0' label='1' />
-		<entry pixelValue="64" displayValue='1.3' label='39385' />
-		<entry pixelValue="128" displayValue='2.6' label='78769' />
-		<entry pixelValue="192" displayValue='3.898' label='118154' />
-		<entry pixelValue="250" displayValue='5.19739' label='157538' />
+		<entry pixelValue="28" displayValue='0.60206' label='4' />
+		<entry pixelValue="57" displayValue='1.20412' label='16' />
+		<entry pixelValue="85" displayValue='1.80618' label='64' />
+		<entry pixelValue="114" displayValue='2.40824' label='256' />
+		<entry pixelValue="142" displayValue='3.01030' label='1024' />
+		<entry pixelValue="171" displayValue='3.61236' label='4096' />
+		<entry pixelValue="199" displayValue='4.21442' label='16384' />
+		<entry pixelValue="228" displayValue='4.81648' label='65536' />
+		<entry pixelValue="255" displayValue='5.41854' label='262144' />
 	</dataMapping>
   </imageStyle>
-</styleRule>
+</styleRule> 
 
 <styleRule>
   <solarImageMatches>

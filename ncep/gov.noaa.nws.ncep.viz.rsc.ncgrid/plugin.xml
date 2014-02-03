@@ -189,6 +189,15 @@
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="ModelFcstGridContours">
       </nc-resourceParameter>
+      
+       <nc-resourceParameter
+            paramClass="String"
+            paramName="TEXT"
+            attributeName="text"
+            defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ModelFcstGridContours">
+      </nc-resourceParameter>
                   
       <nc-resourceParameter
             paramClass="String"
@@ -359,6 +368,15 @@
             defaultValue="0"
             paramType="EDITABLE_ATTRIBUTE"
             ncResourceName="EnsembleFcstGridContours">
+      </nc-resourceParameter>
+      
+       <nc-resourceParameter
+            paramClass="String"
+            paramName="TEXT"
+            attributeName="text"
+            defaultValue="0"
+            paramType="EDITABLE_ATTRIBUTE"
+            ncResourceName="ModelFcstGridContours">
       </nc-resourceParameter>
       
        <nc-resourceParameter
