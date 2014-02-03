@@ -37,11 +37,11 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
  * Jan 30, 2012            mschenke     Initial creation
  * Feb 25, 2013 1659       bsteffen    Stop derived parameters from sending
  *                                     empty requests for cached times
+ * Jan 30, 2014  #2725     ekladstrup  Remove usage of ThriftClient
  * 
  * </pre>
  * 
@@ -125,8 +126,13 @@ public abstract class AbstractDataCubeAdapter extends DefaultDataCubeAdapter {
         if (!fullList.isEmpty()) {
             DbQueryRequestSet requestSet = new DbQueryRequestSet();
             requestSet.setQueries(fullList.toArray(new DbQueryRequest[0]));
-            DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                    .sendRequest(requestSet);
+            DbQueryResponseSet responseSet;
+            try {
+                responseSet = (DbQueryResponseSet) RequestRouter
+                        .route(requestSet);
+            } catch (Exception e) {
+                throw new VizException(e);
+            }
             responses = responseSet.getResults();
         }
         int responseIndex = 0;
