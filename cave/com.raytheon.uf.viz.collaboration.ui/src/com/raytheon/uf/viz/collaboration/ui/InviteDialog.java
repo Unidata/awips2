@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
 /**
@@ -58,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * ------------ ---------- ----------- --------------------------
  * Aug 14, 2012            lvenable     Initial creation.
  * Jan 30, 2014 2698       bclement    added logic to join room and reprompt if failed
+ * Feb  3, 2014 2699       bclement    added default handle preference
  * 
  * </pre>
  * 
@@ -188,6 +190,7 @@ public class InviteDialog extends CaveSWTDialogBase {
         }
         addLabel(labelTextComp, "Join With Handle:", true);
         handleText = new Text(labelTextComp, SWT.BORDER);
+        handleText.setText(HandleUtil.getDefaultHandle());
         handleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         handleText.addVerifyListener(new VerifyListener() {
 
