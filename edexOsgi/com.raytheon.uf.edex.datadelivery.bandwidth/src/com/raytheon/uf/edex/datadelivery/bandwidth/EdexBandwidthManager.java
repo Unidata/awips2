@@ -119,6 +119,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
  * Jan 24, 2013 2709       bgonzale     Changed parameter to shouldScheduleForTime to a Calendar.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -672,8 +673,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 }
             }
 
-            // Notify RetrievalAgentManager of updated RetrievalRequests.
-            retrievalManager.wakeAgents();
         } else {
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                 statusHandler
