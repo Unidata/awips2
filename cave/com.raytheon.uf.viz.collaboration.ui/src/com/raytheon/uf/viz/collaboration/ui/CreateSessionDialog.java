@@ -65,6 +65,7 @@ import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.ISharedEdito
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
 import com.raytheon.uf.viz.collaboration.ui.editor.CollaborationEditor;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
@@ -87,6 +88,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Dec 19, 2013 2563       bclement    disable shared display option if not supported by server
  * Jan 28, 2014 2698       bclement    added error display text
  * Jan 30, 2014 2698       bclement    added handle to join room with
+ * Feb  3, 2014 2699       bclement    added default handle preference
  * 
  * </pre>
  * 
@@ -149,6 +151,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         label = new Label(body, SWT.NONE);
         label.setText("Handle: ");
         handleTF = new Text(body, SWT.BORDER);
+        handleTF.setText(HandleUtil.getDefaultHandle());
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         handleTF.setLayoutData(gd);
         handleTF.addVerifyListener(validNameListener);
