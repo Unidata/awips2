@@ -30,6 +30,7 @@
               <alpha>${alpha}</alpha>
               <brightness>${brightness}</brightness>
               <contrast>${contrast}</contrast> 
+              <imageFunction>${imageFunction}</imageFunction>
   
              <metadataMap>
                <mapping key="pluginName">
@@ -53,6 +54,9 @@
                <mapping key="reportType">
                  <constraint constraintValue="${reportType}" constraintType="EQUALS"/>
                </mapping>
+               <!--   <mapping key="imageFunction">
+                 <constraint constraintValue="${imageFunction}" constraintType="EQUALS"/>
+               </mapping>  -->
              </metadataMap>             
           </resourceData>
         </resource>
