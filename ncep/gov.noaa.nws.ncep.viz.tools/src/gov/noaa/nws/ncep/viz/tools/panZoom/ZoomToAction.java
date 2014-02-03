@@ -40,6 +40,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *   11/18/12   #630       G. Hull      
  *   02/22/13   #972       G. Hull       AbstractNcEditor instead of NCMapEditor
  *   05/15/13   #862       G. Hull      Resources as AreaProviders
+ *   11/24/13   #1078      G. Hull      diff constructor for PixelExtent on sizeOfImage
  * 
  * </pre>
  * 
@@ -170,7 +171,15 @@ public class ZoomToAction extends AbstractHandler {
             newDisplay.setPaneId( rendDisp.getPaneId() );
             newDisplay.setDescriptor( mapDescr );
 
-            newDisplay.setExtent( new PixelExtent(pane.getBounds()) );
+            // When PixelExtent is constructed from a Rectangle, its aMinX... members 
+            // are not set. When its clone() is called later the envelope is created
+            // using the aMinX...   members which causes mucho problemos.
+			Rectangle rect = pane.getBounds();
+            newDisplay.setExtent( 
+            		new PixelExtent( //pane.getBounds() ) );
+            				rect.x, rect.x + rect.width,
+            				rect.y, rect.y + rect.height ) );
+            
             mapDescr.setSuspendZoom( true );
 
             newDisplay.setMapCenter(center);
