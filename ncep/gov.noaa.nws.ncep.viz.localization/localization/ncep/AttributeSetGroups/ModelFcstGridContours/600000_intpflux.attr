@@ -1,0 +1,25 @@
+!
+! Restore File : 600000_intfflux
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=600000
+GVCORD=hght
+SKIP=
+FILTER=y
+SCALE=0     
+GDPFUN=intpflux
+TYPE=c   
+CINT=
+LINE=5/1/2
+FINT=
+FLINE=
+HILO=
+HLSYM=cp 
+CLRBAR=0
+WIND=
+TITLE=5/-1/~ ^  @  Proton Flux (Integral) !
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

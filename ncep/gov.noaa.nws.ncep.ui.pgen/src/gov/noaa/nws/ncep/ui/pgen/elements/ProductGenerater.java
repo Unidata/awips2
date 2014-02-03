@@ -762,7 +762,13 @@ class AttributeGenerator implements IArc, IAvnText, ICombo, IKink, IMidCloudText
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	@Override
+	public List<SPCCounty> getOriginalCountyList() {
+		// TODO Auto-generated method stub
+		return null;
+	} 
+	
 	@Override
 	public int getWatchNumber() {
 		// TODO Auto-generated method stub
