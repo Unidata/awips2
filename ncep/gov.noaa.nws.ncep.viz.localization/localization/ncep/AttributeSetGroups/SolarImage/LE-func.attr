@@ -1,0 +1,9 @@
+colorMapName=Gray
+colorBar=@ColorBars/SolarImage/dfltSolarImageColorBar.xml
+wavelength=6562.808
+site=LE
+displayUnitStr=DN/sec
+alpha=1.0
+brightness=1.0
+contrast=1.0
+imageFunction=runDiffTime(5)

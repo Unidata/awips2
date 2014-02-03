@@ -116,6 +116,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "point",
     "anchorPoints",
     "counties",
+    "originalCounties",
     "states",
     "outline",
     "hole",
@@ -134,6 +135,8 @@ public class WatchBox {
     protected List<String> anchorPoints;
     @XmlElement(name = "Counties")
     protected List<String> counties;
+    @XmlElement(name = "OriginalCounties")
+    protected List<String> originalCounties;   
     @XmlElement(name = "States")
     protected List<String> states;
     @XmlElement(name = "Outline")
@@ -344,7 +347,13 @@ public class WatchBox {
         }
         return this.counties;
     }
-
+    
+    public List<String> getOriginalCounties() {
+        if (originalCounties == null) {
+            originalCounties = new ArrayList<String>();
+        }
+        return this.originalCounties;
+    }
     /**
      * Gets the value of the states property.
      * 

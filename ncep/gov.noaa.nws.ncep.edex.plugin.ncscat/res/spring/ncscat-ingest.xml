@@ -15,7 +15,7 @@
 	<bean id="ncscatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncscat" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncscat" />
+		<constructor-arg value="jms-dist:queue:Ingest.Ncscat" />
 	</bean>
 
 	<bean id="ncscatCamelRegistered" factory-bean="contextManager"
