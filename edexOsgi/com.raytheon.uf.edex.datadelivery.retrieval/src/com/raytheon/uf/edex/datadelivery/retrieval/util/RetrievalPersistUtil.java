@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.mapping.PluginRouteList;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 26, 2012  1367      dhladky  Common plugin route persistence
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -162,8 +163,8 @@ public final class RetrievalPersistUtil {
                 PluginRouteList prl = null;
 
                 try {
-                    prl = (PluginRouteList) getJaxbManager()
-                            .unmarshalFromXmlFile(file);
+                    prl = getJaxbManager()
+                            .unmarshalFromXmlFile(PluginRouteList.class, file);
                 } catch (Exception e) {
                     statusHandler.error(
                             "[Data Delivery] Configuration for plugin routes failed to load: File: "
