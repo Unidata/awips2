@@ -49,6 +49,8 @@ import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
  * Dec 16, 2010            mschenke    Initial creation
  * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
  *                                     concurrent python for threading.
+ * Jan 30, 2014  #2725     ekladstrup  Add name and extention get methods
+ *                                     after removing RCP extention point
  * 
  * </pre>
  * 
@@ -156,6 +158,27 @@ public class DerivParamPythonFunctionAdapter implements
         if (coordinator != null) {
             coordinator.shutdown();
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#getName()
+     */
+    @Override
+    public String getName() {
+        return "Python";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.derivparam.IDerivParamFunctionAdapter#getExtension()
+     */
+    @Override
+    public String getExtension() {
+        return "py";
     }
 
 }
