@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  *                                      added utility methods for subscription status
  * Jan 30, 2014 2698       bclement     removed unneeded nickname changed event
  * Jan 31, 2014 2700       bclement     added addToRoster, fixed add to group when in roster, but blocked
+ * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * 
  * </pre>
  * 
@@ -225,7 +226,7 @@ public class ContactsManager {
         if (entry == null) {
             // we dont have user as a contact at all
             // ensure that the user object is up-to-date
-            user = findUser(user.getName());
+            user = update(user);
             String alias = user.getAlias();
             if (StringUtils.isBlank(alias)) {
                 alias = user.getName();
@@ -249,7 +250,7 @@ public class ContactsManager {
         if (entry == null) {
             // we dont have user as a contact at all
             // ensure that the user object is up-to-date
-            user = findUser(user.getName());
+            user = update(user);
             String alias = user.getAlias();
             if (StringUtils.isBlank(alias)) {
                 alias = user.getName();
@@ -534,27 +535,26 @@ public class ContactsManager {
 
     /**
      * Perform an XMPP search for user. Includes any local alias information.
+     * Only return non-null on an exact match.
      * 
      * @param username
      *            The part of the userid before the '@'
      * @return null if not found
      */
     private UserId findUser(String username) {
-        List<UserId> results;
         try {
-            results = search.byUsername(username);
+            UserId rval = search.byExactUsername(username);
+            if (rval != null) {
+                String alias = localAliases.get(rval.getNormalizedId());
+                if (alias != null) {
+                    rval.setAlias(alias);
+                }
+            }
+            return rval;
         } catch (XMPPException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return null;
         }
-        for (UserId id : results) {
-            String alias = localAliases.get(id.getNormalizedId());
-            if (alias != null) {
-                id.setAlias(alias);
-            }
-        }
-        // since we are searching by ID, there should be 0 or 1 result
-        return results.isEmpty() ? null : results.iterator().next();
     }
 
     /**
@@ -633,6 +633,19 @@ public class ContactsManager {
     public RosterEntry update(RosterEntry entry) {
         RosterEntry rval = searchRoster(entry.getUser());
         return rval != null ? rval : entry;
+    }
+
+    /**
+     * Get updated alias information for user. This will attempt to get local
+     * alias information, if non available, it will return alias from user
+     * search, if both fail, it will return the same object.
+     * 
+     * @param user
+     * @return
+     */
+    public UserId update(UserId user) {
+        UserId updated = findUser(user.getName());
+        return updated != null ? updated : user;
     }
 
     /**
