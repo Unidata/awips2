@@ -140,6 +140,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 14, 2014 2459       mpduff       Change to subscription status.
  * Jan 25, 2014 2636       mpduff       Don't do an initial adhoc query for a new subscription.
  * Jan 24, 2013 2709       bgonzale     Before scheduling adhoc, check if in active period window.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -174,6 +175,10 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     @VisibleForTesting
     final RetrievalManager retrievalManager;
 
+    /** Map of Network->previous retrieval plan end time */
+    private final Map<Network, Calendar> previousRetrievalEndMap = new HashMap<Network, Calendar>(
+            1);
+
     public BandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao<T, C> bandwidthDao,
             RetrievalManager retrievalManager,
@@ -182,6 +187,11 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         this.bandwidthDao = bandwidthDao;
         this.retrievalManager = retrievalManager;
         this.bandwidthDaoUtil = bandwidthDaoUtil;
+        for (Network network : retrievalManager.getRetrievalPlans().keySet()) {
+            RetrievalPlan plan = retrievalManager.getRetrievalPlans().get(
+                    network);
+            previousRetrievalEndMap.put(network, plan.getPlanEnd());
+        }
     }
 
     /**
@@ -213,9 +223,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     }
 
     private List<BandwidthAllocation> schedule(Subscription<T, C> subscription,
-            SortedSet<Integer> cycles) {
+            SortedSet<Integer> cycles, Calendar start, Calendar end) {
         SortedSet<Calendar> retrievalTimes = bandwidthDaoUtil
-                .getRetrievalTimes(subscription, cycles);
+                .getRetrievalTimes(subscription, cycles, start, end);
 
         return scheduleSubscriptionForRetrievalTimes(subscription,
                 retrievalTimes);
@@ -232,9 +242,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * @return the list of unscheduled subscriptions
      */
     private List<BandwidthAllocation> schedule(Subscription<T, C> subscription,
-            int retrievalInterval) {
+            int retrievalInterval, Calendar start, Calendar end) {
         SortedSet<Calendar> retrievalTimes = bandwidthDaoUtil
-                .getRetrievalTimes(subscription, retrievalInterval);
+                .getRetrievalTimes(subscription, retrievalInterval, start, end);
 
         return scheduleSubscriptionForRetrievalTimes(subscription,
                 retrievalTimes);
@@ -445,29 +455,81 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
     }
 
     /**
+     * Schedule a single subscription.
+     * 
+     * @param sub
+     *            The subscription to schedule
+     * @param fullSchedule
+     *            true to schedule for the full retrieval plan, false to
+     *            schedule from the last time
+     * @return List of BandwidthAllocations that sould be unscheduled.
+     */
+    public List<BandwidthAllocation> schedule(Subscription<T, C> sub,
+            boolean fullSchedule) {
+        Map<Network, List<Subscription<T, C>>> map = new HashMap<Network, List<Subscription<T, C>>>(
+                1, 1);
+        List<Subscription<T, C>> list = new ArrayList<Subscription<T, C>>(1);
+        list.add(sub);
+        map.put(sub.getRoute(), list);
+
+        return schedule(map, fullSchedule);
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
-    public List<BandwidthAllocation> schedule(Subscription<T, C> subscription) {
-        // TODO: In 13.6.1 pull out all of the subscription stuff into a
-        // separate plugin, BandwidthManager should not work with Subscription
-        // objects directly, it should have extension plugins that can allocate
-        // bandwidth in their own types (e.g. registry syncing should be able to
-        // sync into the bandwidth management infrastructure if required)
-        List<BandwidthAllocation> unscheduled;
+    public List<BandwidthAllocation> schedule(
+            Map<Network, List<Subscription<T, C>>> subMap, boolean fullSchedule) {
+        List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
 
-        final DataType dataSetType = subscription.getDataSetType();
-        switch (dataSetType) {
-        case GRID:
-            unscheduled = handleGridded(subscription);
-            break;
-        case POINT:
-            unscheduled = handlePoint(subscription);
-            break;
-        default:
-            throw new IllegalArgumentException(
-                    "The BandwidthManager doesn't know how to treat subscriptions with data type ["
-                            + dataSetType + "]!");
+        for (Network network : subMap.keySet()) {
+            RetrievalPlan retrievalPlan = retrievalManager.getPlan(network);
+
+            /*
+             * Determine scheduling window, true for whole plan, false to run
+             * from last time
+             */
+            Calendar start = retrievalPlan.getPlanStart();
+            Calendar end = retrievalPlan.getPlanEnd();
+            if (!fullSchedule) {
+                if (!end.equals(this.previousRetrievalEndMap.get(network))) {
+                    start = this.previousRetrievalEndMap.get(network);
+                }
+
+            }
+
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug("Check for scheduling window: "
+                        + start.getTime() + " - " + end.getTime());
+            }
+            if (end.getTimeInMillis() - start.getTimeInMillis() >= retrievalPlan
+                    .getBucketMinutes() * 2 * TimeUtil.MILLIS_PER_MINUTE) {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.debug("Scheduling for window: "
+                            + start.getTime() + " - " + end.getTime());
+                }
+                this.previousRetrievalEndMap.put(network,
+                        TimeUtil.newGmtCalendar(end.getTime()));
+
+                for (Subscription subscription : subMap.get(network)) {
+                    statusHandler.info("Scheduling subscription"
+                            + subscription.getName());
+                    final DataType dataSetType = subscription.getDataSetType();
+                    switch (dataSetType) {
+                    case GRID:
+                        unscheduled = handleGridded(subscription, start, end);
+                        break;
+                    case POINT:
+                        unscheduled = handlePoint(subscription, start, end);
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                "The BandwidthManager doesn't know how to treat subscriptions with data type ["
+                                        + dataSetType + "]!");
+                    }
+                }
+            }
         }
 
         unscheduleSubscriptionsForAllocations(unscheduled);
@@ -597,7 +659,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             if (bandwidthSubscriptions.isEmpty()
                     && ((RecurringSubscription) subscription).shouldSchedule()
                     && !subscription.isUnscheduled()) {
-                return schedule(subscription);
+                return schedule(subscription, true);
             } else if (subscription.getStatus() == SubscriptionStatus.DEACTIVATED
                     || subscription.isUnscheduled()) {
                 // See if the subscription was deactivated or unscheduled..
@@ -607,7 +669,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             } else {
                 // Normal update, unschedule old allocations and create new ones
                 List<BandwidthAllocation> unscheduled = remove(bandwidthSubscriptions);
-                unscheduled.addAll(schedule(subscription));
+                unscheduled.addAll(schedule(subscription, true));
                 return unscheduled;
             }
         }
@@ -621,9 +683,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * @return the list of unscheduled subscriptions
      */
     private List<BandwidthAllocation> handlePoint(
-            Subscription<T, C> subscription) {
+            Subscription<T, C> subscription, Calendar start, Calendar end) {
         List<BandwidthAllocation> unscheduled = schedule(subscription,
-                ((PointTime) subscription.getTime()).getInterval());
+                ((PointTime) subscription.getTime()).getInterval(), start, end);
         unscheduled.addAll(getMostRecent(subscription, false));
         return unscheduled;
     }
@@ -636,7 +698,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * @return the list of unscheduled subscriptions
      */
     private List<BandwidthAllocation> handleGridded(
-            Subscription<T, C> subscription) {
+            Subscription<T, C> subscription, Calendar start, Calendar end) {
         final List<Integer> cycles = ((GriddedTime) subscription.getTime())
                 .getCycleTimes();
         final boolean subscribedToCycles = !CollectionUtil
@@ -646,7 +708,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
         // expected times
         List<BandwidthAllocation> unscheduled = Collections.emptyList();
         if (subscribedToCycles) {
-            unscheduled = schedule(subscription, Sets.newTreeSet(cycles));
+            unscheduled = schedule(subscription, Sets.newTreeSet(cycles),
+                    start, end);
         }
 
         return unscheduled;
@@ -1376,7 +1439,7 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
 
             // Now for each subscription, attempt to schedule bandwidth
             for (Subscription<T, C> subscription : actualSubscriptions) {
-                unscheduled.addAll(this.schedule(subscription));
+                unscheduled.addAll(this.schedule(subscription, true));
             }
         } else {
             // Otherwise we can just copy the entire state of the current system
