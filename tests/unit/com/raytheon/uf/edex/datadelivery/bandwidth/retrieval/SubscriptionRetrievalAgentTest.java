@@ -71,6 +71,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
  * Jan 30, 2013 1543       djohnson     Initial creation
  * Jul 10, 2013 2106       djohnson     Inject providerHandler.
  * Jan 15, 2014 2678       bgonzale     Added Queue.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -133,12 +134,8 @@ public class SubscriptionRetrievalAgentTest {
 
         SubscriptionRetrievalAgent agent = new SubscriptionRetrievalAgent(
                 route, "someUri", new Object(), 1, null, bandwidthDao,
-                retrievalDao, DataDeliveryHandlers.getProviderHandler(),
-                retrievalQueue) {
-            @Override
-            void wakeRetrievalTasks() throws EdexException {
-                // Do nothing
-            }
+                retrievalDao, DataDeliveryHandlers.getProviderHandler()) {
+            
         };
         agent.processAllocation(subscriptionRetrieval);
 
