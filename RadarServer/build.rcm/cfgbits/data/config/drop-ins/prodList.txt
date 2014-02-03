@@ -1,23 +1,8 @@
 # productId elevAngle prodCategory Partial WMO Id
     2         0            GSM          NXUS6
    19         5            N0R          SDUS5
-   19        13            N1R          SDUS2
-   19        15            N1R          SDUS2
-   19        24            N2R          SDUS2
-   19        25            N2R          SDUS2
-   19        31            N3R          SDUS3
-   19        34            N3R          SDUS3
-   19        35            N3R          SDUS3
    20         5            N0Z          SDUS7
-   25         5            N0W          SDUS6
    27         5            N0V          SDUS5
-   27        13            N1V          SDUS7
-   27        15            N1V          SDUS7
-   27        24            N2V          SDUS6
-   27        25            N2V          SDUS6
-   27        31            N3V          SDUS6
-   27        34            N3V          SDUS6
-   27        35            N3V          SDUS6
    28         5            NSP          SDUS6
    30         5            NSW          SDUS6
    32         0            DHR          SDUS5
@@ -40,7 +25,7 @@
    56        34            N3S          SDUS3
    56        35            N3S          SDUS3
    57         0            NVL          SDUS5
-   58         0            NST          SDUS6
+   58         0            NST          SDUS3
    59         0            NHI          SDUS6
    61         0            NTV          SDUS6
    62         0            NSS          SDUS6
@@ -50,7 +35,7 @@
    75         0            FTM          NOUS6
    78         0            N1P          SDUS3
    80         0            NTP          SDUS5
-   81         0            DPA          SDUS8
+   81         0            DPA          SDUS5
    82         0            SPD          SDUS6
    90         0            NHL          SDUS6
    136        0            RWO          SDUS9
@@ -79,3 +64,61 @@
    99        35            N3U          SDUS2
    134        0            DVL          SDUS5
    135        0            EET          SDUS7
+   159        5            N0X          SDUS8
+   159        9            NAX          SDUS8
+   159       13            N1X          SDUS8
+   159       15            N1X          SDUS8
+   159       18            NBX          SDUS8
+   159       24            N2X          SDUS8
+   159       25            N2X          SDUS8
+   159       31            N3X          SDUS8
+   159       34            N3X          SDUS8
+   159       35            N3X          SDUS8
+   161        5            N0C          SDUS8
+   161        9            NAC          SDUS8
+   161       13            N1C          SDUS8
+   161       15            N1C          SDUS8
+   161       18            NBC          SDUS8
+   161       24            N2C          SDUS8
+   161       25            N2C          SDUS8
+   161       31            N3C          SDUS8
+   161       34            N3C          SDUS8
+   161       35            N3C          SDUS8
+   163        5            N0K          SDUS8
+   163        9            NAK          SDUS8
+   163       13            N1K          SDUS8
+   163       15            N1K          SDUS8
+   163       18            NBK          SDUS8
+   163       24            N2K          SDUS8
+   163       25            N2K          SDUS8
+   163       31            N3K          SDUS8
+   163       34            N3K          SDUS8
+   163       35            N3K          SDUS8
+   165        5            N0H          SDUS8
+   165        9            NAH          SDUS8
+   165       13            N1H          SDUS8
+   165       15            N1H          SDUS8
+   165       18            NBH          SDUS8
+   165       24            N2H          SDUS8
+   165       25            N2H          SDUS8
+   165       31            N3H          SDUS8
+   165       34            N3H          SDUS8
+   165       35            N3H          SDUS8
+   166        5            N0M          SDUS8
+   166        9            NAM          SDUS8
+   166       13            N1M          SDUS8
+   166       15            N1M          SDUS8
+   166       18            NBM          SDUS8
+   166       24            N2M          SDUS8
+   166       25            N2M          SDUS8
+   166       31            N3M          SDUS8
+   166       34            N3M          SDUS8
+   166       35            N3M          SDUS8
+   169        0            OHA          SDUS8
+   170        0            DAA          SDUS8
+   171        0            PTA          SDUS3
+   172        0            DTA          SDUS8
+   174        0            DOD          SDUS8
+   175        0            DSD          SDUS8
+   176        0            DPR          SDUS8
+   177        0            HHC          SDUS8
