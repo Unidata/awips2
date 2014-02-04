@@ -7,6 +7,7 @@
 ##        Mike Dangelo     2-4-2013  NWS Mets detected a svr  ## 
 ##        Evan Bookbinder  9-16-2013 Fixed CTA                ##
 ##        Evan Bookbinder  9-18-2013 Implemented config.vm    ##
+##        Mike Dangelo 1/23/2014, law enf CTA change to match SVS parseString
 ################################################################
 ##
 #parse("config.vm")
@@ -293,7 +294,7 @@ THE CORRECT LOCATIONS BULLET SELECTED **!.
 
 #end
 ## Uncomment below pull in mile marker info
-## #parse("mileMarkers.vm")
+#parse("mileMarkers.vm")
 ## Uncomment below pull in point marker info
 ## #parse("pointMarkers.vm")
 
@@ -408,7 +409,7 @@ THIS STORM HAS A HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL. THIS IS 
 #end
 ##
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-TO REPORT SEVERE WEATHER...CONTACT YOUR NEAREST LAW ENFORCEMENT AGENCY. THEY WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.
+TO REPORT SEVERE WEATHER...CONTACT THE NATIONAL WEATHER SERVICE...OR YOUR LOCAL AUTHORITY WHO WILL RELAY YOUR REPORT TO THE NATIONAL WEATHER SERVICE OFFICE IN ${officeLoc}.
 
 #end
 ##
