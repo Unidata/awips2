@@ -93,6 +93,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/2/2013    1829       bphillip    Added getIdsFrom action method and changed how slots are added to objects
  * 1/15/2014    2613       bphillip    Added batching of notification update queries to reduce number of web service calls
  * 01/21/2014   2613       bphillip    Added home slot to remove objects request so delete events are properly handled
+ * 2/4/2014     2769        bphillip    Removed flush and clear call
  * 
  * </pre>
  * 
@@ -214,7 +215,6 @@ public class NotificationListenerImpl implements NotificationListener {
             }
 
         }
-        registryDao.flushAndClearSession();
         statusHandler.info("Processing notification id ["
                 + notification.getId() + "] completed in "
                 + (TimeUtil.currentTimeMillis() - startTime) + " ms");
