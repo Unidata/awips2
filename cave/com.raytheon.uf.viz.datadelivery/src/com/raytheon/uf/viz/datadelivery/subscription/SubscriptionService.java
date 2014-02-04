@@ -97,6 +97,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 22, 2013  2292      mpduff       Removed subscriptionOverlapService.
  * Nov 07, 2013  2291      skorolev     Used showText() method for "Shared Subscription" message.
  * Jan 26, 2014  2259      mpduff       Turn off subs to be deactivated.
+ * Feb 04, 2014  2677      mpduff       Don't do overlap checks when deactivating subs.
  * 
  * </pre>
  * 
@@ -542,28 +543,42 @@ public class SubscriptionService implements ISubscriptionService {
             final IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
-        SubscriptionOverlapRequest request = new SubscriptionOverlapRequest(
-                subscriptions);
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            return new SubscriptionServiceResult(false,
+                    "No subscriptions submitted.");
+        }
 
-        SubscriptionOverlapResponse response = null;
-        try {
-            response = (SubscriptionOverlapResponse) RequestRouter.route(
-                    request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
-            if (response.isDuplicate()) {
-                return new SubscriptionServiceResult(true,
-                        StringUtil.createMessage(DUPLICATE_SUBSCRIPTIONS,
-                                response.getSubscriptionNameList()));
-            }
+        /*
+         * If activating the subscriptions check for overlaps.
+         * 
+         * Only need to check one because all are being updated the same way.
+         */
+        if (subscriptions.get(0).getSubscriptionState() == SubscriptionState.ON) {
+            SubscriptionOverlapRequest request = new SubscriptionOverlapRequest(
+                    subscriptions);
 
-            if (response.isOverlap()) {
-                List<String> subNames = response.getSubscriptionNameList();
-                Collections.sort(subNames);
-                forceApplyPrompt.displayMessage(displayTextStrategy, StringUtil
-                        .createMessage(OVERLAPPING_SUBSCRIPTIONS, subNames));
+            SubscriptionOverlapResponse response = null;
+            try {
+                response = (SubscriptionOverlapResponse) RequestRouter.route(
+                        request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+                if (response.isDuplicate()) {
+                    return new SubscriptionServiceResult(true,
+                            StringUtil.createMessage(DUPLICATE_SUBSCRIPTIONS,
+                                    response.getSubscriptionNameList()));
+                }
+
+                if (response.isOverlap()) {
+                    List<String> subNames = response.getSubscriptionNameList();
+                    Collections.sort(subNames);
+                    forceApplyPrompt.displayMessage(displayTextStrategy,
+                            StringUtil.createMessage(OVERLAPPING_SUBSCRIPTIONS,
+                                    subNames));
+                }
+            } catch (Exception e) {
+                statusHandler.error("Error checking subscription overlapping",
+                        e);
+                return new SubscriptionServiceResult(false);
             }
-        } catch (Exception e) {
-            statusHandler.error("Error checking subscription overlapping", e);
-            return new SubscriptionServiceResult(false);
         }
 
         try {
