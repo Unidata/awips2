@@ -33,12 +33,16 @@ import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecordTransform;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
 import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
@@ -54,6 +58,7 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  * Feb 25, 2010 4759       dhladky     Initial creation.
  * Mar 15, 2012 14510      zhao        modified processProductAtStartup()
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
+ * Feb 04, 2014 2757       skorolev    Added filter for removed stations
  * 
  * </pre>
  * 
@@ -63,9 +68,26 @@ import com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent;
  */
 
 public abstract class ObsMonitor extends Monitor {
-    @Override
-    protected abstract boolean filterNotifyMessage(NotificationMessage alertMessage);
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ObsMonitor.class);
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.Monitor#filterNotifyMessage(com.raytheon.
+     * uf.viz.core.notification.NotificationMessage)
+     */
+    @Override
+    protected abstract boolean filterNotifyMessage(
+            NotificationMessage alertMessage);
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.Monitor#nullifyMonitor()
+     */
     @Override
     protected abstract void nullifyMonitor();
 
@@ -86,25 +108,59 @@ public abstract class ObsMonitor extends Monitor {
      * 
      * @param result
      */
-    protected abstract void process(ObReport result)
-			throws Exception;
+    protected abstract void process(ObReport result) throws Exception;
 
+    /**
+     * This method processes the incoming messages at startup
+     * 
+     * @param report
+     */
     protected abstract void processAtStartup(ObReport report);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.Monitor#processNotifyMessage(com.raytheon
+     * .uf.viz.core.notification.NotificationMessage)
+     */
     @Override
     protected abstract void processNotifyMessage(NotificationMessage filtered);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.Monitor#processProductMessage(com.raytheon
+     * .uf.viz.core.alerts.AlertMessage)
+     */
     @Override
     protected abstract void processProductMessage(AlertMessage filtered);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorThresholdListener#
+     * thresholdUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorThresholdEvent)
+     */
     @Override
     public abstract void thresholdUpdate(IMonitorThresholdEvent me);
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.monitor.listeners.IMonitorConfigurationListener#
+     * configUpdate
+     * (com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent)
+     */
     @Override
     public abstract void configUpdate(IMonitorConfigurationEvent me);
 
     /**
      * use this to do the initial filtering
+     * 
+     * @see com.raytheon.uf.viz.monitor.Monitor#filterProductMessage(com.raytheon.uf.viz.core.alerts.AlertMessage)
      */
     public boolean filterProductMessage(AlertMessage alertMessage) {
         // Determine whether or not there is a station ID present in the decoded
@@ -140,23 +196,38 @@ public abstract class ObsMonitor extends Monitor {
                     Display.getDefault().asyncExec(new Runnable() {
                         public void run() {
                             try {
-                                ObReport result = GenerateFSSObReport
-                                        .generateObReport(objectToSend);
-                                System.out.println("New FSSrecord ===> "
-                                        + objectToSend.getDataURI());
-                                process(result);
+                                // Filter removed stations
+                                ArrayList<String> zones = MonitoringArea
+                                        .getZoneIds(objectToSend
+                                                .getPlatformId());
+                                if (!zones.isEmpty()) {
+                                    ObReport result = GenerateFSSObReport
+                                            .generateObReport(objectToSend);
+                                    statusHandler
+                                            .handle(Priority.INFO,
+                                                    "New FSSrecord ===> "
+                                                            + objectToSend
+                                                                    .getDataURI());
+                                    process(result);
+                                }
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                statusHandler
+                                        .handle(Priority.PROBLEM,
+                                                "An error has occured processing the incoming messages.",
+                                                e);
                             }
                         }
                     });
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    statusHandler
+                            .handle(Priority.PROBLEM,
+                                    "An error has occured processing incoming dataURIs.",
+                                    e);
                 }
             }
         } catch (final Exception e) {
-            System.err.println("ObsMonitor: URI: " + dataURI
-                    + " failed to process. " + e.getMessage());
+            statusHandler.handle(Priority.PROBLEM, "ObsMonitor: URI: "
+                    + dataURI + " failed to process. " + e.getMessage());
         }
     }
 
@@ -201,18 +272,31 @@ public abstract class ObsMonitor extends Monitor {
                 }
 
                 FSSObsRecord[] obsRecords = requestFSSObs(vals, selectedTimes);
-                for (PluginDataObject objectToSend : obsRecords) {
-                    ObReport result = GenerateFSSObReport
-                            .generateObReport(objectToSend);
-                    processAtStartup(result);
+                for (FSSObsRecord objectToSend : obsRecords) {
+                    // Filter removed stations
+                    ArrayList<String> zones = MonitoringArea
+                            .getZoneIds(objectToSend.getPlatformId());
+                    if (!zones.isEmpty()) {
+                        ObReport result = GenerateFSSObReport
+                                .generateObReport(objectToSend);
+                        processAtStartup(result);
+                    }
                 }
             }
         } catch (final VizException e) {
-            System.err
-                    .println("No data in database at startup.  " + monitorUse);
+            statusHandler.handle(Priority.PROBLEM,
+                    "No data in database at startup.  " + monitorUse);
         }
     }
 
+    /**
+     * Gets array of FSSObs records.
+     * 
+     * @param constraints
+     * @param times
+     * @return FSSObsRecord[]
+     * @throws VizException
+     */
     private FSSObsRecord[] requestFSSObs(
             Map<String, RequestConstraint> constraints, DataTime[] times)
             throws VizException {
