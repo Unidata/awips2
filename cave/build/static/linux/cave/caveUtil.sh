@@ -25,6 +25,7 @@
 # Dec 05, 2013  #2593     rjpeter     Fix getPidsOfMyRunningCaves
 # Dec 05, 2013  #2590     dgilling    Modified extendLibraryPath() to export a
 #                                     var if it's already been run.
+# Jan 24, 2014  #2739     bsteffen    Add method to log exit status of process.
 #
 #
 
@@ -192,4 +193,28 @@ function deleteOldCaveDiskCaches()
    fi
 
    cd $curDir
+}
+
+# log the exit status and time to a log file, requires 2 args pid and log file
+function logExitStatus()
+{
+   pid=$1
+   logFile=$2
+   
+   wait $pid
+   exitCode=$?
+   curTime=`date --rfc-3339=seconds`
+   echo Exited at $curTime with an exit status of $exitCode >> $logFile
+   
+   # If a core file was generated attempt to save it to a better place
+   coreFile=core.$pid
+   if [ -f "$coreFile" ]; then
+     basePath="/data/fxa/cave"
+     hostName=`hostname -s`
+     hostPath="$basePath/$hostName/"
+     mkdir -p $hostPath
+     if [ -d "$hostPath" ]; then
+       cp $coreFile $hostPath
+     fi
+   fi
 }
