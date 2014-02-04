@@ -79,8 +79,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroups>
 <bulletActionGroup action="NEW">
  <bullets>
-  <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="basis"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="basis" bulletDefault="true"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="basis"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="basis"/>
@@ -102,7 +102,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Pathcast Section **********" bulletType="title"/>
   <bullet bulletName="pathcast" bulletText="Select for pathcast" bulletGroup="pcast"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulleDefault="true" bulletGroup="pcast"/>
+  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletDefault="true" bulletGroup="pcast"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** Supplemental Statements **********" bulletType="title"/>
   <bullet bulletName="gustFrontPassage" bulletText="gust front passage"/>
@@ -113,8 +113,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 </bulletActionGroup>
 <bulletActionGroup action="COR">
  <bullets>
-  <!-- <bullet bulletText="***** CLICK 'CREATE TEXT' BELOW AFTER SELECTING AREA *****" bulletType="title"/> -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="basis"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="basis" bulletDefault="true"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="basis"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="basis"/>
