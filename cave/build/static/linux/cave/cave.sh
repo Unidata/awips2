@@ -28,6 +28,7 @@
 #                                     cave sessions.
 # Dec 05, 2013  #2590     dgilling    Modified so gfeclient.sh can be wrapped
 #                                     around this script.
+# Jan 24, 2014  #2739     bsteffen    Log exit status
 #
 #
 
@@ -60,6 +61,9 @@ copyVizShutdownUtilIfNecessary
 
 # delete any old disk caches in the background
 deleteOldCaveDiskCaches &
+
+# Enable core dumps
+ulimit -c unlimited
 
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:$LD_LIBRARY_PATH
 export LD_PRELOAD=libpython.so
@@ -172,49 +176,59 @@ if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR
 fi
 
-export pid=$$
-
 curTime=`date +%Y%m%d_%H%M%S`
-LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
-export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_alertviz.log"
-export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_perf.log"
 
-# can we write to log directory
-if [ -w ${LOGDIR} ]; then
-  touch ${LOGFILE}
-fi
+# At this point fork so that log files can be set up with the process pid and
+# this process can log the exit status of cave.
+(
+  export pid=`$SHELL -c 'echo $PPID'`
 
-# remove "-noredirect" flag from command-line if set so it doesn't confuse any
-# commands we call later.
-redirect="true"
-USER_ARGS=()
-while [[ $1 ]]
-do
+  LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
+  export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_alertviz.log"
+  export LOGFILE_PERFORMANCE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_perf.log"
+
+  # can we write to log directory
+  if [ -w ${LOGDIR} ]; then
+    touch ${LOGFILE}
+  fi
+
+  # remove "-noredirect" flag from command-line if set so it doesn't confuse any
+  # commands we call later.
+  redirect="true"
+  USER_ARGS=()
+  while [[ $1 ]]
+  do
     if [[ "$1" == "-noredirect" ]]
     then
-        redirect="false"
+      redirect="false"
     else
-        USER_ARGS+=("$1")
+      USER_ARGS+=("$1")
     fi
     shift
-done
+  done
 
-# Special instructions for the 64-bit jvm.
-ARCH_ARGS=""
-if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
-   ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
-fi
+  # Special instructions for the 64-bit jvm.
+  ARCH_ARGS=""
+  if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
+    ARCH_ARGS="-vm /awips2/java/jre/lib/amd64/server/libjvm.so"
+  fi
 
-lookupINI "${USER_ARGS[@]}"
+  lookupINI "${USER_ARGS[@]}"
 
-if [[ "${runMonitorThreads}" == "true" ]] ; then 
-  # nohup to allow tar process to continue after user has logged out
-  nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
-fi
+  if [[ "${runMonitorThreads}" == "true" ]] ; then 
+    # nohup to allow tar process to continue after user has logged out
+    nohup ${CAVE_INSTALL}/monitorThreads.sh $pid >> /dev/null 2>&1 &
+  fi
 
-if [[ "${redirect}" == "true" ]] ; then 
-  exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
-else
-  exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
-fi
+  if [[ "${redirect}" == "true" ]] ; then 
+    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
+  else
+    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
+  fi
+) &
+
+pid=$!
+LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
+logExitStatus $pid $LOGFILE
+
 
