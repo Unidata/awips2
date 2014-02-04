@@ -26,6 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.bind.JAXBException;
 
@@ -72,6 +75,7 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
@@ -148,6 +152,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Dec 05, 2013   2570     skorolev   Show All subscriptions.
  * Jan 08, 2014   2642     mpduff     Update dialog for permissions, adding site to shared
  * Jan 14, 2014   2459     mpduff     Change Subscription status code
+ * Feb 04, 2014   2722     mpduff     Add auto-refresh task.
  * </pre>
  * 
  * @author mpduff
@@ -278,6 +283,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     /** New menu */
     private MenuItem newMI;
 
+    private final ScheduledExecutorService scheduler;
+
     /**
      * Constructor
      * 
@@ -292,6 +299,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                         | CAVE.DO_NOT_BLOCK);
 
         this.filter = filter;
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(new RefreshTask(), 15, 15,
+                TimeUnit.MINUTES);
 
         setText("Data Delivery Subscription Manager");
     }
@@ -362,6 +372,17 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         mainLayout.marginWidth = 3;
 
         return mainLayout;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
+     */
+    @Override
+    protected void disposed() {
+        super.disposed();
+        scheduler.shutdownNow();
     }
 
     /**
@@ -659,8 +680,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     @Override
     public void handleRefresh() {
-        tableComp.populateData();
-        tableComp.populateTable();
+        tableComp.handleRefresh();
     }
 
     private void createBottomButtons() {
@@ -1510,5 +1530,22 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         groupMI.setEnabled(enable);
         newMI.setEnabled(enable);
         tableComp.enableMenus(enable);
+    }
+
+    /**
+     * Private inner work thread used to auto refresh dialog.
+     */
+    private class RefreshTask implements Runnable {
+        @Override
+        public void run() {
+            if (TimeUtil.currentTimeMillis() - tableComp.getLastUpdateTime() >= TimeUtil.MILLIS_PER_MINUTE * 5) {
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleRefresh();
+                    }
+                });
+            }
+        }
     }
 }
