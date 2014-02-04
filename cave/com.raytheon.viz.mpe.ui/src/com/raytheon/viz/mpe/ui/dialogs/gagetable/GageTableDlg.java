@@ -104,6 +104,7 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * May 28, 2009 2476       mpduff     Initial creation.
  * Mar 08, 2013 15725      snaples    Updated to fix resort issues when editing value.
  * Jan 28, 2014 16994      snaples    Updated populateGridCombo to get correct filename prefix for matching up selection.
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
  * 
  * </pre>
  * 
@@ -526,6 +527,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 saveChanges();
+                displayManager.setSavedData(false);
             }
         });
 
