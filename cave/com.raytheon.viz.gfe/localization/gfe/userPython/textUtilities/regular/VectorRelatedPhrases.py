@@ -505,16 +505,16 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
 
     def windSpdProb_thresholds(self, tree, node):
         return [
-            ((50.0, 80.0), (40.0, 60.0)), # Per 1
-            (45.0, 32.5),                 # Per 2
-            (40.0, 25.0),                 # Per 3
-            (35.0, 20.0),                 # Per 4
-            (30.0, 15.0),                 # Per 5
-            (25.0, 12.5),                 # Per 6
-            (22.5, 10.0),                 # Per 7
-            (20.0,  8.0),                 # Per 8
-            (17.5,  6.0),                 # Per 9
-            (15.0,  5.0),                 # Per 10
+            ((45.0, 80.0), (25.0, 60.0)), # Per 1
+            (35.0, 20.0),                 # Per 2
+            (30.0, 15.0),                 # Per 3
+            (25.0, 12.5),                 # Per 4
+            (22.5, 10.0),                 # Per 5
+            (20.0,  8.0),                 # Per 6
+            (17.5,  7.0),                 # Per 7
+            (15.0,  6.0),                 # Per 8
+            (12.5,  5.0),                 # Per 9
+            (10.0,  4.0),                 # Per 10
             ]
     
     def firstComponentPeriod(self, tree, node):
@@ -1130,7 +1130,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
                 desc = "posHR"
             elif maxMag >= 34.0:
                 desc = "posTS"
-            elif pws64 >= thresh64low or pws64 +2.0 >= thresh64low:
+            elif pws64 >= thresh64low or pws64 +5.0 >= thresh64low:
                 desc = "posHR"
             elif pws34 >= thresh34low or pws34+10.0 >= thresh34low:
                 desc = "posTS"
@@ -1203,7 +1203,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
                 desc = "posHR"
             elif maxMag >= 34.0:
                 desc = "posTS"
-            elif pws64 >= thresh64 or pws64 +2.0 >= thresh64:
+            elif pws64 >= thresh64 or pws64 +5.0 >= thresh64:
                 desc = "posHR"
             elif pws34 >= thresh34 or pws34+10.0 >= thresh34:
                 desc = "posTS"
@@ -1299,7 +1299,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
 
         else:
             self.debug_print("HERE I AM")
-            if pws64 >= thresh64 or pws64+1.0 >= thresh64:
+            if pws64 >= thresh64 or pws64+2.5 >= thresh64:
                 desc = "posHR"
             elif maxMag >= 64.0:
                 desc = "posHR"
@@ -1399,7 +1399,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
 
         else:
             self.debug_print("HERE I AM")
-            if pws64 >= thresh64 or pws64+1 >= thresh64:
+            if pws64 >= thresh64 or pws64+2.5 >= thresh64:
                 desc = "posHR"
             elif maxMag >= 64.0:
                 desc = "posHR"
@@ -1435,13 +1435,17 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         self.debug_print("(34 kt threshold, 64 kt threshold) = (%.2f, %.2f)" %
                          (thresh34, thresh64), 1)
 
-        if (pws64 >= thresh64 or (pws64 + 1.0) >= thresh64) and maxMag >= 20.0:
+        if (pws64 >= thresh64 or (pws64 + 1.0) >= thresh64):
             desc = "posHR"
         elif maxMag >= 64.0:
             desc = "posHR"
-        elif (pws34 >= thresh34 or (pws34 + 2.5) >= thresh34) and maxMag >= 20.0:
+        elif (self._Hurricane_A or self._Hurricane_W) and maxMag >= 50:
+            desc = "posHR"
+        elif (pws34 >= thresh34 or (pws34 + 2.5) >= thresh34):
             desc = "posTS"
         elif maxMag >= 34.0:
+            desc = "posTS"
+        elif (self._Hurricane_A or self._Hurricane_W or self._TropStorm_A or self._TropStorm_W) and maxMag >= 25:
             desc = "posTS"
         else:
             desc = ""
@@ -1470,13 +1474,17 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         self.debug_print("(34 kt threshold, 64 kt threshold) = (%.2f, %.2f)" %
                          (thresh34, thresh64), 1)
 
-        if (pws64 >= thresh64 or (pws64 + 1.0) >= thresh64) and maxMag >= 20.0:
+        if (pws64 >= thresh64 or (pws64 + 1.0) >= thresh64):
             desc = "posHR"
         elif maxMag >= 64.0:
             desc = "posHR"
-        elif (pws34 >= thresh34 or (pws34 + 2.5) >= thresh34) and maxMag >= 20.0:
+        elif (self._Hurricane_A or self._Hurricane_W) and maxMag >= 50:
+            desc = "posHR"
+        elif (pws34 >= thresh34 or (pws34 + 2.5) >= thresh34):
             desc = "posTS"
         elif maxMag >= 34.0:
+            desc = "posTS"
+        elif (self._Hurricane_A or self._Hurricane_W or self._TropStorm_A or self._TropStorm_W) and maxMag >= 25:
             desc = "posTS"
         else:
             desc = ""
