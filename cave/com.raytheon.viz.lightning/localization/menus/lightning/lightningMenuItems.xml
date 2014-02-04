@@ -18,8 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<menuContributionFile>
-    <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER" 
-             fileName="menus/lightning/lightningMenuItems.xml" 
-             subMenu="Lightning"/>
-</menuContributionFile>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<contribute xsi:type="subMenu" menuText="NLDN" id="NLDNSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/lightning/nldnLightningBundleItems.xml">
+			<substitute key="lightSource" value="NLDN"/>
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLD" id="GLDSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/lightning/gldLightningBundleItems.xml">
+			<substitute key="lightSource" value="GLD"/>
+		</contribute>
+	</contribute>	
+</menuTemplate>
