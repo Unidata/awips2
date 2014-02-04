@@ -50,8 +50,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/1/06                   chammack    Initial Creation.
- * Mar 5, 2013  1753        njensen     Added shutdown printout
- * May 28, 2013 1967        njensen     Remove unused subnode preferences
+ * Mar 5, 2013  1753        njensen      Added shutdown printout
+ * May 28, 2013 1967        njensen      Remove unused subnode preferences
+ * Jan 27, 2014 2744        njensen      Add Local History pref back in
  * 
  * </pre>
  * 
@@ -184,8 +185,17 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         for (IPreferenceNode root : topNodes) {
             String rootId = root.getId();
             if (rootId.equals("org.eclipse.ui.preferencePages.Workbench")) {
+                IPreferenceNode node = root
+                        .findSubNode("org.eclipse.ui.preferencePages.Workspace");
+                if (node != null) {
+                    node.remove("org.eclipse.ui.preferencePages.LinkedResources");
+                    node.remove("org.eclipse.ui.preferencePages.BuildOrder");
+                    IPreferenceNode localHistoryNode = node
+                            .findSubNode("org.eclipse.ui.preferencePages.FileStates");
+                    root.add(localHistoryNode);
+                    root.remove("org.eclipse.ui.preferencePages.Workspace");
+                }
                 root.remove("org.eclipse.search.preferences.SearchPreferencePage");
-                root.remove("org.eclipse.ui.preferencePages.Workspace");
             } else if (rootId.equals("org.python.pydev.prefs")) {
                 root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython");
                 root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython");
