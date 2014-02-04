@@ -47,6 +47,7 @@ import com.raytheon.uf.viz.monitor.util.MonitorConfigConstants.SafeSeasMonitor;
  * @version 1.0
  */
 public class SSThresholdMgr extends AbstractThresholdMgr {
+
     private static SSThresholdMgr classInstance;
 
     private SSThresholdMgr() {
@@ -54,14 +55,19 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
                 "DefaultSSMonitorThresholds.xml", "safeseas");
 
         areaConfigMgr = getAreaConfigMgr();
-        init(); // call init() after areaConfigMgr is set
+        // call init() after areaConfigMgr is set
+        init();
     }
 
-    public static SSThresholdMgr getInstance() {
+    /**
+     * Get instance.
+     * 
+     * @return
+     */
+    public static synchronized SSThresholdMgr getInstance() {
         if (classInstance == null) {
             classInstance = new SSThresholdMgr();
         }
-
         return classInstance;
     }
 
@@ -69,7 +75,7 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
      * DR#11279: When monitor area configuration is changed, threshold manager
      * needs to be re-initialized using the new monitor area configuration
      */
-    public static void reInitialize() {
+    public static synchronized void reInitialize() {
         if (classInstance != null) {
             classInstance = null;
         }
@@ -79,6 +85,13 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
         classInstance.saveMonitorThresholds();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#getThresholdKeys
+     * (com.raytheon.uf.common.monitor.data.ObConst.DataUsageKey)
+     */
     @Override
     protected ArrayList<String> getThresholdKeys(DataUsageKey dataUsage) {
         ArrayList<String> threshKeys = new ArrayList<String>();
@@ -96,6 +109,13 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
         return threshKeys;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.thresholds.AbstractThresholdMgr#getAreaConfigMgr
+     * ()
+     */
     @Override
     public MonitorConfigurationManager getAreaConfigMgr() {
         if (areaConfigMgr == null) {
@@ -107,57 +127,4 @@ public class SSThresholdMgr extends AbstractThresholdMgr {
         }
         return areaConfigMgr;
     }
-
-    // /**
-    // * Get the path where the display thresholds XML files are contained.
-    // * @return File path.
-    // */
-    // @Override
-    // public String getDisplayThresholdPath()
-    // {
-    // String fs = String.valueOf(File.separatorChar);
-    // StringBuilder sb = new StringBuilder();
-    //
-    // sb.append("safeseas").append(fs);
-    // sb.append("threshold").append(fs);
-    // sb.append("display").append(fs);
-    //
-    // return sb.toString();
-    // }
-    //
-    // /**
-    // * Get the path where the monitor thresholds XML files are contained.
-    // * @return File path.
-    // */
-    // @Override
-    // public String getMonitorThresholdPath()
-    // {
-    // String fs = String.valueOf(File.separatorChar);
-    // StringBuilder sb = new StringBuilder();
-    //
-    // sb.append("safeseas").append(fs);
-    // sb.append("threshold").append(fs);
-    // sb.append("monitor").append(fs);
-    //
-    // return sb.toString();
-    // }
-    //
-    // /**
-    // * Get the path where the XML file containing the user selected
-    // * default file is located.
-    // * @return The path of the user selected default file XML.
-    // */
-    // @Override
-    // public String getDefaultThresholdFilePath()
-    // {
-    // String fs = String.valueOf(File.separatorChar);
-    // StringBuilder sb = new StringBuilder();
-    //
-    // sb.append("safeseas").append(fs);
-    // sb.append("threshold").append(fs);
-    // sb.append("display").append(fs);
-    // sb.append("defaultThresh").append(fs);
-    //
-    // return sb.toString();
-    // }
 }
