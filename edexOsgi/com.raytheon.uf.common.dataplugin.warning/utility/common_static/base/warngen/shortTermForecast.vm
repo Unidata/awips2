@@ -7,6 +7,7 @@
 ##           Evan Bookbinder 4-25-2012  for OB 12.3.1 (MND)
 ##           Mike Dangelo 9-13-2012 minor tweaks to ${variables}
 ##           Evan Bookbinder 9-18-2013 implemented config.vm 
+## Mike Dangelo 1/23/2014 Added blankStatement logic - default is still near-severe storm w/list of cities
 ################################################################
 ##
 #parse("config.vm")
@@ -161,7 +162,12 @@ THIS IS A TEST MESSAGE. ##
 ######################################################
 ###### Storm current location description   ##########
 ######################################################
+#if(${list.contains(${bullets}, "blankStatement")})
 .NOW...
+
+#else
+.NOW...
+
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report}##
 ##Many of the variables passed below are controlled by config.vm
@@ -199,10 +205,6 @@ THIS IS A TEST MESSAGE. ##
 #### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
 #locationsList("LOCATIONS IMPACTED INCLUDE..." ${otherLead} 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
-#else
-LOCATIONS IMPACTED INCLUDE...  
-  !** YOU DID NOT SELECT A PATHCAST OR LIST OF CITIES BULLET. PLEASE ENTER LOCATIONS IMPACTED OR REGENERATE THE WARNING WITH THE CORRECT LOCATIONS BULLET SELECTED **!.
-
 #end
 
 #if(${list.contains(${bullets}, "gustFrontPassage")})
@@ -235,6 +237,7 @@ LOCATIONS CAN EXPECT !** EXPECTED SNOW **! INCHES OF SNOW.
 #if(${list.contains(${includedWatches}, "svrWatches")} && ${list.contains(${bullets}, "includeSvrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
+#end
 #end
 
 $$
