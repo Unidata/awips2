@@ -59,6 +59,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     longer be divided by 100.
  * Sep 11, 2013 #2353      lvenable    Fixed cursor memory leak.
  * Jan 29, 2014 16561      snaples     Updated processDrawPrecipValue to remove polygon wireframe after setting value.
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
  * 
  * 
  * </pre>
@@ -742,6 +743,7 @@ public class DrawPolygonDlg extends CaveSWTDialog {
             PolygonEditManager.writePolygonEdits(displayedField, editDate,
                     polygonEdits);
             resource.clearPolygons();
+            dispMgr.setSavedData(false);
         } finally {
             shell.setCursor(prevCursor);
         }
