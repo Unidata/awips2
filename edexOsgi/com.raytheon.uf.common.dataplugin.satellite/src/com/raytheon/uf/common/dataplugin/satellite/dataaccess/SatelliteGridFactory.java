@@ -35,13 +35,12 @@ import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
-import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 
 /**
  * A data factory for getting satellite data from the metadata database. There
@@ -51,12 +50,13 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 02, 2012            bkowal      Initial creation
- * Jan 22, 2012            bsteffen    Extract common functionality to AbstractGridDataPluginFactory
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 02, 2012           bkowal      Initial creation
+ * Jan 22, 2012           bsteffen    Extract common functionality to AbstractGridDataPluginFactory
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * 
  * </pre>
  * 
@@ -84,15 +84,14 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
 
     protected DefaultGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
-            IDataRecord dataRecord)  {
+            DataSource dataSource) {
         if(pdo instanceof SatelliteRecord == false){
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + pdo.getClass().getSimpleName());
         }
         
         SatelliteRecord satelliteRecord = (SatelliteRecord) pdo;
-        DefaultGridData defaultGridData = new DefaultGridData(
-                DataWrapperUtil.constructArrayWrapper(dataRecord, false),
+        DefaultGridData defaultGridData = new DefaultGridData(dataSource,
                 gridGeometry);
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(satelliteRecord.getPhysicalElement());
