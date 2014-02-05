@@ -20,8 +20,8 @@
 package com.raytheon.uf.common.comm;
 
 /**
- * Test Https credentials handler. Returns valid credentials for HttpClient Test
- * Cases.
+ * A communication exception corresponding to an error returned from an http
+ * server and including the http status code.
  * 
  * <pre>
  * 
@@ -29,26 +29,43 @@ package com.raytheon.uf.common.comm;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 11, 2013    1763     dhladky      Initial creation
+ * Feb 6, 2014            njensen     Initial creation
  * 
  * </pre>
  * 
- * @author dhladky
+ * @author njensen
  * @version 1.0
  */
 
-public class TestProxyHttpsCredentialsHandler implements
-        IHttpsCredentialsHandler {
+public class HttpServerException extends CommunicationException {
 
-    @Override
-    public String[] getCredentials(String message) {
-        return new String[] { HttpTestConstants.USERNAME,
-                HttpTestConstants.PASSWD };
+    private static final long serialVersionUID = 1L;
+
+    private int statusCode;
+
+    public HttpServerException() {
+        super();
     }
 
-    @Override
-    public void credentialsFailed() {
-        // TODO Auto-generated method stub
-
+    public HttpServerException(String message, Throwable cause) {
+        super(message, cause);
     }
+
+    public HttpServerException(String message) {
+        super(message);
+    }
+
+    public HttpServerException(Throwable cause) {
+        super(cause);
+    }
+
+    public HttpServerException(String message, int statusCode) {
+        super(message);
+        this.statusCode = statusCode;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
 }
