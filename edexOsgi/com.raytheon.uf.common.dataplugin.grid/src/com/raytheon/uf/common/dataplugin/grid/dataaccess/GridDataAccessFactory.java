@@ -38,7 +38,6 @@ import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
-import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -48,7 +47,7 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapper;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.parameter.mapping.ParameterMapper;
 import com.raytheon.uf.common.util.mapping.Mapper;
 
@@ -59,11 +58,13 @@ import com.raytheon.uf.common.util.mapping.Mapper;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 17, 2013            bsteffen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 17, 2013           bsteffen    Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
+ * 
  * 
  * </pre>
  * 
@@ -187,7 +188,7 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
     @Override
     protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
-            IDataRecord dataRecord) {
+            DataSource dataSource) {
         if (pdo instanceof GridRecord == false) {
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + pdo.getClass().getSimpleName());
@@ -210,8 +211,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
                     parameter, namespace, requestParameters);
 
             if (identifiers.containsKey(GridConstants.DATASET_ID)) {
-                List<String> requestedDatasets = Arrays.asList(identifiers.get(GridConstants.DATASET_ID)
-                        .toString());
+                List<String> requestedDatasets = Arrays.asList(identifiers.get(
+                        GridConstants.DATASET_ID).toString());
                 datasetId = reverseResolveMapping(
                         DatasetIdMapper.getInstance(), datasetId, namespace,
                         requestedDatasets);
@@ -243,8 +244,8 @@ public class GridDataAccessFactory extends AbstractGridDataPluginFactory
             }
         }
 
-        DefaultGridData defaultGridData = new DefaultGridData(
-                DataWrapperUtil.constructArrayWrapper(dataRecord), gridGeometry);
+        DefaultGridData defaultGridData = new DefaultGridData(dataSource,
+                gridGeometry);
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(parameter);
         defaultGridData.setLevel(level);
