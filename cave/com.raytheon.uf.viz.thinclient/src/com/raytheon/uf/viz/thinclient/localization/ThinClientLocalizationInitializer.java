@@ -25,15 +25,15 @@ import org.apache.commons.collections.map.DefaultedMap;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.raytheon.uf.common.comm.HttpClient;
-import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
+import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationInitializer;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.thinclient.Activator;
+import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
 
@@ -51,8 +51,9 @@ import com.raytheon.uf.viz.thinclient.ui.ThinClientConnectivityDialog;
  * Dec 06, 2012 1396       njensen     Added setting VizServers
  * Jan 14, 2013 1469       bkowal      Removed setting the hdf5 data directory
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
- * Aug 27, 2013   2295     bkowal      The entire jms connection string is
+ * Aug 27, 2013 2295       bkowal      The entire jms connection string is
  *                                     now provided by EDEX.
+ * Feb 04, 2014 2704       njensen     Single proxy address/preference
  * 
  * </pre>
  * 
@@ -87,20 +88,25 @@ public class ThinClientLocalizationInitializer extends LocalizationInitializer {
                 .getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS);
 
         if (store.getBoolean(ThinClientPreferenceConstants.P_USE_PROXIES)) {
-            String servicesProxy = store
-                    .getString(ThinClientPreferenceConstants.P_SERVICES_PROXY);
-            LocalizationManager.getInstance().setCurrentServer(servicesProxy);
+            String proxyAddr = store
+                    .getString(ThinClientPreferenceConstants.P_PROXY_ADDRESS);
+            String servicesProxy = ThinClientUriUtil
+                    .getServicesAddress(proxyAddr);
+            LocalizationManager.getInstance().setCurrentServer(servicesProxy,
+                    false);
+            VizApp.setHttpServer(servicesProxy);
+
             if (!disableJMS) {
-                GetServersRequest req = new GetServersRequest();
-                GetServersResponse resp = (GetServersResponse) ThriftClient
-                        .sendLocalizationRequest(req);
+                GetServersResponse resp = ConnectivityManager
+                        .checkLocalizationServer(servicesProxy, false);
                 if (!disableJMS) {
                     VizApp.setJmsConnectionString(resp.getJmsConnectionString());
                 }
             }
-            VizApp.setHttpServer(servicesProxy);
-            VizApp.setPypiesServer(store
-                    .getString(ThinClientPreferenceConstants.P_PYPIES_PROXY));
+
+            String pypiesProxy = ThinClientUriUtil
+                    .getPypiesAddress(proxyAddr);
+            VizApp.setPypiesServer(pypiesProxy);
             boolean compressRequests = store
                     .getBoolean(ThinClientPreferenceConstants.P_ENABLE_REQUEST_COMPRESSION);
             HttpClient.getInstance().setCompressRequests(compressRequests);
