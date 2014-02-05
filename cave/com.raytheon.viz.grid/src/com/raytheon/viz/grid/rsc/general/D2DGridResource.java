@@ -29,7 +29,6 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.Envelope2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -46,8 +45,8 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.geospatial.util.EnvelopeIntersection;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
+import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -70,8 +69,6 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.util.ReprojectionUtil;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * 
@@ -82,7 +79,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * Feb 25, 2013  1659     bsteffen    Add PDOs to D2DGridResource in
  *                                    constructor to avoid duplicate data
@@ -94,6 +91,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
  * Nov 19, 2013  2532     bsteffen    Special handling of grids larger than the
  *                                    world.
+ * Feb 04, 2014  2672     bsteffen    Extract subgridding logic to geospatial
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -174,35 +173,33 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         IDataRecord[] dataRecs = GridResourceData.getDataRecordsForTilt(
                 gridRecord, descriptor);
         if (dataRecs == null) {
-            GridGeometry2D subGridGeometry = gridGeometry;
-            if (!gridLargerThanWorld) {
-                subGridGeometry = calculateSubgrid(gridGeometry);
-            }
-            if (subGridGeometry == null) {
-                return null;
-            } else if (subGridGeometry.equals(gridGeometry)) {
+            try {
+                SubGridGeometryCalculator subGrid = new SubGridGeometryCalculator(
+                        descriptor.getGridGeometry().getEnvelope(),
+                        gridGeometry);
+                if (subGrid.isEmpty()) {
+                    return null;
+                } else if (subGrid.isFull()) {
+                    dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+                } else {
+                    Request request = Request.buildSlab(
+                            subGrid.getGridRangeLow(true),
+                            subGrid.getGridRangeHigh(false));
+                    dataRecs = DataCubeContainer.getDataRecord(gridRecord,
+                            request, null);
+                    /*
+                     * gridGeometries used in renderables are expected to have
+                     * min x,y be 0.
+                     */
+                    gridGeometry = subGrid.getZeroedSubGridGeometry();
+                    dataModified = true;
+                }
+            } catch (TransformException e) {
+                /* Not a big deal, just request all data. */
+                statusHandler.handle(Priority.DEBUG,
+                                "Unable to request subgrid, full grid will be used.",
+                                e);
                 dataRecs = DataCubeContainer.getDataRecord(gridRecord);
-            } else if (subGridGeometry != null) {
-                /* transform subgrid envelope into a slab request. */
-                GridEnvelope2D subGridRange = subGridGeometry.getGridRange2D();
-                int[] min = { subGridRange.getLow(0), subGridRange.getLow(1) };
-                int[] max = { subGridRange.getHigh(0) + 1,
-                        subGridRange.getHigh(1) + 1 };
-                Request request = Request.buildSlab(min, max);
-                dataRecs = DataCubeContainer.getDataRecord(gridRecord, request,
-                        null);
-                /*
-                 * gridGeometries used in renderables are expected to have min
-                 * x,y be 0.
-                 */
-                subGridRange.x = 0;
-                subGridRange.y = 0;
-                gridGeometry = new GridGeometry2D(subGridRange,
-                        subGridGeometry.getEnvelope());
-                dataModified = true;
-            }
-            if (dataRecs == null) {
-                return null;
             }
         }
 
@@ -255,53 +252,6 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             }
         }
         return data;
-    }
-
-    protected GridGeometry2D calculateSubgrid(GridGeometry2D dataGeometry) {
-        try {
-            CoordinateReferenceSystem dataCRS = dataGeometry
-                    .getCoordinateReferenceSystem();
-            org.opengis.geometry.Envelope descEnv = descriptor
-                    .getGridGeometry().getEnvelope();
-            Envelope2D dataEnv = dataGeometry.getEnvelope2D();
-            int dataWidth = dataGeometry.getGridRange2D().width;
-            int dataHeight = dataGeometry.getGridRange2D().height;
-            /*
-             * Use grid spacing to determine a threshold for
-             * EnvelopeIntersection. This guarantees the result is within one
-             * grid cell.
-             */
-            double dx = dataEnv.width / dataWidth;
-            double dy = dataEnv.height / dataHeight;
-            double threshold = Math.max(dx, dy);
-            Geometry geom = EnvelopeIntersection.createEnvelopeIntersection(
-                    descEnv, dataEnv, threshold, dataWidth, dataHeight);
-            /* Convert from jts envelope to geotools envelope. */
-            Envelope env = geom.getEnvelopeInternal();
-            Envelope2D subEnv = new Envelope2D(dataCRS, env.getMinX(),
-                    env.getMinY(), env.getWidth(), env.getHeight());
-            GridEnvelope2D subRange = dataGeometry.worldToGrid(subEnv);
-            /* Add a 1 pixel border so interpolation near the edges is nice */
-            subRange.grow(1, 1);
-            /* Make sure not to grow bigger than original grid. */
-            subRange = new GridEnvelope2D(subRange.intersection(dataGeometry
-                    .getGridRange2D()));
-            if (subRange.isEmpty()) {
-                return null;
-            }
-            return new GridGeometry2D(subRange, dataGeometry.getGridToCRS(),
-                    dataCRS);
-        } catch (FactoryException e) {
-            /* Not a big deal, just request all data. */
-            statusHandler.handle(Priority.DEBUG, "Unable to request subgrid.",
-                    e);
-        } catch (TransformException e) {
-            /* Not a big deal, just request all data. */
-            /* Java 7 multiple exception catches are going to be amazing! */
-            statusHandler.handle(Priority.DEBUG, "Unable to request subgrid.",
-                    e);
-        }
-        return dataGeometry;
     }
 
     public GeneralGridData reprojectData(GeneralGridData data) {
