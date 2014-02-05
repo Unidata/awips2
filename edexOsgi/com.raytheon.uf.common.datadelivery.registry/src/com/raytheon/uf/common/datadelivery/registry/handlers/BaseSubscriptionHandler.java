@@ -22,8 +22,10 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -60,6 +62,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * Jan 14, 2014 2459       mpduff       Validate subs should be scheduled before returning them.
  * Jan 17, 2014 2459       mpduff       Persist the state of the expired subs.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -198,14 +201,14 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
     @Override
     public List<T> getActiveForRoute(Network route)
             throws RegistryHandlerException {
-        return getActiveForRoutes(route);
+        return getActiveForRoutes(route).get(route);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<T> getActiveForRoutes(Network... routes)
+    public Map<Network, List<T>> getActiveForRoutes(Network... routes)
             throws RegistryHandlerException {
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setActive(true);
@@ -215,10 +218,13 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
 
         checkResponse(response, "getActiveForRoutes");
 
-        List<T> returnList = new ArrayList<T>();
+        Map<Network, List<T>> returnMap = new HashMap<Network, List<T>>();
+        for (Network network : routes) {
+            returnMap.put(network, new ArrayList<T>());
+        }
         for (T sub : response.getResults()) {
             if (((RecurringSubscription) sub).shouldSchedule()) {
-                returnList.add(sub);
+                returnMap.get(sub.getRoute()).add(sub);
             } else if (((RecurringSubscription) sub).shouldUpdate()) {
                 updateList.add(sub);
             }
@@ -250,6 +256,6 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
             });
         }
 
-        return returnList;
+        return returnMap;
     }
 }
