@@ -46,7 +46,6 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
@@ -82,6 +81,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  * Jan 24, 2013 2709       bgonzale     Added inActivePeriodWindow check during retrieval time calculations
  *                                      because the calculate start and end time methods no longer use
  *                                      active period.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * </pre>
  * 
  * @author djohnson
@@ -120,9 +120,10 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @return
      */
     public SortedSet<Calendar> getRetrievalTimes(
-            Subscription<T, C> subscription, SortedSet<Integer> cycles) {
+            Subscription<T, C> subscription, SortedSet<Integer> cycles,
+            Calendar start, Calendar end) {
         return getRetrievalTimes(subscription, cycles,
-                Sets.newTreeSet(Arrays.asList(0)));
+                Sets.newTreeSet(Arrays.asList(0)), start, end);
     }
 
     /**
@@ -135,7 +136,8 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @return the retrieval times
      */
     public SortedSet<Calendar> getRetrievalTimes(
-            Subscription<T, C> subscription, int retrievalInterval) {
+            Subscription<T, C> subscription, int retrievalInterval,
+            Calendar start, Calendar end) {
         // Add all hours of the days
         final SortedSet<Integer> hours = Sets.newTreeSet();
         for (int i = 0; i < TimeUtil.HOURS_PER_DAY; i++) {
@@ -149,7 +151,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             minutes.add(i);
         }
 
-        return getRetrievalTimes(subscription, hours, minutes);
+        return getRetrievalTimes(subscription, hours, minutes, start, end);
     }
 
     /**
@@ -157,34 +159,32 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * the current retrieval plan for the specified subscription.
      * 
      * @param subscription
+     *            The subscription
      * @param hours
+     *            The set of hours
      * @param minutes
-     * @return
+     *            The set of minutes
+     * @param startTime
+     *            The start time
+     * @param endTime
+     *            The end time
+     * @return Set of retrieval times
      */
     private SortedSet<Calendar> getRetrievalTimes(
             Subscription<T, C> subscription, SortedSet<Integer> hours,
-            SortedSet<Integer> minutes) {
-
+            SortedSet<Integer> minutes, Calendar startTime, Calendar endTime) {
         SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
-
-        RetrievalPlan plan = retrievalManager.getPlan(subscription.getRoute());
-        if (plan == null) {
-            return subscriptionTimes;
-        }
-
-        Calendar planEnd = plan.getPlanEnd();
-        Calendar planStart = plan.getPlanStart();
 
         // starting time when when subscription is first valid for scheduling
         // based on plan start and subscription start.
         Calendar subscriptionCalculatedStart = subscription
-                .calculateStart(planStart);
+                .calculateStart(startTime);
         // end time when when subscription is last valid for scheduling based on
         // plan end and subscription end.
-        Calendar subscriptionCalculatedEnd = subscription.calculateEnd(planEnd);
+        Calendar subscriptionCalculatedEnd = subscription.calculateEnd(endTime);
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-            statusHandler.debug("**** PlanStart: " + planStart.getTime());
-            statusHandler.debug("**** PlanEnd  : " + planEnd.getTime());
+            statusHandler.debug("**** PlanStart: " + startTime.getTime());
+            statusHandler.debug("**** PlanEnd  : " + endTime.getTime());
             statusHandler.debug("**** CalculatedStart: "
                     + subscriptionCalculatedStart.getTime());
             statusHandler.debug("**** CalculatedEnd  : "
