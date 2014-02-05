@@ -22,8 +22,10 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
@@ -54,6 +56,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 28, 2013 1650       djohnson     Add getByNames.
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -186,12 +189,36 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public List<InitialPendingSubscription> getActiveForRoutes(
+    public Map<Network, List<InitialPendingSubscription>> getActiveForRoutes(
             Network... routes) throws RegistryHandlerException {
-        List<InitialPendingSubscription> subs = Lists.newArrayList();
-        subs.addAll(siteSubscriptionHandler.getActiveForRoutes(routes));
-        subs.addAll(sharedSubscriptionHandler.getActiveForRoutes(routes));
-        return subs;
+        Map<Network, List<InitialPendingSubscription>> returnMap = new HashMap<Network, List<InitialPendingSubscription>>(
+                2);
+
+        Map<Network, List<InitialPendingSiteSubscription>> subMap = siteSubscriptionHandler
+                .getActiveForRoutes(routes);
+        returnMap
+                .putAll((Map<? extends Network, ? extends List<InitialPendingSubscription>>) subMap);
+
+        Map<Network, List<InitialPendingSharedSubscription>> sharedSubMap = sharedSubscriptionHandler
+                .getActiveForRoutes(routes);
+
+        // Check for existing networks and add to them if they exist
+        for (Map.Entry<Network, List<InitialPendingSharedSubscription>> entry : sharedSubMap
+                .entrySet()) {
+            Network key = entry.getKey();
+            if (returnMap.containsKey(key)) {
+                returnMap.get(key).addAll(entry.getValue());
+            } else {
+                List<InitialPendingSharedSubscription> sharedList = entry
+                        .getValue();
+
+                returnMap.put(key, new ArrayList<InitialPendingSubscription>(
+                        sharedList.size()));
+                returnMap.get(key).addAll(sharedList);
+            }
+        }
+
+        return returnMap;
     }
 
     /**
