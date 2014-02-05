@@ -1,13 +1,13 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -37,7 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Nov 04, 2013 2506       bgonzale     added site field.  facilitates testing.
  * Nov 19, 2013 2545       bgonzale     Removed programmatic customization for central, client, and dev(monolithic) 
  *                                      registries since the injected FindSubscription handler will be configured now.
- * 
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * </pre>
  * 
  * @author djohnson
@@ -101,32 +101,21 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
     @Override
     public void executeAfterRegistryInit() {
         Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
+        Map<Network, Set<Subscription>> subMap = null;
         try {
-            // Load active subscriptions
-            for (Subscription sub : findSubscriptionsStrategy
-                    .findSubscriptionsToSchedule()) {
-                    activeSubscriptions.add(sub);
-                    statusHandler.info("Scheduling Subscription: " + sub);
-            }
-        } catch (Exception e) {
-            statusHandler.error(
-                    "Failed to query for subscriptions to schedule", e);
-        }
+            subMap = findSubscriptionsStrategy.findSubscriptionsToSchedule();
 
-        List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
-
-        for (Subscription subscription : activeSubscriptions) {
-            // Make sure the Id is set properly..
-            subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
-            statusHandler.info("init() - Loading subscription ["
-                    + subscription.getName() + "]");
-            unscheduled.addAll(instance.schedule(subscription));
+            List<BandwidthAllocation> unscheduled = instance.schedule(subMap,
+                    true);
 
             for (BandwidthAllocation allocation : unscheduled) {
                 statusHandler.handle(Priority.PROBLEM,
                         "The following bandwidth allocation is in an unscheduled state:\n   "
                                 + allocation);
             }
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Failed to query for subscriptions to schedule", e);
         }
     }
 }
