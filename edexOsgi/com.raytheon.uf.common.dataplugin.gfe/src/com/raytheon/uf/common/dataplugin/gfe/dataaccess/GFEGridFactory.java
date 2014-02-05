@@ -31,29 +31,28 @@ import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
-import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
-import com.raytheon.uf.common.dataplugin.gfe.grid.IGrid2D;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
+import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.util.StringUtil;
 
 /**
@@ -64,15 +63,16 @@ import com.raytheon.uf.common.util.StringUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 4, 2013            bsteffen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
- * May 02, 2013 1949       bsteffen    Update GFE data access in Product
- *                                     Browser, Volume Browser, and Data Access
- *                                     Framework.
- * 10/31/2013   2508       randerso    Change to use DiscreteGridSlice.getKeys()
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 04, 2013           bsteffen    Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * May 02, 2013  1949     bsteffen    Update GFE data access in Product
+ *                                    Browser, Volume Browser, and Data Access
+ *                                    Framework.
+ * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Feb 04, 2014  2672     bsteffen    Enable requesting subgrids.
  * 
  * </pre>
  * 
@@ -104,11 +104,10 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     @Override
     protected IGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
-            IDataRecord dataRecord) {
+            DataSource dataSource) {
         GFERecord gfeRecord = asGFERecord(pdo);
 
-        DefaultGridData defaultGridData = new DefaultGridData(
-                DataWrapperUtil.constructArrayWrapper(dataRecord, false),
+        DefaultGridData defaultGridData = new DefaultGridData(dataSource,
                 gridGeometry);
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(gfeRecord.getParmName());
@@ -121,9 +120,10 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         attrs.put(MODEL_NAME, gfeRecord.getDbId().getModelName());
         attrs.put(MODEL_TIME, gfeRecord.getDbId().getModelTime());
         attrs.put(SITE_ID, gfeRecord.getDbId().getSiteId());
-        if (dataRecord.getDataAttributes().containsKey(KEYS)) {
-            attrs.put(KEYS, StringUtil.join((String[]) dataRecord
-                    .getDataAttributes().get(KEYS), ','));
+
+        Object messageData = gfeRecord.getMessageData();
+        if (messageData instanceof Object[]) {
+            attrs.put(KEYS, StringUtil.join((Object[]) messageData, ','));
         }
         defaultGridData.setAttributes(attrs);
 
@@ -203,58 +203,49 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
     }
 
     @Override
-    protected IDataRecord getDataRecord(PluginDataObject pdo) {
+    protected DataSource getDataSource(PluginDataObject pdo,
+            SubGridGeometryCalculator subGrid) {
         GFERecord gfeRecord = asGFERecord(pdo);
 
+        IGridSlice slice = null;
         try {
-            IGridSlice slice = GFEDataAccessUtil.getSlice(gfeRecord);
-            GridLocation loc = slice.getGridInfo().getGridLoc();
-            gfeRecord.setGridInfo(slice.getGridInfo());
-            IGrid2D data = null;
-            Map<String, Object> attrs = new HashMap<String, Object>();
-            if (slice instanceof ScalarGridSlice) {
-                // This also grabs vector data.
-                data = ((ScalarGridSlice) slice).getScalarGrid();
-                return new FloatDataRecord("Data", gfeRecord.getDataURI(),
-                        ((Grid2DFloat) data).getFloats(), 2, new long[] {
-                                loc.getNx(), loc.getNy() });
-            } else if (slice instanceof DiscreteGridSlice) {
-                DiscreteGridSlice castedSlice = (DiscreteGridSlice) slice;
-                data = castedSlice.getDiscreteGrid();
-                Object[] dKeys = castedSlice.getKeys();
-                String[] keys = new String[dKeys.length];
-                for (int i = 0; i < dKeys.length; i++) {
-                    keys[i] = dKeys[i].toString();
-                }
-                byte[] bytes = ((Grid2DByte) data).getBytes();
-                ByteDataRecord record = new ByteDataRecord("Data",
-                        gfeRecord.getDataURI(), bytes, 2, new long[] {
-                                loc.getNx(), loc.getNy() });
-                attrs.put(KEYS, keys);
-                record.setDataAttributes(attrs);
-                return record;
-            } else if (slice instanceof WeatherGridSlice) {
-                WeatherGridSlice castedSlice = (WeatherGridSlice) slice;
-                data = castedSlice.getWeatherGrid();
-                WeatherKey[] wKeys = castedSlice.getKeys();
-                String[] keys = new String[wKeys.length];
-                for (int i = 0; i < wKeys.length; i++) {
-                    keys[i] = wKeys[i].toString();
-                }
-                byte[] bytes = ((Grid2DByte) data).getBytes();
-                ByteDataRecord record = new ByteDataRecord("Data",
-                        gfeRecord.getDataURI(), bytes, 2, new long[] {
-                                loc.getNx(), loc.getNy() });
-                attrs.put(KEYS, keys);
-                record.setDataAttributes(attrs);
-                return record;
-            } else {
-                throw new DataRetrievalException("Unknown slice of type "
-                        + slice.getClass().getSimpleName());
-            }
+            slice = GFEDataAccessUtil.getSlice(gfeRecord);
         } catch (Exception e) {
             throw new DataRetrievalException(e);
         }
+        GridParmInfo info = slice.getGridInfo();
+        GridLocation loc = info.getGridLoc();
+        gfeRecord.setGridInfo(slice.getGridInfo());
+        DataSource dataSource = null;
+        Object[] keys = null;
+        if (slice instanceof ScalarGridSlice) {
+            // This also grabs vector data.
+            Grid2DFloat data = ((ScalarGridSlice) slice).getScalarGrid();
+            dataSource = new FloatArrayWrapper(data.getFloats(), loc.getNx(),
+                    loc.getNy());
+        } else if (slice instanceof DiscreteGridSlice) {
+            DiscreteGridSlice discreteSlice = (DiscreteGridSlice) slice;
+            Grid2DByte data = discreteSlice.getDiscreteGrid();
+            keys = discreteSlice.getKeys();
+            dataSource = new ByteArrayWrapper(data.getBytes(), loc.getNx(),
+                    loc.getNy());
+        } else if (slice instanceof WeatherGridSlice) {
+            WeatherGridSlice weatherSlice = (WeatherGridSlice) slice;
+            Grid2DByte data = weatherSlice.getWeatherGrid();
+            keys = weatherSlice.getKeys();
+            dataSource = new ByteArrayWrapper(data.getBytes(), loc.getNx(),
+                    loc.getNy());
+        } else {
+            throw new DataRetrievalException("Unknown slice of type "
+                    + slice.getClass().getSimpleName());
+        }
+        if (subGrid != null && !subGrid.isFull()) {
+            int[] offsets = subGrid.getGridRangeLow(true);
+            dataSource = new OffsetDataSource(dataSource, offsets[0],
+                    offsets[1]);
+        }
+        gfeRecord.setMessageData(keys);
+        return dataSource;
     }
 
     @Override
