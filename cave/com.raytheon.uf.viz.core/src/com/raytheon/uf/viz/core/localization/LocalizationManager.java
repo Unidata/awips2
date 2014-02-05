@@ -95,6 +95,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
  *                                     provided by EDEX.
+ * Feb 04, 2014 2704       njensen     Allow setting server without saving
  * 
  * </pre>
  * 
@@ -210,19 +211,39 @@ public class LocalizationManager implements IPropertyChangeListener {
         }
     }
 
+    /**
+     * Sets the localization server and saves the setting
+     * 
+     * @param currentServer
+     *            the localization URI
+     */
     public void setCurrentServer(String currentServer) {
+        setCurrentServer(currentServer, true);
+    }
+
+    /**
+     * Sets the localization server
+     * 
+     * @param currentServer
+     *            the localization URI
+     * @param save
+     *            whether or not to save the setting
+     */
+    public void setCurrentServer(String currentServer, boolean save) {
         if (!this.currentServer.equals(currentServer)) {
             this.currentServer = currentServer;
             if (!overrideServer) {
                 localizationStore.putValue(
                         LocalizationConstants.P_LOCALIZATION_HTTP_SERVER,
                         this.currentServer);
-                applyChanges();
+                if (save) {
+                    applyChanges();
+                }
             }
 
             try {
-                GetServersResponse resp = ConnectivityManager.checkLocalizationServer(
-                        currentServer, false);
+                GetServersResponse resp = ConnectivityManager
+                        .checkLocalizationServer(currentServer, false);
                 VizApp.setHttpServer(resp.getHttpServer());
                 VizApp.setJmsConnectionString(resp.getJmsConnectionString());
                 VizApp.setPypiesServer(resp.getPypiesServer());
