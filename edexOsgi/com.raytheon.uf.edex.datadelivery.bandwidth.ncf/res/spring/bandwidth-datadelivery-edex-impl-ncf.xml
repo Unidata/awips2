@@ -26,19 +26,19 @@
         </constructor-arg>
     </bean>
     
+    <bean id="findActiveSubscriptionsForRoute"
+    	class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+        <constructor-arg ref="localSubscriptionHandler" />
+        <constructor-arg ref="subscriptionRoutesToSchedule" />
+    </bean>
+    
     <util:list id="subscriptionRoutesToSchedule">
         <value>SBN</value>
     </util:list>
 
     <bean id="bandwidthInitializer"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
-                <constructor-arg ref="sharedSubscriptionHandler" />
-                <constructor-arg ref="subscriptionRoutesToSchedule" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg ref="findActiveSubscriptionsForRoute" />
     </bean>
 
     <bean id="sbnSubscriptionRetrievalAgentPrototype"
