@@ -52,18 +52,24 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Data access framework factory for bin lightning
  * 
+ * Envelopes requests cannot be handled efficiently using metadata so all data
+ * is retrieved and filtered within the factory. For very large requests this
+ * may result in suboptimal performance.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 21, 2014 2667       bclement     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 21, 2014  2667     bclement    Initial creation
+ * Feb 06, 2014  2672     bsteffen    Add envelope support
  * 
  * </pre>
  * 
@@ -165,7 +171,7 @@ public class BinLightingAccessFactory extends AbstractDataPluginFactory {
             for (Entry<String, List<String>> groupEntry : srcDatasets
                     .entrySet()) {
                 addGeometryData(rval, ds, groupEntry.getKey(),
-                        groupEntry.getValue());
+                        groupEntry.getValue(), request.getEnvelope());
             }
         }
         return rval.toArray(new IGeometryData[rval.size()]);
@@ -183,9 +189,11 @@ public class BinLightingAccessFactory extends AbstractDataPluginFactory {
      *            lightning source value from metadata
      * @param datasets
      *            requested datasets from datastore
+     * @param envelope
+     *            envelope to use for geospatial filtering
      */
     private void addGeometryData(List<IGeometryData> dataList, IDataStore ds,
-            String source, List<String> datasets) {
+            String source, List<String> datasets, Envelope envelope) {
         // Go fetch data
         try {
             IDataRecord[] records = ds.retrieveDatasets(
@@ -219,6 +227,12 @@ public class BinLightingAccessFactory extends AbstractDataPluginFactory {
                         .getFloatData();
 
                 for (int i = 0; i < timeData.length; i++) {
+                    if (envelope != null
+                            && !envelope.contains(longitudeData[i],
+                                    latitudeData[i])) {
+                        /* Skip any data the user doesn't want */
+                        continue;
+                    }
                     DataTime dt = new DataTime(new Date(timeData[i]));
                     DefaultGeometryData data = new DefaultGeometryData();
                     data.setDataTime(dt);
