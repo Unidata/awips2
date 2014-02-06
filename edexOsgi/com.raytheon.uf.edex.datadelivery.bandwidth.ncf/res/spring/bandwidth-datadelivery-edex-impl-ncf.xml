@@ -28,7 +28,7 @@
     
     <bean id="findActiveSubscriptionsForRoute"
     	class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
-        <constructor-arg ref="localSubscriptionHandler" />
+        <constructor-arg ref="sharedSubscriptionHandler" />
         <constructor-arg ref="subscriptionRoutesToSchedule" />
     </bean>
     
