@@ -19,11 +19,14 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -54,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Jul 09, 2013 2106       djohnson     Add shutdownInternal().
  * Oct 2,  2013 1797       dhladky      Generics
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
+ * Feb 06, 2014 2636       bgonzale     added initializeScheduling method.
  * 
  * </pre>
  * 
@@ -164,6 +168,13 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
     protected void unscheduleSubscriptionsForAllocations(
             List<BandwidthAllocation> unscheduled) {
         // Nothing to do for in-memory version
+    }
+
+    @Override
+    public List<String> initializeScheduling(
+            Map<Network, List<Subscription>> subMap) {
+        // Nothing to do for in-memory version
+        return new ArrayList<String>(0);
     }
 
 }

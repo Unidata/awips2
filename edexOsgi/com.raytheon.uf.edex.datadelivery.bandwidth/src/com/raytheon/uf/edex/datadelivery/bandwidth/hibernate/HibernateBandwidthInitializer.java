@@ -1,9 +1,7 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -12,7 +10,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
@@ -38,6 +35,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Nov 19, 2013 2545       bgonzale     Removed programmatic customization for central, client, and dev(monolithic) 
  *                                      registries since the injected FindSubscription handler will be configured now.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Feb 06, 2014 2636       bgonzale     Use scheduling initialization method after registry init.
  * </pre>
  * 
  * @author djohnson
@@ -100,18 +98,17 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     @Override
     public void executeAfterRegistryInit() {
-        Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
-        Map<Network, Set<Subscription>> subMap = null;
         try {
-            subMap = findSubscriptionsStrategy.findSubscriptionsToSchedule();
+            Map<Network, List<Subscription>> subMap = findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule();
 
-            List<BandwidthAllocation> unscheduled = instance.schedule(subMap,
-                    true);
+            List<String> unscheduled = instance
+                    .initializeScheduling(subMap);
 
-            for (BandwidthAllocation allocation : unscheduled) {
+            for (String subscription : unscheduled) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "The following bandwidth allocation is in an unscheduled state:\n   "
-                                + allocation);
+                        "The following subscription was not initially scheduled: "
+                                + subscription);
             }
         } catch (Exception e) {
             statusHandler.error(
