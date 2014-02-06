@@ -141,7 +141,9 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 25, 2014 2636       mpduff       Don't do an initial adhoc query for a new subscription.
  * Jan 24, 2013 2709       bgonzale     Before scheduling adhoc, check if in active period window.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
- * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
+ * Feb 06, 2014 2636       bgonzale     fix overwrite of unscheduled subscription list.  fix scheduling
+ *                                      of already scheduled BandwidthAllocations.
  * 
  * </pre>
  * 
@@ -496,6 +498,8 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             if (!fullSchedule) {
                 if (!end.equals(this.previousRetrievalEndMap.get(network))) {
                     start = this.previousRetrievalEndMap.get(network);
+                } else {
+                    return unscheduled;
                 }
 
             }
@@ -516,24 +520,27 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
                 for (Subscription subscription : subMap.get(network)) {
                     statusHandler.info("Scheduling subscription"
                             + subscription.getName());
+                    List<BandwidthAllocation> unscheduledForThisSub = new ArrayList<BandwidthAllocation>();
                     final DataType dataSetType = subscription.getDataSetType();
                     switch (dataSetType) {
                     case GRID:
-                        unscheduled = handleGridded(subscription, start, end);
+                        unscheduledForThisSub = handleGridded(subscription,
+                                start, end);
                         break;
                     case POINT:
-                        unscheduled = handlePoint(subscription, start, end);
+                        unscheduledForThisSub = handlePoint(subscription,
+                                start, end);
                         break;
                     default:
                         throw new IllegalArgumentException(
                                 "The BandwidthManager doesn't know how to treat subscriptions with data type ["
                                         + dataSetType + "]!");
                     }
+                    unscheduleSubscriptionsForAllocations(unscheduledForThisSub);
+                    unscheduled.addAll(unscheduledForThisSub);
                 }
             }
         }
-
-        unscheduleSubscriptionsForAllocations(unscheduled);
 
         return unscheduled;
     }
