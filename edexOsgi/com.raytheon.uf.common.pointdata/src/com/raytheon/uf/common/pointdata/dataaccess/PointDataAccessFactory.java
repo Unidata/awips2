@@ -53,6 +53,7 @@ import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
@@ -66,7 +67,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------- -------- ----------- --------------------------
  * Oct 31, 2013  2502     bsteffen    Initial creation
  * Nov 26, 2013  2537     bsteffen    Minor code cleanup.
- * Jan,14, 2014  2667       mnash      Remove getGridData method
+ * Jan,14, 2014  2667     mnash       Remove getGridData method
+ * Feb 06, 2014  2672     bsteffen    Add envelope support
+ * 
  * </pre>
  * 
  * @author bsteffen
@@ -99,7 +102,11 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
 
     private String locationPointDataKey = PointDataConstants.DATASET_STATIONID;
 
+    private String latitudeDatabaseKey = "location.latitude";
+
     private String latitudePointDataKey = "latitude";
+
+    private String longitudeDatabaseKey = "location.longitude";
 
     private String longitudePointDataKey = "longitude";
 
@@ -156,6 +163,17 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
                 rcMap.put(entry.getKey(), new RequestConstraint(entry
                         .getValue().toString()));
             }
+        }
+        Envelope envelope = request.getEnvelope();
+        if (envelope != null) {
+            String minLon = Double.toString(envelope.getMinX());
+            String maxLon = Double.toString(envelope.getMaxX());
+            rcMap.put(longitudeDatabaseKey, new RequestConstraint(minLon,
+                    maxLon));
+            String minLat = Double.toString(envelope.getMinY());
+            String maxLat = Double.toString(envelope.getMaxY());
+            rcMap.put(latitudeDatabaseKey,
+                    new RequestConstraint(minLat, maxLat));
         }
         return rcMap;
     }
@@ -423,6 +441,24 @@ public class PointDataAccessFactory extends AbstractDataPluginFactory {
      */
     public void setLongitudePointDataKey(String longitudePointDataKey) {
         this.longitudePointDataKey = longitudePointDataKey;
+    }
+
+    /**
+     * @param latitudeDatabaseKey
+     *            The hibernate field name of the field that is used to identify
+     *            latitude. Default values is "location.latitude"
+     */
+    public void setLatitudeDatabaseKey(String latitudeDatabaseKey) {
+        this.latitudeDatabaseKey = latitudeDatabaseKey;
+    }
+
+    /**
+     * @param longitudeDatabaseKey
+     *            The hibernate field name of the field that is used to identify
+     *            longitude. Default values is "location.longitude"
+     */
+    public void setLongitudeDatabaseKey(String longitudeDatabaseKey) {
+        this.longitudeDatabaseKey = longitudeDatabaseKey;
     }
 
     /**
