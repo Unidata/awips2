@@ -48,6 +48,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * Jan 06, 2014 2636       mpduff       Update javadoc
  * Jan 08, 2014 2615       bgonzale     Added scheduleAdoc method.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Feb 06, 2014 2636       bgonzale     added initializeScheduling method.
  * </pre>
  * 
  * @author djohnson
@@ -126,4 +127,18 @@ public interface IBandwidthManager<T extends Time, C extends Coverage> {
      * @return the initializer
      */
     BandwidthInitializer getInitializer();
+
+    /**
+     * Called after a BandwidthManager has been created to initialize scheduling
+     * with the given subscriptions in preparation for operation.
+     * 
+     * @param subMap
+     *            map of subscriptions to initialize scheduling with
+     * @throws SerializationException
+     * 
+     * @Returns a list of the names of the subscriptions that were not
+     *          scheduled.
+     */
+    List<String> initializeScheduling(Map<Network, List<Subscription>> subMap)
+            throws SerializationException;
 }
