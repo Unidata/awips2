@@ -44,6 +44,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
@@ -119,7 +120,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
  * Jan 24, 2013 2709       bgonzale     Changed parameter to shouldScheduleForTime to a Calendar.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
- * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
+ * Feb 06, 2014 2636       bgonzale     Added initializeScheduling method that uses the in-memory
+ *                                      bandwidth manager to perform the scheduling initialization
+ *                                      because of efficiency.
  * 
  * </pre>
  * 
@@ -185,19 +189,60 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
 
         // schedule maintenance tasks
         scheduler = Executors.newScheduledThreadPool(1);
-        // TODO: Uncomment the last line in this comment block when fully
-        // switched over to Java 1.7 and remove the finally block in shutdown,
-        // that is also marked as TODO
-        // This will allow the bandwidth manager to be garbage collected without
-        // waiting for all of the delayed tasks to expire, currently they are
-        // manually removed in the shutdown method by casting to the
-        // implementation and clearing the queue
-        // scheduler.setRemoveOnCancelPolicy(true);
-        scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
-                TimeUnit.MINUTES);
-        scheduler.scheduleAtFixedRate(new MaintenanceTask(), 5, 5,
-                TimeUnit.MINUTES);
     }
+
+    @Override
+    public List<String> initializeScheduling(
+            Map<Network, List<Subscription>> subMap)
+            throws SerializationException {
+        List<String> unscheduledNames = new ArrayList<String>(0);
+
+        try {
+            for (Network key : subMap.keySet()) {
+                List<Subscription<T, C>> subscriptions = new ArrayList<Subscription<T, C>>();
+                // this loop is here only because of the generics mess
+                for (Subscription s : subMap.get(key)) {
+                    subscriptions.add(s);
+                }
+                ProposeScheduleResponse response = proposeScheduleSubscriptions(subscriptions);
+                Set<String> unscheduled = response
+                        .getUnscheduledSubscriptions();
+                if (!unscheduled.isEmpty()) {
+                    // if proposed was unable to schedule some subscriptions it
+                    // will schedule nothing. schedule any that can be scheduled
+                    // here.
+                    List<Subscription<T, C>> subsToSchedule = new ArrayList<Subscription<T, C>>();
+                    for (Subscription<T, C> s : subscriptions) {
+                        if (!unscheduled.contains(s.getName())) {
+                            subsToSchedule.add(s);
+                        }
+                    }
+                    unscheduledNames
+                            .addAll(scheduleSubscriptions(subsToSchedule));
+                } else {
+                    unscheduledNames.addAll(unscheduled);
+                }
+            }
+        } finally {
+            // TODO: Uncomment the last line in this comment block when fully
+            // switched over to Java 1.7 and remove the finally block in
+            // shutdown,
+            // that is also marked as TODO
+            // This will allow the bandwidth manager to be garbage collected
+            // without
+            // waiting for all of the delayed tasks to expire, currently they
+            // are
+            // manually removed in the shutdown method by casting to the
+            // implementation and clearing the queue
+            // scheduler.setRemoveOnCancelPolicy(true);
+            scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
+                    TimeUnit.MINUTES);
+            scheduler.scheduleAtFixedRate(new MaintenanceTask(), 5, 5,
+                    TimeUnit.MINUTES);
+        }
+        return unscheduledNames;
+    }
+
 
     /**
      * {@inheritDoc}
