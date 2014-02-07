@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.datadelivery.notification;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
@@ -43,6 +42,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableChange;
 import com.raytheon.uf.viz.datadelivery.common.ui.ITableFind;
@@ -84,6 +84,7 @@ import com.raytheon.uf.viz.datadelivery.utils.NotificationHandler;
  * Sep 26, 2013  2417      mpduff       Fix the find all row selection.
  * Oct 15, 2013  2451      skorolev     Get highlighted rows after message update.
  * Nov 01, 2013  2431      skorolev     Changed labels on the table.
+ * Feb 07, 2014  2453      mpduff       Refactored.
  * </pre>
  * 
  * @author lvenable
@@ -104,13 +105,10 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             TABLE_TYPE.NOTIFICATION);
 
     /** Filtered Table list object */
-    private final ArrayList<NotificationRowData> visibleTableList = new ArrayList<NotificationRowData>();
+    private final List<NotificationRowData> visibleTableList = new ArrayList<NotificationRowData>();
 
     /** Notification rows */
     private final String ROWS = "Rows ";
-
-    /** Notification rows */
-    private final String ROW = "Row ";
 
     private final String PAUSE_BUTTON_TEXT = "Pause";
 
@@ -128,56 +126,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     /** Page Combo box */
     private Combo pageCbo;
 
-    /** The start index */
-    private int startIndex = 0;
-
-    /** The end index */
-    private int endIndex = 0;
-
-    /** The selected index */
-    private int selectedIndex = 0;
-
-    /** The index of the last row of the table */
-    private int lastRow = 0;
-
     /** Configured value per page */
-    private int pageConfig = 100;
-
-    /** The amount of necessary pages */
-    private int pageAmt = 0;
-
-    /** The number of rows in the table at that instance */
-    private int numRows = 0;
-
-    /** The index of the highlighted row */
-    private int highlightIndex = 0;
-
-    /** The number of deleted rows */
-    private int deleteRows = 0;
+    private int rowsPerPage = 100;
 
     /** Highlight indices */
-    private int[] indices = null;
+    private List<NotificationRowData> highlightRows = null;
 
     /** Dual List Object */
-    private final ArrayList<String> pages = new ArrayList<String>();
-
-    /** Find flag */
-    private boolean findFlag = false;
-
-    /** Delete flag */
-    private boolean deleteFlag = false;
-
-    /** All rows on page deleted flag */
-    private boolean pageDeleteFlag = false;
-
-    /** Init flag */
-    private boolean initialized = false;
-
-    /** The selected page */
-    private int selectedPage = 1;
-
-    /** Keeps track of present record ids **/
-    private final Set<Integer> currentRecordIds = new HashSet<Integer>();
+    private final List<String> pages = new ArrayList<String>();
 
     /** Callback for the message loader */
     private final IMessageLoad msgLoadCallback;
@@ -186,13 +142,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     private final ITableChange tableChangeCallback;
 
     /** Notification handler */
-    private NotificationHandler handler;
-
-    /** Name of the sorted column */
-    private String sortedColumnName = null;
-
-    /** Direction of the sort */
-    private SortDirection sortedDirectionName = null;
+    private final NotificationHandler handler;
 
     /** Column List */
     private ArrayList<ColumnXML> columnList = null;
@@ -204,7 +154,16 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     private int messageReceivedWhilePausedCount = 0;
 
     /** Highlighted row ids */
-    private Set<Integer> selectedRowIds = new HashSet<Integer>();
+    private final Set<Integer> selectedRowIds = new HashSet<Integer>();
+
+    /** Index of the first visible data row */
+    private int tableDataStartIndex = 0;
+
+    /** Index of the last visible data row */
+    private int tableDataEndIndex = 20;
+
+    /** The selected page */
+    private int pageSelection;
 
     /**
      * Constructor.
@@ -236,17 +195,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      * Initialize the composite.
      */
     private void init() {
-
         pImage = new PriorityImages(this.getShell());
         pImage.setPriorityDisplay(PriorityDisplay.ColorNumName);
 
         createColumns();
-
-        startIndex = 0;
-        endIndex = pageConfig - 1;
-
         createBottomPageControls();
-
     }
 
     /**
@@ -281,7 +234,6 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         pageCbo.setLayoutData(comboData);
         pageCbo.select(0);
         pageCbo.addSelectionListener(new SelectionAdapter() {
-
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handlePageSelection();
@@ -332,15 +284,6 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     }
 
     /**
-     * Get the entire table list.
-     * 
-     * @return TableDataManager obj
-     */
-    public TableDataManager<NotificationRowData> getMasterTableList() {
-        return masterTableList;
-    }
-
-    /**
      * Get the table list with filters applied.
      * 
      * @return TableDataManager obj
@@ -350,44 +293,26 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     }
 
     /**
-     * Get the table list for display.
-     * 
-     * @return TableDataManager obj
-     */
-    public ArrayList<NotificationRowData> getVisibleTableList() {
-        return visibleTableList;
-    }
-
-    /**
      * Get the rows of data to display.
      * 
      * @return list of Notification Row Data objects
      */
-    private ArrayList<NotificationRowData> getTableRows() {
+    private List<NotificationRowData> gatherVisibleTableRows() {
         visibleTableList.clear();
-        numRows = filteredTableList.getDataArray().size();
-        if (startIndex == 0 && numRows > endIndex) {
-            endIndex = pageConfig - 1;
-        }
+        int numFilteredRows = filteredTableList.getSize();
 
-        // Recalculate start/end indices for visible page
-        if (numRows > endIndex && endIndex - startIndex < pageConfig) {
-            endIndex = startIndex + pageConfig - 1;// numRows -1;
-            if (endIndex - startIndex > pageConfig - 1) {
-                startIndex = ((pageConfig * selectedPage) - (pageConfig - 1)) - 1;
-            }
-        }
+        calculateNumberOfPages();
 
-        if (pageDeleteFlag) {
-            startIndex = 0;
-            endIndex = pageConfig - 1;
+        int pageNumber = pageCbo.getSelectionIndex();
+        if (pageNumber == -1) {
+            pageNumber = 0;
         }
-        getNumberOfPages();
+        tableDataStartIndex = pageNumber * rowsPerPage;
+        tableDataEndIndex = tableDataStartIndex + rowsPerPage - 1;
 
         // Add rows to the visible table list
-        for (int i = startIndex; i <= endIndex; i++) {
-
-            if (i < filteredTableList.getDataArray().size()) {
+        for (int i = tableDataStartIndex; i <= tableDataEndIndex; i++) {
+            if (i < numFilteredRows) {
                 NotificationRowData data = filteredTableList.getDataRow(i);
                 if (data != null) {
                     visibleTableList.add(data);
@@ -395,7 +320,6 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             } else {
                 break;
             }
-
         }
 
         return visibleTableList;
@@ -406,17 +330,8 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      * 
      * @param deleteRecordIds
      */
-    public void deleteTableDataRows(ArrayList<Integer> deleteRecordIds) {
-
-        ArrayList<NotificationRowData> tmpDeleteArray = new ArrayList<NotificationRowData>();
-
-        for (NotificationRowData rd : filteredTableList.getDataArray()) {
-            if (deleteRecordIds.contains(rd.getId()) == true) {
-                tmpDeleteArray.add(rd);
-            }
-        }
-
-        filteredTableList.removeAll(tmpDeleteArray);
+    public void deleteTableDataRows(List<NotificationRowData> deleteRecordIds) {
+        filteredTableList.removeAll(deleteRecordIds);
     }
 
     /**
@@ -439,48 +354,28 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
         filteredTableList.sortData();
 
-        selectedPage = pageCbo.getSelectionIndex() + 1;
         populateTable();
         updateColumnSortImage();
     }
 
     /**
-     * Action taken when deleting a notification from view.
+     * Action taken when hiding a notification from view.
      */
-    public void handleDeleteNotification() {
-
-        deleteFlag = true;
-
+    public void handleHideNotification() {
         // Verify that at least one notification was selected.
         int[] indices = table.getSelectionIndices();
-
         if (indices.length == 0) {
             return;
         }
 
-        // Extract notification ids from the table
-        ArrayList<Integer> ids = new ArrayList<Integer>();
+        List<NotificationRowData> ids = new ArrayList<NotificationRowData>();
         for (int index : indices) {
-
-            ids.add(index);
             NotificationRowData rowData = visibleTableList.get(index);
-            ids.add(rowData.getId());
+            ids.add(rowData);
         }
 
-        if (ids.size() > 0) {
-            deleteRows = (ids.size() / 2);
-            if (deleteRows < visibleTableList.size()) {
-                selectedPage = pageCbo.getSelectionIndex() + 1;
-
-                // If all rows on a page are deleted go to page 1
-            } else {
-                selectedPage = 0;
-                pageCbo.select(selectedPage);
-                pageDeleteFlag = true;
-            }
-
-            deleteRecords(ids);
-        }
+        deleteTableDataRows(ids);
+        populateTable();
     }
 
     /**
@@ -508,96 +403,40 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      * Update labels on the table.
      */
     private void updateLabels() {
+        int startRow = this.tableDataStartIndex + 1;
+        int endRow = this.tableDataEndIndex + 1;
 
-        int startRow = startIndex + 1;
-        int endRow = endIndex + 1;
-        String selection = null;
+        int numFilteredRows = filteredTableList.getSize();
 
-        // Total number of enable rows
-        int numTotal = this.getMasterTableList().getDataArray().size();
+        int numPages = calculateNumberOfPages();
 
-        // Total number of rows in the filteredTableList used in bottom right
-        // hand corner
-        numRows = filteredTableList.getDataArray().size();
+        pageAmtLbl.setText(" of " + numPages);
 
-        // Page calculations
-        getNumberOfPages();
-
-        // Set page label
-        pageAmtLbl.setText(" of " + pageAmt);
-
-        // Set number of pages
-        pageCbo.setItems(pages.toArray(new String[0]));
-
-        if (selectedPage > 0) {
-            pageCbo.select(selectedPage - 1);
-        } else {
-            pageCbo.select(selectedPage);
-        }
-
-        if (pageCbo.getSelectionIndex() >= 0) {
-            selection = pageCbo.getItem(pageCbo.getSelectionIndex());
-        }
-
-        if (selection == null) {
-            selectedPage = 1;
-        } else {
-            selectedPage = pageCbo.getSelectionIndex() + 1;
-        }
-
-        if (deleteFlag) {
-            if (endRow > numRows) {
-                endRow = numRows;
-            } else {
-                endRow = (endIndex + 1) - deleteRows;
-            }
-        }
-
-        if (endIndex > numRows) {
-            endIndex = numRows;
-            endRow = endIndex;
-        }
-
-        if (numRows < pageConfig) {
-            endRow = numRows;
-        }
-
-        // Row text
-        if (numRows == 0) {
+        if (numFilteredRows == 0) {
             // No rows visible possibly due to filtering
             numRowsLbl
                     .setText("No rows to display. Please check the configuration and "
                             + "filtering options.");
-        } else if (startIndex == endIndex) {
-            numRowsLbl.setText(ROW + startRow + " from " + numRows + " of "
-                    + numTotal);
-            // Initial Load with over the number of configured records per page
-        } else if (startIndex == 0 && (numRows > pageConfig)) {
-            numRowsLbl.setText(ROWS + startRow + " - " + pageConfig + " from "
-                    + numRows + " of " + numTotal);
-            // Number of records are less than the page config
-        } else if (numRows < pageConfig) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
-                    + numRows + " of " + numTotal);
-        } else if (numRowsLbl != null) {
-            numRowsLbl.setText(ROWS + startRow + " - " + endRow + " from "
-                    + numRows + " of " + numTotal);
+        } else if (numFilteredRows < endRow) {
+            numRowsLbl.setText(ROWS + startRow + " - " + numFilteredRows
+                    + " from " + numFilteredRows + " of "
+                    + this.masterTableList.getSize());
+        } else {
+            numRowsLbl
+                    .setText(ROWS + startRow + " - " + endRow + " from "
+                            + numFilteredRows + " of "
+                            + this.masterTableList.getSize());
         }
-
-        deleteFlag = false;
-        pageDeleteFlag = false;
     }
 
     /**
      * Refresh table after configurations have changed.
      */
     public void tableChangedAfterConfigLoad() {
-        startIndex = 0;
-        configChange = true;
-
-        if (numRows > 0) {
-            getTableRows();
-        }
+        rowsPerPage = NotificationConfigManager.getInstance().getConfigXml()
+                .getPaginationSetting();
+        populateTableDataRows(null);
+        gatherVisibleTableRows();
 
         table.setRedraw(false);
 
@@ -610,31 +449,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         createColumns();
         table.setRedraw(true);
 
-        populateTableDataRows(null);
-
         populateTable();
-
-        configChange = false;
-    }
-
-    /**
-     * Delete record list.
-     */
-    private void deleteRecords(ArrayList<Integer> deleteList) {
-
-        if (deleteList.size() > 0) {
-            deleteTableDataRows(deleteList);
-            populateTable();
-        }
+        handlePageSelection();
     }
 
     /**
      * Action taken when deleted notifications from view by time.
      */
-    public void handleDeleteOlderThan() {
-
-        deleteFlag = true;
-
+    public void handleHideOlderThan() {
         // Verify that at least one notification was selected.
         int[] indices = table.getSelectionIndices();
 
@@ -648,61 +470,45 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             return;
         }
 
-        NotificationRowData row = filteredTableList.getDataArray().get(
-                indices[0]);
-        ArrayList<Integer> deleteList = new ArrayList<Integer>();
+        TableItem ti = table.getItem(indices[0]);
+        NotificationRowData rd = (NotificationRowData) ti.getData();
+
+        List<NotificationRowData> deleteList = new ArrayList<NotificationRowData>();
 
         // Loop over rows and delete the matching rows
         for (NotificationRowData data : filteredTableList.getDataArray()) {
-            // Priority is 0 based, so must subtract 1
-            if (data.getDate().before(row.getDate())) {
-                deleteList.add(data.getId());
+            if (data.getDate().before(rd.getDate())) {
+                deleteList.add(data);
             }
         }
 
-        if (deleteList.size() > 0) {
-
-            deleteRows = deleteList.size();
-            if (deleteRows < visibleTableList.size()) {
-                selectedPage = pageCbo.getSelectionIndex() + 1;
-
-                // If all rows on a page are deleted go to page 1
-            } else {
-                selectedPage = 0;
-                pageCbo.select(selectedPage);
-                pageDeleteFlag = true;
-            }
-
-            deleteRecords(deleteList);
+        if (!deleteList.isEmpty()) {
+            filteredTableList.removeAll(deleteList);
+            populateTable();
         }
     }
 
     /**
      * Calculate number of pages needed
      */
-    private int getNumberOfPages() {
-
+    private int calculateNumberOfPages() {
         // Calculate number of pages needed
-        if (pageConfig != 0) {
-            pageAmt = (numRows / pageConfig);
-        }
+        int numFilteredRows = filteredTableList.getSize();
+        int numPages = (numFilteredRows / rowsPerPage);
 
         // Add an extra page if excess rows
-        if (numRows > (pageAmt * pageConfig)) {
-            pageAmt = pageAmt + 1;
+        if (numFilteredRows > (numPages * rowsPerPage)) {
+            numPages = numPages + 1;
         }
 
-        // Clear pages array list
-        if (pages != null) {
-            pages.clear();
-        }
+        pages.clear();
 
-        // Add necessary pages
-        for (int i = 1; i <= pageAmt; i++) {
+        // Add pages for combo box
+        for (int i = 1; i <= numPages; i++) {
             pages.add(String.valueOf(i));
         }
 
-        return pageAmt;
+        return numPages;
     }
 
     /**
@@ -711,61 +517,21 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      * @param priority
      *            priority indicator
      */
-    public void handleDeleteByPriority(int priority) {
-
-        deleteFlag = true;
-        ArrayList<Integer> deleteList = new ArrayList<Integer>();
+    public void handleHideByPriority(int priority) {
+        List<NotificationRowData> deleteList = new ArrayList<NotificationRowData>();
 
         // Loop over rows and delete the matching rows
         for (NotificationRowData data : filteredTableList.getDataArray()) {
             // Priority is 0 based, so must subtract 1
             if (data.getPriority() == priority - 1) {
-                deleteList.add(data.getId());
+                deleteList.add(data);
             }
         }
 
         if (deleteList.size() > 0) {
-
-            deleteRows = deleteList.size();
-            if (deleteRows < visibleTableList.size()) {
-                selectedPage = pageCbo.getSelectionIndex() + 1;
-
-                // If all rows on a page are deleted go to page 1
-            } else {
-                selectedPage = 0;
-                pageCbo.select(selectedPage);
-                pageDeleteFlag = true;
-            }
-
-            deleteRecords(deleteList);
+            deleteTableDataRows(deleteList);
+            populateTable();
         }
-    }
-
-    /**
-     * Get the start index.
-     * 
-     * @return start index
-     */
-    public int getStartIndex() {
-        return startIndex;
-    }
-
-    /**
-     * Get the end index.
-     * 
-     * @return end index
-     */
-    public int getEndIndex() {
-        return endIndex;
-    }
-
-    /**
-     * Get the selected index.
-     * 
-     * @return selected index
-     */
-    public int getSelectedIndex() {
-        return selectedIndex;
     }
 
     /**
@@ -804,7 +570,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      *            list of notification records
      */
     public void populateTableDataRows(
-            ArrayList<NotificationRecord> notificationRecords) {
+            List<NotificationRecord> notificationRecords) {
         List<NotificationRecord> notificationList = new ArrayList<NotificationRecord>();
         MessageLoadXML messageLoad = null;
         NotificationConfigManager configMan = NotificationConfigManager
@@ -812,22 +578,22 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         ArrayList<String> users = configMan.getFilterXml().getUserFilterXml()
                 .getUserList();
 
-        if (notificationRecords == null) {
-            messageLoad = msgLoadCallback.getMessageLoad();
-            handler = new NotificationHandler();
+        messageLoad = msgLoadCallback.getMessageLoad();
+
+        if (CollectionUtil.isNullOrEmpty(notificationRecords)) {
             notificationList = handler.intialLoad(messageLoad, users);
             masterTableList.clearAll();
-            currentRecordIds.clear();
+            filteredTableList.clearAll();
         } else {
             for (NotificationRecord rec : notificationRecords) {
                 // prevents duplicates
-                if (!currentRecordIds.contains(rec.getId())) {
+                if (!notificationList.contains(rec)) {
                     notificationList.add(rec);
                 }
             }
         }
 
-        if (notificationList == null || notificationList.isEmpty()) {
+        if (CollectionUtil.isNullOrEmpty(notificationList)) {
             return;
         }
 
@@ -841,16 +607,7 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             rd.setUser(record.getUsername());
             // Master table list is filtered for user only
             masterTableList.addDataRow(rd);
-            currentRecordIds.add(rd.getId());
             ++messageReceivedWhilePausedCount;
-        }
-
-        resetTable();
-
-        filteredTableList.clearAll();
-
-        // Apply filters to the master list to get filteredTableList
-        for (NotificationRowData rd : this.masterTableList.getDataArray()) {
 
             // Apply filter
             if (passesFilter(rd.getUser(), rd.getPriority(), rd.getCategory())) {
@@ -858,48 +615,60 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             }
         }
 
+        resetTable();
+
         messageLoad = msgLoadCallback.getMessageLoad();
-        if (messageLoad != null) {
-            if (!messageLoad.isLoadAllMessages()) {
-                // Sort data by time
-                sortByTime(filteredTableList);
 
-                int loadLast = messageLoad.getLoadLast();
+        // ensure default values
+        if (messageLoad == null) {
+            messageLoad = new MessageLoadXML();
+        }
 
-                // Keep only the specified number of rows
-                if (messageLoad.isNumMessages()) {
-                    int numRecs = filteredTableList.getDataArray().size();
-                    List<NotificationRowData> removeList = new ArrayList<NotificationRowData>();
-                    if (numRecs > loadLast) {
-                        for (int i = loadLast; i < numRecs; i++) {
-                            removeList.add(filteredTableList.getDataRow(i));
-                        }
-                    }
-                    if (!removeList.isEmpty()) {
-                        filteredTableList.removeAll(removeList);
-                    }
-                } else {
-                    long backTime = loadLast * TimeUtil.MILLIS_PER_HOUR;
-                    long currentTime = TimeUtil.currentTimeMillis();
-                    List<NotificationRowData> dataList = filteredTableList
-                            .getDataArray();
-                    List<Integer> indicesToRemove = new ArrayList<Integer>();
-                    for (int i = 0; i < dataList.size(); i++) {
-                        if (currentTime - dataList.get(i).getDate().getTime() > backTime) {
-                            indicesToRemove.add(i);
-                        }
-                    }
+        if (!messageLoad.isLoadAllMessages()) {
+            // Sort data by time
+            sortByTime(masterTableList);
 
-                    for (int i : indicesToRemove) {
-                        filteredTableList.removeDataRow(i);
+            int loadLast = messageLoad.getLoadLast();
+            List<NotificationRowData> removeList = new ArrayList<NotificationRowData>();
+
+            // Keep only the specified number of rows
+            if (messageLoad.isNumMessages()) {
+                // int numRecs = filteredTableList.getSize();
+                int numRecs = masterTableList.getSize();
+                if (numRecs > loadLast) {
+                    removeList = masterTableList.getDataArray().subList(
+                            loadLast, masterTableList.getSize());
+                }
+            } else {
+                long backTime = loadLast * TimeUtil.MILLIS_PER_HOUR;
+                long currentTime = TimeUtil.currentTimeMillis();
+
+                List<NotificationRowData> dataList = masterTableList
+                        .getDataArray();
+                for (int i = 0; i < dataList.size(); i++) {
+                    if (currentTime - dataList.get(i).getDate().getTime() > backTime) {
+                        removeList.add(dataList.get(i));
                     }
                 }
+            }
+
+            if (!removeList.isEmpty()) {
+                filteredTableList.removeAll(removeList);
+                masterTableList.removeAll(removeList);
             }
         }
 
         // Now do the configured sort
         updateSortDirection(this.sortedColumn, filteredTableList, false);
         filteredTableList.sortData();
+
+        calculateNumberOfPages();
+        pageCbo.setItems(pages.toArray(new String[0]));
+        int numPages = filteredTableList.getSize() / rowsPerPage;
+        if (pageSelection > numPages) {
+            pageSelection = numPages;
+        }
+        pageCbo.select(this.pageSelection);
     }
 
     private void sortByTime(TableDataManager<NotificationRowData> data) {
@@ -1042,7 +811,11 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
         columnList = xml.getColumnList();
 
-        pageConfig = xml.getPaginationSetting();
+        rowsPerPage = xml.getPaginationSetting();
+        if (rowsPerPage < 1) {
+            // default to 20 rows
+            rowsPerPage = 20;
+        }
 
         PrioritySettingXML pri = xml.getPrioritySetting();
         PriorityDisplay pd = PriorityDisplay.ColorNumName;
@@ -1113,25 +886,18 @@ public class NotificationTableComp extends TableComp implements ITableFind {
             return;
         }
 
-        int highlightIndex = 0;
-        int[] indicesArr = null;
-
-        ArrayList<Integer> items = new ArrayList<Integer>();
-
-        sortedColumnName = sortedColumn.getText();
-        sortedDirectionName = sortDirectionMap.get(sortedColumnName);
-
         filteredTableList.sortData();
 
         TableColumn[] columns = table.getColumns();
 
         resetTable();
 
-        getTableRows();
+        gatherVisibleTableRows();
 
         for (NotificationRowData rd : this.visibleTableList) {
             int idx = 0;
             TableItem item = new TableItem(table, SWT.NONE);
+            item.setData(rd);
 
             for (TableColumn column : columns) {
                 ColumnXML columnXml = getColumnData(column.getText());
@@ -1156,84 +922,15 @@ public class NotificationTableComp extends TableComp implements ITableFind {
 
         // Update the bottom label values
         updateLabels();
-
-        // check indices array for highlight all
-        if (indices != null) {
-            if (indices.length > 0) {
-                for (int index : indices) {
-                    if (index >= startIndex && index <= endIndex) {
-                        if (startIndex == 0) {
-                            highlightIndex = index;
-                        } else if (selectedPage > 0) {
-                            int extra = ((selectedPage - 1) * pageConfig);
-                            highlightIndex = index - extra;
-                        } else {
-                            highlightIndex = index - pageConfig;
-                        }
-
-                        items.add(highlightIndex);
-                    }
-
-                }
-
-                indicesArr = new int[items.size()];
-
-                // Rows to highlight
-                for (int i = 0; i < items.size(); i++) {
-                    indicesArr[i] = items.get(i);
-                }
-
-                table.select(indicesArr);
-            }
-        } else {
-            // Highlight the rows which was selected on the table page.
-            if (!selectedRowIds.isEmpty()) {
-                Set<Integer> ids = new HashSet<Integer>();
-                for (int i = 0; i < filteredTableList.getDataArray().size(); i++) {
-                    NotificationRowData row = filteredTableList.getDataArray()
-                            .get(i);
-                    int idx = row.getId();
-                    if (selectedRowIds.contains(idx)) {
-                        ids.add(i);
-                    }
-                }
-
-                int[] hlts = new int[ids.size()];
-                int counter = 0;
-
-                Iterator<Integer> itr = ids.iterator();
-                while (itr.hasNext()) {
-                    hlts[counter] = itr.next();
-                    ++counter;
-                }
-
-                table.select(hlts);
-            }
-        }
-
         updateColumnSortImage();
-
-        initialized = true;
+        highlightRows();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.datadelivery.common.ui.TableComp#handleTableMouseClick
-     * (org.eclipse.swt.events.MouseEvent)
-     */
     @Override
     protected void handleTableMouseClick(MouseEvent event) {
-
+        // no op
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.datadelivery.common.ui.TableComp#
-     * handleTableSelectionChange(org.eclipse.swt.events.SelectionEvent)
-     */
     @Override
     protected void handleTableSelection(SelectionEvent e) {
         if (tableChangeCallback != null) {
@@ -1249,19 +946,15 @@ public class NotificationTableComp extends TableComp implements ITableFind {
         }
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * {@inheritDoc}
      * 
-     * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
+     * This method is not used. The Notification dialog is using the
+     * NotificationHandler so this override method is not used.
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        /*
-         * This method is not used. The Notification dialog is using the
-         * NotificationHandler so this override method is not used.
-         */
+        // No op
     }
 
     /**
@@ -1269,34 +962,14 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      */
     @Override
     public void handlePageSelection() {
-        // Page selection
-        if (findFlag) {
-            findFlag = false;
-        } else {
-            String selection = pageCbo.getItem(pageCbo.getSelectionIndex());
-            selectedPage = Integer.parseInt(selection);
-        }
+        this.pageSelection = pageCbo.getSelectionIndex();
 
         // Clean highlighted selections on the page
         selectedRowIds.clear();
 
         // Calculate indices
-        if (selectedPage >= 1) {
-
-            startIndex = ((pageConfig * selectedPage) - (pageConfig - 1)) - 1;
-            lastRow = filteredTableList.getDataArray().size();
-
-            endIndex = (pageConfig * selectedPage) - 1;
-
-            if (lastRow < endIndex) {
-                endIndex = lastRow - 1;
-            }
-
-        } else {
-            startIndex = 0;
-            endIndex = pageConfig - 1;
-        }
-
+        this.tableDataStartIndex = rowsPerPage * pageSelection;
+        this.tableDataEndIndex = tableDataStartIndex + rowsPerPage;
         populateTable();
     }
 
@@ -1304,67 +977,39 @@ public class NotificationTableComp extends TableComp implements ITableFind {
      * Find the selected table row index.
      */
     @Override
-    public void selectIndex(int index) {
-        findFlag = true;
+    public void selectRow(NotificationRowData row) {
+        int dataIndex = filteredTableList.getDataArray().indexOf(row);
 
-        TableItem item;
+        int selectedPage = dataIndex / rowsPerPage + 1;
+        int pageIndex = dataIndex % rowsPerPage;
 
-        int extra = 0;
-        highlightIndex = 0;
-        selectedIndex = index;
-
-        // get what page index is on
-        if (index > pageConfig && (index != ((selectedPage + 1) * pageConfig))) {
-            selectedPage = (index / pageConfig) + 1;
-        } else {
-            selectedPage = (index / pageConfig);
-        }
-
-        // switch pages
+        pageCbo.select(selectedPage - 1);
         handlePageSelection();
-
-        selectedPage = (index / pageConfig);
-        pageCbo.select(selectedPage);
-
-        if (index > pageConfig) {
-
-            // Calculate the index number for the current visible rows
-            extra = (selectedPage) * pageConfig;
-            if (index != extra) {
-                highlightIndex = index - extra;
-            } else {
-                highlightIndex = pageConfig;
-            }
-
-            if (highlightIndex > 0) {
-                item = table.getItem(highlightIndex - 1);
-            } else {
-                item = table.getItem(highlightIndex);
-            }
-
-        } else {
-            if (index > 0) {
-                item = table.getItem(index - 1);
-            } else {
-                item = table.getItem(index);
-            }
-
-        }
-
+        TableItem item = table.getItem(pageIndex);
         table.setSelection(item);
-
+        this.pageSelection = pageCbo.getSelectionIndex();
     }
 
     /**
      * Find the selected table row indices.
      */
     @Override
-    public void selectIndices(int[] indices) {
-        this.indices = indices;
-        if (indices != null && indices.length > 0) {
-            // highlight table rows
-            table.select(indices);
-            handlePageSelection();
+    public void selectRows(List<NotificationRowData> rows) {
+        this.highlightRows = rows;
+        highlightRows();
+    }
+
+    /**
+     * Highlight the rows
+     */
+    private void highlightRows() {
+        table.deselectAll();
+        if (!CollectionUtil.isNullOrEmpty(highlightRows)) {
+            for (NotificationRowData row : highlightRows) {
+                if (visibleTableList.contains(row)) {
+                    table.select(visibleTableList.indexOf(row));
+                }
+            }
         }
     }
 
@@ -1400,5 +1045,31 @@ public class NotificationTableComp extends TableComp implements ITableFind {
     @Override
     public void clearSelections() {
         table.deselectAll();
+    }
+
+    @Override
+    public int getCurrentSelectionIndex() {
+        return rowsPerPage * (pageCbo.getSelectionIndex())
+                + table.getSelectionIndex();
+    }
+
+    /**
+     * Delete rows based on id.
+     * 
+     * @param deleteRecordIds
+     *            List of ids to delete.
+     */
+    public void deleteTableDataRows(ArrayList<Integer> deleteRecordIds) {
+        List<NotificationRowData> deleteList = new ArrayList<NotificationRowData>(
+                deleteRecordIds.size());
+
+        for (NotificationRowData rd : filteredTableList.getDataArray()) {
+            if (deleteRecordIds.contains(rd.getId())) {
+                deleteList.add(rd);
+            }
+        }
+
+        filteredTableList.removeAll(deleteList);
+        populateTable();
     }
 }
