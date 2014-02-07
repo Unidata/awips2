@@ -89,6 +89,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jan 28, 2014 2698       bclement    added error display text
  * Jan 30, 2014 2698       bclement    added handle to join room with
  * Feb  3, 2014 2699       bclement    added default handle preference
+ * Feb  7, 2014 2699       bclement    removed handle validation
  * 
  * </pre>
  * 
@@ -452,14 +453,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         focusField = nameTF;
                         errorMessages.add(err);
                     }
-                    err = validateHandle();
-                    String handle = handleTF.getText();
-                    if (err != null) {
-                        if (focusField == null) {
-                            focusField = handleTF;
-                        }
-                        errorMessages.add(err);
-                    }
+                    String handle = handleTF.getText().trim();
 
                     if (focusField == null) {
                         CreateSessionData result = new CreateSessionData();
@@ -546,16 +540,6 @@ public class CreateSessionDialog extends CaveSWTDialog {
                 statusHandler.error("Unable to check room existence on server",
                         e);
             }
-        }
-        return err;
-    }
-
-    private String validateHandle() {
-        String handle = handleTF.getText().trim();
-        handleTF.setText(handle);
-        String err = null;
-        if (!Tools.isValidId(handle)) {
-            err = "Handle contains invalid characters.";
         }
         return err;
     }
