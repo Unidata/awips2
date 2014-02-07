@@ -36,6 +36,7 @@ import org.jivesoftware.smackx.muc.Occupant;
  * Mar 28, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 30, 2014 2698       bclement    reworked convertFromRoom for venue participants
+ * Feb  3, 2014 2699       bclement    fixed room id parsing when handle has special characters
  * 
  * </pre>
  * 
@@ -75,7 +76,8 @@ public class IDConverter {
             throw new IllegalArgumentException(
                     "Room participant ids must have handle in resource");
         }
-        String host = StringUtils.parseServer(id);
+        String cleanId = id.substring(0, id.length() - handle.length());
+        String host = StringUtils.parseServer(cleanId);
 
         String name = null;
         Occupant occupant;
