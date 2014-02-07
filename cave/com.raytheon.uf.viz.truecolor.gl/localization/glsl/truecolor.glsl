@@ -6,8 +6,13 @@ const int RED_BAND = 0;
 const int GREEN_BAND = 1;
 const int BLUE_BAND = 2;
 
-uniform DataTexture rawData;
-uniform DataMapping dataMapping;
+uniform sampler2D rawDataTex;
+uniform DataTextureInfo rawData;
+
+uniform sampler1D dataMappingDataValues;
+uniform sampler1D dataMappingColorValues;
+uniform int dataMappingValues;
+
 uniform ColorMapping colorMapping;
 
 uniform sampler2D trueColorTexture;
@@ -49,7 +54,7 @@ vec4 applyColorBand(int colorband) {
 			vec2((xy.x / width), (xy.y / height)));
 
 	// Lookup raw data value
-	float dataValue = textureToDataValue(rawData, gl_TexCoord[0].st);
+	float dataValue = textureToDataValue(rawDataTex, rawData, gl_TexCoord[0].st);
 
 	float r = curVal.r;
 	float g = curVal.g;
@@ -58,7 +63,7 @@ vec4 applyColorBand(int colorband) {
 
 	if (dataValue != rawData.noDataValue && dataValue == dataValue) {
 		// Convert dataValue to cmapValue
-		float cmapValue = dataToColorMapValue(dataValue, dataMapping);
+		float cmapValue = dataToColorMapValue(dataValue, dataMappingDataValues, dataMappingColorValues, dataMappingValues);
 		float index = getColorMappingIndex(cmapValue, colorMapping);
 		
 		int currentMask = toBitMask(a);
