@@ -3,7 +3,10 @@
 #include <mapping>
 #include <coloring>
 
+uniform sampler1D colorMappingColorMap;
+uniform sampler1D colorMappingAlphaMask;
 uniform ColorMapping colorMapping;
+
 uniform ColorModifiers modifiers;
 
 uniform float bkgrndRed;
@@ -19,12 +22,12 @@ void main(void){
 	if ( logFactor > 0.0 ) {
 		index = getLogFactorIndex(index, logFactor);
 	}
-	vec4 color = texture1D(colorMapping.colorMap, index).rgba;
+	vec4 color = texture1D(colorMappingColorMap, index).rgba;
 	
 	// Apply alpha mask if set 
     float alpha = color.a;
     if ( applyMask == 1 ) {
-        if ( texture1D(colorMapping.alphaMask , index ).r != 0.0 ) {
+        if ( texture1D(colorMappingAlphaMask , index ).r != 0.0 ) {
             color = vec4(bkgrndRed, bkgrndGreen, bkgrndBlue, alpha);
         }
     }
