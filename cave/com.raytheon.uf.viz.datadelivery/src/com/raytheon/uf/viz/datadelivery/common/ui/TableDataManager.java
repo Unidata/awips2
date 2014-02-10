@@ -29,7 +29,8 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 06, 2012            lvenable     Initial creation
- * Apr 10, 2013 1891       djohnson     Declare variable as List.
+ * Apr 10, 2013   1891     djohnson     Declare variable as List.
+ * Feb 07, 2014   2453     mpduff       Added getSize().
  *
  * </pre>
  *
@@ -132,8 +133,7 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
     public T getDataRow(int index) {
         if (index >= 0 && index < tableData.size()) {
             return tableData.get(index);
-        }
-        else {
+        } else {
             return tableData.get(0);
         }
     }
@@ -186,5 +186,14 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
     @Override
     public SortDirection getSortDirection() {
         return currentSortDirection;
+    }
+
+    /**
+     * Get the size of the data array.
+     * 
+     * @return The size
+     */
+    public int getSize() {
+        return this.tableData.size();
     }
 }
