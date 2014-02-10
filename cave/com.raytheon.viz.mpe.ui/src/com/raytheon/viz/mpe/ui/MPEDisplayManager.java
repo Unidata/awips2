@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  *                                      fix formatting of legend for Base field Height.
  * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.  
  * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
  * 
  * </pre>
  * 
@@ -958,6 +959,7 @@ public class MPEDisplayManager {
         String fname = null;
         if (prismType != null) {
             // Load prism type
+            dateString= dateString.toLowerCase();
             String mpe_site_id = appsDefaults.getToken("mpe_site_id");
             fname = FileUtil.join(dirname, "prism_" + prismType + "_"
                     + mpe_site_id + "_" + dateString);
