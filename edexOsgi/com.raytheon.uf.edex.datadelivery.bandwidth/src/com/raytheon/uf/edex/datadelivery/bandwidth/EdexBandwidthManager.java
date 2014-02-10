@@ -23,7 +23,6 @@ import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Typ
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +68,7 @@ import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.IPerformanceTimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
@@ -125,7 +125,7 @@ import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
  *                                      bandwidth manager to perform the scheduling initialization
  *                                      because of efficiency.
  * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
- * 
+ * Feb 10, 2014 2636       mpduff       Pass Network map to be scheduled.
  * </pre>
  * 
  * @author djohnson
@@ -189,7 +189,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         this.findSubscriptionsStrategy = findSubscriptionsStrategy;
 
         // schedule maintenance tasks
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     @Override
@@ -218,9 +218,9 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                             subsToSchedule.add(s);
                         }
                     }
-                    unscheduledNames
-                            .addAll(scheduleSubscriptions(subsToSchedule));
-                } else {
+
+                    unscheduled.addAll(scheduleSubscriptions(subsToSchedule));
+
                     unscheduledNames.addAll(unscheduled);
                 }
             }
@@ -238,12 +238,11 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             // scheduler.setRemoveOnCancelPolicy(true);
             scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
                     TimeUnit.MINUTES);
-            scheduler.scheduleAtFixedRate(new MaintenanceTask(), 5, 5,
+            scheduler.scheduleAtFixedRate(new MaintenanceTask(), 30, 30,
                     TimeUnit.MINUTES);
         }
         return unscheduledNames;
     }
-
 
     /**
      * {@inheritDoc}
@@ -808,42 +807,74 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager#
+     * getSubscriptionsToSchedule
+     * (com.raytheon.uf.common.datadelivery.registry.Network)
+     */
+    @Override
+    protected List<Subscription> getSubscriptionsToSchedule(Network network) {
+        List<Subscription> subList = new ArrayList<Subscription>(0);
+        try {
+            Map<Network, List<Subscription>> activeSubs = findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule();
+            if (activeSubs.get(network) != null) {
+                subList = activeSubs.get(network);
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error retrieving subscriptions.", e);
+        }
+
+        return subList;
+    }
+
     /**
      * Private inner work thread used to keep the RetrievalPlans up to date.
      */
     private class MaintenanceTask implements Runnable {
         @Override
         public void run() {
+            IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+            timer.start();
             statusHandler.info("MaintenanceTask starting...");
+
             for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
                     .values()) {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.info("MaintenanceTask: " + plan.getNetwork());
+                    statusHandler.info("MaintenanceTask: planStart: "
+                            + plan.getPlanStart().getTime());
+                    statusHandler.info("MaintenanceTask: planEnd: "
+                            + plan.getPlanEnd().getTime());
+                }
                 plan.resize();
-                Calendar newEnd = plan.getPlanEnd();
-
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    statusHandler.info("MaintenanceTask: resized planStart: "
+                            + plan.getPlanStart().getTime());
+                    statusHandler.info("MaintenanceTask: resized planEnd: "
+                            + plan.getPlanEnd().getTime());
+                    statusHandler.info("MaintenanceTask: Update schedule");
+                }
                 // Find DEFERRED Allocations and load them into the plan...
                 List<BandwidthAllocation> deferred = bandwidthDao.getDeferred(
-                        plan.getNetwork(), newEnd);
+                        plan.getNetwork(), plan.getPlanEnd());
                 if (!deferred.isEmpty()) {
                     retrievalManager.schedule(deferred);
                 }
             }
 
-            try {
-                Map<Network, List<Subscription>> activeSubs = findSubscriptionsStrategy
-                        .findSubscriptionsToSchedule();
-
-                for (Network network : activeSubs.keySet()) {
-                    for (Subscription sub : activeSubs.get(network)) {
-                        statusHandler.debug("MaintenanceTask scheduling for "
-                                + sub.getName());
-                        schedule(sub, false);
-                    }
-                }
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error requesting subscriptions from registry.", e);
+            int numSubsProcessed = 0;
+            for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
+                    .values()) {
+                numSubsProcessed += updateSchedule(plan.getNetwork());
             }
-            statusHandler.info("MaintenanceTask complete");
+            timer.stop();
+            statusHandler.info("MaintenanceTask complete: "
+                    + timer.getElapsed() + " - " + numSubsProcessed
+                    + " Subscriptions processed.");
         }
     }
 }
