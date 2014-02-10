@@ -49,6 +49,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggre
  * Jan 08, 2014 2615       bgonzale     Added scheduleAdoc method.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * Feb 06, 2014 2636       bgonzale     added initializeScheduling method.
+ * Fev 12, 2014 2636       mpduff       Add updateSchedule method.
  * </pre>
  * 
  * @author djohnson
@@ -64,9 +65,17 @@ public interface IBandwidthManager<T extends Time, C extends Coverage> {
      * @return A map of bandwidth allocations that are not scheduled by
      *         subscription name
      */
-    List<BandwidthAllocation> schedule(
-            Map<Network, List<Subscription<T, C>>> subscriptions,
-            boolean fullSchedule);
+    List<BandwidthAllocation> schedule(Subscription<T, C> subscription);
+
+    /**
+     * Update the retrieval plan scheduling.
+     * 
+     * @param Network
+     *            the network to update
+     * 
+     * @return number of subscriptions processed
+     */
+    int updateSchedule(Network network);
 
     /**
      * Schedule AdhocSubscription to run as soon as the RetrievalPlan will
