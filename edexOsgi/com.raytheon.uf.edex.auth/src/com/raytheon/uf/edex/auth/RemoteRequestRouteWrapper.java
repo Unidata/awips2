@@ -67,7 +67,18 @@ public class RemoteRequestRouteWrapper {
             Object obj = SerializationUtil.transformFromThrift(Object.class,
                     data);
             int remaining = data.available();
-            if (remaining > 0) {
+            if (remaining == 1) {
+                int tail = data.read();
+                /*
+                 * When http proxies are being used there is a single null
+                 * character at the end of the message, no need to panic.
+                 */
+                if (tail != 0x00) {
+                    throw new IllegalStateException(
+                            "Unexpected byte remaining after deserialization: "
+                                    + tail);
+                }
+            } else if (remaining > 0) {
                 throw new IllegalStateException(remaining
                         + " unexpected bytes remaining after deserialization");
             }
