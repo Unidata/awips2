@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
@@ -82,6 +83,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
  *                                      because the calculate start and end time methods no longer use
  *                                      active period.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Feb 11, 2014 2636       mpduff       Change how retrieval times are calculated.
  * </pre>
  * 
  * @author djohnson
@@ -120,10 +122,9 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @return
      */
     public SortedSet<Calendar> getRetrievalTimes(
-            Subscription<T, C> subscription, SortedSet<Integer> cycles,
-            Calendar start, Calendar end) {
+            Subscription<T, C> subscription, SortedSet<Integer> cycles) {
         return getRetrievalTimes(subscription, cycles,
-                Sets.newTreeSet(Arrays.asList(0)), start, end);
+                Sets.newTreeSet(Arrays.asList(0)));
     }
 
     /**
@@ -136,8 +137,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      * @return the retrieval times
      */
     public SortedSet<Calendar> getRetrievalTimes(
-            Subscription<T, C> subscription, int retrievalInterval,
-            Calendar start, Calendar end) {
+            Subscription<T, C> subscription, int retrievalInterval) {
         // Add all hours of the days
         final SortedSet<Integer> hours = Sets.newTreeSet();
         for (int i = 0; i < TimeUtil.HOURS_PER_DAY; i++) {
@@ -151,7 +151,7 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
             minutes.add(i);
         }
 
-        return getRetrievalTimes(subscription, hours, minutes, start, end);
+        return getRetrievalTimes(subscription, hours, minutes);
     }
 
     /**
@@ -164,74 +164,76 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
      *            The set of hours
      * @param minutes
      *            The set of minutes
-     * @param startTime
-     *            The start time
-     * @param endTime
-     *            The end time
      * @return Set of retrieval times
      */
     private SortedSet<Calendar> getRetrievalTimes(
             Subscription<T, C> subscription, SortedSet<Integer> hours,
-            SortedSet<Integer> minutes, Calendar startTime, Calendar endTime) {
+            SortedSet<Integer> minutes) {
         SortedSet<Calendar> subscriptionTimes = new TreeSet<Calendar>();
+
+        RetrievalPlan plan = retrievalManager.getPlan(subscription.getRoute());
+        Calendar planStart = plan.getPlanStart();
+        Calendar planEnd = plan.getPlanEnd();
 
         // starting time when when subscription is first valid for scheduling
         // based on plan start and subscription start.
         Calendar subscriptionCalculatedStart = subscription
-                .calculateStart(startTime);
+                .calculateStart(planStart);
         // end time when when subscription is last valid for scheduling based on
         // plan end and subscription end.
-        Calendar subscriptionCalculatedEnd = subscription.calculateEnd(endTime);
+        Calendar subscriptionCalculatedEnd = subscription.calculateEnd(planEnd);
         if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-            statusHandler.debug("**** PlanStart: " + startTime.getTime());
-            statusHandler.debug("**** PlanEnd  : " + endTime.getTime());
+            statusHandler.debug("**** PlanStart: " + planStart.getTime());
+            statusHandler.debug("**** PlanEnd  : " + planEnd.getTime());
             statusHandler.debug("**** CalculatedStart: "
                     + subscriptionCalculatedStart.getTime());
             statusHandler.debug("**** CalculatedEnd  : "
                     + subscriptionCalculatedEnd.getTime());
         }
 
-        // drop the start time by 6 hours to account for 4 cycle/day models
         subscriptionCalculatedStart = TimeUtil.minCalendarFields(
                 subscriptionCalculatedStart, Calendar.MINUTE, Calendar.SECOND,
                 Calendar.MILLISECOND);
-        subscriptionCalculatedStart.add(Calendar.HOUR_OF_DAY, -6);
-        Calendar start = (Calendar) subscriptionCalculatedStart.clone();
-        outerloop: while (!start.after(subscriptionCalculatedEnd)) {
 
+        // drop the start time by 6 hours to account for 4 cycle/day models
+        subscriptionCalculatedStart.add(Calendar.HOUR_OF_DAY, -6);
+        Calendar start = TimeUtil.newGmtCalendar(subscriptionCalculatedStart
+                .getTime());
+
+        int availabilityOffset = 0;
+        try {
+            availabilityOffset = BandwidthUtil.getDataSetAvailablityOffset(
+                    subscription, start);
+        } catch (RegistryHandlerException e) {
+            // Error occurred querying the registry. Log and continue on
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Unable to retrieve data availability offset, using 0 for the offset.",
+                            e);
+        }
+
+        while (!start.after(subscriptionCalculatedEnd)) {
             for (Integer cycle : hours) {
                 start.set(Calendar.HOUR_OF_DAY, cycle);
-                // start base equal-to-or-after subscriptionStart
-                if (start.compareTo(subscriptionCalculatedStart) >= 0) {
-                    for (Integer minute : minutes) {
-                        start.set(Calendar.MINUTE, minute);
+                for (Integer minute : minutes) {
+                    start.set(Calendar.MINUTE, minute);
+                    Calendar retrievalTime = TimeUtil.newGmtCalendar();
+                    retrievalTime.setTimeInMillis(start.getTimeInMillis());
+                    retrievalTime.add(Calendar.MINUTE, availabilityOffset);
 
-                        // start minutes equal-to-or-after subscriptionStart
-                        if (start.compareTo(subscriptionCalculatedStart) >= 0) {
-                            // Check for nonsense
-                            if (start.after(subscriptionCalculatedEnd)) {
-                                break outerloop;
-                            } else {
-                                Calendar time = TimeUtil.newCalendar();
-                                time.setTimeInMillis(start.getTimeInMillis());
-                                /**
-                                 * Fine grain check by hour and minute, for
-                                 * subscription(start/end),
-                                 * activePeriod(start/end)
-                                 **/
-                                // Subscription Start and End time first
-                                if (time.after(subscriptionCalculatedEnd)
-                                        || time.before(start)
-                                        || !subscription
-                                                .inActivePeriodWindow(time)) {
-                                    // don't schedule this retrieval time,
-                                    // outside subscription window
-                                    continue;
-                                }
-
-                                subscriptionTimes.add(time);
-                            }
+                    if (retrievalTime.after(planStart)
+                            && retrievalTime.before(planEnd)) {
+                        // Check for nonsense
+                        /*
+                         * Fine grain check by hour and minute, for
+                         * subscription(start/end), activePeriod(start/end)
+                         */
+                        if (!subscription.inActivePeriodWindow(retrievalTime)) {
+                            // don't schedule this retrieval time,
+                            // outside subscription window
+                            continue;
                         }
+                        subscriptionTimes.add(retrievalTime);
                     }
                 }
             }
