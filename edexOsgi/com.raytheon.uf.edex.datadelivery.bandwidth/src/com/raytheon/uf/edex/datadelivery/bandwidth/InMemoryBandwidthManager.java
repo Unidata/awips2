@@ -58,13 +58,15 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Oct 2,  2013 1797       dhladky      Generics
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
  * Feb 06, 2014 2636       bgonzale     added initializeScheduling method.
+ * Feb 12, 2014 2636       mpduff       Override getSubscriptionsToSchedule
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends BandwidthManager<T, C> {
+class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends
+        BandwidthManager<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(InMemoryBandwidthManager.class);
@@ -122,8 +124,8 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
      * @param bandwidthDaoUtil
      */
     public InMemoryBandwidthManager(IBandwidthDbInit dbInit,
-            IBandwidthDao<T,C> bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
+            IBandwidthDao<T, C> bandwidthDao,
+            RetrievalManager retrievalManager, BandwidthDaoUtil bandwidthDaoUtil) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
     }
 
@@ -140,7 +142,7 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
      */
     @Override
     protected ProposeScheduleResponse proposeScheduleSbnSubscription(
-            List<Subscription<T,C>> subscriptions) throws Exception {
+            List<Subscription<T, C>> subscriptions) throws Exception {
         return proposeScheduleSubscriptions(subscriptions);
     }
 
@@ -149,7 +151,8 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
      */
     @Override
     protected Set<String> scheduleSbnSubscriptions(
-            List<Subscription<T,C>> subscriptions) throws SerializationException {
+            List<Subscription<T, C>> subscriptions)
+            throws SerializationException {
         return scheduleSubscriptions(subscriptions);
     }
 
@@ -177,4 +180,9 @@ class InMemoryBandwidthManager<T extends Time, C extends Coverage> extends Bandw
         return new ArrayList<String>(0);
     }
 
+    @Override
+    protected List<Subscription> getSubscriptionsToSchedule(Network network) {
+        // Nothing to do for in-memory version
+        return new ArrayList<Subscription>(0);
+    }
 }
