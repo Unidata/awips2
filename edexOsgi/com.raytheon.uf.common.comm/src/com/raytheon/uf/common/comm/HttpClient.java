@@ -104,6 +104,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    Mar 11, 2013  1786        mpduff      Add https capability.
  *    Jun 12, 2013  2102        njensen     Better error handling when using
  *                                           DynamicSerializeStreamHandler
+ *    Feb 17, 2014  2756        bclement    added content type to response object
  * 
  * </pre>
  * 
@@ -116,9 +117,12 @@ public class HttpClient {
 
         public final byte[] data;
 
-        private HttpClientResponse(int code, byte[] data) {
+        public final String contentType;
+
+        private HttpClientResponse(int code, byte[] data, String contentType) {
             this.code = code;
             this.data = data != null ? data : new byte[0];
+            this.contentType = contentType;
         }
     }
 
@@ -676,12 +680,30 @@ public class HttpClient {
                 byteResult = ((DefaultInternalStreamHandler) handlerCallback).byteResult;
             }
             return new HttpClientResponse(resp.getStatusLine().getStatusCode(),
-                    byteResult);
+                    byteResult, getContentType(resp));
         } finally {
             if (ongoing != null) {
                 ongoing.decrementAndGet();
             }
         }
+    }
+
+    /**
+     * Get content type of response
+     * 
+     * @param response
+     * @return null if none found
+     */
+    private static String getContentType(HttpResponse response) {
+        String rval = null;
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            Header contentType = entity.getContentType();
+            if (contentType != null) {
+                rval = contentType.getValue();
+            }
+        }
+        return rval;
     }
 
     /**
