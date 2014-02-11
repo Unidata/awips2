@@ -155,6 +155,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 01/06/2014  2649        dgilling    Pass flag to StoreTransmitDlg to only
  *                                     update VTEC lines on products that
  *                                     aren't being corrected.
+ * 02/05/2014  17022       ryu         Modified loadDraft() to fix merging of WMO heading and AWIPS ID.
  * 
  * </pre>
  * 
@@ -2389,10 +2390,13 @@ public class ProductEditorComp extends Composite implements
             }
 
             DraftProduct draft = DraftProduct.load(lf);
-            setTabColorFunc(productStateEnum.Finished);
             productDefinition = draft.getProductDefinition();
+
+            clearProductText();
             setProductText(draft.getProductText());
+            setTabColorFunc(productStateEnum.Finished);
             setStatusText('R', productId + " draft loaded.");
+
             if (productDefinition.get("brain") != null) {
                 brain();
                 String msg = "Your saved draft was loaded, but the draft is invalid "

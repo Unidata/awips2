@@ -26,6 +26,9 @@
 # Dec 05, 2013  #2590     dgilling    Modified extendLibraryPath() to export a
 #                                     var if it's already been run.
 # Jan 24, 2014  #2739     bsteffen    Add method to log exit status of process.
+# Jan 30, 2014  #2593     bclement    extracted generic part of getPidsOfMyRunningCaves into forEachRunningCave
+#                                     added methods for reading max memory from .ini files
+#                                     fixes for INI files with spaces
 #
 #
 
@@ -39,6 +42,10 @@ fi
 
 # This script will be sourced by cave.sh.
 export CAVE_INI_ARG=
+
+BYTES_IN_KB=1024
+BYTES_IN_MB=1048576
+BYTES_IN_GB=1073741824
 
 function lookupINI()
 {
@@ -56,7 +63,7 @@ function lookupINI()
             position=$(( $position + 1 ))
             nextArg=${!position}
 
-            retrieveAssociatedINI ${arg} ${nextArg}
+            retrieveAssociatedINI ${arg} "${nextArg}"
             RC=$?
             if [ ${RC} -eq 0 ]; then
                export CAVE_INI_ARG="--launcher.ini /awips2/cave/${ASSOCIATED_INI}"
@@ -117,8 +124,8 @@ function copyVizShutdownUtilIfNecessary()
    chmod a+x ${HOME}/.kde/shutdown/${VIZ_UTILITY_SCRIPT}  
 }
 
-# returns _numPids and array _pids containing the pids of the currently running cave sessions.
-function getPidsOfMyRunningCaves()
+# takes a function as an argument and calls the function passing in the ps string of the process
+function forEachRunningCave()
 {
    local user=`whoami`
    local caveProcs=`ps -ef | grep -E "(/awips2/cave|/usr/local/viz)/cave " | grep -v "grep" | grep $user`
@@ -126,15 +133,87 @@ function getPidsOfMyRunningCaves()
    # preserve IFS and set it to line feed only
    local PREV_IFS=$IFS
    IFS=$'\n'
-   _numPids=0
 
-   # grab the pids for future use
    for caveProc in $caveProcs
    do
-      _pids[$_numPids]=`echo $caveProc | awk '{print $2}'`
-      let "_numPids+=1"
+      "$@" $caveProc
    done
    IFS=$PREV_IFS
+}
+
+# takes in ps string of cave process, stores pid in _pids and increments _numPids
+function processPidOfCave()
+{
+    _pids[$_numPids]=`echo $1 | awk '{print $2}'`
+    let "_numPids+=1"
+}
+
+# returns _numPids and array _pids containing the pids of the currently running cave sessions.
+function getPidsOfMyRunningCaves()
+{
+   _numPids=0
+   forEachRunningCave processPidOfCave
+}
+
+# takes a name of an ini file as an argument, echos the memory (in bytes) from file (or default)
+function readMemFromIni()
+{
+    local inifile="$1"
+    local mem
+    local unit
+    local regex='^[^#]*-Xmx([0-9]+)([bBkKmMgG])?'
+    # read ini file line by line looking for Xmx arg
+    while read -r line
+    do
+        if [[ $line =~ $regex ]]
+        then
+            mem=${BASH_REMATCH[1]}
+            unit=${BASH_REMATCH[2]}
+            break
+        fi
+    done < "$inifile"
+    # convert to bytes
+    case "$unit" in
+        [kK]) 
+            mem=$(($mem * $BYTES_IN_KB))
+            ;;
+        [mM])
+            mem=$(($mem * $BYTES_IN_MB))
+            ;;
+        [gG])
+            mem=$(($mem * $BYTES_IN_GB))
+            ;;
+    esac
+    regex='^[0-9]+$'
+    if [[ ! $mem =~ $regex ]]
+    then
+        # we couldn't find a valid Xmx value
+        # java default is usually 1G
+        mem=1073741824
+    fi
+    echo $mem
+}
+
+# takes in ps string of cave process, reads Xmx from ini and adds bytes to _totalRunninMem
+function addMemOfCave()
+{
+    local inifile
+    # get ini file from process string
+    local regex='--launcher.ini\s(.+\.ini)'
+    if [[ $1 =~ $regex ]]
+    then
+        inifile="${BASH_REMATCH[1]}"
+    else
+        inifile="/awips2/cave/cave.ini"
+    fi
+    let "_totalRunningMem+=$(readMemFromIni "$inifile")"
+}
+
+# finds total max memory of running caves in bytes and places it in _totalRunningMem
+function getTotalMemOfRunningCaves()
+{
+   _totalRunningMem=0
+   forEachRunningCave addMemOfCave
 }
 
 function deleteOldCaveDiskCaches()
@@ -201,6 +280,7 @@ function logExitStatus()
    pid=$1
    logFile=$2
    
+   trap 'kill $pid' SIGHUP SIGINT SIGQUIT SIGTERM
    wait $pid
    exitCode=$?
    curTime=`date --rfc-3339=seconds`
