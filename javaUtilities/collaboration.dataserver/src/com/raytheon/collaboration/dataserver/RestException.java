@@ -17,13 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.openfire.plugin.configuration.collaboration.util;
-
-import java.io.File;
+package com.raytheon.collaboration.dataserver;
 
 /**
- * Various utility methods that are utilized by the Httpd Collaboration plugin
- * that do not require a class to be instantiated.
+ * Exceptions for web service errors to be returned to the client
  * 
  * <pre>
  * 
@@ -31,33 +28,35 @@ import java.io.File;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 07, 2012            bkowal      Initial creation
- * Jan 06, 2013  2563      bclement    removed config preamble
+ * Feb 6, 2014  2756      bclement     Initial creation
  * 
  * </pre>
  * 
- * @author bkowal
+ * @author bclement
  * @version 1.0
  */
+public class RestException extends Exception{
 
-public abstract class HttpdCollaborationUtil {
-    
-    public static String encodeErrorMessage(Throwable e) {
-        String content = e.getMessage();
-        if (content == null) {
-            // final attempt
-            content = e.toString();
-        }
-        
-        return "error : " + content;
+    private static final long serialVersionUID = -3940227418233750698L;
+
+    private final int code;
+
+
+    /**
+     * @param code
+     *            http status code
+     * @param message
+     */
+    public RestException(int code, String message) {
+        super(message);
+        this.code = code;
     }
-    
-    public static String endPathIfNecessary(String _path) {
-        if (_path.endsWith(File.separator)) {
-            return _path;
-        }
-        
-        return _path + File.separator;
+
+    /**
+     * @return the code
+     */
+    public int getCode() {
+        return code;
     }
 
 }
