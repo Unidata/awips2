@@ -154,6 +154,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 14, 2014   2459     mpduff     Change Subscription status code
  * Feb 04, 2014   2722     mpduff     Add auto-refresh task.
  * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
+ * Feb 11, 2014   2771     bgonzale   Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -191,8 +192,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     }
 
     /** Current site */
-    private final String CURRENT_SITE = LocalizationManager.getInstance()
-            .getCurrentSite();
+    private final String CURRENT_SITE = DataDeliveryUtils.getDataDeliveryId();
 
     /** The activate button */
     private Button activateBtn;
