@@ -20,9 +20,7 @@
 package com.raytheon.uf.viz.core.comm;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +53,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Mar 22, 2013 1786       mpduff      Changed to use HttpClient for
  *                                     connectivity.
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
- * Jan 15, 2013            njensen     Added printConnectivityProblems()
+ * Jan 15, 2014            njensen     Added printConnectivityProblems()
+ * Feb 04, 2014 2704       njensen     Check JMS capability, return exceptions with results
  * 
  * </pre>
  * 
@@ -77,9 +76,16 @@ public class ConnectivityManager {
 
         public String server;
 
+        public Exception exception;
+
         public ConnectivityResult(boolean hc, String server) {
+            this(hc, server, null);
+        }
+
+        public ConnectivityResult(boolean hc, String server, Exception e) {
             this.hasConnectivity = hc;
             this.server = server;
+            this.exception = e;
         }
     }
 
@@ -94,6 +100,7 @@ public class ConnectivityManager {
     public static void checkHttpServer(String server,
             IConnectivityCallback callback) {
         boolean good = false;
+        Exception exc = null;
         try {
             HttpClient client = HttpClient.getInstance();
             HttpGet request = new HttpGet();
@@ -101,9 +108,9 @@ public class ConnectivityManager {
             client.executeRequest(request);
             good = true;
         } catch (Exception e) {
-            printConnectivityProblem(server, "http", e);
+            exc = e;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
 
     /**
@@ -115,12 +122,13 @@ public class ConnectivityManager {
     public static void checkLocalizationServer(String server,
             IConnectivityCallback callback) {
         boolean good = false;
+        Exception exc = null;
         try {
             good = checkLocalizationServer(server, true) != null;
         } catch (Exception e) {
-            printConnectivityProblem(server, "localization", e);
+            exc = e;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
 
     /**
@@ -142,47 +150,49 @@ public class ConnectivityManager {
                 .sendRequest(req, server);
         getServersResponseCache.put(server, resp);
         return resp;
-
     }
 
     /**
-     * Checks the connectivity of the given server
+     * Checks the connectivity of the given alert service
      * 
      * @param server
      *            server to check
      * @return whether quit was selected. TODO: need to return two booleans, one
      *         for quit and one for connectivity
      */
-    public static void checkJmsServer(String server,
+    public static void checkAlertService(String server,
             IConnectivityCallback callback) {
         boolean good = true;
+        Exception exc = null;
         try {
             ActiveMQConnectionFactory f = new ActiveMQConnectionFactory(server);
             f.createConnection().close();
         } catch (JMSException e) {
-            printConnectivityProblem(server, "JMS", e);
+            exc = e;
             good = false;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
 
     /**
-     * Prints the connectivity exception to the console, to help with diagnosing
-     * connection issues
+     * Checks the connectivity of the given JMS server
      * 
-     * @param server
-     *            the server address it attempted to connect to
-     * @param serverType
-     *            the type of server it attempted to connect to
-     * @param e
-     *            the exception that occurred
+     * @param connectionString
+     * @param callback
      */
-    private static void printConnectivityProblem(String server,
-            String serverType, Exception e) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(sdf.format(new Date()) + "  MAY NOT BE AN ERROR:");
-        System.out.println("Couldn't connect to " + serverType + " server at "
-                + server);
-        e.printStackTrace(System.out);
+    public static void checkJmsServer(String connectionString,
+            IConnectivityCallback callback) {
+        boolean good = true;
+        Exception exc = null;
+        try {
+            JMSConnection jms = new JMSConnection(connectionString);
+            jms.getFactory().createConnection().close();
+        } catch (JMSException e) {
+            exc = e;
+            good = false;
+        }
+        callback.connectionChecked(new ConnectivityResult(good,
+                connectionString, exc));
     }
+
 }
