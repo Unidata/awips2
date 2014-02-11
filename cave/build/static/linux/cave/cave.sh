@@ -29,6 +29,7 @@
 # Dec 05, 2013  #2590     dgilling    Modified so gfeclient.sh can be wrapped
 #                                     around this script.
 # Jan 24, 2014  #2739     bsteffen    Log exit status
+# Jan 30, 2014  #2593     bclement    warns based on memory usage, fixed for INI files with spaces
 #
 #
 
@@ -45,6 +46,8 @@ CAVE_INSTALL="/awips2/cave"
 JAVA_INSTALL="/awips2/java"
 PYTHON_INSTALL="/awips2/python"
 export AWIPS_INSTALL_DIR="${CAVE_INSTALL}"
+
+MAX_MEM_PROPORTION="0.9"
 
 source ${CAVE_INSTALL}/caveUtil.sh
 RC=$?
@@ -113,20 +116,39 @@ export TEXTWS=`hostname | sed -e 's/lx/xt/g'`
 
 hostName=`hostname -s`
 
-if [[ $hostName =~ xt.* ]]; then
-   export IGNORE_NUM_CAVES=1
-fi
-
 # check number of running caves
 if [[ -z $IGNORE_NUM_CAVES ]]; then
-   # free usually reports below on G threshold (11 instead of 12G), giving the 3 cave recommended in field
-   mem=( `free -g | grep "Mem:"` )
+   # get total memory on system in bytes
+   mem=( `free -b | grep "Mem:"` )
    mem=${mem[1]}
-   let _maxCaves=mem/3
-
-   getPidsOfMyRunningCaves
-   if [[ "$_numPids" -ge "$_maxCaves" ]]; then
-      zenity --question --title "Max CAVE sessions already running"  --text "$_numPids CAVE sessions already running. Starting more may impact system performance and stability.\n\nProceed?"
+   # get max amount of system memory used before we warn
+   memThreshold=$(echo "$mem * $MAX_MEM_PROPORTION" | bc)
+   # remove decimal
+   printf -v memThreshold "%.0f" "$memThreshold"
+   # get launcher.ini argument determined by user arguments
+   lookupINI "$@"
+   launcherRegex='--launcher.ini\s(.+\.ini)'
+   # default to cave.ini
+   targetIni="/awips2/cave/cave.ini"
+   if [[ $CAVE_INI_ARG =~ $launcherRegex ]]
+   then
+        targetIni="${BASH_REMATCH[1]}"
+   fi
+   # read max memory that could be used by this instance
+   memOfLaunchingCave=$(readMemFromIni "$targetIni")
+   # read total max memory of caves already running
+   getTotalMemOfRunningCaves
+   # add them together
+   _totalAfterStart=$(($memOfLaunchingCave + $_totalRunningMem))
+   if [[ "$_totalAfterStart" -ge "$memThreshold" ]]; then
+      # convert to megs for display
+      memOfLaunchingCave=$(($memOfLaunchingCave / $BYTES_IN_MB))
+      _totalRunningMem=$(($_totalRunningMem / $BYTES_IN_MB))
+      getPidsOfMyRunningCaves
+      memMsg="$_numPids CAVE applications already running with a combined max memory of ${_totalRunningMem}MB. "
+      memMsg+="The requested application has a max memory requirement of ${memOfLaunchingCave}MB. "
+      memMsg+="Starting may impact system performance and stability.\n\nProceed?"
+      zenity --question --title "Low Available Memory for Application"  --text "$memMsg"
       cancel="$?"
 
       if [[ "$cancel" == "1" ]]; then
@@ -181,7 +203,7 @@ curTime=`date +%Y%m%d_%H%M%S`
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
-  export pid=`$SHELL -c 'echo $PPID'`
+  export pid=`/bin/bash -c 'echo $PPID'`
 
   LOGFILE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_console.log"
   export LOGFILE_CAVE="${LOGDIR}/${PROGRAM_NAME}_${curTime}_pid_${pid}_alertviz.log"
@@ -221,9 +243,9 @@ curTime=`date +%Y%m%d_%H%M%S`
   fi
 
   if [[ "${redirect}" == "true" ]] ; then 
-    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
+    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" > ${LOGFILE} 2>&1
   else
-    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} ${CAVE_INI_ARG} "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
+    exec ${CAVE_INSTALL}/cave ${ARCH_ARGS} ${SWITCHES} "${CAVE_INI_ARG}" "${USER_ARGS[@]}" 2>&1 | tee ${LOGFILE}
   fi
 ) &
 

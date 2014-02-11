@@ -76,6 +76,7 @@ import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2013 2555       rjpeter     Initial creation.
  * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
+ * Feb 04, 2014 2770       rferrel     The dumpPdos now dumps all PluginDataObjects.
  * </pre>
  * 
  * @author rjpeter
@@ -665,8 +666,11 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
 
             Iterator<PersistableDataObject<?>> pdoIter = pdos.iterator();
             writer = new BufferedWriter(new FileWriter(dumpFile));
-            statusHandler.info(String.format("%s: Dumping records to: %s",
-                    pluginName, dumpFile.getAbsolutePath()));
+
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.info(String.format("%s: Dumping records to: %s",
+                        pluginName, dumpFile.getAbsolutePath()));
+            }
 
             while (pdoIter.hasNext()) {
                 PersistableDataObject<?> pdo = pdoIter.next();
@@ -676,9 +680,11 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                         // otherwise was read from file and will be recorded in
                         // a previous entry
                         writer.write("" + pluginDataObject.getId() + ":");
-                        writer.write(pluginDataObject.getDataURI());
-                        writer.write("\n");
+                    } else {
+                        writer.write("-:");
                     }
+                    writer.write(pluginDataObject.getDataURI());
+                    writer.write("\n");
                 } else {
                     writer.write(pdo.getIdentifier().toString());
                     writer.write("\n");
