@@ -80,6 +80,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -144,6 +145,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * Feb 06, 2014 2636       bgonzale     fix overwrite of unscheduled subscription list.  fix scheduling
  *                                      of already scheduled BandwidthAllocations.
+ * Feb 11, 2014 2771       bgonzale     Added handler for GET_DATADELIVERY_ID request.
  * 
  * </pre>
  * 
@@ -945,6 +947,9 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
             break;
         case GET_BANDWIDTH_GRAPH_DATA:
             response = getBandwidthGraphData();
+            break;
+        case GET_DATADELIVERY_ID:
+            response = DataDeliveryIdUtil.getId();
             break;
         case GET_SUBSCRIPTION_STATUS:
             Subscription<T, C> sub = null;

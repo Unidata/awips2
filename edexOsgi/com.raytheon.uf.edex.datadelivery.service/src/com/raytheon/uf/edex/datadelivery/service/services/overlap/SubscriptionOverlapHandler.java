@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
@@ -35,6 +34,7 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandle
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapRequest;
 import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOverlapResponse;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * Edex handler for subscription overlap requests.
@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.comm.IRequestHandler;
  * ------------ ---------- ----------- --------------------------
  * Oct 24, 2013    2292    mpduff      Initial creation
  * Nov 01, 2013    2292    dhladky     Don't check against yourself for duplication
+ * Feb 11, 2014    2771    bgonzale    Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class SubscriptionOverlapHandler implements
     @Override
     public Object handleRequest(SubscriptionOverlapRequest request)
             throws Exception {
-        String siteId = SiteUtil.getSite();
+        String deliveryId = DataDeliveryIdUtil.getId();
         List<Subscription> subscriptions = request.getSubscriptionList();
         List<String> duplicateList = new LinkedList<String>();
         SubscriptionOverlapResponse response = new SubscriptionOverlapResponse();
@@ -89,7 +90,8 @@ public class SubscriptionOverlapHandler implements
                     if (od.isDuplicate()) {
                         // If the subscription is local then it is flagged
                         // as a duplicate, otherwise it is marked as overlap.
-                        if (potentialDuplicate.getOfficeIDs().contains(siteId)) {
+                        if (potentialDuplicate.getOfficeIDs().contains(
+                                deliveryId)) {
                             duplicateList.add(potentialDuplicate.getName());
                         } else {
                             overlappingSubscriptions.add(potentialDuplicate
