@@ -60,7 +60,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
@@ -112,6 +111,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
  * Feb 04, 2014  2722      mpduff       Add last update time.
+ * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
  * @version 1.0
  */
 
@@ -122,8 +122,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             .getHandler(SubscriptionTableComp.class);
 
     /** Current site constant */
-    private final String CURRENT_SITE = LocalizationManager.getInstance()
-            .getCurrentSite();
+    private final String CURRENT_SITE = DataDeliveryUtils.getDataDeliveryId();
 
     /** Pop up menu object. */
     private Menu popupMenu;
