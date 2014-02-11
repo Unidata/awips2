@@ -90,6 +90,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jan 30, 2014 2698       bclement    added handle to join room with
  * Feb  3, 2014 2699       bclement    added default handle preference
  * Feb  7, 2014 2699       bclement    removed handle validation
+ * Feb 11, 2014 2699       bclement    require non-blank handle
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         handleTF.setText(HandleUtil.getDefaultHandle());
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         handleTF.setLayoutData(gd);
-        handleTF.addVerifyListener(validNameListener);
+        handleTF.setToolTipText("Default handle configuration available in preferences.");
 
         label = new Label(body, SWT.NONE);
         label.setText("Subject: ");
@@ -454,6 +455,12 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         errorMessages.add(err);
                     }
                     String handle = handleTF.getText().trim();
+                    if (handle.isEmpty()) {
+                        if (focusField == null) {
+                            focusField = handleTF;
+                        }
+                        errorMessages.add("Handle cannot be empty.");
+                    }
 
                     if (focusField == null) {
                         CreateSessionData result = new CreateSessionData();
@@ -504,8 +511,6 @@ public class CreateSessionDialog extends CaveSWTDialog {
                         }
                         errorMessage.setText(sb.toString());
                         errorMessage.setVisible(true);
-                        statusHandler.handle(Priority.ERROR,
-                                "Session Creation Error: " + sb.toString());
                         event.doit = false;
                         setReturnValue(null);
                         focusField.setFocus();
