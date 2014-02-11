@@ -97,6 +97,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * May 28, 2013  1650      djohnson     More information when failing to schedule subscriptions.
  * Jun 13, 2013  2108      mpduff       Refactored DataSizeUtils.
  * Oct 28, 2013  2292      mpduff       Change overlap services.
+ * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
  * </pre>
  * 
  * @author jpiatt
@@ -410,8 +411,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
                 subscription.setCoverage(cov);
             }
 
-            subscription.addOfficeID(LocalizationManager.getInstance()
-                    .getCurrentSite());
+            subscription.addOfficeID(DataDeliveryUtils.getDataDeliveryId());
             if (sizeUtils != null) {
                 subscription.setDataSetSize(sizeUtils
                         .getDataSetSizeInKb(subscription));
