@@ -17,14 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.ogc.common.http;
+package com.raytheon.uf.common.http;
 
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parses Accept-Encoding headers for HTTP requests
+ * Parses Accept and Accept-Encoding headers for HTTP requests
  * 
  * <pre>
  * 
@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 8, 2013  2539       bclement     Initial creation
+ * Feb 14, 2014 2756       bclement     moved to common http from ogc common
  * 
  * </pre>
  * 

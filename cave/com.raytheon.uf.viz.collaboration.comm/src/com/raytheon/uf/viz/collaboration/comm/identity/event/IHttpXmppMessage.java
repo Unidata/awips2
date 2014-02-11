@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 /**
  * Used to store constants that are used to validate, analyze, and parse status
- * and configuration messages associated with the AWIPS II httpd collaboration
+ * and configuration messages associated with the AWIPS II http collaboration
  * server.
  * 
  * <pre>
@@ -34,6 +34,8 @@ import java.util.regex.Pattern;
  * ------------ ---------- ----------- --------------------------
  * Aug 7, 2012            bkowal     Initial creation
  * Dec 18, 2013 2562       bclement     removed preamble from patterns
+ * Feb 17, 2014 2756       bclement     removed URL regex that was too specific
+ *                                      renamed to remove httpd reference
  * 
  * </pre>
  * 
@@ -41,15 +43,13 @@ import java.util.regex.Pattern;
  * @version 1.0
  */
 
-public interface IHttpdXmppMessage {
+public interface IHttpXmppMessage {
     // Constant Strings
     public static final String URL_PARAMETER_NAME = "sessionDataHttpURL";
 
     public static final String ERROR_PARAMETER_NAME = "error";
 
     static final String SUFFIX_REGEX = " : .+";
-
-    static final String COLLABORATION_URL_REGEX = "http://.+:[1-9][0-9]*/session_data/";
 
     // Regex Patterns
     public static final Pattern configErrorPattern = Pattern
@@ -58,6 +58,4 @@ public interface IHttpdXmppMessage {
     public static final Pattern configURLPattern = Pattern
             .compile(URL_PARAMETER_NAME + SUFFIX_REGEX);
 
-    public static final Pattern urlPattern = Pattern
-            .compile(COLLABORATION_URL_REGEX);
 }
