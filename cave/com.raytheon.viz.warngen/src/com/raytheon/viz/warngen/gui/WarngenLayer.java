@@ -94,6 +94,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.maps.MapManager;
+import com.raytheon.uf.viz.core.notification.INotificationObserver;
+import com.raytheon.uf.viz.core.notification.NotificationException;
+import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
@@ -196,6 +200,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * 10/29/2013  DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
  * 12/17/2013  DR 16567    Qinglu Lin  Added findLargestGeometry() and findLargestQuadrant(), and updated
  *                                     populateStrings() and paintText().
+ * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
+ *                                     when geometry file get updated to re-read them in.
  * </pre>
  * 
  * @author mschenke
@@ -541,6 +547,56 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     }
 
+    private static class GeomMetaDataUpdateNotificationObserver implements INotificationObserver {
+
+        private static final String SHAPEFILE_UPDATE_TOPIC = "edex.geospatialUpdate.msg";
+
+        private static GeomMetaDataUpdateNotificationObserver instance = null;
+        
+        static WarngenLayer warngenLayer;
+
+        private GeomMetaDataUpdateNotificationObserver() {
+        }
+
+        public static synchronized GeomMetaDataUpdateNotificationObserver getInstance(WarngenLayer wl) {
+            if (instance == null) {
+                instance = new GeomMetaDataUpdateNotificationObserver();
+                NotificationManagerJob.addObserver(SHAPEFILE_UPDATE_TOPIC, instance);
+                warngenLayer = wl;
+            }
+            return instance;
+        }
+
+        /**
+         * Remove the alert message observer from the Notification Manager Job
+         * listener.
+         */
+        public static synchronized void removeNotificationObserver() {
+            if (instance != null) {
+                NotificationManagerJob.removeObserver(SHAPEFILE_UPDATE_TOPIC, instance);
+                instance = null;
+            }
+        }
+
+        @Override
+        public void notificationArrived(NotificationMessage[] messages) {
+            for (NotificationMessage message : messages) {
+                try {
+                    Object payload = message.getMessagePayload();
+                    if (payload instanceof String ) {
+                        System.out.println("Geometry Metadata has been updated based on " + payload + " shapefile data");
+                        warngenLayer.siteMap.clear();
+                        warngenLayer.init(warngenLayer.configuration);
+                    }
+                } catch (NotificationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    
+
     private static Map<String, GeospatialDataList> siteMap = new HashMap<String, GeospatialDataList>();
 
     private static Map<String, Geometry> timezoneMap = new HashMap<String, Geometry>();
@@ -603,6 +659,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private GeospatialDataAccessor geoAccessor = null;
 
     private WarningAction warningAction = WarningAction.NEW;
+
+    private GeomMetaDataUpdateNotificationObserver geomUpdateObserver;
 
     static {
         for (int i = 0; i < 128; i++) {
@@ -755,6 +813,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     @Override
     protected void disposeInternal() {
         customMaps.clearMaps();
+
+        GeomMetaDataUpdateNotificationObserver.removeNotificationObserver();
 
         super.disposeInternal();
 
@@ -1051,6 +1111,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         String site = getLocalizedSite();
 
+        initializeGeomUpdateObserver();
+
         synchronized (siteMap) {
             loadGeodataForConfiguration(config);
 
@@ -1073,6 +1135,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
         this.configuration = config;
         System.out.println("Total time to init warngen config = "
                 + (System.currentTimeMillis() - t0) + "ms");
+    }
+
+    private void initializeGeomUpdateObserver() {
+        if (geomUpdateObserver == null) {
+            geomUpdateObserver= GeomMetaDataUpdateNotificationObserver.getInstance(this);
+        }
     }
 
     /**
