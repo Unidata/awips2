@@ -41,7 +41,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
@@ -88,6 +87,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * Implementation of {@link BandwidthManager} that isolates EDEX specific
@@ -124,6 +124,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Feb 06, 2014 2636       bgonzale     Added initializeScheduling method that uses the in-memory
  *                                      bandwidth manager to perform the scheduling initialization
  *                                      because of efficiency.
+ * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -399,7 +400,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(objectType)) {
             if (sub != null) {
                 boolean isApplicableForTheLocalSite = sub.getOfficeIDs()
-                        .contains(SiteUtil.getSite());
+                        .contains(DataDeliveryIdUtil.getId());
                 if (isApplicableForTheLocalSite) {
                     switch (event.getAction()) {
                     case UPDATE:
