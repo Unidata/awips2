@@ -27,6 +27,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Dec 06, 2012 1397       djohnson     Add GET_BANDWIDTH_GRAPH_DATA.
  * Jul 18, 2013 1653       mpduff       Add GET_SUBSCRIPTION_STATUS.
  * Oct 2   2013 1797       dhladky      generic attempt
+ * Feb 11, 2014 2771       bgonzale     Added GET_DATADELIVERY_ID to RequestTypes.
  * 
  * </pre>
  * 
@@ -43,7 +44,11 @@ public class IBandwidthRequest<T extends Time, C extends Coverage> extends Abstr
         /**
          * Schedule a subscription.
          */
-        SCHEDULE_SUBSCRIPTION, SHOW_BUCKET, SHOW_DEFERRED, GET_BANDWIDTH, FORCE_SET_BANDWIDTH, PROPOSE_SET_BANDWIDTH, PROPOSE_SCHEDULE_SUBSCRIPTION, REINITIALIZE, GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA, GET_SUBSCRIPTION_STATUS
+        SCHEDULE_SUBSCRIPTION, SHOW_BUCKET, SHOW_DEFERRED, GET_BANDWIDTH, FORCE_SET_BANDWIDTH, PROPOSE_SET_BANDWIDTH, PROPOSE_SCHEDULE_SUBSCRIPTION, REINITIALIZE,
+        /**
+         * Request information.
+         */
+        GET_ESTIMATED_COMPLETION, GET_BANDWIDTH_GRAPH_DATA, GET_SUBSCRIPTION_STATUS, GET_DATADELIVERY_ID
     }
 
     @DynamicSerializeElement
