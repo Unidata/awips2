@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * Jan 14, 2014 2630       bclement    added away on idle defaults
  * Jan 27, 2014 2700       bclement    added auto accept subscribe
  * Feb  3, 2014 2699       bclement    added handle preferences
+ * Feb 11, 2014 2699       bclement    handle defaults to userid
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public class CollabPrefInitializer extends AbstractPreferenceInitializer {
                 CollabPrefConstants.AWAY_TIMEOUT_DEFAULT);
         store.setDefault(CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE, false);
         store.setDefault(CollabPrefConstants.DEFAULT_HANDLE,
-                CollabPrefConstants.HandleOption.BLANK.name());
+                CollabPrefConstants.HandleOption.USERNAME.name());
         store.setDefault(CollabPrefConstants.CUSTOM_HANDLE, "");
     }
 
