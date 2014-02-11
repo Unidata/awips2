@@ -1,6 +1,6 @@
 <%@ page
    import="org.jivesoftware.openfire.XMPPServer,
-           com.raytheon.openfire.plugin.configuration.collaboration.HttpdCollaborationConfigurationPlugin,
+           com.raytheon.openfire.plugin.configuration.collaboration.HttpConfigurationPlugin,
            org.jivesoftware.util.ParamUtils,
            java.util.HashMap,
            java.util.Map"
@@ -12,31 +12,33 @@
 <%
         final long DEFAULT_INTERVAL_S = 60;
 	boolean save = ((request.getParameter("save") == null) == false);
-
-        // Currently, users are not allowed to modify the httpd-collaboration location
-	// because the rpm is not relocatable.
 	long interval = ParamUtils.getLongParameter(request, "txtInterval", DEFAULT_INTERVAL_S);
 	boolean legacy = ParamUtils.getBooleanParameter(request, "chkLegacy", false);
+	String dataserverUsers = ParamUtils.getParameter(request, "txtdataserverUsers", true);
+	if (dataserverUsers == null){
+		dataserverUsers = "";
+	}
 
-	HttpdCollaborationConfigurationPlugin plugin = (HttpdCollaborationConfigurationPlugin) XMPPServer.getInstance().getPluginManager().getPlugin("com.raytheon.openfire.plugin.configuration.collaboration");
+	HttpConfigurationPlugin plugin = (HttpConfigurationPlugin) XMPPServer.getInstance().getPluginManager().getPlugin("com.raytheon.openfire.plugin.configuration.collaboration");
 
 	if (save)
 	{
-		plugin.setHttpdMonitorInterval(interval * 1000);
+		plugin.setHttpMonitorInterval(interval * 1000);
 		plugin.setLegacySupport(legacy);
-		response.sendRedirect("httpd-collaboration-monitor-admin.jsp?settingsSaved=true");
+		plugin.setDataserverUsers(dataserverUsers);
+		response.sendRedirect("http-collaboration-monitor-admin.jsp?settingsSaved=true");
 		return;
 	}
 
-	String location = plugin.getHttpdCollaborationLocation();
-	interval = (plugin.getHttpdMonitorInterval() / 1000);
+	interval = (plugin.getHttpMonitorInterval() / 1000);
 	String legacyChkValue = plugin.hasLegacySupport() ? "checked" : "";
+	dataserverUsers = plugin.getDataserverUsers();
 %>
 
 <html>
 	<head>
-	  <title>Httpd Collaboration Monitor Settings</title>
-	  <meta name="pageID" content="httpd-collaboration-monitor-admin" />
+	  <title>Http Collaboration Monitor Settings</title>
+	  <meta name="pageID" content="http-collaboration-monitor-admin" />
 
           <script type="text/javascript">
              function validateInterval()
@@ -73,12 +75,32 @@
                   btnSubmit.disabled = true;
                }
              }
+             function validateWhiteList()
+             {
+               var txtdataserverUsers = $('txtdataserverUsers');
+               var spanWhiteListError = $('spanWhiteListError');
+               var btnSubmit = $('btnSubmit');
+
+               var whiteList = txtdataserverUsers.value;  
+
+               if (whiteList.match('^[^,@]+@[^,@]+(,[^,@]+@[^,@]+)*$'))
+               {
+                  spanWhiteListError.style.display = 'none';
+                  btnSubmit.disabled = false;
+               }
+               else
+               {
+                  spanWhiteListError.style.display = 'block';
+                  // Disable the submit button
+                  btnSubmit.disabled = true;
+               }
+             }
           </script>
 	</head>
 	<body>
-	  <form action="httpd-collaboration-monitor-admin.jsp?save" method="post">
+	  <form name="collabPrefForm" action="http-collaboration-monitor-admin.jsp?save" method="post" onsubmit="return validTest();" >
             <div class="jive-contentBoxHeader">
-	      Httpd Collaboration Monitor Settings
+	      Http Collaboration Monitor Settings
             </div>
 			<div class="jive-contextBox">
             <% if (ParamUtils.getBooleanParameter(request, "settingsSaved")) { %>
@@ -97,17 +119,11 @@
             <% } %>
 
             <p>
-               Set how often (in seconds) the Httpd Collaboration Monitor should verify that the httpd-collaboration process is running.
+               Set how often (in seconds) the Http Collaboration Monitor should verify that the dataserver is online.
             </p>
 
             <table cellpadding="3" cellspacing="0" border="0" width="100%">
               <tbody>
-                <tr>
-                  <td width="5%" valign="top">location:&nbsp;</td>
-                  <td width="95%">
-                    <%= location %>
-                  </td>
-                </tr>
                 <tr>
                   <td width="5%" valign="top">interval:&nbsp;</td>
                   <td width="95%">
@@ -131,6 +147,26 @@
                   <td width="15%" valign="top">legacy message format:&nbsp;</td>
                   <td width="85%">
                     <input type="checkbox" id="chkLegacy" name="chkLegacy" value="true" <%= legacyChkValue %> >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            </br></br></br>
+            <p>
+               HTTP Dataserver users list. User ids that http servers can use to communication with openfire. Comma separated list of full user ids
+               the first id in the list will be used as the primary HTTP Dataserver. Only user ids that are in this list will be allowed to query for session public keys.
+            </p>
+
+             <table cellpadding="3" cellspacing="0" border="0" width="100%">
+              <tbody>
+                <tr>
+                  <td width="5%" valign="top">Dataserver User Ids:&nbsp;</td>
+                  <td width="95%">
+                    <input type="text" id="txtdataserverUsers" name="txtdataserverUsers" onkeyup="validateWhiteList()" 
+		    value="<%= dataserverUsers %>">
+                    <span id="spanWhiteListError" class="jive-error-text" style="display: none;">
+                      The white list must be in the form 'user1@hostname,user2@hostname'
+                    </span>
                   </td>
                 </tr>
               </tbody>
