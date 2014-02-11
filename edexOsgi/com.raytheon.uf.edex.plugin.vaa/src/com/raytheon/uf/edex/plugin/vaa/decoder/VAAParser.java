@@ -46,6 +46,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Nov 05, 2009 3267       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 26, 2013 2582       njensen     Cleanup
+ * Feb 11, 2014 2763       skorolev    Made LFCR correction of input data.
  * 
  * </pre>
  * 
@@ -102,8 +103,38 @@ public class VAAParser implements Iterable<VAARecord> {
      */
     public VAAParser(byte[] message, String traceId, Headers headers) {
         this.traceId = traceId;
-        wmoHeader = new WMOHeader(message, headers);
-        setData(message, headers);
+        byte[] msg = correctLFCR(message);
+        wmoHeader = new WMOHeader(msg, headers);
+        setData(msg, headers);
+    }
+
+    /**
+     * Removes Line Feed and Cartridge Return (LFCR) codes after colon in the
+     * message. We correct the line breaks because sometimes the products are
+     * distributed with a line break splitting the line from the value, e.g.
+     * ERUPTION DETAILS: \r\n CONTINUOUS EMISSIONS vs ERUPTION DETAILS:
+     * CONTINUOUS EMISSIONS
+     * 
+     * @param bytes
+     * @return bytes corrected
+     */
+    private static byte[] correctLFCR(byte[] bytes) {
+
+        boolean flagLFCR = false;
+        StringBuilder sb = new StringBuilder(new String(bytes, 0, bytes.length));
+        for (int i = 0; i < sb.length(); i++) {
+            if (flagLFCR) {
+                if (sb.charAt(i) == '\r' || sb.charAt(i) == '\n') {
+                    sb.setCharAt(i, ' ');
+                } else {
+                    flagLFCR = false;
+                }
+            }
+            if (sb.charAt(i) == ':') {
+                flagLFCR = true;
+            }
+        }
+        return String.valueOf(sb).getBytes();
     }
 
     /**
@@ -449,15 +480,14 @@ public class VAAParser implements Iterable<VAARecord> {
 
         String msg1 = "\u0001\r\r\n738\r\r\nFVXX20 KNES 041708 CAA"
                 + "\r\r\nVA ADVISORY" + "\r\r\nDTG: 20091104/1708Z"
-                + "\r\r\nVAAC: WASHINGTON"
-                + "\r\r\nVOLCANO: SOUFRIERE HILLS 1600-05"
-                + "\r\r\nPSN: N1642 W06210" + "\r\r\nAREA: W_INDIES"
-                + "\r\r\nSUMMIT ELEV: 3002 FT (915 M)"
+                + "\r\r\nVAAC: WASHINGTON" + "\r\r\nVOLCANO:"
+                + "\r\r\nSOUFRIERE HILLS 1600-05" + "\r\r\nPSN: N1642 W06210"
+                + "\r\r\nAREA: W_INDIES" + "\r\r\nSUMMIT ELEV: 3002 FT (915 M)"
                 + "\r\r\nADVISORY NR: 2009/146"
                 + "\r\r\nINFO SOURCE: GOES-12. GFS WINDS."
                 + "\r\r\nERUPTION DETAILS: CONTINUOUS EMISSIONS"
-                + "\r\r\nOBS VA DTG: 04/1645Z"
-                + "\r\r\nOBS VA CLD: SFC/FL100 42NM WID LINE BTN N1638"
+                + "\r\r\nOBS VA DTG: 04/1645Z" + "\r\r\nOBS VA CLD:"
+                + "\r\r\nSFC/FL100 42NM WID LINE BTN N1638"
                 + "\r\r\nW06611 - N1643 W06214. MOV W 7KT"
                 + "\r\r\nFCST VA CLD +6HR: 04/2300Z SFC/FL100 40NM WID"
                 + "\r\r\nLINE BTN N1640 W06614 - N1644 W06214."
