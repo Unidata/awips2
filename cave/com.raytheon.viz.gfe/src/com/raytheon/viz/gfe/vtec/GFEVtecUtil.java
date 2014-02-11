@@ -19,8 +19,12 @@
  **/
 package com.raytheon.viz.gfe.vtec;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 
@@ -53,6 +57,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
  *                                      multiple NEW VTEC lines for the same
  *                                      phensig but disjoint TimeRanges.
+ * Feb 05, 2014  #2774     dgilling     Additional correction to previous fix.
  * 
  * </pre>
  * 
@@ -70,6 +75,19 @@ public class GFEVtecUtil {
 
     public static final Collection<String> IGNORE_NATIONAL_ETN = ImmutableSet
             .copyOf(GFEVtecConfig.getInstance().getSitesIgnoreNationalEtn());
+
+    private static final Comparator<TimeRange> TIME_COMPARATOR = new Comparator<TimeRange>() {
+
+        @Override
+        public int compare(TimeRange tr1, TimeRange tr2) {
+            int retVal = tr1.getStart().compareTo(tr2.getStart());
+            if (retVal == 0) {
+                retVal = tr1.getEnd().compareTo(tr2.getEnd());
+            }
+
+            return retVal;
+        }
+    };
 
     /**
      * A private constructor so that Java does not attempt to create one for us.
@@ -101,7 +119,7 @@ public class GFEVtecUtil {
         // 1. The first level is keyed by the hazard's phensig.
         // 2. The second level is keyed by the valid period of the hazard.
         // Effectively, making this a Map<Phensig, Map<ValidPeriod, ETN>>.
-        Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
+        Map<String, Map<TimeRange, Integer>> etnCache = buildETNCache(message);
 
         Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(message);
         StringBuffer finalOutput = new StringBuffer();
@@ -114,38 +132,10 @@ public class GFEVtecUtil {
                     && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
-                // Some more clarification on the ETN assignment behavior: all
-                // NEW VTEC lines with the same phensig should be assigned the
-                // same ETN if the hazards' valid periods are adjacent or
-                // overlapping.
-                // If there's a discontinuity in TimeRanges we increment to the
-                // next ETN.
-                Integer newEtn = null;
                 String phensig = vtec.getPhensig();
                 TimeRange validPeriod = new TimeRange(vtec.getStartTime()
                         .getTime(), vtec.getEndTime().getTime());
-
-                Map<TimeRange, Integer> etnsByTR = etnCache.get(phensig);
-                if (etnsByTR != null) {
-                    for (TimeRange tr : etnsByTR.keySet()) {
-                        if ((validPeriod.isAdjacentTo(tr))
-                                || (validPeriod.overlaps(tr))) {
-                            newEtn = etnsByTR.get(tr);
-                            break;
-                        }
-                    }
-                }
-
-                if (newEtn == null) {
-                    newEtn = VtecUtil.getNextEtn(vtec.getOffice(),
-                            vtec.getPhensig(), true);
-                }
-
-                Map<TimeRange, Integer> cacheLevel2 = (etnsByTR != null) ? etnsByTR
-                        : new HashMap<TimeRange, Integer>();
-                cacheLevel2.put(validPeriod, newEtn);
-                etnCache.put(phensig, cacheLevel2);
-
+                Integer newEtn = etnCache.get(phensig).get(validPeriod);
                 vtec.setSequence(newEtn);
             }
             vtecMatcher
@@ -156,5 +146,73 @@ public class GFEVtecUtil {
         }
         vtecMatcher.appendTail(finalOutput);
         return finalOutput.toString();
+    }
+
+    private static Map<String, Map<TimeRange, Integer>> buildETNCache(
+            final String message) throws VizException {
+        Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
+
+        String officeId = null;
+        Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(message);
+        while (vtecMatcher.find()) {
+            VtecObject vtec = new VtecObject(vtecMatcher.group());
+            officeId = vtec.getOffice();
+            if (("NEW".equals(vtec.getAction()))
+                    && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
+                            .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
+                            .contains(vtec.getPhensig())))) {
+                String phensig = vtec.getPhensig();
+                TimeRange validPeriod = new TimeRange(vtec.getStartTime()
+                        .getTime(), vtec.getEndTime().getTime());
+                Map<TimeRange, Integer> etnsByTR = etnCache.get(phensig);
+                if (etnsByTR == null) {
+                    etnsByTR = new HashMap<TimeRange, Integer>();
+                    etnCache.put(phensig, etnsByTR);
+                }
+                etnsByTR.put(validPeriod, 0);
+            }
+        }
+
+        // With our first pass over the product text we have a list of all the
+        // NEW VTEC lines that need to have an ETN assigned to them. Depending
+        // on whether or not the time ranges of these lines overlap and the
+        // phensigs match, we might reuse ETNs for multiple VTEC lines.
+        for (String phensig : etnCache.keySet()) {
+            List<TimeRange> trList = new ArrayList<TimeRange>(etnCache.get(
+                    phensig).keySet());
+            Collections.sort(trList, TIME_COMPARATOR);
+
+            for (int i = 0; i < trList.size(); i++) {
+                TimeRange validPeriod = trList.get(i);
+                Integer currentEtn = etnCache.get(phensig).get(validPeriod);
+
+                // the first time we select a new, unique ETN, any other VTEC
+                // lines in the product that have the same phensig and an
+                // adjacent TimeRange can also re-use this ETN
+                if (currentEtn == 0) {
+                    currentEtn = VtecUtil.getNextEtn(officeId, phensig, true);
+                    etnCache.get(phensig).put(validPeriod, currentEtn);
+                } else {
+                    // BUT...once we've made our one pass through the product
+                    // and re-used the ETN where appropriate, we should not
+                    // check again
+                    continue;
+                }
+
+                for (int j = i + 1; j < trList.size(); j++) {
+                    TimeRange validPeriod2 = trList.get(j);
+                    Integer currentEtn2 = etnCache.get(phensig).get(
+                            validPeriod2);
+
+                    if ((currentEtn2 == 0)
+                            && (validPeriod2.isAdjacentTo(validPeriod) || validPeriod2
+                                    .overlaps(validPeriod))) {
+                        etnCache.get(phensig).put(validPeriod2, currentEtn);
+                    }
+                }
+            }
+        }
+
+        return etnCache;
     }
 }
