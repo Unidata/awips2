@@ -3,7 +3,6 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -13,6 +12,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * 
@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  *                                      registries since the injected FindSubscription handler will be configured now.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * Feb 06, 2014 2636       bgonzale     Use scheduling initialization method after registry init.
+ * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
  * </pre>
  * 
  * @author djohnson
@@ -57,7 +58,7 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     public HibernateBandwidthInitializer(
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-        this(findSubscriptionsStrategy, SiteUtil.getSite());
+        this(findSubscriptionsStrategy, DataDeliveryIdUtil.getId());
     }
 
     /**

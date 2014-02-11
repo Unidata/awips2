@@ -19,4 +19,5 @@ Require-Bundle: com.raytheon.uf.common.datadelivery.bandwidth;bundle-version="1.
  com.raytheon.uf.common.registry.ebxml;bundle-version="1.0.0",
  com.raytheon.uf.common.datadelivery.service;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.site,
- com.raytheon.uf.common.event
+ com.raytheon.uf.common.event,
+ com.raytheon.uf.edex.datadelivery.util
