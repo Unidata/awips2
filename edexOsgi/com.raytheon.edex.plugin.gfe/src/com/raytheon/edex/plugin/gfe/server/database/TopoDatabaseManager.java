@@ -74,6 +74,7 @@ import com.raytheon.uf.common.topo.TopoQuery;
  * Jun 13, 2013  #2044     randerso    Refactored to use non-singleton GridParmManager, 
  *                                     code cleanup
  * Nov 20, 2013  #2331     randerso    Changed return type of getTopoData
+ * Feb 11, 2014  #2788     randerso    Set missing data points to 0 to match A1
  * 
  * </pre>
  * 
@@ -236,6 +237,8 @@ public class TopoDatabaseManager {
                 if (!allowValuesBelowZero && (heights[i] < 0)) {
                     heights[i] = 0.0f;
                 }
+            } else {
+                heights[i] = 0.0f;
             }
         }
 
