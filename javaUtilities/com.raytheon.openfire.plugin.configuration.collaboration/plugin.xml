@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <plugin>
-   <class>com.raytheon.openfire.plugin.configuration.collaboration.HttpdCollaborationConfigurationPlugin</class>
-   <name>Httpd Collaboration Configuration</name>
+   <class>com.raytheon.openfire.plugin.configuration.collaboration.HttpConfigurationPlugin</class>
+   <name>Http Collaboration Configuration</name>
    <description>
-   	This plugin will provide httpd collaboration configuration information to CAVE
+   	This plugin will provide http collaboration configuration information to CAVE
    	via openfire whenever a user logs in to openfire.
    </description>
    <author>bkowal</author>
-   <version>1.0.0</version>
+   <version>2.0.0</version>
    <date>8/08/2012</date>
    <minServerVersion>3.7.1</minServerVersion>
    
    <adminconsole>
    	<tab id="tab-server">
    		<sidebar id="sidebar-server-settings">
-   			<id item="httpd-collaboration-monitor-admin" name="Httpd Collaboration Monitor Settings"
-   				url="httpd-collaboration-monitor-admin.jsp"
-   				description="Click to administer settings for the Httpd Collaboration Monitor." />
+   			<id item="http-collaboration-monitor-admin" name="Http Collaboration Monitor Settings"
+   				url="http-collaboration-monitor-admin.jsp"
+   				description="Click to administer settings for the Http Collaboration Monitor." />
    		</sidebar>
    	</tab>
    </adminconsole>
