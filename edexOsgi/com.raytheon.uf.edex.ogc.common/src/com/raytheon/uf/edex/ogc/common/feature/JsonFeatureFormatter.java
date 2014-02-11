@@ -29,12 +29,12 @@ import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.common.json.geo.GeoJsonUtil;
 import com.raytheon.uf.common.json.geo.GeoJsonUtilSimpleImpl;
 import com.raytheon.uf.common.json.geo.MixedFeatureCollection;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 
 /**
