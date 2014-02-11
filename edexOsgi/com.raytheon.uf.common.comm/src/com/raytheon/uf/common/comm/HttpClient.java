@@ -104,6 +104,8 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    Mar 11, 2013  1786        mpduff      Add https capability.
  *    Jun 12, 2013  2102        njensen     Better error handling when using
  *                                           DynamicSerializeStreamHandler
+ *    Feb 04, 2014  2704        njensen     Better error message with bad address
+ *                                           Https authentication failures notify handler
  * 
  * </pre>
  * 
@@ -400,7 +402,6 @@ public class HttpClient {
     private HttpClient() {
     }
 
-
     private org.apache.http.client.HttpClient getHttpsInstance() {
         return HttpsHolder.sslClient;
     }
@@ -539,6 +540,14 @@ public class HttpClient {
                             "Error retrying http request", e);
                     return resp;
                 }
+
+                if (resp.getStatusLine().getStatusCode() == 401) {
+                    // obtained credentials and they failed!
+                    if (handler != null) {
+                        handler.credentialsFailed();
+                    }
+                }
+
             }
         } else {
             resp = getHttpInstance().execute(put);
@@ -589,6 +598,10 @@ public class HttpClient {
 
         try {
             String host = put.getURI().getHost();
+            if (host == null) {
+                throw new InvalidURIException("Invalid URI: "
+                        + put.getURI().toString());
+            }
             ongoing = currentRequestsCount.get(host);
             if (ongoing == null) {
                 ongoing = new AtomicInteger();
@@ -651,21 +664,21 @@ public class HttpClient {
                 // so we only want to error off here if we're using a
                 // DynamicSerializeStreamHandler because deserializing will fail
                 // badly
-                String exceptionMsg = "HTTP server returned error code: "
-                        + resp.getStatusLine().getStatusCode();
+                int statusCode = resp.getStatusLine().getStatusCode();
                 DefaultInternalStreamHandler errorHandler = new DefaultInternalStreamHandler();
-                String serverErrorMsg = null;
+                String exceptionMsg = null;
                 try {
                     errorHandler.handleStream(resp.getEntity().getContent());
-                    serverErrorMsg = new String(errorHandler.byteResult);
+                    exceptionMsg = new String(errorHandler.byteResult);
                 } catch (IOException e) {
                     statusHandler
                             .warn("Error reading the server's error message");
                 }
-                if (serverErrorMsg != null) {
-                    exceptionMsg += "\n" + serverErrorMsg;
+                if (exceptionMsg == null) {
+                    exceptionMsg = "HTTP server returned error code: "
+                            + statusCode;
                 }
-                throw new CommunicationException(exceptionMsg);
+                throw new HttpServerException(exceptionMsg, statusCode);
             }
 
             // should only be able to get here if we didn't encounter the
@@ -720,7 +733,7 @@ public class HttpClient {
                     // if there was an error reading the input stream,
                     // notify but continue
                     statusHandler.handle(Priority.EVENTB,
-                            "Error reading InputStream, assuming closed", e);
+                            "Error reading InputStream, assuming closed");
                 }
                 try {
                     SafeGzipDecompressingEntity.close();
@@ -1173,7 +1186,7 @@ public class HttpClient {
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(username, password));
     }
-    
+
     /**
      * @param httpsConfiguration
      *            the httpsConfiguration to set
@@ -1188,5 +1201,5 @@ public class HttpClient {
     public IHttpsConfiguration getHttpsConfiguration() {
         return httpsConfiguration;
     }
-  
+
 }

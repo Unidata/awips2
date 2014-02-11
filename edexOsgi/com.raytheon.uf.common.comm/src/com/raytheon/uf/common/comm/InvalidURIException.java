@@ -20,8 +20,8 @@
 package com.raytheon.uf.common.comm;
 
 /**
- * Test Https credentials handler. Returns valid credentials for HttpClient Test
- * Cases.
+ * A communication exception specific to an invalid URI, such as
+ * http//someAddress (instead of http://someAddress)
  * 
  * <pre>
  * 
@@ -29,26 +29,32 @@ package com.raytheon.uf.common.comm;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 11, 2013    1763     dhladky      Initial creation
+ * Feb 6, 2014            njensen     Initial creation
  * 
  * </pre>
  * 
- * @author dhladky
+ * @author njensen
  * @version 1.0
  */
 
-public class TestProxyHttpsCredentialsHandler implements
-        IHttpsCredentialsHandler {
+public class InvalidURIException extends CommunicationException {
 
-    @Override
-    public String[] getCredentials(String message) {
-        return new String[] { HttpTestConstants.USERNAME,
-                HttpTestConstants.PASSWD };
+    private static final long serialVersionUID = 1L;
+
+    public InvalidURIException() {
+        super();
     }
 
-    @Override
-    public void credentialsFailed() {
-        // TODO Auto-generated method stub
-
+    public InvalidURIException(String message, Throwable cause) {
+        super(message, cause);
     }
+
+    public InvalidURIException(String message) {
+        super(message);
+    }
+
+    public InvalidURIException(Throwable cause) {
+        super(cause);
+    }
+
 }
