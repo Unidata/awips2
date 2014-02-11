@@ -25,16 +25,11 @@ import org.jivesoftware.openfire.MessageRouter;
 import org.jivesoftware.openfire.event.SessionEventListener;
 import org.jivesoftware.openfire.session.Session;
 import org.jivesoftware.util.TaskEngine;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Message;
 
 import com.raytheon.openfire.plugin.configuration.collaboration.configuration.ConfigurationPacket;
-import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationNotRunningException;
-import com.raytheon.openfire.plugin.configuration.collaboration.exception.HttpdCollaborationStatusException;
-import com.raytheon.openfire.plugin.configuration.collaboration.httpd.HttpdCollaborationStatusMonitor;
-import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollaborationUtil;
+import com.raytheon.openfire.plugin.configuration.collaboration.http.HttpStatusMonitor;
 
 /**
  * Impelements @{link SessionEventListener} to wait for new users to connect to
@@ -48,23 +43,18 @@ import com.raytheon.openfire.plugin.configuration.collaboration.util.HttpdCollab
  * ------------ ---------- ----------- --------------------------
  * Aug 07, 2012            bkowal      Initial creation
  * Jan 06, 2013  2563      bclement    replaced chat message with packet extension
+ * Feb 14, 2013 2756       bclement    refactor for operation with generic http dataserver
  * 
  * </pre>
  * 
  * @author bkowal
  * @version 1.0
  */
-public class HttpdCollaborationSessionEventListener implements
-		SessionEventListener {
-	private static final Logger logger = LoggerFactory
-			.getLogger(HttpdCollaborationSessionEventListener.class);
-
-	// provided by the configuration
-	private String HTTPD_COLLABORATION_CONFIGURATION;
+public class CollaborationSessionEventListener implements SessionEventListener {
 
 	private static final int MSG_SEND_DELAY = 5000;
 
-	private HttpdCollaborationStatusMonitor httpdCollaborationStatusMonitor;
+	private HttpStatusMonitor statusMonitor;
 
 	private JID serverAddress;
 
@@ -73,9 +63,7 @@ public class HttpdCollaborationSessionEventListener implements
 	/**
 	 * 
 	 */
-	public HttpdCollaborationSessionEventListener(
-			String _httpdCollaborationConfiguration) {
-		HTTPD_COLLABORATION_CONFIGURATION = _httpdCollaborationConfiguration;
+    public CollaborationSessionEventListener() {
 		this.serverAddress = null;
 		this.router = null;
 	}
@@ -129,6 +117,10 @@ public class HttpdCollaborationSessionEventListener implements
 	 */
 	@Override
 	public void sessionCreated(Session session) {
+        String body = this.composeMessageBody();
+        if (body == null) {
+            return;
+        }
         final Message message = ConfigurationPacket.createMessage(this
                 .composeMessageBody());
 		message.setTo(session.getAddress());
@@ -157,27 +149,12 @@ public class HttpdCollaborationSessionEventListener implements
 
 	private String composeMessageBody() {
 		// Verify that httpd-collaboration is / is still running.
-		try {
-			this.httpdCollaborationStatusMonitor.statusHttpdCollaboration();
-		} catch (HttpdCollaborationNotRunningException e1) {
-			logger.error("httpd-collaboration is not running.", e1);
-			return HttpdCollaborationUtil.encodeErrorMessage(e1);
-		} catch (HttpdCollaborationStatusException e2) {
-			logger.error(
-					"failed to determine the status of httpd-collaboration", e2);
-			return HttpdCollaborationUtil.encodeErrorMessage(e2);
-		} catch (Exception e3) {
-			logger.error("Unexpected exception occurred!", e3);
-			return HttpdCollaborationUtil.encodeErrorMessage(e3);
-		}
-
-		return HTTPD_COLLABORATION_CONFIGURATION;
+        return statusMonitor.getCurrentUrlConfig();
 	}
 
-	public void setHttpdCollaborationStatusChecker(
-			HttpdCollaborationStatusMonitor httpdCollaborationStatusMonitor) {
-		this.httpdCollaborationStatusMonitor = httpdCollaborationStatusMonitor;
-	}
+    public void setHttpStatusChecker(HttpStatusMonitor httpStatusMonitor) {
+        this.statusMonitor = httpStatusMonitor;
+    }
 
 	/**
 	 * @param serverAddress
