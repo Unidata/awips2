@@ -23,8 +23,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
@@ -60,6 +58,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Aug 14, 2012            lvenable     Initial creation.
  * Jan 30, 2014 2698       bclement    added logic to join room and reprompt if failed
  * Feb  3, 2014 2699       bclement    added default handle preference
+ * Feb 11, 2014 2699       bclement    require non-blank handle
  * 
  * </pre>
  * 
@@ -192,16 +191,9 @@ public class InviteDialog extends CaveSWTDialogBase {
         handleText = new Text(labelTextComp, SWT.BORDER);
         handleText.setText(HandleUtil.getDefaultHandle());
         handleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        handleText.addVerifyListener(new VerifyListener() {
+        handleText
+                .setToolTipText("Default handle configuration available in preferences.");
 
-            @Override
-            public void verifyText(VerifyEvent e) {
-                if (" \t\"&'/,<>@".indexOf(e.character) >= 0) {
-                    e.doit = false;
-                    // Toolkit.getDefaultToolkit().beep();
-                }
-            }
-        });
         GridData gd = new GridData(GridData.GRAB_HORIZONTAL
                 | GridData.HORIZONTAL_ALIGN_FILL);
         gd.horizontalSpan = 2;
@@ -264,8 +256,12 @@ public class InviteDialog extends CaveSWTDialogBase {
             public void widgetSelected(SelectionEvent se) {
                 CollaborationConnection connection = CollaborationConnection
                         .getConnection();
-                String handle = handleText.getText();
+                String handle = handleText.getText().trim();
                 try {
+                    if (handle.isEmpty()) {
+                        throw new CollaborationException(
+                                "Handle cannot be empty.");
+                    }
                     if (sharedDisplay) {
                         session = connection.joinCollaborationVenue(event,
                                 handle);
