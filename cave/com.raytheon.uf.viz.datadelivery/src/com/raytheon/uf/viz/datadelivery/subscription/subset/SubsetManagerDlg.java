@@ -142,6 +142,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
  * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * Jan 20, 2014   2538     mpduff       Call doesNameExist method to check for dupes
+ * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
  * </pre>
  * 
  * @author mpduff
@@ -570,8 +571,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         sub.setOwner((create) ? LocalizationManager.getInstance()
                 .getCurrentUser() : this.subscription.getOwner());
-        sub.setOriginatingSite(LocalizationManager.getInstance()
-                .getCurrentSite());
+        sub.setOriginatingSite(DataDeliveryUtils.getDataDeliveryId());
         sub.setSubscriptionType(SubscriptionType.RECURRING);
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
@@ -599,7 +599,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         sub.setRoute(defaultRoute);
         sub.setName(nameText.getText());
         if (subscription == null || subscription.getOfficeIDs() == null) {
-            sub.addOfficeID(LocalizationManager.getInstance().getCurrentSite());
+            sub.addOfficeID(DataDeliveryUtils.getDataDeliveryId());
         } else {
             sub.setOfficeIDs(subscription.getOfficeIDs());
         }
