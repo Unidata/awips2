@@ -29,11 +29,15 @@
 #    ??/??/??                      ????????       Initial Creation.
 #    05/14/13        1842          dgilling       Use GFEVtecUtil to handle NEW
 #                                                 ETN assignment.
-#    
+#    02/05/14        2774          dgilling       Fix error logging statements in
+#                                                 __warnETNduplication() and 
+#                                                 __highestETNActiveTable.
+#
 # 
 
 
 import time, getopt, sys, copy, string, logging
+import os
 import VTECTableUtil, VTECTable
 import TimeRange, AbsTime, ActiveTableVtec
 import JUtil
@@ -722,7 +726,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 if phensig == activephensig and presentyear == activeyear:
                     # causes failure if tropical hazards are less than 1001
                     if active['etn'] < int(self.__tpcBaseETN):
-                        LogStream.logProblem("Incorrect ETN for tropical hazard.")
+                        self.log.error("Incorrect ETN for tropical hazard.")
         return etn_base
 
     #determine the new etn to use, using the etn cache
@@ -2234,8 +2238,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         if len(dups) > 0:
             errorLine = '\n******************************************************\n'
-            LogStream.logProblem("Illegal ETN duplication is found for:\n", \
-                                 dups, errorLine)
+            self.log.error("Illegal ETN duplication is found for:\n" + \
+                                 str(dups) + errorLine)
 
             # send message to GFE
             msg = "The formatted %s product contains a duplicate ETN.\n"\
