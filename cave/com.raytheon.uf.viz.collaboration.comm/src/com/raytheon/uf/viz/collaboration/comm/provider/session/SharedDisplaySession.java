@@ -75,6 +75,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  *                                     changed args to create/configure venue
+ * Feb 12, 2014 2793       bclement    added additional null check to sendObjectToVenue
  * 
  * </pre>
  * 
@@ -169,6 +170,10 @@ public class SharedDisplaySession extends VenueSession implements
     @Override
     public void sendObjectToVenue(Object obj) throws CollaborationException {
         if (obj == null) {
+            return;
+        }
+        if (topic == null) {
+            log.warn("Attempted to send object when topic not configured");
             return;
         }
         SessionPayload payload = new SessionPayload(PayloadType.Command, obj);
