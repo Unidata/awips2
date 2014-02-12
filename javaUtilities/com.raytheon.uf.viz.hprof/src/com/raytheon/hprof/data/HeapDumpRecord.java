@@ -158,10 +158,18 @@ public class HeapDumpRecord extends AbstractHprofRecord {
         System.out.println("Sorting all objects...");
         long startTime = System.currentTimeMillis();
 
+        System.out.print("Instances...");
         Collections.sort(instances, new DumpBufferIndexComparator());
+        System.out.println("Done");
+        System.out.print("Object Arrays...");
         Collections.sort(objectArrays, new DumpBufferIndexComparator());
+        System.out.println("Done");
+        System.out.print("Primitive Arrays...");
         Collections.sort(primitiveArrays, new DumpBufferIndexComparator());
+        System.out.println("Done");
+        System.out.print("Classes...");
         Collections.sort(classes, new DumpBufferIndexComparator());
+        System.out.println("Done");
 
         this.instancesById = new long[instances.size()];
         for (int i = 0; i < instances.size(); i++) {
@@ -183,8 +191,10 @@ public class HeapDumpRecord extends AbstractHprofRecord {
             this.classesById[i] = classes.get(i);
         }
 
+        System.out.print("Instances By Class...");
         /* Add one id and one int before the class id */
         Collections.sort(instances, new DumpBufferIndexComparator(idSize + 4));
+        System.out.println("Done");
 
         this.instancesByClass = new long[instances.size()];
         for (int i = 0; i < instances.size(); i++) {
