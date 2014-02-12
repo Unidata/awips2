@@ -32,7 +32,7 @@
   </target>
 	
   <target name="compile" depends="init">
-    <javac srcdir="${src}" destdir="${bin}"/>
+    <javac target="1.6" srcdir="${src}" destdir="${bin}"/>
   </target>
 	
   <target name="copyManifest" depends="init">
