@@ -83,5 +83,6 @@ public class CaveExporter {
         new GFEResourceExporter(hprof, outputDir).export();
         new DisposingResourceExporter(hprof, outputDir).export();
         new UIRunnablesExporter(hprof, outputDir).export();
+        new AlertMessageExporter(hprof, outputDir).export();
     }
 }
