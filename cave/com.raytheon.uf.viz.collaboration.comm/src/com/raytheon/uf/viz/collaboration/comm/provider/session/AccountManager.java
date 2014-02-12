@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
@@ -67,6 +68,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jan 07, 2013 2563       bclement    fixed id parsing in auto responder
  * Jan 27, 2014 2700       bclement    changes to subscription request responders
  * Jan 31, 2014 2700       bclement    fixed subscribe back after accepting subscription
+ * Feb 12, 2014 2797       bclement    added protective copy to sendPresence
  * 
  * </pre>
  * 
@@ -299,7 +301,7 @@ public class AccountManager implements IAccountManager {
     }
 
     /**
-     * 
+     * broadcast new presence to server
      * 
      * @param userPresence
      * @throws CollaborationException
@@ -307,19 +309,23 @@ public class AccountManager implements IAccountManager {
     @Override
     public void sendPresence(Presence userPresence)
             throws CollaborationException {
-
+        userPresence.setTo(null);
         sessionManager.getXmppConnection().sendPacket(userPresence);
         sessionManager.setPresence(userPresence);
         for (ISession session : sessionManager.getSessions()) {
             if (session instanceof IVenueSession) {
-                ((IVenueSession) session).sendPresence(userPresence);
+                Presence copy = new Presence(userPresence.getType(),
+                        userPresence.getStatus(), userPresence.getPriority(),
+                        userPresence.getMode());
+                Tools.copyProperties(userPresence, copy);
+                ((IVenueSession) session).sendPresence(copy);
             }
         }
         sessionManager.postEvent(new UserPresenceChangedEvent(userPresence));
     }
 
     /**
-     * 
+     * send presence to specific address
      * 
      * @param userPresence
      * @throws CollaborationException
