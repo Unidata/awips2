@@ -141,6 +141,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jan 27, 2014 2700       bclement    fixed context menu for roster entries
  * Jan 30, 2014 2698       bclement    fixed alias not working for roster entries
  *                                     removed unneeded subscription for nickname changed events
+ * Feb 12, 2014 2799       bclement    fixed double click chat not working for roster entries
  * 
  * </pre>
  * 
@@ -483,8 +484,9 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 TreeSelection selection = (TreeSelection) usersTreeViewer
                         .getSelection();
                 Object o = selection.getFirstElement();
-                if (o instanceof UserId) {
-                    new PeerToPeerChatAction((UserId) o).run();
+                if (o instanceof RosterEntry) {
+                    UserId user = IDConverter.convertFrom((RosterEntry) o);
+                    new PeerToPeerChatAction(user).run();
                 } else if (o instanceof IVenueSession) {
                     new ShowVenueAction((IVenueSession) o).run();
                 }
