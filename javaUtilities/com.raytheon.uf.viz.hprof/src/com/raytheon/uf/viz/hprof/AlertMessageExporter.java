@@ -28,7 +28,7 @@ import com.raytheon.hprof.SmartInstance;
 
 /**
  * 
- * Export information about the runnables waiting to execute on the UI Thread.
+ * Export information about AlertMessages
  * 
  * <pre>
  * 
@@ -36,57 +36,41 @@ import com.raytheon.hprof.SmartInstance;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Jan 20, 2014  2648     bsteffen    Initial creation
+ * Feb 12, 2014  2648     bsteffen    Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-public class UIRunnablesExporter extends AbstractExporter {
+public class AlertMessageExporter extends AbstractExporter {
 
-    public UIRunnablesExporter(HprofFile hprof, File outputDirectory) {
+    public AlertMessageExporter(HprofFile hprof, File outputDirectory) {
         super(hprof, outputDirectory);
     }
 
     @Override
     protected String getFileName() {
-        return "uiRunnables.txt";
+        return "alertMessages.txt";
     }
 
     @Override
     protected String getComment() {
-        StringBuilder comment = new StringBuilder();
-        comment.append("# This file contains runnables waiting for access to the SWT UI Thread. These are\n");
-        comment.append("# often scheduled through VizApp.runAsync.");
-        return comment.toString();
+        return "# This file contains information about AlertMessages.";
     }
 
     @Override
     protected String getInfo() {
-        return "Generating output for UI Runnables...";
+        return "Generating output for AlertMessages...";
     }
 
     @Override
     protected void exportInternal() throws IOException {
-        List<SmartInstance> displays = getInstances("org.eclipse.swt.widgets.Display");
-        if (displays.isEmpty()) {
-            return;
-        }
-        println(displays.size() + " dispaly(s)");
-        for (SmartInstance display : displays) {
-            SmartInstance[] messages = display.get("synchronizer")
-                    .getObjectArray("messages");
-            println(messages.length + " message(s)");
-            for (SmartInstance message : messages) {
-                if (message != null) {
-                    println(message.get("runnable").toString());
-                } else {
-                    println("null");
-                }
-            }
-
+        List<SmartInstance> messages = getInstances("com.raytheon.uf.viz.core.alerts.AlertMessage");
+        for (SmartInstance message : messages) {
+            println(message + ": " + message.getString("dataURI"));
         }
     }
+
 
 }
