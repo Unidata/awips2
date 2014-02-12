@@ -32,6 +32,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 
@@ -45,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadTyp
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 16, 2013 2562       bclement     Initial creation
+ * Feb 12, 2014 2793       bclement     improved error handling
  * 
  * </pre>
  * 
@@ -54,6 +57,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadTyp
 
 public class SessionPayloadProvider implements PacketExtensionProvider {
 
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(SessionPayloadProvider.class);
+
 
     /* (non-Javadoc)
      * @see org.jivesoftware.smack.provider.PacketExtensionProvider#parseExtension(org.xmlpull.v1.XmlPullParser)
@@ -61,6 +67,47 @@ public class SessionPayloadProvider implements PacketExtensionProvider {
     @Override
     public PacketExtension parseExtension(XmlPullParser parser)
             throws Exception {
+        try {
+            return parseInternal(parser);
+        } catch (CollaborationException e) {
+            // collaboration exceptions are only thrown for problems with our own format
+            log.error("Unable to parse collaboration packet", e);
+            return new SessionPayload(PayloadType.Command,
+                    SerializationMode.ISNULL, null);
+        } finally {
+            // ensure that we are at the end of the packet so we don't corrupt
+            // stream
+            while (!atEndOfPacket(parser)) {
+                parser.next();
+            }
+        }
+    }
+
+    /**
+     * @param parser
+     * @return true if parser is at the end tag of the payload packet
+     * @throws XmlPullParserException
+     */
+    private static boolean atEndOfPacket(XmlPullParser parser)
+            throws XmlPullParserException {
+        return parser.getEventType() == XmlPullParser.END_TAG
+                && parser.getName().equals(SessionPayload.ELEMENT_NAME);
+    }
+
+    /**
+     * Parse contents of packet extension from XMPP stream.
+     * 
+     * @param parser
+     * @return
+     * @throws CollaborationException
+     *             when error occurs with collaboration format
+     * @throws XmlPullParserException
+     *             when error occurs with XMPP stream
+     * @throws IOException
+     *             when error occurs with XMPP stream
+     */
+    private static PacketExtension parseInternal(XmlPullParser parser)
+            throws CollaborationException, XmlPullParserException, IOException {
         String typeString = parser.getAttributeValue(null,
                 SessionPayload.TYPE_ATTRIBUTE);
         String modeString = parser.getAttributeValue(null,
@@ -128,8 +175,7 @@ public class SessionPayloadProvider implements PacketExtensionProvider {
      * @throws JAXBException
      */
     private static Object unmarshalJaxb(XmlPullParser parser)
-            throws XmlPullParserException, IOException, CollaborationException,
-            JAXBException {
+            throws XmlPullParserException, IOException, CollaborationException {
         int tag = parser.next();
         if (tag != XmlPullParser.START_TAG) {
             throw new CollaborationException(
@@ -151,16 +197,14 @@ public class SessionPayloadProvider implements PacketExtensionProvider {
             throws XmlPullParserException, IOException {
         boolean done = false;
         StringBuilder payloadText = new StringBuilder();
-        int tag = parser.next();
         while (!done) {
-            if (tag == XmlPullParser.END_TAG
-                    && parser.getName().equals(SessionPayload.ELEMENT_NAME)) {
+            if (atEndOfPacket(parser)) {
                 done = true;
                 continue;
             } else if (parser.getEventType() == XmlPullParser.TEXT) {
                 payloadText.append(parser.getText());
             }
-            tag = parser.next();
+            parser.next();
         }
         return payloadText.toString();
     }
