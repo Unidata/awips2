@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
- * TODO Add Description
+ * Base concrete implementation for chat message objects
  * 
  * <pre>
  * 
@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * 
  * </pre>
  * 
@@ -53,9 +54,9 @@ public abstract class BaseMessage implements Serializable, IMessage {
 
     private String body;
 
-    private IQualifiedID to;
+    private IUser to;
 
-    private IQualifiedID from;
+    private IUser from;
 
     private String subject;
 
@@ -68,7 +69,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
      * @param to
      * @param body
      */
-    protected BaseMessage(IQualifiedID to, String body) {
+    protected BaseMessage(IUser to, String body) {
         this.body = body;
         this.to = to;
         initProperties();
@@ -79,7 +80,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
      * @return the to
      */
     @Override
-    public IQualifiedID getTo() {
+    public IUser getTo() {
         return to;
     }
 
@@ -88,7 +89,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
      *            the to to set
      */
     @Override
-    public void setTo(IQualifiedID to) {
+    public void setTo(IUser to) {
         this.to = to;
     }
 
@@ -96,7 +97,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
      * @return the from
      */
     @Override
-    public IQualifiedID getFrom() {
+    public IUser getFrom() {
         return from;
     }
 
@@ -105,7 +106,7 @@ public abstract class BaseMessage implements Serializable, IMessage {
      *            the from to set
      */
     @Override
-    public void setFrom(IQualifiedID from) {
+    public void setFrom(IUser from) {
         this.from = from;
     }
 
