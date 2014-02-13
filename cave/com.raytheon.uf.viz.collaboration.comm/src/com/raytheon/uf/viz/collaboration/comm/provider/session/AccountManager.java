@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.SubscriptionResponse;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
@@ -69,6 +70,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jan 27, 2014 2700       bclement    changes to subscription request responders
  * Jan 31, 2014 2700       bclement    fixed subscribe back after accepting subscription
  * Feb 12, 2014 2797       bclement    added protective copy to sendPresence
+ * Feb 13, 2014 2755       bclement    added user input for which group to add contact to
  * 
  * </pre>
  * 
@@ -98,11 +100,13 @@ public class AccountManager implements IAccountManager {
                 UserId fromId = IDConverter.convertFrom(pres.getFrom());
                 switch (type) {
                 case subscribe:
-                    boolean accept = true;
+                    SubscriptionResponse response;
                     if (responder != null) {
-                        accept = responder.handleSubscribeRequest(fromId);
+                        response = responder.handleSubscribeRequest(fromId);
+                    } else {
+                        response = new SubscriptionResponse(true);
                     }
-                    handleSubRequest(fromId, accept);
+                    handleSubRequest(fromId, response);
                     break;
                 case subscribed:
                     if (responder != null) {
@@ -157,11 +161,12 @@ public class AccountManager implements IAccountManager {
          * 
          * @param fromId
          */
-        private void handleSubRequest(UserId fromId, boolean accept) {
+        private void handleSubRequest(UserId fromId,
+                SubscriptionResponse response) {
             Presence.Type subscribedType;
             ContactsManager cm = sessionManager.getContactsManager();
             boolean addToRoster = false;
-            if (accept) {
+            if (response.isAccepted()) {
                 subscribedType = Presence.Type.subscribed;
                 RosterEntry entry = cm.getRosterEntry(fromId);
                 if (entry == null) {
@@ -175,7 +180,12 @@ public class AccountManager implements IAccountManager {
             try {
                 sendPresence(fromId, presence);
                 if (addToRoster) {
-                    cm.addToRoster(fromId);
+                    if (response.addToGroup()) {
+                        cm.addToGroup(response.getGroup(), fromId);
+                    } else {
+                        cm.addToRoster(fromId);
+                    }
+
                 }
             } catch (CollaborationException e) {
                 AccountManager.this.log.error("Unable to send presence", e);

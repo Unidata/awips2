@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Mar 16, 2012            jkorman     Initial creation
  * Jan 27, 2014 2700       bclement    handle subscribe request returns a boolean
  *                                     all methods take user id instead of qualified id
+ * Feb 13, 2014 2755       bclement    handleSubscribeRequest now returns SubscriptionResponse
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ public interface ISubscriptionResponder {
      * @param fromID
      * @return true if the subscribe request is accepted.
      */
-    public boolean handleSubscribeRequest(UserId fromID);
+    public SubscriptionResponse handleSubscribeRequest(UserId fromID);
 
     /**
      * Triggered when a contact subscribes to user
