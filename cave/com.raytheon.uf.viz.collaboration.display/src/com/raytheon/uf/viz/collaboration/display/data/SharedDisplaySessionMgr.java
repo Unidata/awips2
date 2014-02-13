@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.display.roles.ParticipantEventControlle
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            njensen     Initial creation
  * Jan 28, 2014 2698       bclement    removed false throws statement
+ * Feb 12, 2014 2751       njensen     Register session containers to session event bus
  * 
  * </pre>
  * 
@@ -85,6 +86,7 @@ public class SharedDisplaySessionMgr {
         sharedDisplaySessionMap.put(session.getSessionId(), container);
 
         rec.startup();
+        session.registerEventHandler(container);
     }
 
     /**
@@ -95,10 +97,11 @@ public class SharedDisplaySessionMgr {
     public static void exitSession(String sessionId) {
         SessionContainer container = sharedDisplaySessionMap.get(sessionId);
         if (container != null) {
+            container.getSession().unregisterEventHandler(container);
             container.getRoleEventController().shutdown();
-
-            // remove after shutting down event controller
-            sharedDisplaySessionMap.remove(sessionId);
         }
+
+        // remove after shutting down event controller
+        sharedDisplaySessionMap.remove(sessionId);
     }
 }
