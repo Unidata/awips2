@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.topo.util;
+package com.raytheon.uf.topo.utilities;
 
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -40,7 +40,6 @@ import javax.media.jai.PlanarImage;
 import javax.media.jai.RasterFactory;
 import javax.media.jai.TiledImage;
 
-import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageProperties;
@@ -50,9 +49,11 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.pypies.PyPiesDataStore;
+import com.raytheon.uf.common.pypies.PypiesProperties;
 
 /**
- * TODO Add Description
+ * Interpolator for topo data files
  * 
  * <pre>
  * 
@@ -62,6 +63,8 @@ import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
  * Oct 26, 2009            randerso    Initial creation
  * Feb 12, 2013     #1608  randerso    Remove exlicit references to HDF5DataStore
  *                                     Added explicit calls to deleteGroups
+ * Feb 11, 2014     #2788  randerso    Changed to use PyPiesDataStore
+ *                                     Fixed corner points for interpolated levels
  * 
  * </pre>
  * 
@@ -72,13 +75,7 @@ import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 public class TopoInterpolator {
     private static final int BLOCK_SIZE = 2400;
 
-    private static final String DEFAULT_TOPO_FILE = "/topo/srtm30.hdf";
-
     private IDataStore dataStore;
-
-    public TopoInterpolator() {
-        this(new File(DEFAULT_TOPO_FILE));
-    }
 
     /**
      * Create a TopoInterpolator instance for the specified hdf file
@@ -86,8 +83,9 @@ public class TopoInterpolator {
      * @param file
      */
     public TopoInterpolator(File hdf) {
-        dataStore = DataStoreFactory.getDataStore(hdf);
-
+        PypiesProperties pypiesProps = new PypiesProperties();
+        pypiesProps.setAddress("http://localhost:9582");
+        dataStore = new PyPiesDataStore(hdf, true, pypiesProps);
     }
 
     public void interpolate(String group, String dataSet) {
@@ -97,8 +95,18 @@ public class TopoInterpolator {
         try {
             IDataRecord record = dataStore.retrieve(group, dataSet, request);
             Map<String, Object> attributes = record.getDataAttributes();
-            int srcWidth = (Integer) attributes.get("Width");
-            int srcHeight = (Integer) attributes.get("Height");
+            int width = (Integer) attributes.get("Width");
+            int height = (Integer) attributes.get("Height");
+
+            // These attributes are stored as 1x1 arrays in the file to match
+            // what H5DataStore did
+            // Pypies automatically returns them as scalars
+            double xDim = (Double) attributes.get("xDim");
+            double yDim = (Double) attributes.get("yDim");
+            double startLat = (Double) attributes.get("ulLat");
+            double startLon = (Double) attributes.get("ulLon");
+            double endLat = (Double) attributes.get("lrLat");
+            double endLon = (Double) attributes.get("lrLon");
 
             int level = 1;
             String srcGroup = group;
@@ -120,14 +128,33 @@ public class TopoInterpolator {
             long t1 = t0;
             while (level < 6) {
                 System.out.print("\nInterpolating " + srcGroup + srcDataSet
-                        + " (" + srcWidth + ", " + srcHeight + ")");
+                        + " (" + width + ", " + height + ")");
+
+                int srcWidth = width;
+                int srcHeight = height;
+
+                // compute attributes for new level
+                width /= 2;
+                height /= 2;
+                startLon += xDim / 2;
+                startLat -= yDim / 2;
+                endLon -= xDim / 2;
+                endLat += yDim / 2;
+                xDim *= 2;
+                yDim *= 2;
                 String dstDataSet = "" + level;
                 record.setName(dstDataSet);
                 record.setGroup(dstGroup);
-                record.setSizes(new long[] { srcWidth / 2, srcHeight / 2 });
+                record.setSizes(new long[] { width, height });
                 record.setProperties(properties);
-                attributes.put("Width", srcWidth / 2);
-                attributes.put("Height", srcHeight / 2);
+                attributes.put("Width", width);
+                attributes.put("Height", height);
+                attributes.put("xDim", new double[] { xDim });
+                attributes.put("yDim", new double[] { yDim });
+                attributes.put("ulLat", new double[] { startLat });
+                attributes.put("ulLon", new double[] { startLon });
+                attributes.put("lrLat", new double[] { endLat });
+                attributes.put("lrLon", new double[] { endLon });
                 record.setDataAttributes(attributes);
 
                 dataStore.createDataset(record);
@@ -159,17 +186,15 @@ public class TopoInterpolator {
                 }
 
                 long t2 = System.currentTimeMillis();
-                System.out.print(" took " + (t2 - t1) / 1000 + " s");
+                System.out.print(" took " + ((t2 - t1) / 1000) + " s");
                 t1 = t2;
 
                 srcGroup = dstGroup;
                 srcDataSet = dstDataSet;
                 level++;
-                srcWidth /= 2;
-                srcHeight /= 2;
             }
-            System.out.print("\nTotal " + (System.currentTimeMillis() - t0)
-                    / 1000 + " s");
+            System.out.print("\nTotal "
+                    + ((System.currentTimeMillis() - t0) / 1000) + " s");
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -230,7 +255,7 @@ public class TopoInterpolator {
         param.setParameter("xScale", 1.0f / scale);
         param.setParameter("yScale", 1.0f / scale);
         Interpolation interpol = Interpolation
-                .getInstance(Interpolation.INTERP_BICUBIC);
+                .getInstance(Interpolation.INTERP_NEAREST);
         param.setParameter("interpolation", interpol);
         RenderingHints hint = new RenderingHints(JAI.KEY_BORDER_EXTENDER,
                 BorderExtender.createInstance(BorderExtender.BORDER_COPY));
@@ -263,14 +288,14 @@ public class TopoInterpolator {
     public static void main(String[] args) {
         TopoInterpolator ti;
         if (args.length < 1) {
-            ti = new TopoInterpolator();
+            System.out.println("usage: TopoInterpolator topofile");
         } else {
-            ti = new TopoInterpolator(new File(args[0]));
-        }
+            String fileName = args[0];
+            System.out.println("Interpolating " + fileName);
+            ti = new TopoInterpolator(new File(fileName));
 
-        System.out.println("Interpolating "
-                + (args.length < 1 ? DEFAULT_TOPO_FILE : args[0]));
-        ti.interpolate("/", "full");
+            ti.interpolate("/", "full");
+        }
     }
 
 }
