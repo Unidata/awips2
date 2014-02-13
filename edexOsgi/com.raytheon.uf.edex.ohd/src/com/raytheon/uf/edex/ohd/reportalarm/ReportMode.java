@@ -17,13 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.shef.alarms;
-
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+package com.raytheon.uf.edex.ohd.reportalarm;
 
 /**
- * Convenience wrapper around org.apache.commons.cli.Options
  * 
  * <pre>
  * 
@@ -39,32 +35,6 @@ import org.apache.commons.cli.Options;
  * @version 1.0
  */
 
-public class CmdlineOptions extends Options {
-
-    private static final long serialVersionUID = 1L;
-
-    CmdlineOptions() {
-        super();
-    }
-
-    public void addOption(CmdlineOptionId optId) {
-        Option opt = new Option(optId.toString(), true, optId.description());
-        addOption(opt);
-    }
-
-    public void addOption(CmdlineOptionId optId, boolean hasArg) {
-        Option opt = new Option(optId.toString(), hasArg, optId.description());
-        addOption(opt);
-    }
-
-    public void addMandatoryOption(CmdlineOptionId optId) {
-        Option opt = new Option(optId.toString(), true, optId.description());
-        opt.setRequired(true);
-        addOption(opt);
-    }
-
-    public boolean hasOption(CmdlineOptionId optId) {
-        return hasOption(optId.toString());
-    }
-
+public enum ReportMode {
+    ALL, FRESH, RECENT, UNREPORTED, NEAREST, NEAR_NOW, LATEST_MAXFCST, NEW_OR_INCREASED
 }
