@@ -17,15 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * A command to transfer a role to a different user on the session.
+ * An event that indicates that the leader of a shared display session changed
  * 
  * <pre>
  * 
@@ -33,7 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 5, 2012            njensen     Initial creation
+ * Feb 11, 2014            njensen     Initial creation
  * 
  * </pre>
  * 
@@ -42,28 +41,25 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  */
 
 @DynamicSerialize
-public class TransferRoleCommand {
+public class LeaderChangeEvent {
 
     @DynamicSerializeElement
-    private SharedDisplayRole role;
+    private VenueParticipant newLeader;
 
-    @DynamicSerializeElement
-    private UserId user;
+    public LeaderChangeEvent() {
 
-    public SharedDisplayRole getRole() {
-        return role;
     }
 
-    public void setRole(SharedDisplayRole role) {
-        this.role = role;
+    public LeaderChangeEvent(VenueParticipant newLeader) {
+        this.newLeader = newLeader;
     }
 
-    public UserId getUser() {
-        return user;
+    public VenueParticipant getNewLeader() {
+        return newLeader;
     }
 
-    public void setUser(UserId user) {
-        this.user = user;
+    public void setNewLeader(VenueParticipant newLeader) {
+        this.newLeader = newLeader;
     }
 
 }
