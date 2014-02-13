@@ -267,7 +267,8 @@ public class CollaborationDrawingResource extends
      * @return
      */
     public boolean isSessionLeader() {
-        return container.getSession().getCurrentSessionLeader().equals(myUser);
+        return container.getSession().getCurrentSessionLeader()
+                .isSameUser(myUser);
     }
 
     /**
@@ -324,7 +325,7 @@ public class CollaborationDrawingResource extends
     public void handleDrawEvent(CollaborationDrawingEvent event) {
         VenueParticipant user = event.getUserName();
         if (event.getDisplayId() != resourceData.getDisplayId()
-                || user.equals(myUser)) {
+                || user.isSameUser(myUser)) {
             // Early exit case, don't process my own events twice
             issueRefresh();
             return;
