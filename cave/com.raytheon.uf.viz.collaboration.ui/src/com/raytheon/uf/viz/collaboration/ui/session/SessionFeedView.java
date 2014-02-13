@@ -40,7 +40,6 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
@@ -62,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Dec 19, 2013 2563       bclement    moved participant filter logic to one method
  * Jan 08, 2014 2563       bclement    changes to match SiteConfigurationManager user sites config
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -272,9 +272,10 @@ public class SessionFeedView extends SessionView {
 
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges) {
-        if (subject != null && userId instanceof VenueParticipant) {
-            setColorForSite((VenueParticipant) userId, subject);
+            String name, VenueParticipant userId, String subject,
+            List<StyleRange> ranges) {
+        if (subject != null) {
+            setColorForSite(userId, subject);
         }
         super.styleAndAppendText(sb, offset, name, userId, subject, ranges);
     }

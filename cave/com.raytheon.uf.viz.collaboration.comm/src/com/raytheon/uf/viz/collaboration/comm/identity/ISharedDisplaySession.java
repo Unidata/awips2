@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
@@ -54,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    changed sendObjectToPeer id to VenueParticipant
  * 
  * </pre>
  * 
@@ -85,7 +85,7 @@ public interface ISharedDisplaySession extends IVenueSession {
      *            the serializable object to send
      * @throws CollaborationException
      */
-    public void sendObjectToPeer(IQualifiedID id, Object obj)
+    public void sendObjectToPeer(VenueParticipant id, Object obj)
             throws CollaborationException;
 
     /**
