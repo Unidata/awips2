@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -49,11 +50,12 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            mnash     Initial creation
+ * Feb 24, 2012            mnash       Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  *                                     added JID and display name if available
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 13, 2014 2751       njensen     Added leader icons
  * 
  * </pre>
  * 
@@ -112,33 +114,41 @@ public class ParticipantsLabelProvider extends
             return null;
         }
         VenueParticipant user = (VenueParticipant) element;
-        boolean leader = isSessionLeader(user);
-        boolean provider = isDataProvider(user);
-        if (leader && provider) {
-            if (combinedFont == null) {
-                Font currFont = Display.getCurrent().getSystemFont();
-                combinedFont = new Font(Display.getCurrent(),
-                        currFont.toString(),
-                        currFont.getFontData()[0].getHeight(), SWT.BOLD
-                                | SWT.ITALIC);
-            }
-            return combinedFont;
-        } else if (leader) {
+        if (user.isSameUser(getSession().getUserID())) {
             if (boldFont == null) {
                 Font currFont = Display.getCurrent().getSystemFont();
                 boldFont = new Font(Display.getCurrent(), currFont.toString(),
                         currFont.getFontData()[0].getHeight(), SWT.BOLD);
             }
             return boldFont;
-        } else if (provider) {
-            if (underlinedFont == null) {
-                Font currFont = Display.getCurrent().getSystemFont();
-                underlinedFont = new Font(Display.getCurrent(),
-                        currFont.toString(),
-                        currFont.getFontData()[0].getHeight(), SWT.ITALIC);
-            }
-            return underlinedFont;
         }
+        // boolean leader = isSessionLeader(user);
+        // boolean provider = isDataProvider(user);
+        // if (leader && provider) {
+        // if (combinedFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // combinedFont = new Font(Display.getCurrent(),
+        // currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.BOLD
+        // | SWT.ITALIC);
+        // }
+        // return combinedFont;
+        // } else if (leader) {
+        // if (boldFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // boldFont = new Font(Display.getCurrent(), currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.BOLD);
+        // }
+        // return boldFont;
+        // } else if (provider) {
+        // if (underlinedFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // underlinedFont = new Font(Display.getCurrent(),
+        // currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.ITALIC);
+        // }
+        // return underlinedFont;
+        // }
         return null;
     }
 
@@ -204,7 +214,7 @@ public class ParticipantsLabelProvider extends
             return null;
         }
         StringBuilder builder = new StringBuilder(toolTip);
-        VenueParticipant user = (VenueParticipant) element;
+        VenueParticipant user = convertObject(element);
         Presence presence = getPresence(user);
         if (presence != null) {
             String site = String.valueOf(presence
@@ -213,25 +223,8 @@ public class ParticipantsLabelProvider extends
                 builder.append("\n").append("Subscribed");
             }
         }
-        ISession session = getSession();
-        if (session instanceof SharedDisplaySession) {
-            boolean isSessionLeader = user
-                    .equals(((SharedDisplaySession) session)
-                            .getCurrentSessionLeader());
-            boolean isDataProvider = user
-                    .equals(((SharedDisplaySession) session)
-                            .getCurrentDataProvider());
-            if (isSessionLeader || isDataProvider) {
-                // TODO if transferring control is ever desired and implemented
-                // we need to distinguish these. Until then, Leader works fine.
-                builder.append("\nLeader");
-                // if (isSessionLeader) {
-                // builder.append("\nSession Leader");
-                // }
-                // if (isDataProvider) {
-                // builder.append("\nData Provider");
-                // }
-            }
+        if (isSomeKindOfLeader(user)) {
+            builder.append("\nLeader");
         }
         if (user.hasActualUserId()) {
             UserId actual = user.getUserid();
@@ -287,4 +280,32 @@ public class ParticipantsLabelProvider extends
         }
     }
 
+    @Override
+    protected String getImageName(VenueParticipant user) {
+        String key = super.getImageName(user);
+
+        if (isSomeKindOfLeader(user)) {
+            key = "leader_" + key;
+        }
+
+        return key;
+    }
+
+    /**
+     * Checks if the user is some kind of leader
+     * 
+     * @param user
+     * @return
+     */
+    private boolean isSomeKindOfLeader(VenueParticipant user) {
+        boolean leader = false;
+        ISession session = getSession();
+        if (session instanceof ISharedDisplaySession) {
+            ISharedDisplaySession sdSession = (ISharedDisplaySession) session;
+            leader = sdSession.getCurrentSessionLeader().isSameUser(user)
+                    || sdSession.getCurrentDataProvider().isSameUser(user);
+        }
+
+        return leader;
+    }
 }
