@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  *                                     added JID and display name if available
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -60,7 +61,8 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * @version 1.0
  */
 
-public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
+public class ParticipantsLabelProvider extends
+        AbstractUserLabelProvider<VenueParticipant> {
 
     protected String sessionId = null;
 
@@ -178,9 +180,9 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     protected boolean isSessionLeader(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId leader = ((SharedDisplaySession) session)
+            VenueParticipant leader = ((SharedDisplaySession) session)
                     .getCurrentSessionLeader();
-            return user.getAlias().equals(leader.getAlias());
+            return user.getHandle().equals(leader.getHandle());
         }
         return false;
     }
@@ -188,9 +190,9 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     protected boolean isDataProvider(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId provider = ((SharedDisplaySession) session)
+            VenueParticipant provider = ((SharedDisplaySession) session)
                     .getCurrentDataProvider();
-            return user.getAlias().equals(provider.getAlias());
+            return user.getHandle().equals(provider.getHandle());
         }
         return false;
     }
@@ -231,10 +233,10 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
                 // }
             }
         }
-        if (user.getName() != null) {
-            builder.append("\nJID: ").append(user.getNormalizedId());
-            builder.append("\nDisplay Name: ").append(
-                    super.getDisplayName(user));
+        if (user.hasActualUserId()) {
+            UserId actual = user.getUserid();
+            builder.append("\nJID: ").append(actual.getNormalizedId());
+            builder.append("\nDisplay Name: ").append(getLocalAlias(actual));
         }
         return builder.toString();
     }
@@ -252,9 +254,9 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     }
 
     @Override
-    protected Presence getPresence(UserId user) {
+    protected Presence getPresence(VenueParticipant user) {
         IVenueSession session = (IVenueSession) getSession();
-        return session.getVenue().getPresence((VenueParticipant) user);
+        return session.getVenue().getPresence(user);
     }
 
     /*
@@ -265,8 +267,24 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
      * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
      */
     @Override
-    protected String getDisplayName(UserId user) {
-        return user.getAlias();
+    protected String getDisplayName(VenueParticipant user) {
+        return user.getHandle();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider#convertObject
+     * (java.lang.Object)
+     */
+    @Override
+    protected VenueParticipant convertObject(Object element) {
+        if (element instanceof VenueParticipant) {
+            return (VenueParticipant) element;
+        } else {
+            return null;
+        }
     }
 
 }
