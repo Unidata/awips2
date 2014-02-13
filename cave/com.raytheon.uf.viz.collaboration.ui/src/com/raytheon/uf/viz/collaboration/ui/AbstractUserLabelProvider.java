@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jul 24, 2012            bsteffen     Initial creation
  * Jan 27, 2014 2700       bclement     added roster entry support
  * Feb 13, 2014 2751       bclement     made generic for IUsers
+ * Feb 13, 2014 2751       njensen      Extracted getImageName() to allow overrides
  * 
  * </pre>
  * 
@@ -73,14 +74,12 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
         name.append(getDisplayName(user));
         Presence presence = getPresence(user);
         if (presence != null) {
-            Object site = presence.getProperty(
-                    SiteConfigInformation.SITE_NAME);
+            Object site = presence.getProperty(SiteConfigInformation.SITE_NAME);
             if (site != null) {
                 name.append(" - ");
                 name.append(site);
             }
-            Object role = presence.getProperty(
-                    SiteConfigInformation.ROLE_NAME);
+            Object role = presence.getProperty(SiteConfigInformation.ROLE_NAME);
             if (role != null) {
                 name.append(" - ");
                 name.append(role);
@@ -88,7 +87,7 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
         }
         return name.toString();
     }
-    
+
     /**
      * Cast object to appropriate type
      * 
@@ -103,22 +102,8 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
         if (user == null) {
             return null;
         }
-        Presence presence = getPresence(user);
-        String key = "";
-        if (presence != null && presence.getType() == Type.available) {
-            Mode mode = presence.getMode();
-            if (mode == null) {
-                mode = Mode.available;
-            }
-            key = mode.toString().replaceAll("\\s+", "_");
-        } else {
-            key = "contact_disabled";
-        }
-        if (element instanceof RosterEntry) {
-            if (ContactsManager.isBlocked((RosterEntry) element)) {
-                key = "blocked";
-            }
-        }
+        String key = getImageName(user);
+
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
         }
@@ -210,5 +195,31 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
      * @return last known presence for user
      */
     abstract protected Presence getPresence(T user);
+
+    /**
+     * Gets the image name for an icon associated with an element
+     * 
+     * @param element
+     * @return
+     */
+    protected String getImageName(T user) {
+        Presence presence = getPresence(user);
+        String key = "";
+        if (presence != null && presence.getType() == Type.available) {
+            Mode mode = presence.getMode();
+            if (mode == null) {
+                mode = Mode.available;
+            }
+            key = mode.toString().replaceAll("\\s+", "_");
+        } else {
+            key = "contact_disabled";
+        }
+        if (user instanceof RosterEntry) {
+            if (ContactsManager.isBlocked((RosterEntry) user)) {
+                key = "blocked";
+            }
+        }
+        return key;
+    }
 
 }
