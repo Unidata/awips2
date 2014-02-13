@@ -17,26 +17,23 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.shef.alarms;
+package com.raytheon.uf.edex.ohd.reportalarm;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Method;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Alertalarmval;
 import com.raytheon.uf.common.dataplugin.shef.tables.Counties;
@@ -51,6 +48,10 @@ import com.raytheon.uf.common.dataplugin.shef.tables.State;
 import com.raytheon.uf.common.dataplugin.shef.tables.Timezone;
 import com.raytheon.uf.common.dataplugin.shef.tables.Wfo;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
@@ -61,9 +62,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 15, 2011    9377     jnjanga     Initial creation
- * July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
- * Sep  05, 2013   16539     wkwock      Fix RECENT, NEAR_NOW,FRESH,and NEW_OR_INCREASED modes 
+ * Jun 15, 2011  9377      jnjanga      Initial creation
+ * Jul 12, 2013  15711     wkwock       Fix verbose, observe mode, etc
+ * Sep 05, 2013  16539     wkwock       Fix RECENT, NEAR_NOW,FRESH,and NEW_OR_INCREASED modes
+ * Feb 13, 2014  #2783     dgilling     Refactored to support running as part
+ *                                      of an EDEX service.
  * 
  * </pre>
  * 
@@ -72,10 +75,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  */
 class ReportWriter {
 
-    private static Log log = LogFactory
-    .getLog(ReportWriter.class);
-    
-    private File report;
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ReportWriter.class);
 
     private StringBuilder reportData;
 
@@ -92,56 +93,59 @@ class ReportWriter {
     /**
      * Constructor
      * 
-     * @param report
      * @param opt
      * @param now
      */
-    ReportWriter(File report, ReportOptions opt, Date now) {
-        this.report = report;
+    ReportWriter(ReportOptions opt, Date now) {
         this.reportData = new StringBuilder();
         this.opt = opt;
         this.now = now;
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, opt.getMinutes());
         endTime = cal.getTime();
-        cal.add(Calendar.MINUTE, opt.getMinutes()*(-2));
+        cal.add(Calendar.MINUTE, opt.getMinutes() * (-2));
         startTime = cal.getTime();
-
     }
-    
 
+    public void generateReport(final AlertalarmRecord record) throws Exception {
+        writeHeader();
+        writeBody(record);
+        if (opt.getVerbose()) {
+            writeVerboseTrailer();
+        } else {
+            writeReportTrailer();
+        }
+    }
 
     /**
      * Processes and writes the data by groups found in this record.
      * 
      * @param record
      *            - the Alertalarm record for this run
+     * @throws Exception
      */
-    public void writeBody(AlertalarmRecord record) {
-        
-        if(record!=null) {
-           Set<String> groups = record.getGroups();
+    private void writeBody(AlertalarmRecord record) throws Exception {
 
-           log.debug("      ---Groups---");
-           log.debug(groups.toString());
-           log.debug("      ---Record begin---");
-           log.debug(record.toString());
-           log.debug("      ---Record end---");
-        
-           for (String group : groups) {
-               List<Alertalarmval> grpData = record.getGroupData(group);
-               writeGroup(grpData);
-           }
+        if (record != null) {
+            Set<String> groups = record.getGroups();
+
+            statusHandler.debug("      ---Groups---");
+            statusHandler.debug(groups.toString());
+            statusHandler.debug("      ---Record begin---");
+            statusHandler.debug(record.toString());
+            statusHandler.debug("      ---Record end---");
+
+            for (String group : groups) {
+                List<Alertalarmval> grpData = record.getGroupData(group);
+                writeGroup(grpData);
+            }
         }
     }
 
     /**
-     * Writes the report's header information
-     * 
-     * @throws ParseException
+     * Writes the report's header information.
      */
-    public void writeHeader() {
-
+    private void writeHeader() {
 
         write("***REPORT OF ALERT/ALARM DATA FROM THE HYDROLOGIC DATABASE***");
         writeNewline();
@@ -165,34 +169,44 @@ class ReportWriter {
 
         // note which class of data is being considered via the filter
         write("DATA FILTER:  ");
-        if (opt.getFilter() == null) {
+
+        EnumSet<FilterOption> flags = opt.getFilter();
+        if (CollectionUtil.isNullOrEmpty(flags)) {
             writeln("All alerts/alarms considered (i.e. no filter).");
         } else {
             write("Only considering ");
-            if (opt.getFilter().contains("O") && !opt.getFilter().contains("F"))
+            if (flags.contains(FilterOption.OBSERVED)
+                    && !flags.contains(FilterOption.FORECAST)) {
                 write(FilterOption.OBSERVED.name().toLowerCase());
-            else if (!opt.getFilter().contains("O")
-                    && opt.getFilter().contains("F"))
+            } else if (!flags.contains(FilterOption.OBSERVED)
+                    && flags.contains(FilterOption.FORECAST)) {
                 write(FilterOption.FORECAST.name().toLowerCase());
+            }
 
-            if (opt.getFilter().contains("R"))
+            if (flags.contains(FilterOption.RATE_OF_CHANGE)) {
                 write(" " + FilterOption.RATE_OF_CHANGE.name().toLowerCase());
+            }
 
-            if (opt.getFilter().contains("U"))
+            if (flags.contains(FilterOption.UPPER_LIMIT)) {
                 write(" " + FilterOption.UPPER_LIMIT.name().toLowerCase());
-            if (opt.getFilter().contains("L"))
+            }
+            if (flags.contains(FilterOption.LOWER_LIMIT)) {
                 write(" " + FilterOption.LOWER_LIMIT.name().toLowerCase());
-            if (opt.getFilter().contains("D"))
+            }
+            if (flags.contains(FilterOption.DIFF_LIMIT)) {
                 write(" " + FilterOption.DIFF_LIMIT.name().toLowerCase());
+            }
 
-            if (opt.getFilter().contains("T") && !opt.getFilter().contains("M"))
+            if (flags.contains(FilterOption.ALERTS)
+                    && !flags.contains(FilterOption.ALARMS)) {
                 write(" " + FilterOption.ALERTS.name().toLowerCase());
-            else if (!opt.getFilter().contains("T")
-                    && opt.getFilter().contains("M"))
+            } else if (!flags.contains(FilterOption.ALERTS)
+                    && flags.contains(FilterOption.ALARMS)) {
                 write(" " + FilterOption.ALARMS.name().toLowerCase());
-            else
+            } else {
                 write(" " + FilterOption.ALERTS.name().toLowerCase() + " and "
                         + FilterOption.ALARMS.name().toLowerCase());
+            }
 
             writeNewline();
         }
@@ -200,7 +214,7 @@ class ReportWriter {
         write("PE FILTER  : ");
         if (opt.getPEfilter() == null) {
             writeln(" All Physical Elements are considered (i.e. no filter).");
- 
+
         } else {
             write(" Only considering ");
             writeln(opt.getPEfilter() + " physical element data");
@@ -209,35 +223,36 @@ class ReportWriter {
         if (opt.getMode() == ReportMode.RECENT
                 || opt.getMode() == ReportMode.NEAR_NOW
                 || opt.getMode() == ReportMode.FRESH
-                || opt.getMode() == ReportMode.NEW_OR_INCREASED)
+                || opt.getMode() == ReportMode.NEW_OR_INCREASED) {
             write("NUM MINUTES: " + opt.getMinutes());
+        }
 
         writeNewline();
         writeln("--------------------------------------------------------------------");
     }
 
-    public void writeReportTrailer() {
- /* if no alarms found, then write message */
- 
-    	if (alarmCount == 0) {
-    		writeln("\nNO ALERT/ALARM DATA TO REPORT FOR GIVEN REQUEST.\n");
-    	} else {
-    		String reportMode=opt.getMode().toString();
-    		if (reportMode.equals("")) {
-    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED.");
-    		}else {
-    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED. ("+reportMode+" MODE)");
-    		}
-    	}
- 
-    	writeln ("\nEND OF REPORT");
-    	writeToDisk();
+    private void writeReportTrailer() {
+        /* if no alarms found, then write message */
+
+        if (alarmCount == 0) {
+            writeln("\nNO ALERT/ALARM DATA TO REPORT FOR GIVEN REQUEST.\n");
+        } else {
+            String reportMode = opt.getMode().toString();
+            if (reportMode.equals("")) {
+                writeln("\n" + alarmCount + " ALERT/ALARMS REPORTED.");
+            } else {
+                writeln("\n" + alarmCount + " ALERT/ALARMS REPORTED. ("
+                        + reportMode + " MODE)");
+            }
+        }
+
+        writeln("\nEND OF REPORT");
     }
 
     /**
      * Writes the report's trailer information.
      */
-    public void writeVerboseTrailer() {
+    private void writeVerboseTrailer() {
 
         if (alarmCount == 0) {
             writeNewline();
@@ -245,12 +260,13 @@ class ReportWriter {
             writeNewline();
             writeNewline();
         } else {
-    		String reportMode=opt.getMode().toString();
-    		if (reportMode.equals("")) {
-    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED.");
-    		}else {
-    			writeln("\n"+alarmCount+" ALERT/ALARMS REPORTED. ("+reportMode+" MODE)");
-    		}
+            String reportMode = opt.getMode().toString();
+            if (reportMode.equals("")) {
+                writeln("\n" + alarmCount + " ALERT/ALARMS REPORTED.");
+            } else {
+                writeln("\n" + alarmCount + " ALERT/ALARMS REPORTED. ("
+                        + reportMode + " MODE)");
+            }
             writeln("\n-------------------------------------------------------------------");
             writeln("Limits: shown above are the alert threshold/alarm threshold.");
             writeln("Info grouped by location, physical element, type-source and check type.");
@@ -319,16 +335,16 @@ class ReportWriter {
 
         writeNewline();
         writeln("END OF REPORT");
-        
-        writeToDisk();
     }
 
-    /*
+    /**
      * Write the group data to the report
      * 
-     * @param grpData - A list of Alertalarmval row data
+     * @param grpData
+     *            - A list of Alertalarmval row data
+     * @throws Exception
      */
-    private void writeGroup(List<Alertalarmval> grpData) {
+    private void writeGroup(List<Alertalarmval> grpData) throws Exception {
         if (hasDataToReport(grpData)) {
             /* write the alert-alarm group header */
             writeGroupHeader(grpData);
@@ -337,7 +353,7 @@ class ReportWriter {
         }
     }
 
-    /*
+    /**
      * Write info on the alert/alarm for the current group
      * 
      * If report mode is:
@@ -372,8 +388,9 @@ class ReportWriter {
      * updates alarmCount in the process
      * 
      * @param groupData
+     * @throws Exception
      */
-    private void writeGroupReport(List<Alertalarmval> grpData) {
+    private void writeGroupReport(List<Alertalarmval> grpData) throws Exception {
 
         Alertalarmval maxfcst = findMaxfcst(grpData);
         Alertalarmval latestReport = findLatestAction(grpData);
@@ -389,8 +406,9 @@ class ReportWriter {
          */
 
         char grpTs0 = grpData.get(0).getId().getTs().charAt(0);
-        if (grpTs0 != 'R' && grpTs0 != 'P')
+        if (grpTs0 != 'R' && grpTs0 != 'P') {
             Collections.reverse(grpData);
+        }
 
         /*
          * now loop on the data for this group and write the data records
@@ -456,7 +474,7 @@ class ReportWriter {
                     alarmCount++;
                 }
             }
-        	break;
+            break;
 
         case LATEST_MAXFCST:
 
@@ -484,37 +502,38 @@ class ReportWriter {
                 if ((grpTs0 == 'R' || grpTs0 == 'P')) {
                     Date validtime = aav.getId().getValidtime();
                     Calendar cal = Calendar.getInstance();
-                    if (latestReport != null)
-                    	cal.setTime(latestReport.getId().getValidtime());
+                    if (latestReport != null) {
+                        cal.setTime(latestReport.getId().getValidtime());
+                    }
                     cal.add(Calendar.MINUTE, opt.getMinutes());
-                    if (latestReport==null || validtime.after(cal.getTime())) {
+                    if (latestReport == null || validtime.after(cal.getTime())) {
                         writeAAval(aav);
                         updateDatabase(aav);
                         alarmCount++;
                     }
                 }
             }
-                if (grpTs0 == 'F' || grpTs0 == 'C') {
-                    if (maxfcst != null
-                            && isNotNull(maxfcst.getActionTime().getTime())) {
-                        if (maxfcst.getActionTime().before(startTime)) {
-                            writeAAval(maxfcst);
-                            updateDatabase(maxfcst);
-                            alarmCount++;
-                        }
+            if (grpTs0 == 'F' || grpTs0 == 'C') {
+                if (maxfcst != null
+                        && isNotNull(maxfcst.getActionTime().getTime())) {
+                    if (maxfcst.getActionTime().before(startTime)) {
+                        writeAAval(maxfcst);
+                        updateDatabase(maxfcst);
+                        alarmCount++;
                     }
                 }
+            }
 
             break;
 
         case NEW_OR_INCREASED:
-        	Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance();
             for (Alertalarmval aav : grpData) {
                 if (latestReport != null) {
                     latestValue = latestReport.getValue();
                     cal.setTime(latestReport.getPostingtime());
                 } else {
-                	cal.setTimeInMillis(0);
+                    cal.setTimeInMillis(0);
                 }
 
                 if (isNull(aav.getActionTime().getTime())) {
@@ -527,7 +546,7 @@ class ReportWriter {
                      */
                     cal.add(Calendar.MINUTE, opt.getMinutes());
 
-                   if (posttime.after(cal.getTime())
+                    if (posttime.after(cal.getTime())
                             || (aav.getValue() > latestValue)) {
                         writeAAval(aav);
                         updateDatabase(aav);
@@ -544,26 +563,28 @@ class ReportWriter {
 
     }
 
-    /*
+    /**
      * Checks whether this group(lid-pe-ts-aa_check) has any row data that
      * exceeds specified alert/alarm limits. The checks depends on the modes.
      * 
      * @param grpData
      * 
      * @return - True if at least one row data satisfies the alert/alarm
-     * situation. - false if none.
+     *         situation. - false if none.
      */
     private boolean hasDataToReport(List<Alertalarmval> grpData) {
-        if (grpData == null || grpData.isEmpty())
+        if (grpData == null || grpData.isEmpty()) {
             return false;
+        }
 
         // These following modes are guaranteed to
         // use at least one value from the retrieved data.
         if (opt.getMode() == ReportMode.ALL
                 || opt.getMode() == ReportMode.UNREPORTED
                 || opt.getMode() == ReportMode.NEAREST
-                || opt.getMode() == ReportMode.LATEST_MAXFCST)
+                || opt.getMode() == ReportMode.LATEST_MAXFCST) {
             return true;
+        }
 
         Alertalarmval latestReport = findLatestAction(grpData);
         Alertalarmval maxfcstVal = findMaxfcst(grpData);
@@ -577,13 +598,16 @@ class ReportWriter {
             Date postingTime = aav.getPostingtime();
             switch (opt.getMode()) {
             case NEAR_NOW:
-                if ((ts0 == 'F' || ts0 == 'C') && validTime.before(endTime))
+                if ((ts0 == 'F' || ts0 == 'C') && validTime.before(endTime)) {
                     return true;
-                if ((ts0 == 'R' || ts0 == 'P') && validTime.after(startTime))
+                }
+                if ((ts0 == 'R' || ts0 == 'P') && validTime.after(startTime)) {
                     return true;
+                }
             case RECENT:
-                if (postingTime.after(startTime))
+                if (postingTime.after(startTime)) {
                     return true;
+                }
             case FRESH:
                 /*
                  * get the latest action time reported, if there is one. for
@@ -591,36 +615,39 @@ class ReportWriter {
                  * forecast value
                  */
 
-                if ((ts0 == 'R' || ts0 == 'P') ) {
-                	if (latestReport == null)
-                		return true;
-
-                	Date validtime = aav.getId().getValidtime();
-                    Calendar cal = Calendar.getInstance();
-                   	cal.setTime(latestReport.getId().getValidtime());
-                    cal.add(Calendar.MINUTE, opt.getMinutes());
-                    if (validtime.after(cal.getTime()))
+                if ((ts0 == 'R' || ts0 == 'P')) {
+                    if (latestReport == null) {
                         return true;
+                    }
+
+                    Date validtime = aav.getId().getValidtime();
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(latestReport.getId().getValidtime());
+                    cal.add(Calendar.MINUTE, opt.getMinutes());
+                    if (validtime.after(cal.getTime())) {
+                        return true;
+                    }
                 }
 
                 if (ts0 == 'F' || ts0 == 'C') {
                     if (maxfcstVal != null
                             && isNotNull(maxfcstVal.getActionTime().getTime())) {
                         Date latestActiondate = maxfcstVal.getActionTime();
-                        if (latestActiondate.before(startTime))
+                        if (latestActiondate.before(startTime)) {
                             return true;
+                        }
                     }
                 }
                 break;
 
             case NEW_OR_INCREASED:
                 /* get the last reported record and its time and value. */
-            	Calendar cal = Calendar.getInstance();
+                Calendar cal = Calendar.getInstance();
                 if (latestReport != null) {
                     latestValue = latestReport.getValue();
                     cal.setTime(latestReport.getPostingtime());
                 } else {
-                	cal.setTimeInMillis(0);
+                    cal.setTimeInMillis(0);
                 }
 
                 if (isNull(aav.getActionTime().getTime())) {
@@ -649,12 +676,13 @@ class ReportWriter {
         return false;
     }
 
-    /*
+    /**
      * write out to the report file this alertalarmval row data
      * 
      * @param aav
+     * @throws Exception
      */
-    private void writeAAval(Alertalarmval aav) {
+    private void writeAAval(Alertalarmval aav) throws Exception {
         String[] devb = buildString(aav);
         String durInfo = devb[0];
         String exInfo = devb[1];
@@ -670,42 +698,45 @@ class ReportWriter {
         args.add(basisInfo);
         if (aav.getId().getAaCheck().equals(ShefConstants.UPPER_CHECKSTR)) {
             fmtSpecifier = "  %s > %s  %s %7.1f %s";
-        } else if (aav.getId().getAaCheck().equals(ShefConstants.LOWER_CHECKSTR)) {
+        } else if (aav.getId().getAaCheck()
+                .equals(ShefConstants.LOWER_CHECKSTR)) {
             fmtSpecifier = "  %s < %s  %s %7.1f %s";
         } else {
             fmtSpecifier = "  %s > %s  %s %7.1f (value = %7.1f) %s";
             args.add(3, aav.getSupplValue());
         }
-        
-        log.debug("fmt="+fmtSpecifier);
-        log.debug("args="+args.toString());
-        
+
+        statusHandler.debug("fmt=" + fmtSpecifier);
+        statusHandler.debug("args=" + args.toString());
+
         line = String.format(fmtSpecifier, args.toArray());
         write(line);
-        if (durInfo.length() > 0 || exInfo.length() > 0)
+        if (durInfo.length() > 0 || exInfo.length() > 0) {
             writeln(durInfo + exInfo);
-        else
+        } else {
             writeNewline();
+        }
     }
 
-    /*
+    /**
      * build a presentable string for duration, extremum code and convert valid
      * time to time_t format.
      * 
      * @param aav
+     * @throws Exception
      */
-    private String[] buildString(Alertalarmval aav) {
+    private String[] buildString(Alertalarmval aav) throws Exception {
         String[] devbStr = new String[4];
 
         /* build a presentable string for the duration code value */
         short dur = aav.getId().getDur();
         if (dur != 0) {
             Object[] durData = getShefDurInfo(dur);
-            if (durData == null) 
+            if (durData == null) {
                 devbStr[0] = "Duration=" + dur;
-            else {
-                Object[] aDurData = (Object[]) durData[0]
-;                devbStr[0] = (String) aDurData[2] + Constants.SPACE;
+            } else {
+                Object[] aDurData = (Object[]) durData[0];
+                devbStr[0] = (String) aDurData[2] + Constants.SPACE;
             }
 
         } else {
@@ -716,10 +747,11 @@ class ReportWriter {
         String ex = aav.getId().getExtremum();
         if (!ex.equals("Z")) {
             Object[] exData = getShefExInfo(ex);
-            if (exData == null)
+            if (exData == null) {
                 devbStr[1] = "Extremum=" + ex;
-            else
+            } else {
                 devbStr[1] = (String) exData[1] + Constants.SPACE;
+            }
         } else {
             devbStr[1] = Constants.SPACE;
         }
@@ -728,8 +760,7 @@ class ReportWriter {
          * convert the valid time for use in the update statement and for
          * presenting the time in the output
          */
-        devbStr[2] = ShefConstants.POSTGRES_DATE_FORMAT.format(aav.getId()
-                .getValidtime());
+        devbStr[2] = TimeUtil.formatToSqlTimestamp(aav.getId().getValidtime());
 
         /*
          * if forecast or contingency data, then show the basis time in a
@@ -739,8 +770,8 @@ class ReportWriter {
 
         char ts0 = aav.getId().getTs().charAt(0);
         if (ts0 == 'F' || ts0 == 'C') {
-            String basisStr = ShefConstants.POSTGRES_DATE_FORMAT.format(aav
-                    .getId().getBasistime());
+            String basisStr = TimeUtil.formatToSqlTimestamp(aav.getId()
+                    .getBasistime());
             devbStr[3] = "fcast " + basisStr;
         } else {
             devbStr[3] = Constants.SPACE;
@@ -749,14 +780,15 @@ class ReportWriter {
         return devbStr;
     }
 
-    /*
+    /**
      * Writes the group header information
      * 
      * @param headerTokens
      * 
      * @param grpData
+     * @throws Exception
      */
-    private void writeGroupHeader(List<Alertalarmval> grpData) {
+    private void writeGroupHeader(List<Alertalarmval> grpData) throws Exception {
         // get the location info for this group
         String lid = grpData.get(0).getId().getLid();
         Location loc = getLocationInfo(lid);
@@ -770,84 +802,95 @@ class ReportWriter {
         // make a description of the type portion of the type-source field
         String typeInfo = null;
         String ts = grpData.get(0).getId().getTs();
-        String ts1StChr = ts.substring(0,1).toUpperCase();
-        if (ts1StChr.equals("C"))
+        String ts1StChr = ts.substring(0, 1).toUpperCase();
+        if (ts1StChr.equals("C")) {
             typeInfo = "Contingengy";
-        else if (ts1StChr.equals("F"))
+        } else if (ts1StChr.equals("F")) {
             typeInfo = "Forecast";
-        else if (ts1StChr.equals("P"))
+        } else if (ts1StChr.equals("P")) {
             typeInfo = "Processed";
-        else
+        } else {
             typeInfo = "Observed";
+        }
 
         // write header lines to the file for this group
         writeNewline();
-        write(loc.getName() + Constants.SPACE + "(" + loc.getLid() + ")" + Constants.SPACE
-                + loc.getCounties().getId().getCounty() + " County," + Constants.SPACE
-                + state.getName());
+        write(loc.getName() + Constants.SPACE + "(" + loc.getLid() + ")"
+                + Constants.SPACE + loc.getCounties().getId().getCounty()
+                + " County," + Constants.SPACE + state.getName());
         writeNewline();
         writeNewline();
-        write(peInfo + Constants.SPACE + typeInfo + Constants.SPACE + "(" + pe + Constants.SPACE + ts + ")");
+        write(peInfo + Constants.SPACE + typeInfo + Constants.SPACE + "(" + pe
+                + Constants.SPACE + ts + ")");
         writeNewline();
 
         Datalimits limits = getDatalimits(grpData);
         if (limits != null) {
 
             StringBuilder lim = new StringBuilder("Limits: Upper limit Value=");
-            if (limits.getAlertUpperLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlertUpperLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertUpperLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
             lim.append("/");
-            if (limits.getAlarmUpperLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlarmUpperLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmUpperLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
 
             lim.append("  Lower limit Value=");
-            if (limits.getAlertLowerLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlertLowerLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertLowerLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
             lim.append("/");
-            if (limits.getAlarmLowerLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlarmLowerLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmLowerLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
 
             lim.append("  Diff limit Value=");
-            if (limits.getAlertDiffLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlertDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertDiffLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
             lim.append("/");
-            if (limits.getAlarmDiffLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlarmDiffLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmDiffLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
 
             lim.append("  ROC=");
-            if (limits.getAlertRocLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlertRocLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlertRocLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
             lim.append("/");
-            if (limits.getAlarmRocLimit() != Constants.MISSING_VALUE_DOUBLE)
+            if (limits.getAlarmRocLimit() != Constants.MISSING_VALUE_DOUBLE) {
                 lim.append(String.format("%.1f", limits.getAlarmRocLimit()));
-            else
+            } else {
                 lim.append("undef");
+            }
 
-            if (opt.getVerbose()){
-            	writeln(lim.toString());
+            if (opt.getVerbose()) {
+                writeln(lim.toString());
             }
 
         } else {
-            log.info("No data limits found in Database while writing alert/alarm group report!");
+            statusHandler
+                    .info("No data limits found in Database while writing alert/alarm group report!");
             writeln("Alert/Alarm limits not available.");
         }
     }
 
-    /*
+    /**
      * Find the most recent record which was reported already. The record with
      * the most recent action time is is returned.
      * 
@@ -859,8 +902,9 @@ class ReportWriter {
         TreeSet<Alertalarmval> actions = new TreeSet<Alertalarmval>(
                 new ActiontimeComparator());
         for (Alertalarmval aav : grpData) {
-            if (isNotNull(aav.getActionTime().getTime()))
+            if (isNotNull(aav.getActionTime().getTime())) {
                 actions.add(aav);
+            }
         }
         return actions.isEmpty() ? null : actions.first();
     }
@@ -883,7 +927,7 @@ class ReportWriter {
         }
     }
 
-    /*
+    /**
      * Find the record in the forecast combination group with the maximum value.
      * This function should not return with a null pointer; i.e. if there are
      * data, there should always be a maximum value. This function is used for
@@ -894,8 +938,9 @@ class ReportWriter {
      * @return
      */
     private Alertalarmval findMaxfcst(List<Alertalarmval> grpData) {
-        if (grpData == null || grpData.isEmpty())
+        if (grpData == null || grpData.isEmpty()) {
             return null;
+        }
 
         Alertalarmval maxfsct = grpData.get(0);
         TreeSet<Alertalarmval> fcstvalues = new TreeSet<Alertalarmval>(
@@ -903,30 +948,31 @@ class ReportWriter {
         /* only process the data if it is forecast type data */
         char ts0 = maxfsct.getId().getTs().charAt(0);
         if (ts0 == 'F' || ts0 == 'C') {
-            for (Alertalarmval aav : grpData)
-                if (isNotNull(aav.getValue()))
+            for (Alertalarmval aav : grpData) {
+                if (isNotNull(aav.getValue())) {
                     fcstvalues.add(aav);
+                }
+            }
             maxfsct = fcstvalues.first();
         }
         return fcstvalues.isEmpty() ? null : fcstvalues.first();
     }
 
-    /*
+    /**
      * Update the action time to now. Note that because certain report modes
      * include data that has already been reported, it is possible that the
      * action_time is not null; in this case, the action_time field will show
      * the last time the record was reported.
+     * 
+     * @throws Exception
      */
-    private void updateDatabase(Alertalarmval aav) {
-        
-        String nowAnsi = ShefConstants.POSTGRES_DATE_FORMAT.format(now);
-        String validAnsi = ShefConstants.POSTGRES_DATE_FORMAT.format(aav.getId().getValidtime());
-        String basisAnsi = ShefConstants.POSTGRES_DATE_FORMAT.format(aav.getId().getBasistime());
-        /*Timestamp nowAnsi = new Timestamp(now.getTime());
-        Timestamp validAnsi = new Timestamp(aav.getId().getValidtime()
-                .getTime());
-        Timestamp basisAnsi = new Timestamp(aav.getId().getBasistime()
-                .getTime());*/
+    private void updateDatabase(Alertalarmval aav) throws Exception {
+        String nowAnsi = TimeUtil.formatToSqlTimestamp(now);
+        String validAnsi = TimeUtil.formatToSqlTimestamp(aav.getId()
+                .getValidtime());
+        String basisAnsi = TimeUtil.formatToSqlTimestamp(aav.getId()
+                .getBasistime());
+
         StringBuilder query = new StringBuilder();
         query.append(" UPDATE alertalarmval SET action_time ='");
         query.append(nowAnsi + "' ");
@@ -935,30 +981,33 @@ class ReportWriter {
         query.append("AND dur=" + aav.getId().getDur() + Constants.SPACE);
         query.append("AND ts='" + aav.getId().getTs() + "' ");
         query.append("AND extremum='" + aav.getId().getExtremum() + "' ");
-        query.append("AND probability=" + aav.getId().getProbability() + Constants.SPACE);
+        query.append("AND probability=" + aav.getId().getProbability()
+                + Constants.SPACE);
         query.append("AND validtime='" + validAnsi + "' ");
         query.append("AND basistime='" + basisAnsi + "' ");
         query.append("AND aa_categ='" + aav.getId().getAaCateg() + "' ");
         query.append("AND aa_check='" + aav.getId().getAaCheck() + "' ");
-        try{
-           CoreDao dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
-           dao.executeSQLUpdate(query.toString());
-           
-        } catch(Exception e) {
-            log.error("Error updating alertalarmval table");
-            log.error("Query = [" + query + "]",e);
-            System.exit(0);
+        try {
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
+            dao.executeSQLUpdate(query.toString());
+
+        } catch (Exception e) {
+            statusHandler.error("Error updating alertalarmval table");
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
     }
 
-    /*
+    /**
      * Query the database and obtain the data limits for this group.
      * 
      * @param grpData
      * 
      * @return
+     * @throws Exception
      */
-    private Datalimits getDatalimits(List<Alertalarmval> grpData) {
+    private Datalimits getDatalimits(List<Alertalarmval> grpData)
+            throws Exception {
         Object[] limData = null;
         Object[] limRow = null;
         CoreDao dao = null;
@@ -971,7 +1020,7 @@ class ReportWriter {
         Short dur = grpData.get(0).getId().getDur();
         Date validtime = grpData.get(0).getId().getValidtime();
 
-        String query = "SELECT * FROM locdatalimits WHERE lid='" + lid 
+        String query = "SELECT * FROM locdatalimits WHERE lid='" + lid
                 + "' AND pe='" + pe + "' AND dur=" + dur;
 
         try {
@@ -1017,17 +1066,17 @@ class ReportWriter {
             }
 
         } catch (Exception e) {
-            log.error("- PostgresSQL error executing Query = [" + query + "]",
-                    e);
-            System.exit(0);
+            statusHandler.error("- PostgresSQL error executing Query = ["
+                    + query + "]");
+            throw e;
         }
 
         return limits;
     }
 
-    /*
-     * copy only the thresholds themselves into the returned record.
-     * check for nulls always
+    /**
+     * copy only the thresholds themselves into the returned record. check for
+     * nulls always
      */
     private void copyThresholds(Datalimits limits, Object[] limitsRow,
             boolean locRangeFound) {
@@ -1045,13 +1094,14 @@ class ReportWriter {
         Double alarmll;
         Double alertdl;
         Double alarmdl;
-        
-        //traverse the limitsRow and substitute all nulls with 
-        //the default nullDouble value
-        for(int i=0;i<limitsRow.length;i++)
-            if(limitsRow[i]==null)
-                limitsRow[i]=getNullDouble();
-        
+
+        // traverse the limitsRow and substitute all nulls with
+        // the default nullDouble value
+        for (int i = 0; i < limitsRow.length; i++) {
+            if (limitsRow[i] == null) {
+                limitsRow[i] = getNullDouble();
+            }
+        }
 
         if (locRangeFound) { // copy from locdatalimits resultset
 
@@ -1086,70 +1136,84 @@ class ReportWriter {
             alarmdl = (Double) limitsRow[16];
         }
 
-
-        if (isNotNull(grmin))
+        if (isNotNull(grmin)) {
             limits.setGrossRangeMin(grmin);
+        }
 
-        if (isNotNull(grmax))
+        if (isNotNull(grmax)) {
             limits.setGrossRangeMax(grmax);
+        }
 
-        if (isNotNull(rrmin))
+        if (isNotNull(rrmin)) {
             limits.setReasonRangeMin(rrmin);
+        }
 
-        if (isNotNull(rrmax))
+        if (isNotNull(rrmax)) {
             limits.setReasonRangeMax(rrmax);
+        }
 
-        if (isNotNull(rocmax))
+        if (isNotNull(rocmax)) {
             limits.setRocMax(rocmax);
+        }
 
-        if (isNotNull(alertul))
+        if (isNotNull(alertul)) {
             limits.setAlertUpperLimit(alertul);
+        }
 
-        if (isNotNull(alertll))
+        if (isNotNull(alertll)) {
             limits.setAlertLowerLimit(alertll);
+        }
 
-        if (isNotNull(alertdl))
+        if (isNotNull(alertdl)) {
             limits.setAlertDiffLimit(alertdl);
+        }
 
-        if (isNotNull(alertrl))
+        if (isNotNull(alertrl)) {
             limits.setAlertRocLimit(alertrl);
+        }
 
-        if (isNotNull(alarmul))
+        if (isNotNull(alarmul)) {
             limits.setAlarmUpperLimit(alarmul);
+        }
 
-        if (isNotNull(alarmll))
+        if (isNotNull(alarmll)) {
             limits.setAlarmLowerLimit(alarmll);
+        }
 
-        if (isNotNull(alarmdl))
+        if (isNotNull(alarmdl)) {
             limits.setAlarmDiffLimit(alarmdl);
+        }
 
-        if (isNotNull(alarmrl))
+        if (isNotNull(alarmrl)) {
             limits.setAlarmRocLimit(alarmrl);
-    }
-
-
-    /*
-     * initializes all Double fields to the missing value
-     */
-    private void flushDataLimitsObj(Datalimits limits) {     
-        try {
-            Class cls = Class.forName("com.raytheon.uf.common.dataplugin.shef.tables.Datalimits");
-            Method methodlist[]= cls.getDeclaredMethods();
-            for(Method method : methodlist) {
-                if((method.getName().startsWith("set") && !method.getName().contains("Id"))
-                        && (method.getName().contains("Max") || method.getName().contains("Min") 
-                        || method.getName().contains("Limit")))
-                    method.invoke(limits, Constants.MISSING_VALUE_DOUBLE);
-            }
-        } catch (Throwable e) {
-             log.warn("Failed to flush Datalimits object ",e);
-             log.fatal("Exiting.");
-             System.exit(0);
         }
     }
 
-   
-    
+    /**
+     * initializes all Double fields to the missing value
+     * 
+     * @throws Exception
+     */
+    private void flushDataLimitsObj(Datalimits limits) throws Exception {
+        try {
+            Class<?> cls = Class
+                    .forName("com.raytheon.uf.common.dataplugin.shef.tables.Datalimits");
+            Method methodlist[] = cls.getDeclaredMethods();
+            for (Method method : methodlist) {
+                if ((method.getName().startsWith("set") && !method.getName()
+                        .contains("Id"))
+                        && (method.getName().contains("Max")
+                                || method.getName().contains("Min") || method
+                                .getName().contains("Limit"))) {
+                    method.invoke(limits, Constants.MISSING_VALUE_DOUBLE);
+                }
+            }
+        } catch (Exception e) {
+            statusHandler.error("Failed to flush Datalimits object.");
+            throw e;
+        }
+    }
+
     public static double getNullDouble() {
         return -Double.MAX_VALUE;
     }
@@ -1158,7 +1222,7 @@ class ReportWriter {
         return Long.MIN_VALUE;
     }
 
-    public static boolean isNull(double value) {       
+    public static boolean isNull(double value) {
         boolean result = false;
 
         if (value == getNullDouble()) {
@@ -1170,7 +1234,7 @@ class ReportWriter {
     public static boolean isNull(long value) {
         boolean result = false;
 
-        if (value == getNullLong() || value==0) {
+        if (value == getNullLong() || value == 0) {
             result = true;
         }
 
@@ -1185,7 +1249,7 @@ class ReportWriter {
         return !isNull(value);
     }
 
-    /*
+    /**
      * Check that the observation date is within the window limits found in the
      * db
      * 
@@ -1217,28 +1281,32 @@ class ReportWriter {
         return reportData.toString();
     }
 
-    /*
+    /**
      * Query the location table and obtain a location rset for this location Id
      * 
-     * @param lid - the location Id
+     * @param lid
+     *            - the location Id
      * 
      * @return - a location row
+     * @throws Exception
      */
-    private Location getLocationInfo(String lid) {
+    private Location getLocationInfo(String lid) throws Exception {
         Object[] locData = null;
         CoreDao dao = null;
         Object[] locInfo = null;
-        final String query = "SELECT * FROM location WHERE lid='" + lid+"'";
+        final String query = "SELECT * FROM location WHERE lid='" + lid + "'";
         try {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             locData = dao.executeSQLQuery(query);
-            if (locData != null && locData.length > 0)
+            if (locData != null && locData.length > 0) {
                 locInfo = (Object[]) locData[0];
+            }
         } catch (Exception e) {
-            log.info("Query = [" + query + "]");
-            log.error(" - PostgresSQL error retrieving location info for "
-                    + lid, e);
-            System.exit(0);
+            statusHandler
+                    .error(" - PostgresSQL error retrieving location info for "
+                            + lid);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
 
         Location loc = new Location();
@@ -1282,14 +1350,16 @@ class ReportWriter {
         return loc;
     }
 
-    /*
+    /**
      * Query the shefex table and obtain shefex rset for the given duration
      * 
-     * @param ex - the extremum
+     * @param ex
+     *            - the extremum
      * 
      * @return - a shefex row
+     * @throws Exception
      */
-    private Object[] getShefExInfo(String ex) {
+    private Object[] getShefExInfo(String ex) throws Exception {
         Object[] exData = null;
         CoreDao dao = null;
         final String query = "SELECT * FROM shefex WHERE extremum='" + ex + "'";
@@ -1297,24 +1367,26 @@ class ReportWriter {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             exData = dao.executeSQLQuery(query);
         } catch (Exception e) {
-           log.info("Query = [" + query + "]");
-           log.error(
-                    " - PostgresSQL error retrieving Shefex info for extremum"
-                            + ex, e);
-           System.exit(0);
+            statusHandler
+                    .error(" - PostgresSQL error retrieving Shefex info for extremum"
+                            + ex);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
 
         return exData;
     }
 
-    /*
+    /**
      * Query the shefdur table and obtain shefdur rset for the given duration
      * 
-     * @param ex - the duration
+     * @param ex
+     *            - the duration
      * 
      * @return - a shefdur row
+     * @throws Exception
      */
-    private Object[] getShefDurInfo(short dur) {
+    private Object[] getShefDurInfo(short dur) throws Exception {
         Object[] durData = null;
         CoreDao dao = null;
         final String query = "SELECT * FROM shefdur WHERE dur=" + dur;
@@ -1322,25 +1394,27 @@ class ReportWriter {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             durData = dao.executeSQLQuery(query);
         } catch (Exception e) {
-            log.info("Query = [" + query + "]");
-            log.error(
-                    " - PostgresSQL error retrieving ShefDur info for duration"
-                            + dur, e);
-            System.exit(0);
+            statusHandler
+                    .error(" - PostgresSQL error retrieving ShefDur info for duration"
+                            + dur);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
 
         return durData;
     }
 
-    /*
+    /**
      * Query the shefpe table and obtain shefpe rset for the given physical
      * element
      * 
-     * @param pe - the physical element
+     * @param pe
+     *            - the physical element
      * 
      * @return - a shefpe row
+     * @throws Exception
      */
-    private String getShefPeInfo(String pe) {
+    private String getShefPeInfo(String pe) throws Exception {
         Object[] peData = null;
         CoreDao dao = null;
         Object[] peInfo = null;
@@ -1348,45 +1422,51 @@ class ReportWriter {
         try {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             peData = dao.executeSQLQuery(query);
-            if (peData != null && peData.length > 0)
+            if (peData != null && peData.length > 0) {
                 peInfo = (Object[]) peData[0];
+            }
         } catch (Exception e) {
-            log.info("Query = [" + query + "]");
-            log.error(
-                    " - PostgresSQL error retrieving physical element info for "
-                            + pe, e);
-            System.exit(0);
+            statusHandler
+                    .error(" - PostgresSQL error retrieving physical element info for "
+                            + pe);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
 
-        if (peInfo == null)
+        if (peInfo == null) {
             return "UndefinedName";
+        }
 
         return (String) peInfo[1];
     }
 
-    /*
+    /**
      * Query the
      * 
      * @param state
      * 
      * @return
+     * @throws Exception
      */
-    private State getStateInfo(String state) {
+    private State getStateInfo(String state) throws Exception {
         Object[] stateData = null;
         CoreDao dao = null;
         Object[] stateInfo = null;
-        final String query = "SELECT * FROM state WHERE state='"+ state + "'";
+        final String query = "SELECT * FROM state WHERE state='" + state + "'";
         try {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
             stateData = dao.executeSQLQuery(query);
-            if (stateData != null && stateData.length > 0)
+            if (stateData != null && stateData.length > 0) {
                 stateInfo = (Object[]) stateData[0];
+            }
         } catch (Exception e) {
-            log.info("Query = [" + query + "]");
-            log.error(" - PostgresSQL error retrieving state info info for "
-                    + state, e);
-            System.exit(0);
+            statusHandler
+                    .error(" - PostgresSQL error retrieving state info info for "
+                            + state);
+            statusHandler.error("Query = [" + query + "]");
+            throw e;
         }
+
         State s = new State();
         s.setState((String) stateInfo[0]);
         s.setName((String) stateInfo[1]);
@@ -1399,72 +1479,52 @@ class ReportWriter {
     public int getAlarmCount() {
         return alarmCount;
     }
-    
+
     /**
-     * @return - the report complete filename
-     */
-    public String getFilename() {
-        return report.getAbsolutePath();
-    }
-    
-    /*
      * does not perform disk access
-     * @param str - 
+     * 
+     * @param str
+     *            -
      */
     private void write(String str) {
-            reportData.append(str);
+        reportData.append(str);
     }
 
-    /*
-     * writes a line and positions the file 
-     * cursor after the new line separator.
+    /**
+     * writes a line and positions the file cursor after the new line separator.
      * 
-     * @param str - a line to write to the file
+     * @param str
+     *            - a line to write to the file
      */
     private void writeln(String str) {
-            reportData.append(str);
-            reportData.append(Constants.NEWLINE);
+        reportData.append(str);
+        writeNewline();
     }
 
     /*
      * write a line separator
      */
     private void writeNewline() {
-            reportData.append(Constants.NEWLINE);
+        reportData.append(Constants.NEWLINE);
     }
 
-     
-    /*
-     * writes the report to disk
+    /**
+     * Writes the report to disk.
+     * 
+     * @param report
+     *            The file to write the report to.
      */
-    private void writeToDisk(){
-        String filename = report.getAbsolutePath();
-        BufferedWriter bufferedWriter = null;
+    public void writeToDisk(final File report) throws IOException {
+        Writer outWriter = null;
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter(filename));
-            bufferedWriter.append(Constants.EOL);
-            //bufferedWriter.newLine();
-            bufferedWriter.append(reportData.toString());
-        } catch (FileNotFoundException fnfe) {
-            log.error("Could not find file "+ filename, fnfe);
-            System.exit(0);
-        } catch (IOException e) {
-            log.error("Exception occured ",e);
-            System.exit(0);
+            outWriter = new BufferedWriter(new FileWriter(report));
+            outWriter.write(Constants.EOL);
+            outWriter.write(reportData.toString());
         } finally {
-            try {
-                if (bufferedWriter != null) {
-                    bufferedWriter.flush();
-                    bufferedWriter.close();
-                }
-            } catch (IOException e) {
-                log.error("Exception occured ",e);
-                System.exit(0);
+            if (outWriter != null) {
+                outWriter.close();
             }
-            
         }
     }
-
-    
 
 }
