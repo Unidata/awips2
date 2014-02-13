@@ -58,7 +58,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEve
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayloadProvider;
@@ -110,6 +109,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                     cleaned up createCollaborationVenue, removed getVenueInfo
  * Jan 30, 2014 2698       bclement    changed arguments to create sessions, moved room connection from SessionView
  * Feb  3, 2014 2699       bclement    removed unneeded catch in joinTextOnlyVenue
+ * Feb 13, 2014 2751       bclement    better types for venueid and invitor
  * 
  * </pre>
  * 
@@ -401,7 +401,7 @@ public class CollaborationConnection implements IEventPublisher {
 
         session.createVenue(data);
         VenueParticipant leader = session.getUserID();
-        leader.setAlias(session.getHandle());
+        leader.setHandle(session.getHandle());
         session.setCurrentSessionLeader(leader);
         session.setCurrentDataProvider(leader);
 
@@ -616,8 +616,9 @@ public class CollaborationConnection implements IEventPublisher {
                                 String room, String inviter, String reason,
                                 String password, Message message) {
                             // TODO handle password protected rooms
-                            IQualifiedID venueId = new VenueId();
+                            VenueId venueId = new VenueId();
                             venueId.setName(Tools.parseName(room));
+                            venueId.setHost(Tools.parseHost(room));
                             UserId invitor = IDConverter.convertFrom(inviter);
 
                             if (message != null) {
@@ -641,7 +642,7 @@ public class CollaborationConnection implements IEventPublisher {
         }
     }
 
-    private void handleChatRoomInvite(IQualifiedID venueId, UserId invitor,
+    private void handleChatRoomInvite(VenueId venueId, UserId invitor,
             String reason, Message message) {
         VenueInvite invite = new VenueInvite();
         if (!StringUtils.isBlank(reason)) {
@@ -657,7 +658,7 @@ public class CollaborationConnection implements IEventPublisher {
         eventBus.post(event);
     }
 
-    private void handleCollabInvite(IQualifiedID venueId, UserId invitor,
+    private void handleCollabInvite(VenueId venueId, UserId invitor,
             SessionPayload payload) {
         Object obj = payload.getData();
         if (obj == null
