@@ -25,6 +25,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
  * Parsed ID string from venue. Not guaranteed to have username, but will always
@@ -37,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 29, 2014            bclement     Initial creation
+ * Feb 13, 2014 2751       bclement     no longer is a subclass of UserId
  * 
  * </pre>
  * 
@@ -45,7 +48,19 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  */
 @DynamicSerialize
 @XmlRootElement(name = "participant")
-public class VenueParticipant extends UserId {
+public class VenueParticipant implements IUser {
+
+    @DynamicSerializeElement
+    private String handle;
+
+    @DynamicSerializeElement
+    private String host;
+
+    @DynamicSerializeElement
+    private UserId userid;
+
+    @DynamicSerializeElement
+    private String room;
 
     /**
      * 
@@ -54,21 +69,33 @@ public class VenueParticipant extends UserId {
     }
 
     /**
-     * @param userName
+     * @param room
+     *            name of venue
      * @param hostName
+     *            qualified name of host including conference subdomain
+     * @param handle
+     *            public name of user in room
+     * @param userid
+     *            actual userid of user
      */
-    public VenueParticipant(String userName, String hostName) {
-        super(userName, hostName);
+    public VenueParticipant(String room, String hostName, String handle,
+            UserId userid) {
+        this(room, hostName, handle);
+        this.userid = userid;
     }
 
     /**
-     * @param userName
+     * @param room
+     *            name of venue
      * @param hostName
-     * @param resource
+     *            qualified name of host including conference subdomain
+     * @param handle
+     *            public name of user in room
      */
-    public VenueParticipant(String userName, String hostName, String handle) {
-        this(userName, hostName);
-        setAlias(handle);
+    public VenueParticipant(String room, String hostName, String handle) {
+        this.room = room;
+        this.host = hostName;
+        this.handle = handle;
     }
 
     /*
@@ -81,7 +108,8 @@ public class VenueParticipant extends UserId {
     public int hashCode() {
         HashCodeBuilder builder = new HashCodeBuilder();
         builder.append(host);
-        builder.append(alias);
+        builder.append(handle);
+        builder.append(room);
         return builder.toHashCode();
     }
 
@@ -100,29 +128,26 @@ public class VenueParticipant extends UserId {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof UserId)) {
+        if (!(obj instanceof VenueParticipant)) {
             return false;
         }
-        UserId user = (UserId) obj;
+        VenueParticipant other = (VenueParticipant) obj;
         EqualsBuilder builder = new EqualsBuilder();
-        builder.append(alias, user.alias);
-        builder.append(host, user.host);
+        builder.append(handle, other.handle);
+        builder.append(host, other.host);
+        builder.append(room, other.room);
         return builder.isEquals();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.comm.provider.user.UserId#isSameUser
-     * (java.lang.String)
+    /**
+     * @param id
+     * @return true if id represents same venue participant as this one
      */
-    @Override
     public boolean isSameUser(String id) {
         if (!IDConverter.isFromRoom(id)) {
-            return false;
+            return hasActualUserId() && userid.isSameUser(id);
         }
-        UserId other = IDConverter.convertFromRoom(null, id);
+        VenueParticipant other = IDConverter.convertFromRoom(null, id);
         return isSameUser(other);
     }
 
@@ -130,12 +155,123 @@ public class VenueParticipant extends UserId {
      * (non-Javadoc)
      * 
      * @see
-     * com.raytheon.uf.viz.collaboration.comm.provider.user.UserId#isSameUser
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     * com.raytheon.uf.viz.collaboration.comm.identity.user.IUser#isSameUser
+     * (com.raytheon.uf.viz.collaboration.comm.identity.user.IUser)
      */
     @Override
-    public boolean isSameUser(UserId other) {
+    public boolean isSameUser(IUser other) {
+        if (other instanceof UserId) {
+            return hasActualUserId() && userid.isSameUser(other);
+        }
+        if (!(other instanceof VenueParticipant)) {
+            return false;
+        }
         return equals(other);
+    }
+
+    @Override
+    public String toString() {
+        return getFQName();
+    }
+
+    /**
+     * @return id of room that this participant is in (includes hostname)
+     */
+    public String getRoomId() {
+        return room + "@" + host;
+    }
+
+    /**
+     * @return true if actually userid of participant is known
+     */
+    public boolean hasActualUserId() {
+        return this.userid != null;
+    }
+
+    /**
+     * @return the handle
+     */
+    public String getHandle() {
+        return handle;
+    }
+
+    /**
+     * @param handle
+     *            the handle to set
+     */
+    public void setHandle(String handle) {
+        this.handle = handle;
+    }
+
+    /**
+     * @return the host
+     */
+    public String getHost() {
+        return host;
+    }
+
+    /**
+     * @param host
+     *            the host to set
+     */
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    /**
+     * @return the userid
+     */
+    public UserId getUserid() {
+        return userid;
+    }
+
+    /**
+     * @param userid
+     *            the userid to set
+     */
+    public void setUserid(UserId userid) {
+        this.userid = userid;
+    }
+
+    /**
+     * name of venue
+     * 
+     * @return the room
+     */
+    public String getRoom() {
+        return room;
+    }
+
+    /**
+     * @param room
+     *            name of venue
+     */
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getName
+     * ()
+     */
+    @Override
+    public String getName() {
+        return handle;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getFQName
+     * ()
+     */
+    @Override
+    public String getFQName() {
+        return getRoomId() + "/" + handle;
     }
 
 }

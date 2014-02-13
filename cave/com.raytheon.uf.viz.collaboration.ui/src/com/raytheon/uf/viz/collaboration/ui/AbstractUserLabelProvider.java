@@ -34,9 +34,9 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemStatus;
 import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012            bsteffen     Initial creation
  * Jan 27, 2014 2700       bclement     added roster entry support
+ * Feb 13, 2014 2751       bclement     made generic for IUsers
  * 
  * </pre>
  * 
@@ -57,18 +58,15 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * @version 1.0
  */
 
-public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
+public abstract class AbstractUserLabelProvider<T extends IUser> extends
+        ColumnLabelProvider {
 
     protected Map<String, Image> imageMap = new HashMap<String, Image>();
 
     @Override
     public String getText(Object element) {
-        UserId user;
-        if (element instanceof UserId) {
-            user = (UserId) element;
-        } else if ( element instanceof RosterEntry){
-            user = IDConverter.convertFrom((RosterEntry) element);
-        } else {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
         StringBuilder name = new StringBuilder();
@@ -91,14 +89,18 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         return name.toString();
     }
     
+    /**
+     * Cast object to appropriate type
+     * 
+     * @param element
+     * @return null if object cannot be cast
+     */
+    abstract protected T convertObject(Object element);
+
     @Override
     public Image getImage(Object element) {
-        UserId user;
-        if (element instanceof UserId) {
-            user = (UserId) element;
-        } else if (element instanceof RosterEntry) {
-            user = IDConverter.convertFrom((RosterEntry) element);
-        } else {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
         Presence presence = getPresence(user);
@@ -125,12 +127,8 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getToolTipText(Object element) {
-        UserId user;
-        if (element instanceof UserId) {
-            user = (UserId) element;
-        } else if (element instanceof RosterEntry) {
-            user = IDConverter.convertFrom((RosterEntry) element);
-        } else {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
         Presence presence = getPresence(user);
@@ -187,7 +185,7 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         imageMap.clear();
     }
 
-    protected String getDisplayName(UserId user) {
+    protected static String getLocalAlias(UserId user) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
@@ -201,6 +199,16 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         }
     }
 
-    protected abstract Presence getPresence(UserId user);
+    /**
+     * @param user
+     * @return display text for user name
+     */
+    abstract protected String getDisplayName(T user);
+
+    /**
+     * @param user
+     * @return last known presence for user
+     */
+    abstract protected Presence getPresence(T user);
 
 }
