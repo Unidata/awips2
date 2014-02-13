@@ -37,6 +37,7 @@ import org.jivesoftware.smackx.muc.Occupant;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 30, 2014 2698       bclement    reworked convertFromRoom for venue participants
  * Feb  3, 2014 2699       bclement    fixed room id parsing when handle has special characters
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -78,16 +79,16 @@ public class IDConverter {
         }
         String cleanId = id.substring(0, id.length() - handle.length());
         String host = StringUtils.parseServer(cleanId);
-
-        String name = null;
+        String roomName = StringUtils.parseName(id);
+        VenueParticipant rval = new VenueParticipant(roomName, host, handle);
         Occupant occupant;
         if (room != null && (occupant = room.getOccupant(id)) != null) {
             if (occupant.getJid() != null) {
                 // get actual user name
-                name = StringUtils.parseName(occupant.getJid());
+                rval.setUserid(convertFrom(occupant.getJid()));
             }
         }
-        return new VenueParticipant(name, host, handle);
+        return rval;
     }
 
     public static String normalizeHostname(String hostname) {
