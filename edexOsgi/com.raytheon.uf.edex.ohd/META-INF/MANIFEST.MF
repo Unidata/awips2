@@ -8,7 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.common.dataplugin.binlightning,
  com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.dataplugin.shef.util,
  com.raytheon.uf.common.localization,
  com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.serialization.comm,
@@ -21,6 +20,7 @@ Import-Package: com.raytheon.edex.util,
  org.apache.commons.logging,
  org.quartz
 Export-Package: com.raytheon.uf.edex.ohd,
+ com.raytheon.uf.edex.ohd.reportalarm,
  com.raytheon.uf.edex.ohd.whfs
 Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.mpe;bundle-version="1.11.15",
@@ -29,4 +29,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.parameter;bundle-version="1.0.0",
- com.raytheon.uf.common.units;bundle-version="1.0.0"
+ com.raytheon.uf.common.units;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.shef,
+ com.raytheon.uf.common.dataplugin.text,
+ com.raytheon.edex.textdb,
+ com.raytheon.uf.edex.decodertools
