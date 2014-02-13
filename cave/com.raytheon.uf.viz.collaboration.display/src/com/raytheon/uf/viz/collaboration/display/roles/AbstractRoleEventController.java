@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
+ * Feb 12, 2014 2751       njensen     Renamed container to displayContainer
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public abstract class AbstractRoleEventController<T extends IRemoteDisplayContai
 
     protected ISharedDisplaySession session;
 
-    protected T container;
+    protected T displayContainer;
 
     protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
@@ -58,14 +59,18 @@ public abstract class AbstractRoleEventController<T extends IRemoteDisplayContai
         session.registerEventHandler(this);
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
-        container = createDisplayContainer();
-        sc.setDisplayContainer(container);
+        displayContainer = createDisplayContainer();
+        sc.setDisplayContainer(displayContainer);
     }
 
     @Override
     public void shutdown() {
         session.unregisterEventHandler(this);
-        container.disposeContainer();
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        sc.setDisplayContainer(null);
+        displayContainer.disposeContainer();
+        displayContainer = null;
     }
 
     protected abstract T createDisplayContainer();
