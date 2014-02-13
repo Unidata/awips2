@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
- * TODO Add Description
+ * Chat message object
  * 
  * <pre>
  * 
@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public class TextMessage extends BaseMessage {
      * @param to
      * @param body
      */
-    public TextMessage(IQualifiedID to, String body) {
+    public TextMessage(IUser to, String body) {
         super(to, body);
     }
 
