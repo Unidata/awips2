@@ -290,21 +290,21 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
             }
             constraints.put(PRODUCT_CODE, pcConstraint);
         }
-        if (request.getLevels() != null) {
+        Level[] levels = request.getLevels();
+        if (levels != null && levels.length > 0) {
             RequestConstraint angleConstraint = new RequestConstraint(null,
                     ConstraintType.IN);
-            for (Level level : request.getLevels()) {
+            for (Level level : levels) {
                 angleConstraint.addToConstraintValueList(level
                         .getLevelOneValueAsString());
             }
             constraints.put(PRIMARY_ANGLE, angleConstraint);
         }
 
-        if (request.getLocationNames() != null) {
-            RequestConstraint icaoConstraint = new RequestConstraint(null,
-                    ConstraintType.IN);
-            icaoConstraint.setConstraintValueList(request.getLocationNames());
-            constraints.put(ICAO, icaoConstraint);
+        String[] locations = request.getLocationNames();
+        if (locations != null && locations.length > 0) {
+            RequestConstraint rc = new RequestConstraint(locations);
+            constraints.put(ICAO, rc);
         }
 
         if (request.getEnvelope() != null) {
