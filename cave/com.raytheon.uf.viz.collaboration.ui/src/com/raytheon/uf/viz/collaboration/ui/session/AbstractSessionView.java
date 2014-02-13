@@ -68,6 +68,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -94,6 +95,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Mar 16, 2012 244        rferrel     Initial creation
  * Dec 19, 2013 2563       bclement    moved color lookup into runAsync block
  * Jan 30, 2014 2698       bclement    get display name from child class
+ * Feb 13, 2014 2751       bclement    made generic
  * 
  * </pre>
  * 
@@ -101,7 +103,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * @version 1.0
  */
 
-public abstract class AbstractSessionView extends CaveFloatingView {
+public abstract class AbstractSessionView<T extends IUser> extends
+        CaveFloatingView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractSessionView.class);
 
@@ -122,8 +125,6 @@ public abstract class AbstractSessionView extends CaveFloatingView {
     protected StyledText messagesText;
 
     private StyledText composeText;
-
-    private UserId[] userIds = null;
 
     protected SessionMsgArchive msgArchive;
 
@@ -149,7 +150,6 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
-        userIds = CollaborationUtils.getIds();
         fonts = new HashMap<String, Font>();
         colors = new HashMap<RGB, Color>();
         dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -311,17 +311,18 @@ public abstract class AbstractSessionView extends CaveFloatingView {
      * 
      * @param message
      */
+    @SuppressWarnings("unchecked")
     public void appendMessage(IMessage message) {
-        UserId userId = (UserId) message.getFrom();
+        T userId = (T) message.getFrom();
         long timestamp = message.getTimeStamp();
         String body = message.getBody();
         String subject = message.getSubject();
         appendMessage(userId, timestamp, body, subject);
     }
 
-    protected abstract String getDisplayName(UserId userId);
+    protected abstract String getDisplayName(T userId);
 
-    public void appendMessage(final UserId userId, final long timestamp,
+    public void appendMessage(final T userId, final long timestamp,
             final String body, final String subject) {
         VizApp.runAsync(new Runnable() {
             @Override
@@ -345,7 +346,7 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 String name = getDisplayName(userId);
 
                 UserId myUser = connection.getUser();
-                if (!myUser.equals(userId)
+                if (!myUser.isSameUser(userId)
                         && Activator.getDefault().getPreferenceStore()
                                 .getBoolean("notifications")) {
                     createNotifier(name, time, body);
@@ -443,10 +444,10 @@ public abstract class AbstractSessionView extends CaveFloatingView {
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges);
+            String name, T userId, String subject, List<StyleRange> ranges);
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, List<StyleRange> ranges, Color color);
+            String name, T userId, List<StyleRange> ranges, Color color);
 
     /**
      * Find keys words in body of message starting at offset. /**
@@ -565,21 +566,6 @@ public abstract class AbstractSessionView extends CaveFloatingView {
     @Subscribe
     public void changeFont(FontData data) {
         messagesText.setFont(new Font(Display.getCurrent(), data));
-    }
-
-    /**
-     * @return the userIds
-     */
-    public UserId[] getUserIds() {
-        return userIds;
-    }
-
-    /**
-     * @param userIds
-     *            the userIds to set
-     */
-    public void setUserIds(UserId[] userIds) {
-        this.userIds = userIds;
     }
 
     public void setAlertWords(List<AlertWord> words) {
