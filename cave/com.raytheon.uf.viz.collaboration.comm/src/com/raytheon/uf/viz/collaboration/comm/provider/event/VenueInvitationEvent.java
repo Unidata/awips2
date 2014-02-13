@@ -21,7 +21,8 @@ package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 
 /**
  * Event that is posted when a venue invitation is sent
@@ -34,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * ------------ ---------- ----------- --------------------------
  * Mar 27, 2012            jkorman     Initial creation
  * Dec 18, 2013 2562       bclement    removed subject (subject in invite)
+ * Feb 13, 2014 2751       bclement    better types for venueid and invitor
  * 
  * </pre>
  * 
@@ -43,9 +45,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 public class VenueInvitationEvent implements IVenueInvitationEvent {
 
-    private IQualifiedID venueId;
+    private VenueId venueId;
 
-    private IQualifiedID invitor;
+    private UserId invitor;
 
     private VenueInvite invite;
 
@@ -56,7 +58,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @param subject
      * @param body
      */
-    public VenueInvitationEvent(IQualifiedID venueId, IQualifiedID invitor,
+    public VenueInvitationEvent(VenueId venueId, UserId invitor,
             VenueInvite invite) {
         this.venueId = venueId;
         this.invitor = invitor;
@@ -69,7 +71,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getRoomId()
      */
     @Override
-    public IQualifiedID getRoomId() {
+    public VenueId getRoomId() {
         return venueId;
     }
 
@@ -77,7 +79,7 @@ public class VenueInvitationEvent implements IVenueInvitationEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent#getInviter()
      */
     @Override
-    public IQualifiedID getInviter() {
+    public UserId getInviter() {
         return invitor;
     }
 

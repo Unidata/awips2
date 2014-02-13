@@ -41,7 +41,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -58,13 +57,14 @@ import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionIt
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
  * Jan 30, 2014 2698       bclement    added getDisplayName
+ * Feb 13, 2014 2751       bclement   made parent generic
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class PeerToPeerView extends AbstractSessionView implements
+public class PeerToPeerView extends AbstractSessionView<UserId> implements
         IPrintableView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerView.class);
@@ -79,7 +79,7 @@ public class PeerToPeerView extends AbstractSessionView implements
 
     private static Color black = null;
 
-    private IQualifiedID peer;
+    private UserId peer;
 
     private boolean online = true;
 
@@ -238,13 +238,13 @@ public class PeerToPeerView extends AbstractSessionView implements
         return new SessionMsgArchive(me.getHost(), me.getName(), peer.getName());
     }
 
-    public void setPeer(IQualifiedID peer) {
+    public void setPeer(UserId peer) {
         this.peer = peer;
         setPartName(getSessionName());
         initMessageArchive();
     }
 
-    public IQualifiedID getPeer() {
+    public UserId getPeer() {
         return peer;
     }
 
