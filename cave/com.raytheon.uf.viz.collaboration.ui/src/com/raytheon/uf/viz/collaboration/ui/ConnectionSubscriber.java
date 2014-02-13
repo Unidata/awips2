@@ -39,7 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jan 14, 2014 2630      bclement    added away timeout
  * Jan 27, 2014 2700      bclement    added auto subscribe property listener
  * Jan 30, 2014 2698       bclement    moved xmpp join logic to dialog so we can reprompt user on failure
+ * Feb 13, 2014 2751       bclement    messages return IUser instead of IQualifiedID
  * 
  * </pre>
  * 
@@ -226,7 +227,7 @@ public class ConnectionSubscriber {
 
             @Override
             public void run() {
-                IQualifiedID peer = message.getFrom();
+                IUser peer = message.getFrom();
 
                 UserId user = null;
                 if (peer instanceof UserId) {
