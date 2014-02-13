@@ -50,7 +50,8 @@ import com.raytheon.uf.common.geospatial.CRSCache;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 2, 2013            bsteffen     Initial creation
+ * Aug  2, 2013            bsteffen    Initial creation
+ * Feb 10, 2014     #2788  randerso    Changed default topo file name
  * 
  * </pre>
  * 
@@ -60,7 +61,9 @@ import com.raytheon.uf.common.geospatial.CRSCache;
 
 public class TopoUtils {
 
-    private static final String DEFAULT_TOPO_PATH = "/topo/srtm30.hdf";
+    // NOTE: this file is actually a symbolic link to the desired topo data file
+    // allowing the topo data set to be changed without updating Java code
+    private static final String DEFAULT_TOPO_PATH = "/topo/defaultTopo.h5";
 
     private static final String FULL_TOPO_DATASET = "/full";
 
