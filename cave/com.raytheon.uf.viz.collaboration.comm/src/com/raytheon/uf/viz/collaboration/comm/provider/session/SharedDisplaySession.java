@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  *                                     changed args to create/configure venue
  * Feb 12, 2014 2793       bclement    added additional null check to sendObjectToVenue
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -190,15 +191,20 @@ public class SharedDisplaySession extends VenueSession implements
      * java.lang.Object)
      */
     @Override
-    public void sendObjectToPeer(
-            com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID participant,
-            Object obj) throws CollaborationException {
+    public void sendObjectToPeer(VenueParticipant participant, Object obj)
+            throws CollaborationException {
         // TODO should only send to CAVE clients
         if (obj == null) {
             return;
         }
+        // TODO should we use MUC private chat for this?
+        if (!participant.hasActualUserId()) {
+            log.warn("Attempted to send object to peer when actual userid is unknown");
+            return;
+        }
+        UserId userid = participant.getUserid();
         SessionPayload payload = new SessionPayload(PayloadType.Command, obj);
-        Message msg = new Message(participant.getFQName(), Type.normal);
+        Message msg = new Message(userid.getFQName(), Type.normal);
         msg.addExtension(payload);
         msg.setFrom(conn.getUser());
         msg.setProperty(Tools.PROP_SESSION_ID, getSessionId());
@@ -299,7 +305,7 @@ public class SharedDisplaySession extends VenueSession implements
         topic = pubsubMgr.getNode(getSessionId());
         topic.addItemEventListener(this);
         topic.addItemDeleteListener(this);
-        Subscription sub = findSubscription(getUserID());
+        Subscription sub = findSubscription(getAccount());
         if (sub == null) {
             sub = topic.subscribe(conn.getUser());
         }
@@ -435,7 +441,7 @@ public class SharedDisplaySession extends VenueSession implements
             return;
         }
         try {
-            Subscription sub = findSubscription(getUserID());
+            Subscription sub = findSubscription(getAccount());
             if (sub == null) {
                 return;
             }
