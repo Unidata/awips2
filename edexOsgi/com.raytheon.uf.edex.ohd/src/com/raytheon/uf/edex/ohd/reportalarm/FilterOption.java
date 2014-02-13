@@ -17,9 +17,10 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.shef.alarms;
+package com.raytheon.uf.edex.ohd.reportalarm;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -28,7 +29,8 @@ import java.util.ArrayList;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * June 15, 2011    9377     jnjanga     Initial creation
+ * Jun 15, 2011  9377      jnjanga      Initial creation
+ * Feb 13, 2014  #2783     dgilling     Added fromArg() method.
  * 
  * 
  * </pre>
@@ -48,6 +50,7 @@ public enum FilterOption {
         this.arg = arg;
     }
 
+    @Override
     public String toString() {
         return Character.toString(arg);
     }
@@ -56,10 +59,22 @@ public enum FilterOption {
         return arg;
     }
 
-    public static ArrayList<Character> asList() {
-        ArrayList<Character> vals = new ArrayList<Character>();
-        for (FilterOption opt : values())
+    public static List<Character> asList() {
+        List<Character> vals = new ArrayList<Character>();
+        for (FilterOption opt : values()) {
             vals.add(opt.getArg());
+        }
         return vals;
+    }
+
+    public static FilterOption fromArg(char arg) {
+        for (FilterOption filter : values()) {
+            if (arg == filter.arg) {
+                return filter;
+            }
+        }
+
+        throw new IllegalArgumentException(arg
+                + " is not a valid FilterOption.");
     }
 }
