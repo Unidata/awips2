@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, getSubject never returns null
+ * Feb 13, 2014 2751       bclement    changed to use VenueParticipant handle instead of alias
  * 
  * </pre>
  * 
@@ -79,7 +80,7 @@ public class Venue implements IVenue {
 
     @Override
     public Presence getPresence(VenueParticipant user) {
-        Presence presence = presenceMap.get(user.getAlias());
+        Presence presence = presenceMap.get(user.getHandle());
         if (presence == null) {
             presence = new Presence(Type.unavailable);
             presence.setMode(Mode.away);
@@ -88,7 +89,7 @@ public class Venue implements IVenue {
     }
 
     public void handlePresenceUpdated(VenueParticipant fromID, Presence presence) {
-        presenceMap.put(fromID.getAlias(), presence);
+        presenceMap.put(fromID.getHandle(), presence);
     }
 
     /*

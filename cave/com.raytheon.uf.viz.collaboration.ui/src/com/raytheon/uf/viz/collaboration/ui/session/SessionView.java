@@ -96,13 +96,15 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Dec 19, 2013 2563       bclement    reworked participant event logic
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class SessionView extends AbstractSessionView implements IPrintableView {
+public class SessionView extends AbstractSessionView<VenueParticipant>
+        implements IPrintableView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SessionView.class);
 
@@ -337,10 +339,10 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         usersTable.setSorter(new ViewerSorter() {
             @Override
             public int compare(Viewer viewer, Object e1, Object e2) {
-                UserId c1 = (UserId) e1;
-                UserId c2 = (UserId) e1;
+                VenueParticipant c1 = (VenueParticipant) e1;
+                VenueParticipant c2 = (VenueParticipant) e1;
 
-                return c1.getAlias().compareTo(c2.getAlias());
+                return c1.getHandle().compareTo(c2.getHandle());
             }
         });
 
@@ -427,8 +429,8 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
         String message = getComposedMessage();
         if (message.length() > 0) {
             try {
-                UserId id = CollaborationConnection.getConnection().getUser();
-                appendMessage(id, System.currentTimeMillis(), message, null);
+                appendMessage(session.getUserID(), System.currentTimeMillis(),
+                        message, null);
                 session.sendChatMessage(message);
             } catch (CollaborationException e) {
                 // TODO Auto-generated catch block. Please revise as
@@ -448,17 +450,10 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges) {
-        RGB rgb = null;
-        // messages from the venue itself will not be of type VenueParticipant,
-        // they default to black
-        if (userId instanceof VenueParticipant) {
-            rgb = colorManager.getColorFromUser((VenueParticipant) userId);
-        }
+            String name, VenueParticipant userId, String subject,
+            List<StyleRange> ranges) {
+        RGB rgb = colorManager.getColorFromUser((VenueParticipant) userId);
         if (mappedColors.get(rgb) == null) {
-            if (rgb == null) {
-                rgb = new RGB(0, 0, 0);
-            }
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
         }
@@ -476,7 +471,8 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      */
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, List<StyleRange> ranges, Color color) {
+            String name, VenueParticipant userId, List<StyleRange> ranges,
+            Color color) {
         StyleRange range = new StyleRange(messagesText.getCharCount(), offset,
                 color, null, SWT.NORMAL);
         ranges.add(range);
@@ -774,10 +770,11 @@ public class SessionView extends AbstractSessionView implements IPrintableView {
      * 
      * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
      * getDisplayName
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     * (com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID)
      */
     @Override
-    protected String getDisplayName(UserId userId) {
-        return userId.getAlias();
+    protected String getDisplayName(VenueParticipant userId) {
+        return userId.getHandle();
     }
+
 }
