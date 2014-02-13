@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class DataProviderEventController extends
     @Subscribe
     public void participantChanged(IVenueParticipantEvent event) {
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)
-                && !event.getParticipant().equals(session.getUserID())) {
+                && !event.getParticipant().isSameUser(session.getUserID())) {
             try {
                 AbstractEditor active = container.getActiveSharedEditor();
                 if (active != null) {
