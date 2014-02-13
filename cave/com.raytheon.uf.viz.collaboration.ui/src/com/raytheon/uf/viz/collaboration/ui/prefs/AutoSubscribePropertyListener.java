@@ -31,6 +31,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.SubscriptionResponse;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
@@ -50,6 +51,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2014 2700       bclement     Initial creation
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
+ * Feb 13, 2014 2755       bclement     added user input for which group to add contact to
  * 
  * </pre>
  * 
@@ -163,7 +165,8 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
             }
 
             @Override
-            public boolean handleSubscribeRequest(final UserId fromID) {
+            public SubscriptionResponse handleSubscribeRequest(
+                    final UserId fromID) {
                 String displayName = getDisplayName(fromID);
                 StringBuilder builder = new StringBuilder();
                 builder.append(fromID.getFQName());
@@ -172,7 +175,7 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
                 }
                 builder.append(" wants to add you to his or her contacts list.");
                 final String msg = builder.toString();
-                final boolean[] rval = new boolean[1];
+                final SubscriptionResponse rval = new SubscriptionResponse();
                 VizApp.runSync(new Runnable() {
                     
                     @Override
@@ -181,11 +184,13 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
                         SubRequestDialog dlg = new SubRequestDialog(shell,
                                 "Authorize Collaboration Contact", msg, fromID);
                         int index = dlg.open();
-                        rval[0] = index == Window.OK;
+
+                        rval.setAccepted(index == Window.OK);
+                        rval.setGroup(dlg.getGroup());
                     }
                 });
 
-                return rval[0];
+                return rval;
             }
             
             /**
