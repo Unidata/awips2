@@ -42,7 +42,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 /**
  * TODO: This class is in severe need of a refactor!
  * 
- * Handles the events of a session that are specific to the Data Provider role.
+ * Handles the events of a shared display session that are specific to the Data
+ * Provider role.
  * 
  * 
  * <pre>
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 13, 2014 2751       njensen     Renamed container to displayContainer
  * 
  * </pre>
  * 
@@ -75,13 +77,14 @@ public class DataProviderEventController extends
         if (event.getEventType().equals(ParticipantEventType.ARRIVED)
                 && !event.getParticipant().isSameUser(session.getUserID())) {
             try {
-                AbstractEditor active = container.getActiveSharedEditor();
+                AbstractEditor active = displayContainer
+                        .getActiveSharedEditor();
                 if (active != null) {
                     IDisplayPane activePane = active.getActiveDisplayPane();
                     if (activePane != null) {
                         ActivateRemoteDisplay arde = new ActivateRemoteDisplay();
-                        arde.setDisplayId(container.getDisplayId(activePane
-                                .getRenderableDisplay()));
+                        arde.setDisplayId(displayContainer
+                                .getDisplayId(activePane.getRenderableDisplay()));
                         session.sendObjectToPeer(event.getParticipant(), arde);
                     }
                 }
@@ -120,7 +123,7 @@ public class DataProviderEventController extends
         if (active != null
                 && SharedEditorsManager.isBeingShared(active) == false) {
             try {
-                container.shareEditor(active);
+                displayContainer.shareEditor(active);
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
