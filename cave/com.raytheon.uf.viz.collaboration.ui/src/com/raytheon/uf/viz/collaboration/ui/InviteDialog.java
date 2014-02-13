@@ -40,8 +40,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
@@ -59,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Jan 30, 2014 2698       bclement    added logic to join room and reprompt if failed
  * Feb  3, 2014 2699       bclement    added default handle preference
  * Feb 11, 2014 2699       bclement    require non-blank handle
+ * Feb 13, 2014 2751       bclement    better types for roomid and inviter
  * 
  * </pre>
  * 
@@ -110,8 +112,8 @@ public class InviteDialog extends CaveSWTDialogBase {
         super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL
                 | SWT.PRIMARY_MODAL | SWT.SYSTEM_MODAL, CAVE.NONE);
         setText("Session Invitation");
-        IQualifiedID inviter = event.getInviter();
-        IQualifiedID room = event.getRoomId();
+        IUser inviter = event.getInviter();
+        VenueId room = event.getRoomId();
         StringBuilder sb = new StringBuilder();
         VenueInvite invite = event.getInvite();
         this.sharedDisplay = invite instanceof SharedDisplayVenueInvite;
