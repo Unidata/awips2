@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -51,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * ------------ ---------- ----------- --------------------------
  * Jan 27, 2014 2700       bclement     Initial creation
  * Jan 31, 2014 2700       bclement     don't prompt for group if user is already in one
+ * Feb 13, 2014 2755       bclement     roster addition now done in account manager, user input passed back
  * 
  * </pre>
  * 
@@ -66,6 +66,8 @@ public class SubRequestDialog extends Dialog {
     private final UserId userid;
 
     private Combo groupCombo;
+
+    private String group;
 
     /**
      * @param parentShell
@@ -97,7 +99,6 @@ public class SubRequestDialog extends Dialog {
         if (buttonId == IDialogConstants.OK_ID) {
             int count = groupCombo.getItemCount();
             int index = groupCombo.getSelectionIndex();
-            String group = null;
             if ( index == count - 1){
                 // new group
                 CreateGroupDialog dialog = new CreateGroupDialog(Display
@@ -107,11 +108,6 @@ public class SubRequestDialog extends Dialog {
             } else if ( index >= 0){
                 group = groupCombo.getItem(index);
             } 
-            CollaborationConnection connection = CollaborationConnection.getConnection();
-            if ( group != null && connection != null){
-               ContactsManager cm = connection.getContactsManager();
-                cm.addToGroup(group, userid);
-            }
         }
         super.buttonPressed(buttonId);
     }
@@ -186,6 +182,13 @@ public class SubRequestDialog extends Dialog {
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.OK_ID, "Allow", true);
         createButton(parent, IDialogConstants.CANCEL_ID, "Deny", false);
+    }
+
+    /**
+     * @return the group
+     */
+    public String getGroup() {
+        return group;
     }
 
 }
