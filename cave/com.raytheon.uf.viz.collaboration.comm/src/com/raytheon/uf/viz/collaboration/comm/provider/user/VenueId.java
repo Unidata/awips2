@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
  * 
  * </pre>
  * 
@@ -42,14 +43,11 @@ public class VenueId implements IQualifiedID {
 
     private String host;
 
-    private String resource;
-
     private String name;
 
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)
      */
-    @Override
     public void setHost(String hostName) {
         host = hostName;
     }
@@ -63,25 +61,8 @@ public class VenueId implements IQualifiedID {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResource(java.lang.String)
-     */
-    @Override
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getResource()
-     */
-    @Override
-    public String getResource() {
-        return resource;
-    }
-
-    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#setName(java.lang.String)
      */
-    @Override
     public void setName(String venueName) {
         name = venueName;
     }
@@ -99,8 +80,7 @@ public class VenueId implements IQualifiedID {
      */
     @Override
     public String getFQName() {
-        // FIXME
-        return null;
+        return name + "@" + host;
     }
 
 }

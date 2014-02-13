@@ -32,8 +32,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPropertied.Property;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * 
@@ -49,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
  * Mar 21, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Cleanup
  * Dec  6, 2013 2561       bclement    removed ECF
+ * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * 
  * </pre>
  * 
@@ -77,7 +79,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
     public void sendPeerToPeer(IMessage message) throws CollaborationException {
         CollaborationConnection manager = getConnection();
         XMPPConnection conn = manager.getXmppConnection();
-        IQualifiedID to = message.getTo();
+        IUser to = message.getTo();
         String toId = to.getFQName();
         Message xmppMessage = new Message(toId, Type.chat);
         xmppMessage.setBody(message.getBody());
@@ -116,7 +118,7 @@ public class PeerToPeerChat extends BaseSession implements IPeerToPeer {
      * @throws CollaborationException
      */
     @Override
-    public void sendPeerToPeer(IQualifiedID to, String message)
+    public void sendPeerToPeer(UserId to, String message)
             throws CollaborationException {
         TextMessage msg = new TextMessage(to, message);
         this.sendPeerToPeer(msg);
