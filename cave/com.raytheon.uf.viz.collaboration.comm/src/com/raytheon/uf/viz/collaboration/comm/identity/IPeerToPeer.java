@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Peer to peer chat messaging interface
@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed 'to' object to UserId
  * 
  * </pre>
  * 
@@ -57,7 +58,7 @@ public interface IPeerToPeer extends ISession, IEventPublisher {
      * @param message
      *            The message to send.
      */
-    public void sendPeerToPeer(IQualifiedID to, String message)
+    public void sendPeerToPeer(UserId to, String message)
             throws CollaborationException;
 
 }
