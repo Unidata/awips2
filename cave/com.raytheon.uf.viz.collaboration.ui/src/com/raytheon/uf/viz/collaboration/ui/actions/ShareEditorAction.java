@@ -50,8 +50,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            mnash     Initial creation
+ * Mar 21, 2012            mnash       Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 11, 2014 2751       njensen     Fixed scary ==
  * 
  * </pre>
  * 
@@ -182,8 +183,8 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
             if (container != null) {
                 ISharedDisplaySession session = container.getSession();
                 if (session != null
-                        && session.getUserID() == session
-                                .getCurrentDataProvider()) {
+                        && session.getUserID().isSameUser(
+                                session.getCurrentDataProvider())) {
                     sessions.add(container.getSession());
                 }
             }
