@@ -39,7 +39,6 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 
 /**
@@ -85,11 +84,11 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
     protected DefaultGridData constructGridDataResponse(IDataRequest request,
             PluginDataObject pdo, GridGeometry2D gridGeometry,
             DataSource dataSource) {
-        if(pdo instanceof SatelliteRecord == false){
+        if (pdo instanceof SatelliteRecord == false) {
             throw new DataRetrievalException(this.getClass().getSimpleName()
                     + " cannot handle " + pdo.getClass().getSimpleName());
         }
-        
+
         SatelliteRecord satelliteRecord = (SatelliteRecord) pdo;
         DefaultGridData defaultGridData = new DefaultGridData(dataSource,
                 gridGeometry);
@@ -140,19 +139,16 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory
                         .getIdentifiers().get(identifier).toString()));
             }
         }
-        if ((request.getParameters() == null) == false) {
-            RequestConstraint requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.IN);
-            requestConstraint.setConstraintValueList(request.getParameters());
-            constraints.put(FIELD_PYHSICAL_ELEMENT, requestConstraint);
+        String[] parameters = request.getParameters();
+        if (parameters != null && parameters.length > 0) {
+            RequestConstraint rc = new RequestConstraint(parameters);
+            constraints.put(FIELD_PYHSICAL_ELEMENT, rc);
         }
 
-        if ((request.getLocationNames() == null) == false) {
-            RequestConstraint requestConstraint = new RequestConstraint();
-            requestConstraint.setConstraintType(ConstraintType.IN);
-            requestConstraint
-                    .setConstraintValueList(request.getLocationNames());
-            constraints.put(FIELD_SECTOR_ID, requestConstraint);
+        String[] locations = request.getLocationNames();
+        if (locations != null && locations.length > 0) {
+            RequestConstraint rc = new RequestConstraint(locations);
+            constraints.put(FIELD_SECTOR_ID, rc);
         }
 
         return constraints;
