@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.collaboration.display.rsc.telestrator;
 import org.eclipse.swt.widgets.Shell;
 
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplay;
+import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.editor.ActivateRemoteDisplay;
 import com.raytheon.uf.viz.collaboration.display.editor.DisposeRemoteDisplay;
 import com.raytheon.uf.viz.collaboration.display.editor.ReprojectRemoteDisplay;
@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * May 23, 2012            mschenke    Initial creation
+ * Feb 13, 2014 2751       njensen     Fix null error on shutdown
  * 
  * </pre>
  * 
@@ -172,10 +173,11 @@ public class CollaborationDrawingUIManager extends DrawingToolUIManager
      * @return
      */
     private int getDisplayId() {
-        RemoteDisplay display = resource.getContainer().getDisplayContainer()
-                .getActiveDisplay();
-        if (display != null) {
-            return display.getDisplayId();
+        IRemoteDisplayContainer displayContainer = resource.getContainer()
+                .getDisplayContainer();
+        if (displayContainer != null
+                && displayContainer.getActiveDisplay() != null) {
+            return displayContainer.getActiveDisplay().getDisplayId();
         } else {
             // event to unshared editor, so that active display doesn't
             // exist

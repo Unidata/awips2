@@ -19,13 +19,25 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
+import com.raytheon.uf.viz.collaboration.display.roles.DataProviderEventController;
 import com.raytheon.uf.viz.collaboration.display.roles.IRoleEventController;
+import com.raytheon.uf.viz.collaboration.display.roles.ParticipantEventController;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * A container holding an underlying session and associated data for a shared
  * display session.
+ * 
+ * The container is also capable of listening for leader change events and if
+ * the remote display is changed.
  * 
  * <pre>
  * 
@@ -34,6 +46,7 @@ import com.raytheon.uf.viz.collaboration.display.roles.IRoleEventController;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            njensen     Initial creation
+ * Feb 11, 2014 2751       njensen     Added leaderChanged() and listeners
  * 
  * </pre>
  * 
@@ -55,6 +68,8 @@ public class SessionContainer {
     private SessionColorManager colorManager;
 
     private IRemoteDisplayContainer displayContainer;
+
+    private List<IDisplayContainerChangedListener> listeners = new ArrayList<IDisplayContainerChangedListener>();
 
     public ISharedDisplaySession getSession() {
         return session;
@@ -84,7 +99,9 @@ public class SessionContainer {
      *            the displayContainer to set
      */
     public void setDisplayContainer(IRemoteDisplayContainer displayContainer) {
+        IRemoteDisplayContainer old = this.displayContainer;
         this.displayContainer = displayContainer;
+        fireDisplayContainerChanged(old, displayContainer);
     }
 
     public String getSessionId() {
@@ -112,4 +129,104 @@ public class SessionContainer {
     public void setColorManager(SessionColorManager colorManager) {
         this.colorManager = colorManager;
     }
+
+    @Subscribe
+    public void leaderChanged(LeaderChangeEvent event) {
+        // for now (and possibly forever) we are not allowing capabilities to be
+        // transferred separately
+        VenueParticipant newLeader = event.getNewLeader();
+        VenueParticipant oldLeader = session.getCurrentDataProvider();
+        session.setCurrentDataProvider(newLeader);
+        session.setCurrentSessionLeader(newLeader);
+
+        if (session.getUserID().isSameUser(oldLeader)) {
+            // just gave up our leadership
+            final IRoleEventController formerRole = getRoleEventController();
+            if (!(formerRole instanceof DataProviderEventController)) {
+                throw new IllegalStateException(
+                        "Shared Display Session "
+                                + session.getVenue().getName()
+                                + " attempted to surrender leadership when it's not the leader!");
+            }
+            VizApp.runSync(new Runnable() {
+                @Override
+                public void run() {
+                    formerRole.shutdown();
+                    IRoleEventController newRole = new ParticipantEventController(
+                            session);
+                    setRoleEventController(newRole);
+                    newRole.startup();
+                }
+            });
+        }
+
+        if (session.getUserID().isSameUser(newLeader)) {
+            // just received leadership
+            final IRoleEventController formerRole = getRoleEventController();
+            if (!(formerRole instanceof ParticipantEventController)) {
+                throw new IllegalStateException(
+                        "Shared Display Session "
+                                + session.getVenue().getName()
+                                + " attempted to acquire leadership when it wasn't a participant!");
+            }
+            VizApp.runSync(new Runnable() {
+                @Override
+                public void run() {
+                    formerRole.shutdown();
+                    IRoleEventController newRole = new DataProviderEventController(
+                            session);
+                    setRoleEventController(newRole);
+                    newRole.startup();
+                }
+            });
+        }
+    }
+
+    /**
+     * Interface for listening if a remote display container associated with a
+     * session changed. This only applies if the reference to a remote display
+     * container changed, not if the remote display container's attributes
+     * changed. This should only happen if leadership changes.
+     */
+    public static interface IDisplayContainerChangedListener {
+
+        /**
+         * Notifies that the display container has changed. This only applies if
+         * a reference associated with the session changed, not if an attribute
+         * on the same instance changed.
+         * 
+         * @param oldDisplayContainer
+         *            the old display container, possibly null
+         * @param newDisplayContainer
+         *            the new display container, possibly null
+         */
+        public void displayContainerChanged(
+                IRemoteDisplayContainer oldDisplayContainer,
+                IRemoteDisplayContainer newDisplayContainer);
+    }
+
+    public void addDisplayContainerChangedListener(
+            IDisplayContainerChangedListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeDisplayContainerChangedListener(
+            IDisplayContainerChangedListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
+    }
+
+    private void fireDisplayContainerChanged(
+            IRemoteDisplayContainer oldDisplay,
+            IRemoteDisplayContainer newDisplay) {
+        synchronized (listeners) {
+            for (IDisplayContainerChangedListener listener : listeners) {
+                listener.displayContainerChanged(oldDisplay, newDisplay);
+            }
+        }
+    }
+
 }
