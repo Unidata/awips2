@@ -25,26 +25,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 /**
  * Interface for sessions that have displays shared between clients
  * 
- * <ul>
- * <li>EventBus subscription events. Implementors may to post the following
- * events.</li>
- * <ul>
- * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a
- * venue participant enters, leaves a venue, or updates their status in the
- * venue.</li>
- * <li><strong>TextMessage</strong> : Text messages send between users. Meant to
- * be displayed as conversation.</li>
- * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE events</li>
- * <li><strong>IRenderable</strong> : These messages are CAVE to CAVE
- * display......</li>
- * <li><strong>IInitData</strong> : These messages are CAVE to CAVE
- * initialization data......</li>
- * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE
- * display......</li>
- * 
- * </ul>
- * </ul>
- * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -54,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 21, 2012            jkorman     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 13, 2014 2751       bclement    changed sendObjectToPeer id to VenueParticipant
+ * Feb 13, 2014 2751       njensen     Added changeLeader()
  * 
  * </pre>
  * 
@@ -125,10 +106,14 @@ public interface ISharedDisplaySession extends IVenueSession {
     public boolean hasRole(SharedDisplayRole role);
 
     /**
-     * Gets the connection status of the session.
+     * Changes the leader (both Data Provider and Session Leader) of the
+     * session. Throws an exception if the change fails or if this is called by
+     * a non-leader.
      * 
-     * @return The connection status.
+     * @param newLeader
+     * @throws CollaborationException
      */
-    public boolean isConnected();
+    public void changeLeader(VenueParticipant newLeader)
+            throws CollaborationException;
 
 }
