@@ -20,39 +20,29 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.user;
 
 /**
- * TODO Add Description
+ * Interface for users on server. Can represent user accounts or users in a
+ * chatroom.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 27, 2012            jkorman     Initial creation
- *
+ * Feb 13, 2014 2751       bclement     Initial creation
+ * 
  * </pre>
- *
- * @author jkorman
- * @version 1.0	
+ * 
+ * @author bclement
+ * @version 1.0
  */
 
-public interface ID {
+public interface IUser extends IQualifiedID {
 
     /**
-     * 
-     * @param userName
+     * @param other
+     * @return true if other user represents same person as this user
      */
-    void setName(String userName);
-    
-    /**
-     * 
-     */
-    String getName();
-    
-    /**
-     * 
-     * @return
-     */
-    String getFQName();
+    public boolean isSameUser(IUser other);
 
 }

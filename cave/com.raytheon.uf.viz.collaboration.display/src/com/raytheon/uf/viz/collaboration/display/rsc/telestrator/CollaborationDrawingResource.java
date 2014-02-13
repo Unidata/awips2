@@ -29,7 +29,6 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
@@ -305,7 +304,7 @@ public class CollaborationDrawingResource extends
 
     @Subscribe
     public void participantChanged(IVenueParticipantEvent event) {
-        UserId user = event.getParticipant();
+        VenueParticipant user = event.getParticipant();
         switch (event.getEventType()) {
         case DEPARTED:
             synchronized (layerMap) {
@@ -415,7 +414,7 @@ public class CollaborationDrawingResource extends
         }
     }
 
-    public void sendEventToUser(Object event, UserId user) {
+    public void sendEventToUser(Object event, VenueParticipant user) {
         try {
             container.getSession().sendObjectToPeer(user, event);
         } catch (CollaborationException e) {
