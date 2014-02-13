@@ -20,7 +20,8 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 
 /**
  * Encapsulates a venue invitation to the user.
@@ -33,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
  * Dec 18, 2013 2562       bclement    removed subject getter (subject in invite)
+ * Feb 13, 2014 2751       bclement    better types for roomid and inviter
  * 
  * </pre>
  * 
@@ -47,13 +49,13 @@ public interface IVenueInvitationEvent {
      * 
      * @return id in {room}@conference.{host} format
      */
-    public IQualifiedID getRoomId();
+    public VenueId getRoomId();
 
     /**
      * 
      * @return id of user that sent invitation
      */
-    public IQualifiedID getInviter();
+    public IUser getInviter();
 
     /**
      * Get detailed invitation which includes subject and message if provided

@@ -31,7 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * Dec 18, 2013 2562       bclement    added timeout for HTTP config,
  *                                     data now in packet extension
  * Dec 19, 2013 2563       bclement    removed wait for HTTP config, added reset
+ * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * 
  * </pre>
  * 
@@ -168,7 +169,7 @@ public class PeerToPeerCommHelper implements PacketListener {
      * @param message
      */
     private void routeMessage(Message message) {
-        IQualifiedID fromId = IDConverter.convertFrom(message.getFrom());
+        IUser fromId = IDConverter.convertFrom(message.getFrom());
         TextMessage textMsg = new TextMessage(fromId, message.getBody());
         textMsg.setFrom(fromId);
         textMsg.setBody(message.getBody());
