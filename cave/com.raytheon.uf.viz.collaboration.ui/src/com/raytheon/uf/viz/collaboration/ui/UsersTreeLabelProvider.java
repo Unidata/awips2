@@ -39,6 +39,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
@@ -58,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
  * Jan 27, 2014 2700       bclement    pass roster entries directly to userLabelProvider
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 13, 2014 2751       bclement    made AbstractUsersLabelProvider generic
  * 
  * </pre>
  * 
@@ -66,7 +68,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  */
 public class UsersTreeLabelProvider extends ColumnLabelProvider {
 
-    private AbstractUserLabelProvider userLabelProvider = new AbstractUserLabelProvider() {
+    private AbstractUserLabelProvider<UserId> userLabelProvider = new AbstractUserLabelProvider<UserId>() {
 
         @Override
         protected Presence getPresence(UserId user) {
@@ -77,6 +79,22 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             }
             return connection.getContactsManager().getPresence(user);
         }
+
+        protected String getDisplayName(UserId user) {
+            return getLocalAlias(user);
+        }
+
+        @Override
+        protected UserId convertObject(Object element) {
+            if (element instanceof RosterEntry) {
+                return IDConverter.convertFrom((RosterEntry) element);
+            } else if (element instanceof UserId) {
+                return (UserId) element;
+            } else {
+                return null;
+            }
+        }
+
     };
 
     private List<ILabelProviderListener> listeners;

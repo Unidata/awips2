@@ -48,8 +48,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
@@ -94,6 +93,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 28, 2014 2698       bclement    removed venue info, new rooms are now invite-only
  *                                     improved error handling for when room already exists
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, added handle
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -110,7 +110,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     public static final String SEND_HISTORY = "[[HISTORY]]";
 
-    private MultiUserChat muc = null;
+    protected MultiUserChat muc = null;
 
     private PacketListener intListener = null;
 
@@ -190,7 +190,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 invite);
         Message msg = new Message();
         msg.setTo(id.getNormalizedId());
-        msg.setFrom(getUserID().getNormalizedId());
+        UserId user = getAccount();
+        msg.setFrom(user.getNormalizedId());
         msg.setType(Type.normal);
         msg.addExtension(payload);
         String reason = "";
@@ -268,7 +269,17 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @return
      */
     public static String getRoomId(String host, String roomName) {
-        return roomName + "@conference." + host;
+        return roomName + "@" + getQualifiedHost(host);
+    }
+
+    /**
+     * Prepend conference subdomain on host
+     * 
+     * @param host
+     * @return
+     */
+    public static String getQualifiedHost(String host) {
+        return "conference." + host;
     }
 
     /**
@@ -505,7 +516,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 VenueParticipant user = IDConverter.convertFromRoom(muc,
                         participant);
                 VenueParticipantEvent event = new VenueParticipantEvent(user,
-                        ParticipantEventType.ARRIVED);
+                        type);
                 event.setEventDescription(desciption);
                 postEvent(event);
             }
@@ -537,7 +548,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     Activator.getDefault().getNetworkStats()
                             .log(Activator.VENUE, 0, m.getBody().length());
                     String fromStr = m.getFrom();
-                    IQualifiedID from;
+                    IUser from;
                     if (IDConverter.isRoomSystemMessage(fromStr)) {
                         postEvent(new VenueUserEvent(m.getBody()));
                     } else {
@@ -693,7 +704,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *            user that the message is from
      * @return Should the message be accepted.
      */
-    private boolean accept(Message message, IQualifiedID from) {
+    private boolean accept(Message message, IUser from) {
         if (this.muc == null) {
             // we don't seem to be in a room
             return false;
@@ -767,7 +778,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      *            user that the message is from
      * @return The converted message.
      */
-    private IMessage convertMessage(Message msg, IQualifiedID from) {
+    private IMessage convertMessage(Message msg, IUser from) {
         IMessage message = null;
 
         String body = msg.getBody();
@@ -775,7 +786,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             if (body.startsWith(SEND_TXT)) {
                 body = body.substring(SEND_TXT.length());
             }
-            message = new CollaborationMessage(null, body);
+            message = new TextMessage(null, body);
             message.setFrom(from);
         }
         return message;
@@ -802,6 +813,13 @@ public class VenueSession extends BaseSession implements IVenueSession {
         return handle;
     }
 
+    /**
+     * @return userid of this account
+     */
+    public UserId getAccount() {
+        return getConnection().getUser();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -811,9 +829,9 @@ public class VenueSession extends BaseSession implements IVenueSession {
      */
     @Override
     public VenueParticipant getUserID() {
-        UserId account = super.getUserID();
-        return new VenueParticipant(account.getName(), account.getHost(),
-                handle);
+        UserId account = getAccount();
+        return new VenueParticipant(this.venue.getName(),
+                getQualifiedHost(account.getHost()), handle, account);
     }
 
 }
