@@ -39,7 +39,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.editor.ActivateRemoteDisplay;
@@ -82,6 +82,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            mschenke     Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -95,8 +96,8 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
         @Subscribe
         public void remoteDisplayRequested(RemoteDisplayRequested event) {
             String userId = event.getUserId();
-            UserId user = null;
-            for (UserId uid : session.getVenue().getParticipants()) {
+            VenueParticipant user = null;
+            for (VenueParticipant uid : session.getVenue().getParticipants()) {
                 if (uid.getFQName().equals(userId)) {
                     user = uid;
                     break;

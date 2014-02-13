@@ -26,7 +26,7 @@ import java.util.UUID;
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
  * Base class for chat and collaboration sessions
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Mar 21, 2012            jkorman     Initial creation
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed false throws statements
+ * Feb 13, 2014 2751       bclement    changed UserId object to IUser
  * 
  * </pre>
  * 
@@ -119,7 +120,7 @@ public abstract class BaseSession implements ISession {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
     @Override
-    public UserId getUserID() {
+    public IUser getUserID() {
         return connection.getUser();
     }
 

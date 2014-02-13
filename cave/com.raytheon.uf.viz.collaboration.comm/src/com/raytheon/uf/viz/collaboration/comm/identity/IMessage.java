@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 
 /**
@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed to/from objects to IUser
  * 
  * </pre>
  * 
@@ -50,24 +51,24 @@ public interface IMessage extends IPropertied {
     /**
      * @return the to
      */
-    public IQualifiedID getTo();
+    public IUser getTo();
 
     /**
      * @param to
      *            the to to set
      */
-    public void setTo(IQualifiedID to);
+    public void setTo(IUser to);
 
     /**
      * @return the from
      */
-    public IQualifiedID getFrom();
+    public IUser getFrom();
 
     /**
      * @param from
      *            the from to set
      */
-    public void setFrom(IQualifiedID from);
+    public void setFrom(IUser from);
     
     /**
      * Get the subject of this message.
