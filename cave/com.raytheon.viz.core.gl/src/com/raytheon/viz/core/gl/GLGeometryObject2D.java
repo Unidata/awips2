@@ -28,7 +28,6 @@ import java.util.List;
 
 import javax.media.opengl.GL;
 
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.objects.GLVertexBufferObject;
 
@@ -42,7 +41,9 @@ import com.raytheon.viz.core.gl.objects.GLVertexBufferObject;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 3, 2011            mschenke     Initial creation
+ * Jun 3, 2011             mschenke    Initial creation
+ * Feb 14, 2014 2804       mschenke    Removed ability to clip points outside
+ *                                     of a defined IExtent
  * 
  * </pre>
  * 
@@ -53,8 +54,6 @@ import com.raytheon.viz.core.gl.objects.GLVertexBufferObject;
 public class GLGeometryObject2D {
 
     public static class GLGeometryObjectData {
-
-        public IExtent worldExtent;
 
         protected int geometryType;
 
@@ -97,7 +96,6 @@ public class GLGeometryObject2D {
         this.data = new GLGeometryObjectData(data.geometryType, data.coordType);
         this.data.manageIndicies = data.manageIndicies;
         this.data.mutable = data.mutable;
-        this.data.worldExtent = data.worldExtent;
         initialize();
     }
 
@@ -249,93 +247,12 @@ public class GLGeometryObject2D {
             coordBuffer.ensureCapacity(verticesNeeded);
         }
 
-        double[] output = null;
-        double[] lastOutput = null;
-        boolean currentlyInBounds = false;
-
-        int curIdx = 0;
-        // While we haven't gone through entire segment...
-        while (curIdx < glCoordinates.length) {
-            // Find next valid point in segment
-            currentlyInBounds = false;
-            output = lastOutput = null;
-
-            while (!currentlyInBounds && curIdx < glCoordinates.length) {
-                lastOutput = output;
-                output = glCoordinates[curIdx];
-                if (data.worldExtent != null) {
-                    if (output == null) {
-                        ++curIdx;
-                        continue;
-                    }
-
-                    currentlyInBounds = data.worldExtent.contains(output);
-                } else {
-                    currentlyInBounds = true;
-                }
-
-                if (!currentlyInBounds) {
-                    ++curIdx;
-                }
-            }
-
-            // We found a starting point...
-            if (currentlyInBounds) {
-                // Mark current index
-                int idx = points;
-                if (lastOutput != null) {
-                    addToBuffer(coordBuffer, lastOutput);
-                    points++;
-                    addToBuffer(coordBuffer, output);
-                    points++;
-                } else {
-                    addToBuffer(coordBuffer, output);
-                    points++;
-                }
-                ++curIdx;
-                boolean done = false;
-
-                // Keep going until we run out of screenCoordinates or we find
-                // one O.B.
-                while (!done && curIdx < glCoordinates.length) {
-                    lastOutput = output;
-                    output = glCoordinates[curIdx];
-
-                    if (data.worldExtent != null) {
-                        if (output == null) {
-                            ++curIdx;
-                            continue;
-                        }
-
-                        currentlyInBounds = data.worldExtent.contains(output);
-                    } else {
-                        currentlyInBounds = true;
-                    }
-
-                    if (currentlyInBounds) {
-                        addToBuffer(coordBuffer, output);
-                        points++;
-                    } else {
-                        done = true;
-                    }
-
-                    ++curIdx;
-                }
-
-                if (done) {
-                    // Had to stop early
-                    addToBuffer(coordBuffer, output);
-                    points++;
-                }
-
-                if (points != idx
-                        && data.manageIndicies
-                        && (data.geometryType != GL.GL_LINES || indicies
-                                .isEmpty())) {
-                    indicies.add(idx);
-                }
-            }
+        int idx = points;
+        for (double[] coordinate : glCoordinates) {
+            addToBuffer(coordBuffer, coordinate);
+            points += 1;
         }
+        indicies.add(idx);
     }
 
     public void allocate(int points) {
