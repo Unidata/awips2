@@ -153,6 +153,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 08, 2014   2642     mpduff     Update dialog for permissions, adding site to shared
  * Jan 14, 2014   2459     mpduff     Change Subscription status code
  * Feb 04, 2014   2722     mpduff     Add auto-refresh task.
+ * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -356,7 +358,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
         createBottomButtons();
 
-        enableMenus(true);
+        enableControls(true);
     }
 
     /*
@@ -655,7 +657,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 handleFilterSelection();
-                enableMenus(officeCbo.getText().equals(CURRENT_SITE));
+                enableControls(officeCbo.getText().equals(CURRENT_SITE));
             }
         });
 
@@ -1518,9 +1520,12 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
     }
 
     /**
-     * Enable/Disable menus.
+     * Enable/Disable controls.
+     * 
+     * @param enable
+     *            true to enable, false to disable
      */
-    private void enableMenus(boolean enable) {
+    private void enableControls(boolean enable) {
         copyMI.setEnabled(enable);
         deleteGroupMI.setEnabled(enable);
         editMI.setEnabled(enable);
@@ -1530,6 +1535,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
         groupMI.setEnabled(enable);
         newMI.setEnabled(enable);
         tableComp.enableMenus(enable);
+        activateBtn.setEnabled(enable);
+        deactivateBtn.setEnabled(enable);
     }
 
     /**
