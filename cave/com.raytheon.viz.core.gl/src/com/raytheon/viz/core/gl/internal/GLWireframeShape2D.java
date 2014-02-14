@@ -40,7 +40,6 @@ import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -60,7 +59,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 27, 2011            mschenke     Initial creation
+ * May 27, 2011            mschenke    Initial creation
+ * Feb 14, 2014 2804       mschenke    Removed setting of IExtent for clipping
  * 
  * </pre>
  * 
@@ -87,7 +87,6 @@ public class GLWireframeShape2D implements IWireframeShape {
         geomData = new GLGeometryObjectData(GL.GL_LINE_STRIP,
                 GL.GL_VERTEX_ARRAY);
         geomData.mutable = mutable;
-        geomData.worldExtent = new PixelExtent(gridGeometry.getGridRange());
 
         try {
             worldToTargetGrid = TransformFactory.worldToGrid(gridGeometry,
