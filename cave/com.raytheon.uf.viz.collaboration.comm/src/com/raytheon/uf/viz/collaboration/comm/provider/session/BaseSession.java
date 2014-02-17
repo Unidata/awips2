@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed false throws statements
  * Feb 13, 2014 2751       bclement    changed UserId object to IUser
+ * Feb 17, 2014 2800       bclement    added equals/hashcode
  * 
  * </pre>
  * 
@@ -198,6 +199,42 @@ public abstract class BaseSession implements ISession {
     @Override
     public CollaborationConnection getConnection() {
         return connection;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((sessionId == null) ? 0 : sessionId.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BaseSession other = (BaseSession) obj;
+        if (sessionId == null) {
+            if (other.sessionId != null)
+                return false;
+        } else if (!sessionId.equals(other.sessionId))
+            return false;
+        return true;
     }
 
 }
