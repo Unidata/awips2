@@ -62,10 +62,11 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May  7, 2010            bsteffen    Initial creation
- * Sep  9, 2013  2277      mschenke    Got rid of ScriptCreator references
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May  7, 2010           bsteffen    Initial creation
+ * Sep  9, 2013  2277     mschenke    Got rid of ScriptCreator references
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -89,10 +90,10 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
     @Override
     public String getParameterName() {
         synchronized (records) {
-            String name = ((GridRecord) records.iterator().next())
+            String name = records.iterator().next()
                     .getParameter().getName();
             if (name == null || name.isEmpty()) {
-                name = ((GridRecord) records.iterator().next()).getParameter()
+                name = records.iterator().next().getParameter()
                         .getAbbreviation();
             }
             return name;
@@ -112,7 +113,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             if (records == null || records.size() == 0) {
                 return null;
             }
-            return ((GridRecord) records.iterator().next()).getParameter()
+            return records.iterator().next().getParameter()
                     .getUnit();
 
         }
@@ -134,7 +135,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
         for (DataTime key : keys) {
             Set<GridRecord> aRecord = yRecordMap.get(key);
             if (!aRecord.isEmpty()) {
-                return ((GridRecord) aRecord.iterator().next()).getParameter()
+                return aRecord.iterator().next().getParameter()
                         .getUnit();
             }
         }
@@ -248,13 +249,17 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             IDataRecord[] results = ((IDataRecord[]) xRecord.getMessageData());
             if (results == null) {
                 continue;
-            } else if (results.length == 4) {
-                FloatDataRecord speedRec = (FloatDataRecord) results[0];
-                FloatDataRecord dirRec = (FloatDataRecord) results[1];
-                float speed = InterpUtils.getInterpolatedData(xRect, xPoint.x,
-                        xPoint.y, speedRec.getFloatData());
-                float dir = InterpUtils.getInterpolatedData(xRect, xPoint.x,
-                        xPoint.y, dirRec.getFloatData());
+            } else if (results.length == 2) {
+                FloatDataRecord uRec = (FloatDataRecord) results[0];
+                FloatDataRecord vRec = (FloatDataRecord) results[1];
+                float u = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, uRec.getFloatData());
+                float v = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, vRec.getFloatData());
+
+                double speed = Math.hypot(u, v);
+                double dir = Math.toDegrees(Math.atan2(-u, -v));
+
                 dataList.add(new XYWindImageData(speed, yVal, speed, dir));
             } else {
                 FloatDataRecord xRec = (FloatDataRecord) results[0];
