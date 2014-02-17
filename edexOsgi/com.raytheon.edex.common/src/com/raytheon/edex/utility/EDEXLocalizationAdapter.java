@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.raytheon.uf.common.localization.ILocalizationAdapter;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -35,6 +37,9 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationFile.ModifiableLocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationOpFailedException;
+import com.raytheon.uf.common.localization.region.RegionLookup;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -60,6 +65,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Mar 14, 2013 1794        djohnson    FileUtil.listFiles now returns List.
  * Nov 03, 2013 2511        mnash       Fix issue where if name occurs in path
  *                                      file won't be returned correctly
+ * Feb 13, 2014             mnash       Add region level to localization
  * </pre>
  * 
  * @author jelkins
@@ -67,6 +73,9 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  */
 
 public class EDEXLocalizationAdapter implements ILocalizationAdapter {
+
+    private static final IUFStatusHandler handler = UFStatus
+            .getHandler(EDEXLocalizationAdapter.class);
 
     private final Map<LocalizationType, LocalizationContext[]> contexts;
 
@@ -90,10 +99,22 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
         synchronized (this.contexts) {
             LocalizationContext[] ctx = this.contexts.get(type);
             if (ctx == null) {
-                ctx = new LocalizationContext[3];
+                ctx = new LocalizationContext[4];
                 ctx[0] = getContext(type, LocalizationLevel.SITE);
-                ctx[1] = getContext(type, LocalizationLevel.CONFIGURED);
-                ctx[2] = getContext(type, LocalizationLevel.BASE);
+                ctx[1] = getContext(type, LocalizationLevel.REGION);
+                ctx[2] = getContext(type, LocalizationLevel.CONFIGURED);
+                ctx[3] = getContext(type, LocalizationLevel.BASE);
+
+                if (RegionLookup.getWfoRegion(getSiteName()) == null) {
+                    // remove REGION from the contexts array
+                    List<LocalizationContext> c = new ArrayList<LocalizationContext>();
+                    for (LocalizationContext con : ctx) {
+                        if (con.getLocalizationLevel() != LocalizationLevel.REGION) {
+                            c.add(con);
+                        }
+                    }
+                    ctx = c.toArray(new LocalizationContext[0]);
+                }
                 this.contexts.put(type, ctx);
             }
             // return a copy for safety in case someone messes with references
@@ -332,6 +353,13 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
                 || level == LocalizationLevel.CONFIGURED) {
             // fill in site name
             contextName = getSiteName();
+        } else if (level == LocalizationLevel.REGION) {
+            contextName = RegionLookup.getWfoRegion(getSiteName());
+            if (contextName == null) {
+                handler.info("Unable to find " + getSiteName()
+                        + " in regions.xml file");
+                contextName = "none";
+            }
         } else {
             // EDEX has no concept of current user or personality
             contextName = "none";
@@ -376,8 +404,16 @@ public class EDEXLocalizationAdapter implements ILocalizationAdapter {
      */
     @Override
     public LocalizationLevel[] getAvailableLevels() {
-        return new LocalizationLevel[] { LocalizationLevel.BASE,
+        LocalizationLevel[] levels = new LocalizationLevel[] {
+                LocalizationLevel.BASE, LocalizationLevel.REGION,
                 LocalizationLevel.CONFIGURED, LocalizationLevel.SITE };
+
+        if (RegionLookup.getWfoRegion(getSiteName()) == null) {
+            levels = (LocalizationLevel[]) ArrayUtils.removeElement(levels,
+                    LocalizationLevel.REGION);
+        }
+
+        return levels;
     }
 
     /*
