@@ -68,6 +68,7 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Feb 04, 2014 2704       njensen     Shifted some private fields/methods to protected,
  *                                      Added status and details, better site validation
+ * Feb 17, 2014 2704       njensen     Changed some alertviz fields to protected
  * 
  * </pre>
  * 
@@ -117,15 +118,15 @@ public class ConnectivityPreferenceDialog extends Dialog {
 
     private Label localizationLabel;
 
-    private Text localizationText;
+    protected Text localizationText;
 
     private String localization = "";
 
     private boolean localizationGood = false;
 
-    private Text alertVizText;
+    protected Text alertVizText;
 
-    private String alertVizServer = null;
+    protected String alertVizServer = null;
 
     private boolean alertVizGood = true;
 
@@ -460,7 +461,7 @@ public class ConnectivityPreferenceDialog extends Dialog {
                 localizationCallback);
     }
 
-    private void validateAlertviz() {
+    protected void validateAlertviz() {
         ConnectivityManager.checkAlertService(alertVizServer, alertCallback);
     }
 
@@ -657,8 +658,8 @@ public class ConnectivityPreferenceDialog extends Dialog {
                 if (status != null) {
                     statusLabel.setText(status);
                 } else {
-                    throw new IllegalStateException(
-                            "Connectivity dialog received non-good status without status message");
+                    // shoudln't be able to reach this but just in case
+                    statusLabel.setText("Connection error");
                 }
             }
         }
