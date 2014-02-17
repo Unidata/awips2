@@ -35,6 +35,7 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
@@ -48,11 +49,12 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 07, 2010            bsteffen    Initial creation
- * May 13, 2013 1869       bsteffen    Modified D2D height Graphs to work
- *                                     without dataURI column.
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 07, 2010           bsteffen    Initial creation
+ * May 13, 2013  1869     bsteffen    Modified D2D height Graphs to work
+ *                                    without dataURI column.
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -145,27 +147,29 @@ public class PointDataVarHeightAdapter extends
             Number[] y = pdv.getNumberAllLevels(heightScale.getParameter());
 
             // array and checks for wind direction
-            Number[] windDir = null;
-            boolean hasWind1Unit = false;
+            Number[] windV = null;
             if (pdc.getParameters().contains(parameter + "[1]")) {
-                hasWind1Unit = true;
-                windDir = pdv.getNumberAllLevels(parameter + "[1]");
+                windV = pdv.getNumberAllLevels(parameter + "[1]");
             }
 
             // look for valid data points
             for (int i = 0; i < x.length; i++) {
-                if (y[i].intValue() > -9998 && x[i].intValue() > -9998) {
+                if (y[i].intValue() > CubeUtil.MISSING
+                        && x[i].intValue() > CubeUtil.MISSING) {
                     if (y[i].doubleValue() >= min && y[i].doubleValue() <= max) {
-                        if (hasWind1Unit) {
-                            double windSpeed = x[i].doubleValue();
-                            double windDirection = windDir[i].doubleValue();
-                            list.add(new XYWindImageData(x[i], y[i], windSpeed,
-                                    windDirection));
+                        if (windV != null) {
+                            double u = x[i].doubleValue();
+                            double v = windV[i].doubleValue();
+
+                            double speed = Math.hypot(u, v);
+                            double dir = Math.toDegrees(Math.atan2(-u, -v));
+
+                            list.add(new XYWindImageData(speed, y[i], speed,
+                                    dir));
                         } else {
                             list.add(new XYData(x[i], y[i]));
                         }
                     }
-                } else {
                 }
             }
             if (!list.isEmpty()) {
