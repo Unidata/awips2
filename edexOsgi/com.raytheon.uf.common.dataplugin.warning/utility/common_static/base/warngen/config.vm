@@ -2,6 +2,7 @@
 ## This file contains global WarnGen tempate (.vm) configuration settings
 ## If you have any questions please contact Evan Bookbinder - WFO EAX
 ## CREATED 9/20/2013
+## Edited by Mike Rega       01-17-2014 added Alaska changes for 14.12.1
 ############################################################################
 ### SET LAND REFERENCE DISTANCE UNITS
 #set($landDistanceUnits = "MILES")
@@ -56,4 +57,12 @@
 
 ### SET RURAL PHRASING WHEN NO WARNGEN LOCATIONS ARE IN THE PATH OF THE STORM TRACK/POLYGON
 ### THIS STORM WILL REMAIN OVER ___________ OF XXXX COUNTY/ZONE
+### ALASKA SETTING IS ON THE NEXT LINE
+###set($noLocPhrase = "SPARSELY POPULATED AREAS")
 #set($noLocPhrase = "MAINLY RURAL AREAS")
+
+### SET IF AN ALASKA WFO (default is false)
+#set($alaska = false)
+### SET IF A WESTERN REGION WFO THAT USES MIXED ZONES / COUNTIES IN FLOOD PRODUCTS
+### default is false
+#set($wrZoneCounty = false)
