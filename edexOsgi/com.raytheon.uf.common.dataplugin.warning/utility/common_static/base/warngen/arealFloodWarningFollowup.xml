@@ -9,6 +9,8 @@
                Mike Dangelo    09-16-2013 changed name bullets to 'specific' stream, slight urbanCTA modification
                Mike Dangelo    09-18-2013 added initial position and pathcasting options
                Phil Kurimski   09-19-2013 added geospatialConfig.xml
+               Mike Rega       01-18-2014 added Alaska GP changes for 14.2.1
+               Mike Dangelo 1/23/2014 added IC group to bottom of CON bullets (it's locked anyway, no need to have it at the top) 
 -->
                  
 <warngenConfig>
@@ -63,7 +65,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  
    <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
 as well as fourth bullet pathcast (which are optional info) available to forecaster.   
-Must be paired with proper vm code (also commented out in arealFloodWarningFollowup.vm)! -->
+Must be paired with proper vm code (which are commented out in arealFloodWarningFollowup.vm)! -->
  <trackEnabled>false</trackEnabled> 
   
  <!-- durations: the list of possible durations of the warning -->
@@ -82,7 +84,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
           - bulletGroup: Only one bullet can be selected per bulletGroup 
           - parseString: this string must MATCH a unique phrase in the associated bulletText. 
           	This will be used to highlight the appropriate bullet on a follow up-->
-<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>ic,ttt</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>
@@ -94,6 +96,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletText="****** CANCELLATION OPTIONS **********" bulletType="title"/>
   <bullet bulletName="recedingWater" bulletText="Receding water" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+<!-- similarly, the type of warning is locked -->
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="EXP" phen="FA" sig="W">
@@ -101,6 +120,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletText="******* EXPIRATION OPTIONS **********" bulletType="title"/>
   <bullet bulletName="recedingWater" bulletText="Water receding" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+<!-- similarly, the type of warning is locked -->
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="CON" phen="FA" sig="W">
@@ -112,8 +148,9 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATE"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATE"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorms with heavy rainfall" bulletGroup="event" parseString="&quot;THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
   <bullet bulletName="plainRain" bulletText="Heavy rainfall (no thunder)" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-REPORTED FLOODING&quot;"/>
@@ -134,7 +171,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS FLOODING IS OCCURRING"/>
+  <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS...HIGHWAYS...STREETS"/>
   <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
@@ -145,6 +182,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+<!-- similarly, the type of warning is locked -->
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FA" sig="W">
@@ -152,8 +206,9 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="AUTOMATED "/>
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/> 
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="source" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -178,7 +233,7 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletName="specificStream" bulletText="Flooding is occurring in a specific stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS FLOODING IS OCCURRING"/>
+  <bullet bulletName="warningMeansCTA" bulletText="A Flood Warning means" parseString="A FLOOD WARNING MEANS THAT FLOODING IS IMMINENT"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="URBAN AREAS...HIGHWAYS...STREETS"/>
   <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
@@ -189,6 +244,23 @@ Must be paired with proper vm code (also commented out in arealFloodWarningFollo
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="*** PRIMARY CAUSE *** (locked)" bulletType="title"/>
+  <bullet bulletName="er" bulletText="Excessive Rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="sm" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="rs" bulletText="Rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ij" bulletText="Ice Jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="ic" bulletText="Ice Jam/Rain/Snowmelt" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="mc" bulletText="Multiple Causes" bulletGroup="ic" parseString=".MC." showString=".MC."/>
+  <bullet bulletName="uu" bulletText="Unknown Cause" bulletGroup="ic" parseString=".UU." showString=".UU."/>
+  <bullet bulletName="dm" bulletText="Levee Failure" bulletGroup="ic" parseString=".DM." showString=".DM."/>
+  <bullet bulletName="dr" bulletText="Dam Floodgate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+  <bullet bulletName="go" bulletText="Glacial Lake Outburst" bulletGroup="ic" parseString=".GO." showString=".GO."/>
+<!-- similarly, the type of warning is locked -->
+  <bullet bulletText="****  TYPE OF WARNING (locked) ****" bulletType="title"/>
+  <bullet bulletName="generic" bulletText="Flood warning: generic" bulletGroup="ttt" parseString="FLOOD WARNING FOR..." showString="FLOOD WARNING FOR..."/>
+  <bullet bulletName="smallstreams" bulletText="Flood warning for small streams" bulletGroup="ttt" parseString="FLOOD WARNING FOR SMALL STREAMS" showString="FLOOD WARNING FOR SMALL STREAMS" />
+  <bullet bulletName="urbansmallstreams" bulletText="Flood warning for urban areas and small stream" bulletGroup="ttt" parseString="FLOOD WARNING FOR URBAN" showString="FLOOD WARNING FOR URBAN"/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>
