@@ -252,7 +252,10 @@ public class GLGeometryObject2D {
             addToBuffer(coordBuffer, coordinate);
             points += 1;
         }
-        indicies.add(idx);
+        if (points != idx && data.manageIndicies
+                && (data.geometryType != GL.GL_LINES || indicies.isEmpty())) {
+            indicies.add(idx);
+        }
     }
 
     public void allocate(int points) {
