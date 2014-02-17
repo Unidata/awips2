@@ -20,8 +20,7 @@
 
 def execute(uStk, vStk, RM5):
 
-    umot = RM5[2]
-    vmot = RM5[3]
+    umot,vmot = RM5
     u1 = uStk[0]
     v1 = vStk[0]
     u2 = uStk[-1]
