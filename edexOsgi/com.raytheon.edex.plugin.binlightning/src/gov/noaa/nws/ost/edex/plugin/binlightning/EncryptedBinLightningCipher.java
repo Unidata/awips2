@@ -124,8 +124,6 @@ public class EncryptedBinLightningCipher {
 				//   we are decrypting with the right key
 				if ( BinLigntningDecoderUtil.isKeepAliveRecord(decryptedData) == false && BinLigntningDecoderUtil.isLightningDataRecords(decryptedData) == false) {
 				//if (BinLigntningDecoderUtil.isValidMixedRecordData(decryptedData) == false) { // use this only if keep-alive record could be mixed with lightning records
-					logger.info("Decrypted data (" + decryptedData.length + " bytes) with key " + preferredKeyList.get(i).getAlias() 
-							+ " is not valid keep-alive or binLightning records. Try other key."); 
 					throw new BinLightningDataDecryptionException("Decrypted data (" + decryptedData.length + " bytes) with key " 
 							+ preferredKeyList.get(i).getAlias() + " is not valid keep-alive or binLightning records.", decryptedData);
 				}				
@@ -133,16 +131,23 @@ public class EncryptedBinLightningCipher {
 				break; // decrypt ok, break out
 			} catch (IllegalBlockSizeException e) {
 				// ignore exception if not the last, and try next cipher
-				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other keys"); 
+				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
 				if (i == (preferredKeyList.size() - 1)) {
-					logger.info("Fail to decrypt with all know keys, either data is not encrypted or is invalid."); 
+					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
 					throw e;
 				}
 			} catch (BadPaddingException e) {
 				// ignore exception if not the last, and try next cipher
-				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other keys"); 
+				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
 				if (i == (preferredKeyList.size() - 1)) {
-					logger.info("Fail to decrypt with all know keys, either data is not encrypted or is invalid."); 
+					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
+					throw e;
+				}
+			} catch (BinLightningDataDecryptionException e) {
+				// ignore exception if not the last, and try next cipher
+				logger.info("Fail to decrypt data (" + data.length + " bytes) with key: " + preferredKeyList.get(i).getAlias() + " - " + e.getMessage() + ", will try other available key"); 
+				if (i == (preferredKeyList.size() - 1)) {
+					logger.error("Fail to decrypt with all known keys, either data is not encrypted or is invalid: " + e.getMessage()); 
 					throw e;
 				}
 			}
