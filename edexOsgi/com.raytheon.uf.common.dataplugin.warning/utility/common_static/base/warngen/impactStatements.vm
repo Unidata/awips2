@@ -6,6 +6,7 @@
 ##         EDITED EVAN BOOKBINDER 2-25-13 FOR IBW 2013        ##
 ## EDITED PHIL KURIMSKI 5-20-13 FOR UPDATED IMPACT STATEMENTS ##
 ## EDITED PHIL KURIMSKI 9-17-13 FOR SMW IMPACT STATEMENTS     ##
+## Mike D - 1/23/2014 changed to approved torEMER CTA wording, fixed typo in one $torImpact string  
 ################################################################
 ##
 ################################################################
@@ -94,10 +95,10 @@
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING IMPACT STATEMENT 
-## WILL BE USED FOR HEIGHTED AWARENESS OF THIS DANGEROUS SITUATION
+## WILL BE USED TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains($bullets, "torEmergency")})
-#set ($torimpact = "YOU COULD BE KILLED IF NOT UNDERGROUND OR IN A TORNADO SHELTER. COMPLETE DESTRUCTION OF NEIGHBORHOODS...BUSINESSES AND VEHICLES WILL OCCUR. FLYING DEBRIS WILL DEADLY TO PEOPLE AND ANIMALS.")
+#set ($torimpact = "A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...TAKE COVER NOW. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.")
 #end
 ############################################################################
 ## Since the SVS template uses both the torimpact and svrimpact variables
