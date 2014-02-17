@@ -36,7 +36,6 @@ import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -52,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jan 27, 2014 2700       bclement     added roster entry support
  * Feb 13, 2014 2751       bclement     made generic for IUsers
  * Feb 13, 2014 2751       njensen      Extracted getImageName() to allow overrides
+ * Feb 17, 2014 2751       bclement     moved block image logic to roster specific code
  * 
  * </pre>
  * 
@@ -213,11 +213,6 @@ public abstract class AbstractUserLabelProvider<T extends IUser> extends
             key = mode.toString().replaceAll("\\s+", "_");
         } else {
             key = "contact_disabled";
-        }
-        if (user instanceof RosterEntry) {
-            if (ContactsManager.isBlocked((RosterEntry) user)) {
-                key = "blocked";
-            }
         }
         return key;
     }
