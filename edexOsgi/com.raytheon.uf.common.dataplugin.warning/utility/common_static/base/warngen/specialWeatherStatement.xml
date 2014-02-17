@@ -2,6 +2,7 @@
      Mike Dangelo  1.25.2013 (on build 12.12.1-12)
      Phil Kurimski 2.05.2013 (on build 13.2.1-5)
      Phil Kurimski 9-19-2013 added geospatialConfig.xml
+     Mike Dangelo 1/23/2014 added blankStatement bullet
 -->
 <warngenConfig>
 
@@ -75,6 +76,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="NEW">
  <bullets>
   <bullet bulletText="*********** TYPE OF THREAT **********" bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="toggle1"/>
   <bullet bulletName="strongThunderstorm" bulletText="Strong Thunderstorm" bulletGroup="toggle1" bulletDefault="true" parseString="STRONG THUNDERSTORM"/>
   <bullet bulletName="noThunder" bulletText="no thunder SHOWER(S) with gusty winds or hail" bulletGroup="toggle1" parseString=" SHOWER "/>
   <bullet bulletName="areaOfThunderstorms" bulletText="An area of Strong Thunderstorms" bulletGroup="toggle1" parseString="AN AREA OF STRONG THUNDERSTORMS"/>
@@ -128,6 +130,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR">
  <bullets>
   <bullet bulletText="*********** TYPE OF THREAT **********" bulletType="title"/>
+  <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="toggle1"/>
   <bullet bulletName="strongThunderstorm" bulletText="Strong Thunderstorm" bulletGroup="toggle1" bulletDefault="true" parseString="STRONG THUNDERSTORM"/>
   <bullet bulletName="noThunder" bulletText="no thunder SHOWER(S) with gusty winds or hail" bulletGroup="toggle1" parseString=" SHOWER "/>
   <bullet bulletName="areaOfThunderstorms" bulletText="An area of Strong Thunderstorms" bulletGroup="toggle1" parseString="AN AREA OF STRONG THUNDERSTORMS"/>
