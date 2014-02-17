@@ -22,4 +22,4 @@ def execute(wind, pvv):
     """ Combine wind with PVV to prepare the data for Cross Section to do Vertical Circulation Calculations
     
     """
-    return (pvv, wind[1], wind[2], wind[3] )
+    return (wind[0], wind[1], pvv )
