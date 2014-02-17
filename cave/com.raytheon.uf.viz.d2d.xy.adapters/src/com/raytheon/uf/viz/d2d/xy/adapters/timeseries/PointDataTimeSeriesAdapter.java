@@ -69,11 +69,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 07, 2010            bsteffen    Initial creation
- * May 09, 2013 1869       bsteffen    Modified D2D time series of point data to
- *                                     work without dataURI.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 07, 2010           bsteffen    Initial creation
+ * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
+ *                                    work without dataURI.
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -131,7 +132,6 @@ public class PointDataTimeSeriesAdapter extends
 
         String parameter = resourceData.getYParameter().code;
 
-        boolean isIcon = displayType == DisplayType.ICON;
         Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
                 resourceData.getMetadataMap());
         String[] parameters = null;
@@ -152,28 +152,32 @@ public class PointDataTimeSeriesAdapter extends
         PointDataContainer pdc = DataCubeContainer.getPointData(
                 recordsToLoad[0].getPluginName(), parameters,
                 resourceData.getLevelKey(), constraints);
+
+        boolean isWind = pdc.getParameters().contains(parameter + "[1]");
+        boolean isIcon = displayType == DisplayType.ICON;
+
         ArrayList<XYData> data = new ArrayList<XYData>();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
             DataTime x = getDataTime(pdv, refTimeOnly);
             Number y = pdv.getNumber(parameter);
 
-            if (x == null) {
+            if (x == null || y.intValue() < -9000) {
                 continue;
             }
 
             // the parameter is a (wind) vector
-            if (pdc.getParameters().contains(parameter + "[1]")) {
+            if (isWind) {
+                double u = y.doubleValue();
+                double v = pdv.getNumber(parameter + "[1]").doubleValue();
+                double speed = Math.hypot(u, v);
+                double dir = Math.toDegrees(Math.atan2(-u, -v));
 
-                if (y.intValue() != -9999) {
-                    double windSpeed = y.doubleValue();
-                    double windDirection = pdv.getNumber(parameter + "[1]")
-                            .doubleValue();
-                    data.add(new XYWindImageData(x, y, windSpeed, windDirection));
-                }
+                data.add(new XYWindImageData(x, speed, speed, dir));
+
             } else if (isIcon) {
                 data.add(new XYIconImageData(x, y, y.intValue()));
-            } else if (y.intValue() > -9000) {
+            } else {
                 data.add(new XYData(x, y));
             }
         }
