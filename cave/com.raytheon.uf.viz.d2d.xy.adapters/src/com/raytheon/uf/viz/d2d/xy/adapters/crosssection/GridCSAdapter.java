@@ -63,15 +63,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 23, 2009            mschenke     Initial creation
- * Feb 04, 2011 7953       bkowal       Fill values will now be placed
- *                                      in the data array for anything
- *                                      below 300MB for RUC80.
- * Oct 2, 2012  DR 15259  M.Porricelli  Allow plotting when 3 levels
- *                                      available (DGEX)
- * Sep  9, 2013 2277       mschenke     Got rid of ScriptCreator references
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ------------ ----------------------------------------
+ * Nov 23, 2009           mschenke     Initial creation
+ * Feb 04, 2011  7953     bkowal       Fill values will now be placed in the 
+ *                                     data array for anything below 300MB for 
+ *                                     RUC80.
+ * Oct 02, 2012  15259    M.Porricelli Allow plotting when 3 levels available
+ *                                     (DGEX)
+ * Sep 09, 2013  2277     mschenke     Got rid of ScriptCreator references
+ * Feb 17, 2014  2661     bsteffen     Remove unnecessary output.
+ * 
  * 
  * </pre>
  * 
@@ -368,9 +370,6 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
                 yRecords.add((GridRecord) pdo);
             }
             this.yRecords.put(time, yRecords);
-            if (yRecords.isEmpty()) {
-                System.out.println("No Y Data");
-            }
             return yRecords;
         }
     }
