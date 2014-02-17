@@ -204,7 +204,7 @@ server_name        : ONLINE      # Informix database server name
 db_name            : hd_ob92lwx # IHFS database name
 damcat_db_name     : dc_ob5xxx   # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : localhost         # The machine PostGres is running on
+pghost             : dx1f         # The machine PostGres is running on
 pguser             : awips      # The user allowed to access PostGres
 pgport             : 5432        # The PostGres Server port
 adb_name           : adb_ob7xxx  # RFC archive database name
@@ -1843,7 +1843,11 @@ dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 # ================== end of SSHP Directory Structure tokens ========================
-
+# nrldb tokens
+nrldb_log     :  $(whfs_log_dir)/nrldb
+nrldb_data    :  $(whfs_local_data_dir)/nrldb
+nrldb_config  :  $(whfs_config_dir)/nrldb
+nrldb_tmp     :  /awips/hydroapps/whfs/local/data/output
 
 # The syntax needed in the file is:
 #
