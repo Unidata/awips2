@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -37,7 +39,6 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
@@ -54,20 +55,22 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Jun 15, 2010            bsteffen     Initial creation
- * Feb 14, 2011 8244       bkowal       enabled magnification capability.
+ * Jun 15, 2010           bsteffen    Initial creation
+ * Feb 14, 2011  8244     bkowal      enabled magnification capability.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
- * Dec 11, 2013 DR 16795   D. Friedman  Transform pixel coordinate in inspect
+ * Dec 11, 2013  16795    D. Friedman Transform pixel coordinate in inspect
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class CrossSectionVectorResource extends AbstractCrossSectionResource {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AbstractCrossSectionResource.class);
 
     /* Unknown source, provides acceptable density. */
     private static final int VECTOR_SPACING = 60;
@@ -90,8 +93,10 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.ARROW, match);
         } catch (StyleException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.handle(
+                    Priority.INFO,
+                    "Unable to load Style rule for: "
+                            + resourceData.getParameter(), e);
         }
         if (sr != null) {
             prefs = sr.getPreferences();
@@ -110,8 +115,8 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
         if (sliceMap.get(time) == null) {
             return;
         }
-        float[] uData = sliceMap.get(time).get(2);
-        float[] vData = sliceMap.get(time).get(3);
+        float[] uData = sliceMap.get(time).get(0);
+        float[] vData = sliceMap.get(time).get(1);
 
         double density = getCapability(DensityCapability.class).getDensity();
         RGB color = getCapability(ColorableCapability.class).getColor();
@@ -193,16 +198,11 @@ public class CrossSectionVectorResource extends AbstractCrossSectionResource {
                     && y < geometry.getGridRange().getSpan(1)
                     && sliceMap.get(time) != null) {
                 int index = y * geometry.getGridRange().getSpan(0) + x;
-                float[] ufd = sliceMap.get(time).get(2);
-                float[] vfd = sliceMap.get(time).get(3);
+                float[] ufd = sliceMap.get(time).get(0);
+                float[] vfd = sliceMap.get(time).get(1);
 
                 double val = Math.hypot(ufd[index], vfd[index]);
-                ColorMapParameters colorMapParams = getCapability(
-                        ColorMapCapability.class).getColorMapParameters();
-                if (colorMapParams != null) {
-                    val = colorMapParams.getDataToDisplayConverter().convert(
-                            val);
-                }
+
                 s = sampleFormat.format(val);
             }
         } catch (Exception e) {
