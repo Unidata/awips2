@@ -43,10 +43,8 @@ def execute(A0, A1, B0, B1):
     
     if isinstance(A0, tuple):
         # Do derivitive of components of the vector
-        u0 = A0[2]
-        v0 = A0[3]
-        u1 = A1[2]
-        v1 = A1[3]
+        u0,v0 = A0
+        u1,v1 = A1
         uDeriv = execute(u0, u1, B0, B1)
         vDeriv = execute(v0, v1, B0, B1)
         return Vector.componentsTo(uDeriv, vDeriv)
