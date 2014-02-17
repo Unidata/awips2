@@ -6,6 +6,7 @@
 ##     UPDATED -- Kurimski 5-20-13 2013 IBW Changes           ##
 ##     UPDATED -- Kurimski 9/17/13 Tor Emer Headline          ##
 ##     UPDATED -- Bookbinder 9/18/13 Implement config.vm      ##
+##     Mike Dangelo 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication)
 ################################################################
 ## Commented out Impact statements Feb 2013 and created file to
 ## be parsed into the template called impactStatements.vm
@@ -961,6 +962,9 @@ THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COU
 
 #end
 #end
+#if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
+  #set($dummy='dummy')
+#else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
 ${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
@@ -968,6 +972,7 @@ ${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWE
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
 ${preAmbleTOR}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
+#end
 #end
 #if(${list.contains(${bullets}, "motoristsCTA")})
 MOTORISTS SHOULD NOT TAKE SHELTER UNDER HIGHWAY OVERPASSES. IF YOU CANNOT SAFELY DRIVE AWAY FROM THE TORNADO...AS A LAST RESORT...EITHER PARK YOUR VEHICLE AND STAY PUT...OR ABANDON YOUR VEHICLE AND LIE DOWN IN A LOW LYING AREA AND PROTECT YOURSELF FROM FLYING DEBRIS.
