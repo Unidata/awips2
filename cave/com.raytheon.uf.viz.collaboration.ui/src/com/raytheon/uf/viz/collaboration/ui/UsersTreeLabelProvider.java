@@ -39,6 +39,7 @@ import org.jivesoftware.smack.packet.Presence;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Jan 27, 2014 2700       bclement    pass roster entries directly to userLabelProvider
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 13, 2014 2751       bclement    made AbstractUsersLabelProvider generic
+ * Feb 17, 2014 2751       bclement    added block image logic to userLabelProvider
  * 
  * </pre>
  * 
@@ -93,6 +95,37 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             } else {
                 return null;
             }
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider#
+         * getImageName
+         * (com.raytheon.uf.viz.collaboration.comm.identity.user.IUser)
+         */
+        @Override
+        protected String getImageName(UserId user) {
+            return isBlocked(user) ? "blocked" : super.getImageName(user);
+        }
+
+        /**
+         * @param user
+         * @return true if we are blocked from seeing updates from user
+         */
+        private boolean isBlocked(UserId user) {
+            boolean rval = false;
+            CollaborationConnection conn = CollaborationConnection
+                    .getConnection();
+            UserId account = conn.getUser();
+            if (!account.isSameUser(user)) {
+                ContactsManager cm = conn.getContactsManager();
+                RosterEntry entry = cm.getRosterEntry(user);
+                if (ContactsManager.isBlocked(entry)) {
+                    rval = true;
+                }
+            }
+            return rval;
         }
 
     };
