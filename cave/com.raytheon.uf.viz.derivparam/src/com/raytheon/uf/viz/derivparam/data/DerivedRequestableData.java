@@ -82,15 +82,10 @@ public class DerivedRequestableData extends AbstractRequestableData {
             List<IDataRecord> finalResult = DerivedParameterGenerator
                     .calculate(request);
             if (finalResult != null && !finalResult.isEmpty()) {
-                if (finalResult.size() == 2 || finalResult.size() == 1) {
-                    for (IDataRecord rec : finalResult) {
-                        rec.setName(request.getParameterAbbreviation());
-                    }
-                    return finalResult.toArray(new IDataRecord[0]);
-                } else {
-                    throw new VizException(
-                            "Error processing derived parameter, expecting scalar or vector data.  Vector data must return u and v components.");
+                for (IDataRecord rec : finalResult) {
+                    rec.setName(request.getParameterAbbreviation());
                 }
+                return finalResult.toArray(new IDataRecord[0]);
             }
         } catch (ExecutionException e) {
             throw new VizException("Error executing Derived Parameter.", e);
