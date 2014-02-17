@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
 
@@ -34,6 +35,7 @@ import org.jivesoftware.smack.RosterGroup;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 23, 2014 2701       bclement    Initial creation
+ * Feb 17, 2014 2800       bclement    added equals/hashcode
  * 
  * </pre>
  * 
@@ -71,6 +73,35 @@ public class SharedGroup {
      */
     public boolean contains(RosterEntry entry) {
         return delegate.contains(entry);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        HashCodeBuilder builder = new HashCodeBuilder();
+        builder.append(delegate.getName());
+        return builder.toHashCode();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof SharedGroup)) {
+            return false;
+        }
+        SharedGroup other = (SharedGroup) obj;
+        return this.delegate.getName().equals(other.getName());
     }
 
 }
