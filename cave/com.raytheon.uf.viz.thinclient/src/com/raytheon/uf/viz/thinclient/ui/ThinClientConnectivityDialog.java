@@ -61,6 +61,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Nov 23, 2011            bsteffen    Initial creation
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Feb 04, 2014 2704       njensen     Refactored
+ * Feb 17, 2014 2704       njensen     Added checks for alertviz connectivity
  * 
  * </pre>
  * 
@@ -303,6 +304,16 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             siteText.setBackground(getTextColor(isSiteGood()));
         }
 
+        // validate alertviz
+        // apparently alertvizserver == null means it's alertviz itself
+        if (alertVizServer != null) {
+            if (alertVizText != null && !alertVizText.isDisposed()) {
+                setAlertVizServer(alertVizText.getText());
+                super.validateAlertviz();
+                alertVizText.setBackground(getTextColor(isAlertVizGood()));
+            }
+        }
+
         boolean everythingGood = servicesGood && pypiesGood && isSiteGood()
                 && isAlertVizGood() && jmsGood;
         updateStatus(everythingGood, status, details);
@@ -326,6 +337,11 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         useProxy = useProxyCheck.getSelection();
         proxyText.setEnabled(useProxy);
         super.setLocalizationEnabled(!useProxy);
+        if (useProxy) {
+            if (localizationText != null && !localizationText.isDisposed()) {
+                localizationText.setBackground(getTextColor(true));
+            }
+        }
         validate();
     }
 
