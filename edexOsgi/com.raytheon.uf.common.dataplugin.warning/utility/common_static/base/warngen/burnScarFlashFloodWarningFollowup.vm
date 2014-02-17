@@ -20,8 +20,8 @@
 #set($emergencyHeadline = "!** ENTER LOCATION **!")
 ###OVERRIDE DEFAULT EXECESSIVE RAINFALL IF NECESSARY
 #if(${ic} == "RS")
-	#set($hycType = "RAIN AND SNOW MELT")
-    #set($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
+	#set($hycType = "RAIN AND SNOWMELT")
+    #set($snowMelt = "RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
 #end
 ##
 #########################################################################
@@ -84,7 +84,7 @@ ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire}, ${timeFormat.ymdthmz}, 15)}/
 /00000.0.${ic}.000000T0000Z.000000T0000Z.000000T0000Z.OO/
 #foreach (${area} in ${areas}) 
-${s}##
+${area.name}##
 #if(${includeStateAbbreviation}==true)
  ${area.stateabbr}##
 #end
