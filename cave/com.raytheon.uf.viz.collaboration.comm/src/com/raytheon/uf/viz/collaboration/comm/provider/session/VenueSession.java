@@ -41,6 +41,8 @@ import org.jivesoftware.smackx.muc.UserStatusListener;
 import org.jivesoftware.smackx.packet.DiscoverItems;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
@@ -95,6 +97,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, added handle
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2751       bclement    Fixed history message 'from' type
+ * Feb 18, 2014 2751       bclement    log privilege changes instead of spamming chat window
  * 
  * </pre>
  * 
@@ -106,6 +109,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  */
 
 public class VenueSession extends BaseSession implements IVenueSession {
+
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(VenueSession.class);
 
     private static final String SEND_TXT = "[[TEXT]]";
 
@@ -431,13 +437,13 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void ownershipRevoked(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is no longer a room owner.");
             }
 
             @Override
             public void ownershipGranted(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is now a room owner.");
             }
 
@@ -450,25 +456,25 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void moderatorRevoked(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is no longer a moderator.");
             }
 
             @Override
             public void moderatorGranted(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is now a moderator.");
             }
 
             @Override
             public void membershipRevoked(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is no longer a member of the room.");
             }
 
             @Override
             public void membershipGranted(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is now a member of the room.");
             }
 
@@ -502,16 +508,26 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void adminRevoked(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is no longer an admin.");
             }
 
             @Override
             public void adminGranted(String participant) {
-                sendParticipantEvent(participant, ParticipantEventType.UPDATED,
+                logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is now an admin.");
             }
             
+            private void logParticipantEvent(String participant,
+                    ParticipantEventType type, String desciption) {
+                StringBuilder builder = new StringBuilder();
+                IVenue v = getVenue();
+                builder.append("In session '").append(v.getName())
+                        .append("': ");
+                builder.append(participant).append(" ").append(desciption);
+                log.debug(builder.toString());
+            }
+
             private void sendParticipantEvent(String participant,
                     ParticipantEventType type, String desciption) {
                 VenueParticipant user = IDConverter.convertFromRoom(muc,
@@ -577,32 +593,32 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void ownershipRevoked() {
-                sendUserEvent("You are no longer an owner of this room.");
+                logUserEvent("You are no longer an owner of this room.");
             }
 
             @Override
             public void ownershipGranted() {
-                sendUserEvent("You are now an owner of this room.");
+                logUserEvent("You are now an owner of this room.");
             }
 
             @Override
             public void moderatorRevoked() {
-                sendUserEvent("You are no longer a moderator of this room.");
+                logUserEvent("You are no longer a moderator of this room.");
             }
 
             @Override
             public void moderatorGranted() {
-                sendUserEvent("You are now the moderator of this room.");
+                logUserEvent("You are now the moderator of this room.");
             }
 
             @Override
             public void membershipRevoked() {
-                sendUserEvent("You are no longer a member of this room.");
+                logUserEvent("You are no longer a member of this room.");
             }
 
             @Override
             public void membershipGranted() {
-                sendUserEvent("You are now a member of this room.");
+                logUserEvent("You are now a member of this room.");
             }
 
             @Override
@@ -623,17 +639,27 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             @Override
             public void adminRevoked() {
-                sendUserEvent("You have had admin privileges revoked.");
+                logUserEvent("You have had admin privileges revoked.");
             }
 
             @Override
             public void adminGranted() {
-                sendUserEvent("You have had admin privileges granted.");
+                logUserEvent("You have had admin privileges granted.");
             }
 
             private void sendUserEvent(String message) {
                 postEvent(new VenueUserEvent(message));
             }
+
+            private void logUserEvent(String message) {
+                StringBuilder builder = new StringBuilder();
+                IVenue v = getVenue();
+                builder.append("In session '").append(v.getName())
+                        .append("': ");
+                builder.append(message);
+                log.info(builder.toString());
+            }
+
         });
     }
 
