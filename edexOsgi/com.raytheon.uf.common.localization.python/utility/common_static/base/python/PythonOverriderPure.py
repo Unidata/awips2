@@ -29,6 +29,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/12/13                      bkowal         Initial Creation.
+#    02/17/14        2712          bkowal         Provide a default value for localization site.
 #
 #
 #
@@ -48,7 +49,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import 
 BUFFER_SIZE = 512 * 1024
 availableLevels = ['BASE', 'CONFIGURED', 'SITE', 'USER']
 
-def importModule(name, localizationHost, localizationPort, localizedSite, localizationUser=None, 
+def importModule(name, localizationHost, localizationPort, localizedSite=None, localizationUser=None, 
                  loctype='COMMON_STATIC', level=None):
     '''
     @param name: the name of the localization file
