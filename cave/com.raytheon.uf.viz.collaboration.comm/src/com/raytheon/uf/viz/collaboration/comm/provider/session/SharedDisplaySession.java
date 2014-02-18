@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 12, 2014 2793       bclement    added additional null check to sendObjectToVenue
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Added changeLeader()
+ * Feb 18, 2014 2751       bclement    implemented room and pubsub ownership transfer
  * Feb 19, 2014 2751       bclement    added isClosed()
  * 
  * </pre>
@@ -173,7 +174,7 @@ public class SharedDisplaySession extends VenueSession implements
      * #sendObjectToVenue(java.lang.Object)
      */
     @Override
-    public void sendObjectToVenue(Object obj) throws CollaborationException {
+    public void sendObjectToVenue(Object obj){
         if (obj == null) {
             return;
         }
@@ -196,8 +197,7 @@ public class SharedDisplaySession extends VenueSession implements
      * java.lang.Object)
      */
     @Override
-    public void sendObjectToPeer(VenueParticipant participant, Object obj)
-            throws CollaborationException {
+    public void sendObjectToPeer(VenueParticipant participant, Object obj) {
         // TODO should only send to CAVE clients
         if (obj == null) {
             return;
@@ -412,8 +412,22 @@ public class SharedDisplaySession extends VenueSession implements
         if (payload instanceof SessionPayload) {
             SessionPayload sp = (SessionPayload) payload;
             Object obj = sp.getData();
+            if (obj instanceof LeaderChangeEvent) {
+                handleLeaderChange((LeaderChangeEvent) obj);
+            }
             postEvent(obj);
         }
+    }
+
+    /**
+     * Apply leadership change event to session
+     * 
+     * @param event
+     */
+    private void handleLeaderChange(LeaderChangeEvent event) {
+        VenueParticipant newLeader = event.getNewLeader();
+        setCurrentDataProvider(newLeader);
+        setCurrentSessionLeader(newLeader);
     }
 
     /**
@@ -491,53 +505,114 @@ public class SharedDisplaySession extends VenueSession implements
         // we don't persist data packets to topics
     }
 
+    /**
+     * Make user with id an owner of the pubsub topic
+     * 
+     * @param id
+     * @throws XMPPException
+     */
+    private void grantTopicOwnership(String id) throws XMPPException {
+        sendAffiliationPacket(id, Affiliation.Type.owner);
+    }
+
+    /**
+     * Make user with id a publisher of the pubsub topic
+     * 
+     * @param id
+     * @throws XMPPException
+     */
+    private void revokeTopicOwnership(String id) throws XMPPException {
+        sendAffiliationPacket(id, Affiliation.Type.publisher);
+    }
+
+    /**
+     * Change affiliation of user with id
+     * 
+     * @param id
+     * @param type
+     * @throws XMPPException
+     */
+    private void sendAffiliationPacket(String id, Affiliation.Type type)
+            throws XMPPException {
+        ChangeAffiliationExtension affiliation = new ChangeAffiliationExtension(
+                topic, id, type);
+        PubSubOperations.sendAffiliationPacket(conn, affiliation);
+    }
+
     @Override
     public void changeLeader(VenueParticipant newLeader)
             throws CollaborationException {
-        if (!getCurrentDataProvider().isSameUser(getUserID())) {
+        final VenueParticipant oldLeader = getCurrentDataProvider();
+        if (!oldLeader.isSameUser(getUserID())) {
             throw new CollaborationException(
                     "Only the leader can transfer leadership");
         }
+        if (!newLeader.hasActualUserId()) {
+            throw new CollaborationException(
+                    "Unable to grant ownership because new leader's actual userid is not known");
+        }
 
-        boolean ownershipGranted = false;
+        final String newLeaderId = newLeader.getUserid().getNormalizedId();
+
+        boolean topicOwnershipGranted = false;
+        boolean roomOwnershipGranted = false;
         boolean othersNotified = false;
+        String revokeTarget = null;
         try {
             // was formerly the data provider, so hand off pubsub ownership
-            // TODO change pubsub ownership
+            grantTopicOwnership(newLeaderId);
+            topicOwnershipGranted = true;
 
             // change the room's ownership cause the leader needs to know
             // participants' jids to properly complete some leader actions
-            // FIXME
-            // muc.grantOwnership(newLeader.getFQName());
-            ownershipGranted = true;
+            muc.grantOwnership(newLeaderId);
+            roomOwnershipGranted = true;
 
             // TODO if we get private chat within a chat room working, we
             // shouldn't need to let everyone know the leader's jid
-            LeaderChangeEvent event = new LeaderChangeEvent(newLeader);
+            LeaderChangeEvent event = new LeaderChangeEvent(newLeader,
+                    oldLeader);
             this.sendObjectToVenue(event);
             othersNotified = true;
 
-            // TODO revoke pubsub ownership
-
             // revoke our own ownership, last action in case other parts
             // of the transfer fail
-            // FIXME
-            // muc.revokeOwnership(getUserID().getFQName());
-        } catch (Exception e) {
-            // TODO change to catch XMPPConnection, ensure this is transactional
-            if (ownershipGranted && !othersNotified) {
-                // transaction, attempt to roll back the ownership change
+            revokeTarget = "topic";
+            UserId account = getAccount();
+            revokeTopicOwnership(account.getNormalizedId());
+            // we revoke admin instead of ownership because it sets back to
+            // 'member' instead of just down to 'admin'
+            revokeTarget = "room";
+            muc.revokeAdmin(account.getNormalizedId());
+        } catch (XMPPException e) {
+            if (!othersNotified) {
+                // transaction, attempt to roll back the ownership changes
                 // because other participants didn't hear about it
-                try {
-                    muc.revokeAdmin(newLeader.getFQName());
-                } catch (XMPPException e1) {
-                    // TODO we only want to throw up the original error, not
-                    // the rollback error, is printStackTrace good enough?
-                    e1.printStackTrace();
+                if (roomOwnershipGranted) {
+                    try {
+                        muc.revokeAdmin(newLeaderId);
+                    } catch (XMPPException e1) {
+                        log.error(
+                                "Problem rolling back room ownership transfer",
+                                e1);
+                    }
                 }
+                if (topicOwnershipGranted) {
+                    try{
+                        revokeTopicOwnership(newLeaderId);
+                    } catch (XMPPException e1) {
+                        log.error(
+                                "Problem rolling back topic ownership transfer",
+                                e1);
+                    }
+                }
+                throw new CollaborationException(
+                        "Error transferring leadership", e);
+            } else {
+                log.warn("Problem releasing ownership of " + revokeTarget
+                        + ". " + e.getLocalizedMessage());
             }
-            throw new CollaborationException("Error transferring leadership", e);
-        }
+        } 
     }
 
     /*
