@@ -46,6 +46,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
+ * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
  * 
  * </pre>
  * 
@@ -161,10 +162,10 @@ public abstract class OverlapData<T extends Time, C extends Coverage> {
     protected void determineOverlapping() {
         calculateParameterDuplicationPercent(sub1, sub2);
         calculateSpatialDuplicationPercent(sub1, sub2);
-        this.parameterPass = this.parameterDuplication > config
+        this.parameterPass = this.parameterDuplication >= config
                 .getMaxAllowedParameterDuplication();
 
-        this.spatialPass = this.spatialDuplication > config
+        this.spatialPass = this.spatialDuplication >= config
                 .getMaxAllowedSpatialDuplication();
     }
 
