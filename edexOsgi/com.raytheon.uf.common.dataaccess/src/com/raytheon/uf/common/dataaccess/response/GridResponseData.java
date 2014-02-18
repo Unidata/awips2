@@ -19,8 +19,12 @@
  **/
 package com.raytheon.uf.common.dataaccess.response;
 
+import javax.measure.unit.Unit;
+
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDestination;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -31,9 +35,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 4, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 04, 2013           dgilling    Initial creation
+ * Feb 04, 2014  2672     bsteffen    Better handling of odd units.
  * 
  * </pre>
  * 
@@ -61,12 +66,36 @@ public class GridResponseData extends AbstractResponseData {
         super(data);
 
         parameter = data.getParameter();
-        if (data.getUnit() != null) {
-            unit = data.getUnit().toString();
-        }
+
+        Unit<?> dataUnit = data.getUnit();
         FloatArrayWrapper dataGrid = new FloatArrayWrapper(
                 data.getGridGeometry());
-        dataGrid = data.populateData(dataGrid);
+        DataDestination dataDest = dataGrid;
+        if (data.getUnit() != null) {
+            try {
+                this.unit = dataUnit.toString();
+            } catch (IllegalArgumentException e1) {
+                /*
+                 * Not all units are representable as strings, convert to the
+                 * standard unit so that the units can be preserved in string
+                 * form.
+                 */
+                Unit<?> stdUnit = dataUnit.getStandardUnit();
+                try {
+                    this.unit = stdUnit.toString();
+                    dataDest = new UnitConvertingDataDestination(
+                            dataUnit.toStandardUnit(), dataDest);
+                } catch (IllegalArgumentException e2) {
+                    /*
+                     * The standard unit is also unstringable so treat the data
+                     * as unitless.
+                     */
+                    this.unit = null;
+                }
+            }
+        }
+
+        data.populateData(dataDest);
         gridData = dataGrid.getArray();
     }
 
