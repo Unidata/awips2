@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * May 23, 2012            mschenke     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
