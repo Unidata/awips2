@@ -189,6 +189,15 @@ public class ArchiveConfigManager {
     public Collection<ArchiveConfig> getArchives() {
         String fileName = ArchiveConstants.selectFileName(Type.Retention, null);
         SelectConfig selections = loadSelection(fileName);
+        List<String> emptySelection = new ArrayList<String>(0);
+
+        // Clear old selections.
+        for (ArchiveConfig archive : archiveMap.values()) {
+            for (CategoryConfig category : archive.getCategoryList()) {
+                category.setSelectedDisplayNames(emptySelection);
+            }
+        }
+
         if ((selections != null) && !selections.isEmpty()) {
             for (ArchiveSelect archiveSelect : selections.getArchiveList()) {
                 String archiveName = archiveSelect.getName();
@@ -325,7 +334,8 @@ public class ArchiveConfigManager {
 
         Map<CategoryConfig, CategoryFileDateHelper> helperMap = new HashMap<CategoryConfig, CategoryFileDateHelper>();
         for (CategoryConfig category : archive.getCategoryList()) {
-            CategoryFileDateHelper helper = new CategoryFileDateHelper(category);
+            CategoryFileDateHelper helper = new CategoryFileDateHelper(
+                    archiveRootDirPath, category);
             helperMap.put(category, helper);
         }
 
@@ -470,13 +480,8 @@ public class ArchiveConfigManager {
                         if (file.isDirectory()) {
                             purgeCount += purgeDir(file,
                                     FileFilterUtils.trueFileFilter());
-                            if (file.list().length == 0) {
-                                purgeCount += purgeDir(file,
-                                        FileFilterUtils.trueFileFilter());
-                            }
-                        } else {
-                            purgeCount += deleteFile(file);
                         }
+                        purgeCount += deleteFile(file);
                     }
                 } else if (file.isDirectory()) {
                     purgeCount += purgeDir(file, defaultTimeFilter,
