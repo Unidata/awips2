@@ -19,11 +19,6 @@
  **/
 package com.raytheon.openfire.plugin.configuration.collaboration.configuration;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Element;
 import org.jivesoftware.util.JiveGlobals;
@@ -31,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.PacketExtension;
+
 
 /**
  * Packet extension for collaboration configuration messages to clients
@@ -42,6 +38,7 @@ import org.xmpp.packet.PacketExtension;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2013            bclement     Initial creation
+ * Feb 14, 2014 2756       bclement     moved preferences to separate file
  * 
  * </pre>
  * 
@@ -53,33 +50,6 @@ public class ConfigurationPacket extends PacketExtension {
 
     private static final Logger log = LoggerFactory
             .getLogger(ConfigurationPacket.class);
-
-    // format property file
-
-    public static final String CONFIG_FILE_KEY = "plugin.collaboration.packet.format.file";
-
-    private static final String DEFAULT_PLUGIN_CONFIG_FILE = "conf"
-            + File.separator + "configurationPacketFormat.properties";
-
-    private static final Properties properties = new Properties();
-
-    static {
-        String confFile = JiveGlobals.getProperty(CONFIG_FILE_KEY,
-                DEFAULT_PLUGIN_CONFIG_FILE);
-        File f = new File(JiveGlobals.getHomeDirectory(), confFile);
-        if (f.exists()) {
-            try {
-                properties.load(new FileInputStream(f));
-            } catch (IOException e) {
-                // defaults will be used
-                log.error("Problem loading packet format configuration file: "
-                        + f.getAbsolutePath(), e);
-            }
-        } else {
-            log.info("Using default config packet format since there was no format file at "
-                    + f.getAbsolutePath());
-        }
-    }
 
     // property keys
 
@@ -128,11 +98,11 @@ public class ConfigurationPacket extends PacketExtension {
      *            configuration payload for packet
      * @return
      */
-    private static Element create(String body) {
-        String element = properties.getProperty(ELEMENT_KEY, ELEMENT_DEFAULT);
-        String xmlns = properties.getProperty(XMLNS_KEY, XMLNS_DEFAULT);
+    public static Element create(String body) {
+        String element = PacketPreferences.get(ELEMENT_KEY, ELEMENT_DEFAULT);
+        String xmlns = PacketPreferences.get(XMLNS_KEY, XMLNS_DEFAULT);
         Element rval = docFactory.createElement(element, xmlns);
-        String attributes = properties.getProperty(ATTRIBUTES_KEY,
+        String attributes = PacketPreferences.get(ATTRIBUTES_KEY,
                 ATTRIBUTES_DEFAULT);
         for (String keyval : StringUtils.split(attributes, ',')) {
             String[] separated = StringUtils.split(keyval, '=');
