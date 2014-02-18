@@ -67,6 +67,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -78,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.CutTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PasteTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PopupNotifier;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.views.CaveFloatingView;
@@ -96,6 +98,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Dec 19, 2013 2563       bclement    moved color lookup into runAsync block
  * Jan 30, 2014 2698       bclement    get display name from child class
  * Feb 13, 2014 2751       bclement    made generic
+ * Feb 18, 2014 2631       mpduff      Add ability to play sounds on join actions
  * 
  * </pre>
  * 
@@ -110,7 +113,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
+    private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
+            .buildThreadLocalSimpleDateFormat("HH:mm:ss",
+                    TimeZone.getTimeZone("GMT"));
 
     /**
      * Mapping of images used in the view so they are not constantly created and
@@ -152,7 +157,6 @@ public abstract class AbstractSessionView<T extends IUser> extends
         imageMap = new HashMap<String, Image>();
         fonts = new HashMap<String, Font>();
         colors = new HashMap<RGB, Color>();
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     protected void initComponents(Composite parent) {
@@ -341,7 +345,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 service.warnOfContentChange();
 
                 Date date = new Date(timestamp);
-                String time = dateFormatter.format(date);
+                String time = dateFormatter.get().format(date);
 
                 String name = getDisplayName(userId);
 
@@ -450,7 +454,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             String name, T userId, List<StyleRange> ranges, Color color);
 
     /**
-     * Find keys words in body of message starting at offset. /**
+     * Find keys words in body of message starting at offset.
      * 
      * @param builder
      * @param offset
@@ -468,16 +472,28 @@ public abstract class AbstractSessionView<T extends IUser> extends
      */
     protected void executeSightsSounds(AlertWord word) {
         String filename = word.getSoundPath();
+        playSound(filename);
+    }
+
+    /**
+     * Play a sound.
+     * 
+     * @param filename
+     *            The file to play
+     */
+    protected void playSound(String filename) {
         if (filename == null || filename.isEmpty()) {
             return;
         }
         File soundFile = new File(filename);
-        InputStream in;
+        InputStream in = null;
         AudioStream as = null;
         AudioData data = null;
         try {
             if (ads != null) {
                 AudioPlayer.player.stop(ads);
+                ads.close();
+                ads = null;
             }
             in = new FileInputStream(soundFile);
             as = new AudioStream(in);
@@ -490,7 +506,27 @@ public abstract class AbstractSessionView<T extends IUser> extends
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to read sound file",
                     e);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+            try {
+                if (as != null) {
+                    as.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
         }
+    }
+
+    protected String getJoinFile() {
+        return Activator.getDefault().getPreferenceStore()
+                .getString(CollabPrefConstants.JOIN_FILE_FIELD_EDITOR_ID);
     }
 
     /*
@@ -545,6 +581,13 @@ public abstract class AbstractSessionView<T extends IUser> extends
             msgArchive = null;
         }
 
+        try {
+            if (ads != null) {
+                ads.close();
+            }
+        } catch (IOException e) {
+            // Ignore
+        }
         super.dispose();
     }
 
@@ -609,7 +652,7 @@ public abstract class AbstractSessionView<T extends IUser> extends
             public void run() {
                 Color color = Display.getCurrent().getSystemColor(swtColor);
                 Date date = new Date();
-                String time = dateFormatter.format(date);
+                String time = dateFormatter.get().format(date);
                 builder.insert(0, "(" + time + ") : ");
                 if (messagesText.getCharCount() != 0) {
                     builder.insert(0, "\n");
