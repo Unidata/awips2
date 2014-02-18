@@ -20,14 +20,15 @@ package com.raytheon.uf.viz.collaboration.ui;
  * further licensing information.
  **/
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.osgi.framework.BundleContext;
 
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -38,7 +39,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            rferrel     Initial creation
+ * Mar  1, 2012            rferrel     Initial creation
+ * Feb 19, 2014    2631    mpduff      Changed to use the HierarchicalPreferenceStore.
  * 
  * </pre>
  * 
@@ -56,7 +58,7 @@ public class Activator extends AbstractUIPlugin {
     // The shared instance
     private static Activator plugin;
 
-    private ScopedPreferenceStore prefs;
+    private IPersistentPreferenceStore prefs;
 
     /**
      * The constructor
@@ -71,6 +73,7 @@ public class Activator extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
@@ -83,6 +86,7 @@ public class Activator extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
         if (this.prefs != null) {
@@ -102,8 +106,15 @@ public class Activator extends AbstractUIPlugin {
 
     @Override
     public IPersistentPreferenceStore getPreferenceStore() {
-        if (prefs == null) {
-            prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, PLUGIN_ID);
+        try {
+            if (prefs == null) {
+                prefs = new HierarchicalPreferenceStore(this);
+            }
+        } catch (LocalizationException e) {
+            UFStatus.getHandler().handle(
+                    Priority.PROBLEM,
+                    "Error reading preference store: "
+                            + e.getLocalizedMessage(), e);
         }
 
         return prefs;
