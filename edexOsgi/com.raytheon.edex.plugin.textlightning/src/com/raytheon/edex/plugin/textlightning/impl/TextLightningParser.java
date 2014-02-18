@@ -45,6 +45,10 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
  * ------------ ---------- ----------- --------------------------
  * Dec 15, 2009       3983 jsanchez     Initial creation
  * Feb 27, 2013    DCS 152 jgerth/elau	Support for WWLLN
+ * Jan 27, 2014  DR 16080  M.Porricelli Changed LIGHTNING_PTRN_A
+ *                                      to accommodate AK BLM
+ *                                      lgtng intensities -999 to
+ *                                      999
  * 
  * </pre>
  * 
@@ -61,7 +65,10 @@ public class TextLightningParser {
     private List<LightningStrikePoint> reports;
     
     // 03/23/2010 13:35:01 72.00 -157.00 -14  1
-    private static final String LIGHTNING_PTRN_A = "(\\d{2,2}/\\d{2,2}/\\d{4,4}) (\\d{2,2}:\\d{2,2}:\\d{2,2})\\s{1,}(\\d{1,2}.\\d{2,2})\\s{1,}( |-\\d{1,3}.\\d{2,2})\\s{1,}( |-\\d{1,2})\\s{1,}(\\d{1,2})";
+    // 03/23/2010 13:35:01 72.00 -157.00 14  1
+    // 03/23/2010 13:35:01 72.00 -157.00 -142  1
+    // 03/23/2010 13:35:01 72.00 -157.00 142  1
+    private static final String LIGHTNING_PTRN_A = "(\\d{2,2}/\\d{2,2}/\\d{4,4}) (\\d{2,2}:\\d{2,2}:\\d{2,2})\\s{1,}(\\d{1,2}.\\d{2,2})\\s{1,}( |-\\d{1,3}.\\d{2,2})\\s{1,}(-?\\d{1,3})\\s{1,}(\\d{1,2})";
     private static final Pattern LTG_PTRN_A = Pattern.compile(LIGHTNING_PTRN_A);
 
     // 10:03:24:13:35:00.68 72.000 157.000   -14.2  1
