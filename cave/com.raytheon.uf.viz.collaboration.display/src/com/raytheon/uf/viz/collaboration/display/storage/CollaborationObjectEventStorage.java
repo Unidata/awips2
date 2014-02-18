@@ -19,11 +19,17 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.storage;
 
+import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -31,6 +37,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.message.BasicHeader;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
@@ -49,7 +56,9 @@ import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
- * Class responsible for object event storage. Will persist/retrieve objects
+ * Class responsible for object event storage. Will persist/retrieve objects.
+ * When listing remote directories, this client uses the HTTP Accepts header to
+ * prefer XML format, but also accepts HTML.
  * 
  * <pre>
  * 
@@ -58,6 +67,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            mschenke     Initial creation
+ * Feb 17, 2014 2756       bclement     added xml parsing for HTTP directory listing
  * 
  * </pre>
  * 
@@ -90,11 +100,19 @@ public class CollaborationObjectEventStorage implements
         return persistance;
     }
 
+    public static final String ACCEPTS_HEADER = "Accepts";
+
+    public static final String XML_CONTENT_TYPE = "text/xml";
+
+    public static final String HTML_CONTENT_TYPE = "text/html";
+
     private String sessionDataURL;
 
     private HttpClient client;
 
     private int displayId;
+
+    private final XMLInputFactory staxFactory = XMLInputFactory.newInstance();
 
     private CollaborationObjectEventStorage(ISharedDisplaySession session,
             int displayId) {
@@ -116,6 +134,7 @@ public class CollaborationObjectEventStorage implements
     public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event)
             throws CollaborationException {
         if (event instanceof ICreationEvent) {
+            // TODO this is for pre 14.3 compatibility
             createFolder(String.valueOf(event.getObjectId()));
         } else if (event instanceof DisposeObjectEvent) {
             // Do not delete anything off the server, users may still be
@@ -205,6 +224,13 @@ public class CollaborationObjectEventStorage implements
         }
     }
 
+    /**
+     * Execute get request for object stored at event's resource path
+     * 
+     * @param event
+     * @return null if object was deleted
+     * @throws CollaborationException
+     */
     private CollaborationHttpPersistedObject retreiveStoredObject(
             CollaborationHttpPersistedEvent event)
             throws CollaborationException {
@@ -213,9 +239,10 @@ public class CollaborationObjectEventStorage implements
         HttpClientResponse response = executeRequest(get);
         if (isSuccess(response.code)) {
             try {
-                CollaborationHttpPersistedObject dataObject = (CollaborationHttpPersistedObject) SerializationUtil
-                        .transformFromThrift(CompressionUtil
-                                .uncompress(response.data));
+                CollaborationHttpPersistedObject dataObject = SerializationUtil
+                        .transformFromThrift(
+                                CollaborationHttpPersistedObject.class,
+                                CompressionUtil.uncompress(response.data));
                 if (dataObject != null) {
                     dataObject.dataSize = response.data.length;
                 }
@@ -244,6 +271,8 @@ public class CollaborationObjectEventStorage implements
             throws CollaborationException {
         String objectPath = objectId + "/";
         HttpGet get = new HttpGet(sessionDataURL + objectPath);
+        get.addHeader(new BasicHeader(ACCEPTS_HEADER, XML_CONTENT_TYPE + ","
+                + HTML_CONTENT_TYPE));
         HttpClientResponse response = executeRequest(get);
         if (isSuccess(response.code) == false) {
             if (isNotExists(response.code)) {
@@ -252,38 +281,21 @@ public class CollaborationObjectEventStorage implements
             throw new CollaborationException("Error retrieving object ("
                     + objectId + ") events, received code: " + response.code);
         }
-        CollaborationHttpPersistedEvent event = new CollaborationHttpPersistedEvent();
-        List<CollaborationHttpPersistedObject> objectEvents = new ArrayList<CollaborationHttpPersistedObject>();
         // parse out links of objects
-        String htmlStr = new String(response.data);
-        int searchIdx = 0;
-        String searchStrStart = "<a href=\"";
-        String objectEnding = ".obj";
-        String searchStrEnd = "\">";
-        int searchStrLen = searchStrStart.length();
-        while (searchIdx > -1) {
-            int previousIdx = searchIdx;
-            int foundAt = htmlStr.indexOf(searchStrStart, searchIdx);
-            // reset searchIdx to -1 until found
-            searchIdx = -1;
-            if (foundAt > previousIdx) {
-                foundAt += searchStrLen;
-                int endsAt = htmlStr.indexOf(searchStrEnd, foundAt);
-                if (endsAt > foundAt) {
-                    String object = htmlStr.substring(foundAt, endsAt);
-                    if (object.endsWith(objectEnding)) {
-                        event.setResourcePath(objectPath + object);
-                        CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
-                        if (eventObject != null) {
-                            objectEvents.add(eventObject);
-                        } else {
-                            // Object was deleted, abort
-                            return new AbstractDispatchingObjectEvent[0];
-                        }
-                    }
-                    searchIdx = endsAt + 1;
-                }
+        List<CollaborationHttpPersistedObject> objectEvents;
+        try {
+            if (response.contentType != null
+                    && response.contentType.toLowerCase().contains("xml")) {
+                objectEvents = parseXmlResponseData(objectPath, response.data);
+            } else {
+                objectEvents = parseHtmlResponseData(objectPath, response.data);
             }
+        } catch (XMLStreamException e) {
+            throw new CollaborationException("Error parsing response data", e);
+        }
+        if (objectEvents == null) {
+            // Object was deleted, abort
+            return new AbstractDispatchingObjectEvent[0];
         }
 
         // Sort by creation time
@@ -306,10 +318,118 @@ public class CollaborationObjectEventStorage implements
         return events;
     }
 
+    /**
+     * Parse response from HTTP directory listing in xml format
+     * 
+     * @param objectPath
+     * @param responseData
+     * @return null if object was deleted
+     * @throws XMLStreamException
+     * @throws CollaborationException
+     */
+    private List<CollaborationHttpPersistedObject> parseXmlResponseData(
+            String objectPath, byte[] responseData) throws XMLStreamException,
+            CollaborationException {
+
+        CollaborationHttpPersistedEvent event = new CollaborationHttpPersistedEvent();
+        List<CollaborationHttpPersistedObject> objectEvents = new ArrayList<CollaborationHttpPersistedObject>();
+        String text;
+        boolean inFileTag = false;
+        XMLStreamReader reader = staxFactory
+                .createXMLStreamReader(new ByteArrayInputStream(responseData));
+        while (reader.hasNext()) {
+            int staxEvent = reader.next();
+            switch (staxEvent) {
+            case XMLStreamConstants.START_ELEMENT:
+                String localName = reader.getLocalName();
+                inFileTag = localName.equalsIgnoreCase("file");
+                break;
+            case XMLStreamConstants.CHARACTERS:
+                text = reader.getText().trim();
+                if (inFileTag && text.endsWith(".obj")) {
+                    event.setResourcePath(objectPath + text);
+                    CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
+                    if (eventObject != null) {
+                        objectEvents.add(eventObject);
+                    } else {
+                        // Object was deleted, abort
+                        return null;
+                    }
+                }
+            }
+        }
+        return objectEvents;
+    }
+
+    /**
+     * Parse httpd HTML directory listing response
+     * 
+     * @param objectPath
+     * @param responseData
+     * @return null if object was deleted
+     * @throws XMLStreamException
+     * @throws CollaborationException
+     */
+    private List<CollaborationHttpPersistedObject> parseHtmlResponseData(
+            String objectPath, byte[] responseData) throws XMLStreamException,
+            CollaborationException {
+        CollaborationHttpPersistedEvent event = new CollaborationHttpPersistedEvent();
+        List<CollaborationHttpPersistedObject> objectEvents = new ArrayList<CollaborationHttpPersistedObject>();
+        String htmlStr = new String(responseData);
+        int searchIdx = 0;
+        String searchStrStart = "<a href=\"";
+        String objectEnding = ".obj";
+        String searchStrEnd = "\">";
+        int searchStrLen = searchStrStart.length();
+        while (searchIdx > -1) {
+            int previousIdx = searchIdx;
+            int foundAt = htmlStr.indexOf(searchStrStart, searchIdx);
+            // reset searchIdx to -1 until found
+            searchIdx = -1;
+            if (foundAt > previousIdx) {
+                foundAt += searchStrLen;
+                int endsAt = htmlStr.indexOf(searchStrEnd, foundAt);
+                if (endsAt > foundAt) {
+                    String object = htmlStr.substring(foundAt, endsAt);
+                    if (object.endsWith(objectEnding)) {
+                        event.setResourcePath(objectPath + object);
+                        CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
+                        if (eventObject != null) {
+                            objectEvents.add(eventObject);
+                        } else {
+                            // Object was deleted, abort
+                            return null;
+                        }
+                    }
+                    searchIdx = endsAt + 1;
+                }
+            }
+        }
+        return objectEvents;
+    }
+
+    /**
+     * Perform a MKCOL operation on httpd with DAV module.
+     * 
+     * @deprecated MKCOL is only required for DAV (pre 14.3)
+     * 
+     * @param folderPath
+     * @throws CollaborationException
+     */
+    @Deprecated
     private void createFolder(String folderPath) throws CollaborationException {
         createFolder(URI.create(sessionDataURL + folderPath));
     }
 
+    /**
+     * Perform a MKCOL operation on httpd with DAV module.
+     * 
+     * @deprecated MKCOL is only required for DAV (pre 14.3)
+     * 
+     * @param folderPath
+     * @throws CollaborationException
+     */
+    @Deprecated
     private void createFolder(URI folderPath) throws CollaborationException {
         HttpRequestBase mkcol = new HttpRequestBase() {
             @Override
@@ -325,6 +445,12 @@ public class CollaborationObjectEventStorage implements
         }
     }
 
+    /**
+     * Delete all files at and below uri
+     * 
+     * @param uri
+     * @throws CollaborationException
+     */
     private void deleteResource(URI uri) throws CollaborationException {
         HttpClientResponse rsp = executeRequest(new HttpDelete(uri));
         // If request was success or resource doesn't exist, we are good
@@ -334,6 +460,13 @@ public class CollaborationObjectEventStorage implements
         }
     }
 
+    /**
+     * Execute HTTP request
+     * 
+     * @param request
+     * @return
+     * @throws CollaborationException
+     */
     private HttpClientResponse executeRequest(HttpUriRequest request)
             throws CollaborationException {
         try {
@@ -343,14 +476,30 @@ public class CollaborationObjectEventStorage implements
         }
     }
 
+    /**
+     * @param code
+     * @return true if code is a 200 level return code
+     */
     private boolean isSuccess(int code) {
         return code >= 200 && code < 300;
     }
 
+    /**
+     * @param code
+     * @return true if resource does not exist on server
+     */
     private boolean isNotExists(int code) {
         return code == 404 || code == 410;
     }
 
+    /**
+     * @deprecated this error is related to MKCOL. MKCOL is only required for
+     *             DAV (pre 14.3)
+     * 
+     * @param code
+     * @return true if directory alread exists on server
+     */
+    @Deprecated
     private boolean isDirExists(int code) {
         return code == 405 || code == 301;
     }
