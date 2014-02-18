@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.ogc.common.http;
+package com.raytheon.uf.common.http;
 
 /**
  * Represents a single HTTP accept(-encoding) header encoding with weight value
@@ -29,6 +29,7 @@ package com.raytheon.uf.edex.ogc.common.http;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 8, 2013  2539       bclement     Initial creation
+ * Feb 14, 2014 2756       bclement     moved to common http from ogc common
  * 
  * </pre>
  * 
