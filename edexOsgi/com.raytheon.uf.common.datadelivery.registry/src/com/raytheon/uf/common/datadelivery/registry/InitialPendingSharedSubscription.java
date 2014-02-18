@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -43,6 +44,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Sept 30, 2013 1797      dhladky     Generics
  * Oct 23, 2013   2484     dhladky     Unique ID for subscriptions updated.
  * Nov 14, 2013   2548     mpduff      Add a subscription type slot.
+ * Feb 18, 2013  2786      dhladky     Forgot this one in version changes.
  * 
  * </pre>
  * 
@@ -57,6 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         Subscription.OWNER_SLOT,
         InitialPendingSubscription.CHANGE_REQUEST_ID_SLOT,
         Subscription.ORIGINATING_SITE_SLOT, Subscription.SUBSCRIPTION_TYPE_SLOT })
+@RegistryObjectVersion(value = 1.0f)
 public class InitialPendingSharedSubscription<T extends Time, C extends Coverage>
         extends SharedSubscription<T, C> implements
         InitialPendingSubscription<T, C> {
