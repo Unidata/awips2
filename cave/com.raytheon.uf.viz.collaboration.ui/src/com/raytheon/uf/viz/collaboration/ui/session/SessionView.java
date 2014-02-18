@@ -78,7 +78,9 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
@@ -97,6 +99,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 19, 2013 2563       bclement    reworked participant event logic
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
  * 
  * </pre>
  * 
@@ -452,7 +455,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, VenueParticipant userId, String subject,
             List<StyleRange> ranges) {
-        RGB rgb = colorManager.getColorFromUser((VenueParticipant) userId);
+        RGB rgb = colorManager.getColorFromUser(userId);
         if (mappedColors.get(rgb) == null) {
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
@@ -627,6 +630,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
                 switch (type) {
                 case ARRIVED:
                     participantArrived(participant, description);
+                    processJoinAlert();
                     break;
                 case DEPARTED:
                     participantDeparted(participant, description);
@@ -777,4 +781,14 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         return userId.getHandle();
     }
 
+    /**
+     * Process a room join alert.
+     */
+    protected void processJoinAlert() {
+        boolean enabled = Activator.getDefault().getPreferenceStore()
+                .getBoolean(CollabPrefConstants.ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID);
+        if (enabled) {
+            this.playSound(getJoinFile());
+        }
+    }
 }
