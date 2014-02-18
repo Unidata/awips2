@@ -33,6 +33,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 11, 2014            njensen     Initial creation
+ * Feb 19, 2014 2751       bclement    added oldLeader field
  * 
  * </pre>
  * 
@@ -46,12 +47,17 @@ public class LeaderChangeEvent {
     @DynamicSerializeElement
     private VenueParticipant newLeader;
 
+    @DynamicSerializeElement
+    private VenueParticipant oldLeader;
+
     public LeaderChangeEvent() {
 
     }
 
-    public LeaderChangeEvent(VenueParticipant newLeader) {
+    public LeaderChangeEvent(VenueParticipant newLeader,
+            VenueParticipant oldLeader) {
         this.newLeader = newLeader;
+        this.oldLeader = oldLeader;
     }
 
     public VenueParticipant getNewLeader() {
@@ -60,6 +66,21 @@ public class LeaderChangeEvent {
 
     public void setNewLeader(VenueParticipant newLeader) {
         this.newLeader = newLeader;
+    }
+
+    /**
+     * @return the oldLeader
+     */
+    public VenueParticipant getOldLeader() {
+        return oldLeader;
+    }
+
+    /**
+     * @param oldLeader
+     *            the oldLeader to set
+     */
+    public void setOldLeader(VenueParticipant oldLeader) {
+        this.oldLeader = oldLeader;
     }
 
 }

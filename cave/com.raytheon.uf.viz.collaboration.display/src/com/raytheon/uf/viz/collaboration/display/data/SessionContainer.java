@@ -135,9 +135,7 @@ public class SessionContainer {
         // for now (and possibly forever) we are not allowing capabilities to be
         // transferred separately
         VenueParticipant newLeader = event.getNewLeader();
-        VenueParticipant oldLeader = session.getCurrentDataProvider();
-        session.setCurrentDataProvider(newLeader);
-        session.setCurrentSessionLeader(newLeader);
+        VenueParticipant oldLeader = event.getOldLeader();
 
         if (session.getUserID().isSameUser(oldLeader)) {
             // just gave up our leadership
