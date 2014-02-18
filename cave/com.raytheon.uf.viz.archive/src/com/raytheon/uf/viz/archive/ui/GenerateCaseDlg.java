@@ -81,6 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     archive and category directory and 
  *                                     implementation of compression.
  * Oct 08, 2013 2442       rferrel     Remove category directory.
+ * Feb 04, 2013 2270       rferrel     Move HDF files to parent's directory.
  * 
  * </pre>
  * 
@@ -89,6 +90,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class GenerateCaseDlg extends CaveSWTDialog {
+
+    /** Extension for HDF files. */
+    private static final String hdfExt = ".h5";
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GenerateCaseDlg.class);
 
@@ -539,6 +544,11 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                             new File(destination, file));
                 }
             } else {
+                // DR 2270 bump HDF files up a directory.
+                if (destination.getName().endsWith(hdfExt)) {
+                    destination = new File(destination.getParentFile()
+                            .getParentFile(), destination.getName());
+                }
                 FileUtil.copyFile(source, destination);
                 destination.setLastModified(source.lastModified());
             }
@@ -652,6 +662,13 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                         addTarFiles(file.listFiles());
                     }
                 } else {
+                    // DR 2270 bump HDF files up a directory.
+                    if (name.endsWith(hdfExt)) {
+                        File destination = new File(file.getParentFile()
+                                .getParentFile(), file.getName());
+                        name = destination.getAbsolutePath().substring(
+                                startRelativePath);
+                    }
                     TarArchiveEntry entry = new TarArchiveEntry(file, name);
                     entry.setSize(file.length());
                     FileInputStream fileStream = null;
