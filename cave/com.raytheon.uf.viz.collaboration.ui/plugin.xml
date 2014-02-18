@@ -162,6 +162,11 @@
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationalertwordspreferencepage"
             name="Significant Words"
             category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationRoomChangePreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationroomchangepreferencepage"
+            name="Room Alerts"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 	<extension
           point="org.eclipse.ui.contexts">
