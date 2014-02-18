@@ -139,7 +139,7 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setUnit(radarRecord.getDataUnit());
         defaultGridData.setLevel(getTiltLevel(radarRecord
                 .getPrimaryElevationAngle()));
-        defaultGridData.setLocationName(radarRecord.getIcao());
+        defaultGridData.setLocationName(generateLocationName(radarRecord));
 
         Map<String, Object> attributes = new HashMap<String, Object>();
         attributes.put(ICAO, radarRecord.getIcao());
@@ -148,6 +148,38 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         defaultGridData.setAttributes(attributes);
 
         return defaultGridData;
+    }
+
+    /**
+     * Get a unique name describing the location of the radar data. The name
+     * always includes icao, elevation angle, num bins and num radials. For
+     * radial data it also includes the first and last angle of the radial data.
+     * Theoretically two radial geometries could have the same name but
+     * internally different angleData but this is very unlikely and the points
+     * would be very nearly identical.
+     * 
+     * 
+     * @param radarRecord
+     *            a record.
+     * @return A unique location name
+     */
+    protected String generateLocationName(RadarRecord radarRecord){
+        StringBuilder locationName = new StringBuilder(32);
+        locationName.append(radarRecord.getIcao());
+        locationName.append("_");
+        locationName.append(radarRecord.getTrueElevationAngle());
+        locationName.append("_");
+        locationName.append(radarRecord.getNumBins());
+        locationName.append("_");
+        locationName.append(radarRecord.getNumRadials());
+        float[] angleData = radarRecord.getAngleData();
+        if (angleData != null) {
+            locationName.append("_");
+            locationName.append(angleData[0]);
+            locationName.append("_");
+            locationName.append(angleData[angleData.length - 1]);
+        }
+        return locationName.toString();
     }
 
     protected RadarRecord asRadarRecord(PluginDataObject pdo) {
