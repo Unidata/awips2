@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.wfs.request;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * Abstract base for WFS request wrappers
