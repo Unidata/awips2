@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import java.net.URI;
+import java.net.URL;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
@@ -27,9 +30,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
@@ -38,6 +42,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.HttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Listens for peer to peer messages and routes them appropriately.
@@ -54,6 +59,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  *                                     data now in packet extension
  * Dec 19, 2013 2563       bclement    removed wait for HTTP config, added reset
  * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
+ * Feb 17, 2014 2756       bclement    null check for message from field
+ *                                      moved url validation from regex to java utility
  * 
  * </pre>
  * 
@@ -67,7 +74,7 @@ public class PeerToPeerCommHelper implements PacketListener {
             .getHandler(PeerToPeerCommHelper.class);
 
     private static volatile String httpServer;
-    
+
     /**
      * Get HTTP server address. This value will be updated if the server sends
      * new HTTP configuration. If this address is null, the server most likely
@@ -101,7 +108,14 @@ public class PeerToPeerCommHelper implements PacketListener {
     public void processPacket(Packet packet) {
         if (packet instanceof Message) {
             Message msg = (Message) packet;
-            if (IDConverter.isFromRoom(msg.getFrom())) {
+            String fromStr = msg.getFrom();
+            if (fromStr == null) {
+                // from server
+                UserId account = CollaborationConnection.getConnection()
+                        .getUser();
+                fromStr = account.getHost();
+            }
+            if (IDConverter.isFromRoom(fromStr)) {
                 // venues will have their own listeners
                 return;
             }
@@ -204,11 +218,11 @@ public class PeerToPeerCommHelper implements PacketListener {
      */
     private void handleConfiguration(String body) {
         // Determine if an error has occurred.
-        if (IHttpdXmppMessage.configErrorPattern.matcher(body).matches()) {
+        if (IHttpXmppMessage.configErrorPattern.matcher(body).matches()) {
             statusHandler.handle(
                     UFStatus.Priority.ERROR,
                     this.getCollaborationConfigurationParameterValue(body,
-                            IHttpdXmppMessage.ERROR_PARAMETER_NAME)
+                            IHttpXmppMessage.ERROR_PARAMETER_NAME)
                             + ". Shared Display Sessions have been disabled.");
             this.disableSharedDisplaySession();
             // terminate execution
@@ -216,7 +230,7 @@ public class PeerToPeerCommHelper implements PacketListener {
         }
 
         // Validate the configuration.
-        if (IHttpdXmppMessage.configURLPattern.matcher(body).matches() == false) {
+        if (IHttpXmppMessage.configURLPattern.matcher(body).matches() == false) {
             statusHandler
                     .handle(UFStatus.Priority.PROBLEM,
                             "Received invalid configuration from openfire. Shared Display Sessions have been disabled.");
@@ -225,24 +239,32 @@ public class PeerToPeerCommHelper implements PacketListener {
         }
 
         // Remove the parameter name.
-        String httpdCollaborationURL = this
+        String httpCollaborationURL = this
                 .getCollaborationConfigurationParameterValue(body,
-                        IHttpdXmppMessage.URL_PARAMETER_NAME);
+                        IHttpXmppMessage.URL_PARAMETER_NAME);
         // validate the url.
-        if (IHttpdXmppMessage.urlPattern.matcher(httpdCollaborationURL)
-                .matches() == false) {
+        try {
+            URL u = new URL(httpCollaborationURL);
+            URI uri = u.toURI();
+            if (!uri.getScheme().equalsIgnoreCase("http")) {
+                throw new CollaborationException(
+                        "Provided URL doesn't use the HTTP scheme");
+            }
+        } catch (Exception e) {
             statusHandler.handle(UFStatus.Priority.PROBLEM,
                     "Received an invalid http url from openfire - "
-                            + httpdCollaborationURL
-                            + ". Shared Display Sessions have been disabled.");
+                            + httpCollaborationURL
+                            + ". Shared Display Sessions have been disabled.",
+                    e);
             this.disableSharedDisplaySession();
             return;
         }
 
-        httpServer = httpdCollaborationURL;
+
+        httpServer = httpCollaborationURL;
         // configuration is valid; publish it.
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
-                httpdCollaborationURL);
+                httpCollaborationURL);
         manager.postEvent(configurationEvent);
     }
 
