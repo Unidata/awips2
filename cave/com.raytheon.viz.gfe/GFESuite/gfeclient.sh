@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # CAVE startup script
 # Note: CAVE will not run as 'root'
 
@@ -25,8 +24,6 @@
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
-# Dec 04, 2013  #2589     dgilling    Create command-line arg that controls
-#                                     xvfb initialization.
 # Dec 05, 2013  #2593     rjpeter     set IGNORE_NUM_CAVES
 # Dec 05, 2013  #2590     dgilling    Remove duplicated code and call to 
 #                                     cave.sh.
@@ -50,28 +47,12 @@ fi
 
 PROGRAM_NAME="gfeclient"
 
-# remove "-enablegl" flag from command-line if set so it doesn't confuse any
-# commands we call later.
-USER_ARGS=()
-while [[ $1 ]]
-do
-    if [ "$1" == "-enablegl" ]
-    then
-        ENABLEGL="true"
-    else
-        USER_ARGS+=("$1")
-    fi
-    shift
-done
-
-if [ -n "$ENABLEGL" ]
+# if display not set
+if [ -n "$DISPLAY" ]
 then
-    # if display not set
-    if [ -n "$DISPLAY" ]
-    then
         echo "Using Display set to $DISPLAY"
         extendLibraryPath
-    else
+else
         echo "Display not set, creating offscreen x on port $$"
         extendLibraryPath "-noX"
         Xvfb :$$ -screen 0 1280x1024x24 &
@@ -79,13 +60,12 @@ then
         export DISPLAY="localhost:$$.0"
         #don't use shader when no display set 
         SWITCHES="${SWITCHES} -no_shader"
-    fi
 fi
 
 export IGNORE_NUM_CAVES=1
 
-source /awips2/cave/cave.sh -nosplash -noredirect -component gfeclient "${USER_ARGS[@]}" &
-wait
+source /awips2/cave/cave.sh -nosplash -noredirect -component gfeclient "$@" &
+wait $!
 
 if [ -n "$xvfb" ]
 then
