@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.IRemoteDisplayChangedListener;
@@ -94,6 +95,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 12, 2014 2751       njensen     Added transfer leadership and shutdown safety
+ * Feb 18, 2014 2751       bclement    update participants list and notify on leader change
  * 
  * </pre>
  * 
@@ -835,11 +837,23 @@ public class CollaborationSessionView extends SessionView implements
         if (newDisplayContainer != null) {
             newDisplayContainer.addRemoteDisplayChangedListener(this);
         }
-
-        // this really only happens when the leader changes, so refresh
-        if (this.usersTable != null && !usersTable.getTable().isDisposed()) {
-            this.usersTable.refresh();
-        }
-        updateToolItems();
     }
+
+    @Subscribe
+    public void leaderChanged(final LeaderChangeEvent event) {
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                if (usersTable != null
+                        && !usersTable.getTable().isDisposed()) {
+                    usersTable.setInput(session.getVenue().getParticipants());
+                    usersTable.refresh();
+                }
+                sendParticipantSystemMessage(event.getNewLeader(),
+                        " is now leader.");
+                updateToolItems();
+            }
+        });
+    }
+
 }
