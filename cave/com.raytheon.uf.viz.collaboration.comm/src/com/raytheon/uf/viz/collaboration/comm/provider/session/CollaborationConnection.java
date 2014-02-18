@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Connection;
@@ -65,6 +66,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -110,6 +112,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 30, 2014 2698       bclement    changed arguments to create sessions, moved room connection from SessionView
  * Feb  3, 2014 2699       bclement    removed unneeded catch in joinTextOnlyVenue
  * Feb 13, 2014 2751       bclement    better types for venueid and invitor
+ * Feb 18, 2014 2793       bclement    improved disconnection notification and handling
  * 
  * </pre>
  * 
@@ -322,7 +325,9 @@ public class CollaborationConnection implements IEventPublisher {
 
             chatInstance = null;
             // Get rid of the account and roster managers
-            connection.disconnect();
+            if (connection.isConnected()) {
+                connection.disconnect();
+            }
             connection = null;
         }
         PeerToPeerCommHelper.reset();
@@ -548,6 +553,7 @@ public class CollaborationConnection implements IEventPublisher {
                 @Override
                 public void reconnectionSuccessful() {
                     statusHandler.debug("Client successfully reconnected to server");
+                    postSystemMessageToVenues("Connection to collaboration server reestablished.");
                 }
                 
                 @Override
@@ -567,7 +573,8 @@ public class CollaborationConnection implements IEventPublisher {
                 public void connectionClosedOnError(Exception e) {
                     String reason = getErrorReason(e);
                     statusHandler.error("Server closed on error: " + reason, e);
-                    sendDisconnectNotice(reason);
+                    // don't shutdown yet, we might be able to reconnect
+                    postSystemMessageToVenues("Not currently connected to collaboration server.");
                 }
 
                 private String getErrorReason(Exception e) {
@@ -733,12 +740,32 @@ public class CollaborationConnection implements IEventPublisher {
         }
     }
 
+    /**
+     * @return Smack connection object
+     */
     protected XMPPConnection getXmppConnection() {
         return connection;
     }
 
+    /**
+     * Construct a new UserSearch object
+     * 
+     * @return
+     */
     public UserSearch createSearch() {
         return new UserSearch(connection);
+    }
+
+    /**
+     * Post a system message to all venue windows this client has. This is for
+     * local system messages, it does not go out to the server.
+     * 
+     * @param message
+     */
+    public void postSystemMessageToVenues(String message) {
+        for (Entry<String, ISession> entry : sessions.entrySet()) {
+            entry.getValue().postEvent(new VenueUserEvent(message));
+        }
     }
 
 }
