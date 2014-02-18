@@ -7,7 +7,7 @@
  * in and to this copyrighted software are as specified in DFARS
  * 252.227-7014 which was made part of the above contract. 
  */
-package com.raytheon.uf.edex.ogc.common.http;
+package com.raytheon.uf.common.http;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Data object representing a MIME type used in service requests
+ * Data object representing a MIME type used in http requests
  * 
  * <pre>
  * 
@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 29, 2012            bclement     Initial creation
+ * Feb 14, 2014 2756       bclement     moved to common http from ogc common
  * 
  * </pre>
  * 
@@ -50,6 +51,9 @@ public class MimeType {
     private static final Pattern PARAM_PATTERN = Pattern.compile(";\\s*("
             + TOKEN_CLASS + "+)=(" + TOKEN_CLASS + "+|\"\\S+\")");
     
+    /**
+     * @param mime
+     */
     public MimeType(String mime){
         Matcher m = TYPE_PATTERN.matcher(mime);
         if (m.matches()) {
@@ -70,6 +74,12 @@ public class MimeType {
         }
     }
 
+    /**
+     * Parse parameter string into name/value pairs
+     * 
+     * @param paramStr
+     * @return
+     */
     private static Map<String, String> getParameters(String paramStr) {
         Matcher m = PARAM_PATTERN.matcher(paramStr);
         Map<String, String> rval = new LinkedHashMap<String, String>();
@@ -141,6 +151,10 @@ public class MimeType {
         return true;
     }
 
+    /**
+     * @param other
+     * @return true if the mime type equals this one ignoring any parameters
+     */
     public boolean equalsIgnoreParams(MimeType other) {
         if (other == null) {
             return false;
@@ -166,10 +180,18 @@ public class MimeType {
         return parameters.get(paramName.toLowerCase());
     }
 
+    /**
+     * @return the number of parameters this mime type has
+     */
     public int getNumParams() {
         return parameters.size();
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder(toStringWithoutParams());
@@ -186,6 +208,11 @@ public class MimeType {
         return sb.toString();
     }
 
+    /**
+     * Format mime type excluding any parameters
+     * 
+     * @return
+     */
     public String toStringWithoutParams() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.type).append("/");
