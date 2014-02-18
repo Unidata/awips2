@@ -47,11 +47,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
 
 import sun.misc.IOUtils;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 
 /**
  * Convert simple features to shape files
