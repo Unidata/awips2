@@ -220,7 +220,7 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
             return getViewSite().getSecondaryId();
         } else if (peer instanceof UserId) {
             return CollaborationConnection.getConnection().getContactsManager()
-                    .getDisplayName((UserId) peer);
+                    .getDisplayName(peer);
         } else {
             return peer.getFQName();
         }
