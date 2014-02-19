@@ -94,6 +94,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                     improved error handling for when room already exists
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, added handle
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 18, 2014 2751       bclement    Fixed history message 'from' type
  * 
  * </pre>
  * 
@@ -738,21 +739,21 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     String timeString = vars[0]
                             .substring(SEND_HISTORY.length());
                     long time = Long.parseLong(timeString);
-                    String username = vars[1];
+                    String msgHandle = vars[1];
                     String site = vars[2];
                     // add the SEND_HISTORY tag length, and the timestamp
                     // length, username length, and the site length plus the
                     // three pipe characters
                     String moddedBody = body.substring(SEND_HISTORY.length()
-                            + timeString.length() + username.length()
+                            + timeString.length() + msgHandle.length()
                             + site.length() + 3);
                     message.setBody(moddedBody);
                     TextMessage msg = new TextMessage(message.getFrom(),
                             message.getBody());
                     UserId account = CollaborationConnection.getConnection()
                             .getUser();
-                    UserId id = new UserId(username, account.getHost());
-                    msg.setFrom(id);
+                    msg.setFrom(new VenueParticipant(this.venue.getName(),
+                            getQualifiedHost(account.getHost()), msgHandle));
                     msg.setTimeStamp(time);
                     msg.setSubject(site);
                     msg.setStatus(SEND_HISTORY);
