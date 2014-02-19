@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Localization Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.localization
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0
 Bundle-Vendor: Raytheon
 Require-Bundle: org.apache.commons.lang,
  com.raytheon.uf.common.serialization,
@@ -16,5 +16,8 @@ Export-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.localization.exception,
  com.raytheon.uf.common.localization.msgs,
  com.raytheon.uf.common.localization.overrides,
+ com.raytheon.uf.common.localization.region,
  com.raytheon.uf.common.localization.stream
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: resources/,
+ .
