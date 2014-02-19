@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Jan 08, 2014 2615       bgonzale    Added Calendar min and max methods.
  *                                     Added newGmtCalendar from a date method.
  * Jan 28, 2014  2636      mpduff      Removed unused methods.
+ * Feb 19, 2014  2631      mpduff      Added buildThreadLocalSimpleDateFormat(String, TimeZone).
  * </pre>
  * 
  * @author njensen
@@ -623,4 +624,28 @@ public final class TimeUtil {
         return calendar;
     }
 
+    /**
+     * Get aThreadLocal<SimpleDateFormat> object.
+     * 
+     * @param format
+     *            The date format
+     * @param timezone
+     *            The timezone for the formatter
+     * 
+     * @return ThreadLocal<SimpleDateFormat> object
+     */
+    public static ThreadLocal<SimpleDateFormat> buildThreadLocalSimpleDateFormat(
+            final String format, final TimeZone timezone) {
+        ThreadLocal<SimpleDateFormat> dateFormatter = new ThreadLocal<SimpleDateFormat>() {
+
+            @Override
+            protected SimpleDateFormat initialValue() {
+                SimpleDateFormat sdf = new SimpleDateFormat(format);
+                sdf.setTimeZone(timezone);
+                return sdf;
+            }
+        };
+
+        return dateFormatter;
+    }
 }

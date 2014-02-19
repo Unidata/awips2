@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jan 08, 2014 2563       bclement    changes to match SiteConfigurationManager user sites config
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class SessionFeedView extends SessionView {
 
     private List<String> enabledSites;
 
-    private List<String> userEnabledSites;
+    private final List<String> userEnabledSites;
 
     private List<SiteColor> colors;
 
@@ -183,12 +184,14 @@ public class SessionFeedView extends SessionView {
                 });
 
         userAddSiteAction = new Action("Subscribe") {
+            @Override
             public void run() {
                 userEnabledSites.add(getSelectedSite());
             };
         };
 
         userRemoveSiteAction = new Action("Unsubscribe") {
+            @Override
             public void run() {
                 userEnabledSites.remove(getSelectedSite());
             }
@@ -292,8 +295,7 @@ public class SessionFeedView extends SessionView {
         VenueParticipant selectedEntry = (VenueParticipant) selection
                 .getFirstElement();
         Presence pres = session.getVenue().getPresence(selectedEntry);
-        Object selectedSite = pres.getProperty(
-                SiteConfigInformation.SITE_NAME);
+        Object selectedSite = pres.getProperty(SiteConfigInformation.SITE_NAME);
         return selectedSite == null ? "" : selectedSite.toString();
     }
 
@@ -319,8 +321,7 @@ public class SessionFeedView extends SessionView {
         if (presence == null) {
             return;
         }
-        Object site = presence.getProperty(
-                SiteConfigInformation.SITE_NAME);
+        Object site = presence.getProperty(SiteConfigInformation.SITE_NAME);
         if (site != null) {
             setColorForSite(id, site.toString());
         }
@@ -397,6 +398,25 @@ public class SessionFeedView extends SessionView {
             Presence presence) {
         setColorForSite(participant, presence);
         super.participantPresenceUpdated(participant, presence);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#processJoinAlert
+     * ()
+     */
+    @Override
+    protected void processJoinAlert() {
+        boolean includeFeed = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getBoolean(
+                        CollabPrefConstants.INCLUDE_NWS_FEED_FIELD_EDITOR_ID);
+        if (includeFeed) {
+            super.processJoinAlert();
+        }
     }
 
     /*
