@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 12, 2014 2793       bclement    added additional null check to sendObjectToVenue
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Added changeLeader()
+ * Feb 19, 2014 2751       bclement    added isClosed()
  * 
  * </pre>
  * 
@@ -101,6 +102,8 @@ public class SharedDisplaySession extends VenueSession implements
     private LeafNode topic;
 
     private XMPPConnection conn;
+
+    private boolean closed = false;
 
     public SharedDisplaySession(EventBus externalBus,
             CollaborationConnection manager) {
@@ -175,7 +178,8 @@ public class SharedDisplaySession extends VenueSession implements
             return;
         }
         if (topic == null) {
-            log.warn("Attempted to send object when topic not configured");
+            log.warn("Attempted to send object when topic not configured: "
+                    + obj);
             return;
         }
         SessionPayload payload = new SessionPayload(PayloadType.Command, obj);
@@ -437,10 +441,10 @@ public class SharedDisplaySession extends VenueSession implements
     @Override
     public void close() {
         super.close();
-        if (pubsubMgr == null || topic == null || !topicExists()) {
-            return;
-        }
         try {
+            if (pubsubMgr == null || topic == null || !topicExists()) {
+                return;
+            }
             Subscription sub = findSubscription(getAccount());
             if (sub == null) {
                 return;
@@ -455,6 +459,10 @@ public class SharedDisplaySession extends VenueSession implements
             pubsubMgr = null;
         } catch (XMPPException e) {
             log.error("Unable to close subscription", e);
+        } finally {
+            // if an error happens, we still want to advertise that we were
+            // closed
+            closed = true;
         }
     }
 
@@ -530,6 +538,18 @@ public class SharedDisplaySession extends VenueSession implements
             }
             throw new CollaborationException("Error transferring leadership", e);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession
+     * #isClosed()
+     */
+    @Override
+    public boolean isClosed() {
+        return closed;
     }
 
 }
