@@ -113,6 +113,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 22, 2013      #1641 randerso     Moved ID_ATTRIBUTE_NAME to package scope
  * Jul 24, 2013      #1907 randerso     Fixed sampling when cropped
  * Jul 24, 2013      #1908 randerso     Update attributes when cropped
+ * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * 
  * </pre>
  * 
