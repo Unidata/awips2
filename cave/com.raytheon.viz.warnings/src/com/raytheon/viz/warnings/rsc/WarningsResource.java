@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     Removed no longer needed frameAltered. Do not set wire frame for a CAN.
  * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
+ * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * </pre>
  * 
  * @author jsanchez
@@ -116,7 +117,7 @@ public class WarningsResource extends AbstractWWAResource {
     protected void initInternal(IGraphicsTarget target) throws VizException {
         FramesInfo info = descriptor.getFramesInfo();
         DataTime[] times = info.getFrameTimes();
-        if (times != null && times.length > 0) {
+        if ((times != null) && (times.length > 0)) {
             // Request data for "earliest" time
             requestData(times[0]);
         }
@@ -165,9 +166,9 @@ public class WarningsResource extends AbstractWWAResource {
                 }
             }
         } else if (type == ChangeType.CAPABILITY) {
-            if (color != null
-                    && color.equals(getCapability((ColorableCapability.class))
-                            .getColor()) == false) {
+            if ((color != null)
+                    && (color.equals(getCapability((ColorableCapability.class))
+                            .getColor()) == false)) {
                 color = getCapability((ColorableCapability.class)).getColor();
 
                 // TODO this needs to be fixed to work with watches which are
@@ -212,7 +213,7 @@ public class WarningsResource extends AbstractWWAResource {
                 // Do not paint a wire frame shape for a CAN
                 if (act != WarningAction.CAN) {
                     wfs = target.createWireframeShape(false, descriptor);
-                    geo = (Geometry) record.getGeometry().clone();
+                    geo = record.getGeometry();
 
                     JTSCompiler jtsCompiler = new JTSCompiler(null, wfs,
                             descriptor);
@@ -238,8 +239,8 @@ public class WarningsResource extends AbstractWWAResource {
             DataTime[] frames = info.getFrameTimes();
             for (AbstractWarningRecord warnrec : recordsToLoad) {
                 WarningAction act = WarningAction.valueOf(warnrec.getAct());
-                if (act == WarningAction.CON || act == WarningAction.CAN
-                        || act == WarningAction.EXT) {
+                if ((act == WarningAction.CON) || (act == WarningAction.CAN)
+                        || (act == WarningAction.EXT)) {
                     AbstractWarningRecord createShape = null;
                     for (String key : entryMap.keySet()) {
                         WarningEntry entry = entryMap.get(key);
@@ -274,8 +275,8 @@ public class WarningsResource extends AbstractWWAResource {
                                 // if it's a con, need to have a new entry for a
                                 // new
                                 // polygon
-                                if (act == WarningAction.CON
-                                        || act == WarningAction.EXT) {
+                                if ((act == WarningAction.CON)
+                                        || (act == WarningAction.EXT)) {
                                     createShape = warnrec;
                                 }
                             } else if ((entry.altered && entry.partialCancel)) {

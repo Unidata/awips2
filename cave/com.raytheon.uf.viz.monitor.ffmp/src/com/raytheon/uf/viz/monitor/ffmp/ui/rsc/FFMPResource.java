@@ -173,8 +173,10 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
+ * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
  * 
  * </pre>
+ * 
  * @author dhladky
  * @version 1.0
  */
@@ -1203,8 +1205,8 @@ public class FFMPResource extends
     @Override
     protected void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
-        if (getTimeOrderedKeys() == null || getTimeOrderedKeys().isEmpty()
-                || getDomains() == null) {
+        if ((getTimeOrderedKeys() == null) || getTimeOrderedKeys().isEmpty()
+                || (getDomains() == null)) {
             return;
         }
 
@@ -1252,12 +1254,12 @@ public class FFMPResource extends
         if ((drawable != null) && drawable.isDirty()) {
             // only need to do the query if extent changed, pfafs may be
             // fine
-            if (!isFirst || queryJob.getState() == Job.NONE) {
+            if (!isFirst || (queryJob.getState() == Job.NONE)) {
                 queryJob.request(aTarget, drawable, paintTime);
             }
         }
 
-        if (drawable != null && isFfmpDataToggle()) {
+        if ((drawable != null) && isFfmpDataToggle()) {
             IColormapShadedShapeExtension ext = aTarget
                     .getExtension(IColormapShadedShapeExtension.class);
             ImagingCapability imageCap = getCapability(ImagingCapability.class);
@@ -1268,7 +1270,7 @@ public class FFMPResource extends
                 IColormapShadedShape shape = shadedShapes.getDrawableShape(cwa,
                         drawable.getShadedHuc());
                 Map<Object, RGB> colorMap = drawable.getColorMap(cwa);
-                if (shape != null && colorMap != null) {
+                if ((shape != null) && (colorMap != null)) {
                     ext.drawColormapShadedShape(shape, colorMap, alpha,
                             brightness);
                 }
@@ -1319,7 +1321,7 @@ public class FFMPResource extends
             }
 
             // the product string
-            if (isFfmpDataToggle() && fieldDescString != null) {
+            if (isFfmpDataToggle() && (fieldDescString != null)) {
                 paintProductString(aTarget, paintProps);
             }
         }
@@ -1558,7 +1560,7 @@ public class FFMPResource extends
             FFMPBasinMetaData metaBasin = monitor.getTemplates(getSiteKey())
                     .findBasinByLatLon(getSiteKey(), coord.asLatLon());
             if (getHuc().equals(FFMPRecord.ALL)
-                    || centeredAggregationKey != null) {
+                    || (centeredAggregationKey != null)) {
                 pfaf = metaBasin.getPfaf();
                 if (isMaintainLayer) {
                     pfaf = monitor.getTemplates(getSiteKey())
@@ -1826,13 +1828,11 @@ public class FFMPResource extends
                     List<Float> guids = null;
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
-                        qpes = getQpeRecord().getBasinData()
-                                .getAccumValues(pfafs, getTableTime(),
-                                        recentTime, getQpeSourceExpiration(),
-                                        isRate());
+                        qpes = getQpeRecord().getBasinData().getAccumValues(
+                                pfafs, getTableTime(), recentTime,
+                                getQpeSourceExpiration(), isRate());
 
-                        guids = getGuidanceRecord()
-                                .getBasinData()
+                        guids = getGuidanceRecord().getBasinData()
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
@@ -1870,8 +1870,8 @@ public class FFMPResource extends
 
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData().get(key),
-                            recentTime, ffgType);
+                                    .getBasinData().get(key), recentTime,
+                            ffgType);
                     guid = forceValue(pfafs,
                             getBasin(key, getField(), recentTime, aggregate),
                             guid);
@@ -1905,14 +1905,12 @@ public class FFMPResource extends
                     List<Float> qpes = null;
                     List<Float> guids = null;
                     if (getQpeRecord() != null) {
-                        qpes = getQpeRecord().getBasinData()
-                                .getAccumValues(pfafs, getTableTime(),
-                                        recentTime, getQpeSourceExpiration(),
-                                        isRate());
+                        qpes = getQpeRecord().getBasinData().getAccumValues(
+                                pfafs, getTableTime(), recentTime,
+                                getQpeSourceExpiration(), isRate());
                     }
                     if (getGuidanceRecord() != null) {
-                        guids = getGuidanceRecord()
-                                .getBasinData()
+                        guids = getGuidanceRecord().getBasinData()
                                 .getGuidanceValues(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
@@ -1947,8 +1945,8 @@ public class FFMPResource extends
                                     getQpeSourceExpiration(), isRate());
                     guid = getGuidanceValue(
                             (FFMPGuidanceBasin) getGuidanceRecord()
-                                    .getBasinData().get(key),
-                            recentTime, ffgType);
+                                    .getBasinData().get(key), recentTime,
+                            ffgType);
                     ratio = FFMPUtils.getRatioValue(qpe, guid);
                 }
             }
@@ -2236,7 +2234,7 @@ public class FFMPResource extends
      */
     private void addWorstCase(Long aggPfaf, Date recentTime, Float value) {
         FFMPDrawable drawable = drawables.get(new DataTime(recentTime));
-        if (drawable != null && drawable.worstCaseHash != null) {
+        if ((drawable != null) && (drawable.worstCaseHash != null)) {
             drawable.worstCaseHash.put(aggPfaf, value);
         }
     }
@@ -2761,8 +2759,7 @@ public class FFMPResource extends
                             try {
                                 Geometry g = geomMap.get(pfaf);
                                 if (g != null) {
-                                    jtsCompiler2.handle((Geometry) g.clone(),
-                                            basinTraceColor);
+                                    jtsCompiler2.handle(g, basinTraceColor);
 
                                 }
                             } catch (Exception e) {
@@ -2817,8 +2814,7 @@ public class FFMPResource extends
                         for (Long pfaf : geomMap.keySet()) {
                             Geometry g = geomMap.get(pfaf);
                             if (g != null) {
-                                jtsCompiler3
-                                        .handle((Geometry) g.clone(), color);
+                                jtsCompiler3.handle(g, color);
                             }
                         }
                     }
@@ -2897,7 +2893,7 @@ public class FFMPResource extends
 
         FFMPTime ffmpTime = (FFMPTime) fhce.getSource();
 
-        if (ffmpTime.getTime() != time || isSplit != ffmpTime.isSplit()) {
+        if ((ffmpTime.getTime() != time) || (isSplit != ffmpTime.isSplit())) {
 
             isSplit = ffmpTime.isSplit();
             setTime(ffmpTime.getTime());
@@ -3157,9 +3153,11 @@ public class FFMPResource extends
                     getDataKey(), null, oldestRefTime, FFMPRecord.ALL,
                     basinPfaf);
 
-            //Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
-                    //.getBeforeTime(), monitor.getQpfWindow().getAfterTime());
-            Float qpfFloat = qpfBasin.getAverageValue(monitor.getQpfWindow().getAfterTime(),monitor.getQpfWindow().getBeforeTime() ); // DR 16151
+            // Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
+            // .getBeforeTime(), monitor.getQpfWindow().getAfterTime());
+            Float qpfFloat = qpfBasin.getAverageValue(monitor.getQpfWindow()
+                    .getAfterTime(), monitor.getQpfWindow().getBeforeTime()); // DR
+                                                                              // 16151
             fgd.setQpfValue(qpfFloat);
 
             ArrayList<Double> qpfTimes = new ArrayList<Double>();
@@ -3407,7 +3405,7 @@ public class FFMPResource extends
         synchronized (tableTime) {
             Date recentTime = getMostRecentTime();
             long time = new Double(recentTime.getTime()
-                    - (TimeUtil.MILLIS_PER_HOUR) * getTime()).longValue();
+                    - ((TimeUtil.MILLIS_PER_HOUR) * getTime())).longValue();
             Date date = new Date();
             date.setTime(time);
             this.tableTime = date;
@@ -3570,7 +3568,7 @@ public class FFMPResource extends
      * @return ordered dates
      */
     public synchronized List<Date> getTimeOrderedKeys() {
-        if (timeOrderedKeys == null || !toKeysInitialized) {
+        if ((timeOrderedKeys == null) || !toKeysInitialized) {
             toKeysInitialized = true;
 
             // stand alone displays use this
@@ -3623,7 +3621,7 @@ public class FFMPResource extends
                     - getTableTime().getTime();
 
             sliderTime = Math
-                    .floor(4 * (offset.doubleValue() / (TimeUtil.MILLIS_PER_HOUR)) + .25) / 4;
+                    .floor((4 * (offset.doubleValue() / (TimeUtil.MILLIS_PER_HOUR))) + .25) / 4;
             // sliderTime = Math.floor(((offset.doubleValue() / (1000 * 3600)) +
             // .005) * 100) / 100;
             setTime(sliderTime);
@@ -4018,7 +4016,7 @@ public class FFMPResource extends
      */
     public FFMPDrawable getDrawable(DataTime time) {
         FFMPDrawable drawable = null;
-        if (drawables != null && time != null) {
+        if ((drawables != null) && (time != null)) {
             drawable = drawables.get(time);
         }
         return drawable;
@@ -4070,5 +4068,5 @@ public class FFMPResource extends
         }
         return dataTimes;
     }
-   
+
 }
