@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.jivesoftware.smack.packet.Presence;
+import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
@@ -46,6 +47,7 @@ import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Built for the session in which everyone joins
@@ -63,6 +65,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
+ * Feb 19, 2014 2751       bclement    add change color icon, fix NPE when user cancels change color
  * 
  * </pre>
  * 
@@ -135,28 +138,35 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void createActions() {
         super.createActions();
-
-        colorChangeAction = new Action("Change Site Color...") {
+        Bundle bundle = Activator.getDefault().getBundle();
+        colorChangeAction = new Action("Change Site Color...",
+                IconUtil.getImageDescriptor(bundle, "change_color.gif")) {
             @Override
             public void run() {
                 ColorDialog dlg = new ColorDialog(Display.getCurrent()
                         .getActiveShell());
                 RGB rgb = dlg.open();
-                // get the selected entry so we know what site to change the
-                // color for
-                String site = getSelectedSite();
+                if (rgb != null) {
+                    /*
+                     * get the selected entry so we know what site to change the
+                     * color for
+                     */
+                    String site = getSelectedSite();
 
-                replaceSiteColor(site.toString(), rgb);
-                // loop through all the entries in the list so we can set the
-                // color for all sites corresponding to "selectedSite"
-                if (site != null) {
-                    for (VenueParticipant user : session.getVenue()
-                            .getParticipants()) {
-                        setColorForSite(user);
+                    replaceSiteColor(site.toString(), rgb);
+                    /*
+                     * loop through all the entries in the list so we can set
+                     * the color for all sites corresponding to "selectedSite"
+                     */
+                    if (site != null) {
+                        for (VenueParticipant user : session.getVenue()
+                                .getParticipants()) {
+                            setColorForSite(user);
+                        }
                     }
-                }
 
-                usersTable.refresh();
+                    usersTable.refresh();
+                }
             }
         };
 
