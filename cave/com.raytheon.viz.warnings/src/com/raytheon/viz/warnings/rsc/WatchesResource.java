@@ -52,6 +52,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * Nov  8, 2013 16758      mgamazaychikov Changed access modifier of mergeWatches to protected 
  * 										  so a child class can override the implementation.
+ * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * </pre>
  * 
  * @author jsanchez
@@ -196,7 +197,7 @@ public class WatchesResource extends AbstractWWAResource {
             if ((record.getGeometry() != null) && (record.getPhen() != null)) {
                 IShadedShape ss = target.createShadedShape(false,
                         descriptor.getGridGeometry(), false);
-                geo = (Geometry) record.getGeometry().clone();
+                geo = record.getGeometry();
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                         this.descriptor, PointStyle.CROSS);
                 jtsCompiler.handle(geo, color);
