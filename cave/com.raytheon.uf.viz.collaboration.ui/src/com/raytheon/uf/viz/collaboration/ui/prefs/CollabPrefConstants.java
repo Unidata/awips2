@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-
 /**
  * Collaboration preferences constants used to interact with preference store
  * 
@@ -33,6 +32,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Jan 14, 2014 2630       bclement    added away on idle constants
  * Jan 27, 2014 2700       bclement    added auto accept subscribe
  * Feb  3, 2014 2699       bclement    added handle preferences
+ * Feb 18, 2014 2631       mpduff      Add constants for room change events.
  * 
  * </pre>
  * 
@@ -63,6 +63,15 @@ public class CollabPrefConstants {
 
     public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
 
+    /** Enable join events field editor id */
+    public static final String ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID = "enableJoinAlerts";
+
+    /** Join file field editor id */
+    public static final String JOIN_FILE_FIELD_EDITOR_ID = "roomJoinSoundFile";
+
+    /** Include nws feed field editor id */
+    public static final String INCLUDE_NWS_FEED_FIELD_EDITOR_ID = "includeNwsFeed";
+
     public class HttpCollaborationConfiguration {
         public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
 
@@ -71,8 +80,7 @@ public class CollabPrefConstants {
 
     public static enum HandleOption {
         BLANK("Blank"), USERNAME("User Name"), FULLNAME("Full Name"), ROLE(
-                "Role"), CUSTOM(
-                "Custom");
+                "Role"), CUSTOM("Custom");
 
         public final String display;
 
