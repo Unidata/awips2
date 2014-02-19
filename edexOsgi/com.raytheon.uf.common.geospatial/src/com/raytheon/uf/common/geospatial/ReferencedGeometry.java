@@ -20,11 +20,14 @@
 package com.raytheon.uf.common.geospatial;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
+import org.geotools.geometry.jts.CoordinateSequenceTransformer;
+import org.geotools.geometry.jts.DefaultCoordinateSequenceTransformer;
+import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
 
 /**
  * Represents a coordinate in any reference system
@@ -34,7 +37,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 29, 2008            chammack     Initial creation
+ * Dec 29, 2008            chammack    Initial creation
+ * Feb 18, 2014  #2819     randerso    Made transform non-destructive
  * 
  * </pre>
  * 
@@ -94,33 +98,13 @@ public class ReferencedGeometry extends ReferencedObject<Geometry> {
      */
     @Override
     protected Geometry transform(MathTransform mt) throws TransformException {
-        // The following appears to be very slow due to object creation:
-        // return JTS.transform(this.internalCoordinate, mt);
+        CoordinateSequenceTransformer t1 = new DefaultCoordinateSequenceTransformer(
+                PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
+        final GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer(
+                t1);
+        transformer.setMathTransform(mt);
 
-        // Faster, but destructive version:
-        Coordinate[] coords = this.internalObject.getCoordinates();
-        int size = coords.length * 2;
-        double[] out = new double[size];
-        double[] in = new double[size];
-        int index = 0;
-        for (int i = 0; i < coords.length; i++) {
-            in[index++] = coords[i].x;
-            in[index++] = coords[i].y;
-        }
-
-        try {
-            mt.transform(in, 0, out, 0, coords.length);
-            index = 0;
-            for (int i = 0; i < coords.length; i++) {
-                coords[i].x = out[index++];
-                coords[i].y = out[index++];
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return this.internalObject;
+        return transformer.transform(this.internalObject);
 
     }
-
 }
