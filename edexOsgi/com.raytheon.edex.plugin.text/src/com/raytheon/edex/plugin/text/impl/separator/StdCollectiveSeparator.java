@@ -33,15 +33,16 @@ import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Standard Message Collective Separator.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * ------------       ---------- ----------- --------------------------
  * Sep 3, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * Sep 22, 2010 6932       cjeanbap    Added METAR/SPECI to product.
+ * Feb 18, 2014 2652       skorolev     Fixed error in the makeCollId.
  * 
  * </pre>
  * 
@@ -51,7 +52,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class StdCollectiveSeparator extends WMOMessageSeparator {
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final Pattern P_TAF = Pattern.compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
+    private static final Pattern P_TAF = Pattern
+            .compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
 
     private StringBuilder fouHeader = new StringBuilder();
 
@@ -69,15 +71,20 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
     /**
      * 
-     * @param parent
+     * @param traceId
+     * @param siteId
+     * @param wmoHeader
      */
     public StdCollectiveSeparator(String traceId, String siteId,
             WMOHeader wmoHeader) {
         super(traceId, siteId, wmoHeader);
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.edex.plugin.text.impl.separator.WMOMessageSeparator#
+     * createProductId()
      */
     @Override
     protected void createProductId() {
@@ -94,7 +101,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 productId = new AFOSProductId("CCC", "MTR", "XXX");
             } else if ("FR".equals(tt)) {
                 productId = new AFOSProductId("CCC", "TWB", "XXX");
-            } else if (("FT".equals(tt))||("FC".equals(tt))) {
+            } else if (("FT".equals(tt)) || ("FC".equals(tt))) {
                 productId = new AFOSProductId("CCC", "TAF", "XXX");
             } else {
                 productId = NOAFOSPIL;
@@ -102,8 +109,11 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.edex.plugin.text.impl.separator.WMOMessageSeparator#
+     * identifyReports(byte[], com.raytheon.edex.esb.Headers)
      */
     @Override
     protected void identifyReports(byte[] rawData, Headers headers) {
@@ -293,9 +303,15 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
     }
 
+    /**
+     * Parses collective message.
+     * 
+     * @param buffer
+     * @param XXX_id
+     * @param parsedMsg
+     */
     private void parseCollMsg(StringBuilder buffer, StringBuilder XXX_id,
             StringBuilder parsedMsg) {
-        StringBuilder tmp = new StringBuilder();
         String msgId = null;
 
         // Check the status of the special case flags and if necessary,
@@ -438,21 +454,21 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         if ((reportType != null)
                 && (reportType.equals("METAR") || reportType.equals("SPECI")
                         || reportType.equals("TESTM") || reportType
-                        .equals("TESTS")))
+                            .equals("TESTS")))
             parsedMsg.insert(0, reportType + " ");
     }
 
-    // -- fileScope
-    // --------------------------------------------------------------
-    // makeCollId()
-    //
-    // Gets the CCC from XXX map from national table and combines this with the
-    // NNN that was gotten from the collective table to create the 9 character
-    // AFOS id.
-    //
-    // -- implementation
-    // ---------------------------------------------------------
-    // ---------------------------------------------------------------------------
+    /**
+     * Gets the CCC from XXX map from national table and combines this with the
+     * NNN that was gotten from the collective table to create the 9 character
+     * AFOS id.
+     * 
+     * @param product_id
+     * @param XXX_id
+     * @param afos_id
+     * @param origin
+     * @return
+     */
     private boolean makeCollId(AFOSProductId product_id, StringBuilder XXX_id,
             AFOSProductId afos_id, String origin) {
         // /TextString CCC_id, newId;
@@ -496,7 +512,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                     // logger.error("bad XXX id");
                     return false;
                 } else
-                    return false;
+                    return true;
             }
         }
 
