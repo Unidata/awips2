@@ -140,6 +140,7 @@ import com.vividsolutions.jts.operation.distance.DistanceOp;
  * 										this class
  * 11/13        TTR 752     J. Wu       added methods to compute an element's range record.
  * 12/13		#1089		B. Yin		Modify watch to display county list
+ * 02/14        #2819       R. Anderson Removed unnecessary .clone() call 
  * </pre>
  * 
  * @author sgilbert
@@ -697,7 +698,7 @@ public class DisplayElementFactory {
         					null, iDescriptor, PointStyle.CROSS);
 
         		try {
-					compiler.handle((Geometry) cntyUnion.clone(), 
+					compiler.handle(cntyUnion, 
 							new RGB(colors[1].getRed(), colors[1].getGreen(), colors[1].getBlue()));
 					
 					if ( elem.getFillPattern() != FillPattern.TRANSPARENCY &&
