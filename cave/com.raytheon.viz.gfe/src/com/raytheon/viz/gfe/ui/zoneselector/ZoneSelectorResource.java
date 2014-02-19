@@ -102,6 +102,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Apr 10, 2013     #1854  randerso    Fix for compatibility with PostGIS 2.0
  * May 30, 2013     #2028  randerso    Fixed date line issue with map display
  * Jul 31, 2013     #2239  randerso    Fixed scaling of maps that cross the date line
+ * Feb 18, 2014     #2819  randerso    Removed unnecessary clones of geometries
  * 
  * </pre>
  * 
@@ -277,7 +278,7 @@ public class ZoneSelectorResource extends DbMapResource {
                                     wfoPoints -= existingGeom.getNumPoints();
                                 }
                                 wfoPoints += g.getNumPoints();
-                                wfoGeoms.add((Geometry) g.clone());
+                                wfoGeoms.add(g);
                             }
 
                             ZoneInfo info = req.rsc.getZoneInfo(zoneName);
@@ -326,7 +327,7 @@ public class ZoneSelectorResource extends DbMapResource {
                         ZoneInfo info = req.rsc.getZoneInfo(zoneName);
 
                         try {
-                            outlineCompiler.handle((Geometry) g.clone());
+                            outlineCompiler.handle(g);
                         } catch (VizException e) {
                             statusHandler.handle(Priority.PROBLEM,
                                     "Error reprojecting map outline", e);
@@ -905,7 +906,7 @@ public class ZoneSelectorResource extends DbMapResource {
         JTSCompiler shapeCompiler = new JTSCompiler(newShadedShape, null,
                 descriptor, PointStyle.CROSS);
         try {
-            shapeCompiler.handle((Geometry) g.clone(), color);
+            shapeCompiler.handle(g, color);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error computing shaded shape", e);
