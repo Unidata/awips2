@@ -56,6 +56,7 @@ import com.vividsolutions.jts.geom.Point;
  * Oct 31, 2012      #1326 randerso     Initial creation
  * Feb 22, 2013      #1641 randerso     Added checks for using ID as label or shading attribute
  * Jul 24, 2014      #1908 randerso     Removed debug sysouts
+ * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * 
  * </pre>
  * 
@@ -314,7 +315,7 @@ class ReloadJob extends Job {
 
                     Geometry g = (Geometry) f.getAttribute(req.geomField);
                     if (da.isHighlighted()) {
-                        highlightGeoms.add((Geometry) g.clone());
+                        highlightGeoms.add(g);
                     }
 
                     if (req.highlightsOnly) {
