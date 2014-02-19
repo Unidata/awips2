@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractRemoteGraphicsEvent;
+import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.BeginFrameEvent;
 import com.raytheon.uf.viz.remote.graphics.events.rendering.EndFrameEvent;
@@ -64,6 +65,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 19, 2012            mschenke     Initial creation
+ * Feb 19, 2014 2751       bclement     added check for closed session
  * 
  * </pre>
  * 
@@ -201,6 +203,13 @@ public class CollaborationDispatcher extends Dispatcher {
         // Set PERSISTENCE to true if testing persisting capabilities
         if (eventObject instanceof AbstractDispatchingObjectEvent
                 && eventObject instanceof IRenderEvent == false) {
+            if (eventObject instanceof DisposeObjectEvent && session.isClosed()) {
+                // object disposal is asynchronous and dispose events could
+                // happen after session has been closed. If any participants are
+                // still connected to session, their objects will be disposed
+                // when they close the view.
+                return;
+            }
             boolean immediateSend = true;
             if (eventObject instanceof ICreationEvent == false) {
                 // Not a creation event, check event size. All creation events
