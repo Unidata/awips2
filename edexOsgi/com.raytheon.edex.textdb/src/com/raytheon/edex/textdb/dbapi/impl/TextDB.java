@@ -19,17 +19,11 @@
  **/
 package com.raytheon.edex.textdb.dbapi.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import org.apache.commons.logging.Log;
@@ -47,7 +41,6 @@ import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
 import com.raytheon.uf.common.dataplugin.text.db.TextProductInfo;
 import com.raytheon.uf.common.dataplugin.text.db.WatchWarn;
 import com.raytheon.uf.common.message.Header;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -55,7 +48,7 @@ import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Text Database.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -78,6 +71,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------------------------------
  * 18 Apr 2012         479 jkorman     Modified to pad xxxid to 3 characters in queries.
  * 23 May 2012       14952 rferrel     Allow queries with refTime.
+ * Feb 18, 2014       2652  skorolev    Corrected writeProduct for WMO header if archive is allowed. Deleted unused code.
  * </pre>
  * 
  * @author jkorman
@@ -88,23 +82,30 @@ public class TextDB {
 
     private Log logger = LogFactory.getLog(getClass());
 
-    // private HDF5Dao hdf5dao = null;
-
     private String siteName = PropertiesFactory.getInstance()
             .getEnvProperties().getEnvValue("SITENAME");
 
     private boolean operationalMode = true;
 
+    /**
+     * Constructor.
+     */
     public TextDB() {
     }
 
+    /**
+     * Text database.
+     * 
+     * @param operationalMode
+     */
     public TextDB(boolean operationalMode) {
         this.operationalMode = operationalMode;
     }
 
     /**
+     * Purge Standard Text Products.
      * 
-     * @param time
+     * @return total products updated
      */
     public static int purgeStdTextProducts() {
         StdTextProductDao dao = new StdTextProductDao();
@@ -121,11 +122,12 @@ public class TextDB {
      * @param wmoId
      * @param site
      * @param intlProd
+     *            contains Request Type
      * @param abbrId
      * @param lastHrs
      * @param hdrTime
      * @param bbbId
-     * @return
+     * @return standard text products
      */
     public List<StdTextProduct> readAwips(RequestType requestType,
             String wmoId, String site, String abbrId, String lastHrs,
@@ -169,7 +171,9 @@ public class TextDB {
      * @param lastHrs
      * @param hdrTime
      * @param bbbId
-     * @return
+     * @param fullDataRead
+     * @param operationalMode
+     * @return specified products
      */
     public List<StdTextProduct> readAwips(String wmoId, String site,
             int intlProd, String abbrId, String lastHrs, String hdrTime,
@@ -219,51 +223,17 @@ public class TextDB {
 
         return dao.awipsRead(wmoId, site, nnn, xxx, hdrTime, startTimeMillis,
                 bbbId, intlProd, readAllVersions, fullDataRead);
-        /*
-         * int action = 0;
-         * 
-         * if (wmoId != null && wmoId.length() > 0) { action += 32; } if (site
-         * != null && site.length() > 0) { action += 16; } if (abbrId != null &&
-         * abbrId.length() > 0) { action += 8; } if (lastHrs != null &&
-         * lastHrs.length() > 0) { action += 4; } if (hdrTime != null &&
-         * hdrTime.length() > 0) { action += 2; } if (bbbId != null &&
-         * bbbId.length() > 0) { action += 1; }
-         * 
-         * switch (action) { case 8: { // abbrId rval = dao.read_i(abbrId);
-         * break; } case 16: { // site rval = dao.read_s(site); break; } case
-         * 20: { // site + lastHrs rval = dao.read_sh(site, lastHrsMillis);
-         * break; } case 32: { // wmoId rval = dao.read_w(wmoId); break; } case
-         * 36: { // wmoId + lastHrs rval = dao.read_wh(wmoId, lastHrsMillis);
-         * break; } case 48: { // wmoId + site rval = dao.read_ws(wmoId, site,
-         * intlProd); break; } case 50: { // wmoId + site + hdrTime if
-         * ("000000".equals(hdrTime)) { rval = dao.read_ws_all(wmoId, site); }
-         * else { rval = dao.read_wst(wmoId, site, hdrTime, intlProd); } break;
-         * } case 51: { // wmoId + site + hdrTime + bbb rval =
-         * dao.read_wstb(wmoId, site, hdrTime, bbbId, intlProd); break; } case
-         * 52: { // wmoId + site + lastHrs rval = dao.read_wsh(wmoId, site,
-         * lastHrsMillis); break; } case 56: { // wmoId + site + abbrId rval =
-         * dao.read_wsi(wmoId, site, abbrId); break; } case 58: { // wmoId +
-         * site + abbrId + hdrTime if ("000000".equals(hdrTime)) { rval =
-         * dao.read_wsi_all(wmoId, site, abbrId); } else { rval =
-         * dao.read_wsit(wmoId, site, abbrId, hdrTime); } break; } case 59: { //
-         * wmoId + site + abbrId + hdrTime + bbb rval = dao.read_wsitb(wmoId,
-         * site, abbrId, hdrTime, bbbId); break; } default: {
-         * logger.debug("TextDB:readAwips action not implemented-" + action);
-         * break; } }
-         * 
-         * if (action != 20 && action != 36 && action != 52) { // first line is
-         * to be the number of products returned rval.add(0, "" + rval.size());
-         * }
-         * 
-         * return rval;
-         */
     }
 
     /**
+     * Add Versions
      * 
-     * @param stateId
-     * @param cccId
-     * @param xxxId
+     * @param ccc
+     * @param nnn
+     * @param xxx
+     * @param versions
+     *            contains number of versions to keep.
+     * @return success
      */
     public boolean addVersions(String ccc, String nnn, String xxx, int versions) {
         boolean success = false;
@@ -283,11 +253,12 @@ public class TextDB {
     }
 
     /**
+     * Get versions.
      * 
-     * @param cccId
-     * @param nnnId
-     * @param xxxId
-     * @return
+     * @param ccc
+     * @param nnn
+     * @param xxx
+     * @return number of versions to keep
      */
     public String getVersions(String ccc, String nnn, String xxx) {
         String rval = null;
@@ -310,7 +281,7 @@ public class TextDB {
      * @param ccc
      * @param nnn
      * @param xxx
-     * @return
+     * @return success
      */
     public boolean deleteVersions(String ccc, String nnn, String xxx) {
         boolean success = false;
@@ -331,9 +302,8 @@ public class TextDB {
     /**
      * --- statematch Add a mapping for state -> (CCC and XXX)
      * 
-     * @param stateId
-     * @param cccId
-     * @param xxxId
+     * @param stateInfo
+     * @return success
      */
     public boolean addState(StateMatch stateInfo) {
         boolean success = false;
@@ -353,6 +323,7 @@ public class TextDB {
      * @param stateId
      * @param cccId
      * @param xxxId
+     * @return success
      */
     public boolean addState(String stateId, String cccId, String xxxId) {
         StateMatch stateInfo = new StateMatch(stateId, xxxId, cccId);
@@ -362,9 +333,8 @@ public class TextDB {
     /**
      * --- statematch Remove a mapping for state -> (CCC and XXX)
      * 
-     * @param stateId
-     * @param cccId
-     * @param xxxId
+     * @param stateInfo
+     * @return success
      */
     public boolean removeState(StateMatch stateInfo) {
         boolean success = false;
@@ -381,8 +351,9 @@ public class TextDB {
      * --- statematch Remove a mapping for state -> (CCC and XXX)
      * 
      * @param stateId
-     * @param cccId
      * @param xxxId
+     * @param cccId
+     * @return success
      */
     public boolean removeState(String stateId, String xxxId, String cccId) {
         StateMatch stateInfo = new StateMatch(stateId, xxxId, cccId);
@@ -393,7 +364,7 @@ public class TextDB {
      * --- statematch
      * 
      * @param state
-     * @return
+     * @return stateList
      */
     public List<StateMatch> queryState(String state) {
         List<StateMatch> stateList = null;
@@ -411,7 +382,7 @@ public class TextDB {
      * --- watchwarn
      * 
      * @param watchWarn
-     * @return
+     * @return success
      */
     public boolean addWatchWarn(WatchWarn watchWarn) {
         boolean success = false;
@@ -429,8 +400,10 @@ public class TextDB {
      * --- watchwarn
      * 
      * @param productId
+     *            A not null reference to the product identifier to store.
      * @param script
-     * @return
+     *            A not null reference to the script to store.
+     * @return success
      */
     public boolean addWatchWarn(String productId, String script) {
         return addWatchWarn(new WatchWarn(productId, script));
@@ -487,7 +460,7 @@ public class TextDB {
      * --- watchwarn
      * 
      * @param watchWarn
-     * @return
+     * @return success
      */
     public boolean deleteWatchWarn(WatchWarn watchWarn) {
         boolean success = false;
@@ -505,8 +478,10 @@ public class TextDB {
      * --- watchwarn
      * 
      * @param productId
+     *            A not null reference to the product identifier to store.
      * @param script
-     * @return
+     *            A not null reference to the script to store.
+     * @return success
      */
     public boolean deleteWatchWarn(String productId, String script) {
         return deleteWatchWarn(new WatchWarn(productId, script));
@@ -519,7 +494,7 @@ public class TextDB {
      *            List of product ids to query for.
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
-     * @return
+     * @return List of the latest time.
      */
     public List<Long> getLatestTimes(List<AFOSProductId> afosIds,
             boolean operationalMode) {
@@ -536,7 +511,7 @@ public class TextDB {
      * 
      * @param afosIds
      *            List of product ids to query for.
-     * @return
+     * @return list of the latest time
      */
     public List<Long> getLatestTimes(AFOSProductId afosId,
             boolean operationalMode) {
@@ -559,7 +534,7 @@ public class TextDB {
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
-     * @return
+     * @return latest time
      */
     public Long getLatestTime(AFOSProductId afosId, boolean operationalMode) {
 
@@ -582,7 +557,7 @@ public class TextDB {
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
-     * @return
+     * @return latest time
      */
     public Long getLatestTime(String productId, boolean operationalMode) {
 
@@ -621,7 +596,7 @@ public class TextDB {
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
-     * @return
+     * @return List of time
      */
     public List<Long> getAllTimes(String productId, boolean operationalMode) {
 
@@ -644,7 +619,7 @@ public class TextDB {
      * @param afosId
      * @param operationalMode
      *            true, read data from operationalstdtextproduct table
-     * @return
+     * @return List of time
      */
     public List<Long> getAllTimes(String ccc, String nnn, String xxx,
             boolean operationalMode) {
@@ -661,12 +636,14 @@ public class TextDB {
     }
 
     /**
+     * Get Same Minute Products
      * 
      * @param wmoId
      * @param siteId
      * @param hdrTime
      * @param afosId
-     * @return
+     * @param operationalMode
+     * @return products
      */
     public List<String> getSameMinuteProducts(String wmoId, String siteId,
             int hdrTime, AFOSProductId afosId, boolean operationalMode) {
@@ -689,7 +666,7 @@ public class TextDB {
      * @param nnnId
      * @param xxxId
      * @param wmoId
-     * @return
+     * @return sites
      */
     public List<String> siteRead(String cccId, String nnnId, String xxxId,
             String wmoId) {
@@ -720,10 +697,14 @@ public class TextDB {
     }
 
     /**
+     * Reads products from list of AFOS commands from a state/nnn query.
      * 
      * @param state
+     *            Two character state abbrevation.
      * @param nnn
-     * @return
+     *            The category to use for the commands.
+     * @param operationalMode
+     * @return List of Standard text products.
      */
     public List<StdTextProduct> stateNNNRead(String state, String nnn,
             boolean operationalMode) {
@@ -741,6 +722,15 @@ public class TextDB {
         return products;
     }
 
+    /**
+     * Execute AFOS Command.
+     * 
+     * @param afosCommand
+     * @param locale
+     *            contains a local prefix for a WFO localization.
+     * @param operationalMode
+     * @return List of Standard text products.
+     */
     public List<StdTextProduct> executeAFOSCommand(String afosCommand,
             String locale, boolean operationalMode) {
         return executeAFOSCommand(afosCommand, locale, operationalMode, false,
@@ -748,9 +738,15 @@ public class TextDB {
     }
 
     /**
+     * Execute AFOS Command.
      * 
      * @param afosCommand
-     * @return
+     * @param locale
+     *            contains a local prefix for a WFO localization.
+     * @param operationalMode
+     * @param refTimeMode
+     * @param refTime
+     * @return List of Standard text products.
      */
     public List<StdTextProduct> executeAFOSCommand(String afosCommand,
             String locale, boolean operationalMode, boolean refTimeMode,
@@ -813,6 +809,7 @@ public class TextDB {
      * 
      * @param textProduct
      *            contains the text product to write to the database
+     * @return success
      */
     public boolean writeProduct(StdTextProduct textProduct) {
         boolean operationalMode = (textProduct instanceof OperationalStdTextProduct ? true
@@ -856,6 +853,8 @@ public class TextDB {
      *            contains the AFOS PIL
      * @param reportData
      *            the body of the product
+     * @param operationalMode
+     * @return write time
      */
     public long writeProduct(WMOHeader header, AFOSProductId prodId,
             String reportData, boolean operationalMode) {
@@ -882,10 +881,9 @@ public class TextDB {
         product.append(reportData);
 
         Long writeTime = new Long(System.currentTimeMillis());
-        if (TimeTools.allowArchive()) {
+        if (TimeTools.allowArchive() && header.getHeaderDate() != null) {
             Calendar c = header.getHeaderDate();
             writeTime = new Long(c.getTimeInMillis());
-
         }
 
         StdTextProduct textProduct = (operationalMode ? new OperationalStdTextProduct()
@@ -916,6 +914,8 @@ public class TextDB {
      *            contains the AFOS PIL
      * @param reportData
      *            the body of the product
+     * @param operationalMode
+     * @return
      */
     public long writeProductNoHeader(AFOSProductId prodId, String reportData,
             boolean operationalMode) {
@@ -929,7 +929,10 @@ public class TextDB {
      * 
      * @param data
      *            the data to insert
+     * @param operationalMode
      * @param headers
+     *            contains header Map
+     * @return
      */
     public long writeProduct(WMOReportData data, boolean operationalMode,
             Headers headers) {
@@ -946,6 +949,10 @@ public class TextDB {
      *            contains the AFOS PIL
      * @param reportData
      *            the body of the product
+     * @param operationalMode
+     * @param headers
+     *            contains header Map
+     * @return write time
      */
     public long writeProduct(AFOSProductId prodId, String reportData,
             boolean operationalMode, Headers headers) {
@@ -973,6 +980,10 @@ public class TextDB {
      *            the AFOS PIL
      * @param reportData
      *            the body of the product.
+     * @param operationalMode
+     * @param headers
+     *            contains header Map
+     * @return write time
      */
     public long writeProduct(String productId, String reportData,
             boolean operationalMode, Headers headers) {
@@ -1009,82 +1020,21 @@ public class TextDB {
     }
 
     /**
-     * 
-     * @param <T>
-     * @param values
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T getValue(Object[] values) {
-
-        T retValue = null;
-
-        if ((values != null) && (values.length > 0)) {
-            Object o = values[0];
-            if (o != null) {
-                retValue = (T) o;
-            }
-        }
-        return retValue;
-    }
-
-    /**
-     * 
-     * @param <T>
-     * @param values
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T getValue(Object value) {
-
-        T retValue = null;
-
-        if (value != null) {
-            retValue = (T) value;
-        }
-        return retValue;
-    }
-
-    public static String marshalToXml(Object obj) throws JAXBException {
-        JAXBContext ctx = SerializationUtil.getJaxbContext();
-        Marshaller msh = ctx.createMarshaller();
-        msh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.FALSE);
-
-        ByteArrayOutputStream strm = new ByteArrayOutputStream();
-        msh.marshal(obj, strm);
-        return strm.toString();
-    }
-
-    /**
-     * Instantiates an object from the XML representation in a string. Uses
-     * JAXB.
-     * 
-     * @param xml
-     *            The XML representation
-     * @return A new instance from the XML representation
-     * @throws JAXBException
-     */
-    public static Object unmarshalFromXml(String xml) throws JAXBException {
-        JAXBContext ctx = SerializationUtil.getJaxbContext();
-        Unmarshaller msh = ctx.createUnmarshaller();
-        ByteArrayInputStream strm = new ByteArrayInputStream(xml.getBytes());
-        Object obj = msh.unmarshal(strm);
-        return obj;
-    }
-
-    /**
+     * ASCII to HEX conversion.
      * 
      * @param string
-     * @return
+     *            ascii string
+     * @return hex code
      */
     public static String asciiToHex(String string) {
         return new HexBinaryAdapter().marshal(string.getBytes());
     }
 
     /**
+     * HEX To ASCII conversion
      * 
      * @param hexString
-     * @return
+     * @return ascii string
      */
     public static String hexToAscii(String hexString) {
 
@@ -1094,10 +1044,13 @@ public class TextDB {
     }
 
     /**
+     * Get Property.
      * 
      * @param header
+     *            contains message header.
      * @param propName
-     * @return
+     *            contains property name.
+     * @return property name
      */
     public static String getProperty(Header header, String propName) {
         String result = null;
@@ -1110,6 +1063,11 @@ public class TextDB {
         return result;
     }
 
+    /**
+     * Get Operational Mode
+     * 
+     * @return TRUE if mode is operational
+     */
     public boolean getOperationalMode() {
 
         return this.operationalMode;
