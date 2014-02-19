@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  *                                     added JID and display name if available
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Added leader icons
+ * Feb 18, 2014 2751       bclement    changed tooltip from JID to UserId
  * 
  * </pre>
  * 
@@ -228,7 +229,7 @@ public class ParticipantsLabelProvider extends
         }
         if (user.hasActualUserId()) {
             UserId actual = user.getUserid();
-            builder.append("\nJID: ").append(actual.getNormalizedId());
+            builder.append("\nUserId: ").append(actual.getNormalizedId());
             builder.append("\nDisplay Name: ").append(getLocalAlias(actual));
         }
         return builder.toString();
