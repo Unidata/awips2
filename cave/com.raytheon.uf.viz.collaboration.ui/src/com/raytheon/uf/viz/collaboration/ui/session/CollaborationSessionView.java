@@ -44,6 +44,7 @@ import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
+import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -96,6 +97,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 12, 2014 2751       njensen     Added transfer leadership and shutdown safety
  * Feb 18, 2014 2751       bclement    update participants list and notify on leader change
+ * Feb 19, 2014 2751       bclement    add change color and transfer leader icons
  * 
  * </pre>
  * 
@@ -210,8 +212,9 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     protected void createActions() {
         super.createActions();
-
-        colorChangeAction = new Action("Change Color...") {
+        Bundle bundle = Activator.getDefault().getBundle();
+        colorChangeAction = new Action("Change Color...",
+                IconUtil.getImageDescriptor(bundle, "change_color.gif")) {
             @Override
             public void run() {
                 ColorDialog dlg = new ColorDialog(Display.getCurrent()
@@ -233,7 +236,8 @@ public class CollaborationSessionView extends SessionView implements
             }
         };
 
-        leaderChangeAction = new Action("Transfer Leadership") {
+        leaderChangeAction = new Action("Transfer Leadership",
+                IconUtil.getImageDescriptor(bundle, "leader_transfer.gif")) {
             @Override
             public void run() {
                 IStructuredSelection selection = (IStructuredSelection) usersTable
