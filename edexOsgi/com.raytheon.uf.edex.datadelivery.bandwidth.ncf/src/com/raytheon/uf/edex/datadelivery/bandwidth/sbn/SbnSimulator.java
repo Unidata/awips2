@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2013 1648       djohnson     Initial creation
  * Oct 18, 2013 2267       bgonzale     Added distribution to and check in site specific directories.
+ * Feb 13, 2014 2828       bgonzale     Add purge method.
  * 
  * </pre>
  * 
@@ -93,6 +94,8 @@ public class SbnSimulator {
     private final IFileProcessor fileProcessor;
 
     private String site;
+
+    private long fileExpirationInMilliseconds;
 
     /**
      * Private constructor.
@@ -151,8 +154,7 @@ public class SbnSimulator {
      */
     public void distributeToSiteDirs() throws IOException {
         final List<File> undistributedFiles = FileUtil.listFiles(
-                directoryToScan,
- FilenameFilters.ACCEPT_FILES, false);
+                directoryToScan, FilenameFilters.ACCEPT_FILES, false);
         // get list of site dirs
         final List<File> sites = FileUtil.listFiles(sitesDirectory,
                 FilenameFilters.ACCEPT_DIRECTORIES, false);
@@ -176,6 +178,38 @@ public class SbnSimulator {
             // delete source file
             file.delete();
         }
+    }
+
+    /**
+     * Purge Sbn simulator data files that are older than the given expiration
+     * time.
+     */
+    public void purgeSbnSimulatorFiles() {
+        final List<File> siteDirectories = FileUtil.listFiles(sitesDirectory,
+                FilenameFilters.ACCEPT_DIRECTORIES, false);
+
+        for (File siteDir : siteDirectories) {
+            final List<File> filesInDir = FileUtil.listFiles(siteDir,
+                    FilenameFilters.ACCEPT_FILES, false);
+            int fileCount = 0;
+
+            for (File file : filesInDir) {
+                if (System.currentTimeMillis() - file.lastModified() > fileExpirationInMilliseconds) {
+                    if (file.delete()) {
+                        ++fileCount;
+                    }
+                }
+            }
+            statusHandler.info("purged " + fileCount
+                    + " sbn simulation data file(s) in " + siteDir);
+        }
+    }
+
+    /**
+     * @param fileExpirationInMilliseconds the fileExpirationInMilliseconds to set
+     */
+    public void setFileExpirationInMilliseconds(long fileExpirationInMilliseconds) {
+        this.fileExpirationInMilliseconds = fileExpirationInMilliseconds;
     }
 
     // TODO Java 1.7 version of the distributeToSiteDirs() method
