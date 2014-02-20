@@ -49,7 +49,8 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 28, 2013            dgilling     Initial creation
+ * Feb 28, 2013            dgilling    Initial creation
+ * Feb 20, 2014   #2824    randerso    Changed log level of message when activating FetchAT
  * 
  * </pre>
  * 
@@ -80,7 +81,7 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
         FetchATJobConfig config = new FetchATJobConfig(configData);
         final String site = config.getSiteId();
 
-        statusHandler.debug("Activating FetchAT for " + site);
+        statusHandler.info("Activating FetchAT for " + site);
         statusHandler.debug("Site: " + site + " config: " + config);
 
         if ((siteConfigMap.containsKey(site))
