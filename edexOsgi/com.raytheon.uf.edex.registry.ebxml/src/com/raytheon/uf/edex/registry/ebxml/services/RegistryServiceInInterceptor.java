@@ -33,6 +33,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.CollectionUtil;
 
 /**
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 9/5/2013     1538        bphillip    Initial implementation
+ * 2/27/2014    2769        bphillip    Changed verbose output to debug level
  * </pre>
  * 
  * @author bphillip
@@ -64,28 +66,31 @@ public class RegistryServiceInInterceptor extends
     @SuppressWarnings("unchecked")
     @Override
     public void handleMessage(Message message) throws Fault {
-        StringBuilder logMessage = new StringBuilder();
-        HttpServletRequest request = (HttpServletRequest) message
-                .get(AbstractHTTPDestination.HTTP_REQUEST);
-        Map<String, List<String>> headers = (Map<String, List<String>>) message
-                .get(Message.PROTOCOL_HEADERS);
-        List<String> callingRegistryList = headers
-                .get(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME);
-        if (request.getRequestURI().startsWith("/rest")) {
-            logMessage.append("REST: ");
-        } else {
-            logMessage.append("WS: ");
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            StringBuilder logMessage = new StringBuilder();
+            HttpServletRequest request = (HttpServletRequest) message
+                    .get(AbstractHTTPDestination.HTTP_REQUEST);
+            Map<String, List<String>> headers = (Map<String, List<String>>) message
+                    .get(Message.PROTOCOL_HEADERS);
+            List<String> callingRegistryList = headers
+                    .get(RegistryUtil.CALLING_REGISTRY_SOAP_HEADER_NAME);
+            if (request.getRequestURI().startsWith("/rest")) {
+                logMessage.append("REST: ");
+            } else {
+                logMessage.append("WS: ");
+            }
+            logMessage.append("Request from [");
+            if (CollectionUtil.isNullOrEmpty(callingRegistryList)) {
+                logMessage.append(request.getRemoteAddr()).append("]: ")
+                        .append(request.getMethod()).append(" ")
+                        .append(request.getRequestURI());
+            } else {
+                logMessage.append(callingRegistryList.get(0)).append("]: ")
+                        .append(request.getMethod()).append(" ")
+                        .append(request.getRequestURI());
+            }
+
+            statusHandler.debug(logMessage.toString());
         }
-        logMessage.append("Request from [");
-        if (CollectionUtil.isNullOrEmpty(callingRegistryList)) {
-            logMessage.append(request.getRemoteAddr()).append("]: ")
-                    .append(request.getMethod()).append(" ")
-                    .append(request.getRequestURI());
-        } else {
-            logMessage.append(callingRegistryList.get(0)).append("]: ")
-                    .append(request.getMethod()).append(" ")
-                    .append(request.getRequestURI());
-        }
-        statusHandler.info(logMessage.toString());
     }
 }
