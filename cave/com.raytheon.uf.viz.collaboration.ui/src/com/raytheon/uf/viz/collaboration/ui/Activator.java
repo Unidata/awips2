@@ -22,12 +22,14 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.jivesoftware.smack.packet.Presence.Mode;
 import org.osgi.framework.BundleContext;
 
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
@@ -41,6 +43,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * ------------ ---------- ----------- --------------------------
  * Mar  1, 2012            rferrel     Initial creation
  * Feb 19, 2014    2631    mpduff      Changed to use the HierarchicalPreferenceStore.
+ * Feb 20, 2014    2631    mpduff      Need to set defaults here since we changed to use the HierarchicalPreferenceStore
  * 
  * </pre>
  * 
@@ -109,7 +112,26 @@ public class Activator extends AbstractUIPlugin {
         try {
             if (prefs == null) {
                 prefs = new HierarchicalPreferenceStore(this);
+                prefs.setDefault(CollabPrefConstants.P_SERVER, "");
+                prefs.setDefault(CollabPrefConstants.AUTO_JOIN, true);
+
+                // TODO better default?
+                prefs.setDefault(CollabPrefConstants.P_USERNAME,
+                        System.getProperty("user.name"));
+
+                prefs.setDefault(CollabPrefConstants.P_STATUS,
+                        Mode.available.toString());
+                prefs.setDefault(CollabPrefConstants.P_MESSAGE, "");
+                prefs.setDefault(CollabPrefConstants.AWAY_ON_IDLE, true);
+                prefs.setDefault(CollabPrefConstants.AWAY_TIMEOUT,
+                        CollabPrefConstants.AWAY_TIMEOUT_DEFAULT);
+                prefs.setDefault(CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE,
+                        false);
+                prefs.setDefault(CollabPrefConstants.DEFAULT_HANDLE,
+                        CollabPrefConstants.HandleOption.USERNAME.name());
+                prefs.setDefault(CollabPrefConstants.CUSTOM_HANDLE, "");
             }
+
         } catch (LocalizationException e) {
             UFStatus.getHandler().handle(
                     Priority.PROBLEM,
