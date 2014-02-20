@@ -33,8 +33,9 @@
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
-#    10/03/2013      2424          randerso       Change localTC to use dateutil instead of pytz
+#    10/03/2013          #2424     randerso       Change localTC to use dateutil instead of pytz
 #                                                 to get correct offsets for Alaska
+#    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #
 ########################################################################
 
@@ -57,6 +58,8 @@ def siteImport(modName):
         if fp:
             fp.close()
     except ImportError:
+        import LogStream
+        LogStream.logEvent("No " + modName + " file found, using baseline settings.");
         return 0
     globals()[modName] = __import__(modName)
     return 1

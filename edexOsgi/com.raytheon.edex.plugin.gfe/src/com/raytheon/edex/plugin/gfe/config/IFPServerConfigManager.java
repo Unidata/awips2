@@ -46,17 +46,19 @@ import com.raytheon.uf.common.util.FileUtil;
 
 /**
  * Manages the serverConfigs of active sites
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 9, 2009            njensen     Initial creation
  * Dec 11, 2012 14360     ryu         Throw specific exception for missing configuration.
- *
+ * Feb 20, 2014 #2824     randerso    Fixed import of localVTECPartners to use siteID
+ *                                    Added common python path for LogStream
+ * 
  * </pre>
- *
+ * 
  * @author njensen
  * @version 1.0
  */
@@ -74,7 +76,7 @@ public class IFPServerConfigManager {
 
     /**
      * Returns the sites that have active configurations
-     *
+     * 
      * @return
      */
     protected static Set<String> getActiveSites() {
@@ -83,7 +85,7 @@ public class IFPServerConfigManager {
 
     /**
      * Gets the server configuration for a particular site
-     *
+     * 
      * @param siteID
      *            the site
      * @return the site's configuration
@@ -102,7 +104,7 @@ public class IFPServerConfigManager {
 
     /**
      * Initializes a site's serverConfig by reading in the site's localConfig
-     *
+     * 
      * @param siteID
      *            the site
      * @return the site's configuration
@@ -163,12 +165,15 @@ public class IFPServerConfigManager {
         }
         siteDir = siteDirFile.getPath();
 
-        String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
+        String commonPythonPath = GfePyIncludeUtil.getCommonPythonIncludePath();
+
+        String vtecPath = GfePyIncludeUtil.getVtecIncludePath(siteID);
 
         PythonScript py = null;
         try {
             py = new PythonScript(FileUtil.join(baseDir, "wrapper.py"),
-                    PyUtil.buildJepIncludePath(siteDir, baseDir, vtecPath),
+                    PyUtil.buildJepIncludePath(siteDir, baseDir,
+                            commonPythonPath, vtecPath),
                     IFPServerConfig.class.getClassLoader());
             SimpleServerConfig simpleConfig = (SimpleServerConfig) py.execute(
                     "getSimpleConfig", null);
@@ -188,7 +193,7 @@ public class IFPServerConfigManager {
 
     /**
      * Removes a site's configuration from the set of active configurations
-     *
+     * 
      * @param siteID
      */
     protected static void removeSite(String siteID) {
