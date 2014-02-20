@@ -24,6 +24,9 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
 /**
@@ -38,6 +41,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/30/2012    724        bphillip     Initial creation
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802        bphillip     Removed exception catching
+ * 2/13/2014    2769        bphillip     Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -57,6 +61,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getByTargetAndType(String target, String type) {
         return executeHQLQuery("from AssociationType obj where obj.targetObject='"
                 + target + "' and obj.type='" + type + "'");
@@ -73,6 +78,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getBySourceAndType(String source, String type) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + source + "' and obj.type='" + type + "'");
@@ -91,6 +97,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getBySourceTargetAndType(String source,
             String target, String type) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
@@ -109,6 +116,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getAllAssociations(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + objReferenced
@@ -126,6 +134,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getAssociationsTo(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.targetObject='"
                 + objReferenced + "'");
@@ -140,6 +149,7 @@ public class AssociationDao extends RegistryObjectTypeDao<AssociationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AssociationType> getAssociationsFrom(String objReferenced) {
         return executeHQLQuery("from AssociationType obj where obj.sourceObject='"
                 + objReferenced + "'");

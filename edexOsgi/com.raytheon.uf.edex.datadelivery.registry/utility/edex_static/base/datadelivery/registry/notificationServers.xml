@@ -1,19 +1,10 @@
 <!-- This file is intended to be overridden by sites. It contains the list of 
-registries that this registry wishes to subscribe to
-
-The Registry site name is the WFO identifier of the target registry.
-The registry description is an arbitrary description of that registry
-The registry base URL is the base URL of the registry of the form http://HOST_NAME:8082
-The reciprocate field instructs the target registry to subscribe to this registry.
+registries that this registry wishes to subscribe to.  Each entry is a data delivery ID.
+The data delivery ID is generally the same as the WFO or regional headquarters such as 
+OAX, DMX, BCQ, etc.
  -->
 
 <NotificationServers>
-<!-- Default configuration for the NCF does not define any servers -->
-<!-- These are defined at the site level -->
-<!--	<registry>-->
-<!--		<registrySiteName>SITE_NAME</registrySiteName>-->
-<!--		<registryDescription>Description of registry</registryDescription>-->
-<!--		<registryBaseURL>BASE_URL</registryBaseURL>-->
-<!--        <reciprocate>false</reciprocate> -->
-<!--	</registry>-->
+<!--     <registry>DataDelivery ID 1</registry> -->
+<!--     <registry>DataDelivery ID 2</registry> -->
 </NotificationServers>
