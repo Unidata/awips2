@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/11/13        #2083         randerso       Fixed getISCSites to look in configured
+#    02/20/2014      #2824         randerso       Added log message when no localVTECPartners file is found
 
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
@@ -298,5 +299,6 @@ except:
 #allow overrides
 try:
     from localVTECPartners import *
-except:
-    pass
+except ImportError:
+    import LogStream
+    LogStream.logEvent("No localVTECPartners file found, using baseline settings.");
