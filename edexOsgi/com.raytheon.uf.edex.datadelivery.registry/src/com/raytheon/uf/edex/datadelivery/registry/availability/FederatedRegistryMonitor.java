@@ -26,14 +26,13 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.VersionInfoType;
 
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
@@ -53,12 +52,14 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * ------------ ----------  ----------- --------------------------
  * 7/29/2013    2191        bphillip    Initial implementation
  * 12/2/2013    1829        bphillip    Uses correct getter for getting date time value
+ * 2/19/2014    2769        bphillip    Refactored to no longer extend Runnable
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class FederatedRegistryMonitor extends RunnableWithTransaction {
+@Transactional
+public class FederatedRegistryMonitor {
 
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -74,9 +75,7 @@ public class FederatedRegistryMonitor extends RunnableWithTransaction {
         super();
     }
 
-    public FederatedRegistryMonitor(TransactionTemplate txTemplate,
-            RegistryObjectDao registryObjectDao) {
-        super(txTemplate);
+    public FederatedRegistryMonitor(RegistryObjectDao registryObjectDao) {
         this.registryObjectDao = registryObjectDao;
     }
 
@@ -95,9 +94,9 @@ public class FederatedRegistryMonitor extends RunnableWithTransaction {
         return cal.getTimeInMillis();
     }
 
-    @Override
-    public void runWithTransaction() {
+    public void updateTime() {
         try {
+            statusHandler.info("Updating registry uptime");
             RegistryObjectType regObj = registryObjectDao
                     .getById(REGISTRY_AVAILABLE_ID);
             if (regObj == null) {
