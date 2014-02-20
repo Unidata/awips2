@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.edex.datadelivery.registry.replication;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * 5/21/2013    1707        bphillip    Removed unused fields
  * 6/4/2013     1707        bphillip    Renamed and changed fields for clarity
  * 10/30/2013   1538        bphillip    getRegistryReplicationServers returns empty list if no servers are specified
+ * 2/27/2014    2769        bphillip    Changed replicationservers variable to set of strings
  * </pre>
  * 
  * @author bphillip
@@ -53,19 +54,27 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class NotificationServers {
 
     /** The server located upstream from this server */
-    @XmlElements({ @XmlElement(name = "registry", type = NotificationHostConfiguration.class) })
-    private CopyOnWriteArrayList<NotificationHostConfiguration> registryReplicationServers;
+    @XmlElements({ @XmlElement(name = "registry") })
+    private CopyOnWriteArraySet<String> registryReplicationServers;
 
-    public List<NotificationHostConfiguration> getRegistryReplicationServers() {
+    public Set<String> getRegistryReplicationServers() {
         if (registryReplicationServers == null) {
-            registryReplicationServers = new CopyOnWriteArrayList<NotificationHostConfiguration>();
+            registryReplicationServers = new CopyOnWriteArraySet<String>();
         }
         return registryReplicationServers;
     }
 
     public void setRegistryReplicationServers(
-            List<NotificationHostConfiguration> registryReplicationServers) {
-        this.registryReplicationServers = new CopyOnWriteArrayList<NotificationHostConfiguration>(
+            Set<String> registryReplicationServers) {
+        this.registryReplicationServers = new CopyOnWriteArraySet<String>(
                 registryReplicationServers);
+    }
+
+    public void addReplicationServer(String registryId) {
+        this.getRegistryReplicationServers().add(registryId);
+    }
+
+    public void removeReplicationServer(String registryId) {
+        this.getRegistryReplicationServers().remove(registryId);
     }
 }
