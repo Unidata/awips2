@@ -37,7 +37,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.registry.RegistryException;
 import com.raytheon.uf.edex.site.ISiteActivationListener;
+import com.raytheon.uf.edex.site.SiteAwareRegistry;
 
 /**
  * Service that fetches neighboring sites' active table entries that are
@@ -51,6 +53,8 @@ import com.raytheon.uf.edex.site.ISiteActivationListener;
  * ------------ ---------- ----------- --------------------------
  * Feb 28, 2013            dgilling    Initial creation
  * Feb 20, 2014   #2824    randerso    Changed log level of message when activating FetchAT
+ *                                     Registered with SiteAwareRegistry so we can stop
+ *                                     fetching when site is deactivated.
  * 
  * </pre>
  * 
@@ -75,6 +79,13 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
         jobExecutor = MoreExecutors
                 .getExitingScheduledExecutorService((ScheduledThreadPoolExecutor) Executors
                         .newScheduledThreadPool(1));
+
+        try {
+            SiteAwareRegistry.getInstance().register(this);
+        } catch (RegistryException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error registering with SiteAwareRegistry", e);
+        }
     }
 
     public void addSite(Map<String, Object> configData) {
