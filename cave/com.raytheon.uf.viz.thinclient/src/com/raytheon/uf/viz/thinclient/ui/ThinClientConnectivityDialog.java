@@ -62,6 +62,9 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Feb 04, 2014 2704       njensen     Refactored
  * Feb 17, 2014 2704       njensen     Added checks for alertviz connectivity
+ * Feb 20, 2014 2704       njensen     Fix issues where settings are valid
+ *                                        but dialog doesn't realize it
+ * 
  * 
  * </pre>
  * 
@@ -246,7 +249,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     @Override
     public boolean validate() {
         if (!useProxy) {
-            return super.validate();
+            boolean superResult = super.validate();
+            validateJms(superResult);
+            return superResult && jmsGood;
         }
 
         status = null;
@@ -267,33 +272,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             proxyText.setBackground(getTextColor(servicesGood && pypiesGood));
         }
 
-        // only check Jms if it's enabled and we can connect to the services
-        if (!disableJms) {
-            if (servicesGood) {
-                try {
-                    GetServersResponse response = ConnectivityManager
-                            .checkLocalizationServer(ThinClientUriUtil
-                                    .getServicesAddress(proxyAddress), false);
-                    ConnectivityManager.checkJmsServer(
-                            response.getJmsConnectionString(), jmsCallback);
-                } catch (VizException e) {
-                    if (status == null) {
-                        status = "Error connecting to JMS";
-                    }
-                    appendDetails(buildDetails(new ConnectivityResult(false,
-                            null, e)));
-                    jmsGood = false;
-                }
-            } else {
-                // JMS can't be good if services fail cause then we don't
-                // even know where to connect JMS to
-                jmsGood = false;
-            }
-        }
-        jmsGood = (jmsGood || disableJms);
-        if (jmsErrorLabel != null && !jmsErrorLabel.isDisposed()) {
-            jmsErrorLabel.setVisible(!jmsGood);
-        }
+        validateJms(servicesGood);
 
         // validate site
         if (siteText != null && !siteText.isDisposed()) {
@@ -309,7 +288,9 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
         if (alertVizServer != null) {
             if (alertVizText != null && !alertVizText.isDisposed()) {
                 setAlertVizServer(alertVizText.getText());
-                super.validateAlertviz();
+            }
+            super.validateAlertviz();
+            if (alertVizText != null && !alertVizText.isDisposed()) {
                 alertVizText.setBackground(getTextColor(isAlertVizGood()));
             }
         }
@@ -341,8 +322,51 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
             if (localizationText != null && !localizationText.isDisposed()) {
                 localizationText.setBackground(getTextColor(true));
             }
+        } else {
+            if (proxyText != null && !proxyText.isDisposed()) {
+                proxyText.setBackground(getTextColor(true));
+            }
         }
         validate();
+    }
+
+    /**
+     * Validates that a connection to JMS works.
+     * 
+     * @param hasEdexConnection
+     *            if we've successfully connected to edex
+     */
+    private void validateJms(boolean hasEdexConnection) {
+        // only check Jms if it's enabled and we can connect to the services
+        if (!disableJms) {
+            if (hasEdexConnection) {
+                try {
+                    String server = useProxy ? ThinClientUriUtil
+                            .getServicesAddress(proxyAddress)
+                            : getLocalization();
+                    GetServersResponse response = ConnectivityManager
+                            .checkLocalizationServer(server, false);
+                    ConnectivityManager.checkJmsServer(
+                            response.getJmsConnectionString(), jmsCallback);
+                } catch (VizException e) {
+                    if (status == null) {
+                        status = "Error connecting to JMS";
+                    }
+                    appendDetails(buildDetails(new ConnectivityResult(false,
+                            null, e)));
+                    jmsGood = false;
+                }
+            } else {
+                // JMS can't be good if we're not connected to edex cause
+                // then we don't even know where to connect to
+                jmsGood = false;
+            }
+        }
+        jmsGood = (jmsGood || disableJms);
+        if (jmsErrorLabel != null && !jmsErrorLabel.isDisposed()) {
+            jmsErrorLabel.setVisible(!jmsGood);
+        }
+
     }
 
 }
