@@ -24,7 +24,6 @@ import java.util.TimeZone;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.core.mode.CAVEMode;
@@ -42,6 +41,8 @@ import com.raytheon.viz.gfe.tasks.TaskManager;
  * Sep 8, 2008				njensen     Initial creation
  * Jan 15, 2010  3395       ryu         Fix &quot;issued by&quot; functionality
  * Sep 05, 2013  2329       randerso    Removed save of combinations file
+ * Feb 12, 2014  2591       randerso    Passed dataMgr instance to FormatterUtil.runFormatterScript
+ *                                      Removed call to TextProductManager.reloadModule
  * 
  * </pre>
  * 
@@ -59,6 +60,9 @@ public class FormatterUtil {
     /**
      * Runs a text formatter script for a given product
      * 
+     * @param dataMgr
+     *            the DataManager instance to use
+     * 
      * @param productMgr
      *            the formatter instance to use
      * @param productName
@@ -70,22 +74,12 @@ public class FormatterUtil {
      * @param finish
      *            listener to fire when formatter finishes generating product
      */
-    public static void runFormatterScript(TextProductManager productMgr,
-            String productName, String dbId, String vtecMode,
-            TextProductFinishListener finish) {
-        try {
-            String filename = productMgr.getCombinationsFileName(productName);
-            boolean mapRequired = productMgr.mapRequired(productName);
-            if (filename != null && mapRequired) {
-                productMgr.reloadModule(filename);
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Cannot generate combinations file", e);
-        }
+    public static void runFormatterScript(DataManager dataMgr,
+            TextProductManager productMgr, String productName, String dbId,
+            String vtecMode, TextProductFinishListener finish) {
 
         int testMode = 0;
-        if (DataManager.getCurrentInstance().getOpMode().equals(CAVEMode.TEST)) {
+        if (dataMgr.getOpMode().equals(CAVEMode.TEST)) {
             testMode = 1;
         }
 
@@ -106,8 +100,7 @@ public class FormatterUtil {
         }
 
         String name = productMgr.getModuleName(productName);
-        String varDict = productMgr.getVarDict(productName,
-                DataManager.getCurrentInstance(), dbId);
+        String varDict = productMgr.getVarDict(productName, dataMgr, dbId);
 
         if (varDict != null) {
             // run the formatter with the normal active table

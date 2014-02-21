@@ -10,7 +10,7 @@
 	<bean id="bufrhdwDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrhdwPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrhdw"/>
+		<constructor-arg value="jms-durable:queue:Ingest.bufrhdw"/>
 	</bean>
 
 	<bean id="bufrhdwCamelRegistered" factory-bean="contextManager"

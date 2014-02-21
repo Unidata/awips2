@@ -15,7 +15,7 @@
 	<bean id="ldadmesonetDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadmesonet" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadmesonet"/>
+		<constructor-arg value="jms-durable:queue:Ingest.ldadmesonet"/>
 	</bean>
 
 	<bean id="ldadmesonetPointData" class="com.raytheon.uf.common.dataplugin.ldadmesonet.LdadmesonetPointDataTransform"/>

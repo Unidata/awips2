@@ -9,7 +9,7 @@
     <bean id="profilerDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="profilerPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.profiler"/>
+		<constructor-arg value="jms-durable:queue:Ingest.profiler"/>
 	</bean>
 
     <bean id="profilerCamelRegistered" factory-bean="contextManager"

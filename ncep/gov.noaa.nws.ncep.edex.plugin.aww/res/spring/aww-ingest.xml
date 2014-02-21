@@ -18,7 +18,7 @@
     <bean id="awwDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="aww" />
-		<constructor-arg value="jms-dist:queue:Ingest.aww" />
+		<constructor-arg value="jms-durable:queue:Ingest.aww" />
 	</bean>
 	
     <!-- bean id="awwDistRegistry" class="com.raytheon.uf.edex.distribution.DistributionSrv"

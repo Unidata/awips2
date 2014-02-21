@@ -64,7 +64,7 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.edex.log.ThreadBasedAppender">
-      <param name="ThreadPatterns" value="HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*"/>
+      <param name="ThreadPatterns" value="HarvesterLog:harvester.*,crawlerThreadPool.*,Crawler.*"/>
       <param name="DefaultAppender" value="console"/>
       <appender-ref ref="console"/>
       <appender-ref ref="HarvesterLog"/>

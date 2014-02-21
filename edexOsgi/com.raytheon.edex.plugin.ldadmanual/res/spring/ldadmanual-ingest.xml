@@ -12,7 +12,7 @@
 	<bean id="ldadmanualDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadmanual" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadmanual"/>
+		<constructor-arg value="jms-durable:queue:Ingest.ldadmanual"/>
 	</bean>	
 
     <bean id="ldadmanualCamelRegistered" factory-bean="contextManager"

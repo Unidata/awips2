@@ -20,7 +20,7 @@
     <bean id="ncpirepDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncpirep" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncpirep" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncpirep" />
 	</bean>
     
     <bean id="ncpirepCamelRegistered" factory-bean="contextManager"
