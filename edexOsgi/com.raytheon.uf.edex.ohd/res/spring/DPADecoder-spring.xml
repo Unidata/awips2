@@ -9,13 +9,13 @@
 	<bean id="dpaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="dpa" />
-		<constructor-arg value="jms-dist:queue:Ingest.dpa"/>
+		<constructor-arg value="jms-durable:queue:Ingest.dpa"/>
 	</bean>
 	
 	<bean id="dpaRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="dpa" />
-		<constructor-arg value="jms-dist:queue:Ingest.dpa"/>
+		<constructor-arg value="jms-durable:queue:Ingest.dpa"/>
 	</bean>
 
 	<camelContext id="dpa-camel"

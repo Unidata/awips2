@@ -23,30 +23,41 @@ import java.text.SimpleDateFormat;
 
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 
-
+/**
+ * Constants for alert alarm.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Feb 10, 2014 2781       rjpeter     Initial history, update IHFS_CONFIG path.
+ * </pre>
+ * 
+ * @author jnjanga
+ * @version 1.0
+ */
 class Constants {
-    
+
     public static final SimpleDateFormat REPORT_TIME_PATTERN = new SimpleDateFormat(
-    "HH:mm:ss z, yyyy.MM.dd ");
+            "HH:mm:ss z, yyyy.MM.dd ");
 
     public static final int MISSING_VALUE_INT = ShefConstants.SHEF_MISSING_INT;
-    
+
     public static final double MISSING_VALUE_DOUBLE = -9999999.87654321;
 
     public static final String NEWLINE = System.getProperty("line.separator");
-    
+
     public final static String EOL = NEWLINE;
 
     public static final String SPACE = " ";
-    
+
     public static final String REPORT_ALARM_LOG = "report_alarm.log";
-    
+
     public static final String WHFS_PRODUCT_DIR = "whfs_product_dir";
-    
+
     public static final String WHFS_UTIL_LOG_DIR = "whfs_util_log_dir";
-    
-    public static final String IHFS_CONFIG = "/res/spring/ohd-common.xml";
-    
-    public static final String FXA_CONFIG = "/res/spring/alertalarm.xml";
-    
+
+    public static final String IHFS_CONFIG = "/res/spring/ohd-common-database.xml";
 }

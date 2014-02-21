@@ -37,8 +37,9 @@ import com.raytheon.uf.common.jms.JmsPooledConsumer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 18, 2011            rjpeter     Initial creation
+ * Apr 18, 2011            rjpeter     Initial creation.
  * Feb 26, 2013 1642       rjpeter     Added volatile references for better concurrency handling.
+ * Feb 07, 2014 2357       rjpeter     Set linked exception in exception handling.
  * </pre>
  * 
  * @author rjpeter
@@ -124,8 +125,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in getMessageListener");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -144,8 +148,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in getMessageSelector");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -164,8 +171,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in receive");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -184,8 +194,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in receive(timeout)");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -204,8 +217,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in receiveNoWait");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -226,8 +242,11 @@ public class JmsConsumerWrapper implements MessageConsumer {
         } catch (Throwable e) {
             exceptionOccurred = true;
             JMSException exc = new JMSException(
-                    "Exception occurred on pooled consumer");
+                    "Exception occurred on pooled consumer in setMessageLister");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }

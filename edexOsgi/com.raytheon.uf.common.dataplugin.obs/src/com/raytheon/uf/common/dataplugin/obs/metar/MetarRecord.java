@@ -97,6 +97,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *  May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  *  Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ *  Feb 11, 2014 2784       rferrel     Remove override of setIdentifier.
  * </pre>
  * 
  * @author bphillip
@@ -984,6 +985,11 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public void setSkyCoverage(Set<SkyCover> skyCoverage) {
         this.skyCoverage = skyCoverage;
+        if ((skyCoverage != null) && (skyCoverage.size() > 0)) {
+            for (SkyCover cover : skyCoverage) {
+                cover.setParentMetar(this);
+            }
+        }
     }
 
     public void addSkyCoverage(SkyCover cover) {
@@ -1019,6 +1025,11 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public void setWeatherCondition(List<WeatherCondition> weatherCondition) {
         this.weatherCondition = weatherCondition;
+        if ((weatherCondition != null) && (weatherCondition.size() > 0)) {
+            for (WeatherCondition cond : weatherCondition) {
+                cond.setParentMetar(this);
+            }
+        }
     }
 
     public void addWeatherCondition(WeatherCondition condition) {
@@ -1114,30 +1125,6 @@ public class MetarRecord extends PersistablePluginDataObject implements
      */
     public void setSnowWater(float snowWater) {
         this.snowWater = snowWater;
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
-        // set the parentID to the dataURI for all values
-        if ((this.getWeatherCondition() != null)
-                && (this.getWeatherCondition().size() > 0)) {
-            for (WeatherCondition cond : this.getWeatherCondition()) {
-                cond.setParentMetar(this);
-            }
-        }
-
-        // set the parentID to the dataURI for all values
-        if ((this.getSkyCoverage() != null)
-                && (this.getSkyCoverage().size() > 0)) {
-            for (SkyCover cover : this.getSkyCoverage()) {
-                cover.setParentMetar(this);
-            }
-        }
     }
 
     public String getReportType() {
