@@ -5,6 +5,6 @@
   	 <bean id="gribDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncgrib" />
-		<constructor-arg value="jms-dist:queue:Ingest.Ncgrib" />
+		<constructor-arg value="jms-durable:queue:Ingest.Ncgrib" />
   	</bean>
 </beans>
