@@ -5,28 +5,17 @@
 
 	<bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor"/>
 	<bean id="radarDecoder" class="com.raytheon.edex.plugin.radar.RadarDecoder"/>
-	<bean id="jms-radar" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsRadarConfig" />
-		<property name="taskExecutor" ref="radarThreadPool" />		
-	</bean>
-    <bean id="jmsRadarConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="radarThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="2" />
-	</bean>
-	
+
 	<bean id="radarDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="radar" />
-		<constructor-arg value="jms-dist:queue:Ingest.Radar" />
+		<constructor-arg value="jms-durable:queue:Ingest.Radar" />
 	</bean>
 	
 	<bean id="radarRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="radar" />
-		<constructor-arg value="jms-dist:queue:Ingest.RadarRadarServer" />
+		<constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
 	</bean>
 
     <bean id="radarCamelRegistered" factory-bean="contextManager"
@@ -47,13 +36,13 @@
 			<setHeader headerName="pluginName">
 				<constant>radar</constant>
 			</setHeader>
-			<to uri="jms-radar:queue:Ingest.Radar" />
+			<to uri="jms-durable:queue:Ingest.Radar" />
 		</route>
 		-->
 
 		<!-- Begin Radar routes -->
 		<route id="radarIngestRoute">
-			<from uri="jms-radar:queue:Ingest.Radar"/>
+			<from uri="jms-durable:queue:Ingest.Radar"/>
  			<setHeader headerName="dataType">
  				<constant>radar-sbn</constant>
 			</setHeader>
@@ -61,7 +50,7 @@
 		</route>
 		
 		<route id="radarRadarServerIngestRoute">
-			<from uri="jms-radar:queue:Ingest.RadarRadarServer"/>
+			<from uri="jms-durable:queue:Ingest.RadarRadarServer"/>
 			<setHeader headerName="dataType">
 				<constant>radar-local</constant>
 			</setHeader>

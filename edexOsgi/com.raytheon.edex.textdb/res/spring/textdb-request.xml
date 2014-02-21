@@ -41,12 +41,18 @@
   	</bean>
 
 	<!-- JmsPooled* do not work... -->	
-    <bean id="jms-alt" class="org.apache.camel.component.jms.JmsComponent">
-       <constructor-arg ref="jmsAltConfig" />
-       <property name="taskExecutor" ref="genericThreadPool" />
+    <bean id="jms-mhs" class="org.apache.camel.component.jms.JmsComponent">
+       <constructor-arg ref="jmsMhsConfig" />
+       <property name="taskExecutor" ref="mhsThreadPool" />
 	</bean>
 
-	<bean id="jmsAltConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <bean id="mhsThreadPool"
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+    </bean>
+    
+	<bean id="jmsMhsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
 		<property name="recoveryInterval" value="1000"/>
 		<property name="connectionFactory" ref="amqConnectionFactory" />
 		<property name="destinationResolver" ref="qpidNoDurableResolver"/>
@@ -64,7 +70,7 @@
 			<!-- Convert from BeanInvocation if needed. -->
 			<convertBodyTo type="com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest" />
 			<bean ref="serializationUtil" method="transformToThrift" />
-			<to uri="jms-alt:queue:fxa.mhs.request?requestTimeout=122000" pattern="InOut" />
+			<to uri="jms-mhs:queue:fxa.mhs.request?requestTimeout=122000" pattern="InOut" />
 			<bean ref="serializationUtil" method="transformFromThrift" />
 		</route>
 	</camelContext>

@@ -11,7 +11,7 @@
     <bean id="bufruaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufruaPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrua" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrua" />
 	</bean>
 
     <bean id="bufruaCamelRegistered" factory-bean="contextManager"

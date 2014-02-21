@@ -33,8 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.raytheon.edex.textdb.dbapi.impl.TextDB;
-import com.raytheon.uf.common.dataplugin.text.request.WriteProductRequest;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
@@ -45,12 +43,11 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * June 15, 2011    9377     jnjanga     Initial creation
- *  July 12, 2013   15711     wkwock      Fix verbose, observe mode, etc
- * 
- * 
+ * Date          Ticket#    Engineer    Description
+ * ------------- ---------- ----------- --------------------------
+ * Jun 15, 2011  9377       jnjanga     Initial creation.
+ * Jul 12, 2013  15711      wkwock      Fix verbose, observe mode, etc.
+ * Feb 10, 2014  2781       rjpeter     Removed dead method.
  * </pre>
  * 
  * @author jnjanga
@@ -88,7 +85,7 @@ public class AlertalarmStdTextProductUtil {
         setCurrentReportfile();
 
         reportAlarm();
-        
+
         System.exit(reportWriter.getAlarmCount());
     }
 
@@ -104,7 +101,7 @@ public class AlertalarmStdTextProductUtil {
         options.addOption(CmdlineOptionId.FILE_SUFFIX);
         options.addOption(CmdlineOptionId.FLAGS);
         options.addOption(CmdlineOptionId.PE);
-        options.addOption(CmdlineOptionId.VERBOSE,false);
+        options.addOption(CmdlineOptionId.VERBOSE, false);
         return options;
     }
 
@@ -147,13 +144,14 @@ public class AlertalarmStdTextProductUtil {
             String optName = optId.toString();
             System.out.println("optName = " + optName);
             if (optName.equalsIgnoreCase("v")) {
-            	if (line.hasOption(optName)) {
-            	    System.out.println("  optValue = true");
-            	} else {
-            		System.out.println("  optValue = false");
-            	}
+                if (line.hasOption(optName)) {
+                    System.out.println("  optValue = true");
+                } else {
+                    System.out.println("  optValue = false");
+                }
             } else {
-                System.out.println("  optValue = " + line.getOptionValue(optName));
+                System.out.println("  optValue = "
+                        + line.getOptionValue(optName));
             }
 
             if (line.hasOption(optName)) {
@@ -177,9 +175,10 @@ public class AlertalarmStdTextProductUtil {
         ignoreMin.add(ReportMode.NEAREST);
         ignoreMin.add(ReportMode.LATEST_MAXFCST);
         if (rptOptions.isMinutesGiven()
-                && ignoreMin.contains(rptOptions.getMode()))
+                && ignoreMin.contains(rptOptions.getMode())) {
             System.out
                     .println("Usage : -m<minutes> value ignored for this -r<report_mode>");
+        }
 
         reportOptions = rptOptions;
 
@@ -191,9 +190,11 @@ public class AlertalarmStdTextProductUtil {
     private static boolean hasDuplicateOptions(CommandLine line) {
         Option[] userOptions = line.getOptions();
         Set<String> unique = new HashSet<String>();
-        for (Option option : userOptions)
-            if (!unique.add(option.getOpt()))
+        for (Option option : userOptions) {
+            if (!unique.add(option.getOpt())) {
                 return true;
+            }
+        }
         return false;
     }
 
@@ -221,9 +222,9 @@ public class AlertalarmStdTextProductUtil {
         reportWriter.writeHeader();
         reportWriter.writeBody(aaRecord);
         if (reportOptions.getVerbose()) {
-        	reportWriter.writeVerboseTrailer();
+            reportWriter.writeVerboseTrailer();
         } else {
-        	reportWriter.writeReportTrailer();
+            reportWriter.writeReportTrailer();
         }
 
         // save it to the text database if indeed
@@ -232,42 +233,11 @@ public class AlertalarmStdTextProductUtil {
         if (alarmCount > 0) {
             log.info(alarmCount + " alarms reported, report written to "
                     + reportWriter.getFilename());
-            //saveReportTotextDb();
+            // saveReportTotextDb();
         } else {
             log.info("No alarms reported, info sent to "
                     + reportWriter.getFilename());
             log.info("File NOT sent to text database.");
-        }
-
-    }
-
-    /*
-     * saves the report contents to the text database.
-     */
-    private static void saveReportTotextDb() {
-
-        setApplicationSpringContext(Constants.FXA_CONFIG);
-
-        WriteProductRequest request = new WriteProductRequest();
-        request.setProductId(reportOptions.getProductId());
-        request.setOperationalMode(true);
-        request.setNotifyAlarmAlert(true);
-        String rptData = reportWriter.getReportData();
-        request.setReportData(rptData);
-
-        log.info("Sending " + reportWriter.getFilename() + " to textdb as id "
-                + request.getProductId());
-
-        TextDB textdb = new TextDB();
-        long result = textdb.writeProduct(request.getProductId(),
-                request.getReportData(), request.getOperationalMode(), null);
-
-        if (result != Long.MIN_VALUE) {
-            log.info("Product " + request.getProductId()
-                    + " successfully sent to textdb");
-        } else {
-            log.error("Error sending product " + request.getProductId()
-                    + " to textdb.  status=" + result);
         }
 
     }
@@ -308,18 +278,20 @@ public class AlertalarmStdTextProductUtil {
         String pid = reportOptions.getProductId();
         String suffix = reportOptions.getFileSuffix();
 
-        if (suffix.length() > 0)
-            currReport = new File(reportDir + File.separator + pid + "." + suffix);
-        else
+        if (suffix.length() > 0) {
+            currReport = new File(reportDir + File.separator + pid + "."
+                    + suffix);
+        } else {
             currReport = new File(reportDir + File.separator + pid);
+        }
 
         try {
             currReport.createNewFile();
         } catch (Exception e) {
-          log.fatal("Could not create report file "
+            log.fatal("Could not create report file "
                     + String.valueOf(currReport));
-          log.info("Exiting.");
-          System.exit(0);
+            log.info("Exiting.");
+            System.exit(0);
         }
     }
 

@@ -9,13 +9,13 @@
 	<bean id="tafDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="taf" />
-		<constructor-arg value="jms-dist:queue:Ingest.taf"/>
+		<constructor-arg value="jms-durable:queue:Ingest.taf"/>
 	</bean>
 
 	<bean id="tafHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="taf" />
-		<constructor-arg value="jms-dist:queue:Ingest.taf"/>
+		<constructor-arg value="jms-durable:queue:Ingest.taf"/>
 	</bean>
 
     <bean id="tafCamelRegistered" factory-bean="contextManager"

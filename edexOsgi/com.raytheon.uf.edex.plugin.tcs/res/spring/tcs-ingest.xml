@@ -10,7 +10,7 @@
 	<bean id="tcsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="tcsPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.tcs" />
+		<constructor-arg value="jms-durable:queue:Ingest.tcs" />
 	</bean>
 	
 	<bean id="tcsCamelRegistered" factory-bean="contextManager"

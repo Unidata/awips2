@@ -14,7 +14,7 @@
 	<bean id="ncairepDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncairep" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncairep" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncairep" />
 	</bean>
 
     <bean id="ncairepCamelRegistered" factory-bean="contextManager"

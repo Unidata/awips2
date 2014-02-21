@@ -225,6 +225,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 11/05/2012   15477       zhao        Trim blank lines in text in Editor when check Syntax
  * 01/09/2013   15528       zhao        Modified saveFile() and restoreFile()
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
+ * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
  * 
  * </pre>
  * 
@@ -672,6 +673,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             populateTafViewer();
             // Update the metar and mos guidance in the viewer tab.
             updateViewerTab(stationName);
+
+            // Mark the tabs as not current so they get updated.
+            markTabsAsNotCurrent();
+
             break;
 
         case OPEN_RTN:
@@ -767,7 +772,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         }
     }
 
-    @Override
+
+	/**
+	 * Mark the tabs as not current so they get refreshed.
+	 */
+	private void markTabsAsNotCurrent() {
+		for (TabItem tbi : guidanceViewerFolder.getItems()) {
+			if (tbi.getControl() instanceof ViewerTab) {
+				((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
+			}
+		}
+	}
+
+	@Override
     public void clearAll() {
         if (shell == null) {
             return;

@@ -9,7 +9,7 @@
 	<bean id="binlightningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="binlightning" />
-		<constructor-arg value="jms-dist:queue:Ingest.binlightning" />
+		<constructor-arg value="jms-durable:queue:Ingest.binlightning" />
 	</bean>
 
 	<bean id="binlightningCamelRegistered" factory-bean="clusteredCamelContextMgr"
