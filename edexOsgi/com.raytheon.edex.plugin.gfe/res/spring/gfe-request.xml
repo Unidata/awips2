@@ -460,17 +460,11 @@
 	
 	<bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue"
     	factory-method="getInstance" />
-  	<bean id="jms-iscsend" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIscSendConfig" />
-		<property name="taskExecutor" ref="iscSendThreadPool" />		
-	</bean>
-    <bean id="jmsIscSendConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
     <bean id="iscSendThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="2" />
-	</bean>
+        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="1" />
+        <property name="maxPoolSize" value="1" />
+    </bean>
 	<bean id="iscSendSrvCfg" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrvConfig">
 	    <property name="executor" ref="iscSendThreadPool"/>
 	    <!-- Threads should be 1 less than the size of the pool to account for the
@@ -486,17 +480,6 @@
   	
   	<!-- ISC Receive Beans -->
 	
-  	<bean id="jms-iscrec" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIscRecConfig" />
-		<property name="taskExecutor" ref="iscReceiveThreadPool" />		
-	</bean>
-    <bean id="jmsIscRecConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="iscReceiveThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="2" />
-	</bean>
   	<bean id="IscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv">
   		<constructor-arg ref="iscDataRecPythonThreadPool" />
 	</bean>
@@ -584,7 +567,7 @@
 		</route>
 
 		<route id="gfeSiteActivationNotification">
-			<from uri="jms-generic:topic:edex.alerts.siteActivate" />
+			<from uri="jms-generic:topic:edex.alerts.siteActivate?threadName=gfe-edex.alerts.siteActivate" />
 			<bean ref="serializationUtil" method="transformFromThrift" />
 			<bean ref="sbLockMgr" method="handleSiteActivationNotification" />
 		</route>
@@ -623,7 +606,7 @@
 		
 		<!-- ISC Data Receive route -->
 		<route id="iscReceiveRoute">
-			<from uri="jms-iscrec:queue:gfeIscDataReceive?concurrentConsumers=2"/>
+			<from uri="jms-durable:queue:gfeIscDataReceive?concurrentConsumers=2"/>
 			<doTry>
 				<pipeline>
 					<bean ref="serializationUtil" method="transformFromThrift" />
@@ -643,7 +626,7 @@
 		errorHandlerRef="errorHandler" autoStartup="false">
 		
 		<route id="iscSendJobQueueAggr">
-			<from uri="jms-iscsend:queue:iscSendNotification" />
+			<from uri="jms-durable:queue:iscSendNotification" />
             <doTry>
     			<bean ref="serializationUtil" method="transformFromThrift" />
 			    <bean ref="iscSendQueue" method="addSendJobs" />
