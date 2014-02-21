@@ -3,18 +3,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<!-- bean id="jms-solarimage" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIngestSolarImageConfig" />
-		<property name="taskExecutor" ref="solarimageThreadPool" />		
-	</bean>
-	<bean id="jmsIngestSolarImageConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
-	<bean id="solarimageThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean-->
-
 	<bean id="solarimageDecoder" class="gov.noaa.nws.ncep.edex.plugin.solarimage.SolarImageDecoder" depends-on="solarimagePluginName" >
 		<constructor-arg ref="solarimagePluginName" />
 		<!--  property name="dao" ref="SolarImageDao" /-->
@@ -27,7 +15,7 @@
 	<bean id="solarimageDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="solarimagePluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.SolarImage"/>
+		<constructor-arg value="jms-durable:queue:Ingest.SolarImage"/>
 	</bean>
 
     <bean id="solarimageCamelRegistered" factory-bean="contextManager"

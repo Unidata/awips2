@@ -64,6 +64,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 07, 2013 1869       bsteffen    Remove dataURI column from
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 11, 2014 2784       rferrel     Remove override of setIdentifier.
  * </pre>
  * 
  * @author F. J. Yen, SIB
@@ -383,15 +384,6 @@ public class NcPafmRecord extends PersistablePluginDataObject implements
     public Date getPersistenceTime() {
         // return this.dataTime.getRefTime();
         return null;
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
     }
 
     @Override
