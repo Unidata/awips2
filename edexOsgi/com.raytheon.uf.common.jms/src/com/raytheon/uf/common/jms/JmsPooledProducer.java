@@ -25,6 +25,9 @@ import java.util.List;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 
+import org.apache.qpid.client.AMQDestination;
+import org.apache.qpid.client.BasicMessageProducer;
+
 import com.raytheon.uf.common.jms.wrapper.JmsProducerWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -46,9 +49,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 18, 2011            rjpeter     Initial creation
- * Mar 08, 2012 194        njensen     Improved logging
- * Feb 26, 2013 1642       rjpeter     Removed lazy initialization
+ * Apr 18, 2011            rjpeter     Initial creation.
+ * Mar 08, 2012 194        njensen     Improved logging.
+ * Feb 26, 2013 1642       rjpeter     Removed lazy initialization.
+ * Feb 07, 2014 2357       rjpeter     Updated logging.
  * </pre>
  * 
  * @author rjpeter
@@ -84,6 +88,19 @@ public class JmsPooledProducer {
         this.sess = sess;
         this.destKey = destKey;
         this.producer = producer;
+        if (producer instanceof BasicMessageProducer) {
+            try {
+                statusHandler.info("Creating AMQ producer "
+                        + ((AMQDestination) ((BasicMessageProducer) producer)
+                                .getDestination()).getQueueName());
+            } catch (Exception e) {
+                statusHandler
+                        .error("Could not get producer destination for key "
+                                + destKey, e);
+            }
+        } else {
+            statusHandler.info("Creating producer " + destKey); // njensen
+        }
     }
 
     public String getDestKey() {
@@ -161,7 +178,14 @@ public class JmsPooledProducer {
 
         if (close) {
             try {
-                statusHandler.info("Closing producer " + destKey); // njensen
+                if (producer instanceof BasicMessageProducer) {
+                    statusHandler
+                            .info("Closing AMQ producer "
+                                    + ((AMQDestination) ((BasicMessageProducer) producer)
+                                            .getDestination()).getQueueName()); // njensen
+                } else {
+                    statusHandler.info("Closing producer " + destKey); // njensen
+                }
                 producer.close();
             } catch (Throwable e) {
                 statusHandler.handle(Priority.WARN, "Failed to close producer",

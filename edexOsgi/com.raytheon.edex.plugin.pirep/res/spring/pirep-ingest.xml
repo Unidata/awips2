@@ -13,7 +13,7 @@
     <bean id="pirepDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="pirep" />
-		<constructor-arg value="jms-dist:queue:Ingest.pirep" />
+		<constructor-arg value="jms-durable:queue:Ingest.pirep" />
 	</bean>
     
     <bean id="pirepCamelRegistered" factory-bean="contextManager"
