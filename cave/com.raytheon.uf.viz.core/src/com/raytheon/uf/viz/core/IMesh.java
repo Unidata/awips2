@@ -29,9 +29,9 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 21, 2014  2817     bsteffen    Remove Deprecated reproject.
  * 
  * </pre>
  * 
@@ -52,17 +52,6 @@ public interface IMesh {
      * @param extent
      */
     public boolean intersects(IExtent extent);
-
-    /**
-     * use clone instead, this method will be removed in future version.
-     * 
-     * @param targetGeometry
-     * @return
-     * @throws VizException
-     */
-    @Deprecated
-    public IMesh reproject(GeneralGridGeometry targetGeometry)
-            throws VizException;
 
     /**
      * Create a mesh identical to this mesh but for a different target geometry.
