@@ -12,7 +12,7 @@
         errorHandlerRef="errorHandler"
         autoStartup="false">
         <route id="satPreIngestRoute">
-            <from uri="jms-generic:topic:edex.alerts"/>
+            <from uri="jms-generic:topic:edex.alerts?threadName=satPreFilter-edex.alerts"/>
 	        <doTry>
 		          <pipeline>
 		          	<bean ref="serializationUtil" method="transformFromThrift" />

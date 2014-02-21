@@ -294,7 +294,7 @@ function logExitStatus()
      hostPath="$basePath/$hostName/"
      mkdir -p $hostPath
      if [ -d "$hostPath" ]; then
-       cp $coreFile $hostPath
+       mv $coreFile $hostPath
      fi
    fi
 }

@@ -10,7 +10,7 @@
 	<bean id="redbookDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="redbook" />
-		<constructor-arg value="jms-dist:queue:Ingest.redbook"/>
+		<constructor-arg value="jms-durable:queue:Ingest.redbook"/>
 	</bean>
 
 	<!-- 

@@ -10,7 +10,7 @@
 	<bean id="cwaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="cwaPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.cwa" />
+		<constructor-arg value="jms-durable:queue:Ingest.cwa" />
 	</bean>
 
 	<bean id="cwaCamelRegistered" factory-bean="contextManager"

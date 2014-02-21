@@ -456,8 +456,9 @@ if [ "${1}" = "-custom" ]; then
    #buildRPM "awips2-alertviz"
    #buildRPM "awips2-python"
    #buildRPM "awips2-alertviz"
+   buildRPM "awips2-ant"
    #buildRPM "awips2-eclipse"
-   buildRPM "awips2-python"
+   #buildRPM "awips2-python"
 
    exit 0
 fi

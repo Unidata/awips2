@@ -11,7 +11,7 @@
     <bean id="bufrsigwxDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrsigwxPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrsigwx" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrsigwx" />
 	</bean>
 
 	<bean id="bufrsigwxCamelRegistered" factory-bean="contextManager"

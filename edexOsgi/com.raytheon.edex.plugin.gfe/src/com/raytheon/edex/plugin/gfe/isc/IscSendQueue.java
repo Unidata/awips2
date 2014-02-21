@@ -59,9 +59,10 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 20, 2011            dgilling     Initial creation
- * May 08, 2012  #600      dgilling     Re-work logic for handling PENDING
- *                                      records.
+ * Oct 20, 2011            dgilling    Initial creation
+ * May 08, 2012 600        dgilling    Re-work logic for handling PENDING
+ *                                     records.
+ * Feb 07, 2014 2357       rjpeter     iscSendNotification uri.
  * 
  * </pre>
  * 
@@ -74,9 +75,9 @@ public class IscSendQueue {
     // how we'll organize the temporary queue
     private class JobSetQueueKey {
 
-        private ParmID pid;
+        private final ParmID pid;
 
-        private IscSendState state;
+        private final IscSendState state;
 
         public JobSetQueueKey(ParmID pid, IscSendState state) {
             this.pid = pid;
@@ -92,8 +93,9 @@ public class IscSendQueue {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((pid == null) ? 0 : pid.hashCode());
-            result = prime * result + ((state == null) ? 0 : state.hashCode());
+            result = (prime * result) + ((pid == null) ? 0 : pid.hashCode());
+            result = (prime * result)
+                    + ((state == null) ? 0 : state.hashCode());
             return result;
         }
 
@@ -148,7 +150,7 @@ public class IscSendQueue {
 
     private int timeoutMillis = 60000;
 
-    private Map<JobSetQueueKey, List<IscSendRecord>> jobSet = new HashMap<JobSetQueueKey, List<IscSendRecord>>();
+    private final Map<JobSetQueueKey, List<IscSendRecord>> jobSet = new HashMap<JobSetQueueKey, List<IscSendRecord>>();
 
     private static final IscSendQueue instance = new IscSendQueue();
 
@@ -168,7 +170,7 @@ public class IscSendQueue {
         try {
             byte[] messages = SerializationUtil.transformToThrift(sendJobs);
             EDEXUtil.getMessageProducer().sendAsyncUri(
-                    "jms-iscsend:queue:iscSendNotification", messages);
+                    "jms-durable:queue:iscSendNotification", messages);
         } catch (SerializationException e) {
             handler.error("Unable to serialize IscSendRecords.", e);
         } catch (EdexException e) {
@@ -238,7 +240,7 @@ public class IscSendQueue {
 
         // Now combine time ranges if we can
         int i = 0;
-        while (i <= pending.size() - 2) {
+        while (i <= (pending.size() - 2)) {
             TimeRange time = pending.get(i).getTimeRange();
             TimeRange time1 = pending.get(i + 1).getTimeRange();
 

@@ -36,7 +36,7 @@
         autoStartup="false">
         <!-- Need to reroute to a queue to allow for multiple jms consumers -->
 	    <route id="ncInventoryRoute">
-	        <from uri="jms-generic:topic:edex.alerts"/>
+	        <from uri="jms-generic:topic:edex.alerts?threadName=ncInventory-edex.alerts"/>
 	        <doTry>
 		          <pipeline>
 		          	<bean ref="serializationUtil" method="transformFromThrift" />

@@ -16,7 +16,7 @@
     <bean id="bufrquikscatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrquikscatPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrquikscat"/>
+		<constructor-arg value="jms-durable:queue:Ingest.bufrquikscat"/>
 	</bean>
 
 	<bean id="bufrquikscatCamelRegistered" factory-bean="contextManager"

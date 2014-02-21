@@ -11,7 +11,7 @@
     <bean id="ffgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ffg" />
-		<constructor-arg value="jms-dist:queue:Ingest.ffg" />
+		<constructor-arg value="jms-durable:queue:Ingest.ffg" />
 	</bean>
     
 	<bean id="ffgCamelRegistered" factory-bean="contextManager"
