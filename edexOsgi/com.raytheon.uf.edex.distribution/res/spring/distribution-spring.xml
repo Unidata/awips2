@@ -8,19 +8,6 @@
   	<bean id="handleoupDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" />
   	<bean id="radarserverDistributionSrv" class="com.raytheon.uf.edex.distribution.DistributionSrv" /> 
 
-	<bean id="jms-dist" class="org.apache.camel.component.jms.JmsComponent">
-	    <!-- All initial distribution queues are durable -->
-        <constructor-arg ref="jmsDistConfig" />
-		<property name="taskExecutor" ref="distributionThreadPool" />		
-	</bean>
-    <bean id="jmsDistConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="distributionThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="7" />
-		<property name="maxPoolSize" value="7" />
-	</bean>
-
     <camelContext id="distro"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler"
@@ -29,7 +16,7 @@
         <endpoint id="refreshDistributionCron" uri="quartz://refreshDist/refreshDistRoute/?cron=${distribution.cron}"/>        
         
 		<route id="distribution">
-            <from uri="jms-dist:queue:external.dropbox?concurrentConsumers=5&amp;maxConcurrentConsumers=5"/>
+            <from uri="jms-durable:queue:external.dropbox?concurrentConsumers=5&amp;maxConcurrentConsumers=5"/>
             <doTry>
 		    	<bean ref="distributionSrv" method="route" />
                 <doCatch>
@@ -40,7 +27,7 @@
         </route>
         
         <route id="handleoupDistribution">
-            <from uri="jms-dist:queue:handleoup.dropbox"/>
+            <from uri="jms-durable:queue:handleoup.dropbox"/>
             <doTry>
 		    	<bean ref="handleoupDistributionSrv" method="route" />
                 <doCatch>
@@ -51,7 +38,7 @@
         </route>
         
         <route id="radarserverDistribution">
-            <from uri="jms-dist:queue:radarserver.dropbox" />
+            <from uri="jms-durable:queue:radarserver.dropbox" />
             <doTry>
 		    	<bean ref="radarserverDistributionSrv" method="route" />
                 <doCatch>

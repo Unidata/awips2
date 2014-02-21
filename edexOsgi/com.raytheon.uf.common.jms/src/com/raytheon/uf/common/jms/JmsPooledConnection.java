@@ -39,7 +39,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * connection can be released to the pool. Any exception will close pooled
  * session instead of returning to the pool. The sessions are tracked in both
  * active and available states. An available session can be reused by the next
- * client.
+ * client. The connection is pinned to Thread that creates the connection and
+ * cannot be used/reused by any other thread.
  * 
  * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
  * happen in a downward direction. A manager has a synchronized lock can make a
@@ -52,9 +53,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 15, 2011            rjpeter     Initial creation
- * Mar 08, 2012 194        njensen     Improved safety of close()
- * Feb 21, 2013 1642       rjpeter     Fix deadlock scenario
+ * Apr 15, 2011            rjpeter     Initial creation.
+ * Mar 08, 2012 194        njensen     Improved safety of close().
+ * Feb 21, 2013 1642       rjpeter     Fix deadlock scenario.
+ * Feb 07, 2014 2357       rjpeter     Track by Thread, close session is it has no
+ *                                     producers/consumers.
  * </pre>
  * 
  * @author rjpeter
@@ -86,7 +89,7 @@ public class JmsPooledConnection implements ExceptionListener {
 
     private volatile AvailableJmsPooledObject<JmsPooledSession> availableSession = null;
 
-    private volatile String key = null;
+    private final Thread thread;
 
     private final String clientId;
 
@@ -94,8 +97,10 @@ public class JmsPooledConnection implements ExceptionListener {
 
     private volatile boolean exceptionOccurred = false;
 
-    public JmsPooledConnection(JmsPooledConnectionFactory connFactory) {
+    public JmsPooledConnection(JmsPooledConnectionFactory connFactory,
+            Thread thread) {
         this.connFactory = connFactory;
+        this.thread = thread;
         this.clientId = null;
         getConnection();
     }
@@ -123,7 +128,8 @@ public class JmsPooledConnection implements ExceptionListener {
             if (availableSession != null) {
                 JmsPooledSession availSess = availableSession.getPooledObject();
                 synchronized (availSess.getStateLock()) {
-                    if (availSess.isValid()) {
+                    if (availSess.isValid()
+                            && availSess.hasProducersOrConsumers()) {
                         availSess.setState(State.InUse);
                         session = availSess;
                     } else {
@@ -185,6 +191,7 @@ public class JmsPooledConnection implements ExceptionListener {
         }
 
         if (canClose) {
+            statusHandler.info("Closing connection: " + this.toString());
             // njensen: I moved removing the connection from the pool to be
             // the first thing in this block instead of last thing so
             // there's no chance it could be closed and then retrieved from
@@ -283,6 +290,8 @@ public class JmsPooledConnection implements ExceptionListener {
             // safe since conn is volatile
             synchronized (stateLock) {
                 if (conn == null) {
+                    statusHandler.info("Creating connection: "
+                            + this.toString());
                     long exceptionLastHandled = 0;
                     boolean connected = false;
                     while (!connected) {
@@ -298,7 +307,7 @@ public class JmsPooledConnection implements ExceptionListener {
                             connectionStartTime = System.currentTimeMillis();
                             connected = true;
                         } catch (Exception e) {
-                            if (exceptionLastHandled + ERROR_BROADCAST_INTERVAL < System
+                            if ((exceptionLastHandled + ERROR_BROADCAST_INTERVAL) < System
                                     .currentTimeMillis()) {
                                 exceptionLastHandled = System
                                         .currentTimeMillis();
@@ -502,12 +511,8 @@ public class JmsPooledConnection implements ExceptionListener {
         }
     }
 
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getKey() {
-        return key;
+    public Thread getThread() {
+        return thread;
     }
 
     /**

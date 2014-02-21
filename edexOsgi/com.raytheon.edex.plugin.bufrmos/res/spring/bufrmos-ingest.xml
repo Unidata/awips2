@@ -8,7 +8,7 @@
 	<bean id="bufrmosDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="bufrmos" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrmos" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrmos" />
 	</bean>
 
     <bean id="bufrmosCamelRegistered" factory-bean="contextManager"

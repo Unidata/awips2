@@ -11,6 +11,7 @@
 #  Apr 03,2012 436        randerso     Converted to Python procedure to allow some
 #                                      level of site customization
 #  Apr 09,2012 436        randerso     Merged RNK's MakeHazards_Elevation procedure
+#  Feb 12,2014 17058      ryu          Extend converter for Collections$EmptyList objects.
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
@@ -307,6 +308,8 @@ def converter(obj):
     objtype = obj.jclassname
     if objtype == "java.util.Date":
         retVal = AbsTime.AbsTime(obj)
+    elif objtype == "java.util.Collections$EmptyList":
+        retVal = []
     elif objtype == "com.raytheon.uf.common.time.TimeRange":
         retVal = TimeRange.TimeRange(obj)
     return retVal

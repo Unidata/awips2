@@ -98,7 +98,7 @@
 		</route>
 
         <route id="notifyGridParmManager">
-            <from uri="jms-generic:topic:edex.alerts.gfe" />
+            <from uri="jms-generic:topic:edex.alerts.gfe?threadName=gfeGridParmMgr-edex.alerts.gfe" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="gridParmManager" method="processNotification" />

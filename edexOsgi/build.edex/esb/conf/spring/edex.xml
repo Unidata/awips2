@@ -14,33 +14,30 @@
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='tcp://${BROKER_ADDR}?retries='9999'&amp;heartbeat='0'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
        <constructor-arg ref="amqConnectionFactory"/>
        <property name="provider" value="QPID"/>
        <property name="reconnectInterval" value="5000"/>
-       <!-- After connection has been closed by thread keep it allocated for another 90 seconds in case thread needs it again -->
-       <property name="connectionHoldTime" value="90000"/>
-       <!-- Any resource that has been available in the pool for more than 1 minute will be closed -->
-       <property name="resourceRetention" value="60000"/>
-       <property name="maxSpareConnections" value="10"/>
+       <!-- After resource has been closed by thread keep it allocated for another 2 minutes in case thread needs it again -->
+       <property name="resourceRetention" value="120000"/>
     </bean>
  
     <bean id="genericThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${JMS_POOL_MIN}" />
-		<property name="maxPoolSize" value="${JMS_POOL_MAX}" />
+		<property name="corePoolSize" value="0" />
+		<property name="maxPoolSize" value="1" />
 		<property name="queueCapacity" value="0" />
 	</bean>
 
-    <bean id="jms-generic" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="jms-generic" class="com.raytheon.uf.edex.esb.camel.jms.DedicatedThreadJmsComponent">
        <constructor-arg ref="jmsGenericConfig" />
        <property name="taskExecutor" ref="genericThreadPool" />
 	</bean>
 
-    <bean id="jms-durable" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="jms-durable" class="com.raytheon.uf.edex.esb.camel.jms.DedicatedThreadJmsComponent">
        <constructor-arg ref="jmsDurableConfig" />
        <property name="taskExecutor" ref="genericThreadPool" />
     </bean>
@@ -66,13 +63,13 @@
 
 	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
 		<property name="cacheLevelName" value="CACHE_NONE"/>
-		<property name="recoveryInterval" value="1000"/>
+		<property name="recoveryInterval" value="10000"/>
 		<property name="requestTimeout" value="5000"/>
 
 		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
 		<!-- receiveTimeout also affects how fast a JMSConsumer will shut down, because the
                   thread may be stuck polling for the duration of receiveTimeout before shutting down -->
-		<property name="receiveTimeout" value="10000"/>
+		<property name="receiveTimeout" value="10000"/>   
 		<property name="transacted" value="false"/>
 
 		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.
@@ -83,6 +80,7 @@
 		<property name="destinationResolver" ref="qpidNoDurableResolver" />
 		<property name="disableReplyTo" value="true" />
 		<property name="deliveryPersistent" value="false"/>
+        
 		<!--
 		<property name="transacted" value="true" />
 		<property name="acknowledgementModeName" value="TRANSACTED"/>
@@ -253,7 +251,7 @@
     **
     ** http://camel.apache.org/enterprise-integration-patterns.html
     -->
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                                                
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
 		<!-- Route for edex to listen for utility updates -->
 		<route id="edexUtilityNotify">

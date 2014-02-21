@@ -11,7 +11,7 @@
 	<bean id="ncccfpDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncccfp" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncccfp" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncccfp" />
 	</bean>
 
 	<bean id="ncccfpCamelRegistered" factory-bean="contextManager"

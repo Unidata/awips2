@@ -5,18 +5,6 @@
 
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
-	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsGribConfig" />
-		<property name="taskExecutor" ref="gribThreadPool" />
-	</bean>
-    <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="gribThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${grib-decode.count.threads}" />
-		<property name="maxPoolSize" value="${grib-decode.count.threads}" />
-	</bean>
-
 	<bean id="largeFileChecker" class="com.raytheon.edex.plugin.grib.GribLargeFileChecker" />
 
 	<bean id="gribSplitter" class="com.raytheon.edex.plugin.grib.GribSplitter">
@@ -58,7 +46,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribFileEndpoint" uri="file:${edex.home}/data/sbn/grib?noop=true&amp;idempotent=false" />
-		<endpoint id="gribJmsEndpoint" uri="ingest-grib:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}"/>
+		<endpoint id="gribJmsEndpoint" uri="jms-durable:queue:Ingest.Grib?concurrentConsumers=${grib-decode.count.threads}"/>
 		
 	 	<route id="gribFileConsumerRoute">
 	 		<from ref="gribFileEndpoint" />
@@ -67,7 +55,7 @@
 	 			<setHeader headerName="pluginName">
 	 				<constant>grid</constant> 
 				</setHeader>
-				<to uri="ingest-grib:queue:Ingest.Grib" />
+				<to uri="jms-durable:queue:Ingest.Grib" />
 		</route>
 	
 		<!-- Begin Grib Decode Route -->
@@ -108,7 +96,7 @@
 						</doTry>
 					</when>
 					<otherwise>
-						<to uri="ingest-grib:queue:Ingest.Grib" />
+						<to uri="jms-durable:queue:Ingest.Grib" />
 					</otherwise>
 				</choice>
 			</split>

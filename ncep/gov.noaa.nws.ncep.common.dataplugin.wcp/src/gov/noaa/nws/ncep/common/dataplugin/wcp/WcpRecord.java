@@ -1,34 +1,3 @@
-/**
- * WcpRecord is the Data Access component for WCP Watch Corner Point data.
- * This contains getters and setters for the main parent table wcp.
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
- * <pre>
- * 
- * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 12Dec2008    37         F. J. Yen   Initial Coding.
- * 17Apr2009    37         F. J. Yen   Refactored for TO10
- * 24Aug2009    37         F. J. Yen   Refactored for TO11
- * 17May2010    37         F. J. Yen   Refactored to dataplugin for migration to
- *                                     to11dr11
- * 09/2011                 Chin Chen   changed to improve purge performance and
- *                                     removed xml serialization as well
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- * 
- * </pre>
- * 
- * @author F. J. Yen, SIB
- * @version 1.0
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.wcp;
 
 import java.util.Calendar;
@@ -55,6 +24,37 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * WcpRecord is the Data Access component for WCP Watch Corner Point data. This
+ * contains getters and setters for the main parent table wcp. This code has
+ * been developed by the SIB for use in the AWIPS2 system.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 12Dec2008    37         F. J. Yen   Initial Coding.
+ * 17Apr2009    37         F. J. Yen   Refactored for TO10
+ * 24Aug2009    37         F. J. Yen   Refactored for TO11
+ * 17May2010    37         F. J. Yen   Refactored to dataplugin for migration to
+ *                                     to11dr11
+ * 09/2011                 Chin Chen   changed to improve purge performance and
+ *                                     removed xml serialization as well
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 11, 2014 2784       rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * @author F. J. Yen, SIB
+ * @version 1.0
+ */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "wcpseq")
 @Table(name = "wcp", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -169,12 +169,6 @@ public class WcpRecord extends PluginDataObject {
      */
     public void addWcpSevrLn(WcpSevrln psevrln) {
         wcpSevrLn.add(psevrln);
-
-    }
-
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
 
     }
 
