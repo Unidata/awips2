@@ -22,28 +22,36 @@ package com.raytheon.uf.viz.remote.graphics.events.mesh;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
+import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 /**
- * TODO Add Description
+ * 
+ * Event for cloning a mesh in a different projection
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 21, 2014  2817     bsteffen    Initial creation
  * 
  * </pre>
  * 
- * @author mschenke
+ * @author bsteffen
  * @version 1.0
  */
 @DynamicSerialize
-public class ReprojectMeshEvent extends AbstractDispatchingObjectEvent {
+public class CloneMeshEvent extends AbstractDispatchingObjectEvent implements
+        ICreationEvent {
 
+    @DynamicSerializeElement
     private GeneralGridGeometry targetGeometry;
+
+    @DynamicSerializeElement
+    private int sourceObjectId;
 
     /**
      * @return the targetGeometry
@@ -58,6 +66,14 @@ public class ReprojectMeshEvent extends AbstractDispatchingObjectEvent {
      */
     public void setTargetGeometry(GeneralGridGeometry targetGeometry) {
         this.targetGeometry = targetGeometry;
+    }
+
+    public int getSourceObjectId() {
+        return sourceObjectId;
+    }
+
+    public void setSourceObjectId(int sourceObjectId) {
+        this.sourceObjectId = sourceObjectId;
     }
 
 }
