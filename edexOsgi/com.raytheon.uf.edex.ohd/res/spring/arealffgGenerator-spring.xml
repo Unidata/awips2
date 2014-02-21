@@ -15,7 +15,7 @@
 	<bean id="arealffgDistRegistry" class="com.raytheon.uf.edex.distribution.DistributionSrv"
 		factory-method="register">
 		<constructor-arg value="arealffg" />
-		<constructor-arg value="jms-dist:queue:Ingest.arealffg" />
+		<constructor-arg value="jms-durable:queue:Ingest.arealffg" />
 	</bean>
 
 	<camelContext id="arealffg-camel"

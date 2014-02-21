@@ -9,7 +9,7 @@
     <bean id="poessoundingDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="poessoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.poessounding"/>
+		<constructor-arg value="jms-durable:queue:Ingest.poessounding"/>
 	</bean>
     
     <bean id="poessoundingCamelRegistered" factory-bean="contextManager"

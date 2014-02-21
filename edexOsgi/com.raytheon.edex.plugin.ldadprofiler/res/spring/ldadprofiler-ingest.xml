@@ -16,7 +16,7 @@
 	<bean id="ldadprofilerDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadprofiler" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadprofiler"/>
+		<constructor-arg value="jms-durable:queue:Ingest.ldadprofiler"/>
 	</bean>
     
     <bean id="ldadprofilerCamelRegistered" factory-bean="contextManager"

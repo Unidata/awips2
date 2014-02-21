@@ -13,7 +13,7 @@
 	<bean id="ldadhydroDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ldadhydro" />
-		<constructor-arg value="jms-dist:queue:Ingest.ldadhydro" />
+		<constructor-arg value="jms-durable:queue:Ingest.ldadhydro" />
 	</bean>	
 	
 	<bean id="ldadhydroPointData" class="com.raytheon.edex.plugin.ldadhydro.dao.LdadhydroPointDataTransform"/>
