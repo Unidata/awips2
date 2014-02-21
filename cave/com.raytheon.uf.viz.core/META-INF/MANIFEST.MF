@@ -1,13 +1,12 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Core Plug-in
+Bundle-Name: Viz Core Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.core;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.14.1.qualifier
 Bundle-Activator: com.raytheon.uf.viz.core.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.apache.commons.beanutils;bundle-version="1.6.1",
  org.apache.http;visibility:=reexport,
  com.raytheon.uf.common.localization;visibility:=reexport,
  com.raytheon.uf.common.serialization;visibility:=reexport,
@@ -18,21 +17,19 @@ Require-Bundle: org.eclipse.ui,
  org.apache.commons.lang,
  javax.vecmath;bundle-version="1.3.1",
  javax.measure;bundle-version="1.0.0",
- org.jep;bundle-version="1.0.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.11.11",
- org.apache.velocity;bundle-version="1.5.0",
  org.apache.qpid;bundle-version="0.18.0",
  javax.jms;bundle-version="1.0.0",
  org.apache.activemq,
  com.raytheon.uf.common.util;bundle-version="1.0.0",
  com.raytheon.uf.common.auth;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.0",
  com.raytheon.uf.common.dataquery;visibility:=reexport,
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
+ com.raytheon.uf.common.pointdata;bundle-version="1.13.0",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.message;bundle-version="1.12.1174",
