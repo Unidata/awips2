@@ -16,18 +16,6 @@
 		<constructor-arg value="${ncgrib-decode.count.threads}" />
   	</bean>
   	
-  	<bean id="ingest-ncgrib" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsNcgribConfig" />
-		<property name="taskExecutor" ref="ncgribThreadPool" />		
-	</bean>
-    <bean id="jmsNcgribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="ncgribThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" ref="ncgribDecodeThreads" />
-		<property name="maxPoolSize" ref="ncgribDecodeThreads" />
-	</bean>
-
         <bean id="ncgribLargeFileChecker" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribLargeFileChecker" />
         <bean id="ncgribLargeFileLockRelease" class="gov.noaa.nws.ncep.edex.plugin.ncgrib.NcgribLockRelease" />
 
@@ -54,7 +42,7 @@
 	 			<setHeader headerName="pluginName">
 	 				<constant>grid</constant> 
 				</setHeader>
-				<to uri="ingest-grib:queue:Ingest.Grib" />
+				<to uri="jms-durable:queue:Ingest.Grib" />
 		</route>
 		<!-- End Ncgrib-grid Routes -->
 		
@@ -65,12 +53,12 @@
 			<setHeader headerName="pluginName">
 				<constant>ncgrib</constant>
 			</setHeader>
-			<to uri="ingest-ncgrib:queue:Ingest.Ncgrib" />
+			<to uri="jms-durable:queue:Ingest.Ncgrib" />
 		</route>
 
 
 		<route id="ncgribIngestRoute">
-			<from uri="ingest-ncgrib:queue:Ingest.Ncgrib?concurrentConsumers=#ncgribDecodeThreads" />
+			<from uri="jms-durable:queue:Ingest.Ncgrib?concurrentConsumers=#ncgribDecodeThreads" />
 			<setHeader headerName="pluginName">
 				<constant>ncgrib</constant>
 			</setHeader>

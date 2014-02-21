@@ -78,6 +78,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * May 07, 2013 1869        bsteffen    Remove dataURI column from
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Feb 11, 2014 2784        rferrel     Remove override of setIdentifier.
  * 
  * </pre>
  * 
@@ -612,13 +613,6 @@ public class NcTafRecord extends PluginDataObject implements ISpatialEnabled,
      */
     public void setIssue_timeString(String issue_timeString) {
         this.issue_timeString = issue_timeString;
-    }
-
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
     }
 
     /**

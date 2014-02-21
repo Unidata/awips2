@@ -1,21 +1,3 @@
-/**
- * NtransRecord
- * 
- * This java class performs the mapping to the database table for NTRANS Metafiles
- * 
- * <pre>
- * HISTORY
- *
- * Date     	Author		Description
- * ------------	----------	-----------	--------------------------
- * 02/2013		B. Hebbard	Initial creation	
- * Apr 4, 2013  1846 bkowal Added an index on refTime and forecastTime	
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.ntrans;
 
 import javax.persistence.Access;
@@ -42,6 +24,27 @@ import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * NtransRecord
+ * 
+ * This java class performs the mapping to the database table for NTRANS
+ * Metafiles
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket# Author      Description
+ * ------------ ------- ----------  ----------- --------------------------
+ * 02/2013      B. Hebbard  Initial creation    
+ * Apr 4, 2013  1846 bkowal Added an index on refTime and forecastTime  
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
+ * Feb 11, 2014 2784    rferrel     Remove override of setIdentifier.
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ntransseq")
@@ -233,11 +236,6 @@ public class NtransRecord extends PersistablePluginDataObject {
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
-    }
-
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
     }
 
     @Override

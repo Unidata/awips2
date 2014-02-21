@@ -10,7 +10,7 @@
 	<bean id="tcgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="tcgPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.tcg"/>
+		<constructor-arg value="jms-durable:queue:Ingest.tcg"/>
 	</bean>
 
 	<bean id="tcgCamelRegistered" factory-bean="contextManager"

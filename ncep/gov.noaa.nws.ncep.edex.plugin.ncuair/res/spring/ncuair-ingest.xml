@@ -14,7 +14,7 @@
 	<bean id="ncuairDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncuair" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncuair" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncuair" />
 	</bean>
 
 	<bean id="ncuairCamelRegistered" factory-bean="contextManager"
