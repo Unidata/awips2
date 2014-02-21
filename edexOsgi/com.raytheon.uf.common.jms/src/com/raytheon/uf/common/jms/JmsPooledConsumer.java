@@ -26,6 +26,8 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
+import org.apache.qpid.client.BasicMessageConsumer;
+
 import com.raytheon.uf.common.jms.wrapper.JmsConsumerWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -47,9 +49,10 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 18, 2011            rjpeter     Initial creation
- * Mar 08, 2012 194        njensen     Improved logging
- * Feb 26, 2013 1642       rjpeter     Removed lazy initialization
+ * Apr 18, 2011            rjpeter     Initial creation.
+ * Mar 08, 2012 194        njensen     Improved logging.
+ * Feb 26, 2013 1642       rjpeter     Removed lazy initialization.
+ * Feb 07, 2014 2357       rjpeter     Updated logging.
  * </pre>
  * 
  * @author rjpeter
@@ -87,6 +90,14 @@ public class JmsPooledConsumer {
         this.destKey = destKey;
         consumer = sess.getSession().createConsumer(destination,
                 messageSelector);
+
+        if (consumer instanceof BasicMessageConsumer) {
+            statusHandler.info("Creating AMQ consumer "
+                    + ((BasicMessageConsumer) consumer).getDestination()
+                            .getQueueName()); // njensen
+        } else {
+            statusHandler.info("Creating consumer " + destKey); // njensen
+        }
     }
 
     public String getDestKey() {
@@ -164,7 +175,13 @@ public class JmsPooledConsumer {
 
         if (close) {
             try {
-                statusHandler.info("Closing consumer " + destKey); // njensen
+                if (consumer instanceof BasicMessageConsumer) {
+                    statusHandler.info("Closing AMQ consumer "
+                            + ((BasicMessageConsumer) consumer)
+                                    .getDestination().getQueueName()); // njensen
+                } else {
+                    statusHandler.info("Closing consumer " + destKey); // njensen
+                }
                 consumer.close();
             } catch (Throwable e) {
                 statusHandler.handle(Priority.WARN, "Failed to close consumer "

@@ -15,7 +15,7 @@
 	<bean id="ncpafmDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncpafm" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncpafm" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncpafm" />
 	</bean>
 
 	<bean id="ncpafmCamelRegistered" factory-bean="contextManager"
