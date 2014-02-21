@@ -1,22 +1,3 @@
-/**
- * NonConvsigmetRecord
- * 
- * This java class performs the mapping to the database table for NONCONVSIGMET
- * 
- * HISTORY
- *
- * Date     	Author		Description
- * ------------	----------	-----------	--------------------------
- * 06/2009		Uma Josyula	Initial creation	
- * 09/2011      Chin Chen   changed to improve purge performance and
- * 							removed xml serialization as well
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.nonconvsigmet;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
@@ -44,6 +25,30 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * NonConvsigmetRecord
+ * 
+ * This java class performs the mapping to the database table for NONCONVSIGMET
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket Author      Description
+ * ------------ ------ ------  ----------- --------------------------
+ * 06/2009      Uma Josyula Initial creation    
+ * 09/2011      Chin Chen   changed to improve purge performance and
+ *                          removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857 bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
+ * Feb 11, 2014 2784   rferrel    Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "nonconvsigmetseq")
@@ -516,17 +521,6 @@ public class NonConvSigmetRecord extends PluginDataObject {
      */
     public void addNonConvSigmetLocation(NonConvSigmetLocation pLocation) {
         nonConvSigmetLocation.add(pLocation);
-
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
 
     }
 

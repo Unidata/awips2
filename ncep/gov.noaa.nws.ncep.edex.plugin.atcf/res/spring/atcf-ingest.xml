@@ -22,7 +22,7 @@
 		factory-method="register">
 		<constructor-arg value="atcf" />
 		<!-- <constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />  -->
-		<constructor-arg value="jms-dist:queue:Ingest.atcf" />
+		<constructor-arg value="jms-durable:queue:Ingest.atcf" />
 	</bean>
 
 	<bean id="atcfCamelRegistered" factory-bean="contextManager"

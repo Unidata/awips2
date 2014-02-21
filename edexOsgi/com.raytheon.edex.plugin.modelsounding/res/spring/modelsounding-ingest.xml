@@ -22,7 +22,7 @@
 	<bean id="mdlsndgDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="modelsoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.modelsounding"/>
+		<constructor-arg value="jms-durable:queue:Ingest.modelsounding"/>
 	</bean>
 
     <bean id="modelsoundingCamelRegistered" factory-bean="contextManager"
