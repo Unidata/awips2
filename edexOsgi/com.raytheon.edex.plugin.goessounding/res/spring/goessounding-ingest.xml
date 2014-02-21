@@ -12,7 +12,7 @@
 	<bean id="goessoundingDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="goessoundingPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.goessounding"/>
+		<constructor-arg value="jms-durable:queue:Ingest.goessounding"/>
 	</bean>
 
     <bean id="goessoundingCamelRegistered" factory-bean="contextManager"

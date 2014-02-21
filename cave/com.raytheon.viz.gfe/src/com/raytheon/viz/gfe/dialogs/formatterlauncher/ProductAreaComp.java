@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.TabFolder;
 
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.dialogs.FormatterLauncherDialog;
@@ -64,6 +65,8 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  * 05 SEP 2013  2329       randerso    Added call to ZoneCombinerComp.applyZoneCombo when
  *                                     when run formatter button is clicked.
  * 05 FEB 2014  2591       randerso    Added dataManager to ZoneCombinerComp constructor
+ *                                     Passed dataMgr instance to FormatterUtil.runFormatterScript
+ * 12 FEB 2014  2801       randerso    Added prompting if formatter is run against non-normal database
  * 
  * </pre>
  * 
@@ -365,36 +368,37 @@ public class ProductAreaComp extends Composite implements
                     productEditorBtnSelected();
 
                     if (okToLoseText()) {
-                        productEditorComp.clearProductText();
-                        abortFormatterBtn.setEnabled(true);
-                        // closeTabBtn.setEnabled(false);
-                        runFormatterBtn.setEnabled(false);
-                        String vtecMode = "";
-                        if (formattingCbo.isVisible()) {
-                            vtecMode = formattingCbo.getText();
-                        } else {
-                            int hazIndex = productName.indexOf("Hazard_");
-                            if (hazIndex > -1) {
-                                String category = productName.substring(
-                                        hazIndex + 7, hazIndex + 10);
-                                vtecMode = textProductMgr
-                                        .getVtecMessageType(category);
-                                if (vtecMode == null) {
-                                    vtecMode = "";
+                        DatabaseID dbId = ((FormatterLauncherDialog) productTabCB)
+                                .getSelectedDataSource(productName);
+
+                        if (dbId != null) {
+                            productEditorComp.clearProductText();
+                            abortFormatterBtn.setEnabled(true);
+                            // closeTabBtn.setEnabled(false);
+                            runFormatterBtn.setEnabled(false);
+                            String vtecMode = "";
+                            if (formattingCbo.isVisible()) {
+                                vtecMode = formattingCbo.getText();
+                            } else {
+                                int hazIndex = productName.indexOf("Hazard_");
+                                if (hazIndex > -1) {
+                                    String category = productName.substring(
+                                            hazIndex + 7, hazIndex + 10);
+                                    vtecMode = textProductMgr
+                                            .getVtecMessageType(category);
+                                    if (vtecMode == null) {
+                                        vtecMode = "";
+                                    }
                                 }
                             }
-                        }
 
-                        // Check the data source menus, if one is selected then
-                        // use
-                        // it, else use the default
-                        String dbId = null;
-                        zoneCombiner.applyZoneCombo();
-                        dbId = ((FormatterLauncherDialog) productTabCB)
-                                .getSelectedDataSource(productName);
-                        FormatterUtil.runFormatterScript(textProductMgr,
-                                productName, dbId, vtecMode,
-                                ProductAreaComp.this);
+                            // Get the source database
+                            zoneCombiner.applyZoneCombo();
+                            FormatterUtil.runFormatterScript(dataMgr,
+                                    textProductMgr, productName,
+                                    dbId.toString(), vtecMode,
+                                    ProductAreaComp.this);
+                        }
                     }
                 }
             });

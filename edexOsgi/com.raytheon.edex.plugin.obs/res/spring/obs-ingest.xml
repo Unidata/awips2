@@ -12,7 +12,7 @@
 
     <bean id="obsDistRegistry" factory-bean="distributionSrv" factory-method="register">
         <constructor-arg value="obs" />
-        <constructor-arg value="jms-dist:queue:Ingest.obs" />
+        <constructor-arg value="jms-durable:queue:Ingest.obs" />
     </bean>
 
     <bean id="obsCamelRegistered" factory-bean="contextManager" factory-method="register"
