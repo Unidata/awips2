@@ -28,6 +28,7 @@ import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.DispatchingObject;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
+import com.raytheon.uf.viz.remote.graphics.events.mesh.CloneMeshEvent;
 
 /**
  * Dispatching mesh object created from graphics mesh and forwards key events to
@@ -37,9 +38,11 @@ import com.raytheon.uf.viz.remote.graphics.events.RemoteGraphicsEventFactory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 05, 2012           mschenke    Initial creation
+ * Feb 21, 2014  2817     bsteffen    Fix clone.
+ * 
  * 
  * </pre>
  * 
@@ -82,22 +85,18 @@ public class DispatchingMesh extends DispatchingObject<IMesh> implements IMesh {
         return wrappedObject.intersects(extent);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.IMesh#reproject(org.geotools.coverage.grid.
-     * GeneralGridGeometry)
-     */
-    @Override
-    public IMesh reproject(GeneralGridGeometry targetGeometry)
-            throws VizException {
-        return clone(targetGeometry);
-    }
-
     @Override
     public IMesh clone(GeneralGridGeometry targetGeometry) throws VizException {
-        return new DispatchingMesh(wrappedObject.clone(targetGeometry),
+        IMesh newMesh = wrappedObject.clone(targetGeometry);
+        DispatchingMesh newDispatchingMesh = new DispatchingMesh(newMesh,
                 getDispatcher());
+        // Send event to dispose mesh
+        CloneMeshEvent event = RemoteGraphicsEventFactory.createEvent(
+                CloneMeshEvent.class, newDispatchingMesh);
+        event.setTargetGeometry(targetGeometry);
+        event.setSourceObjectId(this.getObjectId());
+        dispatch(event);
+        return newDispatchingMesh;
     }
 
 }

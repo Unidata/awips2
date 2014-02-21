@@ -2,37 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: OpenGL Rendering Plug-in
 Bundle-SymbolicName: com.raytheon.viz.core.gl;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.core.gl.Activator
 Bundle-Vendor: Raytheon
-Eclipse-BuddyPolicy: ext, registered
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- javax.media.opengl;visibility:=reexport,
- org.geotools,
- javax.vecmath,
- com.raytheon.uf.common.colormap;bundle-version="1.0.0",
- com.raytheon.uf.viz.core,
- com.raytheon.uf.common.util;bundle-version="1.0.0",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- javax.measure;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ javax.media.opengl;visibility:=reexport,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.viz.core;bundle-version="1.14.1",
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.geospatial,
+ javax.measure
 Export-Package: com.raytheon.viz.core.gl,
  com.raytheon.viz.core.gl.dataformat,
  com.raytheon.viz.core.gl.ext,
  com.raytheon.viz.core.gl.ext.imaging,
  com.raytheon.viz.core.gl.glsl,
  com.raytheon.viz.core.gl.images
-Import-Package: com.raytheon.uf.common.status,
- com.raytheon.uf.viz.core,
- com.raytheon.uf.viz.core.data,
- com.raytheon.uf.viz.core.data.resp,
- com.raytheon.uf.viz.core.drawables,
- com.raytheon.uf.viz.core.exception,
- com.raytheon.uf.viz.core.geom,
- com.raytheon.uf.viz.core.map,
- com.raytheon.uf.viz.core.preferences,
- com.raytheon.uf.viz.core.rsc,
- com.raytheon.uf.viz.core.rsc.hdf5,
- com.raytheon.uf.viz.core.status
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
