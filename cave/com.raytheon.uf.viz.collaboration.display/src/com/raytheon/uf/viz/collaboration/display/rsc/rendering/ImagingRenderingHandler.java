@@ -61,8 +61,8 @@ import com.raytheon.uf.viz.remote.graphics.events.imagery.PaintImagesEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.RenderedImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateImageDataEvent;
 import com.raytheon.uf.viz.remote.graphics.events.imagery.UpdateSingleColorImage;
+import com.raytheon.uf.viz.remote.graphics.events.mesh.CloneMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mesh.CreateMeshEvent;
-import com.raytheon.uf.viz.remote.graphics.events.mesh.ReprojectMeshEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.CreateMosaicImageEvent;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.UpdateImagesToMosaic;
 import com.raytheon.uf.viz.remote.graphics.events.mosaic.UpdateMosaicExtent;
@@ -76,9 +76,10 @@ import com.raytheon.uf.viz.remote.graphics.extensions.DispatchingMosaicOrderedEx
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 16, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 16, 2012           mschenke     Initial creation
+ * Feb 21, 2014  2817     bsteffen     Fix mesh cloning.
  * 
  * </pre>
  * 
@@ -319,12 +320,13 @@ public class ImagingRenderingHandler extends CollaborationRenderingHandler {
     }
 
     @Subscribe
-    public void reprojectMesh(ReprojectMeshEvent event) {
-        IMesh mesh = dataManager.getRenderableObject(event.getObjectId(),
+    public void cloneMesh(CloneMeshEvent event) {
+        IMesh mesh = dataManager.getRenderableObject(event.getSourceObjectId(),
                 IMesh.class);
         if (mesh != null) {
             try {
-                mesh.reproject(event.getTargetGeometry());
+                mesh = mesh.clone(event.getTargetGeometry());
+                dataManager.putRenderableObject(event.getObjectId(), mesh);
             } catch (VizException e) {
                 Activator.statusHandler.handle(Priority.PROBLEM,
                         e.getLocalizedMessage(), e);
