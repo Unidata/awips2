@@ -9,13 +9,13 @@
 	<bean id="dhrDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="dhr" />
-		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
+		<constructor-arg value="jms-durable:queue:Ingest.dhr"/>
 	</bean>
 
 	<bean id="dhrRadarServerDistRegistry" factory-bean="radarserverDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="dhr" />
-		<constructor-arg value="jms-dist:queue:Ingest.dhr"/>
+		<constructor-arg value="jms-durable:queue:Ingest.dhr"/>
 	</bean>
 
 	<camelContext id="nonClusteredDHRroutes" xmlns="http://camel.apache.org/schema/spring"

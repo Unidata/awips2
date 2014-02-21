@@ -12,7 +12,7 @@
     <bean id="intlsigmetDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="intlsigmet" />
-		<constructor-arg value="jms-dist:queue:Ingest.intlsigmet" />
+		<constructor-arg value="jms-durable:queue:Ingest.intlsigmet" />
 	</bean>
 
 	<bean id="intlsigmetCamelRegistered" factory-bean="contextManager"

@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Nov 05, 2013 2499       rjpeter     Repackaged, removed config files, always compresses hdf5.
  * Nov 11, 2013 2478       rjpeter     Updated data store copy to always copy hdf5.
  * Dec 13, 2013 2555       rjpeter     Refactored logic into DatabaseArchiveProcessor.
+ * Feb 12, 2014 2784       rjpeter     Fixed clusterLock to not update the time by default.
  * </pre>
  * 
  * @author rjpeter
@@ -145,13 +146,15 @@ public class DatabaseArchiver implements IPluginArchiver {
 
         // cluster lock, grabbing time of last successful archive
         CurrentTimeClusterLockHandler lockHandler = new CurrentTimeClusterLockHandler(
-                CLUSTER_LOCK_TIMEOUT, dateFormat.format(runTime.getTime()),
-                false);
+                CLUSTER_LOCK_TIMEOUT, false);
         ClusterTask ct = ClusterLockUtils.lock(TASK_NAME, pluginName,
                 lockHandler, false);
         if (!LockState.SUCCESSFUL.equals(ct.getLockState())) {
             return true;
         }
+
+        // keep extra info the same until processing updates the time.
+        lockHandler.setExtraInfo(ct.getExtraInfo());
 
         Calendar startTime = null;
         long timimgStartMillis = System.currentTimeMillis();
@@ -226,12 +229,6 @@ public class DatabaseArchiver implements IPluginArchiver {
                         .info(pluginName + ": Found no records to archive");
             }
         } catch (Throwable e) {
-            // previous run time needs to be reset
-            if (startTime != null) {
-                lockHandler
-                        .setExtraInfo(dateFormat.format(startTime.getTime()));
-            }
-
             statusHandler.error(pluginName + ": Error occurred archiving data",
                     e);
         } finally {

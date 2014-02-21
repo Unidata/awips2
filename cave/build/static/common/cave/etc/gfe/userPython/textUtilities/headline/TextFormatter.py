@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -27,15 +27,24 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/12/2014          #2591     randerso       Added retry when loading combinations fails
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
 import Utility, logging, traceback
+import AbsTime
 from java.lang import ThreadDeath
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID, ReferenceData
 
 GridLoc = None
 LatLonIds = []
+
+MAX_TRIES = 2
 
 # If someone imports TextFormatter and needs this instance
 # they should either be fixed to use the IFPImporter module
@@ -44,19 +53,19 @@ LatLonIds = []
 #IFPImporter = IFPImporter.IFPImporter
 
 class TextFormatter:
-    def __init__(self, dataManager):        
+    def __init__(self, dataManager):
         # Variable for unique combinations
         self.__comboNumber = -1
         self.dataMgr = dataManager
         self.log = logging.getLogger("FormatterRunner.TextFormatter.TextFormatter")
         pass
-    
+
 #    def __del__(self):
 #        for i in LatLonIds:
 #            self.dataMgr.getRefManager().deleteRefSet(i, False)
 
     def getForecast(self, fcstName, argDict):
-        " Create the forecast "                
+        " Create the forecast "
 
         ForecastNarrative = argDict["ForecastNarrative"]
         ForecastTable = argDict["ForecastTable"]
@@ -71,7 +80,7 @@ class TextFormatter:
         argDict["getForecast"] = self.getForecast
         argDict["getFcstDef"] = self.getFcstDef
         argDict["dataMgr"] = self.dataMgr
-        self.__ut = argDict["utility"]                
+        self.__ut = argDict["utility"]
 
         # Get the Forecast Definition and type from the server
         #print "finding", fcstName
@@ -79,11 +88,11 @@ class TextFormatter:
         #print "found ", found
         if found == 0:
             text = "Text Product Definition Not Found: " + fcstName + " " + \
-                traceback.format_exc()              
+                traceback.format_exc()
             self.log.error("Text Product Definition Not Found: Caught Exception: " + fcstName, exc_info=True)
             raise Exception, text
         forecastDef = argDict["forecastDef"]
-        fcstType = self.__ut.set(forecastDef,"type",None)
+        fcstType = self.__ut.set(forecastDef, "type", None)
         argDict["fcstType"] = fcstType
         if fcstType is None:
             text = "Text Product Type Not Found: " + fcstName + " " + \
@@ -101,16 +110,16 @@ class TextFormatter:
         # Must have at least one edit area and time range specified
         if fcstType != "smart" and fcstType != "component":
             if argDict["editAreas"] == []:
-                text= "No Edit Areas Specified over which to generate product."
-                text=text+'\nTry setting "defaultEditAreas" in the product Definition'
-                text=text+'\nOr, if running from the command line, add a -r flag.'
+                text = "No Edit Areas Specified over which to generate product."
+                text = text + '\nTry setting "defaultEditAreas" in the product Definition'
+                text = text + '\nOr, if running from the command line, add a -r flag.'
                 text = text + '\n' + string.join(traceback.format_exc())
                 self.log.error("Caught Exception: " + text)
                 raise Exception, text
             if argDict["rawRanges"] == []:
-                text= "No Time Ranges Specified over which to generate product."
-                text=text+'\nTry setting "defaultRanges" in the product Definition'
-                text=text+'\nOr, if running from the command line, add a -w flag.'
+                text = "No Time Ranges Specified over which to generate product."
+                text = text + '\nTry setting "defaultRanges" in the product Definition'
+                text = text + '\nOr, if running from the command line, add a -w flag.'
                 text = text + '\n' + string.join(traceback.format_exc())
                 self.log.error("Caught Exception: " + text)
                 raise Exception, text
@@ -153,7 +162,7 @@ class TextFormatter:
             argDict["module"] = module
             product.setUp("T", argDict)
             product._argDict = argDict
-            
+
             try:
                 text = product.generateForecast(argDict)
             except RuntimeError, e:
@@ -166,11 +175,11 @@ class TextFormatter:
 
             # requirement for TEST phrasing for TEST products
             if argDict.get('testMode', 0):
-                testMsg = "\nTHIS IS A TEST MESSAGE. DO NOT TAKE ACTION" +\
+                testMsg = "\nTHIS IS A TEST MESSAGE. DO NOT TAKE ACTION" + \
                   " BASED ON THIS TEST\nMESSAGE.\n"
                 #split by "$$"
                 segs = text.split('\n$$')
-                for i in xrange(len(segs)-1):  #never the last one
+                for i in xrange(len(segs) - 1):  #never the last one
                     if text.find(testMsg) == -1:  #not found, add it in
                         segs[i] = segs[i] + testMsg
                 text = '\n$$'.join(segs)   #put text back together again
@@ -185,7 +194,7 @@ class TextFormatter:
             if not forecastDef.get('lowerCase', 0):
                 text = text.upper()
         else:
-            text="Text Product Type Invalid "+\
+            text = "Text Product Type Invalid " + \
                  "(must be 'table', 'component' or 'narrative'): ", fcstName, type
             text = text + '\n' + string.join(traceback.format_exc())
             self.log.error("Caught Exception: " + text)
@@ -196,18 +205,18 @@ class TextFormatter:
     def __createNarrativeDef(self, fcstName, timeRange):
         return {
             "methodList": [self.assembleChildWords],
-            "narrativeDef": [(fcstName, timeRange.duration()/3600)],
+            "narrativeDef": [(fcstName, timeRange.duration() / 3600)],
             }
 
     def __loop(self, argDict, forecast, forecastDef):
         # Loop through product by edit areas and time ranges
 
-        begText = self.__ut.set(forecastDef,"beginningText","")
-        endText = self.__ut.set(forecastDef,"endingText","")
-        editAreaLoopBegText = self.__ut.set(forecastDef,"editAreaLoopBegText","")
-        timeRangeLoopBegText = self.__ut.set(forecastDef,"timeRangeLoopBegText","")
-        editAreaLoopEndText = self.__ut.set(forecastDef,"editAreaLoopEndText","")
-        timeRangeLoopEndText = self.__ut.set(forecastDef,"timeRangeLoopEndText","")
+        begText = self.__ut.set(forecastDef, "beginningText", "")
+        endText = self.__ut.set(forecastDef, "endingText", "")
+        editAreaLoopBegText = self.__ut.set(forecastDef, "editAreaLoopBegText", "")
+        timeRangeLoopBegText = self.__ut.set(forecastDef, "timeRangeLoopBegText", "")
+        editAreaLoopEndText = self.__ut.set(forecastDef, "editAreaLoopEndText", "")
+        timeRangeLoopEndText = self.__ut.set(forecastDef, "timeRangeLoopEndText", "")
         outerLoop = self.__ut.set(forecastDef, "outerLoop", "EditArea")
 
         editAreas = argDict["editAreas"]
@@ -274,10 +283,10 @@ class TextFormatter:
         #print "varDict", varDict
 
         for item, default in [
-            ("language","english"),
-            ("appendFile",None),
-            ("lineLength",69), # no command line option
-            ("timePeriod",3),
+            ("language", "english"),
+            ("appendFile", None),
+            ("lineLength", 69), # no command line option
+            ("timePeriod", 3),
             ]:
             try: # Try the varDict
                 #print "trying varDict", item
@@ -362,19 +371,28 @@ class TextFormatter:
                 #         (["Zones37","Zones38"], "/37/38"),"/37/38"),
                 #         (["Zones57","Zones58","Zones59"],"57/58/59")
                 #        ]
-                
-                # RWA-05/19/11: added this check here to force Combinations files
-                # to be reloaded since we removed a similar check from ModuleAccessor
-                # to preserve the magicCodeChanges. Perhaps we should be doing something
-                # similar to magicCodeChanges for Combinations files as well.
-                if sys.modules.has_key(dfEditAreas):
-                    del sys.modules[dfEditAreas]
-                    
-                accessor = ModuleAccessor.ModuleAccessor()
-                dfEditAreas = accessor.variable(dfEditAreas, "Combinations")
-                if dfEditAreas is None:
-                    return "COMBINATION FILE NOT FOUND: " + \
-                           self.__ut.set(forecastDef, "defaultEditAreas", [])
+
+                comboName = dfEditAreas
+                for retryCount in xrange(MAX_TRIES):
+                    accessor = ModuleAccessor.ModuleAccessor()
+                    dfEditAreas = accessor.variable(comboName, "Combinations")
+                    if dfEditAreas is None:
+                        if sys.modules.has_key(comboName):
+                            comboMod = sys.modules[comboName]
+                            if comboMod.__file__.endswith(".pyo"):
+                                os.remove(comboMod.__file__)
+                            comboMod = None
+                            del sys.modules[comboName]
+
+                        # if not last try, log and try again
+                        if retryCount < MAX_TRIES - 1:
+                            # log but don't pop up
+                            self.log.error("Error loading combinations file: %s, retrying", comboName)
+                        else:
+                            return "COMBINATION FILE NOT FOUND: " + \
+                                   self.__ut.set(forecastDef, "defaultEditAreas", [])
+                    else:
+                        break
 
             elif len(dfEditAreas) > 0:
                 refDataList = []
@@ -411,7 +429,7 @@ class TextFormatter:
                 filterMethod = product.filterMethod
             except:
                 allowedHazards = None
-                
+
             if allowedHazards is not None and allowedHazards != []:
                 # Set up editAreas as a list of combinations
                 #   Cases:
@@ -440,7 +458,7 @@ class TextFormatter:
                       "AreaDictionary")
                     editAreas = self._separateByTimeZone(editAreas,
                       areaDictName, argDict['creationTime'],
-                      effectiveTZ = separateByTZ)
+                      effectiveTZ=separateByTZ)
 
                 accurateCities = product.Definition.get('accurateCities', 0)
                 cityRefData = []
@@ -464,7 +482,7 @@ class TextFormatter:
                                           "contain entry for edit area: "
                                     self.log.error(msg + `ean`)
                                     continue
-                            
+
                                 for city, llrec in citydict[ean].iteritems():
                                     # Create a referenceData given lat, lon, dim
                                     area = (llrec[0], llrec[1], 0)
@@ -490,8 +508,8 @@ class TextFormatter:
                   filterMethod, argDict["databaseID"], stationID4,
                   argDict["vtecActiveTable"], argDict["vtecMode"],
                   sampleThreshold, creationTime=argDict["creationTime"], dataMgr=self.dataMgr,
-				accurateCities=accurateCities,
-	                     cityEditAreas=cityRefData)
+                accurateCities=accurateCities,
+                         cityEditAreas=cityRefData)
 
                 # Store hazards object for later use
                 argDict["hazards"] = hazards
@@ -540,7 +558,7 @@ class TextFormatter:
             except:
                 trName = ""
             if tr is not None:
-                rawRanges.append((tr,trName))
+                rawRanges.append((tr, trName))
         elif len(dfRanges) == 0:
             pass
         else:
@@ -548,13 +566,13 @@ class TextFormatter:
             forecast = TimeRangeUtils.TimeRangeUtils()
             for rangeName in dfRanges:
                 rawRange = forecast.getTimeRange(rangeName, argDict)
-                rawRanges.append((rawRange,rangeName))
+                rawRanges.append((rawRange, rangeName))
         argDict["rawRanges"] = rawRanges
         #print "rawRanges", rawRanges
 
         # Row Label
-        areaType = self.__ut.set(forecastDef,"areaType","")
-        rowVariable = self.__ut.set(forecastDef,"rowVariable","EditArea")
+        areaType = self.__ut.set(forecastDef, "areaType", "")
+        rowVariable = self.__ut.set(forecastDef, "rowVariable", "EditArea")
         if rowVariable == "EditArea":
             rowLabel = areaType
         elif rowVariable == "WeatherElement":
@@ -566,7 +584,7 @@ class TextFormatter:
     def __pairAreaWithLabel(self, chosenAreas, defaultEditAreas):
         # Pair the chosen edit areas with associated labels from
         # default list and return new list
-        dfEditAreas= []
+        dfEditAreas = []
         for area in chosenAreas:
             for name, label in defaultEditAreas:
                 if area == name:
@@ -620,8 +638,8 @@ class TextFormatter:
     def __getLatLonAreaName(self, latLonTuple):
         lat, lon, dim = latLonTuple
         name = "Ref" + '%s%s%s' % (lat, lon, dim)
-        name = name.replace(".","")
-        name = name.replace("-","")
+        name = name.replace(".", "")
+        name = name.replace("-", "")
         return name
 
     def getCombinations(self, combinations, argDict):
@@ -635,7 +653,7 @@ class TextFormatter:
                 newArea = self.getEditArea(editArea, argDict)
                 if comboList.index(editArea) == 0:
                     comboNumber = self.getComboNumber()
-                    label = "Combo"+`comboNumber`
+                    label = "Combo" + `comboNumber`
                     refId = ReferenceID(label)
                     #global GridLoc
                     #GridLoc = newArea.getGloc()
@@ -680,7 +698,7 @@ class TextFormatter:
 
         try:
             product = argDict["self"]
-            exec "fcstDef = product."+fcstName+"()"
+            exec "fcstDef = product." + fcstName + "()"
             module = argDict["module"]
         except:
             # See if fcstName is variable in imported modules e.g. MyTable = {}
@@ -699,7 +717,7 @@ class TextFormatter:
                     try:
                         # Look for fcstName = {}
                         # This can be removed eventually
-                        exec "fcstDef = module."+fcstName
+                        exec "fcstDef = module." + fcstName
                     except:
                         try:
                             # Try to instantiate smart text product class
@@ -750,7 +768,7 @@ class TextFormatter:
 
     def getEditArea(self, editAreaName, argDict):
         # Returns an AFPS.ReferenceData object given an edit area name
-        # as defined in the GFE        
+        # as defined in the GFE
         # Apply suffix if appropriate
         refID = ReferenceID(editAreaName)
         #print "Getting edit area"
@@ -779,7 +797,7 @@ class TextFormatter:
         return tmp
 
     def _separateByTimeZone(self, editAreaGroups, areaDictName, creationTime,
-      effectiveTZ = "effectiveTZ"):
+      effectiveTZ="effectiveTZ"):
         #takes the list of areas, and based on the time zones breaks
         #them up to ensure that each grouping using the same time zone.
         #areaDictName is name of the area dictionary. creationTime is the
@@ -817,7 +835,7 @@ class TextFormatter:
                     zoneTZ = localTZ
                     tzid = localTZid
                     #print "falling back to WFOtz: ", zoneTZ
-                    self.log.warning("WARNING: Entry " +  area +
+                    self.log.warning("WARNING: Entry " + area +
                       " missing from AreaDictionary. Using default time zone.")
 
                 zones = tzDir.get(zoneTZ, [])
@@ -835,7 +853,7 @@ class TextFormatter:
             elif effectiveTZ == "actualTZ":
                 dict = tzDir
             else:
-                self.log.error("Invalid effectiveTZ for separateByTZ() " + 
+                self.log.error("Invalid effectiveTZ for separateByTZ() " +
                   effectiveTZ)
                 return editAreaGroups
             keys = dict.keys()
@@ -850,39 +868,39 @@ class TextFormatter:
 #################################################################
 def makeSquare(lat, lon, km):
     " Make a list of square of given km  around lat,lon"
-    latinc = km/222.0
-    loninc = math.cos(lat/57.17) * km / 222.0
+    latinc = km / 222.0
+    loninc = math.cos(lat / 57.17) * km / 222.0
 
     latTop = lat + latinc
-    latBottom =lat - latinc
+    latBottom = lat - latinc
     lonLeft = lon - loninc
     lonRight = lon + loninc
 
     points = []
-    points.append(`latTop`+","+ `lonRight`)
-    points.append(`latTop`+","+ `lonLeft`)
-    points.append(`latBottom`+","+ `lonLeft`)
-    points.append(`latBottom`+","+`lonRight`)
+    points.append(`latTop` + "," + `lonRight`)
+    points.append(`latTop` + "," + `lonLeft`)
+    points.append(`latBottom` + "," + `lonLeft`)
+    points.append(`latBottom` + "," + `lonRight`)
     return points
 
 def makePoint(point):
     " Make a CartCoord2D from the point in format: x,y"
     from com.vividsolutions.jts.geom import Coordinate
-    ind = string.find(point,",")
-    latStr = point[0:ind-1]
-    lonStr = point[ind+1:len(point)]
+    ind = string.find(point, ",")
+    latStr = point[0:ind - 1]
+    lonStr = point[ind + 1:len(point)]
     lat = float(latStr)
-    lon = float(lonStr)    
-    return Coordinate(lon,lat)
+    lon = float(lonStr)
+    return Coordinate(lon, lat)
 
 def makeArea(gridLoc, pointList, refname=None):
     " Make a Reference Area with a unique ReferenceID"
     from com.vividsolutions.jts.geom import GeometryFactory, LinearRing, Coordinate, Polygon
-    from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType     
+    from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData_CoordinateType as CoordinateType
     geomFactory = GeometryFactory()
     import jep
     size = len(pointList)
-    if pointList[0] != pointList[size-1]: # closing the loop
+    if pointList[0] != pointList[size - 1]: # closing the loop
         pointList.append(pointList[0])
     pointArray = jep.jarray(len(pointList), Coordinate)
     for i in range(len(pointList)):
@@ -893,7 +911,7 @@ def makeArea(gridLoc, pointList, refname=None):
     polyArray[0] = poly
     region = geomFactory.createMultiPolygon(polyArray)
     if refname is None:
-        refname = "Ref" + getTime()    
+        refname = "Ref" + getTime()
     refId = ReferenceID(refname)
     refData = ReferenceData(gridLoc, refId, region, CoordinateType.LATLON)
     # randerso: I don't think this is necessary
@@ -913,8 +931,8 @@ def storeReferenceData(refSetMgr, refData, temp=True):
 
 def getTime():
     "Return an ascii string for the current time without spaces or :'s"
-    timeStr =  `time.time()`
-    timeStr = string.replace(timeStr,".","_")
+    timeStr = `time.time()`
+    timeStr = string.replace(timeStr, ".", "_")
     return timeStr
 
 def getAbsTime(timeStr):
@@ -926,7 +944,7 @@ def getAbsTime(timeStr):
     hour = string.atoi(timeStr[9:11])
     minute = string.atoi(timeStr[11:13])
 
-    return AFPSSup.AbsTimeYMD(year,month,day,hour,minute)
+    return AbsTime.absTimeYMD(year, month, day, hour, minute)
 
 def usage():
     print """

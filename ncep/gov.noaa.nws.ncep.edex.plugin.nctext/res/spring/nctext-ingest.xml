@@ -13,7 +13,7 @@
 	<bean id="nctextDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="nctext" />
-		<constructor-arg value="jms-dist:queue:ingest.nctext" />
+		<constructor-arg value="jms-durable:queue:ingest.nctext" />
 	</bean>
 
     <bean id="nctextCamelRegistered" factory-bean="contextManager"
