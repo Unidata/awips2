@@ -12,7 +12,7 @@
     <bean id="airmetDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="airmet" />
-		<constructor-arg value="jms-dist:queue:Ingest.airmet" />
+		<constructor-arg value="jms-durable:queue:Ingest.airmet" />
 	</bean>
 
 	<bean id="airmetCamelRegistered" factory-bean="contextManager"

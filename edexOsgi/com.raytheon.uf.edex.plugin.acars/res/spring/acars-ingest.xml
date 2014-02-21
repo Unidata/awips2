@@ -10,7 +10,7 @@
 	<bean id="acarsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="acarsPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.acars"/>
+		<constructor-arg value="jms-durable:queue:Ingest.acars"/>
 	</bean>
 	
 	<bean id="acarsCamelRegistered" factory-bean="contextManager"

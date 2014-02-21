@@ -23,7 +23,7 @@
 	<bean id="ncscdDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ncscd" />
-		<constructor-arg value="jms-dist:queue:Ingest.ncscd" />
+		<constructor-arg value="jms-durable:queue:Ingest.ncscd" />
 	</bean>
 
 	<bean id="ncscdCamelRegistered" factory-bean="contextManager"

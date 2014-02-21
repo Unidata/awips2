@@ -13,7 +13,7 @@
 
     <bean id="sfcobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
         <constructor-arg value="sfcobs" />
-        <constructor-arg value="jms-dist:queue:Ingest.sfcobs" />
+        <constructor-arg value="jms-durable:queue:Ingest.sfcobs" />
     </bean>
 
     <bean id="sfcobsCamelRegistered" factory-bean="contextManager" factory-method="register"
