@@ -40,6 +40,10 @@ import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOver
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
  * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
+ *                                     Renamed sub1 and sub2 to otherSub and sub to make
+ *                                     it easier to see what is compared against, and 
+ *                                     changed the spatial check to check the intersection
+ *                                     coverage of sub, not otherSub.
  * 
  * </pre>
  * 
@@ -68,49 +72,49 @@ public class GridOverlapData<T extends GriddedTime, C extends GriddedCoverage>
     /**
      * Constructor.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      * @param config
      */
-    public GridOverlapData(Subscription sub1, Subscription sub2,
+    public GridOverlapData(Subscription sub, Subscription otherSub,
             SubscriptionOverlapConfig config) {
-        super(sub1, sub2, config);
+        super(sub, otherSub, config);
     }
 
     /**
-     * Calculates the percent, 0-100, of how many cycle hours from sub2 are
-     * satisfied by sub1.
+     * Calculates the percent, 0-100, of how many cycle hours from sub are
+     * satisfied by otherSub.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      */
     public void calculateCycleDuplicationPercent(
-            Subscription<GriddedTime, GriddedCoverage> sub1,
-            Subscription<GriddedTime, GriddedCoverage> sub2) {
+            Subscription<GriddedTime, GriddedCoverage> sub,
+            Subscription<GriddedTime, GriddedCoverage> otherSub) {
 
-        GriddedTime gtime1 = sub1.getTime();
-        GriddedTime gtime2 = sub2.getTime();
+        GriddedTime gtimeOther = otherSub.getTime();
+        GriddedTime gtime = sub.getTime();
 
-        cycleDuplication = this.getDuplicationPercent(gtime1.getCycleTimes(),
-                gtime2.getCycleTimes());
+        cycleDuplication = this.getDuplicationPercent(
+                gtimeOther.getCycleTimes(), gtime.getCycleTimes());
     }
 
     /**
-     * Calculates the percent, 0-100, of how many forecast hours from sub2 are
-     * satisfied by sub1.
+     * Calculates the percent, 0-100, of how many forecast hours from sub are
+     * satisfied by otherSub.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      */
     public void calculateForecastHourDuplicationPercent(
-            Subscription<GriddedTime, GriddedCoverage> sub1,
-            Subscription<GriddedTime, GriddedCoverage> sub2) {
-        GriddedTime gtime1 = sub1.getTime();
-        GriddedTime gtime2 = sub2.getTime();
+            Subscription<GriddedTime, GriddedCoverage> sub,
+            Subscription<GriddedTime, GriddedCoverage> otherSub) {
+        GriddedTime gtimeOther = otherSub.getTime();
+        GriddedTime gtime = sub.getTime();
 
         fcstHrDuplication = getDuplicationPercent(
-                gtime1.getSelectedTimeIndices(),
-                gtime2.getSelectedTimeIndices());
+                gtimeOther.getSelectedTimeIndices(),
+                gtime.getSelectedTimeIndices());
     }
 
     /**
@@ -119,8 +123,8 @@ public class GridOverlapData<T extends GriddedTime, C extends GriddedCoverage>
     @Override
     protected void determineOverlapping() {
         super.determineOverlapping();
-        calculateCycleDuplicationPercent(sub1, sub2);
-        calculateForecastHourDuplicationPercent(sub1, sub2);
+        calculateCycleDuplicationPercent(sub, otherSub);
+        calculateForecastHourDuplicationPercent(sub, otherSub);
         GridSubscriptionOverlapConfig config = (GridSubscriptionOverlapConfig) this.config;
 
         fcstHrPass = fcstHrDuplication >= config
