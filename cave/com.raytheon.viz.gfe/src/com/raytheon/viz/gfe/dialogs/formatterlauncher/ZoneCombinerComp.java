@@ -58,8 +58,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -74,7 +73,9 @@ import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
 import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
 import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
@@ -99,6 +100,12 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  *                                     not found to match A1.
  * Dec 03, 2013  #2591     dgilling    Ensure all change states to the combo
  *                                     file are handled.
+ * Jan 07, 2014  #2662     randerso    Disabled zone combiner if no maps are selected
+ * Feb 04, 2014  #2591     randerso    Forced reload of combinations file after save to ensure
+ *                                     file is updated prior to running formatter
+ *                                     Changed to use CombinationsFileChangedNotification instead of
+ *                                     FileUpdatedMessage so we can ignore our own changes
+ *                                     Moved retrieval of combinations file to CombinationsFileUtil.init
  * 
  * </pre>
  * 
@@ -106,8 +113,7 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * @version 1.0
  * 
  */
-public class ZoneCombinerComp extends Composite implements
-        ILocalizationFileObserver, IZoneCombiner {
+public class ZoneCombinerComp extends Composite implements IZoneCombiner {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
 
@@ -190,6 +196,8 @@ public class ZoneCombinerComp extends Composite implements
 
     protected TextProductManager textProductMgr;
 
+    protected DataManager dataManager;
+
     protected String product;
 
     protected boolean mapRequired;
@@ -223,6 +231,8 @@ public class ZoneCombinerComp extends Composite implements
 
     private List<String> mapNames;
 
+    private AbstractGFENotificationObserver<CombinationsFileChangedNotification> comboChangeListener;
+
     private void initPreferences() {
         IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
 
@@ -246,7 +256,8 @@ public class ZoneCombinerComp extends Composite implements
      *            Product name.
      */
     public ZoneCombinerComp(Composite parent, IProductTab callBack,
-            String productName, TextProductManager textProductMgr) {
+            String productName, TextProductManager textProductMgr,
+            DataManager dataManager) {
         super(parent, SWT.NONE);
 
         this.parent = parent;
@@ -257,7 +268,13 @@ public class ZoneCombinerComp extends Composite implements
 
         this.textProductMgr = textProductMgr;
 
-        mapRequired = textProductMgr.mapRequired(productName);
+        this.dataManager = dataManager;
+
+        mapRequired = this.textProductMgr.mapRequired(productName);
+        this.mapNames = getMapNames(productName);
+        if (mapNames.isEmpty()) {
+            mapRequired = false;
+        }
 
         initPreferences();
         init();
@@ -267,15 +284,47 @@ public class ZoneCombinerComp extends Composite implements
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
         comboDir = pathMgr.getLocalizationFile(baseCtx,
                 CombinationsFileUtil.COMBO_DIR_PATH);
-        comboDir.addFileUpdatedObserver(this);
+
+        this.comboChangeListener = new AbstractGFENotificationObserver<CombinationsFileChangedNotification>(
+                CombinationsFileChangedNotification.class) {
+
+            @Override
+            public void notify(
+                    CombinationsFileChangedNotification notificationMessage) {
+                comboFileChanged(notificationMessage);
+            }
+
+        };
 
         this.addDisposeListener(new DisposeListener() {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                comboDir.removeFileUpdatedObserver(ZoneCombinerComp.this);
+                ZoneCombinerComp.this.dataManager.getNotificationRouter()
+                        .removeObserver(
+                                ZoneCombinerComp.this.comboChangeListener);
             }
         });
+
+        dataManager.getNotificationRouter().addObserver(
+                this.comboChangeListener);
+    }
+
+    private List<String> getMapNames(String productName) {
+        Object obj = this.textProductMgr.getMapNameForCombinations(productName);
+        List<String> mapNames = new ArrayList<String>();
+        if (obj instanceof String) {
+            String s = (String) obj;
+            if (!s.isEmpty()) {
+                mapNames.add(s);
+            }
+        } else if (obj instanceof List<?>) {
+            @SuppressWarnings("unchecked")
+            List<String> list = (List<String>) obj;
+            mapNames.addAll(list);
+        }
+
+        return mapNames;
     }
 
     /**
@@ -757,9 +806,14 @@ public class ZoneCombinerComp extends Composite implements
         }
 
         try {
+            String comboName = getCombinationsFileName();
             CombinationsFileUtil.generateAutoCombinationsFile(
-                    zoneSelector.getZoneGroupings(), getCombinationsFileName()
-                            + ".py");
+                    zoneSelector.getZoneGroupings(), comboName);
+
+            // reload here forces file to be retrieved from server before
+            // allowing formatter to run
+            loadCombinationsFile(comboName);
+
             applyButtonState(false);
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to save "
@@ -790,21 +844,9 @@ public class ZoneCombinerComp extends Composite implements
         }
         Map<String, Integer> comboDict = loadCombinationsFile(comboName);
 
-        Object obj = textProductMgr.getMapNameForCombinations(productName);
-        mapNames = new ArrayList<String>();
-        if (obj instanceof String) {
-            String s = (String) obj;
-            if (!s.isEmpty()) {
-                mapNames.add(s);
-            }
-        } else if (obj instanceof List<?>) {
-            @SuppressWarnings("unchecked")
-            List<String> list = (List<String>) obj;
-            mapNames.addAll(list);
-        }
-
         boolean singleComboOnly = false;
-        obj = textProductMgr.getDefinitionValue(productName, "singleComboOnly");
+        Object obj = textProductMgr.getDefinitionValue(productName,
+                "singleComboOnly");
         if (obj != null) {
             if (obj instanceof Integer) {
                 singleComboOnly = ((Integer) obj) != 0;
@@ -915,17 +957,7 @@ public class ZoneCombinerComp extends Composite implements
     public Map<String, Integer> loadCombinationsFile(String comboName) {
         Map<String, Integer> dict = new HashMap<String, Integer>();
         try {
-            File localFile = PathManagerFactory.getPathManager().getStaticFile(
-                    FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH,
-                            comboName + ".py"));
-
-            List<List<String>> combolist = new ArrayList<List<String>>();
-            if ((localFile != null) && localFile.exists()) {
-                combolist = CombinationsFileUtil.init(comboName);
-            } else {
-                // statusHandler
-                // .error("Combinations file not found: " + comboName);
-            }
+            List<List<String>> combolist = CombinationsFileUtil.init(comboName);
 
             // reformat combinations into combo dictionary
             int group = 1;
@@ -941,8 +973,7 @@ public class ZoneCombinerComp extends Composite implements
             return new HashMap<String, Integer>();
         }
 
-        currentComboFile = FileUtil.join(CombinationsFileUtil.COMBO_DIR_PATH,
-                comboName + ".py");
+        currentComboFile = comboName;
 
         return dict;
     }
@@ -977,20 +1008,14 @@ public class ZoneCombinerComp extends Composite implements
         return colors;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
-    @Override
-    public void fileUpdated(FileUpdatedMessage message) {
-        if (message.getFileName().equalsIgnoreCase(currentComboFile)) {
-            File file = new File(message.getFileName());
-            String comboName = file.getName().replace(".py", "");
+    private void comboFileChanged(CombinationsFileChangedNotification notif) {
+        String comboName = notif.getCombinationsFileName();
+
+        // if it's the same file and not changed by me update the combos
+        if (comboName.equalsIgnoreCase(currentComboFile)
+                && !VizApp.getWsId().equals(notif.getWhoChanged())) {
             statusHandler
-                    .info("Received FileUpdatedMessage for combinations file: "
+                    .info("Received CombinationsFileChangedNotification for combinations file: "
                             + comboName);
             Map<String, Integer> comboDict = loadCombinationsFile(comboName);
             this.zoneSelector.updateCombos(comboDict);
