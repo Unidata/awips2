@@ -35,6 +35,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Oct 18, 2013   2292     mpduff      Initial creation
  * Feb 13, 2014   2386     bgonzale    Added test cases to match ticket 2771 test procedures.
+ *                                     Fixed areaLessThan50PercentOverlap bounds.
  * 
  * </pre>
  * 
@@ -65,7 +66,7 @@ public class PointOverlapDataTest {
     @BeforeClass
     public static void setup() {
         areaMatchPoints = new Envelope(0, 10, 0, 20);
-        areaLessThan50PercentOverlap = new Envelope(0, 25, 0, 15);
+        areaLessThan50PercentOverlap = new Envelope(5, 25, 0, 15);
         areaGreaterThan50PercentOverlap = new Envelope(0, 10, 10, 25);
         areaWithNoOverlap = new Envelope(0, 30, 20, 20);
 
