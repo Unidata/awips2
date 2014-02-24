@@ -17,13 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
+package com.raytheon.uf.viz.collaboration.ui.notifier;
 
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.packet.Presence;
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+import javax.xml.bind.annotation.XmlType;
+
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 /**
- * Event fired when the roster has changed
+ * Contact Notifier Types.
  * 
  * <pre>
  * 
@@ -31,36 +34,31 @@ import org.jivesoftware.smack.packet.Presence;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 06, 2012            jkorman     Initial creation.
- * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Feb 20, 2014   2632     mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author mpduff
  * @version 1.0
  */
+@XmlType(name = "notifier")
+@XmlEnum
+@DynamicSerialize
+public enum Notifier {
+    @XmlEnumValue("sendMessage")
+    SendMessage("Sends Me A Message"), @XmlEnumValue("signOn")
+    SignOn("Signs On"), @XmlEnumValue("signOff")
+    SignOff("Signs Off"), @XmlEnumValue("away")
+    Away("Becomes Unavailable"), @XmlEnumValue("return")
+    Returns("Becomes Available");
 
-public interface IRosterChangeEvent {
+    private String description;
 
-    /**
-     * Get the event type.
-     * 
-     * @return The event type
-     */
-    RosterChangeType getType();
+    Notifier(String description) {
+        this.description = description;
+    }
 
-    /**
-     * Get the changed entry.
-     * 
-     * @return The changed entry
-     */
-    RosterEntry getEntry();
-
-    /**
-     * Get the Presence object.
-     * 
-     * @return The Presence object
-     */
-    Presence getPresence();
-
+    public String getDescription() {
+        return description;
+    }
 }
