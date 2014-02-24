@@ -38,7 +38,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * ------------ ---------- ----------- --------------------------
  * Mar 11, 2009            snaples     Initial creation
  * May 02, 2011   8962     snaples     Added render24hrPcpUsingFour6hr() method
- * 
+ * Jan 10, 2014  16976     cgobs       Fixed issue on line 153. 
+ * 									   Changed pcp.value[row][col] to pcp.value[col][row]
  * </pre>
  * 
  * @author snaples
@@ -149,7 +150,7 @@ public class RenderPcp {
 
 		for (int col = 0; col < hrap_grid.maxi; col++) {
 			for (int row = 0; row < hrap_grid.maxj; row++) {
-				value = pcp.value[row][col];
+				value = pcp.value[col][row];
 
 				if (value > maxValue) {
 					maxValue = value;
