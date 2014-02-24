@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.comm.ConnectivityManager;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager.ConnectivityResult;
 import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
 import com.raytheon.uf.viz.thinclient.Activator;
+import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
@@ -51,6 +52,7 @@ import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
  * Jan 14, 2013 1469       bkowal      The hdf5 data directory is no longer a
  *                                     preference.
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Feb 04, 2014 2704       njensen     Only one field for proxy server
  * 
  * </pre>
  * 
@@ -61,9 +63,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
     private BooleanFieldEditor useProxies;
 
-    private StringFieldEditor pypiesServer;
-
-    private StringFieldEditor servicesServer;
+    private StringFieldEditor proxyServer;
 
     private Button connectivityButton;
 
@@ -92,18 +92,11 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
                 "&Use Proxy Servers", getFieldEditorParent());
 
         addField(useProxies);
-
-        servicesServer = new StringFieldEditor(
-                ThinClientPreferenceConstants.P_SERVICES_PROXY,
-                "&Services Address: ", getFieldEditorParent());
-        servicesServer.setErrorMessage("Cannot connect to Services server");
-        addField(servicesServer);
-
-        pypiesServer = new StringFieldEditor(
-                ThinClientPreferenceConstants.P_PYPIES_PROXY,
-                "&Pypies Address: ", getFieldEditorParent());
-        pypiesServer.setErrorMessage("Cannot connect to Pypies server");
-        addField(pypiesServer);
+        proxyServer = new StringFieldEditor(
+                ThinClientPreferenceConstants.P_PROXY_ADDRESS,
+                "&Proxy Address: ", getFieldEditorParent());
+        proxyServer.setErrorMessage("Cannot connect to Proxy server");
+        addField(proxyServer);
 
         addConnectivityButton();
     }
@@ -131,43 +124,40 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
      * Check the connectivity of the server field editors
      */
     private void checkConnectivity() {
-        final ConnectivityResult result = new ConnectivityResult(false, "");
+        final ConnectivityResult servicesResult = new ConnectivityResult(false,
+                "");
+        final ConnectivityResult pypiesResult = new ConnectivityResult(false,
+                "");
         String errorMessage = "Cannot connect to proxy server: ";
         boolean serverError = false;
 
         // check HTTP Server
-        Text text = servicesServer.getTextControl(getFieldEditorParent());
-        ConnectivityManager.checkLocalizationServer(text.getText().trim(),
+        Text text = proxyServer.getTextControl(getFieldEditorParent());
+        String proxyAddr = text.getText().trim();
+        ConnectivityManager.checkLocalizationServer(
+                ThinClientUriUtil.getServicesAddress(proxyAddr),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
-                        result.hasConnectivity = results.hasConnectivity;
+                        servicesResult.hasConnectivity = results.hasConnectivity;
                     }
                 });
-        if (result.hasConnectivity) {
-            text.setBackground(Display.getDefault().getSystemColor(
-                    SWT.COLOR_WHITE));
-        } else {
-            text.setBackground(Display.getDefault().getSystemColor(
-                    SWT.COLOR_RED));
-            serverError = true;
-        }
 
         // check Pypies Server
-        Text textPypies = pypiesServer.getTextControl(getFieldEditorParent());
-
-        ConnectivityManager.checkHttpServer(textPypies.getText().trim(),
+        ConnectivityManager.checkHttpServer(
+                ThinClientUriUtil.getPypiesAddress(proxyAddr),
                 new IConnectivityCallback() {
                     @Override
                     public void connectionChecked(ConnectivityResult results) {
-                        result.hasConnectivity = results.hasConnectivity;
+                        pypiesResult.hasConnectivity = results.hasConnectivity;
                     }
                 });
-        if (result.hasConnectivity) {
-            textPypies.setBackground(Display.getDefault().getSystemColor(
+
+        if (servicesResult.hasConnectivity && pypiesResult.hasConnectivity) {
+            text.setBackground(Display.getDefault().getSystemColor(
                     SWT.COLOR_WHITE));
         } else {
-            textPypies.setBackground(Display.getDefault().getSystemColor(
+            text.setBackground(Display.getDefault().getSystemColor(
                     SWT.COLOR_RED));
             serverError = true;
         }
@@ -191,8 +181,7 @@ public class ThinClientServerPreferences extends FieldEditorPreferencePage {
 
     private void updateEnabledFields() {
         boolean useProxies = this.useProxies.getBooleanValue();
-        servicesServer.setEnabled(useProxies, connectivityButton.getParent());
-        pypiesServer.setEnabled(useProxies, connectivityButton.getParent());
+        proxyServer.setEnabled(useProxies, connectivityButton.getParent());
         connectivityButton.setEnabled(useProxies);
     }
 

@@ -19,11 +19,17 @@
  **/
 package com.raytheon.uf.viz.core.localization;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.net.UnknownHostException;
+import java.util.regex.Pattern;
 
+import org.apache.http.conn.HttpHostConnectException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -41,6 +47,8 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.comm.HttpServerException;
+import com.raytheon.uf.common.comm.InvalidURIException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -58,6 +66,9 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  * ------------ ---------- ----------- --------------------------
  * Aug 05, 2009            mschenke    Initial creation
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Feb 04, 2014 2704       njensen     Shifted some private fields/methods to protected,
+ *                                      Added status and details, better site validation
+ * Feb 17, 2014 2704       njensen     Changed some alertviz fields to protected
  * 
  * </pre>
  * 
@@ -66,16 +77,23 @@ import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
  */
 
 public class ConnectivityPreferenceDialog extends Dialog {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ConnectivityPreferenceDialog.class, "CAVE");
+
+    protected static final Pattern VALID_SITENAME = Pattern
+            .compile("^[A-Za-z0-9._-]+$");
 
     private class LocalizationCallback implements IConnectivityCallback {
 
         @Override
         public void connectionChecked(ConnectivityResult results) {
             localizationGood = results.hasConnectivity;
+            appendDetails(buildDetails(results));
+            if (!results.hasConnectivity && status == null) {
+                status = buildErrorMessage(results);
+            }
         }
-
     }
 
     private class AlertVizCallback implements IConnectivityCallback {
@@ -83,31 +101,32 @@ public class ConnectivityPreferenceDialog extends Dialog {
         @Override
         public void connectionChecked(ConnectivityResult results) {
             alertVizGood = results.hasConnectivity;
+            appendDetails(buildDetails(results));
+            if (!results.hasConnectivity && status == null) {
+                status = buildErrorMessage(results);
+            }
         }
 
     }
 
-    /**
-     * Set time dialog shell
-     */
     private Shell shell;
 
     /**
      * Display component
      */
-    private Display display;
+    protected Display display;
 
     private Label localizationLabel;
 
-    private Text localizationText;
+    protected Text localizationText;
 
     private String localization = "";
 
     private boolean localizationGood = false;
 
-    private Text alertVizText;
+    protected Text alertVizText;
 
-    private String alertVizServer = null;
+    protected String alertVizServer = null;
 
     private boolean alertVizGood = true;
 
@@ -115,9 +134,15 @@ public class ConnectivityPreferenceDialog extends Dialog {
 
     private String site = "";
 
-    private Text siteText;
+    protected Text siteText;
+
+    private Label statusLabel;
 
     private boolean canceled = false;
+
+    private Composite detailsComp;
+
+    private StyledText detailsText;
 
     private IConnectivityCallback localizationCallback = new LocalizationCallback();
 
@@ -126,14 +151,20 @@ public class ConnectivityPreferenceDialog extends Dialog {
     /**
      * Title of the dialog.
      */
-    private static final String dialogTitle = "Connectivity Preferences";
+    private String title;
 
-    public ConnectivityPreferenceDialog(boolean checkAlertViz) {
-        this(new Shell(Display.getDefault()), checkAlertViz);
+    protected String status;
+
+    protected String details;
+
+    public ConnectivityPreferenceDialog(boolean checkAlertViz, String title) {
+        this(new Shell(Display.getDefault()), checkAlertViz, title);
     }
 
-    public ConnectivityPreferenceDialog(Shell parentShell, boolean checkAlertViz) {
+    public ConnectivityPreferenceDialog(Shell parentShell,
+            boolean checkAlertViz, String title) {
         super(parentShell);
+        this.title = title;
         localization = LocalizationManager.getInstance()
                 .getLocalizationServer();
         site = LocalizationManager.getInstance().getSite();
@@ -155,8 +186,8 @@ public class ConnectivityPreferenceDialog extends Dialog {
         if (!validate()) {
             Shell parent = getParent();
             display = parent.getDisplay();
-            shell = new Shell(parent, SWT.DIALOG_TRIM);
-            shell.setText(dialogTitle);
+            shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE);
+            shell.setText(title);
 
             // Create the main layout for the shell.
             GridLayout mainLayout = new GridLayout(1, true);
@@ -165,6 +196,9 @@ public class ConnectivityPreferenceDialog extends Dialog {
             initializeComponents();
 
             shell.pack();
+            shell.setMinimumSize(shell.getBounds().width,
+                    shell.getBounds().height);
+            updateStatus(false, status, details);
 
             shell.open();
             while (!shell.isDisposed()) {
@@ -177,16 +211,69 @@ public class ConnectivityPreferenceDialog extends Dialog {
     }
 
     private void initializeComponents() {
-        createErrorText();
         Composite textBoxComp = new Composite(shell, SWT.NONE);
         textBoxComp.setLayout(new GridLayout(2, false));
         createTextBoxes(textBoxComp);
+        createStatusText();
         createBottomButtons();
     }
 
-    private void createErrorText() {
-        Label label = new Label(shell, SWT.CENTER);
-        label.setText("Error: Unable to connect to localization server");
+    /**
+     * Creates the status label, text, and details button
+     */
+    protected void createStatusText() {
+        Composite comp = new Composite(shell, SWT.NONE);
+        comp.setLayout(new GridLayout(3, false));
+        comp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+
+        Label lbl = new Label(comp, SWT.NONE);
+        lbl.setText("Status:");
+
+        GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        statusLabel = new Label(comp, SWT.BORDER);
+        statusLabel.setLayoutData(gd);
+        statusLabel.setText("");
+
+        final Button detailsButton = new Button(comp, SWT.TOGGLE);
+        detailsButton.setText("Details");
+        detailsButton.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                if (detailsComp.isVisible()) {
+                    ((GridData) detailsComp.getLayoutData()).exclude = true;
+                    detailsComp.setVisible(false);
+                    shell.pack();
+                } else {
+                    ((GridData) detailsComp.getLayoutData()).exclude = false;
+                    ((GridData) detailsComp.getLayoutData()).widthHint = detailsComp
+                            .getBounds().width;
+                    detailsComp.setVisible(true);
+                    shell.pack();
+                }
+            }
+        });
+        createDetailsText();
+    }
+
+    /**
+     * Creates the expanding details text
+     */
+    protected void createDetailsText() {
+        detailsComp = new Composite(shell, SWT.NONE);
+        detailsComp.setLayout(new GridLayout(1, false));
+        detailsComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = 150;
+        detailsText = new StyledText(detailsComp, SWT.BORDER | SWT.MULTI
+                | SWT.H_SCROLL | SWT.V_SCROLL);
+        detailsText.setText("");
+        detailsText.setLayoutData(gd);
+
+        /*
+         * Hide the composite
+         */
+        ((GridData) detailsComp.getLayoutData()).exclude = true;
+        detailsComp.setVisible(false);
     }
 
     protected void createTextBoxes(Composite textBoxComp) {
@@ -194,12 +281,12 @@ public class ConnectivityPreferenceDialog extends Dialog {
 
         localizationLabel = new Label(textBoxComp, SWT.RIGHT);
         localizationLabel.setText("Localization Server:");
-        GridData gd = new GridData(SWT.RIGHT, SWT.None, true, true);
+        GridData gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         gd.widthHint = 150;
         localizationLabel.setLayoutData(gd);
 
-        localizationText = new Text(textBoxComp, SWT.NONE);
-        gd = new GridData(SWT.RIGHT, SWT.None, true, true);
+        localizationText = new Text(textBoxComp, SWT.BORDER);
+        gd = new GridData(SWT.LEFT, SWT.None, true, true);
         gd.widthHint = 300;
         localizationText.setLayoutData(gd);
         localizationText.setText(localization == null ? "" : localization);
@@ -207,17 +294,18 @@ public class ConnectivityPreferenceDialog extends Dialog {
 
         Label label = new Label(textBoxComp, SWT.RIGHT);
         label.setText("Site:");
-        gd = new GridData(SWT.RIGHT, SWT.None, true, true);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, true, true);
         gd.widthHint = 150;
         label.setLayoutData(gd);
 
-        siteText = new Text(textBoxComp, SWT.NONE);
+        siteText = new Text(textBoxComp, SWT.BORDER);
         siteText.addVerifyListener(new VerifyListener() {
+            @Override
             public void verifyText(VerifyEvent e) {
                 e.text = e.text.toUpperCase();
             }
         });
-        gd = new GridData(SWT.RIGHT, SWT.None, true, true);
+        gd = new GridData(SWT.LEFT, SWT.None, true, true);
         gd.widthHint = 300;
         siteText.setLayoutData(gd);
         siteText.setText(site == null ? "" : site);
@@ -299,7 +387,7 @@ public class ConnectivityPreferenceDialog extends Dialog {
             shell.setVisible(false);
             MessageDialog
                     .openError(
-                            null,
+                            shell,
                             "Connectivity Error",
                             "Unable to validate localization preferences, please enter valid options or quit the application");
             shell.setVisible(true);
@@ -327,6 +415,8 @@ public class ConnectivityPreferenceDialog extends Dialog {
     }
 
     public boolean validate() {
+        status = null;
+        details = null;
         if (localizationText != null && !localizationText.isDisposed()
                 && localizationText.isEnabled()) {
             String localization = localizationText.getText().trim();
@@ -360,20 +450,28 @@ public class ConnectivityPreferenceDialog extends Dialog {
         } else {
             validateSite();
         }
-        return siteGood && localizationGood && alertVizGood;
+
+        boolean everythingGood = siteGood && localizationGood && alertVizGood;
+        updateStatus(everythingGood, status, details);
+        return everythingGood;
     }
 
     private void validateLocalization() {
-        ConnectivityManager.checkLocalizationServer(localization, localizationCallback);
+        ConnectivityManager.checkLocalizationServer(localization,
+                localizationCallback);
     }
 
-    private void validateAlertviz() {
-        ConnectivityManager.checkJmsServer(alertVizServer, alertCallback);
+    protected void validateAlertviz() {
+        ConnectivityManager.checkAlertService(alertVizServer, alertCallback);
     }
 
-    private void validateSite() {
-        if (site == null || site.trim().equals("")) {
+    protected void validateSite() {
+        if (site == null || site.trim().length() == 0
+                || !VALID_SITENAME.matcher(site).find()) {
             siteGood = false;
+            if (status == null) {
+                status = "Invalid Site ID";
+            }
         } else {
             siteGood = true;
         }
@@ -384,6 +482,20 @@ public class ConnectivityPreferenceDialog extends Dialog {
             return display.getSystemColor(SWT.COLOR_WHITE);
         } else {
             return display.getSystemColor(SWT.COLOR_RED);
+        }
+    }
+
+    /**
+     * Gets the color for the status label
+     * 
+     * @param isGood
+     * @return
+     */
+    protected Color getForegroundColor(boolean isGood) {
+        if (isGood) {
+            return display.getSystemColor(SWT.COLOR_DARK_GREEN);
+        } else {
+            return display.getSystemColor(SWT.COLOR_DARK_RED);
         }
     }
 
@@ -436,6 +548,120 @@ public class ConnectivityPreferenceDialog extends Dialog {
         }
         if (localizationText != null && !localizationText.isDisposed()) {
             localizationText.setEnabled(enabled);
+        }
+    }
+
+    /**
+     * Builds a details string based on a stacktrace of connectivity results. If
+     * there is no exception with the results, this returns the empty string.
+     * 
+     * @param results
+     * @return
+     */
+    protected String buildDetails(ConnectivityResult results) {
+        StringBuilder sb = new StringBuilder();
+        if (results.exception != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos);
+            results.exception.printStackTrace(ps);
+            String stack = baos.toString();
+            ps.close();
+            sb.append(stack);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Adds new details to the details field without overwriting it
+     * 
+     * @param newDetails
+     */
+    protected void appendDetails(String newDetails) {
+        if (details == null) {
+            details = "";
+        }
+        if (details.length() > 0) {
+            details += "\n\n\n";
+        }
+        details += newDetails;
+    }
+
+    /**
+     * Creates an error message for the status label by attempting to find the
+     * most relevant error message from the exception's stacktrace.
+     * 
+     * @param result
+     * @return
+     */
+    protected String buildErrorMessage(ConnectivityResult result) {
+        StringBuilder sb = new StringBuilder();
+        Exception prettyErrExc = result.exception;
+        /*
+         * Loop through the Caused Bys and try to find one that is the most
+         * useful for the label. This is totally arbitrary and corresponds to
+         * what njensen predicted would be most useful.
+         */
+        while (prettyErrExc != null) {
+            if (prettyErrExc instanceof HttpHostConnectException
+                    || prettyErrExc instanceof InvalidURIException) {
+                sb.append(prettyErrExc.getMessage());
+                break;
+            }
+            if (prettyErrExc instanceof UnknownHostException) {
+                sb.append("Unknown host: " + prettyErrExc.getMessage());
+                break;
+            } else if (prettyErrExc instanceof HttpServerException) {
+                sb.append("Server returned Error ");
+                String emsg = prettyErrExc.getMessage();
+                int titleIndex = emsg.indexOf("<title>");
+                if (titleIndex > -1) {
+                    String httpMsg = emsg.substring(titleIndex + 7,
+                            emsg.indexOf("</title>"));
+                    sb.append(httpMsg);
+                } else {
+                    int statusCode = ((HttpServerException) prettyErrExc)
+                            .getStatusCode();
+                    sb.append(statusCode);
+                    break;
+                }
+            }
+            prettyErrExc = (Exception) prettyErrExc.getCause();
+        }
+
+        if (sb.length() == 0) {
+            if (result.exception != null
+                    && result.exception.getMessage() != null) {
+                sb.append(result.exception.getMessage());
+            } else {
+                sb.append("Connectivity Error");
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Updates the status label and details of the connectivity dialog
+     * 
+     * @param good
+     * @param status
+     * @param details
+     */
+    protected void updateStatus(boolean good, String status, String details) {
+        if (statusLabel != null && !statusLabel.isDisposed()
+                && detailsText != null && !detailsText.isDisposed()) {
+            statusLabel.setForeground(getForegroundColor(good));
+            detailsText.setText(details != null ? details : "");
+            if (good) {
+                statusLabel.setText("Successful connection");
+            } else {
+                if (status != null) {
+                    statusLabel.setText(status);
+                } else {
+                    // shoudln't be able to reach this but just in case
+                    statusLabel.setText("Connection error");
+                }
+            }
         }
     }
 }
