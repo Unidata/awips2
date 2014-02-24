@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
 import com.raytheon.uf.viz.remote.graphics.events.DisposeObjectEvent;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * ------------ ---------- ----------- --------------------------
  * Apr 20, 2012            mschenke     Initial creation
  * Feb 17, 2014 2756       bclement     added xml parsing for HTTP directory listing
+ * Feb 24, 2014 2751       bclement     added separate paths for each provider under session id
  * 
  * </pre>
  * 
@@ -118,8 +120,11 @@ public class CollaborationObjectEventStorage implements
             int displayId) {
         this.displayId = displayId;
         this.client = HttpClient.getInstance();
+        VenueParticipant dataProvider = session.getCurrentDataProvider();
+        String providerPath = dataProvider.getUserid().getName();
         this.sessionDataURL = PeerToPeerCommHelper.getCollaborationHttpServer();
-        this.sessionDataURL += session.getSessionId() + "/";
+        this.sessionDataURL += session.getSessionId() + "/" + providerPath
+                + "/";
     }
 
     /*
