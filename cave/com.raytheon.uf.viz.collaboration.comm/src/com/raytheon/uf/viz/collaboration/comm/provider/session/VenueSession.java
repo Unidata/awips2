@@ -35,6 +35,7 @@ import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smackx.Form;
 import org.jivesoftware.smackx.FormField;
 import org.jivesoftware.smackx.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.jivesoftware.smackx.muc.UserStatusListener;
@@ -98,6 +99,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2751       bclement    Fixed history message 'from' type
  * Feb 18, 2014 2751       bclement    log privilege changes instead of spamming chat window
+ * Feb 24, 2014 2751       bclement    added isRoomOwner()
  * 
  * </pre>
  * 
@@ -859,6 +861,26 @@ public class VenueSession extends BaseSession implements IVenueSession {
         UserId account = getAccount();
         return new VenueParticipant(this.venue.getName(),
                 getQualifiedHost(account.getHost()), handle, account);
+    }
+
+    /**
+     * @param p
+     * @return true if participant is an owner of the chat room
+     */
+    protected boolean isRoomOwner(VenueParticipant p) {
+        boolean rval = false;
+        try {
+            for (Affiliate aff : muc.getOwners()) {
+                if (aff.getNick().equals(p.getHandle())) {
+                    rval = true;
+                    break;
+                }
+            }
+        } catch (XMPPException e) {
+            log.error("Problem verifying room ownership for participant: " + p,
+                    e);
+        }
+        return rval;
     }
 
 }
