@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Registry
+Bundle-SymbolicName: com.raytheon.uf.edex.datadelivery
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.edex.site,
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.common.util
+Export-Package: com.raytheon.uf.edex.datadelivery.util

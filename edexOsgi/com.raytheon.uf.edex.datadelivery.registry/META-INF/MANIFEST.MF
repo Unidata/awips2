@@ -27,3 +27,4 @@ Export-Package: com.raytheon.uf.edex.datadelivery.registry.availability,
  com.raytheon.uf.edex.datadelivery.registry.federation,
  com.raytheon.uf.edex.datadelivery.registry.replication,
  com.raytheon.uf.edex.datadelivery.registry.web
+Import-Package: com.raytheon.uf.edex.datadelivery.util
