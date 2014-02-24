@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -21,9 +21,9 @@
 #
 # Port of A1 HazardsTable.py.
 #
-#    
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    ??/??/??                      ????????       Initial Creation.
@@ -31,11 +31,15 @@
 #                                                 ETN assignment.
 #    09/24/13        1843          dgilling       Handle GetNextEtnResponse.
 #    11/20/13        2490          randerso       Corrected error handling in __getActiveTable
-#    
-# 
+#
+#    02/05/14        2774          dgilling       Fix error logging statements in
+#                                                 __warnETNduplication() and
+#                                                 __highestETNActiveTable.
+#
 
 
 import time, getopt, sys, copy, string, logging
+import os
 import VTECTableUtil, VTECTable
 import TimeRange, AbsTime, ActiveTableVtec
 import JUtil
@@ -53,9 +57,9 @@ import cPickle
 # hazard strings and VTEC strings for formatters. Alternate active tables
 # may be defined for test purposes.
 class HazardsTable(VTECTableUtil.VTECTableUtil):
-    def __init__(self, ifpClient, editAreas, productCategory, 
-      filterMethod, databaseID, siteID4, activeTableName = "", 
-      vtecMode = None, samplingThreshold = (10, None), hazardEndTime=None,
+    def __init__(self, ifpClient, editAreas, productCategory,
+      filterMethod, databaseID, siteID4, activeTableName="",
+      vtecMode=None, samplingThreshold=(10, None), hazardEndTime=None,
       creationTime=None, dataMgr=None, accurateCities=False, cityEditAreas=[]):
         self.log = logging.getLogger("FormatterRunner.HazardsTable.HazardsTable")
 #        self.log.setLevel(logging.DEBUG)
@@ -90,17 +94,17 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__tpcKeys = self.__processJavaCollection(GFEVtecUtil.TROPICAL_PHENSIGS, self.__convertPhensig)
         self.__tpcBaseETN = '1001'
         self.__ncKeys = self.__processJavaCollection(GFEVtecUtil.NATIONAL_PHENSIGS, self.__convertPhensig)
-        self.__ufnKeys = [('HU','A'), ('HU','S'), ('HU','W'), ('TR','A'), ('TR','W'), 
-          ('TY','A'), ('TY','W')]
-        
+        self.__ufnKeys = [('HU', 'A'), ('HU', 'S'), ('HU', 'W'), ('TR', 'A'), ('TR', 'W'),
+          ('TY', 'A'), ('TY', 'W')]
+
         self.__sitesIgnoreNatlEtn = self.__processJavaCollection(GFEVtecUtil.IGNORE_NATIONAL_ETN, str)
-        
+
         self.__marineZonesPrefix = ["AM", "GM", "PZ", "PK", "PH", "PM", "AN",
           "PS", "SL"]   #list of zone name prefix that are marine zones
-        
+
         # tuple of (% area coverage, numberGridCells)
         self.__samplingThreshold = \
-          (samplingThreshold[0]/100.0, samplingThreshold[1])
+          (samplingThreshold[0] / 100.0, samplingThreshold[1])
 
         #determine creation time
         if creationTime is not None:
@@ -117,7 +121,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         self.__zoneList = self.__singleZoneList(editAreas)
 
         #sample, and merge vtec codes
-        self.__rawAnalyzedTable = self.__analyzedTable(self.__zoneList, 
+        self.__rawAnalyzedTable = self.__analyzedTable(self.__zoneList,
             self.filterMethod)
 
         #reorganize raw analyzed table into hazards by zone, might cause
@@ -127,7 +131,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             # organize by id
             self.__hazardsByZoneDict = self.__organizeByZone(
               self.__rawAnalyzedTable)
-            
+
 
             self.__hazardCombinations = self.__recombineZoneGroups(
               self.__hazardsByZoneDict, editAreas)
@@ -162,7 +166,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # Find the hazards that apply to the area and timeRange, and returns
         # a list of dictionaries. This function can take a single string or
         # a list.  Restriction: only looks at the first element in the list.
-        # The returned list's 'id' field is a list of zones with that 
+        # The returned list's 'id' field is a list of zones with that
         # hazard.
 
         if type(editAreaList) is list and len(editAreaList):
@@ -179,7 +183,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         if self.__hazardsByZoneDict.has_key(ea):
             haz = self.__hazardsByZoneDict[ea]
             for h in haz:
-                # if a segment number is present copy while removing seg 
+                # if a segment number is present copy while removing seg
                 # from the key
                 if h.has_key('seg') and h['seg'] != "":
                     # make a copy and change the key if we need to
@@ -198,7 +202,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         # Now consolidate this list of hazards with segment numbers removed.
         hazards = self.__consolidateTime(hazards)
-        
+
         return hazards
 
     def getVTECString(self, fcstArea):
@@ -215,7 +219,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             hazards.sort(self.__hazardsSort)
         # hazards need upgrade records to be paired up
         hazards = self.__pairUpgradeRecords(hazards)
-            
+
         # get VTEC strings and VTEC records
         vtecStrings = []
         for h in hazards:
@@ -234,7 +238,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     def getCities(self, cityList, zoneHazards):
         if self.__cityHazards is None:
             return
-        
+
         relevant = []
         compare = ('phen', 'sig', 'endTime')
         for p in self.__cityHazards:
@@ -244,7 +248,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     break
 
         return self.__getCities(cityList, relevant)
-    
+
     # Get cities associated with a VTEC with an EXP action
     # returns None if the grid is deleted
     def getCitiesForEXP(self, cityList, zone, phen, sig, expTime):
@@ -320,7 +324,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         unmatched = {}
         for rec in checkedVTEC:
             unmatched[event(rec)] = ugcList[:]
-        
+
         cities = []
         certain = 1
         compare = ('phen', 'sig', 'etn')
@@ -348,7 +352,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     self.log.error("Too many matches for %s.%s:%04d"\
                           % event(active)\
                           + " in zone %s" % active['id'])
-                    
+
                 if active.get('cities') is not None:
                     for city in active['cities']:
                         if city not in cities:
@@ -385,7 +389,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             self.log.error("The following hazard/zones are not found"
                                  " in active table:\n" + str(msg))
 
-        return cities, certain      
+        return cities, certain
 
 
     def __hazardsSort(self, a, b):
@@ -440,7 +444,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         self.log.error("Hazards are identical in __hazardsSort %s %s", a, b)
         return 0
-    
+
     def __marineHazardsSort(self, a, b):
         # Returns 1, 0, or -1 depending on whether the first MARINE hazard
         # is considered higher, equal, or lower priority when compared to
@@ -514,7 +518,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # Hunt down their counterparts and add the record in the correct slot
         for upDown in upDownList:
             # get the fields from the up/downgradeFrom record
-            oldRec = {}   
+            oldRec = {}
             if upDown.has_key('upgradeFrom'):
                 oldRec = upDown['upgradeFrom']
             elif upDown.has_key('downgradeFrom'):
@@ -534,7 +538,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 self.log.error("Match not found for upgrade/downgrade.")
 
         return hazardsList
-        
+
     #-----------------------------------------------------------------
     # The following set of functions are utility functions.
     #-----------------------------------------------------------------
@@ -549,7 +553,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     ',' + time.asctime(time.gmtime(e[1])) + '),'
             s = s + ']'
             return s
-        else:    
+        else:
             s = '(' + time.asctime(time.gmtime(t[0])) + \
                 ',' + time.asctime(time.gmtime(t[1])) + ')'
             return s
@@ -560,7 +564,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for id in hazardsByZone.keys():
             s = s + " Hazards for " + `id` + \
               self.printActiveTable(hazardsByZone[id])
-        return s 
+        return s
 
     #provides intersection of two time ranges
     def __timeIntersection(self, tr1, tr2):    #tr1, tr2 tuples (startT, endT)
@@ -576,7 +580,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             return None   # no intersection
         else:
             return (startTime, endTime)
-    
+
     #provides the time ranges of non-intersection in tr1, based on
     #the time range tr2. Returns a list of 0, 1, or 2 items.
     def __nonTimeIntersection(self, tr1, tr2):
@@ -589,7 +593,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             return []
         #startT same
         elif tr1[0] == intersect[0]:
-            return [(intersect[1], tr1[1])] 
+            return [(intersect[1], tr1[1])]
         #endT same
         elif tr1[1] == intersect[1]:
             return [(tr1[0], intersect[0])]
@@ -642,19 +646,19 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             times.append((proposedRecord['startTime'], proposedRecord['endTime'], 0, [id]))
 
         else:
-            self.__etnCache[phensig] = [(proposedRecord['startTime'], 
+            self.__etnCache[phensig] = [(proposedRecord['startTime'],
               proposedRecord['endTime'], 0, [id])]
-    
+
     # assign new etns to the etn cache. This is done after all requests
     # for new etns have been made
     def __assignNewETNs(self, activeTable):
-        
+
         # go through each new phen,sig
         for phen, sig in self.__etnCache.keys():
 
             #determine the first new ETN to use if we need a new one
-            etn_base = self.__highestETNActiveTable(phen, sig, 
-              self.__allGEOActiveTable) 
+            etn_base = self.__highestETNActiveTable(phen, sig,
+              self.__allGEOActiveTable)
             etn_base = int(etn_base) + 1   #the next one in sequence
 
             #sort the etn cache by (start, end, etn, ids)
@@ -666,7 +670,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             #process sequentially each (phen, sig). Entries in cache
             #are list of startT (0), endT (1), etn# (2), [id] (3).
             times = self.__etnCache[(phen, sig)]
-            for x in xrange(len(times)):   
+            for x in xrange(len(times)):
                 s1, e1, etn1, ids = times[x]
                 #if no etn, then use a new one
                 if etn1 == 0:   #etn == 0?
@@ -679,7 +683,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 assigned = coverage[etn1]
 
                 #search for all adjacent or overlapping, give it the same etn
-                for y in xrange(x+1, len(times)):
+                for y in xrange(x + 1, len(times)):
                     s2, e2, etn2, ids2 = times[y]
                     if etn2 == 0 and \
                       (self.__isAdjacent((s1, e1), (s2, e2)) or\
@@ -702,11 +706,11 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     # find highest etn in active table for phen/sig, returns it.
     # This method has been dramatically re-written for A2 to use
     # GFEVtecUtil to do preliminary ETN assignment instead of scrubbing
-    # the whole set of ActiveTableRecords to calculate it. 
+    # the whole set of ActiveTableRecords to calculate it.
     def __highestETNActiveTable(self, phen, sig, activeTable):
         etn_base = 0
         phensig = (phen, sig)
-        
+
         # find the max ETN...
         # 1. highest ETN period for non-tropical and all GUM products (tpcKeys)
         # or
@@ -720,11 +724,11 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             presentyear = time.gmtime(self.__time)[0]
             for active in activeTable:
                 activeyear = time.gmtime(active['issueTime'])[0]
-                activephensig = (active['phen'],active['sig'])
+                activephensig = (active['phen'], active['sig'])
                 if phensig == activephensig and presentyear == activeyear:
                     # causes failure if tropical hazards are less than 1001
                     if active['etn'] < int(self.__tpcBaseETN):
-                        LogStream.logProblem("Incorrect ETN for tropical hazard.")
+                        self.log.error("Incorrect ETN for tropical hazard.")
         return etn_base
 
     #determine the new etn to use, using the etn cache
@@ -775,7 +779,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             key = (h['phen'], h['sig'])
             hazards.setdefault(key, []).append(h)
 
-        self.log.debug("HazardByPhenSig:"+ self.__printHBZ(hazards))
+        self.log.debug("HazardByPhenSig:" + self.__printHBZ(hazards))
         return hazards
 
 
@@ -804,7 +808,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             return 1
         else:
             return 0
-        
+
 
     #analyzes the hazardsByZone and the list of desired editArea combinations,
     #and ensures that the hazards are the same for every zone in each
@@ -817,7 +821,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             for i in range(1, len(combo)):
                 found = 0
                 for j in range(len(newCombo)):
-                    if self.__comboCompare(hazardsByZone, newCombo[j][0], 
+                    if self.__comboCompare(hazardsByZone, newCombo[j][0],
                       combo[i]):
                         newCombo[j].append(combo[i])
                         found = 1
@@ -831,14 +835,14 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
     #--------------------------------------------------------------
     # The following methods sample Hazard grids, obtain the active
-    # table,  and create the analyzed table (including injecting 
-    # the vtec strings into the table.  
+    # table,  and create the analyzed table (including injecting
+    # the vtec strings into the table.
     #--------------------------------------------------------------
 
     def __analyzedTable(self, areas, filter):
         # main routine to obtain the analyzed table.  Analyzed table
         # is the composite between the proposed and active tables.
-        # filter is the function that filters out the hazards that 
+        # filter is the function that filters out the hazards that
         # should be considered.
 
         # Sample the Hazards Grid
@@ -855,10 +859,10 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         # Get the active table from the IFPServer
         rawactTable = self.__getActiveTable()
-        self.log.info("Raw Active Table: " +  
+        self.log.info("Raw Active Table: " +
           self.printActiveTable(rawactTable, combine=True))
         if rawactTable is None:
-            self.log.error("Unable to retrieve VTEC active table. " + 
+            self.log.error("Unable to retrieve VTEC active table. " +
               "Product VTEC codes may be suspect.")
             rawactTable = []
         self.log.info("Raw Active Table length: " + str(len(rawactTable)))
@@ -868,9 +872,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
           self.printActiveTable(atable, combine=True))
         atable = filter(atable, allowedHazardsOnly=False)
         self.log.info(\
-          "Filtered Analyzed Table length, prior to VTEC injection: " +  
+          "Filtered Analyzed Table length, prior to VTEC injection: " +
           str(len(atable)))
-                
+
         # Perform site filtering on the active table.  We keep
         # our site and SPC.
         allGEOTable = []
@@ -896,17 +900,17 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 if not testEntry:
                     actTable.append(a)
         actTable = filter(actTable, allowedHazardsOnly=True)  #also filter the active table
-               
-        self.log.info("Filtered Active Table length: " +  str(len(actTable)))
-        self.log.info("Filtered Active Table:" + 
+
+        self.log.info("Filtered Active Table length: " + str(len(actTable)))
+        self.log.info("Filtered Active Table:" +
           self.printActiveTable(actTable, combine=True))
         self.__activeTable = copy.deepcopy(actTable)
 
         # Merge the proposed and active tables, to arrive at the analyzed table
-        atable = self.__mergeActiveProposed(atable, actTable, self.__pil, 
+        atable = self.__mergeActiveProposed(atable, actTable, self.__pil,
           areas)
-        self.log.info("Analyzed Table length: " +  str(len(atable)))
-        
+        self.log.info("Analyzed Table length: " + str(len(atable)))
+
         # Finished
         self.log.info("Analyzed Table: " + self.printActiveTable(atable,
           combine=True))
@@ -917,25 +921,23 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         #Uses the IFPClient interface to get the VTEC active table from
         #the server.   Returns None on failure.
         from com.raytheon.uf.common.activetable import ActiveTableMode
-        
+
         try:
             if self.__activeTableName != "PRACTICE":
                 table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID())
             else:
                 table = self.__ifpClient.getVTECActiveTable(self.__dataMgr.getSiteID(), ActiveTableMode.PRACTICE)
-            table = ActiveTableVtec.transformActiveTableToPython(table)            
+            table = ActiveTableVtec.transformActiveTableToPython(table)
             return table
-              
-        except:  
-            import traceback  
-            s = "Unable to access VTEC Active Table: "  
-            self.log.exception(s)  
-            raise Exception(s + traceback.format_exc())
+
+        except:
+            self.log.exception("Unable to access VTEC Active Table: ")
+            raise Exception, s
 
     def __createCityHazards(self):
         if not self.__accurateCities:
             return None
-        
+
         self.log.info("Evaluating hazards for cities.")
 
         # set up sample requests and get the ParmHistos
@@ -956,17 +958,17 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         pTable = self.__consolidateTime(pTable)
 
         # remove old - keep those ended within 30min
-        cutoff = self.__time - 30*60
+        cutoff = self.__time - 30 * 60
         pTable = filter(lambda x: x['endTime'] > cutoff, pTable)
 
         # handle UFN events - convert ending time to max
         for proposed in pTable:
             if (proposed['phen'], proposed['sig']) in self.__ufnKeys:
                 proposed['startTime'] = self.__time   #now
-                proposed['endTime'] = float(2**31-1)  #forever
+                proposed['endTime'] = float(2 ** 31 - 1)  #forever
                 proposed['ufn'] = 1  #until further notice
 
-        self.log.info("Hazards afflicting cities:"+ 
+        self.log.info("Hazards afflicting cities:" +
           self.printActiveTable(pTable, combine=True, idType='city'))
 
         return pTable
@@ -977,7 +979,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         phIter = parmHistos.iterator()
         while phIter.hasNext():
-            ph = phIter.next()            
+            ph = phIter.next()
             areaID = ph.area().getId().getName()
             areaPoints = ph.numberOfGridPoints()
             samples = ph.histoSamples()
@@ -1000,7 +1002,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         d['seg'] = 0  #normally zero, except if aux data
                         d['startTime'] = float(areaTime.startTime().unixTime())
 
-                        # possibly shorten the endTime based on 
+                        # possibly shorten the endTime based on
                         # self.__hazardEndTime
                         if self.__hazardEndTime is not None and \
                           areaTime.endTime().unixTime() > self.__hazardEndTime:
@@ -1025,7 +1027,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # of ParmHistos.
 
         # Determine the ParmID for Hazards out of the given database
-        dbid = JavaDatabaseID(self.__databaseID)  
+        dbid = JavaDatabaseID(self.__databaseID)
 #        pid = filter(lambda x: str(x).find("Hazards") != -1,
 #           self.__ifpClient.getParmList(self.__databaseID))[0]
         parmList = self.__ifpClient.getParmList(dbid)
@@ -1039,7 +1041,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # TimeRange to sample
         # Use hazardEndTime if present
         if self.__hazardEndTime is not None:
-            tr = TimeRange.TimeRange(AbsTime.AbsTime.current(), 
+            tr = TimeRange.TimeRange(AbsTime.AbsTime.current(),
               AbsTime.AbsTime(self.__hazardEndTime))
         else: #(everything)
             tr = TimeRange.allTimes()
@@ -1071,9 +1073,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             areaPoints = ph.numberOfGridPoints()
             samples = ph.histoSamples()
 
-            for s in samples:                
+            for s in samples:
                 areaTime = TimeRange.TimeRange(s.validTime()) # timerange
-                histpairs = s.histogram()                                             
+                histpairs = s.histogram()
                 for p in histpairs:
                     subkeys = p.value().discrete().getSubKeys()
                     sksize = subkeys.size()
@@ -1087,7 +1089,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         d['seg'] = 0  #normally zero, except if aux data
                         d['startTime'] = float(areaTime.startTime().unixTime())
 
-                        # possibly shorten the endTime based on 
+                        # possibly shorten the endTime based on
                         # self.__hazardEndTime
                         if self.__hazardEndTime is not None and \
                           areaTime.endTime().unixTime() > self.__hazardEndTime:
@@ -1108,13 +1110,13 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             d['sig'] = ""   # empty significance
                             desc = \
                                  DiscreteKey.discreteDefinition(self.__dataMgr.getSiteID()).keyDesc(
-                                 "Hazards_SFC", sk) 
+                                 "Hazards_SFC", sk)
                             d['hdln'] = desc
 
                         #special checks for aux data
                         auxindex = sk.find(':')
                         if auxindex != -1:
-                            auxData = sk[auxindex+1:]
+                            auxData = sk[auxindex + 1:]
                             #national center uses:  aux data is the etn number
                             if (d['phen'], d['sig']) in self.__ncKeys:
                                 try:
@@ -1129,7 +1131,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                                         d['etn'] = number
                                 except:
                                     self.log.error("Bad auxData for ",
-                                      "National Center:"+ auxData+ d)
+                                      "National Center:" + auxData + d)
 
                             #other aux data interpreted as segment number
                             else:
@@ -1137,8 +1139,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                                     segment = int(auxData)
                                     d['seg'] = segment
                                 except:
-                                    self.log.error("Bad auxData for seg:"+
-                                      auxData+ d)
+                                    self.log.error("Bad auxData for seg:" +
+                                      auxData + d)
                     rval.append(d)
         return rval
 
@@ -1159,12 +1161,12 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for proposed in pTable:
             if (proposed['phen'], proposed['sig']) in self.__ufnKeys:
                 proposed['startTime'] = self.__time   #now
-                proposed['endTime'] = float(2**31-1)  #forever
+                proposed['endTime'] = float(2 ** 31 - 1)  #forever
                 proposed['ufn'] = 1  #until further notice
         return pTable
 
 
-    # Utility function to combine 
+    # Utility function to combine
     def __timeReduce(self, atable, index):
         if index >= len(atable) - 1:
             return
@@ -1189,9 +1191,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         nowHour = int(self.__time / 3600) * 3600
         for a in atable:
             if a['startTime'] < nowHour:
-                a['startTime'] =  nowHour
+                a['startTime'] = nowHour
         return atable
-    
+
     # Remove any entries that occupy less than the sampling threshold
     # of the area.  Threshold is met for a given % of the area covered
     # or a number of grid points covered. If None is given, then that
@@ -1260,7 +1262,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         atable = self.__coverageFilter(atable)
         atable = self.__consolidateTime(atable)
 
-        # for cities list - keep these records to check for existence of grid 
+        # for cities list - keep these records to check for existence of grid
         self.__oldZoneTable = filter(lambda x:
                                        0 <= self.__time - x['endTime'] < 1800,
                                      atable)
@@ -1279,8 +1281,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         return d
 
     #-------------------------------------------------------------
-    # The following functions handle the merging of the        
-    # proposed and active tables. VTEC strings are calculated 
+    # The following functions handle the merging of the
+    # proposed and active tables. VTEC strings are calculated
     # in these routines.
     #-------------------------------------------------------------
 
@@ -1331,7 +1333,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         activeStart = spcActive['startTime']
                         activeEnd = spcActive['endTime']
                     else:
-                        self.log.error("Unable to match SPC watch for "+
+                        self.log.error("Unable to match SPC watch for " +
                           self.printActiveTable(proposed))
                         activeStart = proposed['startTime']
                         activeEnd = proposed['endTime']  #failsafe code
@@ -1360,17 +1362,17 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     # additional CAN events.
     def __checkForMergedEvents(self, proposedTable, activeTable):
 
-        compare = ['id','phen','sig','pil']
+        compare = ['id', 'phen', 'sig', 'pil']
 
         createdCANEntries = []
 
         for proposed in proposedTable:
             matches = []
- 
+
             #record match and time overlaps for real events
             for active in activeTable:
                 if self.hazardCompare(proposed, active, compare) and \
-                  active['act'] not in ['CAN','UPG','EXP'] and \
+                  active['act'] not in ['CAN', 'UPG', 'EXP'] and \
                   active['endTime'] > self.__time and \
                   proposed['startTime'] <= active['endTime'] and \
                   proposed['endTime'] >= active['startTime']:
@@ -1379,9 +1381,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             #if multiple records match, we have a merged event
             #we need to find the highest etn for the event matches
             if len(matches) > 1:
-                self.log.debug("MERGE event: proposed="+ 
-                  self.printActiveTable(proposed)+
-                  " matches="+ self.printActiveTable(matches))
+                self.log.debug("MERGE event: proposed=" +
+                  self.printActiveTable(proposed) +
+                  " matches=" + self.printActiveTable(matches))
                 highestETN = 0
                 for m in matches:
                     highestETN = max(highestETN, m['etn'])
@@ -1393,7 +1395,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         canEntry = copy.deepcopy(m)
                         canEntry['act'] = 'CAN'
                         createdCANEntries.append(canEntry)
-                        self.log.debug("CAN event: %s%s%s", 
+                        self.log.debug("CAN event: %s%s%s",
                           self.printActiveTable(canEntry),
                           " remEntry: ", self.printActiveTable(m))
                         del activeTable[activeTable.index(m)]
@@ -1423,7 +1425,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             if len(proposed['sig']):   #is VTEC, must compare with active
                 for active in activeTable:
                     if self.hazardCompare(proposed, active, compare) and \
-                      active['act'] not in ['CAN', 'UPG', 'EXP']: 
+                      active['act'] not in ['CAN', 'UPG', 'EXP']:
 #                      and not self.__separateETNtrack(proposed, active):
 
                         #convective watch (special case, also compare etn)
@@ -1438,7 +1440,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             proposed['act'] = 'CON'
                             proposed['etn'] = active['etn']
                             self.__copyTextFields(proposed, active)
-                        
+
                         # start times both before current time, end
                         # times the same, CON state
                         elif self.__time >= proposed['startTime'] and \
@@ -1457,7 +1459,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         # except when user changed the start time
                         # of an event has gone into effect.
                         elif self.__hazardsOverlap(proposed, active):
-                            
+
                             if active['startTime'] <= self.__time:
                                 if proposed['startTime'] <= self.__time or \
                                        active.has_key('conexted'):
@@ -1483,7 +1485,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 del active['conexted']
 
         return proposedTable
- 
+
     # Checks for CAN, EXP, UPG
     def __checkForCANEXPUPG(self, pTable, activeTable):
         compare1 = ['id', 'phen', 'sig']
@@ -1528,15 +1530,15 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             break
 
             # CAN's have three special forms. CAN when a product is no longer
-            # in the proposed table, EXP when the product is no longer 
+            # in the proposed table, EXP when the product is no longer
             # in the proposed table, and the end was within 30 min of now,
-            # and UPG when the phen is the same, but 
+            # and UPG when the phen is the same, but
             # sig is upgraded, and the VTEC is still in effect.
             #
             if cancel_needed == 1:
 
                 # Case One - UPG
-                # Area matches, phen matches, and we are going from an 
+                # Area matches, phen matches, and we are going from an
                 # advisory to a watch, a watch to a warning, or an
                 # advisory to a warning.
 
@@ -1553,7 +1555,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                                 if active not in newEntries:
                                     newEntries.append(active)
                                 cancel_needed = 0
-      
+
                 # Case Two - EXP
                 # If it wasn't an UPG, then check for EXP. EXP if entry
                 # not in the proposed table, and current time is after
@@ -1569,7 +1571,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         cancel_needed = 0
 
                 # Final Case - CAN
-                # Only Allow "CAN" entries if the event is still ongoing, 
+                # Only Allow "CAN" entries if the event is still ongoing,
                 # otherwise ignore the entry.
                 if cancel_needed == 1:
                     if self.__time < active['endTime']:
@@ -1585,13 +1587,13 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for entry in newEntries:
             if entry.has_key('segText'):
                 entry['prevText'] = entry['segText']
-                del entry['segText'] 
+                del entry['segText']
             if entry.has_key('overviewText'):
                 entry['prevOverviewText'] = entry['overviewText']
-                del entry['overviewText'] 
+                del entry['overviewText']
             if entry.has_key('vtec'):
                 entry['vtecstr'] = ""  #erase the VTEC string.
-                del entry['overviewText'] 
+                del entry['overviewText']
             pTable.append(entry)
         return pTable
 
@@ -1617,16 +1619,16 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             # Assume first that this is EXA or EXB
             exaexb_flag = 1
 
-            #if we find a match, and it overlaps in time, 
+            #if we find a match, and it overlaps in time,
             #then it isn't an EXA, EXB
             for active in activeTable:
                 if self.hazardCompare(proposed, active, compare1):
-                    #if proposed['startTime'] <= active['endTime'] and 
-                    #  proposed['endTime'] >= active['startTime'] and 
+                    #if proposed['startTime'] <= active['endTime'] and
+                    #  proposed['endTime'] >= active['startTime'] and
                     if self.__hazardsOverlap(proposed, active) and \
-                      active['act'] not in ['CAN','EXP','UPG']:
+                      active['act'] not in ['CAN', 'EXP', 'UPG']:
                         exaexb_flag = 0
-            
+
             # no match was found, thus this is either a EXA, or EXB,
             # match records with phen and sig the same
             if exaexb_flag == 1:
@@ -1637,7 +1639,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 #                    and not self.__separateETNtrack(proposed, active):
                         if active['act'] not in ['CAN', 'UPG', 'EXP']:
 
-                            #if times are identical, then we extended in area 
+                            #if times are identical, then we extended in area
                             if proposed['startTime'] == active['startTime'] and \
                               proposed['endTime'] == active['endTime']:
                                 if proposed['etn'] == "???" or \
@@ -1715,12 +1717,12 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             self.__copyTextFields(proposed, active)
 
                             if act == 'EXB':
-                                #save original time so we can later 
-                                #determine whether it is EXTENDED 
+                                #save original time so we can later
+                                #determine whether it is EXTENDED
                                 #or SHORTENED
                                 proposed['previousStart'] = active['startTime']
                                 proposed['previousEnd'] = active['endTime']
-        
+
         return pTable
 
 
@@ -1736,7 +1738,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         #
         #Already identified are basic TO.A, SV.A using aux data fields,
 
-        allowedActions = ['NEW','CON','EXT','EXA','EXB']
+        allowedActions = ['NEW', 'CON', 'EXT', 'EXA', 'EXB']
 
         for proposed in pTable:
             if proposed['act'] == '???':
@@ -1781,7 +1783,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 rTable.append(h)
 
             #Convert EXP into CON codes for non-yet expired events (30min)
-            #since marine does not permit EXP codes 
+            #since marine does not permit EXP codes
             elif h['endTime'] > self.__time:
                 h['act'] = 'CON'  #convert to CON code
                 rTable.append(h)
@@ -1795,18 +1797,18 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     # add in EXP codes (for events just about ready to expire)
     def __addEXPCodes(self, pTable):
         #looks for events that have "CON", but are within 30 minutes of
-        #event ending time and converts those events to EXP. 
+        #event ending time and converts those events to EXP.
         for each_hazard in pTable:
             if each_hazard['act'] == 'CON':
                 timeFromEnd = self.__time - each_hazard['endTime']   # +after
-                if timeFromEnd >= -30*60 and timeFromEnd <= 0:
+                if timeFromEnd >= -30 * 60 and timeFromEnd <= 0:
                     each_hazard['act'] = 'EXP'   #convert to expired
         return pTable
-        
+
     # remove EXP (actual EXP codes) when another event of same phen/sig is
     # now ongoing, but only if same issuance year
     def __removeEXPWithOngoingCodes(self, pTable):
-        compare = ['phen','sig','etn','id']
+        compare = ['phen', 'sig', 'etn', 'id']
         tmp = []
         for h in pTable:
             #events with EXP, and after ending time
@@ -1818,7 +1820,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     #active event with same phen/sig/etn
                     h1IssueT = h1.get('issueTime', self.__time)
                     h1IssueYear = time.gmtime(h1IssueT)[0]
-                    if h1['act'] in ['CON','EXA','EXB','EXT'] and \
+                    if h1['act'] in ['CON', 'EXA', 'EXB', 'EXT'] and \
                       self.hazardCompare(h, h1, compare) and \
                       h1IssueYear == hIssueYear:
                         removeIt = 1
@@ -1826,8 +1828,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             if removeIt == 0:
                 tmp.append(h)
         return tmp
-                        
-            
+
+
     # generate VTEC strings for hazards
     def __addVTECStrings(self, pTable):
         for h in pTable:
@@ -1847,7 +1849,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             sig = h['sig']
             if len(sig) == 0:    #local headline, non-VTEC
                 h['vtecstr'] = ""
-                continue     
+                continue
 
             # get the office ID
             if h.has_key('officeid'):
@@ -1869,7 +1871,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 action = h['act']
             else:
                 action = "???"
-        
+
             # adjust time of NEW events to ensure they don't start
             # earlier than now
             if h['startTime'] < self.__time:
@@ -1881,7 +1883,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
               (action == 'EXT' and h['previousStart'] > self.__time) or \
               (action == 'EXB' and h['previousStart'] > self.__time) or \
               (h['startTime'] > self.__time):
-                startStr = time.strftime("%y%m%dT%H%MZ-", 
+                startStr = time.strftime("%y%m%dT%H%MZ-",
                   time.gmtime(h['startTime']))
             else:
                 startStr = "000000T0000Z-"  #ongoing
@@ -1893,7 +1895,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 endStr = time.strftime("%y%m%dT%H%MZ/", time.gmtime(h['endTime']))
 
             # format the beastly string
-            vtec = '/' + self.__vtecMode + "." + action + "." +\
+            vtec = '/' + self.__vtecMode + "." + action + "." + \
                siteID + '.' + phen + '.' + sig + '.' + ETN + '.' + \
                startStr + endStr
             h['vtecstr'] = vtec
@@ -1905,8 +1907,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     # Leaving 'hdln' blank indicates no headline and no mention in hazard
     # products.
     def __addHeadlinesIfMissing(self, pTable):
-        compare = ['id','phen','sig','pil']
-        ongoingAct = ['EXT','EXB','CON','NEW','EXA']
+        compare = ['id', 'phen', 'sig', 'pil']
+        ongoingAct = ['EXT', 'EXB', 'CON', 'NEW', 'EXA']
         for h in pTable:
             if h.has_key('hdln'):
                 continue
@@ -1929,9 +1931,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 else:
                     h['hdln'] = VTECTable.VTECTable[phensig]['hdln']
             else:
-                h['hdln'] = ""   
+                h['hdln'] = ""
 
-     
+
     # isUpgrade(), indicates whether rec2 upgrades rec1, only looks
     # at act, phen and sig. Proposed gets NEW, EXA or EXB active gets UPG
     def __isUpgrade(self, proposed, active):
@@ -1941,16 +1943,16 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         if proposed['act'] in ['CON', 'EXT']:
             return 0   #not an upgrade
         else:
-            if VTECTable.checkForUpgrade(proposed['phen'], proposed['sig'], 
+            if VTECTable.checkForUpgrade(proposed['phen'], proposed['sig'],
               active['phen'], active['sig']):
                 return 1
             else:
                 return 0   #not an upgrade
-    
+
     # isDowngrade(), indicates whether rec2 downgrades rec1, only looks
-    # at phen and sig. Proposed gets NEW, active gets CAN. 
+    # at phen and sig. Proposed gets NEW, active gets CAN.
     def __isDowngrade(self, proposed, active):
-        if VTECTable.checkForDowngrade(proposed['phen'], proposed['sig'], 
+        if VTECTable.checkForDowngrade(proposed['phen'], proposed['sig'],
           active['phen'], active['sig']):
             return 1
         else:
@@ -1958,7 +1960,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
     # Checks for records with the same phen/sig for the same geographical
     # area (id). Eliminates the records with the lower segment number with
-    # same times.  Combines records with multiple segment numbers with 
+    # same times.  Combines records with multiple segment numbers with
     # different times. Result is only to have 1 record per ID for phen/sig.
     def __checkForMultipleSegsInSameID(self, pTable):
 
@@ -1986,7 +1988,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                orgMaxSeg[phensig] = max(p['seg'], orgMaxSeg[phensig])
             else:
                orgMaxSeg[phensig] = p['seg']
- 
+
 
         #step 2: Check for multiple records for phensig and zone.
         #Mark records that can be combined (adjacent/overlap).
@@ -2005,7 +2007,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     xtr = (records[x]['startTime'], records[x]['endTime'])
 
                     #search for adjacent/overlapping
-                    for y in xrange(x+1, len(records)):
+                    for y in xrange(x + 1, len(records)):
                         ytr = (records[y]['startTime'], records[y]['endTime'])
                         rny = records[y].get('rn', None)
                         if rny is None and (self.__isAdjacent(xtr, ytr) or \
@@ -2014,9 +2016,9 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                             records[y]['rn'] = rnx  #overlaps/adjacent,reuse rn
                             records[x]['rn'] = rnx  #assign to orig to match
                             if trDict.has_key(rnx):
-                                trDict[rnx] = self.__combineTR(ytr,trDict[rnx])
+                                trDict[rnx] = self.__combineTR(ytr, trDict[rnx])
                             else:
-                                trDict[rnx] = self.__combineTR(xtr,ytr)
+                                trDict[rnx] = self.__combineTR(xtr, ytr)
 
                 maxSN = self.__maxSegNumber(orgHaz, phensig) #max seg num
 
@@ -2050,7 +2052,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         #step 4: Combine new segments if possible. We can tell we have
         #generated new segments based on the orgMaxSeg dictionary. We assign
         #them the same segments.
-        compare = ['pil','startTime','endTime','phen','sig']
+        compare = ['pil', 'startTime', 'endTime', 'phen', 'sig']
         for x in xrange(len(updatedList)):
             p = updatedList[x]
             phensig = (p['phen'], p['sig'])
@@ -2060,7 +2062,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
                     #find matching records and assign all the same seg#
                     #and key
-                    for y in xrange(x+1, len(updatedList)):
+                    for y in xrange(x + 1, len(updatedList)):
                         p1 = updatedList[y]
                         if self.hazardCompare(p, p1, compare) and \
                           p1['seg'] > orgMax:
@@ -2104,37 +2106,37 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
     def __checkValidETNcw(self, pTable):
         errorLine = '**************************************************\n'
         for p in pTable:
-            if (p['phen'],p['sig']) in self.__ncKeys and p['officeid'] != 'PGUM':
+            if (p['phen'], p['sig']) in self.__ncKeys and p['officeid'] != 'PGUM':
                 try:
                     a = int(p['etn'])
                 except:
-                    raise Exception, "\n\n" + errorLine + "\n" +\
+                    raise Exception, "\n\n" + errorLine + "\n" + \
                       "ABORTING: Found National Hazard " + \
                       "with no ETN in grids. \n" + self.printActiveTable(p) + \
                       " Fix your grids by adding watch/storm number." + \
-                      "\nFor tropical hazards, an override to MakeHazard" +\
+                      "\nFor tropical hazards, an override to MakeHazard" + \
                       "\n is likely to blame.\n" + errorLine
 
     # check for valid ETN/Actions in the analyzed table. Cannot have
     # a split ETN where one part of ongoing/NEW, and the other part
     # is being dropped (e.g., CAN, UPG). pTable is the analyzed active table.
     def __checkValidETNsActions(self, pTable):
-        byZones = self.__organizeByZone(pTable)  
-        compare = ['etn','phen','sig']
+        byZones = self.__organizeByZone(pTable)
+        compare = ['etn', 'phen', 'sig']
         errorLine = '**************************************************\n'
         currentYear = time.gmtime(self.__time)[0]
         for key in byZones:
             for h in byZones[key]:
                 if (h['phen'], h['sig']) not in self.__ncKeys:
                     continue   #only interested in checking national keys
-                if h['act'] in ['EXP','UPG','CAN']:
+                if h['act'] in ['EXP', 'UPG', 'CAN']:
                     hissueTime = h.get('issueTime', 0)
                     hissueYear = time.gmtime(hissueTime)[0] #issueYear
                     for h1 in byZones[key]:
                         if self.hazardCompare(h, h1, compare) and \
-                          h1['act'] in ['NEW','CON','EXA','EXT','EXB'] and \
+                          h1['act'] in ['NEW', 'CON', 'EXA', 'EXT', 'EXB'] and \
                           currentYear == hissueYear:
-                            raise Exception, "\n\n" + errorLine + "\n" +\
+                            raise Exception, "\n\n" + errorLine + "\n" + \
                              "ABORTING: Found VTEC Error"\
                              " with same ETN, same hazard, conflicting "\
                              "actions.\n" + self.printActiveTable(h) + \
@@ -2151,11 +2153,11 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         newTable = []
         for p in pTable:
             if p['act'] == 'EXP' and \
-               (self.__time - p['endTime']) >= 30*60:
+               (self.__time - p['endTime']) >= 30 * 60:
                 pass
             else:
                 newTable.append(p)
-                
+
         return newTable
 
     #ensure that we don't have two vtecs with same action code, same etns.
@@ -2173,7 +2175,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     if self.hazardCompare(p, e, compare2) and \
                        e['etn'] > etn_max:
                         etn_max = e['etn']
-                keyetnmax[vteckey]= etn_max
+                keyetnmax[vteckey] = etn_max
 
         assigned = {}
         for p in pTable:
@@ -2184,7 +2186,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
             for p1 in pTable:
                 #check for matching id,etn,phen,sig,act combinations, these
-                #are the ones that need to be reassigned. 
+                #are the ones that need to be reassigned.
                 if self.hazardCompare(p, p1, compare) and \
                   p['startTime'] > p1['endTime']:
                     #found a newer record that needs to be reassigned
@@ -2215,7 +2217,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                         p['etn'] = int(keyetnmax[vteckey]) + 1
                         trs[tr] = p['etn']   #new etn assigned
                         assigned[akey] = trs  #put back into dictionary
-                        keyetnmax[vteckey]= p['etn']  #updated for new assign
+                        keyetnmax[vteckey] = p['etn']  #updated for new assign
 
     def __warnETNduplication(self, pTable):
         # Check should only operate on applicable VTEC products.
@@ -2224,7 +2226,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
             return
 
         dups = []
-        byZones = self.__organizeByZone(pTable)  
+        byZones = self.__organizeByZone(pTable)
         for id, hazards in byZones.iteritems():
             visited = []
             for p in hazards:
@@ -2238,8 +2240,8 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         if len(dups) > 0:
             errorLine = '\n******************************************************\n'
-            LogStream.logProblem("Illegal ETN duplication is found for:\n", \
-                                 dups, errorLine)
+            self.log.error("Illegal ETN duplication is found for:\n" + \
+                                 str(dups) + errorLine)
 
             # send message to GFE
             msg = "The formatted %s product contains a duplicate ETN.\n"\
@@ -2254,7 +2256,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         if active.has_key("overviewText"):
             proposed['prevOverviewText'] = active['overviewText']
 
- 
+
     # add upgrade/downgrade records from the active table
     def __addUpgradeDowngradeRec(self, proposedTable):
         compare = ['id', 'pil', 'officeid']
@@ -2270,12 +2272,12 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                     ###################
                     if self.__isDowngrade(rec, checkR):
                        rec['downgradeFrom'] = self.__copyFields(checkR, fields)
-                    elif self.__isUpgrade(rec, checkR):  
+                    elif self.__isUpgrade(rec, checkR):
                        rec['upgradeFrom'] = self.__copyFields(checkR, fields)
 
         return proposedTable
 
-        
+
     ############################################
     # 'inject' is the main function in vtec.py #
     ############################################
@@ -2284,59 +2286,59 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         # convert active table EXP still in effect to CON
         activeTable = self.__convertEXPtoCON(activeTable)
-        self.log.debug("After convertEXPtoCON: " +  
+        self.log.debug("After convertEXPtoCON: " +
           self.printActiveTable(pTable, combine=True))
 
         # Special handling for the SPC watches (TO.A, SV.A)
         pTable = self.__handleSPCWatches(pTable, activeTable)
-        self.log.debug("After handleSPCWatches: " + 
+        self.log.debug("After handleSPCWatches: " +
           self.printActiveTable(pTable, combine=True))
 
         # Drop multiple segments for same phen/sig in same "id"
         pTable = self.__checkForMultipleSegsInSameID(pTable)
-        self.log.debug("After checkForMultipleSegsInSameID: " + 
+        self.log.debug("After checkForMultipleSegsInSameID: " +
           self.printActiveTable(pTable, combine=True))
-       
+
         # Check for Merged Events
         pTable, activeTable = self.__checkForMergedEvents(pTable, activeTable)
-        self.log.debug("After checkForMergedEvents: " + 
+        self.log.debug("After checkForMergedEvents: " +
           self.printActiveTable(pTable, combine=True))
 
         # Check for CON and EXT actions
         pTable = self.__checkForCONEXT(pTable, activeTable)
-        self.log.debug("After checkForCONEXT: " + 
+        self.log.debug("After checkForCONEXT: " +
           self.printActiveTable(pTable, combine=True))
 
         # Check for CAN, EXP, and UPG
         pTable = self.__checkForCANEXPUPG(pTable, activeTable)
-        self.log.debug("After checkForCANEXPUPG: " + 
+        self.log.debug("After checkForCANEXPUPG: " +
           self.printActiveTable(pTable, combine=True))
 
         # Check for EXA/EXB
         pTable = self.__checkForEXAEXB(pTable, activeTable)
-        self.log.debug("After checkForEXAEXB: " + 
+        self.log.debug("After checkForEXAEXB: " +
           self.printActiveTable(pTable, combine=True))
 
         # Assign NEW to remaining records
         pTable = self.__checkForNEW(pTable, activeTable)
-        self.log.debug("After checkForNEW: " +  
+        self.log.debug("After checkForNEW: " +
           self.printActiveTable(pTable, combine=True))
 
         # Check for upgrades and downgrades, add records if needed
         pTable = self.__addUpgradeDowngradeRec(pTable)
-        self.log.debug("After addUpgradeDowngradeRec: " + 
+        self.log.debug("After addUpgradeDowngradeRec: " +
           self.printActiveTable(pTable, combine=True))
 
         # Convert ongoing events about ready to expire (still in the
         # proposed grids) to switch from CON to EXP
         pTable = self.__addEXPCodes(pTable)
-        self.log.debug("After addEXPCodes: " + 
+        self.log.debug("After addEXPCodes: " +
           self.printActiveTable(pTable, combine=True))
 
         # Eliminate any EXPs if other events (same phen/sig) in effect
         # at present time.
         pTable = self.__removeEXPWithOngoingCodes(pTable)
-        self.log.debug("After removeEXPWithOngoingCodes: " + 
+        self.log.debug("After removeEXPWithOngoingCodes: " +
           self.printActiveTable(pTable, combine=True))
 
         # Ensure valid ETN/Actions - no EXP/CAN with valid same ETN
@@ -2361,13 +2363,13 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         # Complete the VTEC Strings
         self.__addVTECStrings(pTable)
-        self.log.debug("After addVTECStrings: " + 
+        self.log.debug("After addVTECStrings: " +
           self.printActiveTable(pTable, combine=True))
 
         #add in hdln entries if they are missing
         self.__addHeadlinesIfMissing(pTable)
-        self.log.debug("After addHeadlinesIfMissing: " + 
-          self.printActiveTable(pTable, combine=True))        
+        self.log.debug("After addHeadlinesIfMissing: " +
+          self.printActiveTable(pTable, combine=True))
 
         # Ensure that all SV.A and TO.A have valid ETNs
         self.__checkValidETNcw(pTable)
@@ -2385,7 +2387,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 #
 #    # marine zones and non-marine zones for tpc phen/sigs follow their own
 #    # sequence of ETNs and actions. This routine determines if separate
-#    # ETNs/actions should occur between id1 and id2. Returns true if 
+#    # ETNs/actions should occur between id1 and id2. Returns true if
 #    # separate ETN tracks are required - basically if id1 and id2 are one
 #    # marine and the other not, and the phen/sigs are identical and are tpc
 #    # phen/sigs. Also returns true if phen/sigs are not identical.  Otherwise
