@@ -29,6 +29,7 @@ import java.util.List;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
@@ -55,6 +56,11 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Oct 18, 2013   2292     mpduff      Initial creation
  * Feb 13, 2014   2386     bgonzale    Added test cases to match ticket 2771 test procedures.
+ *                                     Fixed areaLessThan50PercentOverlap bounds.
+ *                                     Added Test case to match issue of a less than
+ *                                     50% overlap for an existing, but more than 50%
+ *                                     overlap for a new subscription, but still not passing
+ *                                     a 50% overlap rule.
  * 
  * </pre>
  * 
@@ -90,7 +96,7 @@ public class GridOverlapDataTest {
         matchMeParameters.add(ParameterFixture.INSTANCE.get(1));
 
         areaMatchMe = new Envelope(0, 10, 0, 20);
-        areaLessThan50PercentOverlap = new Envelope(0, 25, 0, 15);
+        areaLessThan50PercentOverlap = new Envelope(5, 25, 0, 15);
         areaGreaterThan50PercentOverlap = new Envelope(0, 10, 10, 25);
         areaWithNoOverlap = new Envelope(0, 30, 20, 20);
 
@@ -379,6 +385,55 @@ public class GridOverlapDataTest {
                         Arrays.asList(7, 8, 9)));
         GridOverlapData<GriddedTime, GriddedCoverage> overlapResult = new GridOverlapData<GriddedTime, GriddedCoverage>(
                 matchMe, sub3, overlap);
+        assertFalse("These should not be duplicates",
+                overlapResult.isDuplicate());
+        assertTrue("These should overlap", overlapResult.isOverlapping());
+        assertFalse("These should not overlap", overlapResult.cyclePass);
+        assertFalse("These should not overlap", overlapResult.fcstHrPass);
+        assertFalse("These should not overlap", overlapResult.parameterPass);
+        assertTrue("These should overlap", overlapResult.spatialPass);
+    }
+
+    @Test
+    public void testMatchAnySpatialOnlyLessThan50PercentOfExistingGreaterThan50PercentOfNew() {
+        int parameter = 50;
+        int spatial = 50;
+        int forecastHours = 100;
+        int cycles = 100;
+        final GridSubscriptionOverlapConfig overlap = new GridSubscriptionOverlapConfig(
+                parameter, forecastHours, cycles, spatial,
+                SubscriptionOverlapMatchStrategy.MATCH_ANY);
+
+        List<Parameter> parameters2 = new ArrayList<Parameter>();
+        parameters2.addAll(matchMeParameters);
+        parameters2.add(ParameterFixture.INSTANCE.get(20));
+
+        List<Parameter> parameters3 = new ArrayList<Parameter>();
+        parameters3.add(ParameterFixture.INSTANCE.get(30));
+
+        CoordinateReferenceSystem crs = MapUtil.LATLON_PROJECTION;
+        ReferencedEnvelope matchEnv = new ReferencedEnvelope(
+                -353287.9146908128, 499474.38945139456, 4064387.3713984187,
+                4442030.0353220245, crs);
+        ReferencedEnvelope otherEnvelope = new ReferencedEnvelope(
+                -584748.4738489623, 487298.1073337787, 4113114.739653571,
+                4783132.733000439, crs);
+
+        SiteSubscription match = getSubscription(
+                1,
+                matchEnv,
+                matchMeParameters,
+                createGriddedTime(Arrays.asList(0, 1, 2, 3),
+                        Arrays.asList(0, 1, 2, 3)));
+        SiteSubscription otherSub = getSubscription(
+                1,
+                otherEnvelope,
+                parameters3,
+                createGriddedTime(Arrays.asList(7, 8, 9),
+                        Arrays.asList(7, 8, 9)));
+        GridOverlapData<GriddedTime, GriddedCoverage> overlapResult = new GridOverlapData<GriddedTime, GriddedCoverage>(
+                match, otherSub, overlap);
+
         assertFalse("These should not be duplicates",
                 overlapResult.isDuplicate());
         assertTrue("These should overlap", overlapResult.isOverlapping());
