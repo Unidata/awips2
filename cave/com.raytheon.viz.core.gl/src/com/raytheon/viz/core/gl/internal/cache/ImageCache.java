@@ -35,6 +35,9 @@ import com.raytheon.viz.core.gl.GLDisposalManager.GLDisposer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 13, 2007            chammack    Initial Creation.
+ * Jan  9, 2013 2680       mschenke    Changed size calculation to longs to
+ *                                     avoid int overflow when using cache 
+ *                                     size > 1GB
  * 
  * </pre>
  * 
@@ -90,14 +93,15 @@ public class ImageCache extends LRUCache<Object, IImageCacheable> implements
     public static ImageCache getInstance(CacheType type) {
         if (type == CacheType.MEMORY) {
             if (memoryCache == null) {
-                memoryCache = new ImageCache(1024 * 1024 * MEMORY_CACHE_SIZE);
+                memoryCache = new ImageCache(1024L * 1024L * MEMORY_CACHE_SIZE);
             }
             return memoryCache;
         }
 
         if (type == CacheType.TEXTURE) {
             if (textureCache == null) {
-                textureCache = new ImageCache(1024 * 1024 * TEXTURE_CACHE_SIZE);
+                textureCache = new ImageCache(
+                        1024L * 1024L * TEXTURE_CACHE_SIZE);
             }
             return textureCache;
         }
