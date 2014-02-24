@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Display;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 
 /**
- * TODO Add Description
+ * Get the labels for the Alert Words for the preference page.
  * 
  * <pre>
  * 
@@ -40,7 +40,8 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2012            mnash     Initial creation
+ * May 17, 2012            mnash       Initial creation
+ * Feb 24, 2014   2632     mpduff      Renamed from CollaborationPreferencesLabelProvider
  * 
  * </pre>
  * 
@@ -48,7 +49,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
  * @version 1.0
  */
 
-public class CollaborationPreferencesLabelProvider extends ColumnLabelProvider {
+public class AlertWordLabelProvider extends ColumnLabelProvider {
 
     private List<Color> colors = null;
 
@@ -57,7 +58,7 @@ public class CollaborationPreferencesLabelProvider extends ColumnLabelProvider {
     /**
      * 
      */
-    public CollaborationPreferencesLabelProvider() {
+    public AlertWordLabelProvider() {
         colors = new ArrayList<Color>();
         fonts = new ArrayList<Font>();
     }
