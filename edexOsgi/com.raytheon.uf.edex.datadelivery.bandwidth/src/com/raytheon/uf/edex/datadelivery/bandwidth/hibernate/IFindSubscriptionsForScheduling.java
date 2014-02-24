@@ -19,8 +19,10 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
+import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 
 /**
@@ -33,6 +35,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013 1543       djohnson     Initial creation
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -40,12 +43,12 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
  * @version 1.0
  */
 
-public interface IFindSubscriptionsForScheduling {
+public interface IFindSubscriptionsForScheduling<T extends Subscription> {
     /**
      * Finds subscriptions that should be scheduled.
      * 
      * @return subscriptions
      * @throws Exception
      */
-    Set<Subscription> findSubscriptionsToSchedule() throws Exception;
+    Map<Network, Set<T>> findSubscriptionsToSchedule() throws Exception;
 }

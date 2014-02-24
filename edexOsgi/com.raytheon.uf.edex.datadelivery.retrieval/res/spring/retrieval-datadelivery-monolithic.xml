@@ -8,13 +8,12 @@
         2) What to do with found retrievals, in this case process it and send a notification event 
         3) How to complete retrievals, in this case update the database and send a notification event 
      -->
-    <bean id="opsnetRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+    <bean id="opsnetRetrievalTaskFactory"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
         <constructor-arg value="OPSNET" />
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg ref="retrievalQueue" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
@@ -35,13 +34,12 @@
     </bean>
 
     <!-- Pick up SBN retrievals from the drop-off point -->
-    <bean id="sbnRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+    <bean id="sbnRetrievalTaskFactory"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
         <constructor-arg value="SBN" />
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg ref="retrievalQueue" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
@@ -60,11 +58,10 @@
             </bean>
         </constructor-arg>
     </bean>
-
-    <util:list id="retrievalTaskList"
-        value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask.RetrievalTask">
-        <ref bean="opsnetRetrievalTask" />
-        <ref bean="sbnRetrievalTask" />
-    </util:list>
+    
+    <util:map id="retrievalTaskFactoryMap" value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
+        <entry key="SBN" value-ref="sbnRetrievalTaskFactory"/>
+        <entry key="OPSNET" value-ref="opsnetRetrievalTaskFactory"/>
+    </util:map>
 
 </beans>
