@@ -42,7 +42,8 @@ import org.eclipse.ui.PlatformUI;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 6, 2013    1786     mpduff      Initial creation
+ * Mar 06, 2013    1786     mpduff      Initial creation
+ * Feb 10, 2014    2704     njensen     Allow message to expand size of dialog
  * 
  * </pre>
  * 
@@ -50,6 +51,7 @@ import org.eclipse.ui.PlatformUI;
  * @version 1.0
  */
 public class HttpsLoginDlg extends Dialog {
+
     private static final long serialVersionUID = 1L;
 
     private Shell shell;
@@ -76,7 +78,7 @@ public class HttpsLoginDlg extends Dialog {
      */
     public HttpsLoginDlg(String message) {
         super(new Shell(Display.getDefault(), SWT.TITLE));
-        this.message = message;
+        this.message = message.replace("\"", "");
     }
 
     /**
@@ -112,7 +114,9 @@ public class HttpsLoginDlg extends Dialog {
         comp.setLayout(new GridLayout(2, false));
 
         GridData gd = new GridData(SWT.RIGHT, SWT.None, true, true);
-        gd.widthHint = 500;
+        if (message == null || message.length() < 50) {
+            gd.widthHint = 500;
+        }
         gd.horizontalSpan = 2;
 
         Label authMessage = new Label(comp, SWT.CENTER);
