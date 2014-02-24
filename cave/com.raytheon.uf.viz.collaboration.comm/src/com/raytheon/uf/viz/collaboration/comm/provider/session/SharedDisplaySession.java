@@ -81,6 +81,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 13, 2014 2751       njensen     Added changeLeader()
  * Feb 18, 2014 2751       bclement    implemented room and pubsub ownership transfer
  * Feb 19, 2014 2751       bclement    added isClosed()
+ * Feb 24, 2014 2751       bclement    added validation for change leader event
  * 
  * </pre>
  * 
@@ -412,10 +413,13 @@ public class SharedDisplaySession extends VenueSession implements
         if (payload instanceof SessionPayload) {
             SessionPayload sp = (SessionPayload) payload;
             Object obj = sp.getData();
+            boolean validEvent = true;
             if (obj instanceof LeaderChangeEvent) {
-                handleLeaderChange((LeaderChangeEvent) obj);
+                validEvent = handleLeaderChange((LeaderChangeEvent) obj);
             }
-            postEvent(obj);
+            if (validEvent) {
+                postEvent(obj);
+            }
         }
     }
 
@@ -423,11 +427,21 @@ public class SharedDisplaySession extends VenueSession implements
      * Apply leadership change event to session
      * 
      * @param event
+     * @return true if the leader change event is valid
      */
-    private void handleLeaderChange(LeaderChangeEvent event) {
+    private boolean handleLeaderChange(LeaderChangeEvent event) {
         VenueParticipant newLeader = event.getNewLeader();
-        setCurrentDataProvider(newLeader);
-        setCurrentSessionLeader(newLeader);
+        boolean rval;
+        if (!isRoomOwner(newLeader)) {
+            log.info("Invalid leader change event: " + newLeader
+                    + " is not an owner of the room");
+            rval = false;
+        } else {
+            setCurrentDataProvider(newLeader);
+            setCurrentSessionLeader(newLeader);
+            rval = true;
+        }
+        return rval;
     }
 
     /**
