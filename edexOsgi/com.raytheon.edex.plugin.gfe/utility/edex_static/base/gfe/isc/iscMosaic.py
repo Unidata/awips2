@@ -85,7 +85,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #    11/05/13        2517          randerso       Restructured logging so it coulde be used by WECache
 #                                                 Changed WECache to limit the number of cached grids kept in memory
 #    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
-#
+#    02/04/14        17042         ryu            Check in changes for randerso.
 #
 
 BATCH_DELAY = 0.0
@@ -1144,7 +1144,7 @@ class IscMosaic:
                         self.__storeGrid(m[1], oldGrid)
         self.__dbGrid = None
 
-    #-------------------------------------------------------------------------
+        #-------------------------------------------------------------------------
     # Get Incoming netCDF file grid valid times
     # netCDFfile, var is the netCDF variable
     #-------------------------------------------------------------------------
@@ -1526,7 +1526,7 @@ class IscMosaic:
                              smsg, oldEntry, keyentry, ",".join(changedReasons))
 
                 msg = "%s %s %s [%s] -> [%s] (%s)" % \
-                    self.__siteID, parmName, printShortTR(tr), oldEntry, keyentry, ",".join(changedReasons)
+                      (self.__siteID, parmName, printShortTR(tr), oldEntry, keyentry, ",".join(changedReasons))
                 self.__adjDataMsg.append(msg)
 
             key[idx] = keyentry   #store back into list
@@ -1626,7 +1626,7 @@ class IscMosaic:
                              smsg, oldEntry, keyentry, ",".join(changedReasons))
 
                 msg = "%s %s %s [%s] -> [%s] (%s)" % \
-                    self.__siteID, parmName, printShortTR(tr), oldEntry, keyentry, ",".join(changedReasons)
+                      (self.__siteID, parmName, printShortTR(tr), oldEntry, keyentry, ",".join(changedReasons))
 
                 self.__adjDataMsg.append(msg)
 
