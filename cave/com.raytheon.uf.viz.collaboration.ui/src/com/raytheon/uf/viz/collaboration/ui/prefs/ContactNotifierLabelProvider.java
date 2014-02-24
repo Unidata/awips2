@@ -17,13 +17,14 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
+package com.raytheon.uf.viz.collaboration.ui.prefs;
 
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.packet.Presence;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
 
 /**
- * Event fired when the roster has changed
+ * Get the labels for the NotifierTasks for the preference page.
  * 
  * <pre>
  * 
@@ -31,36 +32,20 @@ import org.jivesoftware.smack.packet.Presence;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 06, 2012            jkorman     Initial creation.
- * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Feb 21, 2014    2632    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author mpduff
  * @version 1.0
  */
 
-public interface IRosterChangeEvent {
+public class ContactNotifierLabelProvider extends ColumnLabelProvider {
 
-    /**
-     * Get the event type.
-     * 
-     * @return The event type
-     */
-    RosterChangeType getType();
-
-    /**
-     * Get the changed entry.
-     * 
-     * @return The changed entry
-     */
-    RosterEntry getEntry();
-
-    /**
-     * Get the Presence object.
-     * 
-     * @return The Presence object
-     */
-    Presence getPresence();
+    @Override
+    public String getText(Object element) {
+        NotifierTask task = (NotifierTask) element;
+        return task.getUserName();
+    }
 
 }
