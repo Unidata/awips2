@@ -4,7 +4,6 @@
 	<specificationVersion>4.0</specificationVersion>
 	<catalogingLatency>PT0.000S</catalogingLatency>
 	<replicationSyncLatency>PT0.000S</replicationSyncLatency>
-	<siteIdentifier>NCF</siteIdentifier>
 	<siteDescription>AWIPS Network Control Facility</siteDescription>
 	<sitePrimaryContactFirstName>National</sitePrimaryContactFirstName>
 	<sitePrimaryContactMiddleName>Weather</sitePrimaryContactMiddleName>
