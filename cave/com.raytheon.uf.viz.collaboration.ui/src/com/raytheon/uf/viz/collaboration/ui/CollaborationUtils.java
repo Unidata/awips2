@@ -68,7 +68,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 
 public class CollaborationUtils {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationUtils.class);
 
     public static final Presence.Mode[] statusModes = { Mode.available,
@@ -106,7 +106,7 @@ public class CollaborationUtils {
                         "collaboration" + File.separator
                                 + "collaborationAliases.xml");
         if (file.exists()) {
-            UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(file.getFile(),
+            UserIdWrapper ids = JAXB.unmarshal(file.getFile(),
                     UserIdWrapper.class);
             if (ids.getUserIds() == null) {
                 return new UserId[0];
@@ -159,20 +159,21 @@ public class CollaborationUtils {
         file = PathManagerFactory.getPathManager().getLocalizationFile(context,
                 "collaboration" + File.separator + "alertWords.xml");
         if (file.exists() || file.getFile().exists()) {
-            AlertWordWrapper words = (AlertWordWrapper) JAXB.unmarshal(
-                    file.getFile(), AlertWordWrapper.class);
+            AlertWordWrapper words = JAXB.unmarshal(file.getFile(),
+                    AlertWordWrapper.class);
             if (words.getAlertWords() == null) {
                 return new ArrayList<AlertWord>();
-            } else {
-                List<AlertWord> alertWords = new ArrayList<AlertWord>();
-                for (int i = 0; i < words.getAlertWords().length; i++) {
-                    alertWords.add(words.getAlertWords()[i]);
-                }
-                return alertWords;
             }
-        } else {
-            return new ArrayList<AlertWord>();
+
+            List<AlertWord> alertWords = new ArrayList<AlertWord>();
+            for (int i = 0; i < words.getAlertWords().length; i++) {
+                alertWords.add(words.getAlertWords()[i]);
+            }
+
+            return alertWords;
         }
+
+        return new ArrayList<AlertWord>();
     }
 
     public static void saveAlertWords(List<AlertWord> words) {
@@ -211,5 +212,4 @@ public class CollaborationUtils {
                     "Unable to save alert words to localization", e);
         }
     }
-
 }

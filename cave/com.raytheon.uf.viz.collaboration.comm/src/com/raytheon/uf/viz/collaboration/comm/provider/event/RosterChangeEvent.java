@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
@@ -34,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            jkorman     Initial creation
+ * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
  * 
  * </pre>
  * 
@@ -45,7 +47,10 @@ public class RosterChangeEvent implements IRosterChangeEvent {
 
     private final RosterChangeType type;
 
-    private final RosterEntry item;
+    private final RosterEntry entry;
+
+    /** The presence object */
+    private Presence presence;
 
     /**
      * Create an instance of this event using the given type and entry.
@@ -55,9 +60,28 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @param entry
      *            The changed entry.
      */
-    public RosterChangeEvent(RosterChangeType type, RosterEntry item) {
+    public RosterChangeEvent(RosterChangeType type, RosterEntry entry) {
         this.type = type;
-        this.item = item;
+        this.entry = entry;
+    }
+
+    /**
+     * Create an instance of this event using the given type, entry, and
+     * presence.
+     * 
+     * @param type
+     *            The event type.
+     * @param entry
+     *            The changed entry.
+     * @param presence
+     *            The presence object
+     */
+    public RosterChangeEvent(RosterChangeType type, RosterEntry entry,
+            Presence presence) {
+        this.type = type;
+        this.entry = entry;
+        this.presence = presence;
+
     }
 
     /**
@@ -78,8 +102,24 @@ public class RosterChangeEvent implements IRosterChangeEvent {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent#getEntry()
      */
     @Override
-    public RosterEntry getItem() {
-        return item;
+    public RosterEntry getEntry() {
+        return entry;
+    }
+
+    /**
+     * @return the presence
+     */
+    @Override
+    public Presence getPresence() {
+        return presence;
+    }
+
+    /**
+     * @param presence
+     *            the presence to set
+     */
+    public void setPresence(Presence presence) {
+        this.presence = presence;
     }
 
 }
