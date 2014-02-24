@@ -82,6 +82,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/9/2013    2613        bphillip    Setting last run time of subscription now occurs before notification is sent
  * 1/15/2014    2613        bphillip    Added Hibernate flush and clear after subscription processing
  * 01/21/2014   2613        bphillip    Changed how last run time is updated for replication subscriptions
+ * 2/4/2014     2769        bphillip    Removed flush and clear call
  * </pre>
  * 
  * @author bphillip
@@ -406,8 +407,6 @@ public class RegistrySubscriptionManager implements
             statusHandler.error(
                     "Errors occurred while processing subscription ["
                             + subscriptionName + "]", e);
-        } finally {
-            subscriptionDao.flushAndClearSession();
         }
 
     }

@@ -20,9 +20,8 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.util;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import com.google.common.collect.Sets;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsF
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2013 1543       djohnson     Initial creation
  * Jul 09, 2013 2106       djohnson     Dependency inject registry handlers.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -53,7 +53,6 @@ public class FindActiveSubscriptionsForRoute implements
     private final ISubscriptionHandler subscriptionHandler;
 
     private final Network[] routes;
-
 
     /**
      * Find active subscriptions for a specific route.
@@ -86,11 +85,8 @@ public class FindActiveSubscriptionsForRoute implements
      * {@inheritDoc}
      */
     @Override
-    public Set<Subscription> findSubscriptionsToSchedule()
+    public Map<Network, List<Subscription>> findSubscriptionsToSchedule()
             throws RegistryHandlerException {
-        final List<Subscription> activeForRoutes = subscriptionHandler
-                .getActiveForRoutes(routes);
-        return Sets.newHashSet(activeForRoutes);
+        return subscriptionHandler.getActiveForRoutes(routes);
     }
-
 }

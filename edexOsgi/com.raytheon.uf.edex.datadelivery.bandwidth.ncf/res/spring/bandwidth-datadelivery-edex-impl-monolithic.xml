@@ -11,15 +11,15 @@
         <value>SBN</value>
     </util:list>
 
+    <bean id="findActiveSubscriptionsForRoute"
+    	class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
+        <constructor-arg ref="localSubscriptionHandler" />
+        <constructor-arg ref="subscriptionRoutesToSchedule" />
+    </bean>
+
     <bean id="bandwidthInitializer"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.HibernateBandwidthInitializer">
-        <constructor-arg>
-            <bean
-                class="com.raytheon.uf.edex.datadelivery.bandwidth.util.FindActiveSubscriptionsForRoute">
-                <constructor-arg ref="SubscriptionHandler" />
-                <constructor-arg ref="subscriptionRoutesToSchedule" />
-            </bean>
-        </constructor-arg>
+        <constructor-arg ref="findActiveSubscriptionsForRoute" />
     </bean>
 
     <bean id="opsnetSubscriptionRetrievalAgentPrototype"
@@ -33,7 +33,6 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="ProviderHandler" />
-        <constructor-arg ref="retrievalQueue" />
     </bean>
 
     <bean id="sbnSubscriptionRetrievalAgentPrototype"
@@ -47,20 +46,11 @@
         <constructor-arg ref="bandwidthDao" />
         <constructor-arg ref="retrievalDao" />
         <constructor-arg ref="ProviderHandler" />
-        <constructor-arg ref="retrievalQueue" />
     </bean>
 
     <util:map id="retrievalAgents">
-        <entry key="Retrievals-1" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-2" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-3" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-4" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-5" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-6" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-7" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-8" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-9" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
-        <entry key="Retrievals-10" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
-    </util:map>
+        <entry key="Retrievals-OPSNET" value-ref="opsnetSubscriptionRetrievalAgentPrototype" />
+        <entry key="Retrievals-SBN" value-ref="sbnSubscriptionRetrievalAgentPrototype" />
+   </util:map>
 
 </beans>
