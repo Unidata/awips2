@@ -109,6 +109,7 @@ import com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistry
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationHostConfiguration;
 import com.raytheon.uf.edex.datadelivery.registry.replication.NotificationServers;
 import com.raytheon.uf.edex.datadelivery.registry.web.DataDeliveryRESTServices;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -157,6 +158,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/9/2013    2613        bphillip    Optimized registry sync function
  * 1/15/2014    2613        bphillip    Added leaveFederation method to prevent inactive registries from participating in the federation unintentionally.
  * 1/21/2014    2613        bphillip    Changed max down time which requires a sync
+ * Feb 11, 2014 2771        bgonzale    Use Data Delivery ID instead of Site.
  * </pre>
  * 
  * @author bphillip
@@ -471,7 +473,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                 + " Federation Membership Association");
         association.setLid(association.getId());
         association.setObjectType(RegistryObjectTypes.ASSOCIATION);
-        association.setOwner(federationProperties.getSiteIdentifier());
+        association.setOwner(DataDeliveryIdUtil.getId());
         association.setType(AssociationTypes.HAS_FEDERATION_MEMBER);
         association.setStatus(StatusTypes.APPROVED);
         association.setName(RegistryUtil.getInternationalString(registry
@@ -690,7 +692,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
         version.setVersionName("1");
         version.setUserVersionName("1");
         sub.setVersionInfo(version);
-        sub.setOwner(federationProperties.getSiteIdentifier());
+        sub.setOwner(DataDeliveryIdUtil.getId());
         sub.setStatus(StatusTypes.APPROVED);
 
         sub.setStartTime(EbxmlObjectUtil
@@ -1074,7 +1076,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                             .info("Removing remote subscriptions prior to submission of new subscriptions");
                     dataDeliveryRestClient.getRegistryDataAccessService(
                             remoteRegistryBaseURL).removeSubscriptionsForSite(
-                            federationProperties.getSiteIdentifier());
+                            DataDeliveryIdUtil.getId());
                     statusHandler
                             .info("Generating registry replication subscriptions for registry at ["
                                     + config.getRegistrySiteName()
@@ -1138,8 +1140,7 @@ public class RegistryFederationManager implements RegistryInitializedListener {
                                         .getRegistryDataAccessService(
                                                 remoteRegistryBaseURL)
                                         .removeSubscriptionsForSite(
-                                                federationProperties
-                                                        .getSiteIdentifier());
+                                                DataDeliveryIdUtil.getId());
                                 statusHandler
                                         .info("Subscriptions removed from: ["
                                                 + remoteRegistryBaseURL + "]");

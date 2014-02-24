@@ -34,7 +34,6 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval.SubscriptionType;
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -52,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Oct 10, 2012 0726       djohnson     Add {@link #subRetrievalKey}.
  * Nov 26, 2012 1340       dhladky      Added additional fields for tracking subscriptions
  * Jan 30, 2013 1543       djohnson     Add PENDING_SBN, give retrieval column a length.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -62,8 +62,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "subscription_retrieval")
 @DynamicSerialize
 public class RetrievalRequestRecord implements
-        IPersistableDataObject<RetrievalRequestRecordPK>, Serializable,
-        ISerializableObject {
+        IPersistableDataObject<RetrievalRequestRecordPK>, Serializable {
 
     public enum State {
         PENDING, RUNNING, FAILED, COMPLETED;
