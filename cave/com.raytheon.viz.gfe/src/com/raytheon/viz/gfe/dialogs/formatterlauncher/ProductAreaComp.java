@@ -63,6 +63,7 @@ import com.raytheon.viz.gfe.textformatter.TextProductManager;
  *                                     DataManager instance.
  * 05 SEP 2013  2329       randerso    Added call to ZoneCombinerComp.applyZoneCombo when
  *                                     when run formatter button is clicked.
+ * 05 FEB 2014  2591       randerso    Added dataManager to ZoneCombinerComp constructor
  * 
  * </pre>
  * 
@@ -592,7 +593,7 @@ public class ProductAreaComp extends Composite implements
      */
     private void createZoneCombinerComp() {
         zoneCombiner = new ZoneCombinerComp(stackGridComp, productTabCB,
-                productName, getTextProductManager());
+                productName, getTextProductManager(), this.dataMgr);
     }
 
     /**
