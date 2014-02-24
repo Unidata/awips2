@@ -92,6 +92,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager.Grou
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.ui.actions.AddNotifierAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ArchiveViewerAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.ChangeFontAction;
@@ -116,6 +117,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.UserSearchAction;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
 import com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -142,6 +144,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jan 30, 2014 2698       bclement    fixed alias not working for roster entries
  *                                     removed unneeded subscription for nickname changed events
  * Feb 12, 2014 2799       bclement    fixed double click chat not working for roster entries
+ * Feb 24, 2014 2632       mpduff      Add Notifier actions.
  * 
  * </pre>
  * 
@@ -272,6 +275,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
         };
 
         collapseAllAction = new Action("Collapse All") {
+            @Override
             public void run() {
                 if (usersTreeViewer != null) {
                     usersTreeViewer.collapseAll();
@@ -413,6 +417,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             if (ContactsManager.isBlocked(entry)) {
                 manager.add(new SendSubReqAction(entry));
             }
+            manager.add(new AddNotifierAction(this));
         } else if (o instanceof UserId) {
             // the user
             UserId user = (UserId) o;
@@ -516,6 +521,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 SWT.COLOR_BLACK));
         final Text modText = new Text(composite, SWT.NONE);
         composite.addListener(SWT.Resize, new Listener() {
+            @Override
             public void handleEvent(Event e) {
                 Rectangle rect = composite.getClientArea();
                 modText.setBounds(rect.x + 1, rect.y + 1, rect.width - 2,
@@ -523,6 +529,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
         });
         Listener textListener = new Listener() {
+            @Override
             public void handleEvent(final Event e) {
                 switch (e.type) {
                 case SWT.KeyUp:
@@ -631,11 +638,13 @@ public class CollaborationGroupView extends CaveFloatingView implements
         clearButton.addMouseListener(new MouseAdapter() {
             private MouseMoveListener fMoveListener;
 
+            @Override
             public void mouseDown(MouseEvent e) {
                 clearButton.setImage(pressedImage);
                 fMoveListener = new MouseMoveListener() {
                     private boolean fMouseInButton = true;
 
+                    @Override
                     public void mouseMove(MouseEvent e) {
                         boolean mouseInButton = isMouseInButton(e);
                         if (mouseInButton != fMouseInButton) {
@@ -648,6 +657,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 clearButton.addMouseMoveListener(fMoveListener);
             }
 
+            @Override
             public void mouseUp(MouseEvent e) {
                 if (fMoveListener != null) {
                     clearButton.removeMouseMoveListener(fMoveListener);
@@ -670,15 +680,18 @@ public class CollaborationGroupView extends CaveFloatingView implements
             }
         });
         clearButton.addMouseTrackListener(new MouseTrackAdapter() {
+            @Override
             public void mouseEnter(MouseEvent e) {
                 clearButton.setImage(activeImage);
             }
 
+            @Override
             public void mouseExit(MouseEvent e) {
                 clearButton.setImage(inactiveImage);
             }
         });
         clearButton.addDisposeListener(new DisposeListener() {
+            @Override
             public void widgetDisposed(DisposeEvent e) {
                 inactiveImage.dispose();
                 activeImage.dispose();
@@ -687,12 +700,14 @@ public class CollaborationGroupView extends CaveFloatingView implements
         });
         clearButton.getAccessible().addAccessibleListener(
                 new AccessibleAdapter() {
+                    @Override
                     public void getName(AccessibleEvent e) {
                         e.result = WorkbenchMessages.FilteredTree_AccessibleListenerClearButton;
                     }
                 });
         clearButton.getAccessible().addAccessibleControlListener(
                 new AccessibleControlAdapter() {
+                    @Override
                     public void getRole(AccessibleControlEvent e) {
                         e.detail = ACC.ROLE_PUSHBUTTON;
                     }
@@ -767,6 +782,7 @@ public class CollaborationGroupView extends CaveFloatingView implements
      * 
      * @return
      */
+    @Override
     public UserId[] getSelectedUsers() {
         Set<UserId> selectedUsers = new HashSet<UserId>();
         IStructuredSelection selection = (IStructuredSelection) usersTreeViewer
@@ -853,6 +869,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
         // Refresh the whole tree since there can be instances of the same user
         // elsewhere that might not .equals this one.
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
+        NotifierTools.processNotifiers(rosterChangeEvent.getPresence());
+
     }
 
     @Subscribe

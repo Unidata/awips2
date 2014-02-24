@@ -40,11 +40,15 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 
 /**
  * UI display for one-on-one chat sessions
@@ -58,6 +62,7 @@ import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionIt
  * Mar 1, 2012            rferrel     Initial creation
  * Jan 30, 2014 2698       bclement    added getDisplayName
  * Feb 13, 2014 2751       bclement   made parent generic
+ * Feb 28, 2014 2632       mpduff      Override appendMessage for notifiers
  * 
  * </pre>
  * 
@@ -117,6 +122,27 @@ public class PeerToPeerView extends AbstractSessionView<UserId> implements
     protected void populateSashForm(SashForm sashForm) {
         super.populateSashForm(sashForm);
         sashForm.setWeights(new int[] { 20, 5 });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * appendMessage(com.raytheon.uf.viz.collaboration.comm.identity.IMessage)
+     */
+    @Override
+    public void appendMessage(IMessage message) {
+        // Check for message notifiers
+        NotifierTask task = NotifierTools.getNotifierTask(message.getFrom()
+                .getName());
+        if (task != null && task.containsSendMessage()) {
+            if (task.isSoundValid()) {
+                SoundUtil.playSound(task.getSoundFilePath());
+                NotifierTools.taskExecuted(task);
+            }
+        }
+
+        super.appendMessage(message);
     }
 
     /*
