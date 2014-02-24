@@ -113,6 +113,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb  3, 2014 2699       bclement    removed unneeded catch in joinTextOnlyVenue
  * Feb 13, 2014 2751       bclement    better types for venueid and invitor
  * Feb 18, 2014 2793       bclement    improved disconnection notification and handling
+ * Feb 24, 2014 2632       mpduff      Fix roster change type for presence change.
  * 
  * </pre>
  * 
@@ -136,9 +137,9 @@ public class CollaborationConnection implements IEventPublisher {
 
     private static Map<CollaborationConnectionData, CollaborationConnection> instanceMap = new HashMap<CollaborationConnectionData, CollaborationConnection>();
 
-    private Map<String, ISession> sessions;
+    private final Map<String, ISession> sessions;
 
-    private UserId user;
+    private final UserId user;
 
     private Presence userPresence;
 
@@ -146,11 +147,11 @@ public class CollaborationConnection implements IEventPublisher {
 
     private IAccountManager accountManager = null;
 
-    private EventBus eventBus;
+    private final EventBus eventBus;
 
-    private ContactsManager contactsMgr;
+    private final ContactsManager contactsMgr;
 
-    private CollaborationConnectionData connectionData;
+    private final CollaborationConnectionData connectionData;
 
     private XMPPConnection connection;
 
@@ -195,7 +196,7 @@ public class CollaborationConnection implements IEventPublisher {
         conConfig.setCompressionEnabled(COMPRESS);
 
         connection = new XMPPConnection(conConfig);
-        
+
         connectInternal(connectionData.getUserName(), password);
 
         this.user = new UserId(connectionData.getUserName(),
@@ -423,12 +424,12 @@ public class CollaborationConnection implements IEventPublisher {
      */
     public IVenueSession joinTextOnlyVenue(String venueName, String handle)
             throws CollaborationException {
-            VenueSession session = new VenueSession(eventBus, this);
-            session.configureVenue(venueName, handle);
-            session.connectToRoom();
-            sessions.put(session.getSessionId(), session);
-            postEvent(session);
-            return session;
+        VenueSession session = new VenueSession(eventBus, this);
+        session.configureVenue(venueName, handle);
+        session.connectToRoom();
+        sessions.put(session.getSessionId(), session);
+        postEvent(session);
+        return session;
     }
 
     /**
@@ -482,33 +483,32 @@ public class CollaborationConnection implements IEventPublisher {
     private void setupInternalConnectionListeners() {
         final Roster roster = connection.getRoster();
         roster.addRosterListener(new RosterListener() {
-            
+
             @Override
             public void presenceChanged(Presence presence) {
                 String fromId = presence.getFrom();
                 if (contactsMgr != null) {
                     UserId u = IDConverter.convertFrom(fromId);
                     if (u != null) {
-                        RosterEntry entry = contactsMgr
-                                .getRosterEntry(u);
+                        RosterEntry entry = contactsMgr.getRosterEntry(u);
                         eventBus.post(entry);
                         IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.MODIFY, entry);
+                                RosterChangeType.PRESENCE, entry, presence);
                         eventBus.post(event);
                     }
                 }
             }
-            
+
             @Override
             public void entriesUpdated(Collection<String> addresses) {
                 send(addresses, RosterChangeType.MODIFY);
             }
-            
+
             @Override
             public void entriesDeleted(Collection<String> addresses) {
                 send(addresses, RosterChangeType.DELETE);
             }
-            
+
             @Override
             public void entriesAdded(Collection<String> addresses) {
                 send(addresses, RosterChangeType.ADD);
@@ -546,16 +546,17 @@ public class CollaborationConnection implements IEventPublisher {
         }
     }
 
-    private void setupConnectionListener(){
-        if (isConnected()){
+    private void setupConnectionListener() {
+        if (isConnected()) {
             connection.addConnectionListener(new ConnectionListener() {
-                
+
                 @Override
                 public void reconnectionSuccessful() {
-                    statusHandler.debug("Client successfully reconnected to server");
+                    statusHandler
+                            .debug("Client successfully reconnected to server");
                     postSystemMessageToVenues("Connection to collaboration server reestablished.");
                 }
-                
+
                 @Override
                 public void reconnectionFailed(Exception e) {
                     String reason = getErrorReason(e);
@@ -563,12 +564,13 @@ public class CollaborationConnection implements IEventPublisher {
                             + reason, e);
                     sendDisconnectNotice(reason);
                 }
-                
+
                 @Override
                 public void reconnectingIn(int seconds) {
-                    statusHandler.debug("Client reconnecting to server in " + seconds + " seconds" );
+                    statusHandler.debug("Client reconnecting to server in "
+                            + seconds + " seconds");
                 }
-                
+
                 @Override
                 public void connectionClosedOnError(Exception e) {
                     String reason = getErrorReason(e);
@@ -591,7 +593,7 @@ public class CollaborationConnection implements IEventPublisher {
                     }
                     return msg == null ? e.getLocalizedMessage() : msg;
                 }
-                
+
                 @Override
                 public void connectionClosed() {
                     statusHandler.info("Server closed connection");

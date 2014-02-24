@@ -57,7 +57,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
 
 /**
- * TODO Add Description
+ * The alert words preference page for collaboration.
  * 
  * <pre>
  * 
@@ -65,7 +65,8 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWordWrapper;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 17, 2012            mnash     Initial creation
+ * May 17, 2012            mnash       Initial creation
+ * Feb 24, 2014   2632     mpduf       Created CollaborationPreferencesAlertWordLabelProvider
  * 
  * </pre>
  * 
@@ -100,7 +101,7 @@ public class CollaborationAlertWordsPreferencePage extends
 
         viewer = new TableViewer(getFieldEditorParent());
         viewer.setContentProvider(new CollaborationPreferenceContentProvider());
-        viewer.setLabelProvider(new CollaborationPreferencesLabelProvider());
+        viewer.setLabelProvider(new AlertWordLabelProvider());
         viewer.getTable().setLayoutData(data);
 
         final StringFieldEditor stringEditor = new StringFieldEditor(
@@ -255,6 +256,7 @@ public class CollaborationAlertWordsPreferencePage extends
         viewer.setInput(CollaborationUtils.getAlertWords());
     }
 
+    @Override
     public boolean performOk() {
         List<AlertWord> words = (List<AlertWord>) viewer.getInput();
         CollaborationUtils.saveAlertWords(words);
