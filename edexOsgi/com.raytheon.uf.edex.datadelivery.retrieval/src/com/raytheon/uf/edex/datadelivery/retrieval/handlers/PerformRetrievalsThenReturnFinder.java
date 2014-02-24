@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.event.status.DataDeliverySystemStatusDefinition;
@@ -60,7 +59,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 15, 2013 1543       djohnson     Retrieval responses are now xml.
  * Jul 16, 2013 1655       mpduff       Send a system status event based on the response from the provider.
  * Jan 15, 2014 2678       bgonzale     Retrieve RetrievalRequestRecords from a Queue for processing.
- * 
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * </pre>
  * 
  * @author djohnson
@@ -74,17 +73,12 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
 
     private final IRetrievalDao retrievalDao;
 
-    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue;
-
     /**
      * Constructor.
      * 
      * @param network
      */
-    public PerformRetrievalsThenReturnFinder(
-            ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue,
-            IRetrievalDao retrievalDao) {
-        this.retrievalQueue = retrievalQueue;
+    public PerformRetrievalsThenReturnFinder(IRetrievalDao retrievalDao) {
         this.retrievalDao = retrievalDao;
     }
 
@@ -92,34 +86,37 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml findRetrievals() throws Exception {
+    public RetrievalResponseXml processRequest(RetrievalRequestWrapper rrw) throws Exception {
+        
         RetrievalResponseXml retVal = null;
-
         ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         try {
-            timer.start();
-            RetrievalRequestRecordPK id = retrievalQueue.poll();
+            // Process through the retrieval
+            RetrievalRequestRecordPK id = (RetrievalRequestRecordPK) rrw.getPayload();
+
             if (id == null) {
                 return null;
             }
 
+            statusHandler.info("Found this RetrievalRequestRecordPK: "
+                    + id.toString());
             RetrievalRequestRecord request = retrievalDao.getById(id);
+
             if (request == null) {
                 return null;
             }
 
             timer.stop();
-            statusHandler.info("Activation of next retrieval took ["
+            statusHandler.info("Activation of this retrieval took ["
                     + timer.getElapsedTime() + "] ms");
-
             timer.reset();
             timer.start();
 
             try {
                 retVal = process(request);
-
                 timer.stop();
-
                 statusHandler.info("Retrieval Processing for ["
                         + request.getId() + "] took " + timer.getElapsedTime()
                         + " ms");
@@ -129,9 +126,10 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
                         "Retrieval Processing failed: [" + request.getId()
                                 + "]", e);
             }
+
         } catch (Exception e) {
             statusHandler
-                    .error("Unable to look up next retrieval request at this time.",
+                    .error("Unable to look up retrieval request at this time.",
                             e);
         }
 
@@ -141,6 +139,7 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
     /**
      * The actual work gets done here.
      */
+    @SuppressWarnings("rawtypes")
     @VisibleForTesting
     RetrievalResponseXml process(RetrievalRequestRecord requestRecord) {
         requestRecord.setState(State.FAILED);
@@ -196,6 +195,7 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
         }
+        
         RetrievalResponseXml retrievalPluginDataObject = new RetrievalResponseXml(
                 requestRecord.getId(), retrievalAttributePluginDataObjects);
         retrievalPluginDataObject
