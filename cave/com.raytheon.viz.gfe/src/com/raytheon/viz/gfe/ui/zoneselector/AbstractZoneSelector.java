@@ -74,6 +74,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * ------------ ---------- ----------- --------------------------
  * Aug 23, 2011            randerso    Initial creation
  * May 30, 2013 #2028      randerso    Fixed date line issue with map display
+ * Jan 07, 2014 #2662      randerso    Fixed limitZones (subDomainUGCs) support
  * 
  * </pre>
  * 
@@ -158,7 +159,6 @@ public abstract class AbstractZoneSelector extends PaneManager {
         return this.zoomLevel;
     }
 
-    // command to label the zones, calls setMap() to update the display
     public void setLabelZones(boolean labelZones) {
         if (labelZones == this.labelZones) {
             return;
@@ -182,7 +182,9 @@ public abstract class AbstractZoneSelector extends PaneManager {
             return;
         }
         this.limitZoneNames = limitZones;
-        setMapInternal(this.mapRscList);
+        for (ZoneSelectorResource mapRsc : this.mapRscList) {
+            mapRsc.setLimitZones(limitZones);
+        }
     }
 
     /*
@@ -287,7 +289,7 @@ public abstract class AbstractZoneSelector extends PaneManager {
                         .retrieveMap(bundlePath).getResourceData();
 
                 ZoneSelectorResource rsc = new ZoneSelectorResource(rscData,
-                        new LoadProperties(), gloc);
+                        new LoadProperties(), gloc, this.limitZoneNames);
                 mapRscList.add(rsc);
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, "Error loading map: "
