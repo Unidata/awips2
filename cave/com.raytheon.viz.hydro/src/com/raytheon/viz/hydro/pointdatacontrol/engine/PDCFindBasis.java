@@ -34,6 +34,7 @@ import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2008            mpduff     Initial creation
+ * Feb 03, 2014  16843     lbousaidi  add a check for index OutOfBoundsException
  * 
  * </pre>
  * 
@@ -101,8 +102,9 @@ public class PDCFindBasis {
                 } else {
                     currentLid = fcstReportList.get(fcstIndex).getLid();
                 }
-            } else if (obsReportList.get(obsIndex) != null) {
-                currentLid = obsReportList.get(obsIndex).getLid();
+            } else if ((obsIndex< obsReportList.size()) && (obsReportList
+       				.get(obsIndex) != null))  {
+            	currentLid = obsReportList.get(obsIndex).getLid();
             } else {
                 currentLid = fcstReportList.get(fcstIndex).getLid();
             }
