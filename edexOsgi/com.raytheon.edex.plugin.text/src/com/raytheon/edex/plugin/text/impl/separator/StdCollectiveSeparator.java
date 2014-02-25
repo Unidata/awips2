@@ -487,7 +487,8 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
             // If the XXX is 3 characters, and the origin starts with K, try
             // prepending K or P (the latter for AK, HI products)
-            if ((trimmedXXX.length() == 3) && (origin.startsWith("K"))) {
+            if ((trimmedXXX.length() == 3)
+                    && (origin.startsWith("K") && !trimmedXXX.equals("RMK"))) {
                 newId = "K" + trimmedXXX;
                 if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
                     newId = "P" + trimmedXXX;
@@ -499,10 +500,10 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 }
             }
             // Otherwise, if the XXX is 3 characters, try prepending the first
-            // character of the origin.
-            else if (trimmedXXX.length() == 3) {
+            // character of the origin except "RMK" which is remark code.
+            else if (trimmedXXX.length() == 3 && !trimmedXXX.equals("RMK")) {
                 newId = origin.charAt(0) + trimmedXXX;
-                if ((CCC_id = staticData.mapICAOToCCC(XXX_id.toString())) == null) {
+                if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
                     // logger.error("NCF_FAIL to map XXX to CCC: " + XXX_id);
                     return false;
                 }
