@@ -20,7 +20,9 @@
 package com.raytheon.uf.viz.collaboration.display.storage;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,6 +48,8 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
@@ -70,7 +74,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Apr 20, 2012            mschenke     Initial creation
  * Feb 17, 2014 2756       bclement     added xml parsing for HTTP directory listing
  * Feb 24, 2014 2751       bclement     added separate paths for each provider under session id
- * 
+ * Feb 25, 2014 2751       bclement     fixed provider id path for webDAV
  * </pre>
  * 
  * @author mschenke
@@ -79,6 +83,9 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
 
 public class CollaborationObjectEventStorage implements
         IObjectEventPersistance, IObjectEventRetrieval {
+
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(CollaborationObjectEventStorage.class);
 
     private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.comm.Activator
             .getDefault().getNetworkStats();
@@ -91,7 +98,29 @@ public class CollaborationObjectEventStorage implements
         persistance.createFolder(URI.create(persistance.sessionDataURL));
         persistance.sessionDataURL += persistance.displayId + "/";
         persistance.createFolder(URI.create(persistance.sessionDataURL));
+        appendProviderIdToPath(persistance);
+        persistance.createFolder(URI.create(persistance.sessionDataURL));
         return persistance;
+    }
+
+    /**
+     * appends URL encoded provider id to persistence URL path
+     * 
+     * @param persistance
+     */
+    @SuppressWarnings("deprecation")
+    private static void appendProviderIdToPath(
+            CollaborationObjectEventStorage persistance) {
+        try {
+            persistance.sessionDataURL += URLEncoder.encode(persistance.providerid,
+                    "UTF-8") + "/";
+        } catch (UnsupportedEncodingException e) {
+            log.warn("URL encoding failed, retrying with default encoding: "
+                    + e.getLocalizedMessage());
+            // unlikely that utf8 isn't supported, but just go again with the
+            // default encoding
+            persistance.sessionDataURL += URLEncoder.encode(persistance.providerid);
+        }
     }
 
     public static IObjectEventRetrieval createRetrievalObject(
@@ -99,6 +128,7 @@ public class CollaborationObjectEventStorage implements
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
                 session, displayId);
         persistance.sessionDataURL += persistance.displayId + "/";
+        appendProviderIdToPath(persistance);
         return persistance;
     }
 
@@ -116,15 +146,16 @@ public class CollaborationObjectEventStorage implements
 
     private final XMLInputFactory staxFactory = XMLInputFactory.newInstance();
 
+    private final String providerid;
+
     private CollaborationObjectEventStorage(ISharedDisplaySession session,
             int displayId) {
         this.displayId = displayId;
         this.client = HttpClient.getInstance();
         VenueParticipant dataProvider = session.getCurrentDataProvider();
-        String providerPath = dataProvider.getUserid().getName();
+        this.providerid = dataProvider.getUserid().getNormalizedId();
         this.sessionDataURL = PeerToPeerCommHelper.getCollaborationHttpServer();
-        this.sessionDataURL += session.getSessionId() + "/" + providerPath
-                + "/";
+        this.sessionDataURL += session.getSessionId() + "/";
     }
 
     /*
