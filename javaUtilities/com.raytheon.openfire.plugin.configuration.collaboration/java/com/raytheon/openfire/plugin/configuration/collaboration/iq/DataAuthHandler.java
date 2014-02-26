@@ -46,6 +46,7 @@ import org.xmpp.packet.PacketError.Condition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 10, 2014 2756       bclement     Initial creation
+ * Feb 28, 2014 2756       bclement     if sessionid is not provided, skip authorization step
  * 
  * </pre>
  * 
@@ -105,25 +106,25 @@ public class DataAuthHandler extends AbstractConfigHandler {
         }
         JID target = new JID(jid);
         String sessionId = queryElem.attributeValue(SESSIONID_ATTRIBUTE);
-        if (StringUtils.isBlank(sessionId)) {
-            String msg = "Missing attribute: " + SESSIONID_ATTRIBUTE;
-            log.debug(msg);
-            return createError(packet, new PacketError(Condition.bad_request,
-                    PacketError.Type.modify, msg));
-        }
-        Node node = pubsub.getNode(sessionId);
-        if (node == null) {
-            String msg = "No topic found for session: " + sessionId;
-            log.debug(msg);
-            return createError(packet, new PacketError(Condition.not_allowed,
-                    PacketError.Type.cancel, msg));
-        }
-        if (!isOwner(jid, node)){
-            String msg = "User '" + jid + "' is not an owner of session '"
-                    + sessionId + "'";
-            log.debug(msg);
-            return createError(packet, new PacketError(Condition.not_allowed,
-                    PacketError.Type.cancel, msg));
+        if (!StringUtils.isBlank(sessionId)) {
+            /*
+             * only check authorization if session id is specified, otherwise we
+             * are just doing authentication
+             */
+            Node node = pubsub.getNode(sessionId);
+            if (node == null) {
+                String msg = "No topic found for session: " + sessionId;
+                log.debug(msg);
+                return createError(packet, new PacketError(
+                        Condition.not_allowed, PacketError.Type.cancel, msg));
+            }
+            if (!isOwner(jid, node)) {
+                String msg = "User '" + jid + "' is not an owner of session '"
+                        + sessionId + "'";
+                log.debug(msg);
+                return createError(packet, new PacketError(
+                        Condition.not_allowed, PacketError.Type.cancel, msg));
+            }
         }
         return retrieve(packet, target.getNode(),
                 createElement(INFO_ELEMENT_NAME, COLLAB_XMLNS));
