@@ -51,6 +51,7 @@ import org.xmpp.packet.PacketError.Condition;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2014 2756       bclement     Initial creation
+ * Feb 28, 2014 2756       bclement     reordered retrieve method operations for clarity
  * 
  * </pre>
  * 
@@ -264,12 +265,15 @@ public abstract class AbstractConfigHandler extends IQHandler implements
      */
     protected IQ retrieve(IQ requestPacket, String id, Element key) {
         Element queryElem = requestPacket.getChildElement();
-        Element respElem = storage.get(id, key);
         IQ rval = IQ.createResultIQ(requestPacket);
-        queryElem.setParent(null);
+        Element respElem = storage.get(id, key);
+        respElem.setParent(null);
+
         removeChildren(queryElem);
-        queryElem.add(respElem);
+        queryElem.setParent(null);
         rval.setChildElement(queryElem);
+        queryElem.add(respElem);
+        log.info(rval.toXML());
         return rval;
     }
 
