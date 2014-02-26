@@ -34,7 +34,8 @@ import java.util.Properties;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2014  2756      bclement     Initial creation
+ * Feb  5, 2014 2756       bclement     Initial creation
+ * Feb 28, 2014 2756       bclement     added auth cache size
  * 
  * </pre>
  * 
@@ -76,6 +77,10 @@ public class Config{
     public static final String XMPP_SERVER_KEY = "xmpp.server";
 
     public static final String XMPP_SERVER_DEFAULT = "localhost";
+
+    public static final String AUTH_CACHE_SIZE_KEY = "auth.key.cache.size";
+
+    public static final int AUTH_CACHE_SIZE_DEFAULT = 64;
 
     public static final String config = System.getProperty(
             "collaboration.dataserver.config", "config/settings.properties");
