@@ -107,6 +107,7 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *    Feb 04, 2014  2704        njensen     Better error message with bad address
  *                                           Https authentication failures notify handler
  *    Feb 17, 2014  2756        bclement    added content type to response object
+ *    Feb 28, 2014  2756        bclement    added isSuccess() and isNotExists() to response
  * 
  * </pre>
  * 
@@ -125,6 +126,20 @@ public class HttpClient {
             this.code = code;
             this.data = data != null ? data : new byte[0];
             this.contentType = contentType;
+        }
+
+        /**
+         * @return true if code is a 200 level return code
+         */
+        public boolean isSuccess() {
+            return code >= 200 && code < 300;
+        }
+
+        /**
+         * @return true if resource does not exist on server
+         */
+        public boolean isNotExists() {
+            return code == 404 || code == 410;
         }
     }
 
