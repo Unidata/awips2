@@ -434,8 +434,15 @@ public class MPEDisplayManager {
         }
         editTime = getCurrentDisplayedDate();
 
-        displayedField = DisplayFieldData.mMosaic;
+        // token for default display
+        String mdd = AppsDefaults.getInstance().getToken("mpe_def_display");
 
+        if(mdd != null){
+            displayedField = DisplayFieldData.fromString(mdd);
+        } else {
+            displayedField = DisplayFieldData.fromString("MMOSAIC");
+        }
+        
         ChangeTimeProvider.update(this);
 
         VizApp.runAsync(new Runnable() {
