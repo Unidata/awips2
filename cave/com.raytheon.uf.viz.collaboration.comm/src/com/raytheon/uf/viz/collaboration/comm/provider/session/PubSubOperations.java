@@ -26,6 +26,8 @@ import org.jivesoftware.smackx.pubsub.packet.PubSub;
 import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
 import org.jivesoftware.smackx.pubsub.packet.SyncPacketSend;
 
+import com.raytheon.uf.common.xmpp.ext.ChangeAffiliationExtension;
+
 /**
  * PubSub operations not implemented by the Smack PubSub manager. This includes
  * operations to modify ownership of a topic node.

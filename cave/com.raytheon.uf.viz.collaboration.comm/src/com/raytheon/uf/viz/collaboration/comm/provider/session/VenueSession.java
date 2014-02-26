@@ -52,8 +52,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
