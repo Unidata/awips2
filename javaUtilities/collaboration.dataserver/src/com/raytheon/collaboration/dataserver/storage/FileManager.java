@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.collaboration.dataserver;
+package com.raytheon.collaboration.dataserver.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +33,7 @@ import java.util.ListIterator;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.raytheon.collaboration.dataserver.RestException;
 import com.raytheon.uf.common.util.concurrent.KeyLock;
 import com.raytheon.uf.common.util.concurrent.KeyLocker;
 
@@ -47,7 +48,8 @@ import com.raytheon.uf.common.util.concurrent.KeyLocker;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 6, 2014  2756      bclement     Initial creation
+ * Feb  6, 2014  2756      bclement     Initial creation
+ * Feb 28, 2014  2756      bclement     moved to storage package, made buffer size public
  * 
  * </pre>
  * 
@@ -56,7 +58,7 @@ import com.raytheon.uf.common.util.concurrent.KeyLocker;
  */
 public class FileManager {
 
-    private static final int BUFFER_SIZE = 1024 * 256; // 256K
+    public static final int BUFFER_SIZE = 1024 * 256; // 256K
 
     private static final ThreadLocal<byte[]> localBuffer = new ThreadLocal<byte[]>() {
 
