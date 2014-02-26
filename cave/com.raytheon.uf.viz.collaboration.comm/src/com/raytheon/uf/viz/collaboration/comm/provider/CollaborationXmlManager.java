@@ -43,6 +43,7 @@ import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.xmpp.PullParserJaxbAdapter;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.core.procedures.ProcedureXmlManager;
 import com.raytheon.uf.viz.core.reflect.SubClassLocator;
