@@ -63,7 +63,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * ------------- -------- ----------- --------------------------
  * Nov 14, 2012           mschenke    Initial creation
  * Feb 26, 2013  1708     randerso    Fixed double notification for time change
- * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations.
+ * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations, fix iscMode.
  * 
  * 
  * </pre>
@@ -108,6 +108,7 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
         if (resource instanceof GFEResource) {
             GFEResource rsc = (GFEResource) resource;
             Parm parm = rsc.getParm();
+            Parm iscParm = getIscParm(parm);
             DataTime[] rscTimes = new DataTime[descriptorTimes.length];
             for (int i = 0; i < descriptorTimes.length; ++i) {
                 IGridData overlapping = parm.overlappingGrid(descriptorTimes[i]
@@ -116,7 +117,16 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
                     TimeRange tr = overlapping.getGridTime();
                     rscTimes[i] = new DataTime(tr.getStart().getTime(),
                             new TimeRange(tr.getStart(), tr.getEnd()));
+                } else if (iscParm != null) {
+                    overlapping = iscParm.overlappingGrid(descriptorTimes[i]
+                            .getRefTime());
+                    if (overlapping != null) {
+                        TimeRange tr = overlapping.getGridTime();
+                        rscTimes[i] = new DataTime(tr.getStart().getTime(),
+                                new TimeRange(tr.getStart(), tr.getEnd()));
+                    }
                 }
+
             }
             if (timeMap != null) {
                 timeMap.put(rsc, rscTimes);
@@ -134,8 +144,17 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
         List<Parm> parms = new ArrayList<Parm>(rscs.size());
         for (GFEResource rsc : rscs) {
             if (rsc.getProperties().isVisible()) {
-                parms.add(rsc.getParm());
+                Parm parm = rsc.getParm();
+                parms.add(parm);
+                Parm iscParm = getIscParm(parm);
+                if (iscParm != null) {
+                    parms.add(iscParm);
+                }
                 tmbResources.add(rsc);
+                DataManager dataManager = parm.getDataManager();
+                if (dataManager.getParmManager().iscMode()) {
+                    parms.add(dataManager.getIscDataAccess().getISCParm(parm));
+                }
             }
         }
 
@@ -286,5 +305,13 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
             }
         }
         return new ArrayList<Date>(dateSet);
+    }
+
+    private static Parm getIscParm(Parm parm) {
+        DataManager dataManager = parm.getDataManager();
+        if (dataManager.getParmManager().iscMode()) {
+            return dataManager.getIscDataAccess().getISCParm(parm);
+        }
+        return null;
     }
 }
