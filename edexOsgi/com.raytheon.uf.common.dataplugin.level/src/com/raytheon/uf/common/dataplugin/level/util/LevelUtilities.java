@@ -20,11 +20,11 @@
 package com.raytheon.uf.common.dataplugin.level.util;
 
 import java.text.ParsePosition;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 import javax.measure.unit.Unit;
@@ -35,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.level.CompareType;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
-import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 
 /**
  * Level utilities
@@ -45,11 +44,12 @@ import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/21/2009    #3576     rjpeter     Initial version
- * 01/30/2014    #2725     ekladstrup  Moved to common and removed
- *                                     usage of VizCommunicationException
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 21, 2009  3576     rjpeter     Initial version
+ * Jan 30, 2014  2725     ekladstrup  Moved to common and removed
+ *                                    usage of VizCommunicationException
+ * Jan 23, 2014  2711     bsteffen    Get all levels from LevelFactory.
  * </pre>
  * 
  * @author rjpeter
@@ -117,9 +117,7 @@ public class LevelUtilities {
 
             };
             Map<String, NavigableSet<Level>> masterLevelToOrderedSet = new HashMap<String, NavigableSet<Level>>();
-            Set<Level> allLevels;
-            allLevels = LevelMappingFactory.getInstance(
-                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+            Collection<Level> allLevels = LevelFactory.getInstance()
                     .getAllLevels();
             for (Level level : allLevels) {
                 NavigableSet<Level> levels = masterLevelToOrderedSet.get(level
