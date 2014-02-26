@@ -296,7 +296,7 @@ public class ImageExportDialog extends CaveSWTDialog {
         fileDialog.setFilterExtensions(ext);
         fileDialog.setFilterNames(names);
         String path = fileDialog.open();
-        if (path == null) {
+        if (path != null) {
             this.locationText.setText(path);
         }
     }
