@@ -411,7 +411,7 @@ if [ "${1}" = "-viz" ]; then
    buildRPM "awips2"
    buildRPM "awips2-common-base"
    #buildRPM "awips2-python-numpy"
-   buildRPM "awips2-ant"
+   #buildRPM "awips2-ant"
    #buildRPM "awips2-python-dynamicserialize"
    #buildRPM "awips2-python"
    #buildRPM "awips2-adapt-native"
