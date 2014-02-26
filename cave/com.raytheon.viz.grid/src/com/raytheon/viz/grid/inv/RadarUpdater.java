@@ -40,6 +40,7 @@ import com.raytheon.viz.grid.util.RadarProductCodeMapping;
  * ------------ ---------- ----------- --------------------------
  * Sep 20, 2012            bsteffen    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 21, 2014 DR 16744   D. Friedman Support thin client updates
  * 
  * </pre>
  * 
@@ -150,10 +151,14 @@ public class RadarUpdater implements IAlertObserver {
 
     @Override
     public void alertArrived(Collection<AlertMessage> alertMessages) {
+        ProductAlertObserver.processDataURIAlerts(convertRadarAlertsToGridDatauris(alertMessages));
+    }
+
+    public Set<String> convertRadarAlertsToGridDatauris(Collection<AlertMessage> alertMessages) {
         RadarStation configuredRadar = RadarAdapter.getInstance()
                 .getConfiguredRadar();
         if (configuredRadar == null) {
-            return;
+            return new HashSet<String>();
         }
         Set<String> datauris = new HashSet<String>();
         for (AlertMessage alertMessage : alertMessages) {
@@ -209,7 +214,7 @@ public class RadarUpdater implements IAlertObserver {
                         "Unable to generate updates for derived product", e);
             }
         }
-        ProductAlertObserver.processDataURIAlerts(datauris);
+        return datauris;
     }
 
     private CacheKey getCacheKey(RadarRequestableLevelNode rNode) {
