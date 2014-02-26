@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
+import com.raytheon.collaboration.dataserver.storage.FileManager;
 import com.raytheon.uf.common.http.AcceptHeaderParser;
 import com.raytheon.uf.common.http.AcceptHeaderValue;
 
@@ -162,7 +163,6 @@ public class DataService extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // TODO auth
         try {
             File file = getFile(req);
             manager.writeFile(req.getInputStream(), file);
@@ -196,7 +196,6 @@ public class DataService extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // TODO auth
         try {
             File file = getFile(req);
             if (!file.exists()) {

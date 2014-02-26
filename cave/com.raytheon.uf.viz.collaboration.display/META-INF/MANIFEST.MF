@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.util,
- com.raytheon.viz.core
+ com.raytheon.viz.core,
+ com.raytheon.uf.common.http
 Export-Package: com.raytheon.uf.viz.collaboration.display,
  com.raytheon.uf.viz.collaboration.display.data,
  com.raytheon.uf.viz.collaboration.display.editor,
