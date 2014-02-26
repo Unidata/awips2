@@ -73,7 +73,8 @@ import com.raytheon.viz.aviation.resource.ResourceConfigMgr.ResourceTag;
  *                                      text height and width.
  * 12/9/2010    7380        rferrel     Adjust text size to be more like AWIPS I.
  * 1/17/2011    7782        rferrel     Added qcSkipCheck to mimic A1.
- * 3/18/2011    7888        rferrel     Added getLargeTF method.
+ * 3/18/2011    7888        rferrel     Added getLargeTF method. 
+ * 02/19/2014   16980       zhao        added getter and setter for the Alt flag
  * 
  * </pre>
  * 
@@ -1368,4 +1369,12 @@ public class EditorTafTabComp extends Composite {
         rtdRdo.setEnabled(editable);
         corRdo.setEnabled(editable);
     }
+
+	public boolean getAlt() {
+		return alt;
+	}
+
+	public void setAlt(boolean b) {
+		alt = b;
+	}
 }
