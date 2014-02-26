@@ -63,17 +63,19 @@ import com.raytheon.viz.grid.rsc.GridResourceData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 21, 2010            bsteffens    Initial creation
- * May 26, 2010            mnash        Used ProductBrowserLabel implementation instead of requery
- * May 02, 2013 1949       bsteffen    Switch Product Browser from uengine to
- *                                     DbQueryRequest.
- * Sep 19, 2013  2391      mpduff      refactored some methods to common class.
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 21, 2010           bsteffen    Initial creation
+ * May 26, 2010           mnash       Used ProductBrowserLabel implementation
+ *                                    instead of requery
+ * May 02, 2013  1949     bsteffen    Switch Product Browser from uengine to
+ *                                    DbQueryRequest.
+ * Sep 19, 2013  2391     mpduff      refactored some methods to common class.
+ * Jan 23, 2014  2711     bsteffen    Get all levels from LevelFactory.
  * 
  * </pre>
  * 
- * @author bsteffens
+ * @author bsteffen
  * @version 1.0
  */
 public class GridProductBrowserDataDefinition extends
@@ -172,11 +174,8 @@ public class GridProductBrowserDataDefinition extends
                         params = Arrays.asList(value);
                     } else if (key.equals(GridInventory.MASTER_LEVEL_QUERY)) {
                         if (levels == null) {
-                            levels = new ArrayList<Level>(
-                                    LevelMappingFactory
-                                            .getInstance(
-                                                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
-                                            .getAllLevels());
+                            levels = new ArrayList<Level>(LevelFactory
+                                    .getInstance().getAllLevels());
                         }
                         Iterator<Level> iter = levels.iterator();
                         while (iter.hasNext()) {
