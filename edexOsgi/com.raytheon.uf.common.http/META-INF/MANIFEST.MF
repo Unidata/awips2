@@ -5,5 +5,8 @@ Bundle-SymbolicName: com.raytheon.uf.common.http
 Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Export-Package: com.raytheon.uf.common.http
-Require-Bundle: org.apache.commons.lang;bundle-version="2.3.0"
+Export-Package: com.raytheon.uf.common.http,
+ com.raytheon.uf.common.http.auth
+Require-Bundle: org.apache.commons.lang,
+ org.apache.http,
+ org.apache.commons.codec
