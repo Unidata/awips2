@@ -542,16 +542,6 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
                 "com.raytheon.uf.viz.datadelivery", "icons/dd_new.png");
         trayImg2 = id.createImage();
 
-        /*
-         * Check if the images are null.
-         */
-        if (trayImg1 == null) {
-            System.out.println("*** Tray image 1 is null...");
-        } else {
-            System.out
-                    .println("*** Tray image 1 is not null and should have an image...");
-        }
-
         tray = display.getSystemTray();
 
         createTray();
