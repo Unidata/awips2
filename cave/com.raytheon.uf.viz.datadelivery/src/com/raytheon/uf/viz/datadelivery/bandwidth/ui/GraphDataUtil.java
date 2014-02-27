@@ -46,6 +46,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Dec 12, 2012   1269     lvenable     Initial creation
  * Feb 14, 2013 1596       djohnson     Remove sysouts, correct statusHandler class, handle null response.
  * Mar 26, 2013 1827       djohnson     Graph data should be requested from data delivery.
+ * Jan 29, 2014 2722       mpduff       Callback is now passed in.
  * 
  * </pre>
  * 
@@ -67,7 +68,7 @@ public class GraphDataUtil implements Runnable {
     private BandwidthGraphData graphData;
 
     /** Callback called when the data has been updated */
-    private IDataUpdated dataUpdatedCB;
+    private final IDataUpdated dataUpdatedCB;
 
     /** Executor service used for the threaded data retrieval */
     private final ExecutorService service = Executors.newSingleThreadExecutor();
@@ -84,20 +85,9 @@ public class GraphDataUtil implements Runnable {
     }
 
     /**
-     * Set the updated data callback.
-     * 
-     * @param dataUpdatedCB
-     *            Call back called when the data has been updated via separate
-     *            thread.
-     */
-    public void setDataUpdateCallback(IDataUpdated dataUpdatedCB) {
-        this.dataUpdatedCB = dataUpdatedCB;
-    }
-
-    /**
      * Perform a data retrieval on the UI thread.
      */
-    public void retrieveData() {
+    private void retrieveData() {
         response = sendRequest(request);
 
         if (response != null) {
@@ -115,10 +105,11 @@ public class GraphDataUtil implements Runnable {
      *            returning the data.
      * @return Bandwidth graph data.
      */
-    public BandwidthGraphData getGraphData(boolean newData) {
-        if (newData || graphData == null) {
+    public BandwidthGraphData getGraphData() {
+        if (graphData == null) {
             retrieveData();
         }
+
         return graphData;
     }
 

@@ -1706,8 +1706,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     endAzm += 360.0;
                 }
 
+                double totalAzimuth = (endAzm - startAzm);
                 boolean includeSides = circle.includeSides && !fill
-                        && ((endAzm - startAzm) < 360.0);
+                        && (totalAzimuth < 360.0);
 
                 if (fill) {
                     gl.glBegin(GL.GL_TRIANGLE_FAN);
@@ -1720,8 +1721,16 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                     }
                 }
 
-                double step = (endAzm - startAzm) / (circle.numberOfPoints);
-                for (double azm = startAzm; azm <= endAzm; azm += step) {
+                // Get the number of unique points in the circle
+                int points = circle.numberOfPoints;
+                if (totalAzimuth >= 360) {
+                    // If angle is meant to be complete circle, add extra point
+                    // to ensure circle is touching
+                    points += 1;
+                }
+                double step = totalAzimuth / (points - 1);
+                for (int i = 0; i < points; ++i) {
+                    double azm = startAzm + (i * step);
                     double[] pointOnCircle = getPointOnCircle(x, y, z, radius,
                             azm);
                     gl.glVertex3d(pointOnCircle[0], pointOnCircle[1],
