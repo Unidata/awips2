@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.edex.plugin.datadelivery.retrieval;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractDecoder;
+import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalGeneratorUtilities;
 
 /**
  * Decodes data delivery retrievals from the SBN feed.
@@ -34,6 +37,7 @@ import com.raytheon.edex.plugin.AbstractDecoder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 19, 2013 1648       djohnson     Initial creation
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -42,11 +46,16 @@ import com.raytheon.edex.plugin.AbstractDecoder;
  */
 
 public class SbnDataDeliveryRetrievalDecoder extends AbstractDecoder {
+    
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SbnDataDeliveryRetrievalDecoder.class);
 
-    private final ConcurrentLinkedQueue<String> sbnRetrievalQueue;
-
-    public SbnDataDeliveryRetrievalDecoder(ConcurrentLinkedQueue<String> queue) {
-        this.sbnRetrievalQueue = queue;
+    private String destinationUri;
+    
+    private Network network = Network.SBN;
+    
+    public SbnDataDeliveryRetrievalDecoder(String destinationUri) {
+        this.destinationUri = destinationUri;
     }
 
     /**
@@ -58,7 +67,14 @@ public class SbnDataDeliveryRetrievalDecoder extends AbstractDecoder {
      *            the headers
      */
     public void process(byte[] data, Headers headers) {
-        this.sbnRetrievalQueue.add(new String(data));
+        // drops to common retrieval queue for processing/persistence
+        String xml = new String(data);
+        try {
+            Object[] payload = new Object[]{xml};
+            RetrievalGeneratorUtilities.sendToRetrieval(destinationUri, network, payload);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.ERROR, "Couldn't send SBN data to Retrieval Queue", e);
+        }
     }
 
 }
