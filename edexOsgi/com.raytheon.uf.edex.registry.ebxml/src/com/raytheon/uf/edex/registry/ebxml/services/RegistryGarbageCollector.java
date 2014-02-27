@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/11/2013    1707        bphillip    Initial implementation
  * 7/29/2013    2191        bphillip    Added executors to remove orphaned slots and expired events
  * 1/15/2014    2613        bphillip    Added Hibernate flush() call
+ * 2/4/2014     2769        bphillip    Removed flush and clear call
  * </pre>
  * 
  * @author bphillip
@@ -163,7 +164,6 @@ public class RegistryGarbageCollector {
         @Override
         public void runWithTransaction() {
             eventDao.delete(event);
-            eventDao.flushAndClearSession();
         }
     }
 }

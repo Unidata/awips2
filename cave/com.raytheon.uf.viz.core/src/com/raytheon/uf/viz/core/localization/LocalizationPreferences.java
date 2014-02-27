@@ -236,7 +236,7 @@ public class LocalizationPreferences extends FieldEditorPreferencePage
 
         if (alertEditor != null) {
             text = alertEditor.getTextControl(getFieldEditorParent());
-            ConnectivityManager.checkJmsServer(text.getText().trim(),
+            ConnectivityManager.checkAlertService(text.getText().trim(),
                     new IConnectivityCallback() {
                         @Override
                         public void connectionChecked(ConnectivityResult results) {
@@ -260,6 +260,7 @@ public class LocalizationPreferences extends FieldEditorPreferencePage
      * @see
      * org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
      */
+    @Override
     public void init(IWorkbench workbench) {
 
     }
