@@ -45,12 +45,14 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 4, 2009            njensen     Initial creation
- * Jul 6, 2010  5792       rferrel    getLatestTafs now returns tafs
- *                                    sorted by issue date newest at
- *                                    the start of the array.
- * 08AUG2012    15613      zhao       Modified safeFormatTaf()
+ * Sep 4, 2009             njensen     Initial creation
+ * Jul 6, 2010  5792       rferrel     getLatestTafs now returns tafs
+ *                                     sorted by issue date newest at
+ *                                     the start of the array.
+ * 08AUG2012    15613      zhao        Modified safeFormatTaf()
  * Sep 11, 2013 2277       mschenke    Got rid of ScriptCreator references
+ * Feb 24, 2014 2830       njensen     Sort dataTimes in getLatestTafs()
+ *                                       so it works correctly
  * 
  * </pre>
  * 
@@ -97,6 +99,11 @@ public class TafUtil {
                     TafRecord.PLUGIN_NAME));
             map.put("stationId", new RequestConstraint(siteID));
 
+            /*
+             * even if only requesting one, cannot pass in true because that
+             * will return a DataTime with only refTime set and tafs need to
+             * have fcstTime, validPeriod, etc set
+             */
             DataTime[] dt = DataCubeContainer.performTimeQuery(map, false);
             if (dt.length == 0) {
                 return null;
@@ -105,6 +112,7 @@ public class TafUtil {
             if (size > dt.length) {
                 size = dt.length;
             }
+            Arrays.sort(dt);
             DataTime[] requestedTimes = new DataTime[size];
             int k = 0;
             for (int i = dt.length - 1; i > -1; i--) {

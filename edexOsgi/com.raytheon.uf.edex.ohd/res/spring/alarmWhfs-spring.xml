@@ -8,6 +8,8 @@
 			<value>run_alarm_whfs</value>
 		</constructor-arg>
 	</bean>
+	
+	<bean id="runReportAlarmSrv" class="com.raytheon.uf.edex.ohd.reportalarm.RunReportAlarmSrv" />
 
 	<camelContext id="alarmWhfs-context"
 		xmlns="http://camel.apache.org/schema/spring"
@@ -23,13 +25,23 @@
 		
 		<route id="alarmWhfsScheduledWork">
 		    <from uri="jms-generic:queue:alarmWhfsScheduledWork" />
-            <doTry>
-    			<bean ref="alarmSrv" method="execute" />
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:alarmWhfs?level=ERROR"/>
-                </doCatch>
-            </doTry>
+		    <multicast parallelProcessing="false">
+	            <doTry>
+	    			<bean ref="alarmSrv" method="execute" />
+	                <doCatch>
+	                    <exception>java.lang.Throwable</exception>
+	                    <to uri="log:alarmWhfs?level=ERROR"/>
+	                </doCatch>
+	            </doTry>
+	            
+	            <doTry>
+	    			<bean ref="runReportAlarmSrv" method="executeRunReportAlarm" />
+	                <doCatch>
+	                    <exception>java.lang.Throwable</exception>
+	                    <to uri="log:alarmWhfs?level=ERROR"/>
+	                </doCatch>
+	            </doTry>
+            </multicast>
 		</route>
 
 	</camelContext>
