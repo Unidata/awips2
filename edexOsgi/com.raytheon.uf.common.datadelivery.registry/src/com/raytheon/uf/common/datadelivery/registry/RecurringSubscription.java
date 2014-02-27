@@ -69,6 +69,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Jan 24, 2014 2709       bgonzale     Fix setting of active period end.  Change active period checks
  *                                      to check day of year.  removed now unused active period methods.
  * Jan 28, 2014 2636       mpduff       Changed to use GMT calendar.
+ * Feb 12, 2014 2636       mpduff       Return new instance of calculated start and end.
  * 
  * </pre>
  * 
@@ -500,7 +501,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
             return TimeUtil.newGmtCalendar(subscriptionStart);
         }
 
-        return startConstraint;
+        return TimeUtil.newGmtCalendar(startConstraint.getTime());
     }
 
     @Override
@@ -516,7 +517,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
             return TimeUtil.newGmtCalendar(subscriptionEnd);
         }
 
-        return endConstraint;
+        return TimeUtil.newGmtCalendar(endConstraint.getTime());
     }
 
     /**
@@ -1072,6 +1073,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     /**
      * @return the subscriptionState
      */
+    @Override
     public SubscriptionState getSubscriptionState() {
         return subscriptionState;
     }
@@ -1080,6 +1082,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      * @param subscriptionState
      *            the subscriptionState to set
      */
+    @Override
     public void setSubscriptionState(SubscriptionState subscriptionState) {
         this.subscriptionState = subscriptionState;
     }

@@ -21,7 +21,9 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -40,7 +42,8 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 4, 2013  2545       bgonzale    Initial creation
+ * Nov 04, 2013  2545      bgonzale    Initial creation
+ * Jan 29, 2014  2636      mpduff      Scheduling refactor.
  * 
  * </pre>
  * 
@@ -51,8 +54,13 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 public class EmptySharedSubscriptionHandler implements
         ISharedSubscriptionHandler {
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionTypeHandler#getByPendingSubscription(com.raytheon.uf.common.datadelivery.registry.PendingSubscription)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * ISubscriptionTypeHandler
+     * #getByPendingSubscription(com.raytheon.uf.common.datadelivery
+     * .registry.PendingSubscription)
      */
     @Override
     public SharedSubscription getByPendingSubscription(
@@ -60,8 +68,11 @@ public class EmptySharedSubscriptionHandler implements
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionTypeHandler#getByPendingSubscriptionId(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * ISubscriptionTypeHandler#getByPendingSubscriptionId(java.lang.String)
      */
     @Override
     public SharedSubscription getByPendingSubscriptionId(String id)
@@ -69,8 +80,12 @@ public class EmptySharedSubscriptionHandler implements
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionTypeHandler#getActiveByDataSetAndProvider(java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * ISubscriptionTypeHandler#getActiveByDataSetAndProvider(java.lang.String,
+     * java.lang.String)
      */
     @Override
     public List<SharedSubscription> getActiveByDataSetAndProvider(
@@ -79,8 +94,11 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getByName(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getByName(java.lang.String)
      */
     @Override
     public SharedSubscription getByName(String name)
@@ -88,8 +106,11 @@ public class EmptySharedSubscriptionHandler implements
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getByNames(java.util.Collection)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getByNames(java.util.Collection)
      */
     @Override
     public List<SharedSubscription> getByNames(Collection<String> names)
@@ -97,8 +118,11 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getByOwner(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getByOwner(java.lang.String)
      */
     @Override
     public List<SharedSubscription> getByOwner(String owner)
@@ -106,8 +130,11 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getByGroupName(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getByGroupName(java.lang.String)
      */
     @Override
     public List<SharedSubscription> getByGroupName(String group)
@@ -115,8 +142,11 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getByFilters(java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getByFilters(java.lang.String, java.lang.String)
      */
     @Override
     public List<SharedSubscription> getByFilters(String group, String officeId)
@@ -124,8 +154,11 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getSubscribedToDataSetNames(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getSubscribedToDataSetNames(java.lang.String)
      */
     @Override
     public Set<String> getSubscribedToDataSetNames(String siteId)
@@ -133,16 +166,23 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_SET;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getActive()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler#getActive()
      */
     @Override
     public List<SharedSubscription> getActive() throws RegistryHandlerException {
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getActiveForRoute(com.raytheon.uf.common.datadelivery.registry.Network)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler
+     * #getActiveForRoute(com.raytheon.uf.common.datadelivery.registry.Network)
      */
     @Override
     public List<SharedSubscription> getActiveForRoute(Network route)
@@ -150,17 +190,26 @@ public class EmptySharedSubscriptionHandler implements
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.datadelivery.registry.handlers.IBaseSubscriptionHandler#getActiveForRoutes(com.raytheon.uf.common.datadelivery.registry.Network[])
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.common.datadelivery.registry.handlers.
+     * IBaseSubscriptionHandler
+     * #getActiveForRoutes(com.raytheon.uf.common.datadelivery
+     * .registry.Network[])
      */
     @Override
-    public List<SharedSubscription> getActiveForRoutes(Network... routes)
-            throws RegistryHandlerException {
-        return Collections.EMPTY_LIST;
+    public Map<Network, List<SharedSubscription>> getActiveForRoutes(
+            Network... routes) throws RegistryHandlerException {
+        return new HashMap<Network, List<SharedSubscription>>(0);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#getById(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#getById
+     * (java.lang.String)
      */
     @Override
     public SharedSubscription getById(String id)
@@ -168,69 +217,104 @@ public class EmptySharedSubscriptionHandler implements
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#getAll()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#getAll()
      */
     @Override
     public List<SharedSubscription> getAll() throws RegistryHandlerException {
         return Collections.EMPTY_LIST;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#store(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#store(
+     * java.lang.Object)
      */
     @Override
     public void store(SharedSubscription obj) throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#update(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#update
+     * (java.lang.Object)
      */
     @Override
     public void update(SharedSubscription obj) throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete(java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete
+     * (java.lang.Object)
      */
     @Override
     public void delete(SharedSubscription obj) throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#deleteById(java.lang.String, java.lang.String)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#deleteById
+     * (java.lang.String, java.lang.String)
      */
     @Override
     public void deleteById(String username, String registryId)
             throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#deleteByIds(java.lang.String, java.util.List)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#deleteByIds
+     * (java.lang.String, java.util.List)
      */
     @Override
     public void deleteByIds(String username, List<String> registryIds)
             throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete(java.lang.String, java.lang.Object)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete
+     * (java.lang.String, java.lang.Object)
      */
     @Override
     public void delete(String username, SharedSubscription obj)
             throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete(java.util.Collection)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete
+     * (java.util.Collection)
      */
     @Override
     public void delete(Collection<SharedSubscription> objects)
             throws RegistryHandlerException {
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete(java.lang.String, java.util.Collection)
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.common.registry.handler.IRegistryObjectHandler#delete
+     * (java.lang.String, java.util.Collection)
      */
     @Override
     public void delete(String username, Collection<SharedSubscription> objects)
