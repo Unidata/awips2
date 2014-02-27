@@ -57,7 +57,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * Jul 17, 2013  2185     bsteffen    Cache computed grid reprojections.
  * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
@@ -68,6 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 14, 2014  2661     bsteffen    For vectors only keep uComponent and
  *                                    vComponent, calculate magnitude and
  *                                    direction on demand.
+ * Feb 03, 2013  2764     bsteffen    Ensure that internal buffers are array
+ *                                    backed heap buffers.
  * 
  * </pre>
  * 
@@ -162,8 +164,17 @@ public class GeneralGridData {
     private GeneralGridData(GeneralGridGeometry gridGeometry,
             FloatBuffer scalarData, Unit<?> dataUnit) {
         this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
+        if (scalarData != null && !scalarData.hasArray()) {
+            /*
+             * TODO refactor dispaly code so it doesn't need array instead of
+             * copying data.
+             */
+            FloatBuffer copy = FloatBuffer.allocate(scalarData.capacity());
+            scalarData.rewind();
+            copy.put(scalarData);
+            scalarData = copy;
+        }
         this.scalarData = new FloatBufferWrapper(scalarData, this.gridGeometry);
-        ;
         this.dataUnit = dataUnit;
     }
 
