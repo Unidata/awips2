@@ -57,9 +57,9 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.core.notification.NotificationMessageContainsType;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
@@ -110,6 +110,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
  * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
+ * Feb 04, 2014  2722      mpduff       Add last update time.
+ * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
  * @version 1.0
  */
 
@@ -120,8 +122,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             .getHandler(SubscriptionTableComp.class);
 
     /** Current site constant */
-    private final String CURRENT_SITE = LocalizationManager.getInstance()
-            .getCurrentSite();
+    private final String CURRENT_SITE = DataDeliveryUtils.getDataDeliveryId();
 
     /** Pop up menu object. */
     private Menu popupMenu;
@@ -162,6 +163,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /** Currently selected site */
     private boolean currentSiteSelected;
+
+    /** Last table update time */
+    protected long lastUpdateTime = TimeUtil.currentTimeMillis();
 
     /**
      * Constructor.
@@ -760,6 +764,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
+                    lastUpdateTime = TimeUtil.currentTimeMillis();
                     if (!isDisposed()) {
                         handleRefresh();
                     }
@@ -783,9 +788,11 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void handleRefresh() {
-        populateData();
-        populateTable();
-
+        if (!isDisposed()) {
+            populateData();
+            populateTable();
+            this.lastUpdateTime = TimeUtil.currentTimeMillis();
+        }
     }
 
     @Override
@@ -887,5 +894,12 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             }
         });
         job.schedule();
+    }
+
+    /**
+     * @return the lastUpdateTime
+     */
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 }

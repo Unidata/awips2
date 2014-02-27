@@ -74,15 +74,17 @@ import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 10, 2013 2555       rjpeter     Initial creation
- * 
+ * Dec 10, 2013 2555       rjpeter     Initial creation.
+ * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
+ * Feb 04, 2014 2770       rferrel     The dumpPdos now dumps all PluginDataObjects.
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 
-public class DatabaseArchiveProcessor implements IDatabaseProcessor {
+public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
+        implements IDatabaseProcessor<T> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DatabaseArchiveProcessor.class);
 
@@ -110,15 +112,19 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
 
     protected int fetchSize = 1000;
 
+    protected int entriesInMemory = 0;
+
     protected Set<String> datastoreFilesToArchive = new HashSet<String>();
 
-    protected Set<String> filesCreatedThisSession = new HashSet<String>();
+    protected Map<String, FileStatus> filesCreatedThisSession = new HashMap<String, FileStatus>();
 
     protected Set<File> dirsToCheckNumbering = new HashSet<File>();
 
     protected int recordsSaved = 0;
 
     protected boolean failed = false;
+
+    protected Map<String, List<PersistableDataObject<?>>> pdosByFile;
 
     public DatabaseArchiveProcessor(String archivePath, String pluginName,
             PluginDao dao, IPluginArchiveFileNameFormatter nameFormatter) {
@@ -136,46 +142,43 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
      * .util.List)
      */
     @Override
-    public boolean process(List<?> objects) {
-        if ((objects != null) && !objects.isEmpty()) {
-            Set<String> datastoreFiles = new HashSet<String>();
-            statusHandler.info(pluginName + ": Processing rows " + recordsSaved
-                    + " to " + (recordsSaved + objects.size()));
-
-            @SuppressWarnings("unchecked")
-            List<PersistableDataObject<?>> pdos = (List<PersistableDataObject<?>>) objects;
-            Map<String, List<PersistableDataObject<?>>> pdosByFile = new HashMap<String, List<PersistableDataObject<?>>>();
-            for (PersistableDataObject<?> pdo : pdos) {
-                String path = nameFormatter.getFilename(pluginName, dao, pdo);
-                if (path.endsWith(".h5")) {
-                    datastoreFiles.add(path);
-                    path = path.substring(0, path.length() - 3);
-                }
-
-                List<PersistableDataObject<?>> list = pdosByFile.get(path);
-                if (list == null) {
-                    list = new LinkedList<PersistableDataObject<?>>();
-                    pdosByFile.put(path, list);
-                }
-
-                list.add(pdo);
+    public boolean process(T object) {
+        if (object != null) {
+            if (pdosByFile == null) {
+                pdosByFile = new HashMap<String, List<PersistableDataObject<?>>>(
+                        (int) (fetchSize * 1.3));
             }
 
-            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                statusHandler.debug(pluginName + ": Processed "
-                        + objects.size() + " rows into " + pdosByFile.size()
-                        + " files");
+            String path = nameFormatter.getFilename(pluginName, dao, object);
+            if (path.endsWith(".h5")) {
+                datastoreFilesToArchive.add(path);
+                path = path.substring(0, path.length() - 3);
             }
 
-            try {
-                savePdoMap(pdosByFile);
-                datastoreFilesToArchive.addAll(datastoreFiles);
-                recordsSaved += pdos.size();
-            } catch (Exception e) {
-                statusHandler.error(pluginName
-                        + ": Error occurred saving data to archive", e);
-                failed = true;
-                return false;
+            List<PersistableDataObject<?>> list = pdosByFile.get(path);
+            if (list == null) {
+                list = new LinkedList<PersistableDataObject<?>>();
+                pdosByFile.put(path, list);
+            }
+
+            list.add(object);
+
+            entriesInMemory++;
+            if (entriesInMemory >= fetchSize) {
+                try {
+                    savePdoMap(pdosByFile);
+                    pdosByFile.clear();
+                    int prev = recordsSaved;
+                    recordsSaved += entriesInMemory;
+                    entriesInMemory = 0;
+                    statusHandler.info(pluginName + ": Processed rows " + prev
+                            + " to " + recordsSaved);
+                } catch (Exception e) {
+                    statusHandler.error(pluginName
+                            + ": Error occurred saving data to archive", e);
+                    failed = true;
+                    return false;
+                }
             }
         }
 
@@ -188,6 +191,20 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
      */
     @Override
     public void finish() {
+        if (entriesInMemory > 0) {
+            try {
+                savePdoMap(pdosByFile);
+                int prev = recordsSaved;
+                recordsSaved += entriesInMemory;
+                statusHandler.info(pluginName + ": Processed rows " + prev
+                        + " to " + recordsSaved);
+            } catch (Exception e) {
+                statusHandler.error(pluginName
+                        + ": Error occurred saving data to archive", e);
+                failed = true;
+            }
+        }
+
         for (File dir : dirsToCheckNumbering) {
             checkFileNumbering(dir);
         }
@@ -370,7 +387,10 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                         + fileCount);
                 fileMap.put(fileCount, newFile);
                 writeDataToDisk(newFile, pdos);
-                filesCreatedThisSession.add(newFile.getAbsolutePath());
+                FileStatus status = new FileStatus();
+                status.dupElimUntilIndex = 0;
+                status.fileFull = pdos.size() >= fetchSize;
+                filesCreatedThisSession.put(newFile.getAbsolutePath(), status);
 
                 // check if we have added another digit and should add a 0 to
                 // previous numbers
@@ -404,14 +424,15 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
             Iterator<File> fileIter = fileMap.values().iterator();
             while (fileIter.hasNext()) {
                 File dataFile = fileIter.next();
+                int dupElimUntil = Integer.MAX_VALUE;
+                FileStatus prevFileStatus = filesCreatedThisSession
+                        .get(dataFile.getAbsolutePath());
 
-                if (filesCreatedThisSession
-                        .contains(dataFile.getAbsolutePath())) {
-                    statusHandler
-                            .debug(pluginName
-                                    + ": Skipping dup check on data file created this session: "
-                                    + dataFile.getName());
-                    continue;
+                if (prevFileStatus != null) {
+                    dupElimUntil = prevFileStatus.dupElimUntilIndex;
+                    if ((dupElimUntil <= 0) && prevFileStatus.fileFull) {
+                        continue;
+                    }
                 }
 
                 List<PersistableDataObject<?>> pdosFromDisk = readDataFromDisk(dataFile);
@@ -424,13 +445,17 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                         .iterator();
                 boolean needsUpdate = false;
                 int dupsRemoved = 0;
-                while (pdoIter.hasNext()) {
+                int index = 0;
+                while (pdoIter.hasNext() && (index < dupElimUntil)) {
                     PersistableDataObject<?> pdo = pdoIter.next();
+
                     if (identifierSet.contains(pdo.getIdentifier())) {
                         pdoIter.remove();
                         needsUpdate = true;
                         dupsRemoved++;
                     }
+
+                    index++;
                 }
 
                 if (statusHandler.isPriorityEnabled(Priority.DEBUG)
@@ -443,6 +468,15 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                 if (!fileIter.hasNext() && (pdosFromDisk.size() < fetchSize)) {
                     // last file, add more data to it
                     needsUpdate = true;
+
+                    if (prevFileStatus == null) {
+                        prevFileStatus = new FileStatus();
+                        prevFileStatus.dupElimUntilIndex = pdosFromDisk.size();
+                        prevFileStatus.fileFull = pdos.size() >= fetchSize;
+                        filesCreatedThisSession.put(dataFile.getAbsolutePath(),
+                                prevFileStatus);
+                    }
+
                     int numToAdd = fetchSize - pdosFromDisk.size();
                     numToAdd = Math.min(numToAdd, pdos.size());
 
@@ -463,6 +497,9 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                 if (needsUpdate) {
                     if (!pdosFromDisk.isEmpty()) {
                         writeDataToDisk(dataFile, pdosFromDisk);
+                        if (prevFileStatus != null) {
+                            prevFileStatus.fileFull = pdosFromDisk.size() >= fetchSize;
+                        }
                     } else {
                         dirsToCheckNumbering.add(dataFile.getParentFile());
                         dataFile.delete();
@@ -629,8 +666,11 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
 
             Iterator<PersistableDataObject<?>> pdoIter = pdos.iterator();
             writer = new BufferedWriter(new FileWriter(dumpFile));
-            statusHandler.info(String.format("%s: Dumping records to: %s",
-                    pluginName, dumpFile.getAbsolutePath()));
+
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.info(String.format("%s: Dumping records to: %s",
+                        pluginName, dumpFile.getAbsolutePath()));
+            }
 
             while (pdoIter.hasNext()) {
                 PersistableDataObject<?> pdo = pdoIter.next();
@@ -640,9 +680,11 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                         // otherwise was read from file and will be recorded in
                         // a previous entry
                         writer.write("" + pluginDataObject.getId() + ":");
-                        writer.write(pluginDataObject.getDataURI());
-                        writer.write("\n");
+                    } else {
+                        writer.write("-:");
                     }
+                    writer.write(pluginDataObject.getDataURI());
+                    writer.write("\n");
                 } else {
                     writer.write(pdo.getIdentifier().toString());
                     writer.write("\n");
@@ -735,5 +777,23 @@ public class DatabaseArchiveProcessor implements IDatabaseProcessor {
                 nextFileCount++;
             }
         }
+    }
+
+    /**
+     * Inner class for tracking status of files that have been written out this
+     * session.
+     */
+    private static class FileStatus {
+        /**
+         * Apply dup elim logic until this index is reached.
+         */
+        private int dupElimUntilIndex;
+
+        /**
+         * Way of tracking if file is considered full. Tracked so that if the
+         * file doesn't need to be dup elim'd due to being written this session
+         * and the file is full then there is no reason to deserialize it.
+         */
+        private boolean fileFull;
     }
 }

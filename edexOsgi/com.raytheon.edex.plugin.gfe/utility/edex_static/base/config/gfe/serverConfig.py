@@ -35,6 +35,7 @@
 #    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
 #    10/03/2013          #2424     randerso       Change localTC to use dateutil instead of pytz
 #                                                 to get correct offsets for Alaska
+#    01/17/2014          #2719     randerso       Added NHA domain
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #
 ########################################################################
@@ -633,8 +634,8 @@ NDFD_Oceanic_10K = ('NDFD_Oceanic_10km', MERCATOR,
 
 #  Add a new domain for NHC purposes
 GridForNHA = ('GridForNHA', LAMBERT_CONFORMAL,
-      (-97.647915, 7.783091), (-38.900400, 52.092726),
-      (-95.0, 25.0), 25.0, 25.0, (1, 1), (894,1176), 0.0, 0.0, 0.0)
+      (-102.551, 16.6069), (-50.5524, 47.3806),
+      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1729,1601), 0.0, 0.0, 0.0)
 
 # list of all projections
 allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
@@ -846,7 +847,7 @@ SITES = {
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),                
-    'NHA' : ([894,1176], (0.0,0.0), (894.0, 1176.0), 'EST5EDT', GridForNHA, "nc"),
+    'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
 }
 
 

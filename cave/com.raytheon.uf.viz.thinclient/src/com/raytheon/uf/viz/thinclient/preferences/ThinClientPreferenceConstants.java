@@ -30,6 +30,7 @@ package com.raytheon.uf.viz.thinclient.preferences;
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            mschenke     Initial creation
  * Jan 14, 2013 1469       bkowal       The hdf5 data directory is no longer a preference constant.
+ * Feb 04, 2014 2704       njensen      Single proxy preference constant
  * 
  * </pre>
  * 
@@ -46,10 +47,6 @@ public class ThinClientPreferenceConstants {
     public static String P_MENU_TIME_REFRESH_INTERVAL = "menuRefreshInterval";
 
     public static String P_USE_PROXIES = "useHttpProxy";
-
-    public static String P_SERVICES_PROXY = "servicesProxyAddress";
-
-    public static String P_PYPIES_PROXY = "pypiesProxyAddress";
 
     public static String P_MENU_TIME_UPDATE_INTERVALS = "menuTimeUpdateInterval";
 
@@ -70,4 +67,6 @@ public class ThinClientPreferenceConstants {
     public static String P_ENABLE_REQUEST_COMPRESSION = "enableRequestCompression";
 
     public static String P_PREFERENCE_PLACEHOLDER = "placeholderPreference";
+
+    public static String P_PROXY_ADDRESS = "proxyAddress";
 }

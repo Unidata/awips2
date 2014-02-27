@@ -46,6 +46,9 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
+ * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
+ *                                     Renamed sub1 and sub2 to otherSub and sub to make
+ *                                     it easier to see what is compared against.
  * 
  * </pre>
  * 
@@ -85,54 +88,54 @@ public abstract class OverlapData<T extends Time, C extends Coverage> {
     /** The subscription overlap config object */
     protected SubscriptionOverlapConfig config;
 
-    /** Subscription 1 */
-    protected Subscription<T, C> sub1;
+    /** Primary Subscription */
+    protected Subscription<T, C> sub;
 
-    /** Subscription 2 */
-    protected Subscription<T, C> sub2;
+    /** Other Subscription to compare against */
+    protected Subscription<T, C> otherSub;
 
     /**
      * Constructor.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      * @param config
      */
-    public OverlapData(Subscription<T, C> sub1, Subscription<T, C> sub2,
+    public OverlapData(Subscription<T, C> sub, Subscription<T, C> otherSub,
             SubscriptionOverlapConfig config) {
-        this.sub1 = sub1;
-        this.sub2 = sub2;
+        this.otherSub = otherSub;
+        this.sub = sub;
         this.config = config;
         this.matchStrategy = config.getMatchStrategy();
     }
 
     /**
-     * Calculates the percent, 0-100, of how much spatial coverage from sub2 is
-     * satisfied by sub1.
+     * Calculates the percent, 0-100, of how much spatial coverage from sub is
+     * satisfied by otherSub.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      */
-    protected void calculateSpatialDuplicationPercent(Subscription<T, C> sub1,
-            Subscription<T, C> sub2) {
+    protected void calculateSpatialDuplicationPercent(Subscription<T, C> sub,
+            Subscription<T, C> otherSub) {
 
-        final Coverage sub1Coverage = sub1.getCoverage();
-        final Coverage sub2Coverage = sub2.getCoverage();
+        final Coverage otherSubCoverage = otherSub.getCoverage();
+        final Coverage subCoverage = sub.getCoverage();
 
-        if (sub1Coverage != null && sub2Coverage != null) {
-            final ReferencedEnvelope sub1Envelope = sub1Coverage
+        if (otherSubCoverage != null && subCoverage != null) {
+            final ReferencedEnvelope otherSubEnvelope = otherSubCoverage
                     .getRequestEnvelope();
-            final ReferencedEnvelope sub2Envelope = sub2Coverage
+            final ReferencedEnvelope subEnvelope = subCoverage
                     .getRequestEnvelope();
 
-            if (sub1Envelope != null && sub2Envelope != null) {
+            if (otherSubEnvelope != null && subEnvelope != null) {
                 // try {
                 ReferencedEnvelope intersection;
                 try {
-                    intersection = MapUtil.reprojectAndIntersect(sub1Envelope,
-                            sub2Envelope);
+                    intersection = MapUtil.reprojectAndIntersect(
+                            otherSubEnvelope, subEnvelope);
                     final double intersectionArea = intersection.getArea();
-                    spatialDuplication = (int) ((intersectionArea * 100) / sub2Envelope
+                    spatialDuplication = (int) ((intersectionArea * 100) / subEnvelope
                             .getArea());
                 } catch (TransformException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -143,28 +146,28 @@ public abstract class OverlapData<T extends Time, C extends Coverage> {
     }
 
     /**
-     * Calculates the percent, 0-100, of how many parameters from sub2 are
-     * satisfied by sub1.
+     * Calculates the percent, 0-100, of how many parameters from sub are
+     * satisfied by otherSub.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      */
-    protected void calculateParameterDuplicationPercent(
-            Subscription<T, C> sub1, Subscription<T, C> sub2) {
-        parameterDuplication = getDuplicationPercent(sub1.getParameter(),
-                sub2.getParameter());
+    protected void calculateParameterDuplicationPercent(Subscription<T, C> sub,
+            Subscription<T, C> otherSub) {
+        parameterDuplication = getDuplicationPercent(otherSub.getParameter(),
+                sub.getParameter());
     }
 
     /**
      * Determine the overlap values
      */
     protected void determineOverlapping() {
-        calculateParameterDuplicationPercent(sub1, sub2);
-        calculateSpatialDuplicationPercent(sub1, sub2);
-        this.parameterPass = this.parameterDuplication > config
+        calculateParameterDuplicationPercent(sub, otherSub);
+        calculateSpatialDuplicationPercent(sub, otherSub);
+        this.parameterPass = this.parameterDuplication >= config
                 .getMaxAllowedParameterDuplication();
 
-        this.spatialPass = this.spatialDuplication > config
+        this.spatialPass = this.spatialDuplication >= config
                 .getMaxAllowedSpatialDuplication();
     }
 
