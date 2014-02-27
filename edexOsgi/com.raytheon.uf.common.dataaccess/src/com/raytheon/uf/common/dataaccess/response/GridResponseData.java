@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.dataaccess.response;
 
 import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
@@ -39,6 +40,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------- -------- ----------- --------------------------
  * Jun 04, 2013           dgilling    Initial creation
  * Feb 04, 2014  2672     bsteffen    Better handling of odd units.
+ * Feb 24, 2014  2762     bsteffen    Format units with UCUM
+ * 
  * 
  * </pre>
  * 
@@ -73,7 +76,7 @@ public class GridResponseData extends AbstractResponseData {
         DataDestination dataDest = dataGrid;
         if (data.getUnit() != null) {
             try {
-                this.unit = dataUnit.toString();
+                this.unit = UnitFormat.getUCUMInstance().format(data.getUnit());
             } catch (IllegalArgumentException e1) {
                 /*
                  * Not all units are representable as strings, convert to the
@@ -82,7 +85,7 @@ public class GridResponseData extends AbstractResponseData {
                  */
                 Unit<?> stdUnit = dataUnit.getStandardUnit();
                 try {
-                    this.unit = stdUnit.toString();
+                    this.unit = UnitFormat.getUCUMInstance().format(stdUnit);
                     dataDest = new UnitConvertingDataDestination(
                             dataUnit.toStandardUnit(), dataDest);
                 } catch (IllegalArgumentException e2) {

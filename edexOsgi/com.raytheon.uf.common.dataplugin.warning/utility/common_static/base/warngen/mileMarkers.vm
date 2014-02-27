@@ -1,13 +1,13 @@
 #*
-UPDATED 9-16-2013 BY MIKE DANGELO AND EVAN BOOKBINDER
+CREATED 9-16-2013 BY EVAN BOOKBINDER
+### THIS PLUG-IN VM FILE ALLOWS YOU TO CONSOLIDATE ALL YOUR 
+### MILEMARKER/EXIT/ROUTE OUTPUT INTO A SINGLE FUNCTION CALL
+### A #parse("mileMarkers.vm") entry in your WarnGen .vm templates will thus 
+### generate any milemarker info intersected by your warning polygon. 
 
-### THIS PLUG-IN VM FILE ALLOWS YOU TO CONSOLIDATE ALL YOUR MILEMARKER/EXIT/ROUTE
-### OUTPUT INTO A SINGLE FUNCTION CALL
-
-Mile Marker Macro                               
-macro "mmarkers" use (called out of VM_global_library.vm):
+##GENERAL INFORMATION##
+Mile Marker Macro (VM_global_library.vm):
 #macro(mmarkers $markers $id $name $type $simplify)
-where the argument:
 $markers is a string, and is the exact "variable" set in the XML "pointSource" tag for this road
          - <pointSource variable="i70momm">
 $id is the sequential ID database field to determine logical breaks in the mile markers 
@@ -21,8 +21,11 @@ $simplify is a boolean value (true or false)
          - true concatenates (FROM MM 2 to 4), 
          - false is a big list (MM 2...3...AND 4)   
 
+###########################
 CONFIGURATION:
-#COMMENT OUT LINES 59-62 BELOW AS NEEDED, REPLACING THE EXAMPLE WITH YOUR MILE MARKER/ROUTE ENTRIES
+###########################
+#COMMENT OUT LINES 61-64 BELOW AS NEEDED, REPLACING/ADDING TO THE EXAMPLE WITH YOUR 
+#MILE MARKER/ROUTE ENTRIES
 #EACH LINE CONTAINS A VARIABLE MM1,MM2,MM3,etc... REFERENCING AN ARRAY (LIST) OF DATA THAT
 #WILL BE PASSED TO THE MMARKERS ROUTINE. 
 
@@ -38,7 +41,7 @@ The items in the array are as follows:
                intersections, false might be a better option)
                
 NOTE: PLEASE ENSURE PROPER SYNTAX. Java Objects are ${variable}, Text Strings are 'TEXT', and 
-      Booleans are true/false (no quote)
+      Booleans are true/false (no quote)..see examples below
       ALSO ENSURE THAT EACH LINE CONTAINS A UNIQUE VARIABLE NAME: MM1, MM2, MM3, etc..
 
 
@@ -46,9 +49,9 @@ HERE IS AN EXAMPLE:
 	e.g.
 	#set ($mm1 = [${i435mm},${i435mmid},'INTERSTATE 435','MILE MARKER',true])
 	#set ($mm2 = [${i70momm},${i70mommid},'INTERSTATE 70 IN MISSOURI','MILE MARKER',true])
-	#set ($mm3 = [${i35momm},${i35mommid},'INTERSTATE 70 IN KANSAS','MILE MARKER',true])
+	#set ($mm3 = [${route22mm},${route22mmid},'ROUTE 22','EXIT',true])
  
-After creating these, we must create a list containing all of our variable names
+After creating these, we must create a match list containing all of our variable names
     e.g.           
     #set ($varList = [$mm1,$mm2,$mm3])
 *#
