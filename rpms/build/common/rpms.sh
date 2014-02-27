@@ -49,13 +49,13 @@ function buildQPID()
 
    pushd . > /dev/null 2>&1
 
-   cd ${WORKSPACE}/rpms/awips2.qpid
+   cd ${WORKSPACE}/rpms/awips2.qpid/0.18/deploy.builder
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
    fi
 
-   /bin/bash build.sh 0.18
+   /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the qpid rpms."
       return 1
