@@ -380,6 +380,7 @@ public class RetrievalPlan {
             for (BandwidthBucket bucket : buckets) {
                 reservation = associator.getNextReservation(bucket, agentType);
                 if (reservation != null) {
+                    //TODO: do validity check for expired allocations
                     break;
                 }
             }
