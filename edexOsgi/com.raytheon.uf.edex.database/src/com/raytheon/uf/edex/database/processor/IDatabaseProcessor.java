@@ -19,12 +19,9 @@
  **/
 package com.raytheon.uf.edex.database.processor;
 
-import java.util.List;
-
 /**
  * Interface for working with a batched set of results inside a database
- * session. Process can be called multiple times based on the batchSize of the
- * processor.
+ * session. Process will be called for each row.
  * 
  * <pre>
  * 
@@ -32,21 +29,22 @@ import java.util.List;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2013  2555      rjpeter     Initial creation
+ * Dec 9, 2013  2555       rjpeter     Initial creation.
+ * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 
-public interface IDatabaseProcessor {
+public interface IDatabaseProcessor<T> {
     /**
-     * Perform any processing on this batch of objects.
+     * Perform any processing on this row.
      * 
-     * @param objects
+     * @param row
      * @return True if should continue processing, false otherwise.
      */
-    public boolean process(List<?> objects);
+    public boolean process(T row);
 
     /**
      * Perform any post processing if necessary.
