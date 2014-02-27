@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.edex.esb.Headers;
@@ -47,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.XmlWMOMessage;
  * Nov 04, 2013 2506       bgonzale     Added SbnRetrievalResponseXml to unmarshal classes.
  *                                      Trim content after last xml tag during 
  *                                      marshaling from xml.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -55,16 +54,13 @@ import com.raytheon.uf.edex.wmo.message.XmlWMOMessage;
  */
 public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
 
-    private final ConcurrentLinkedQueue<String> retrievalQueue;
-
     private final JAXBManager jaxbManager;
 
     /**
      * @param retrievalQueue
      */
-    public DeserializeRetrievedDataFromIngest(
-            ConcurrentLinkedQueue<String> retrievalQueue) {
-        this.retrievalQueue = retrievalQueue;
+    public DeserializeRetrievedDataFromIngest() {
+
         try {
             this.jaxbManager = new JAXBManager(RetrievalResponseXml.class,
                     SbnRetrievalResponseXml.class,
@@ -80,8 +76,9 @@ public class DeserializeRetrievedDataFromIngest implements IRetrievalsFinder {
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml findRetrievals() throws Exception {
-        String xml = retrievalQueue.poll();
+    public RetrievalResponseXml processRequest(RetrievalRequestWrapper rrw) throws Exception {
+       
+        String xml = (String) rrw.getPayload();
 
         if (xml == null) {
             return null;

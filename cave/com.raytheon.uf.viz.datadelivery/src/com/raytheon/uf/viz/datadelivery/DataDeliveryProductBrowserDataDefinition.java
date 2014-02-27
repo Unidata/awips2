@@ -43,11 +43,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
 import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
@@ -74,6 +74,7 @@ import com.raytheon.viz.pointdata.util.PointDataInventory;
  * Nov 19, 2013  2458      mpduff      Only pull subscriptions for the local site
  * Nov 21, 2013  2554      dhladky     Restored ADHOC's to working.
  * Jan 14, 2014  2459      mpduff      Change Subscription status code
+ * Feb 11, 2014  2771      bgonzale    Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -439,8 +440,8 @@ public class DataDeliveryProductBrowserDataDefinition
         final ISubscriptionHandler handler = RegistryObjectHandlers
                 .get(ISubscriptionHandler.class);
         try {
-            subList = handler.getByFilters(null, LocalizationManager
-                    .getInstance().getCurrentSite());
+            subList = handler.getByFilters(null,
+                    DataDeliveryUtils.getDataDeliveryId());
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
