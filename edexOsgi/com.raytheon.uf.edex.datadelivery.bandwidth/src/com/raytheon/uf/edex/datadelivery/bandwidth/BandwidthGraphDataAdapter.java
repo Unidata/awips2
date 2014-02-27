@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 
 /**
  * Adapts the {@link BandwidthManager} formatted data into a GUI usable graphing
@@ -64,6 +65,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * Dec 11, 2013 2566       bgonzale     handle case when there are no reservations.
  * Dec 17, 2013 2636       bgonzale     Refactored bucket fill in edex.
  * Jan 23, 2014 2636       mpduff       Changed download window generation.
+ * Feb 03, 2014 2745       mpduff       Don't display fulfilled or cancelled allocations.
  * 
  * </pre>
  * 
@@ -125,11 +127,15 @@ class BandwidthGraphDataAdapter {
 
             for (BandwidthAllocation allocation : allocationList) {
                 if (allocation instanceof SubscriptionRetrieval) {
-                    final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
-                    String subName = subRetrieval.getBandwidthSubscription()
-                            .getName();
-                    subAllocationMapping.addAllocationForSubscription(subName,
-                            allocation);
+                    // Don't display fulfilled or cancelled allocations
+                    if (allocation.getStatus() != RetrievalStatus.FULFILLED
+                            && allocation.getStatus() != RetrievalStatus.CANCELLED) {
+                        final SubscriptionRetrieval subRetrieval = (SubscriptionRetrieval) allocation;
+                        String subName = subRetrieval
+                                .getBandwidthSubscription().getName();
+                        subAllocationMapping.addAllocationForSubscription(
+                                subName, allocation);
+                    }
                 }
             }
         }
