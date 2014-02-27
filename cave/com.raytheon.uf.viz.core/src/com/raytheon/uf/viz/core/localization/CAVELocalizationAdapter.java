@@ -141,7 +141,7 @@ public class CAVELocalizationAdapter implements ILocalizationAdapter {
                 if (file.exists()) {
                     return file;
                 } else {
-                    File bundleFile = null;
+                    File bundleFile = file; // Default to base location
                     boolean containsKey = false;
                     synchronized (caveStaticBaseFiles) {
                         containsKey = caveStaticBaseFiles.containsKey(fileName);
