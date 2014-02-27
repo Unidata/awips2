@@ -23,13 +23,13 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -42,6 +42,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Oct 27, 2008            randerso     Initial creation.
  * Jul 21, 2009            mpduff      Added code to update the Xmrg 
  *                                     data.
+ * Feb 26, 2014    2842    mpduff      Use EditorUtil rather than HandlerUtil.
  * </pre>
  * 
  * @author randerso
@@ -59,7 +60,7 @@ public class SetDisplayField extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        IEditorPart activeEditor = EditorUtil.getActiveEditor();
         if (activeEditor instanceof IDisplayPaneContainer) {
             String f = event.getParameter("Field");
             return setDisplayField((IDisplayPaneContainer) activeEditor,
