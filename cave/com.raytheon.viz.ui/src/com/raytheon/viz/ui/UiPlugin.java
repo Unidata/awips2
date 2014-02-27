@@ -25,9 +25,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.viz.ui.jobs.MemoryMonitorJob;
 import com.raytheon.viz.ui.panes.DrawCoordinatorJob;
@@ -44,7 +41,7 @@ import com.raytheon.viz.ui.panes.DrawCoordinatorJob;
  * Oct 24, 2012  2491       bsteffen  Do not start DrawCoordinatorJob during
  *                                    activation to allow activation before
  *                                    localization is set.
- * 
+ * Mar  3, 2014  2861       mschenke  Create preference store immediately
  * 
  * </pre>
  * 
@@ -58,7 +55,8 @@ public class UiPlugin extends AbstractUIPlugin {
     // The shared instance.
     private static UiPlugin plugin;
 
-    private HierarchicalPreferenceStore prefs;
+    private HierarchicalPreferenceStore prefs = new HierarchicalPreferenceStore(
+            this);
 
     private final Job memoryWatchJob = new MemoryMonitorJob();
 
@@ -116,17 +114,6 @@ public class UiPlugin extends AbstractUIPlugin {
      */
     @Override
     public HierarchicalPreferenceStore getPreferenceStore() {
-        try {
-            if (prefs == null) {
-                prefs = new HierarchicalPreferenceStore(this);
-            }
-        } catch (LocalizationException e) {
-            UFStatus.getHandler().handle(
-                    Priority.PROBLEM,
-                    "Error reading preference store: "
-                            + e.getLocalizedMessage(), e);
-        }
-
         return prefs;
     }
 }
