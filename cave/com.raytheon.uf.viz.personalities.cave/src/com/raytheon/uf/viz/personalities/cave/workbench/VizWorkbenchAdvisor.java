@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * Jul 16, 2013 2158        bsteffen    Allow VizGlobalsManager to work without
  *                                      accessing UI thread.
  * Oct 15, 2013 2361        njensen     Added startupTimer
+ * Jan 27, 2014 2744        njensen     Add Local History pref back in
  * 
  * </pre>
  * 
@@ -192,8 +193,17 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
         for (IPreferenceNode root : topNodes) {
             String rootId = root.getId();
             if (rootId.equals("org.eclipse.ui.preferencePages.Workbench")) {
+                IPreferenceNode node = root
+                        .findSubNode("org.eclipse.ui.preferencePages.Workspace");
+                if (node != null) {
+                    node.remove("org.eclipse.ui.preferencePages.LinkedResources");
+                    node.remove("org.eclipse.ui.preferencePages.BuildOrder");
+                    IPreferenceNode localHistoryNode = node
+                            .findSubNode("org.eclipse.ui.preferencePages.FileStates");
+                    root.add(localHistoryNode);
+                    root.remove("org.eclipse.ui.preferencePages.Workspace");
+                }
                 root.remove("org.eclipse.search.preferences.SearchPreferencePage");
-                root.remove("org.eclipse.ui.preferencePages.Workspace");
             } else if (rootId.equals("org.python.pydev.prefs")) {
                 root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageJython");
                 root.remove("org.python.pydev.ui.pythonpathconf.interpreterPreferencesPageIronpython");
@@ -325,7 +335,7 @@ public class VizWorkbenchAdvisor extends WorkbenchAdvisor {
             startupTimer.stop();
             System.out.println("Workbench startup time: "
                     + startupTimer.getElapsedTime() + " ms");
-        }
+    }
 
     }
 

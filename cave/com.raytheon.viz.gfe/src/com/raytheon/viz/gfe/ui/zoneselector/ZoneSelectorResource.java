@@ -102,6 +102,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Apr 10, 2013     #1854  randerso    Fix for compatibility with PostGIS 2.0
  * May 30, 2013     #2028  randerso    Fixed date line issue with map display
  * Jul 31, 2013     #2239  randerso    Fixed scaling of maps that cross the date line
+ * Jan 07, 2014     #2662  randerso    Fixed limitZones (subDomainUGCs) support
  * Feb 18, 2014     #2819  randerso    Removed unnecessary clones of geometries
  * 
  * </pre>
@@ -231,6 +232,7 @@ public class ZoneSelectorResource extends DbMapResource {
 
                     int numPoints = 0;
                     int wfoPoints = 0;
+                    List<String> limitZones = req.rsc.getLimitZones();
                     WKBReader wkbReader = new WKBReader();
                     for (int i = 0; i < mappedResult.getResultCount(); i++) {
                         if (canceled) {
@@ -260,6 +262,12 @@ public class ZoneSelectorResource extends DbMapResource {
                                 // TODO: what do we do with this?
                                 // zoneName = "";
                             }
+
+                            if (limitZones != null
+                                    && !limitZones.contains(zoneName)) {
+                                continue;
+                            }
+
                             String wfo = (String) mappedResult
                                     .getRowColumnValue(i, "wfo");
 
@@ -533,6 +541,8 @@ public class ZoneSelectorResource extends DbMapResource {
 
     private Map<String, ZoneInfo> zoneData;
 
+    private List<String> limitZones;
+
     private RGB defaultFillColor;
 
     private RGB outlineColor;
@@ -560,9 +570,12 @@ public class ZoneSelectorResource extends DbMapResource {
     /**
      * @param data
      * @param loadProperties
+     * @param gloc
+     * @param limitZones
      */
     public ZoneSelectorResource(DbMapResourceData data,
-            LoadProperties loadProperties, GridLocation gloc) {
+            LoadProperties loadProperties, GridLocation gloc,
+            List<String> limitZones) {
         super(data, loadProperties);
         this.zoneData = new HashMap<String, ZoneInfo>();
         this.geomFactory = new GeometryFactory();
@@ -571,6 +584,7 @@ public class ZoneSelectorResource extends DbMapResource {
         this.outlineColor = RGBColors.getRGBColor("white");
         this.wfoOutlineColor = RGBColors.getRGBColor("yellow");
         this.gloc = gloc;
+        this.limitZones = limitZones;
 
         GeneralEnvelope env = new GeneralEnvelope(MapUtil.LATLON_PROJECTION);
         env.setEnvelope(-180.0, -90.0, 180.0, 90.0);
@@ -849,13 +863,10 @@ public class ZoneSelectorResource extends DbMapResource {
         query.append(geometryField);
 
         // add any additional columns
-        List<String> additionalColumns = new ArrayList<String>();
         if (resourceData.getColumns() != null) {
             for (ColumnDefinition column : resourceData.getColumns()) {
                 query.append(", ");
                 query.append(column);
-
-                additionalColumns.add(column.getName());
             }
         }
 
@@ -914,6 +925,22 @@ public class ZoneSelectorResource extends DbMapResource {
         newShadedShape.compile();
 
         return newShadedShape;
+    }
+
+    /**
+     * @return the limitZones
+     */
+    public List<String> getLimitZones() {
+        return limitZones;
+    }
+
+    /**
+     * @param limitZones
+     *            the limitZones to set
+     */
+    public void setLimitZones(List<String> limitZones) {
+        this.limitZones = limitZones;
+        issueRefresh();
     }
 
     /**
@@ -1024,6 +1051,16 @@ public class ZoneSelectorResource extends DbMapResource {
                 query.append(resourceData.getGeomField());
                 query.append(")) as extent");
 
+                // add editarea column
+                if (resourceData.getColumns() != null) {
+                    for (ColumnDefinition column : resourceData.getColumns()) {
+                        if (column.getName().equalsIgnoreCase("editarea")) {
+                            query.append(", ");
+                            query.append(column);
+                        }
+                    }
+                }
+
                 // add the geometry table
                 query.append(" FROM ");
                 query.append(resourceData.getTable());
@@ -1048,6 +1085,14 @@ public class ZoneSelectorResource extends DbMapResource {
 
                 WKBReader wkbReader = new WKBReader();
                 for (int i = 0; i < mappedResult.getResultCount(); i++) {
+                    String zoneName = (String) mappedResult.getRowColumnValue(
+                            i, "editarea");
+
+                    if (this.limitZones != null
+                            && !this.limitZones.contains(zoneName)) {
+                        continue;
+                    }
+
                     byte[] b = (byte[]) mappedResult.getRowColumnValue(i,
                             "extent");
                     if (b != null) {
