@@ -3,21 +3,27 @@
 
 #include <mapping>
 
-uniform DataTexture imageData;
-uniform DataMapping imageToMosaic;
-uniform DataTexture mosaicData;
+uniform sampler2D imageDataTex;
+uniform DataTextureInfo imageData;
+
+uniform sampler1D imageToMosaicDataValues;
+uniform sampler1D imageToMosaicColorValues;
+uniform int imageToMosaicValues;
+
+uniform sampler2D mosaicDataTex;
+uniform DataTextureInfo mosaicData;
 
 void main(void) {
-	float imageValue = textureToDataValue(imageData, gl_TexCoord[0].st);
+	float imageValue = textureToDataValue(imageDataTex, imageData, gl_TexCoord[0].st);
 	vec2 frag_xy = gl_FragCoord.xy;
-	float mosaicValue = textureToDataValue(mosaicData,
+	float mosaicValue = textureToDataValue(mosaicDataTex, mosaicData,
 			vec2(frag_xy.x / mosaicData.width, frag_xy.y / mosaicData.height));
 
 	float newValue = mosaicValue;
 	// No data check/special NaN check
 	if (imageValue != imageData.noDataValue && imageValue == imageValue) {
 		// Convert image value to mosaic value
-		imageValue = dataToColorMapValue(imageValue, imageToMosaic);
+		imageValue = dataToColorMapValue(imageValue, imageToMosaicDataValues, imageToMosaicColorValues, imageToMosaicValues);
 		if (imageValue > mosaicValue) {
 			newValue = imageValue;
 		}
