@@ -43,6 +43,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>
@@ -66,6 +69,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>
@@ -89,6 +95,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>
@@ -112,6 +121,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>
@@ -135,6 +147,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>
@@ -158,6 +173,9 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
+							<mapping key="lightSource">
+                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+                            </mapping>
 						</metadataMap>
 					</resourceData>
 				</resource>

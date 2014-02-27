@@ -20,6 +20,6 @@
     -->
 <menuContributionFile>
     <include installTo="menu:obs?after=LIGHTNINGPLACEHOLDER" 
-             fileName="menus/lightning/baseLightning.xml" 
+             fileName="menus/lightning/lightningMenuItems.xml" 
              subMenu="Lightning"/>
 </menuContributionFile>
