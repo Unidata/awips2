@@ -24,23 +24,24 @@ import java.nio.FloatBuffer;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.core.contours.ContourRenderable;
-import com.raytheon.uf.common.style.contour.ContourPreferences;
 
 /**
- * Displays contours from GFE Grid Data
+ * Displays contours from any data source
  * 
  * Currently implemented using the D2D contouring capability
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 11, 2008	#1233		chammack	Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 11, 2008  1233     chammack    Initial creation
+ * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource
  * 
  * </pre>
  * 
@@ -54,21 +55,23 @@ public class GriddedContourDisplay extends ContourRenderable {
 
     protected GridGeometry2D gridGeometry;
 
-    protected FloatBuffer fb;
+    protected DataSource source;
 
     public GriddedContourDisplay(IMapDescriptor descriptor,
             final GridGeometry2D gridGeometry, final FloatBuffer fb) {
+        this(descriptor, gridGeometry, new FloatBufferWrapper(fb, gridGeometry));
+    }
+
+    public GriddedContourDisplay(IMapDescriptor descriptor,
+            final GridGeometry2D gridGeometry, final DataSource source) {
         super(descriptor);
         this.gridGeometry = gridGeometry;
-        this.fb = fb;
+        this.source = source;
     }
 
     @Override
-    public IDataRecord[] getData() throws VizException {
-        FloatDataRecord fdr = new FloatDataRecord("Data", "", fb.array(), 2,
-                new long[] { gridGeometry.getGridRange2D().width,
-                        gridGeometry.getGridRange2D().height });
-        return new IDataRecord[] { fdr };
+    public DataSource[] getData() throws VizException {
+        return new DataSource[] { source };
     }
 
     @Override
