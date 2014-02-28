@@ -82,6 +82,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
 /**
@@ -100,6 +101,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
+ * Feb 24, 2014 2632       mpduff      Move playSound to CollaborationUtils
  * 
  * </pre>
  * 
@@ -785,10 +787,13 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
      * Process a room join alert.
      */
     protected void processJoinAlert() {
-        boolean enabled = Activator.getDefault().getPreferenceStore()
-                .getBoolean(CollabPrefConstants.ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID);
+        boolean enabled = Activator
+                .getDefault()
+                .getPreferenceStore()
+                .getBoolean(
+                        CollabPrefConstants.ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID);
         if (enabled) {
-            this.playSound(getJoinFile());
+            SoundUtil.playSound(getJoinFile());
         }
     }
 }
