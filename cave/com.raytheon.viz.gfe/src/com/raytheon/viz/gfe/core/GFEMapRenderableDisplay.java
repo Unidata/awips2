@@ -49,9 +49,10 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 19, 2009            chammack     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 19, 2009           chammack    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Always get resource time from descriptor.
  * 
  * </pre>
  * 
@@ -117,11 +118,9 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     @Override
     protected PaintProperties calcPaintDataTime(PaintProperties paintProps,
             AbstractVizResource<?, ?> rsc) {
-        if (dataMgr != null) {
-            // Get time for resource from FramesInfo
-            paintProps.setDataTime(paintProps.getFramesInfo()
-                    .getTimeForResource(rsc));
-        }
+        // Get time for resource from FramesInfo
+        paintProps.setDataTime(paintProps.getFramesInfo().getTimeForResource(
+                rsc));
 
         GFEPaintProperties gfeProps = new GFEPaintProperties(paintProps);
         if (qvTime != null) {
@@ -184,4 +183,5 @@ public class GFEMapRenderableDisplay extends PlainMapRenderableDisplay
     public void spatialEditorTimeChanged(Date date) {
         this.refresh();
     }
+
 }
