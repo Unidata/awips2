@@ -27,6 +27,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    ??/??/??                      xxxxxxxx       Initial Creation.
 #    01/22/14        2667          bclement       fixed millisecond support
+#    02/28/14        2667          bclement       constructor can take extra micros for start and end
 #    
 # 
 #
@@ -39,9 +40,9 @@ MAX_TIME = 2147483647
 MICROS_IN_SECOND = 1000000
 
 class TimeRange(object):
-    def __init__(self, start=None, end=None):
-        self.start = self.__convertToDateTime(start)
-        self.end = self.__convertToDateTime(end)
+    def __init__(self, start=None, end=None, startExtraMicros=None, endExtraMicros=None):
+        self.start = self.__convertToDateTimeWithExtra(start, startExtraMicros)
+        self.end = self.__convertToDateTimeWithExtra(end, endExtraMicros)
         
     def __str__(self):
         return self.__repr__()
@@ -55,6 +56,12 @@ class TimeRange(object):
     def __ne__(self, other):
         return (not self.__eq__(other))
     
+    def __convertToDateTimeWithExtra(self, timeArg, extraMicros):
+        rval = self.__convertToDateTime(timeArg)
+        if rval is not None and extraMicros is not None:
+            rval = rval + datetime.timedelta(microseconds=extraMicros)
+        return rval
+
     def __convertToDateTime(self, timeArg):
         if timeArg is None:
             return None
@@ -62,15 +69,25 @@ class TimeRange(object):
             return timeArg
         elif isinstance(timeArg, time.struct_time):
             return datetime.datetime(*timeArg[:6])
-        else:
+        elif isinstance(timeArg, float):
+            # seconds as float, should be avoided due to floating point errors
             totalSecs = long(timeArg)
             micros = int((timeArg - totalSecs) * MICROS_IN_SECOND)
-            if totalSecs < MAX_TIME:
-                rval = datetime.datetime.utcfromtimestamp(totalSecs)
-            else:
-                extraTime = datetime.timedelta(seconds=(totalSecs - MAX_TIME))
-                rval = datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
-            return rval.replace(microsecond=micros)
+            return self.__convertSecsAndMicros(totalSecs, micros)
+        elif isinstance(timeArg, (int, long)):
+            # seconds as integer
+            totalSecs = timeArg
+            return self.__convertSecsAndMicros(totalSecs, 0)
+        else:
+            return None
+
+    def __convertSecsAndMicros(self, seconds, micros):
+        if seconds < MAX_TIME:
+            rval = datetime.datetime.utcfromtimestamp(seconds)
+        else:
+            extraTime = datetime.timedelta(seconds=(seconds - MAX_TIME))
+            rval = datetime.datetime.utcfromtimestamp(MAX_TIME) + extraTime
+        return rval.replace(microsecond=micros)
 
     def getStart(self):
         return self.start.utctimetuple()
@@ -78,8 +95,8 @@ class TimeRange(object):
     def getStartInMillis(self):
         return self._getInMillis(self.start)
 
-    def setStart(self, start):
-        self.start = self.__convertToDateTime(start)
+    def setStart(self, start, extraMicros=None):
+        self.start = self.__convertToDateTimeWithExtra(start, extraMicros)
 
     def getEnd(self):
         return self.end.utctimetuple()
@@ -92,8 +109,8 @@ class TimeRange(object):
         rval += time.microsecond // 1000
         return rval
 
-    def setEnd(self, end):
-        self.end = self.__convertToDateTime(end)
+    def setEnd(self, end, extraMicros=None):
+        self.end = self.__convertToDateTimeWithExtra(end, extraMicros)
                 
     def duration(self):
         delta = self.end - self.start
