@@ -36,21 +36,25 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataCopy;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
+import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.LabelingPreferences;
+import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -72,7 +76,6 @@ import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 import com.raytheon.viz.core.contours.util.StrmPak;
 import com.raytheon.viz.core.contours.util.StrmPakConfig;
 import com.raytheon.viz.core.interval.XFormFunctions;
-import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -82,19 +85,23 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 22, 2007            chammack     Initial Creation.
- * May 26, 2009  #2172     chammack     Use zoomLevel to calculate label spacing
- * Apr 26, 2010  #4583     rjpeter      Replaced fortran fortconbuf with java port.
- * Mar 04, 2011  #7747     njensen      Cached subgrid envelopes
- * Jul 09, 2012  DR14940   M.Porricelli Adjust arrow size for streamlines
- * Feb 15, 2013 1638       mschenke     Moved edex.common Util functions into common Util
- * Jun 26, 2013  #1999     dgilling     Replace native fortran strmpak call 
- *                                      with java port.
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ ----------------------------------------
+ * Oct 22, 2007           chammack     Initial Creation.
+ * May 26, 2009  2172     chammack     Use zoomLevel to calculate label spacing
+ * Apr 26, 2010  4583     rjpeter      Replaced fortran fortconbuf with java
+ *                                     port.
+ * Mar 04, 2011  7747     njensen      Cached subgrid envelopes
+ * Jul 09, 2012  14940    M.Porricelli Adjust arrow size for streamlines
+ * Feb 15, 2013  1638     mschenke     Moved edex.common Util functions into
+ *                                     common Util
+ * Jun 26, 2013  1999     dgilling     Replace native fortran strmpak call 
+ *                                     with java port.
+ * Jul 18, 2013  2199     mschenke     Ensured contouring is only occurring
+ *                                     over visible area
+ * Jul 23, 2013  2157     dgilling     Remove legacy stream line drawing code.
+ * Feb 27, 2014  2791     bsteffen     Switch from IDataRecord to DataSource
  * 
- * Jul 18, 2013 2199       mschenke     Ensured contouring is only occurring over visible area
- * Jul 23, 2013  #2157     dgilling     Remove legacy stream line drawing code.
  * </pre>
  * 
  * @author chammack
@@ -104,6 +111,23 @@ public class ContourSupport {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ContourSupport.class);
+
+    /*
+     * By default contour any data source that is passed in. This is much more
+     * efficient than copying the data and allows us to contour any DataSource.
+     * 
+     * The downside is that FortConBuf accesses each data point multiple times
+     * and it is possible that DataSources with lots of transformation will have
+     * poor performance. Since different sources will exhibit different behavior
+     * and it is impossible to test all sources this field provides a runtime
+     * flag to copy all the data so that slow sources will only need to access
+     * each point once at the cost of more memory and taking the time to copy.
+     * Hopefully this is just paranoia and this flag can be removed in the
+     * future. If it turns out this is necessary we will likely want to find a
+     * more fine grained approach to tuning this.
+     */
+    private static boolean copyData = Boolean.getBoolean(ContourSupport.class
+            .getPackage().getName() + ".copyData");
 
     private static float smallestContourValue = GridUtil.GRID_FILL_VALUE - 1;
 
@@ -206,7 +230,7 @@ public class ContourSupport {
     /**
      * Create contours from provided parameters
      * 
-     * @param records
+     * @param sources
      * @param level
      * @param extent
      * @param currentDensity
@@ -220,7 +244,7 @@ public class ContourSupport {
      * @return the ContourGroup
      * @throws VizException
      */
-    public static ContourGroup createContours(IDataRecord[] records,
+    public static ContourGroup createContours(DataSource[] sources,
             float level, IExtent extent, double currentDensity,
             double currentMagnification, GeneralGridGeometry imageGridGeometry,
             IGraphicsTarget target, IMapDescriptor descriptor,
@@ -297,49 +321,37 @@ public class ContourSupport {
 
         // Step 3: Get the actual data
 
-        if (records.length == 1 && records[0] != null) {
-            IDataRecord record = records[0];
-            float[] data1D = null;
-            long[] sz = record.getSizes();
-
-            if (record instanceof ByteDataRecord) {
-
-                byte[] data1Db = ((ByteDataRecord) record).getByteData();
-                data1D = new float[data1Db.length];
-                for (int i = 0; i < data1D.length; i++) {
-                    data1D[i] = data1Db[i] & 0xFF;
-                }
-            } else if (record instanceof FloatDataRecord) {
-                data1D = ((FloatDataRecord) record).getFloatData();
-            } else {
-                throw new UnsupportedOperationException(
-                        "Contouring is not supported for data type: "
-                                + record.getClass().getName());
-            }
-
+        if (sources.length == 1 && sources[0] != null) {
             // Step 4: Determine the subgrid, if any
+            GridEnvelope imageRange = imageGridGeometry.getGridRange();
 
             int minX = (int) Math.floor(Math.max(env.getMinimum(0), 0));
             int minY = (int) Math.floor(Math.max(env.getMinimum(1), 0));
-            int maxX = (int) Math.ceil(Math.min(env.getMaximum(0), sz[0] - 1));
-            int maxY = (int) Math.ceil(Math.min(env.getMaximum(1), sz[1] - 1));
-
+            int maxX = (int) Math.ceil(Math.min(env.getMaximum(0),
+                    imageRange.getHigh(0)));
+            int maxY = (int) Math.ceil(Math.min(env.getMaximum(1),
+                    imageRange.getHigh(1)));
             int szX = (maxX - minX) + 1;
             int szY = (maxY - minY) + 1;
             if (szX * szY <= 0) {
                 return contourGroup;
             }
 
-            float[][] subgriddedData = new float[szX][szY];
+            /* Make contours continous for world wrapping grids. */
+            int wrapNumber = GridGeometryWrapChecker
+                    .checkForWrapping(imageGridGeometry);
+            if (wrapNumber - 1 >= szX) {
+                szX = wrapNumber + 1;
+            }
 
-            for (int j = 0; j < szY; j++) {
-                for (int i = 0; i < szX; i++) {
-                    float val = data1D[((int) sz[0] * (j + minY)) + (i + minX)];
-                    if (Float.isNaN(val)) {
-                        val = GridUtil.GRID_FILL_VALUE;
-                    }
-                    subgriddedData[i][j] = val;
-                }
+            DataSource subgridSource = sources[0];
+            if (minX != 0 || minY != 0) {
+                subgridSource = new OffsetDataSource(sources[0], minX, minY);
+            }
+
+            if (copyData) {
+                subgridSource = DataCopy.copy(subgridSource,
+                        new FloatArrayWrapper(szX, szY), szX, szY);
             }
 
             // Use ported legacy code to determine contour interval
@@ -358,12 +370,12 @@ public class ContourSupport {
             // Awips 1
             config.xOffset = minX;
             config.yOffset = minY;
-            config.labelSpacingLine = subgriddedData.length / 3;
+            config.labelSpacingLine = szX / 3;
             if (config.labelSpacingLine < 1) {
                 config.labelSpacingLine = 1;
             }
 
-            config.labelSpacingOverall = (int) (subgriddedData.length * 60
+            config.labelSpacingOverall = (int) (szX * 60
                     * currentMagnification / ((PixelExtent) extent).getWidth() + 0.5);
 
             // If nothing provided, attempt to get approximately 50 contours
@@ -371,10 +383,13 @@ public class ContourSupport {
                 // TODO this is fairly inefficient to do every time.
                 float min = Float.POSITIVE_INFINITY;
                 float max = Float.NEGATIVE_INFINITY;
-                for (float f : data1D) {
-                    if (f != GridUtil.GRID_FILL_VALUE && !Float.isNaN(f)) {
-                        min = Math.min(min, f);
-                        max = Math.max(max, f);
+                for (int j = 0; j < szY; j++) {
+                    for (int i = 0; i < szX; i++) {
+                        float f = (float) subgridSource.getDataValue(i, j);
+                        if (!Float.isNaN(f)) {
+                            min = Math.min(min, f);
+                            max = Math.max(max, f);
+                        }
                     }
                 }
                 float interval = XFormFunctions
@@ -383,12 +398,12 @@ public class ContourSupport {
                                 true, "", 10);
                 config.seed = new float[] { interval };
                 config.mode = -50;
-                contours = FortConBuf.contour(subgriddedData, config);
+                contours = FortConBuf.contour(subgridSource, szX, szY, config);
             } else {
                 LabelingPreferences contourLabeling = prefs
                         .getContourLabeling();
                 if (contourLabeling.getLabelSpacing() > 0) {
-                    config.labelSpacingLine = subgriddedData.length
+                    config.labelSpacingLine = szX
                             / contourLabeling.getLabelSpacing();
                     if (config.labelSpacingLine < 1) {
                         config.labelSpacingLine = 1;
@@ -425,14 +440,14 @@ public class ContourSupport {
                             .getIncrement();
                     float interval;
                     if (contourLabeling.getNumberOfContours() > 0) {
-                        float minData = 1e37f;
-                        float maxData = -1e37f;
-                        for (float[] dataRow : subgriddedData) {
-                            for (float data : dataRow) {
-                                if (data < minData && data != -999999) {
-                                    minData = data;
-                                } else if (data < 999998 && data > maxData) {
-                                    maxData = data;
+                        float minData = Float.POSITIVE_INFINITY;
+                        float maxData = Float.NEGATIVE_INFINITY;
+                        for (int j = 0; j < szY; j++) {
+                            for (int i = 0; i < szX; i++) {
+                                float f = (float) subgridSource.getDataValue(i, j);
+                                if (!Float.isNaN(f)) {
+                                    minData = Math.min(minData, f);
+                                    maxData = Math.max(maxData, f);
                                 }
                             }
                         }
@@ -463,7 +478,7 @@ public class ContourSupport {
                     config.mode = 0;
                     config.seed = controls;
 
-                    contours = FortConBuf.contour(subgriddedData, config);
+                    contours = FortConBuf.contour(subgridSource, szX, szY, config);
                 } else if (prefs.getContourLabeling().getValues() != null) {
                     // explicit contouring values provided
 
@@ -497,7 +512,7 @@ public class ContourSupport {
                     } else {
                         config.mode = vals.length;
                     }
-                    contours = FortConBuf.contour(subgriddedData, config);
+                    contours = FortConBuf.contour(subgridSource, szX, szY, config);
                 }
             }
 
@@ -528,7 +543,7 @@ public class ContourSupport {
                 long tZ1 = System.currentTimeMillis();
                 tMinMaxAccum += tZ1 - tZ0;
 
-                checkWorldWrapping(contours, descriptor, rastPosToLatLon);
+                correctWorldWrapping(contours, descriptor, rastPosToLatLon);
 
                 int size = contours.xyContourPoints.size();
                 // total coordinates
@@ -613,19 +628,9 @@ public class ContourSupport {
             } catch (Throwable e) {
                 throw new VizException("Error postprocessing contours", e);
             }
-        } else if (records.length == 2) {
-            float[] uW = null;
-            float[] vW = null;
-            long[] sz = records[0].getSizes();
-
-            if (records[0] instanceof FloatDataRecord) {
-                uW = ((FloatDataRecord) records[0]).getFloatData();
-                vW = ((FloatDataRecord) records[1]).getFloatData();
-            } else {
-                throw new UnsupportedOperationException(
-                        "Streamlining is not supported for data type: "
-                                + records.getClass().getName());
-            }
+        } else if (sources.length == 2) {
+            GridEnvelope range = imageGridGeometry.getGridRange();
+            long[] sz = { range.getSpan(0), range.getSpan(1) };
 
             // Step 4: Determine the subgrid, if any
 
@@ -634,7 +639,8 @@ public class ContourSupport {
             int maxX = (int) Math.ceil(Math.min(env.getMaximum(0), sz[0] - 1));
             int maxY = (int) Math.ceil(Math.min(env.getMaximum(1), sz[1] - 1));
 
-            makeStreamLines(uW, vW, minX, minY, maxX, maxY, sz, contourGroup,
+            makeStreamLines(sources[0], sources[1], minX, minY, maxX, maxY, sz,
+                    contourGroup,
                     currentMagnification, zoom, contourGroup.lastDensity,
                     rastPosToWorldGrid);
         }
@@ -645,7 +651,7 @@ public class ContourSupport {
 
     public static GeneralEnvelope calculateSubGrid(IExtent workingExtent,
             GeneralGridGeometry mapGridGeometry,
-            GeneralGridGeometry imageGridGeometry) throws VizException {
+            GeneralGridGeometry imageGridGeometry) {
         GeneralEnvelope env = new GeneralEnvelope(2);
         try {
             GridGeometry2D imageGeometry2D = GridGeometry2D
@@ -723,7 +729,6 @@ public class ContourSupport {
         final double threshold1 = (200.0 / screenToPixel);
         final double threshold2 = (50.0 / screenToPixel);
 
-        long tAccum = 0;
         double q1, q2, p1, p2;
         for (int n = 0; n < valsArr.length; n++) {
 
@@ -764,11 +769,9 @@ public class ContourSupport {
                 }
                 if (!tooClose
                 /* || (labeledAtLeastOnce == false && n == valsArr.length - 1) */) {
-                    long t0 = System.currentTimeMillis();
                     shapeToAddTo.addLabel(label, valsArr[n]);
                     labelPoints.add(valsArr[n]);
                     lastPoint = valsArr[n];
-                    tAccum += (System.currentTimeMillis() - t0);
                 }
             }
         }
@@ -1087,7 +1090,13 @@ public class ContourSupport {
             int maxX = (int) (sz[0] - 1);
             int maxY = (int) (sz[1] - 1);
 
-            makeStreamLines(uW, vW, minX, minY, maxX, maxY, sz, contourGroup,
+            DataSource uWSource = new FloatArrayWrapper(uW, (int) sz[0],
+                    (int) sz[1]);
+            DataSource vWSource = new FloatArrayWrapper(vW, (int) sz[0],
+                    (int) sz[1]);
+
+            makeStreamLines(uWSource, vWSource, minX, minY, maxX, maxY, sz,
+                    contourGroup,
                     1, 1, contourGroup.lastDensity * 2, gridToPixel);
 
             return contourGroup;
@@ -1099,7 +1108,7 @@ public class ContourSupport {
 
     }
 
-    private static void makeStreamLines(float[] uW, float[] vW, int minX,
+    private static void makeStreamLines(DataSource uW, DataSource vW, int minX,
             int minY, int maxX, int maxY, long[] sz, ContourGroup contourGroup,
             double currentMagnification, float zoom, double density,
             MathTransform rastPosToWorldGrid) throws VizException {
@@ -1112,24 +1121,6 @@ public class ContourSupport {
         }
         int x = (int) sz[0];
         int y = (int) sz[1];
-
-        float[][] adjustedUw = new float[szX][szY];
-        float[][] adjustedVw = new float[szX][szY];
-        for (int j = 0; j < szY; j++) {
-            for (int i = 0; i < szX; i++) {
-                float uWVal = uW[(x * (j + minY)) + (i + minX)];
-                if (Float.isNaN(uWVal)) {
-                    uWVal = GridUtil.GRID_FILL_VALUE;
-                }
-                adjustedUw[szX - 1 - i][j] = uWVal;
-
-                float vWVal = vW[(x * (j + minY)) + (i + minX)];
-                if (Float.isNaN(vWVal)) {
-                    vWVal = GridUtil.GRID_FILL_VALUE;
-                }
-                adjustedVw[szX - 1 - i][j] = vWVal;
-            }
-        }
 
         // Use ported legacy code to determine contour interval
         long t0 = System.currentTimeMillis();
@@ -1180,8 +1171,8 @@ public class ContourSupport {
 
         StrmPakConfig config = new StrmPakConfig(arrowSize, minspc, maxspc,
                 -1000000f, -999998f);
-        StreamLineContainer container = StrmPak.strmpak(adjustedUw, adjustedVw,
-                szX, szX, szY, config);
+        StreamLineContainer container = StrmPak.strmpak(uW, vW,
+                szX, szY, config);
 
         long t1 = System.currentTimeMillis();
         System.out.println("Contouring took: " + (t1 - t0));
@@ -1351,13 +1342,30 @@ public class ContourSupport {
         return rval;
     }
 
-    private static void checkWorldWrapping(ContourContainer contours,
+    /**
+     * Check the contour lines in a ContourContainer and split any lines that
+     * need to wrap over the "seam" in the display crs. If changes are needed
+     * the lines within contours are modified directly.
+     * 
+     * @param contours
+     *            container holding contour lines
+     * @param descriptor
+     *            the discriptor for the dispaly
+     * @param rastPosToLatLon
+     *            transform for converting the coordinates within contours to
+     *            LatLon coordinates.
+     * @throws TransformException
+     */
+    private static void correctWorldWrapping(ContourContainer contours,
             IMapDescriptor descriptor, MathTransform rastPosToLatLon)
             throws TransformException {
         long tZ0 = System.currentTimeMillis();
 
         WorldWrapChecker wwc = new WorldWrapChecker(
                 descriptor.getGridGeometry());
+        if (!wwc.needsChecking()) {
+            return;
+        }
 
         List<float[]> splitLines = new ArrayList<float[]>();
         List<Float> dupValues = new ArrayList<Float>();
