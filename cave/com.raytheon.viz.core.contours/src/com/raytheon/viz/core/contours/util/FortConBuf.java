@@ -24,6 +24,11 @@ import java.text.ParseException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.raytheon.uf.common.geospatial.interpolation.data.AxisSwapDataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArray2DWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.InvalidRangeDataSource;
+
 /**
  * Port of the fortCon.f routine. Minimal changes made to make it perform better
  * in java. Not object orientated and not thread safe!
@@ -31,9 +36,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 22, 2010 #4583      rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 22, 2010  4583     rjpeter     Initial creation
+ * Feb 27, 2014  2791     bsteffen    Use DataSource for generic data access.
  * 
  * </pre>
  * 
@@ -68,13 +74,9 @@ public class FortConBuf {
         }
     }
 
-    private PointBuffer ijPntBuffer = new PointBuffer(2000, 1000, true);
+    private PointBuffer ijPntBuffer = new PointBuffer(2000, 1000);
 
-    private float[][] dataToContour;
-
-    private int nx;
-
-    private int ny;
+    private DataSource dataToContour;
 
     private int nxMaxIndex;
 
@@ -96,16 +98,6 @@ public class FortConBuf {
 
     private float[] MxAvg = new float[maxContours];
 
-    private int dlx;
-
-    private int dly;
-
-    private int dld;
-
-    private int labsep;
-
-    private int celcnt;
-
     private int c;
 
     private int labsep2;
@@ -119,6 +111,34 @@ public class FortConBuf {
     private static Queue<FortConBuf> instancePool = new ConcurrentLinkedQueue<FortConBuf>();
 
     public static ContourContainer contour(float[][] data, FortConConfig config) {
+        int ny = data.length;
+        int nx = data[0].length;
+        DataSource source = new FloatArray2DWrapper(data, nx, ny);
+        source = new AxisSwapDataSource(source);
+        if (config.badlo < config.badhi) {
+            source = new InvalidRangeDataSource(source, config.badlo,
+                    config.badhi);
+        }
+        return contour(source, ny, nx, config);
+    }
+
+    /**
+     * Perform contouring. This method ignores config.badlo and config.badhi and
+     * only treats NaN as bad data.
+     * 
+     * @param data
+     *            the source for data to contouring.
+     * @param nx
+     *            The number of points to contour in the x direction
+     * @param ny
+     *            The number of points to contour in the y direction
+     * @param config
+     *            configuration options
+     * @return a ContourContainer
+     */
+    public static ContourContainer contour(DataSource data, int nx, int ny,
+            FortConConfig config) {
+
         ContourContainer rval = null;
         FortConBuf instance = null;
         try {
@@ -127,7 +147,7 @@ public class FortConBuf {
                 instance = new FortConBuf();
             }
 
-            rval = instance.contourInternal(data, config);
+            rval = instance.contourInternal(data, nx, ny, config);
         } finally {
             if (instance != null) {
                 instancePool.add(instance);
@@ -137,141 +157,76 @@ public class FortConBuf {
         return rval;
     }
 
-    private ContourContainer contourInternal(float[][] data,
+    private ContourContainer contourInternal(DataSource data, int nx, int ny,
             FortConConfig config) {
         dataToContour = data;
-        nx = dataToContour.length;
-        ny = dataToContour[0].length;
+
         nxMaxIndex = nx - 1;
         nyMaxIndex = ny - 1;
         ijPntBuffer.setSize(0);
         ijPntBuffer.setXOffset(config.xOffset);
         ijPntBuffer.setYOffset(config.yOffset);
 
-        float rawmax = -Float.MAX_VALUE;
-        float rawmin = Float.MAX_VALUE;
+        double rawmax = -Double.MAX_VALUE;
+        double rawmin = Double.MAX_VALUE;
         work1 = new byte[nx][ny];
         work2 = new byte[nx][ny];
         work3 = new byte[nx][ny];
         work4 = new byte[nx][ny];
-        int ldwork = Math.min(Math.min(nx, ny),
-                Math.max(1, config.labelSpacingLine));
 
         // contourCount is number of contour values
         int contourCount, mmm;
         int i, j, xmode, turn1, turn2, turn3, turn4, ii, jj;
 
-        float val, val1, val2, dval, minval, maxval, D2;
-        String[] LabStr = new String[maxContours];
-
+        double val, val1, val2, dval, minval, maxval, D2;
         Byte bbb;
 
         // map out missing values
-        if (config.badlo < config.badhi) {
-            // Figure out which vertical sides can accept contours.
-            for (int cIdx = 0; cIdx < nx; cIdx++) {
-                val2 = dataToContour[cIdx][nyMaxIndex];
-                for (int rIdx = nyMaxIndex - 1; rIdx >= 0; rIdx--) {
-                    val1 = dataToContour[cIdx][rIdx];
-                    if (val1 < val2) {
-                        if (val1 > config.badhi || val2 < config.badlo) {
-                            if (val1 < rawmin) {
-                                rawmin = val1;
-                            }
-
-                            work4[cIdx][rIdx] = b40;
-                        } else {
-                            work4[cIdx][rIdx] = 1;
-                        }
-                    } else {
-                        if (val2 > config.badhi || val1 < config.badlo) {
-                            if (val2 < rawmin) {
-                                rawmin = val2;
-                            }
-                            if (val2 < val1) {
-                                work4[cIdx][rIdx] = bC0;
-                            }
-                        } else {
-                            work4[cIdx][rIdx] = 1;
-                        }
+        // Figure out which vertical sides can accept contours.
+        for (int cIdx = 0; cIdx < nx; cIdx++) {
+            val2 = dataToContour.getDataValue(cIdx, nyMaxIndex);
+            for (int rIdx = nyMaxIndex - 1; rIdx >= 0; rIdx--) {
+                val1 = dataToContour.getDataValue(cIdx, rIdx);
+                if (val1 < val2) {
+                    if (val1 < rawmin) {
+                        rawmin = val1;
                     }
-                    val2 = val1;
-                }
-            }
-
-            // Figure out which horizontal sides can accept contours.
-            for (int rIdx = 0; rIdx < ny; rIdx++) {
-                val2 = dataToContour[nxMaxIndex][rIdx];
-                for (int cIdx = nxMaxIndex - 1; cIdx >= 0; cIdx--) {
-                    val1 = dataToContour[cIdx][rIdx];
-                    if (val1 < val2) {
-                        if (val1 > config.badhi || val2 < config.badlo) {
-                            if (val2 > rawmax) {
-                                rawmax = val2;
-                            }
-
-                            work3[cIdx][rIdx] = b40;
-                        } else {
-                            work3[cIdx][rIdx] = 1;
-                        }
-                    } else {
-                        if (val2 > config.badhi || val1 < config.badlo) {
-                            if (val1 > rawmax) {
-                                rawmax = val1;
-                            }
-                            if (val2 < val1) {
-                                work3[cIdx][rIdx] = bC0;
-                            }
-                        } else {
-                            work3[cIdx][rIdx] = 1;
-                        }
+                    work4[cIdx][rIdx] = b40;
+                } else if (Double.isNaN(val1) || Double.isNaN(val2)) {
+                    work4[cIdx][rIdx] = 1;
+                } else {
+                    if (val2 < rawmin) {
+                        rawmin = val2;
                     }
-                    val2 = val1;
-                }
-            }
-        } else { // no missing value
-            // Determine "sense" of vertical sides.
-            for (int cIdx = 0; cIdx < nx; cIdx++) {
-                val2 = dataToContour[cIdx][nyMaxIndex];
-                for (int rIdx = nyMaxIndex - 1; rIdx >= 0; rIdx--) {
-                    val1 = dataToContour[cIdx][rIdx];
-                    if (val1 < val2) {
-                        if (val1 < rawmin) {
-                            rawmin = val1;
-                        }
-
-                        work4[cIdx][rIdx] = b40;
-                    } else {
-                        if (val2 < rawmin) {
-                            rawmin = val2;
-                        }
-
+                    if (val2 < val1) {
                         work4[cIdx][rIdx] = bC0;
                     }
-                    val2 = val1;
                 }
+                val2 = val1;
             }
+        }
 
-            // determine "sense" of horizontal size
-            for (int rIdx = 0; rIdx < ny; rIdx++) {
-                val2 = dataToContour[nxMaxIndex][rIdx];
-                for (int cIdx = nxMaxIndex - 1; cIdx >= 0; cIdx--) {
-                    val1 = dataToContour[cIdx][rIdx];
-                    if (val1 < val2) {
-                        if (val2 > rawmax) {
-                            rawmax = val2;
-                        }
-
-                        work3[cIdx][rIdx] = b40;
-                    } else {
-                        if (val1 > rawmax) {
-                            rawmax = val1;
-                        }
-
+        // Figure out which horizontal sides can accept contours.
+        for (int rIdx = 0; rIdx < ny; rIdx++) {
+            val2 = dataToContour.getDataValue(nxMaxIndex, rIdx);
+            for (int cIdx = nxMaxIndex - 1; cIdx >= 0; cIdx--) {
+                val1 = dataToContour.getDataValue(cIdx, rIdx);
+                if (val1 < val2) {
+                    if (val2 > rawmax) {
+                        rawmax = val2;
+                    }
+                    work3[cIdx][rIdx] = b40;
+                } else if (Double.isNaN(val1) || Double.isNaN(val2)) {
+                    work3[cIdx][rIdx] = 1;
+                } else {
+                    if (val1 > rawmax) {
+                        rawmax = val1;
+                    }
+                    if (val2 < val1) {
                         work3[cIdx][rIdx] = bC0;
                     }
-                    val2 = val1;
                 }
+                val2 = val1;
             }
         }
 
@@ -355,7 +310,7 @@ public class FortConBuf {
             // e.g. dont calculate contours with an offset of 1.5 when
             // contours are printed as integers, will cause contours
             // to go missing in that case
-            if (config != null && config.labelFormat != null) {
+            if (config.labelFormat != null) {
                 DecimalFormat df = new DecimalFormat(config.labelFormat);
                 float temp = Float.valueOf(df.format(dval));
                 if (temp != 0) {
@@ -379,7 +334,7 @@ public class FortConBuf {
             int numSteps = (int) ((val2 - val1) / dval + 1);
             val = val1;
             for (contourCount = 0; contourCount < numSteps; contourCount++) {
-                ConVal[contourCount] = val;
+                ConVal[contourCount] = (float) val;
                 val = val + dval;
             }
             // remove ncon-- as now ncon is the number of contour values
@@ -468,8 +423,8 @@ public class FortConBuf {
 
             // mmtol processing always amount to 0
             float dmm = 0;
-            float mmlim1 = 0;
-            float mmlim2 = 0;
+            double mmlim1 = 0;
+            double mmlim2 = 0;
 
             // Figure out limits of values which may be marked for.
             if (mmm > 1 && val2 < 0) {
@@ -496,7 +451,7 @@ public class FortConBuf {
                         continue MIN_MAX_SEARCH;
                     }
                     // check that this falls within markable limits
-                    val = dataToContour[i][j];
+                    val = dataToContour.getDataValue(i, j);
                     if (val < mmlim1 || val > mmlim2) {
                         continue MIN_MAX_SEARCH;
                     }
@@ -508,19 +463,23 @@ public class FortConBuf {
                             continue MIN_MAX_SEARCH;
                         }
                         // check corner points
-                        if ((work3[im][jm] >= 2 && work4[im][jm] >= 2 && dataToContour[i][j] >= dataToContour[im][jm])
-                                || (work3[im][jp] >= 2 && work4[im][j] <= -2 && dataToContour[i][j] >= dataToContour[im][jp])
-                                || (work3[i][jm] <= -2 && work4[ip][jm] >= 2 && dataToContour[i][j] >= dataToContour[ip][jm])
-                                || (work3[i][jp] <= -2 && work4[ip][j] <= -2 && dataToContour[i][j] >= dataToContour[ip][jp])) {
+                        if ((work3[im][jm] >= 2 && work4[im][jm] >= 2 && val >= dataToContour
+                                .getDataValue(im, jm))
+                                || (work3[im][jp] >= 2 && work4[im][j] <= -2 && val >= dataToContour
+                                        .getDataValue(jp, im))
+                                || (work3[i][jm] <= -2 && work4[ip][jm] >= 2 && val >= dataToContour
+                                        .getDataValue(ip, jm))
+                                || (work3[i][jp] <= -2 && work4[ip][j] <= -2 && val >= dataToContour
+                                        .getDataValue(ip, jp))) {
                             continue MIN_MAX_SEARCH;
                         }
                         // sharp min check
                         if (dmm > 0) {
-                            val = dataToContour[i][j] + dmm;
-                            if (val > dataToContour[im][j]
-                                    || val > dataToContour[i][jm]
-                                    || val > dataToContour[ip][j]
-                                    || val > dataToContour[i][jp]) {
+                            val = val + dmm;
+                            if (val > dataToContour.getDataValue(im, j)
+                                    || val > dataToContour.getDataValue(i, jm)
+                                    || val > dataToContour.getDataValue(ip, j)
+                                    || val > dataToContour.getDataValue(i, jp)) {
                                 continue MIN_MAX_SEARCH;
                             }
                         }
@@ -558,19 +517,23 @@ public class FortConBuf {
                             continue MIN_MAX_SEARCH;
                         }
                         // check corner points
-                        if ((work3[im][jm] <= -2 && work4[im][jm] <= -2 && dataToContour[i][j] <= dataToContour[im][jm])
-                                || (work3[im][jp] <= -2 && work4[im][j] >= 2 && dataToContour[i][j] <= dataToContour[im][jp])
-                                || (work3[i][jm] >= 2 && work4[ip][jm] <= -2 && dataToContour[i][j] <= dataToContour[ip][jm])
-                                || (work3[i][jp] >= 2 && work4[ip][j] >= 2 && dataToContour[i][j] <= dataToContour[ip][jp])) {
+                        if ((work3[im][jm] <= -2 && work4[im][jm] <= -2 && val <= dataToContour
+                                .getDataValue(im, jm))
+                                || (work3[im][jp] <= -2 && work4[im][j] >= 2 && val <= dataToContour
+                                        .getDataValue(ip, jp))
+                                || (work3[i][jm] >= 2 && work4[ip][jm] <= -2 && val <= dataToContour
+                                        .getDataValue(ip, jm))
+                                || (work3[i][jp] >= 2 && work4[ip][j] >= 2 && val <= dataToContour
+                                        .getDataValue(ip, jp))) {
                             continue MIN_MAX_SEARCH;
                         }
                         // sharp max check
                         if (dmm > 0) {
-                            val = dataToContour[i][j] - dmm;
-                            if (val < dataToContour[im][j]
-                                    || val < dataToContour[i][jm]
-                                    || val < dataToContour[ip][j]
-                                    || val < dataToContour[i][jp]) {
+                            val = val - dmm;
+                            if (val < dataToContour.getDataValue(im, j)
+                                    || val < dataToContour.getDataValue(i, jm)
+                                    || val < dataToContour.getDataValue(ip, j)
+                                    || val < dataToContour.getDataValue(i, jp)) {
                                 continue MIN_MAX_SEARCH;
                             }
                         }
@@ -629,12 +592,6 @@ public class FortConBuf {
 
         // Initialize counters for total cells, labels, and label separations on
         // lines.
-        // TODO account for fortran 1 index?
-        dlx = 2;
-        dly = 2;
-        dld = 3;
-        labsep = dld * ldwork;
-        celcnt = labsep / 2;
         labsep2 = config.labelSpacingOverall;
 
         // Fill line pattern array, scale contour value array, and set use count
@@ -693,7 +650,7 @@ public class FortConBuf {
                 }
 
                 // Cell side does not have missing values, reinitialize search.
-                D2 = dataToContour[i][j];
+                D2 = dataToContour.getDataValue(i, j);
                 if (bbb > 0) {
                     for (c = 0; c < contourCount; c++) {
                         if (ConVal[c] > D2) {
@@ -748,7 +705,7 @@ public class FortConBuf {
             }
             case 10022: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] < D2) {
@@ -801,7 +758,7 @@ public class FortConBuf {
             }
             case 10032: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] > D2) {
@@ -840,7 +797,7 @@ public class FortConBuf {
                 }
 
                 // Cell side does not have missing values, reinitialize search.
-                D2 = dataToContour[i][j];
+                D2 = dataToContour.getDataValue(i, j);
                 if (bbb > 0) {
                     for (c = 0; c < contourCount; c++) {
                         if (ConVal[c] > D2) {
@@ -895,7 +852,7 @@ public class FortConBuf {
             }
             case 20022: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] < D2) {
@@ -948,7 +905,7 @@ public class FortConBuf {
             }
             case 20032: {
                 // Find group of contours which are bracketed
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] > D2) {
@@ -987,7 +944,7 @@ public class FortConBuf {
                 }
 
                 // Cell side does not have missing values, reinitialize search.
-                D2 = dataToContour[i][j];
+                D2 = dataToContour.getDataValue(i, j);
                 if (bbb < 0) {
                     for (c = 0; c < contourCount; c++) {
                         if (ConVal[c] > D2) {
@@ -1042,7 +999,7 @@ public class FortConBuf {
             }
             case 30022: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] < D2) {
@@ -1095,7 +1052,7 @@ public class FortConBuf {
             }
             case 30032: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] > D2) {
@@ -1134,7 +1091,7 @@ public class FortConBuf {
                 }
 
                 // Cell side does not have missing values, reinitialize search.
-                D2 = dataToContour[i][j];
+                D2 = dataToContour.getDataValue(i, j);
                 if (bbb < 0) {
                     for (c = 0; c < contourCount; c++) {
                         if (ConVal[c] > D2) {
@@ -1189,7 +1146,7 @@ public class FortConBuf {
             }
             case 40022: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] < D2) {
@@ -1242,7 +1199,7 @@ public class FortConBuf {
             }
             case 40032: {
                 // Step through possible contours we can start
-                D2 = dataToContour[ii][jj];
+                D2 = dataToContour.getDataValue(ii, jj);
                 boolean keepProcessing = true;
                 while (keepProcessing) {
                     if (ConVal[c] > D2) {
@@ -1276,12 +1233,14 @@ public class FortConBuf {
                     bbb = work3[i][j];
                     if (bbb == b52) {
                         // minima
-                        rval.minVals.add(dataToContour[i][j]);
+                        rval.minVals.add((float) dataToContour.getDataValue(i,
+                                j));
                         rval.minLabelPoints.add(new float[] {
                                 i + config.xOffset, j + config.yOffset });
                     } else if (bbb == bD2) {
                         // maxima
-                        rval.maxVals.add(dataToContour[i][j]);
+                        rval.maxVals.add((float) dataToContour.getDataValue(i,
+                                j));
                         rval.maxLabelPoints.add(new float[] {
                                 i + config.xOffset, j + config.yOffset });
                     }
@@ -1341,8 +1300,6 @@ public class FortConBuf {
         // | |
         // point 1 (i,j)-------side 1------(i+1,j) point 2
         float val = ConVal[c];
-        float minavg = MnAvg[c];
-        float maxavg = MxAvg[c];
         byte cmw = CMask[c];
         boolean GGG1 = false;
         boolean GGG2 = false;
@@ -1363,7 +1320,6 @@ public class FortConBuf {
         float D2 = 0;
         float D3 = 0;
         float D4 = 0;
-        float DDQ = 0;
 
         // reset point buffer
         ijPntBuffer.setSize(0);
@@ -1400,8 +1356,8 @@ public class FortConBuf {
                 icell = istart;
                 iplus = istart + 1;
                 clos1 = true;
-                D3 = dataToContour[iplus][jcell];
-                D4 = dataToContour[icell][jcell];
+                D3 = (float) dataToContour.getDataValue(iplus, jcell);
+                D4 = (float) dataToContour.getDataValue(icell, jcell);
                 GGG3 = val >= D3;
                 GGG4 = val >= D4;
                 if (GGG3 == GGG4) {
@@ -1427,8 +1383,8 @@ public class FortConBuf {
                 jcell = jstart;
                 jplus = jstart + 1;
                 clos2 = true;
-                D1 = dataToContour[iplus][jcell];
-                D4 = dataToContour[iplus][jplus];
+                D1 = (float) dataToContour.getDataValue(iplus, jcell);
+                D4 = (float) dataToContour.getDataValue(iplus, jplus);
                 GGG1 = val >= D1;
                 GGG4 = val >= D4;
                 if (GGG1 == GGG4) {
@@ -1454,8 +1410,8 @@ public class FortConBuf {
                 icell = istart;
                 iplus = istart + 1;
                 clos3 = true;
-                D1 = dataToContour[icell][jplus];
-                D2 = dataToContour[iplus][jplus];
+                D1 = (float) dataToContour.getDataValue(icell, jplus);
+                D2 = (float) dataToContour.getDataValue(iplus, jplus);
                 GGG1 = val >= D1;
                 GGG2 = val >= D2;
                 if (GGG1 == GGG2) {
@@ -1481,8 +1437,8 @@ public class FortConBuf {
                 jcell = jstart;
                 jplus = jstart + 1;
                 clos4 = true;
-                D3 = dataToContour[icell][jplus];
-                D2 = dataToContour[icell][jcell];
+                D3 = (float) dataToContour.getDataValue(icell, jplus);
+                D2 = (float) dataToContour.getDataValue(icell, jcell);
                 GGG3 = val >= D3;
                 GGG2 = val >= D2;
                 if (GGG3 == GGG2) {
@@ -1501,8 +1457,8 @@ public class FortConBuf {
                 D1 = D4;
                 GGG2 = GGG3;
                 D2 = D3;
-                D3 = dataToContour[iplus][jplus];
-                D4 = dataToContour[icell][jplus];
+                D3 = (float) dataToContour.getDataValue(iplus, jplus);
+                D4 = (float) dataToContour.getDataValue(icell, jplus);
                 GGG3 = val >= D3;
                 GGG4 = val >= D4;
 
@@ -1513,7 +1469,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 4422;
                         continue JUMP_LOOP;
                     } else if ((work4[iplus][jcell] & 1) == 0) {
@@ -1521,7 +1476,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 2244;
                         continue JUMP_LOOP;
                     }
@@ -1531,7 +1485,6 @@ public class FortConBuf {
 
                 // Determine proper path through cell from side one
                 if (GGG3 == GGG4) {
-                    celcnt += dld;
                     if (GGG2 == GGG3) {
                         jumpLabel = 4422;
                         continue JUMP_LOOP;
@@ -1540,11 +1493,9 @@ public class FortConBuf {
                     continue JUMP_LOOP;
                 } else {
                     if (GGG1 == GGG4) {
-                        celcnt += dly;
                         jumpLabel = 3311;
                         continue JUMP_LOOP;
                     }
-                    celcnt += dld;
                     GGGD = val4 >= (D1 + D2 + D3 + D4);
                     if (GGG1 != GGGD) {
                         jumpLabel = 4422;
@@ -1560,8 +1511,8 @@ public class FortConBuf {
                 D2 = D1;
                 GGG3 = GGG4;
                 D3 = D4;
-                D1 = dataToContour[icell][jcell];
-                D4 = dataToContour[icell][jplus];
+                D1 = (float) dataToContour.getDataValue(icell, jcell);
+                D4 = (float) dataToContour.getDataValue(icell, jplus);
                 GGG1 = val >= D1;
                 GGG4 = val >= D4;
 
@@ -1572,7 +1523,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 3311;
                         continue JUMP_LOOP;
                     } else if ((work3[icell][jcell] & 1) == 0) {
@@ -1580,7 +1530,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 1133;
                         continue JUMP_LOOP;
                     }
@@ -1590,7 +1539,6 @@ public class FortConBuf {
 
                 // Determine proper path through cell from side two.
                 if (GGG1 == GGG4) {
-                    celcnt += dld;
                     if (GGG3 == GGG4) {
                         jumpLabel = 1133;
                         continue JUMP_LOOP;
@@ -1599,11 +1547,9 @@ public class FortConBuf {
                     continue JUMP_LOOP;
                 } else {
                     if (GGG1 == GGG2) {
-                        celcnt += dlx;
                         jumpLabel = 4422;
                         continue JUMP_LOOP;
                     }
-                    celcnt += dld;
                     GGGD = val4 >= (D1 + D2 + D3 + D4);
                     if (GGG2 != GGGD) {
                         jumpLabel = 1133;
@@ -1619,8 +1565,8 @@ public class FortConBuf {
                 D3 = D2;
                 GGG4 = GGG1;
                 D4 = D1;
-                D1 = dataToContour[icell][jcell];
-                D2 = dataToContour[iplus][jcell];
+                D1 = (float) dataToContour.getDataValue(icell, jcell);
+                D2 = (float) dataToContour.getDataValue(iplus, jcell);
                 GGG1 = val >= D1;
                 GGG2 = val >= D2;
 
@@ -1631,7 +1577,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 2244;
                         continue JUMP_LOOP;
                     } else if ((work4[icell][jcell] & 1) == 0) {
@@ -1639,7 +1584,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 4422;
                         continue JUMP_LOOP;
                     }
@@ -1649,7 +1593,6 @@ public class FortConBuf {
 
                 // Determine proper path through cell from side three
                 if (GGG1 == GGG2) {
-                    celcnt += dld;
                     if (GGG1 == GGG4) {
                         jumpLabel = 2244;
                         continue JUMP_LOOP;
@@ -1658,11 +1601,9 @@ public class FortConBuf {
                     continue JUMP_LOOP;
                 } else {
                     if (GGG2 == GGG3) {
-                        celcnt += dly;
                         jumpLabel = 1133;
                         continue JUMP_LOOP;
                     }
-                    celcnt += dld;
                     GGGD = val4 >= (D1 + D2 + D3 + D4);
                     if (GGG3 != GGGD) {
                         jumpLabel = 2244;
@@ -1678,8 +1619,8 @@ public class FortConBuf {
                 D4 = D3;
                 GGG1 = GGG2;
                 D1 = D2;
-                D3 = dataToContour[iplus][jplus];
-                D2 = dataToContour[iplus][jcell];
+                D3 = (float) dataToContour.getDataValue(iplus, jplus);
+                D2 = (float) dataToContour.getDataValue(iplus, jcell);
                 GGG3 = val >= D3;
                 GGG2 = val >= D2;
 
@@ -1690,7 +1631,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 1133;
                         continue JUMP_LOOP;
                     } else if ((work3[icell][jplus] & 1) == 0) {
@@ -1698,7 +1638,6 @@ public class FortConBuf {
                             jumpLabel = 9000;
                             continue JUMP_LOOP;
                         }
-                        celcnt += dld;
                         jumpLabel = 3311;
                         continue JUMP_LOOP;
                     }
@@ -1708,7 +1647,6 @@ public class FortConBuf {
 
                 // Determine proper path through cell from side four.
                 if (GGG2 == GGG3) {
-                    celcnt += dld;
                     if (GGG1 == GGG2) {
                         jumpLabel = 3311;
                         continue JUMP_LOOP;
@@ -1717,11 +1655,9 @@ public class FortConBuf {
                     continue JUMP_LOOP;
                 } else {
                     if (GGG3 == GGG4) {
-                        celcnt += dlx;
                         jumpLabel = 2244;
                         continue JUMP_LOOP;
                     }
-                    celcnt += dld;
                     GGGD = val4 >= (D1 + D2 + D3 + D4);
                     if (GGG4 != GGGD) {
                         jumpLabel = 3311;
@@ -1864,150 +1800,6 @@ public class FortConBuf {
             }
             }
         }
-    }
-
-    private void markHrz(byte[][] workH, byte[][] workV, int i, int j) {
-        markCheck(workH, i, j);
-        if (labsep2 <= 0)
-            return;
-
-        markCheck(workV, i, j - 1);
-        markCheck(workV, i + 1, j - 1);
-        markCheck(workV, i, j);
-        markCheck(workV, i + 1, j);
-
-        markCheck(workH, i - 1, j);
-        markCheck(workH, i + 1, j);
-        if (labsep2 <= 1)
-            return;
-
-        markCheck(workV, i, j - 2);
-        markCheck(workV, i + 1, j - 2);
-        markCheck(workV, i - 1, j - 1);
-        markCheck(workV, i + 2, j - 1);
-        markCheck(workV, i - 1, j);
-        markCheck(workV, i + 2, j);
-        markCheck(workV, i, j + 1);
-        markCheck(workV, i + 1, j + 1);
-
-        markCheck(workH, i - 1, j - 1);
-        markCheck(workH, i, j - 1);
-        markCheck(workH, i + 1, j - 1);
-        markCheck(workH, i - 2, j);
-        markCheck(workH, i + 2, j);
-        markCheck(workH, i - 1, j + 1);
-        markCheck(workH, i, j + 1);
-        markCheck(workH, i + 1, j + 1);
-        if (labsep2 <= 2)
-            return;
-
-        markCheck(workV, i, j - 3);
-        markCheck(workV, i + 1, j - 3);
-        markCheck(workV, i - 1, j - 2);
-        markCheck(workV, i + 2, j - 2);
-        markCheck(workV, i - 2, j - 1);
-        markCheck(workV, i + 3, j - 1);
-        markCheck(workV, i - 2, j);
-        markCheck(workV, i + 3, j);
-        markCheck(workV, i - 1, j + 1);
-        markCheck(workV, i + 2, j + 1);
-        markCheck(workV, i, j + 2);
-        markCheck(workV, i + 1, j + 2);
-
-        markCheck(workH, i - 1, j - 2);
-        markCheck(workH, i, j - 2);
-        markCheck(workH, i + 1, j - 2);
-        markCheck(workH, i - 2, j - 1);
-        markCheck(workH, i + 2, j - 1);
-        markCheck(workH, i - 3, j);
-        markCheck(workH, i + 3, j);
-        markCheck(workH, i - 2, j + 1);
-        markCheck(workH, i + 2, j + 1);
-        markCheck(workH, i - 1, j + 2);
-        markCheck(workH, i, j + 2);
-        markCheck(workH, i + 1, j + 2);
-        if (labsep2 <= 3)
-            return;
-
-        markCheck(workV, i, j - 4);
-        markCheck(workV, i + 1, j - 4);
-        markCheck(workV, i - 1, j - 3);
-        markCheck(workV, i + 2, j - 3);
-        markCheck(workV, i - 2, j - 2);
-        markCheck(workV, i + 3, j - 2);
-        markCheck(workV, i - 3, j - 1);
-        markCheck(workV, i + 4, j - 1);
-        markCheck(workV, i - 3, j);
-        markCheck(workV, i + 4, j);
-        markCheck(workV, i - 2, j + 1);
-        markCheck(workV, i + 3, j + 1);
-        markCheck(workV, i - 1, j + 2);
-        markCheck(workV, i + 2, j + 2);
-        markCheck(workV, i, j + 3);
-        markCheck(workV, i + 1, j + 3);
-
-        markCheck(workH, i - 1, j - 3);
-        markCheck(workH, i, j - 3);
-        markCheck(workH, i + 1, j - 3);
-        markCheck(workH, i - 2, j - 2);
-        markCheck(workH, i + 2, j - 2);
-        markCheck(workH, i - 3, j - 1);
-        markCheck(workH, i + 3, j - 1);
-        markCheck(workH, i - 4, j);
-        markCheck(workH, i + 4, j);
-        markCheck(workH, i - 3, j + 1);
-        markCheck(workH, i + 3, j + 1);
-        markCheck(workH, i - 2, j + 2);
-        markCheck(workH, i + 2, j + 2);
-        markCheck(workH, i - 1, j + 3);
-        markCheck(workH, i, j + 3);
-        markCheck(workH, i + 1, j + 3);
-        if (labsep2 <= 4)
-            return;
-
-        markCheck(workV, i, j - 5);
-        markCheck(workV, i + 1, j - 5);
-        markCheck(workV, i - 1, j - 4);
-        markCheck(workV, i + 2, j - 4);
-        markCheck(workV, i - 2, j - 3);
-        markCheck(workV, i + 3, j - 3);
-        markCheck(workV, i - 3, j - 2);
-        markCheck(workV, i + 4, j - 2);
-        markCheck(workV, i - 4, j - 1);
-        markCheck(workV, i + 5, j - 1);
-        markCheck(workV, i - 4, j);
-        markCheck(workV, i + 5, j);
-        markCheck(workV, i - 3, j + 1);
-        markCheck(workV, i + 4, j + 1);
-        markCheck(workV, i - 2, j + 2);
-        markCheck(workV, i + 3, j + 2);
-        markCheck(workV, i - 1, j + 3);
-        markCheck(workV, i + 2, j + 3);
-        markCheck(workV, i, j + 4);
-        markCheck(workV, i + 1, j + 4);
-
-        markCheck(workH, i - 1, j - 4);
-        markCheck(workH, i, j - 4);
-        markCheck(workH, i + 1, j - 4);
-        markCheck(workH, i - 2, j - 3);
-        markCheck(workH, i + 2, j - 3);
-        markCheck(workH, i - 3, j - 2);
-        markCheck(workH, i + 3, j - 2);
-        markCheck(workH, i - 4, j - 1);
-        markCheck(workH, i + 4, j - 1);
-        markCheck(workH, i - 5, j);
-        markCheck(workH, i + 5, j);
-        markCheck(workH, i - 4, j + 1);
-        markCheck(workH, i + 4, j + 1);
-        markCheck(workH, i - 3, j + 2);
-        markCheck(workH, i + 3, j + 2);
-        markCheck(workH, i - 2, j + 3);
-        markCheck(workH, i + 2, j + 3);
-        markCheck(workH, i - 1, j + 4);
-        markCheck(workH, i, j + 4);
-        markCheck(workH, i + 1, j + 4);
-        if (labsep2 <= 5)
-            return;
     }
 
     private void markVrt(byte[][] workH, byte[][] workV, int i, int j) {
