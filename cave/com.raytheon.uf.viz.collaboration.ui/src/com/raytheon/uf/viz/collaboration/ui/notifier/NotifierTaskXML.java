@@ -17,13 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.event;
+package com.raytheon.uf.viz.collaboration.ui.notifier;
 
-import org.jivesoftware.smack.RosterEntry;
-import org.jivesoftware.smack.packet.Presence;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Event fired when the roster has changed
+ * XML Wrapper for the {@link NotifierTask}s
  * 
  * <pre>
  * 
@@ -31,36 +31,36 @@ import org.jivesoftware.smack.packet.Presence;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 06, 2012            jkorman     Initial creation.
- * Feb 24, 2014    2632    mpduff      Added getPresence, changed getItem to getEntry.
+ * Feb 21, 2014    2632    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author mpduff
  * @version 1.0
  */
+@DynamicSerialize
+public class NotifierTaskXML {
 
-public interface IRosterChangeEvent {
-
-    /**
-     * Get the event type.
-     * 
-     * @return The event type
-     */
-    RosterChangeType getType();
+    /** Array of notifier tasks */
+    @DynamicSerializeElement
+    private NotifierTask[] notifierTasks;
 
     /**
-     * Get the changed entry.
-     * 
-     * @return The changed entry
+     * @return the notifierTasks
      */
-    RosterEntry getEntry();
+    public NotifierTask[] getNotifierTasks() {
+        if (notifierTasks == null) {
+            notifierTasks = new NotifierTask[0];
+        }
+
+        return notifierTasks;
+    }
 
     /**
-     * Get the Presence object.
-     * 
-     * @return The Presence object
+     * @param notifierTasks
+     *            the notifierTasks to set
      */
-    Presence getPresence();
-
+    public void setNotifierTasks(NotifierTask[] notifierTasks) {
+        this.notifierTasks = notifierTasks;
+    }
 }
