@@ -154,7 +154,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#   Engineer    Description
+ * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Mar 01, 2008           chammack    Initial Creation.
  * Aug 20, 2008           dglazesk    Update for the ColorMap interface change
@@ -166,7 +166,9 @@ import com.vividsolutions.jts.geom.Envelope;
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
  * Dec 11, 2013  2621     randerso    Removed conditional from getParm so it never returns null
- * Jan 23, 2014  2703     bsteffen    Allow construction using a resourceData.
+ * Jan 23, 2014  2703     bsteffen    Allow construction using a resourceData,
+ *                                    paint using the time in paintProps and
+ *                                    remove dead code in paintInternal
  * 
  * </pre>
  * 
@@ -488,15 +490,9 @@ public class GFEResource extends
             PaintProperties paintProps) throws VizException {
 
         GFEPaintProperties myPaintProps = (GFEPaintProperties) paintProps;
+        this.curTime = myPaintProps.getDataTime();
 
-        // TODO: Time matching changes for Hazard Services broke display of ISC
-        // grids when in ISC mode with no Fcst grid present. This fixes the
-        // issue for now but will need to be resolved for Hazard Services
-
-        // this.curTime = myPaintProps.getDataTime();
-        this.curTime = new DataTime(this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime());
-
+        // No data to be displayed here
         if (curTime == null) {
             return;
         }
@@ -518,11 +514,6 @@ public class GFEResource extends
         density = Math.pow(1.26, density);
 
         this.lastGraphicsTarget = target;
-
-        // No data to be displayed here
-        if (this.curTime == null) {
-            return;
-        }
 
         IGridData[] gd = this.parm.getGridInventory(this.curTime
                 .getValidPeriod());
@@ -554,369 +545,333 @@ public class GFEResource extends
                     .setRenderingOrder(renderingOrder);
             descriptor.getResourceList().sort();
 
-            if (gd != null) {
-                IGridSlice gs = null;
-                if (dataManager.getParmManager().iscMode() && (gd.length == 0)) {
-                    GridParmInfo gpi = this.parm.getGridInfo();
-                    GridType gridType = gpi.getGridType();
+            IGridSlice gs = null;
+            if (dataManager.getParmManager().iscMode() && (gd.length == 0)) {
+                GridParmInfo gpi = this.parm.getGridInfo();
+                GridType gridType = gpi.getGridType();
 
-                    IGrid2D dummyGrid = null;
-                    switch (gridType) {
-                    case SCALAR:
-                        dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(),
-                                gpi.getGridLoc().getNy(), Float.NaN);
-                        gs = new ScalarGridSlice(this.curTime.getValidPeriod(),
-                                gpi, new GridDataHistory[] {},
-                                (Grid2DFloat) dummyGrid);
-                        break;
-                    case VECTOR:
-                        dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(),
-                                gpi.getGridLoc().getNy(), Float.NaN);
-                        gs = new VectorGridSlice(this.curTime.getValidPeriod(),
-                                gpi, new GridDataHistory[] {},
-                                (Grid2DFloat) dummyGrid,
-                                (Grid2DFloat) dummyGrid);
-                        break;
-                    case WEATHER:
-                        dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(),
-                                gpi.getGridLoc().getNy());
-                        gs = new WeatherGridSlice(
-                                this.curTime.getValidPeriod(), gpi,
-                                new GridDataHistory[] {},
-                                (Grid2DByte) dummyGrid, new WeatherKey[] {});
-                        break;
-                    case DISCRETE:
-                        dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(),
-                                gpi.getGridLoc().getNy());
-                        gs = new DiscreteGridSlice(
-                                this.curTime.getValidPeriod(), gpi,
-                                new GridDataHistory[] {},
-                                (Grid2DByte) dummyGrid, new DiscreteKey[] {});
-                        break;
-                    default:
-                        return;
-                    }
-                } else if (gd.length == 0) {
+                IGrid2D dummyGrid = null;
+                switch (gridType) {
+                case SCALAR:
+                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
+                            .getGridLoc().getNy(), Float.NaN);
+                    gs = new ScalarGridSlice(this.curTime.getValidPeriod(),
+                            gpi, new GridDataHistory[] {},
+                            (Grid2DFloat) dummyGrid);
+                    break;
+                case VECTOR:
+                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
+                            .getGridLoc().getNy(), Float.NaN);
+                    gs = new VectorGridSlice(this.curTime.getValidPeriod(),
+                            gpi, new GridDataHistory[] {},
+                            (Grid2DFloat) dummyGrid, (Grid2DFloat) dummyGrid);
+                    break;
+                case WEATHER:
+                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(), gpi
+                            .getGridLoc().getNy());
+                    gs = new WeatherGridSlice(this.curTime.getValidPeriod(),
+                            gpi, new GridDataHistory[] {},
+                            (Grid2DByte) dummyGrid, new WeatherKey[] {});
+                    break;
+                case DISCRETE:
+                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(), gpi
+                            .getGridLoc().getNy());
+                    gs = new DiscreteGridSlice(this.curTime.getValidPeriod(),
+                            gpi, new GridDataHistory[] {},
+                            (Grid2DByte) dummyGrid, new DiscreteKey[] {});
+                    break;
+                default:
                     return;
-                } else {
-                    gs = gd[0].getGridSlice();
+                }
+            } else {
+                gs = gd[0].getGridSlice();
+            }
+            if ((gs instanceof VectorGridSlice)
+                    || (gs instanceof ScalarGridSlice)) {
+
+                if (this.gridDisplay != null) {
+                    this.gridDisplay.dispose();
                 }
 
-                if ((gs instanceof VectorGridSlice)
-                        || (gs instanceof ScalarGridSlice)) {
-
-                    if (this.gridDisplay != null) {
-                        this.gridDisplay.dispose();
-                    }
-
-                    if (this.contourDisplay != null) {
-                        this.contourDisplay.dispose();
-                    }
-
-                    this.gridDisplay = null;
-                    this.contourDisplay = null;
+                if (this.contourDisplay != null) {
+                    this.contourDisplay.dispose();
                 }
 
-                if (gs instanceof VectorGridSlice) {
-                    VectorGridSlice vectorSlice = (VectorGridSlice) gs;
-                    Grid2DBit mask = parm.getDisplayAttributes()
-                            .getDisplayMask();
+                this.gridDisplay = null;
+                this.contourDisplay = null;
+            }
 
-                    if (dataManager.getParmManager().iscMode() || iscParm) {
-                        vectorSlice = new VectorGridSlice();
-                        mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.dataManager
-                                        .getSpatialDisplayManager()
-                                        .getSpatialEditorTime()), true,
-                                vectorSlice);
+            if (gs instanceof VectorGridSlice) {
+                VectorGridSlice vectorSlice = (VectorGridSlice) gs;
+                Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
+
+                if (dataManager.getParmManager().iscMode() || iscParm) {
+                    vectorSlice = new VectorGridSlice();
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(
+                            new GridID(this.parm, this.curTime.getRefTime()),
+                            true, vectorSlice);
+                }
+
+                Grid2DFloat maskedGrid = new Grid2DFloat(vectorSlice
+                        .getMagGrid().getXdim(), vectorSlice.getMagGrid()
+                        .getYdim(), Float.NaN);
+                maskedGrid.copyWithMask(vectorSlice.getMagGrid(), mask);
+                FloatBuffer mag = maskedGrid.getBuffer();
+
+                Grid2DFloat dirGrid = new Grid2DFloat(vectorSlice.getMagGrid()
+                        .getXdim(), vectorSlice.getDirGrid().getYdim(),
+                        Float.NaN);
+                dirGrid.copyWithMask(vectorSlice.getDirGrid(), mask);
+                FloatBuffer dir = dirGrid.getBuffer();
+
+                if (visTypes.contains(VisualizationType.IMAGE)) {
+                    this.gridDisplay = new GriddedImageDisplay(mag, descriptor,
+                            this.gridGeometry);
+                }
+
+                clearVectorDisplays();
+                VectorGraphicsConfig vectorConfig;
+                for (VisualizationType type : visTypes) {
+                    switch (type) {
+                    case WIND_ARROW:
+                        vectorConfig = new VectorGraphicsConfig();
+                        double size = getVectorSize("WindArrowDefaultSize");
+                        vectorConfig.setBaseSize(size);
+                        vectorConfig.setCalmCircleSizeRatio(vectorConfig
+                                .getCalmCircleSizeRatio() * BARB_SCALE_FACTOR);
+                        vectorConfig.setArrowHeadStaffRatio(ARROW_HEAD_RATIO);
+                        vectorConfig.alwaysIncludeCalmCircle();
+                        vectorConfig.alwaysIncludeVector();
+                        // get the logFactor
+                        double logFactor = prefs.getDouble(parm.getParmID()
+                                .compositeNameUI() + "_arrowScaling");
+                        double maxVal = parm.getGridInfo().getMaxValue();
+                        if (logFactor <= 0.0) {
+                            vectorConfig.setLinearArrowScaleFactor(size
+                                    / maxVal);
+                        } else {
+                            vectorConfig.setArrowScaler(new LogArrowScalar(
+                                    size, logFactor, maxVal));
+                        }
+
+                        this.vectorDisplay.add(new GriddedVectorDisplay(mag,
+                                dir, descriptor, MapUtil.getGridGeometry(gs
+                                        .getGridInfo().getGridLoc()),
+                                VECTOR_DENSITY_FACTOR, false,
+                                visTypeToDisplayType(type), vectorConfig));
+                        break;
+
+                    case WIND_BARB:
+                        vectorConfig = new VectorGraphicsConfig();
+                        vectorConfig
+                                .setBaseSize(getVectorSize("WindBarbDefaultSize")
+                                        * BARB_SCALE_FACTOR);
+                        vectorConfig.alwaysIncludeCalmCircle();
+                        vectorConfig.alwaysIncludeVector();
+                        this.vectorDisplay
+                                .add(new GriddedVectorDisplay(mag, dir,
+                                        descriptor, MapUtil.getGridGeometry(gs
+                                                .getGridInfo().getGridLoc()),
+                                        VECTOR_DENSITY_FACTOR
+                                                / BARB_SCALE_FACTOR, false,
+                                        visTypeToDisplayType(type),
+                                        vectorConfig));
+                        break;
+
+                    case IMAGE:
+                        break;
+
+                    default:
+                        statusHandler.handle(
+                                Priority.PROBLEM,
+                                "Unsupported Visualization Type: "
+                                        + type.toString());
                     }
+                }
+            } else if (gs instanceof ScalarGridSlice) {
+                ScalarGridSlice scalarSlice = (ScalarGridSlice) gs;
+                Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                    Grid2DFloat maskedGrid = new Grid2DFloat(vectorSlice
-                            .getMagGrid().getXdim(), vectorSlice.getMagGrid()
-                            .getYdim(), Float.NaN);
-                    maskedGrid.copyWithMask(vectorSlice.getMagGrid(), mask);
-                    FloatBuffer mag = maskedGrid.getBuffer();
+                if (dataManager.getParmManager().iscMode() || iscParm) {
+                    scalarSlice = new ScalarGridSlice();
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(
+                            new GridID(this.parm, this.curTime.getRefTime()),
+                            true, scalarSlice);
 
-                    Grid2DFloat dirGrid = new Grid2DFloat(vectorSlice
-                            .getMagGrid().getXdim(), vectorSlice.getDirGrid()
-                            .getYdim(), Float.NaN);
-                    dirGrid.copyWithMask(vectorSlice.getDirGrid(), mask);
-                    FloatBuffer dir = dirGrid.getBuffer();
+                }
+                Grid2DFloat scalarGrid = scalarSlice.getScalarGrid();
+                if (scalarGrid != null) {
+                    Grid2DFloat maskedGrid = new Grid2DFloat(
+                            scalarGrid.getXdim(), scalarGrid.getYdim(),
+                            Float.NaN);
+                    maskedGrid.copyWithMask(scalarGrid, mask);
 
+                    FloatBuffer fb = maskedGrid.getBuffer();
                     if (visTypes.contains(VisualizationType.IMAGE)) {
-                        this.gridDisplay = new GriddedImageDisplay(mag,
+                        this.gridDisplay = new GriddedImageDisplay(fb,
                                 descriptor, this.gridGeometry);
                     }
 
-                    clearVectorDisplays();
-                    VectorGraphicsConfig vectorConfig;
-                    for (VisualizationType type : visTypes) {
-                        switch (type) {
-                        case WIND_ARROW:
-                            vectorConfig = new VectorGraphicsConfig();
-                            double size = getVectorSize("WindArrowDefaultSize");
-                            vectorConfig.setBaseSize(size);
-                            vectorConfig.setCalmCircleSizeRatio(vectorConfig
-                                    .getCalmCircleSizeRatio()
-                                    * BARB_SCALE_FACTOR);
-                            vectorConfig
-                                    .setArrowHeadStaffRatio(ARROW_HEAD_RATIO);
-                            vectorConfig.alwaysIncludeCalmCircle();
-                            vectorConfig.alwaysIncludeVector();
-                            // get the logFactor
-                            double logFactor = prefs.getDouble(parm.getParmID()
-                                    .compositeNameUI() + "_arrowScaling");
-                            double maxVal = parm.getGridInfo().getMaxValue();
-                            if (logFactor <= 0.0) {
-                                vectorConfig.setLinearArrowScaleFactor(size
-                                        / maxVal);
-                            } else {
-                                vectorConfig.setArrowScaler(new LogArrowScalar(
-                                        size, logFactor, maxVal));
-                            }
-
-                            this.vectorDisplay.add(new GriddedVectorDisplay(
-                                    mag, dir, descriptor, MapUtil
-                                            .getGridGeometry(gs.getGridInfo()
-                                                    .getGridLoc()),
-                                    VECTOR_DENSITY_FACTOR, false,
-                                    visTypeToDisplayType(type), vectorConfig));
-                            break;
-
-                        case WIND_BARB:
-                            vectorConfig = new VectorGraphicsConfig();
-                            vectorConfig
-                                    .setBaseSize(getVectorSize("WindBarbDefaultSize")
-                                            * BARB_SCALE_FACTOR);
-                            vectorConfig.alwaysIncludeCalmCircle();
-                            vectorConfig.alwaysIncludeVector();
-                            this.vectorDisplay.add(new GriddedVectorDisplay(
-                                    mag, dir, descriptor, MapUtil
-                                            .getGridGeometry(gs.getGridInfo()
-                                                    .getGridLoc()),
-                                    VECTOR_DENSITY_FACTOR / BARB_SCALE_FACTOR,
-                                    false, visTypeToDisplayType(type),
-                                    vectorConfig));
-                            break;
-
-                        case IMAGE:
-                            break;
-
-                        default:
-                            statusHandler.handle(
-                                    Priority.PROBLEM,
-                                    "Unsupported Visualization Type: "
-                                            + type.toString());
-                        }
+                    if (visTypes.contains(VisualizationType.CONTOUR)) {
+                        this.contourDisplay = new GriddedContourDisplay(
+                                descriptor, this.gridGeometry, fb);
                     }
-                } else if (gs instanceof ScalarGridSlice) {
-                    ScalarGridSlice scalarSlice = (ScalarGridSlice) gs;
-                    Grid2DBit mask = parm.getDisplayAttributes()
-                            .getDisplayMask();
+                }
+            } else if (gs instanceof DiscreteGridSlice) {
+                DiscreteGridSlice slice = (DiscreteGridSlice) gs;
 
-                    if (dataManager.getParmManager().iscMode() || iscParm) {
-                        scalarSlice = new ScalarGridSlice();
-                        mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                new GridID(this.parm, this.dataManager
-                                        .getSpatialDisplayManager()
-                                        .getSpatialEditorTime()), true,
-                                scalarSlice);
+                // Dispose all of the outlineShapes and shadedShapes
+                for (IWireframeShape shape : outlineShapes.values()) {
+                    shape.dispose();
+                }
+                outlineShapes.clear();
 
+                for (Collection<IShadedShape> shapeList : shadedShapes.values()) {
+                    for (IShadedShape shadedShape : shapeList) {
+                        shadedShape.dispose();
                     }
-                    Grid2DFloat scalarGrid = scalarSlice.getScalarGrid();
-                    if (scalarGrid != null) {
-                        Grid2DFloat maskedGrid = new Grid2DFloat(
-                                scalarGrid.getXdim(), scalarGrid.getYdim(),
-                                Float.NaN);
-                        maskedGrid.copyWithMask(scalarGrid, mask);
+                    shapeList.clear();
+                }
+                shadedShapes.clear();
 
-                        FloatBuffer fb = maskedGrid.getBuffer();
-                        if (visTypes.contains(VisualizationType.IMAGE)) {
-                            this.gridDisplay = new GriddedImageDisplay(fb,
-                                    descriptor, this.gridGeometry);
+                Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
+
+                if (dataManager.getParmManager().iscMode() || iscParm) {
+                    slice = new DiscreteGridSlice();
+                    GridID gid = new GridID(parm, this.curTime.getRefTime());
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true, slice);
+                }
+
+                for (DiscreteKey discreteKey : slice.getKeys()) {
+
+                    if (discreteKey.isValid()) {
+                        outlineShapes.put(discreteKey, target
+                                .createWireframeShape(false, this.descriptor));
+
+                        Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
+                        shadedShapes.put(discreteKey, shapeList);
+
+                        WxValue wxValue = new DiscreteWxValue(discreteKey, parm);
+
+                        List<ImageAttr> fillAttrs = DiscreteDisplayUtil
+                                .getFillAttributes(wxValue);
+
+                        boolean first = true;
+                        for (ImageAttr attr : fillAttrs) {
+                            IShadedShape shadedShape = target
+                                    .createShadedShape(false,
+                                            this.descriptor.getGridGeometry(),
+                                            true);
+                            shapeList.add(shadedShape);
+
+                            IWireframeShape outlineShape = first ? outlineShapes
+                                    .get(discreteKey) : null;
+                            first = false;
+
+                            JTSCompiler jtsCompiler = new JTSCompiler(
+                                    shadedShape, outlineShape, this.descriptor);
+
+                            byte[] fillPattern = FillPatterns.getGLPattern(attr
+                                    .getFillPatternName());
+
+                            RGB fillColor = RGBColors.getRGBColor(attr
+                                    .getColorName());
+
+                            Grid2DBit tmpBit = slice.eq(discreteKey).and(mask);
+
+                            ReferenceData refData = new ReferenceData(gs
+                                    .getGridInfo().getGridLoc(),
+                                    new ReferenceID("temp"), tmpBit);
+
+                            jtsCompiler.handle(
+                                    refData.getPolygons(CoordinateType.LATLON),
+                                    fillColor);
+                            shadedShape.compile();
+                            shadedShape.setFillPattern(fillPattern);
                         }
 
-                        if (visTypes.contains(VisualizationType.CONTOUR)) {
-                            this.contourDisplay = new GriddedContourDisplay(
-                                    descriptor, this.gridGeometry, fb);
-                        }
+                        outlineShapes.get(discreteKey).compile();
                     }
-                } else if (gs instanceof DiscreteGridSlice) {
-                    DiscreteGridSlice slice = (DiscreteGridSlice) gs;
+                }
+            } else if (gs instanceof WeatherGridSlice) {
+                WeatherGridSlice slice = (WeatherGridSlice) gs;
 
-                    // Dispose all of the outlineShapes and shadedShapes
-                    for (IWireframeShape shape : outlineShapes.values()) {
-                        shape.dispose();
+                // Dispose all of the outlineShapes and shadedShapes
+                for (IWireframeShape shape : outlineShapes.values()) {
+                    shape.dispose();
+                }
+                outlineShapes.clear();
+
+                for (Collection<IShadedShape> shapeList : shadedShapes.values()) {
+                    for (IShadedShape shadedShape : shapeList) {
+                        shadedShape.dispose();
                     }
-                    outlineShapes.clear();
+                    shapeList.clear();
+                }
+                shadedShapes.clear();
 
-                    for (Collection<IShadedShape> shapeList : shadedShapes
-                            .values()) {
-                        for (IShadedShape shadedShape : shapeList) {
-                            shadedShape.dispose();
-                        }
-                        shapeList.clear();
-                    }
-                    shadedShapes.clear();
+                Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
-                    Grid2DBit mask = parm.getDisplayAttributes()
-                            .getDisplayMask();
+                if (dataManager.getParmManager().iscMode() || iscParm) {
+                    slice = new WeatherGridSlice();
+                    GridID gid = new GridID(parm, this.curTime.getRefTime());
+                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true, slice);
+                }
 
-                    if (dataManager.getParmManager().iscMode() || iscParm) {
-                        slice = new DiscreteGridSlice();
-                        GridID gid = new GridID(parm, this.dataManager
-                                .getSpatialDisplayManager()
-                                .getSpatialEditorTime());
-                        mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                gid, true, slice);
-                    }
+                for (WeatherKey weatherKey : slice.getKeys()) {
 
-                    for (DiscreteKey discreteKey : slice.getKeys()) {
+                    if (weatherKey.isValid()) {
+                        outlineShapes.put(weatherKey, target
+                                .createWireframeShape(false, this.descriptor));
 
-                        if (discreteKey.isValid()) {
-                            outlineShapes.put(discreteKey, target
-                                    .createWireframeShape(false,
-                                            this.descriptor));
+                        Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
+                        shadedShapes.put(weatherKey, shapeList);
 
-                            Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
-                            shadedShapes.put(discreteKey, shapeList);
+                        WxValue wxValue = new WeatherWxValue(weatherKey, parm);
 
-                            WxValue wxValue = new DiscreteWxValue(discreteKey,
-                                    parm);
+                        List<ImageAttr> fillAttrs = DiscreteDisplayUtil
+                                .getFillAttributes(wxValue);
 
-                            List<ImageAttr> fillAttrs = DiscreteDisplayUtil
-                                    .getFillAttributes(wxValue);
+                        boolean first = true;
+                        for (ImageAttr attr : fillAttrs) {
+                            IShadedShape shadedShape = target
+                                    .createShadedShape(false,
+                                            this.descriptor.getGridGeometry(),
+                                            true);
+                            shapeList.add(shadedShape);
 
-                            boolean first = true;
-                            for (ImageAttr attr : fillAttrs) {
-                                IShadedShape shadedShape = target
-                                        .createShadedShape(false,
-                                                this.descriptor, true);
-                                shapeList.add(shadedShape);
+                            IWireframeShape outlineShape = first ? outlineShapes
+                                    .get(weatherKey) : null;
+                            first = false;
 
-                                IWireframeShape outlineShape = first ? outlineShapes
-                                        .get(discreteKey) : null;
-                                first = false;
+                            JTSCompiler jtsCompiler = new JTSCompiler(
+                                    shadedShape, outlineShape, this.descriptor);
 
-                                JTSCompiler jtsCompiler = new JTSCompiler(
-                                        shadedShape, outlineShape,
-                                        this.descriptor);
+                            byte[] fillPattern = FillPatterns.getGLPattern(attr
+                                    .getFillPatternName());
 
-                                byte[] fillPattern = FillPatterns
-                                        .getGLPattern(attr.getFillPatternName());
+                            RGB fillColor = RGBColors.getRGBColor(attr
+                                    .getColorName());
 
-                                RGB fillColor = RGBColors.getRGBColor(attr
-                                        .getColorName());
+                            Grid2DBit tmpBit = slice.eq(weatherKey).and(mask);
 
-                                Grid2DBit tmpBit = slice.eq(discreteKey).and(
-                                        mask);
+                            ReferenceData refData = new ReferenceData(gs
+                                    .getGridInfo().getGridLoc(),
+                                    new ReferenceID("temp"), tmpBit);
 
-                                ReferenceData refData = new ReferenceData(gs
-                                        .getGridInfo().getGridLoc(),
-                                        new ReferenceID("temp"), tmpBit);
+                            jtsCompiler.handle(
+                                    refData.getPolygons(CoordinateType.LATLON),
+                                    fillColor);
+                            shadedShape.compile();
+                            shadedShape.setFillPattern(fillPattern);
+                        } // next diIdx
 
-                                jtsCompiler.handle(refData
-                                        .getPolygons(CoordinateType.LATLON),
-                                        fillColor);
-                                shadedShape.compile();
-                                shadedShape.setFillPattern(fillPattern);
-                            }
-
-                            outlineShapes.get(discreteKey).compile();
-                        }
-                    }
-                } else if (gs instanceof WeatherGridSlice) {
-                    WeatherGridSlice slice = (WeatherGridSlice) gs;
-
-                    // Dispose all of the outlineShapes and shadedShapes
-                    for (IWireframeShape shape : outlineShapes.values()) {
-                        shape.dispose();
-                    }
-                    outlineShapes.clear();
-
-                    for (Collection<IShadedShape> shapeList : shadedShapes
-                            .values()) {
-                        for (IShadedShape shadedShape : shapeList) {
-                            shadedShape.dispose();
-                        }
-                        shapeList.clear();
-                    }
-                    shadedShapes.clear();
-
-                    Grid2DBit mask = parm.getDisplayAttributes()
-                            .getDisplayMask();
-
-                    if (dataManager.getParmManager().iscMode() || iscParm) {
-                        slice = new WeatherGridSlice();
-                        GridID gid = new GridID(parm, this.dataManager
-                                .getSpatialDisplayManager()
-                                .getSpatialEditorTime());
-                        mask = dataManager.getIscDataAccess().getCompositeGrid(
-                                gid, true, slice);
-                    }
-
-                    for (WeatherKey weatherKey : slice.getKeys()) {
-
-                        if (weatherKey.isValid()) {
-                            outlineShapes.put(weatherKey, target
-                                    .createWireframeShape(false,
-                                            this.descriptor));
-
-                            Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
-                            shadedShapes.put(weatherKey, shapeList);
-
-                            WxValue wxValue = new WeatherWxValue(weatherKey,
-                                    parm);
-
-                            List<ImageAttr> fillAttrs = DiscreteDisplayUtil
-                                    .getFillAttributes(wxValue);
-
-                            boolean first = true;
-                            for (ImageAttr attr : fillAttrs) {
-                                IShadedShape shadedShape = target
-                                        .createShadedShape(false,
-                                                this.descriptor, true);
-                                shapeList.add(shadedShape);
-
-                                IWireframeShape outlineShape = first ? outlineShapes
-                                        .get(weatherKey) : null;
-                                first = false;
-
-                                JTSCompiler jtsCompiler = new JTSCompiler(
-                                        shadedShape, outlineShape,
-                                        this.descriptor);
-
-                                byte[] fillPattern = FillPatterns
-                                        .getGLPattern(attr.getFillPatternName());
-
-                                RGB fillColor = RGBColors.getRGBColor(attr
-                                        .getColorName());
-
-                                Grid2DBit tmpBit = slice.eq(weatherKey).and(
-                                        mask);
-
-                                ReferenceData refData = new ReferenceData(gs
-                                        .getGridInfo().getGridLoc(),
-                                        new ReferenceID("temp"), tmpBit);
-
-                                jtsCompiler.handle(refData
-                                        .getPolygons(CoordinateType.LATLON),
-                                        fillColor);
-                                shadedShape.compile();
-                                shadedShape.setFillPattern(fillPattern);
-                            } // next diIdx
-
-                            outlineShapes.get(weatherKey).compile();
-                        }
+                        outlineShapes.get(weatherKey).compile();
                     }
                 }
             }
-        } else if (this.curTime == null) {
-            if (this.gridDisplay != null) {
-                this.gridDisplay.dispose();
-                this.gridDisplay = null;
-            }
-            this.lastDisplayedTime = null;
         }
 
         float brightness = 1.0f;
