@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.grid.rsc.general;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +31,12 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;
@@ -61,9 +60,11 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 16, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 16, 2011           bsteffen    Initial creation
+ * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
+ *                                    for data access
  * 
  * </pre>
  * 
@@ -120,8 +121,8 @@ public class DifferenceGridResource extends
             return super.interrogate(coord);
         }
         Map<String, Object> myMap = new HashMap<String, Object>();
-        float oneVal = (Float) oneMap.get(INTERROGATE_VALUE);
-        float twoVal = (Float) twoMap.get(INTERROGATE_VALUE);
+        double oneVal = ((Number) oneMap.get(INTERROGATE_VALUE)).doubleValue();
+        double twoVal = ((Number) twoMap.get(INTERROGATE_VALUE)).doubleValue();
         myMap.put(INTERROGATE_VALUE, oneVal - twoVal);
         if (oneMap.get(INTERROGATE_UNIT).equals(twoMap.get(INTERROGATE_UNIT))) {
             myMap.put(INTERROGATE_UNIT, oneMap.get(INTERROGATE_UNIT));
@@ -221,28 +222,17 @@ public class DifferenceGridResource extends
             oneData = oneData.reproject(newGeom, new BilinearInterpolation());
             twoData = twoData.reproject(newGeom, new BilinearInterpolation());
             if (oneData.isVector() && twoData.isVector()) {
-                float[] oneU = oneData.getUComponent().array();
-                float[] oneV = oneData.getVComponent().array();
-                float[] twoU = twoData.getUComponent().array();
-                float[] twoV = twoData.getVComponent().array();
-                float[] newU = new float[oneU.length];
-                float[] newV = new float[oneV.length];
-                for (int i = 0; i < newU.length; i++) {
-                    newU[i] = oneU[i] - twoU[i];
-                    newV[i] = oneV[i] - twoV[i];
-                }
-                newData = GeneralGridData
-                        .createVectorDataUV(newGeom, FloatBuffer.wrap(newU),
-                                FloatBuffer.wrap(newV), newUnit);
+                DifferenceDataSource uComponent = new DifferenceDataSource(
+                        oneData.getUComponent(), twoData.getUComponent());
+                DifferenceDataSource vComponent = new DifferenceDataSource(
+                        oneData.getVComponent(), twoData.getVComponent());
+                newData = GeneralGridData.createVectorDataUV(newGeom,
+                        uComponent, vComponent, newUnit);
             } else {
-                float[] oneScalar = oneData.getScalarData().array();
-                float[] twoScalar = twoData.getScalarData().array();
-                float[] newScalar = new float[oneScalar.length];
-                for (int i = 0; i < newScalar.length; i++) {
-                    newScalar[i] = oneScalar[i] - twoScalar[i];
-                }
-                newData = GeneralGridData.createScalarData(newGeom,
-                        FloatBuffer.wrap(newScalar), newUnit);
+                DifferenceDataSource data = new DifferenceDataSource(
+                        oneData.getScalarData(), twoData.getScalarData());
+                newData = GeneralGridData.createScalarData(newGeom, data,
+                        newUnit);
             }
         } catch (FactoryException e) {
             throw new VizException(e);
@@ -279,11 +269,31 @@ public class DifferenceGridResource extends
     }
 
     @Override
-    protected boolean projectRenderable(IRenderable renderable,
-            CoordinateReferenceSystem crs) throws VizException {
+    protected boolean projectRenderable(IRenderable renderable) {
         // Always rebuild the renderables in case we projected into descriptor
         // space.
         return false;
+
+    }
+
+    protected static class DifferenceDataSource implements DataSource {
+
+        private final DataSource one;
+
+        private final DataSource two;
+
+        private DifferenceDataSource(DataSource one, DataSource two) {
+            super();
+            this.one = one;
+            this.two = two;
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            double oneVal = one.getDataValue(x, y);
+            double twoVal = two.getDataValue(x, y);
+            return oneVal - twoVal;
+        }
 
     }
 
