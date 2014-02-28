@@ -26,12 +26,13 @@ package com.raytheon.uf.common.wxmath;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 06, 2013 2043       bsteffen    Ported from meteolib C
- * Aug 13, 2013 2262       njensen     Moved from deriv params
- * Aug 13, 2013 2262       dgilling    Adding additional constants from
- *                                     calcrh.f, hgt2pres.f, ztopsa.f, ptozsa.f
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 06, 2013  2043     bsteffen    Ported from meteolib C
+ * Aug 13, 2013  2262     njensen     Moved from deriv params
+ * Aug 13, 2013  2262     dgilling    Adding additional constants from
+ *                                    calcrh.f, hgt2pres.f, ztopsa.f, ptozsa.f
+ * Feb 27, 2014  2791     bsteffen    Move commonly used legacy NaN here.
  * 
  * </pre>
  * 
@@ -94,6 +95,8 @@ public class Constants {
 
     // from meteoLib hgt2pres.f, ztopsa.f, ptozsa.f
     public static final double HGT_PRES_c2 = 14600.0;
+
+    public static final float LEGACY_NAN = 1e37f;
 
     // Never allow this class to be directly instantiated
     private Constants() {
