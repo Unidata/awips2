@@ -28,10 +28,11 @@ import java.util.Arrays;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 10, 2011            rjpeter     Initial creation
- * Aug 13, 2013 2262       njensen     Moved from deriv params
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 10, 2011           rjpeter     Initial creation
+ * Aug 13, 2013  2262     njensen     Moved from deriv params
+ * Feb 27, 2014  2791     bsteffen    Move legacy NaN to constants.
  * 
  * </pre>
  * 
@@ -144,7 +145,7 @@ public class DistFilter {
             for (jj = dd; jj < ny; jj++, fpiMid += dnx, fpo += dnx) {
                 for (ii = dd; ii < nx; ii++, fpiMid++, fpo++) {
                     if (input[fpiMid] > 99998.0) {
-                        output[fpo] = 1e37f;
+                        output[fpo] = Constants.LEGACY_NAN;
                         continue;
                     }
 
@@ -164,7 +165,7 @@ public class DistFilter {
                     }
 
                     if (tot < 0.95) {
-                        output[fpo] = 1e37f;
+                        output[fpo] = Constants.LEGACY_NAN;
                     } else {
                         output[fpo] /= tot;
                     }
@@ -190,7 +191,7 @@ public class DistFilter {
                     }
 
                     if (input[fpiMid] > 99998.0) {
-                        output[fpo] = 1e37f;
+                        output[fpo] = Constants.LEGACY_NAN;
                         continue;
                     }
 
@@ -211,7 +212,7 @@ public class DistFilter {
                     }
 
                     if (tot < 0.95) {
-                        output[fpo] = 1e37f;
+                        output[fpo] = Constants.LEGACY_NAN;
                     } else {
                         output[fpo] /= tot;
                     }
