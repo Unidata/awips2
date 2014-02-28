@@ -32,7 +32,7 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataCopy;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
@@ -454,7 +454,7 @@ public abstract class ContourRenderable implements IRenderable {
                     * contourPrefs.getSmoothingDistance() / (distanceInM / 1000));
             FloatArrayWrapper data = new FloatArrayWrapper(gridGeometry);
             data.setFillValue(Constants.LEGACY_NAN);
-            DataCopy.copy(dataRecord[0], data, nx, ny);
+            DataUtilities.copy(dataRecord[0], data, nx, ny);
             float[] dataArray = data.getArray();
             dataArray = DistFilter.filter(dataArray, npts, nx, ny, 1);
             data = new FloatArrayWrapper(dataArray, gridGeometry);
