@@ -44,8 +44,9 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataCopy;
 import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities.MinMax;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
@@ -340,7 +341,7 @@ public class ContourSupport {
             /* Make contours continous for world wrapping grids. */
             int wrapNumber = GridGeometryWrapChecker
                     .checkForWrapping(imageGridGeometry);
-            if (wrapNumber - 1 >= szX) {
+            if (wrapNumber >= szX - 1) {
                 szX = wrapNumber + 1;
             }
 
@@ -350,7 +351,7 @@ public class ContourSupport {
             }
 
             if (copyData) {
-                subgridSource = DataCopy.copy(subgridSource,
+                subgridSource = DataUtilities.copy(subgridSource,
                         new FloatArrayWrapper(szX, szY), szX, szY);
             }
 
@@ -381,19 +382,9 @@ public class ContourSupport {
             // If nothing provided, attempt to get approximately 50 contours
             if (prefs == null || prefs.getContourLabeling() == null) {
                 // TODO this is fairly inefficient to do every time.
-                float min = Float.POSITIVE_INFINITY;
-                float max = Float.NEGATIVE_INFINITY;
-                for (int j = 0; j < szY; j++) {
-                    for (int i = 0; i < szX; i++) {
-                        float f = (float) subgridSource.getDataValue(i, j);
-                        if (!Float.isNaN(f)) {
-                            min = Math.min(min, f);
-                            max = Math.max(max, f);
-                        }
-                    }
-                }
+                MinMax mm = DataUtilities.getMinMax(subgridSource, szX, szY);
                 float interval = XFormFunctions
-                        .newDataIntervalFromZoom((max - min) / 50,
+                        .newDataIntervalFromZoom((float) mm.getSpan() / 50,
                                 (float) (contourGroup.lastDensity * zoom),
                                 true, "", 10);
                 config.seed = new float[] { interval };
@@ -440,18 +431,9 @@ public class ContourSupport {
                             .getIncrement();
                     float interval;
                     if (contourLabeling.getNumberOfContours() > 0) {
-                        float minData = Float.POSITIVE_INFINITY;
-                        float maxData = Float.NEGATIVE_INFINITY;
-                        for (int j = 0; j < szY; j++) {
-                            for (int i = 0; i < szX; i++) {
-                                float f = (float) subgridSource.getDataValue(i, j);
-                                if (!Float.isNaN(f)) {
-                                    minData = Math.min(minData, f);
-                                    maxData = Math.max(maxData, f);
-                                }
-                            }
-                        }
-                        interval = (maxData - minData)
+                        MinMax mm = DataUtilities.getMinMax(subgridSource, szX,
+                                szY);
+                        interval = (float) mm.getSpan()
                                 / contourLabeling.getNumberOfContours();
                         if (interval < 0) {
                             interval = -interval;

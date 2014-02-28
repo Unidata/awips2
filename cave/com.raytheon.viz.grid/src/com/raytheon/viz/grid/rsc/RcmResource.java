@@ -19,7 +19,6 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import java.nio.FloatBuffer;
 import java.text.ParsePosition;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
@@ -43,6 +43,7 @@ import com.raytheon.viz.grid.rsc.general.GeneralGridData;
  * ------------- -------- ----------- --------------------------
  * Dec 16, 2009           mnash       Initial creation
  * Feb 07, 2014  2211     bsteffen    Fix sampling
+ * Feb 28, 2791  2211     bsteffen    Move data conversion to DataSource
  * 
  * </pre>
  * 
@@ -98,32 +99,41 @@ public class RcmResource extends D2DGridResource {
     protected GeneralGridData getData(GridRecord gridRecord)
             throws VizException {
         GeneralGridData data = super.getData(gridRecord);
-        FloatBuffer floatData = data.getScalarData();
-        FloatBuffer newFloatData = FloatBuffer.allocate(floatData.capacity());
-        floatData.rewind();
-        newFloatData.rewind();
-        while (floatData.hasRemaining()) {
-            float value = floatData.get();
-            if (value < 1f) {
-                newFloatData.put(1f);
+        DataSource source = new RcmDataSource(data.getScalarData());
+        return GeneralGridData.createScalarData(data.getGridGeometry(), source,
+                data.getDataUnit());
+    }
+
+    private final class RcmDataSource implements DataSource {
+
+        private final DataSource wrappedSource;
+
+        public RcmDataSource(DataSource wrappedSource) {
+            this.wrappedSource = wrappedSource;
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            double value = wrappedSource.getDataValue(x, y);
+            if (value < 1) {
+                return 1;
             } else if (value < 2) {
-                newFloatData.put(48f);
+                return 48;
             } else if (value < 3) {
-                newFloatData.put(96f);
+                return 96;
             } else if (value < 4) {
-                newFloatData.put(128f);
+                return 128;
             } else if (value < 5) {
-                newFloatData.put(144f);
+                return 144;
             } else if (value < 6) {
-                newFloatData.put(160f);
+                return 160;
             } else if (value < 7) {
-                newFloatData.put(176f);
+                return 176;
             } else {
-                newFloatData.put(0f);
+                return 0;
             }
         }
-        return GeneralGridData.createScalarData(data.getGridGeometry(),
-                newFloatData, data.getDataUnit());
+
     }
 
 }
