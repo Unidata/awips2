@@ -1,23 +1,21 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Contours Plug-in
-Bundle-SymbolicName: com.raytheon.viz.core.contours;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.core.contours.Activator
+Bundle-Name: Contour Generation and Display
+Bundle-SymbolicName: com.raytheon.viz.core.contours
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core;bundle-version="1.12.1174", 
- com.raytheon.uf.common.wxmath;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.1",
+ org.eclipse.core.runtime,
+ org.eclipse.ui,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.status,
+ org.apache.commons.collections
+Import-Package: com.raytheon.viz.core.interval
 Export-Package: com.raytheon.viz.core.contours,
  com.raytheon.viz.core.contours.rsc.displays,
  com.raytheon.viz.core.contours.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.style,
- com.raytheon.uf.common.style.contour,
- com.raytheon.viz.core.interval
