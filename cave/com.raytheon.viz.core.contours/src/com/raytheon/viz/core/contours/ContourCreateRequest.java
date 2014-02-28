@@ -21,7 +21,7 @@ package com.raytheon.viz.core.contours;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -39,9 +39,11 @@ import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Feb 25, 2011             ekladstrup   Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 25, 2011           ekladstrup  Initial creation
+ * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource
+ * 
  * 
  * </pre>
  * 
@@ -50,14 +52,14 @@ import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
  */
 public class ContourCreateRequest {
 
-    public ContourCreateRequest(String identifier, IDataRecord[] record,
+    public ContourCreateRequest(String identifier, DataSource[] source,
             float level, IExtent pixelExtent, double currentDensity,
             double currentMagnification, GeneralGridGeometry imageGridGeometry,
             IGraphicsTarget target, IMapDescriptor descriptor,
             ContourPreferences prefs, float zoom) {
         super();
         this.identifier = identifier;
-        this.record = record;
+        this.source = source;
         this.level = level;
         this.pixelExtent = pixelExtent;
         this.imageGridGeometry = imageGridGeometry;
@@ -79,12 +81,12 @@ public class ContourCreateRequest {
         this.identifier = identifier;
     }
 
-    public IDataRecord[] getRecord() {
-        return record;
+    public DataSource[] getSource() {
+        return source;
     }
 
-    public void setRecord(IDataRecord[] record) {
-        this.record = record;
+    public void setSource(DataSource[] source) {
+        this.source = source;
     }
 
     public float getLevel() {
@@ -183,7 +185,7 @@ public class ContourCreateRequest {
 
     private String identifier;
 
-    private IDataRecord[] record;
+    private DataSource[] source;
 
     private float level;
 

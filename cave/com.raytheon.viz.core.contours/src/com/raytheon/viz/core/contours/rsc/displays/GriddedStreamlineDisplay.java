@@ -23,8 +23,8 @@ import java.nio.FloatBuffer;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
@@ -39,11 +39,12 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 22, 2010            bsteffen     Initial creation
- * Feb 07, 2011 7948       bkowal       added a public method to get
- *                                      the direction.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 22, 2010           bsteffen    Initial creation
+ * Feb 07, 2011  7948     bkowal      added a public method to get the
+ *                                    direction.
+ * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource
  * 
  * </pre>
  * 
@@ -52,23 +53,23 @@ import com.raytheon.uf.viz.core.map.IMapDescriptor;
  */
 public class GriddedStreamlineDisplay extends GriddedContourDisplay {
 
-    private FloatBuffer vfb;
+    private DataSource vSource;
 
     public GriddedStreamlineDisplay(IMapDescriptor descriptor,
             GridGeometry2D gridGeometry, FloatBuffer ufb, FloatBuffer vfb) {
         super(descriptor, gridGeometry, ufb);
-        this.vfb = vfb;
+        this.vSource = new FloatBufferWrapper(vfb, gridGeometry);
+    }
+
+    public GriddedStreamlineDisplay(IMapDescriptor descriptor,
+            GridGeometry2D gridGeometry, DataSource ufb, DataSource vfb) {
+        super(descriptor, gridGeometry, ufb);
+        this.vSource = vfb;
     }
 
     @Override
-    public IDataRecord[] getData() throws VizException {
-        FloatDataRecord ufdr = new FloatDataRecord("uData", "", fb.array(), 2,
-                new long[] { gridGeometry.getGridRange2D().width,
-                        gridGeometry.getGridRange2D().height });
-        FloatDataRecord vfdr = new FloatDataRecord("vData", "", vfb.array(), 2,
-                new long[] { gridGeometry.getGridRange2D().width,
-                        gridGeometry.getGridRange2D().height });
-        return new IDataRecord[] { ufdr, vfdr };
+    public DataSource[] getData() throws VizException {
+        return new DataSource[] { source, vSource };
     }
 
 }

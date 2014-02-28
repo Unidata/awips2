@@ -37,9 +37,10 @@ import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Oct 24, 2007             chammack    Initial Creation.
+ * Date          Ticket#   Engineer   Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 24, 2007           chammack    Initial Creation.
+ * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource
  * 
  * </pre>
  * 
@@ -114,9 +115,10 @@ public class ContourManagerJob extends Job {
                     ;// request has been canceled or contours exist
                 } else {
                     long t0 = System.currentTimeMillis();
-                    ContourGroup cg = ContourSupport.createContours(
-                            req.getRecord(), req.getLevel(),
-                            req.getPixelExtent(), req.getCurrentDensity(),
+                    ContourGroup cg = null;
+                    cg = ContourSupport.createContours(req.getSource(),
+                            req.getLevel(), req.getPixelExtent(),
+                            req.getCurrentDensity(),
                             req.getCurrentMagnification(),
                             req.getImageGridGeometry(), req.getTarget(),
                             req.getDescriptor(), req.getPrefs(), req.getZoom());
@@ -126,7 +128,8 @@ public class ContourManagerJob extends Job {
                             + (System.currentTimeMillis() - t0));
                 }
             } catch (Throwable e) {
-                return new Status(Status.ERROR, Activator.PLUGIN_ID,
+                return new Status(Status.ERROR, ContourManagerJob.class
+                        .getPackage().getName(),
                         "Error creating contours", e);
 
             }
