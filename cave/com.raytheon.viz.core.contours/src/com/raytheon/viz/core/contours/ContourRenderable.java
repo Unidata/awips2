@@ -28,16 +28,20 @@ import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.jts.JTS;
+import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataCopy;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
+import com.raytheon.uf.common.wxmath.Constants;
 import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
@@ -56,11 +60,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 10, 2008	#1233	    chammack	Initial creation
- * Jul 18, 2013 #2199       mschenke    Made code only smooth data once
- * Aug 23, 2013 #2157       dgilling    Remove meteolib dependency.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 10, 2008	 1233	  chammack	  Initial creation
+ * Jul 18, 2013  2199     mschenke    Made code only smooth data once
+ * Aug 23, 2013  2157     dgilling    Remove meteolib dependency.
+ * Feb 27, 2014  2791     bsteffen    Switch from IDataRecord to DataSource and
+ *                                    reduce loop freezing.
  * 
  * </pre>
  * 
@@ -88,7 +94,7 @@ public abstract class ContourRenderable implements IRenderable {
 
     private final String uuid;
 
-    private IDataRecord[] data;
+    private DataSource[] data;
 
     // This is the width of CONUS
     private static final double METERS_AT_BASE_ZOOMLEVEL = 5878649.0;
@@ -99,7 +105,7 @@ public abstract class ContourRenderable implements IRenderable {
 
     private static final int NUMBER_CONTOURING_LEVELS = 10;
 
-    public abstract IDataRecord[] getData() throws VizException;
+    public abstract DataSource[] getData() throws VizException;
 
     public abstract GeneralGridGeometry getGridGeometry() throws VizException;
 
@@ -124,7 +130,7 @@ public abstract class ContourRenderable implements IRenderable {
         this.requestMap = new HashMap<String, ContourCreateRequest>();
     }
 
-    private IDataRecord[] getContourData() throws VizException {
+    private DataSource[] getContourData() throws VizException {
         if (data == null) {
             data = getData();
             if (data != null) {
@@ -280,7 +286,7 @@ public abstract class ContourRenderable implements IRenderable {
                                 return;
                             }
 
-                            IDataRecord[] dataRecord = getContourData();
+                            DataSource[] dataRecord = getContourData();
                             if (dataRecord == null) {
                                 return;
                             }
@@ -317,25 +323,38 @@ public abstract class ContourRenderable implements IRenderable {
                             }
 
                             int retries = 0;
+                            LoopProperties loopProps = paintProps
+                                    .getLoopProperties();
+                            if (loopProps != null && loopProps
+                                            .isLooping()) {
+                                /**
+                                 * If the display is looping, wait a few ms to
+                                 * let contouring finish so that if the
+                                 * contouring is fast enough the user is not
+                                 * presented with empty frames. If too many
+                                 * resources do this, it freezes the UI so scale
+                                 * the sleep time based off the number of
+                                 * resources because empty frames are better
+                                 * than freezing. This scaling also gives
+                                 * everyone a chance to queue up work so that
+                                 * multiprocessing is done more efficiently.
+                                 */
+                                retries = 100 / descriptor.getResourceList()
+                                        .size();
+                            }
                             do {
                                 // grab request from map
                                 request = requestMap.get(identifier);
                                 cg = request.getContourGroup();
+                                retries--;
                                 try {
-                                    if (cg == null
-                                            && paintProps.getLoopProperties() != null
-                                            && paintProps.getLoopProperties()
-                                                    .isLooping()) {
-                                        Thread.sleep(50);
+                                    if (cg == null && retries > 0) {
+                                        Thread.sleep(10);
                                     }
                                 } catch (InterruptedException e) {
-                                    // ignore
+                                    retries = 0;
                                 }
-                                retries++;
-                            } while (cg == null
-                                    && paintProps.getLoopProperties() != null
-                                    && paintProps.getLoopProperties()
-                                            .isLooping() && retries < 10);
+                            } while (cg == null && retries > 0);
 
                             if (cg != null) {
                                 if (cg != contourGroup[i]) {
@@ -396,7 +415,7 @@ public abstract class ContourRenderable implements IRenderable {
         }
     }
 
-    private IDataRecord[] smoothData(IDataRecord[] dataRecord,
+    private DataSource[] smoothData(DataSource[] dataRecord,
             GeneralGridGeometry gridGeometry, ContourPreferences contourPrefs)
             throws VizException {
         if (contourPrefs != null && contourPrefs.getSmoothingDistance() != null) {
@@ -424,32 +443,23 @@ public abstract class ContourRenderable implements IRenderable {
             } catch (Exception e) {
                 throw new VizException(e);
             }
-            // Calculate the Dagnol Distance in Points
-            FloatDataRecord rec = (FloatDataRecord) dataRecord[0];
-            float[] data = rec.getFloatData();
-            int nx = (int) rec.getSizes()[0];
-            int ny = (int) rec.getSizes()[1];
+            // Calculate the Diagnol Distance in Points
+            GridEnvelope range = gridGeometry.getGridRange();
+            int nx = range.getSpan(0);
+            int ny = range.getSpan(1);
             double distanceInPoints = Math.sqrt(nx * nx + ny * ny);
             // Determine the number of points to smooth, assume
             // smoothingDistance is in km
             float npts = (float) (distanceInPoints
                     * contourPrefs.getSmoothingDistance() / (distanceInM / 1000));
-            // Replace our NaN with their NaN
-            for (int j = 0; j < data.length; j++) {
-                if (data[j] == -999999) {
-                    data[j] = 1.0E37f;
-                }
-            }
-            data = DistFilter.filter(data, npts, nx, ny, 1);
-            // Replace their NaN with our NaN
-            for (int j = 0; j < data.length; j++) {
-                if (data[j] == 1.0E37f) {
-                    data[j] = -999999;
-                }
-            }
-            rec = new FloatDataRecord(rec.getName(), rec.getGroup(), data,
-                    rec.getDimension(), rec.getSizes());
-            return new IDataRecord[] { rec };
+            FloatArrayWrapper data = new FloatArrayWrapper(gridGeometry);
+            data.setFillValue(Constants.LEGACY_NAN);
+            DataCopy.copy(dataRecord[0], data, nx, ny);
+            float[] dataArray = data.getArray();
+            dataArray = DistFilter.filter(dataArray, npts, nx, ny, 1);
+            data = new FloatArrayWrapper(dataArray, gridGeometry);
+            data.setFillValue(Constants.LEGACY_NAN);
+            return new DataSource[] {data};
         } else {
             return dataRecord;
         }
