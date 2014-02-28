@@ -163,6 +163,11 @@
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationroomchangepreferencepage"
             name="Room Alerts"
             category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.ContactNotifierPreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.contactnotifierprefs"
+            name="Contact Notifiers"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 	<extension
           point="org.eclipse.ui.contexts">
