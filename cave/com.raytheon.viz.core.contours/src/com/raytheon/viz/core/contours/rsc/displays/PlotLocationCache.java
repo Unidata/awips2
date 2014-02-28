@@ -34,20 +34,19 @@ import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
 /**
- * 
- * TODO Add Description
+ * Caches reprojected plot location for quick display.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 13, 2011            bsteffen     Initial creation
- * Sep 10, 2013 DR 16257   MPorricelli	Eliminate values that
- *                                      fail to be tranformed,e.g.
- *                                      when too close to pole for
- *                                      mercator projections
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Oct 13, 2011           bsteffen    Initial creation
+ * Sep 10, 2013  16257    MPorricelli Eliminate values that fail to be 
+ *                                    tranformed,e.g. when too close to pole
+ *                                    for mercator projections
+ * Feb 27, 2014  2791     bsteffen    Remove Unnecessary catch
  * 
  * </pre>
  * 
@@ -168,8 +167,6 @@ public class PlotLocationCache {
             } catch (InvalidGridGeometryException e) {
                 throw new RuntimeException(e);
             } catch (NoninvertibleTransformException e) {
-                throw new RuntimeException(e);
-            } catch (TransformException e) {
                 throw new RuntimeException(e);
             }
             cache.put(key, new SoftReference<float[]>(result));

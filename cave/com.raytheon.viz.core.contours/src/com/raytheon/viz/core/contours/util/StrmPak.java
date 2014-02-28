@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.geospatial.interpolation.data.AxisSwapDataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatArray2DWrapper;
 import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 
 /**
@@ -35,9 +38,10 @@ import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 10, 2013  #1999     dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 10, 2013  1999     dgilling    Initial creation
+ * Feb 27, 2014  2791     bsteffen    Use DataSource for generic data access.
  * 
  * </pre>
  * 
@@ -126,11 +130,52 @@ public final class StrmPak {
 
     private final PointValueBuffer<Float> JPnt;
 
+    /**
+     * Generate streamlines using column major float data.
+     * 
+     * @param uComp
+     *            data values for the u component of the vector
+     * @param vComp
+     *            data values for the v component of the vector
+     * @param xSize
+     *            unused
+     * @param nx
+     *            number of x coordinates
+     * @param ny
+     *            number of y coordinates
+     * @param config
+     *            configuration options
+     * @return
+     */
     public static StreamLineContainer strmpak(float[][] uComp, float[][] vComp,
             int xSize, int nx, int ny, StrmPakConfig config) {
+        DataSource uSource = new FloatArray2DWrapper(uComp, ny, nx);
+        DataSource vSource = new FloatArray2DWrapper(vComp, ny, nx);
+        uSource = new AxisSwapDataSource(uSource);
+        vSource = new AxisSwapDataSource(vSource);
+        return strmpak(uSource, vSource, nx, ny, config);
+    }
+
+    /**
+     * Generate streamlines using any data source.
+     * 
+     * @param uComp
+     *            data values for the u component of the vector
+     * @param vComp
+     *            data values for the v component of the vector
+     * @param nx
+     *            number of x coordinates
+     * @param ny
+     *            number of y coordinates
+     * @param config
+     *            configuration options
+     * @return
+     */
+    public static StreamLineContainer strmpak(DataSource uComp,
+            DataSource vComp, int nx, int ny, StrmPakConfig config) {
         StrmPak instance = new StrmPak();
-        StreamLineContainer rval = instance.strmpakInternal(uComp, vComp,
-                xSize, nx, ny, config);
+        StreamLineContainer rval = instance.strmpakInternal(uComp, vComp, nx,
+                ny, config);
         return rval;
     }
 
@@ -150,8 +195,6 @@ public final class StrmPak {
      *            Array of U components
      * @param V
      *            Array of V components
-     * @param mnx
-     *            First dimension of data arrays.
      * @param nx
      *            Inner dimension of grid.
      * @param ny
@@ -163,8 +206,8 @@ public final class StrmPak {
      *         the stream lines. Line segments will be divided by the sentinel
      *         value (-99999, -99999).
      */
-    private StreamLineContainer strmpakInternal(float[][] U, float[][] V,
-            int mnx, int nx, int ny, StrmPakConfig config) {
+    private StreamLineContainer strmpakInternal(DataSource U, DataSource V,
+            int nx, int ny, StrmPakConfig config) {
         StreamLineContainer rVal = new StreamLineContainer();
 
         // Initialize environment of streamline output.
@@ -189,14 +232,22 @@ public final class StrmPak {
             for (int j = jll; j <= jum; j++) {
                 int jj = j + 1;
 
-                if ((!((U[i][j] < config.badlo) || U[i][j] > config.badhi))
-                        || (!((U[i][jj] < config.badlo) || U[i][jj] > config.badhi))
-                        || (!((U[ii][j] < config.badlo) || U[ii][j] > config.badhi))
-                        || (!((U[ii][jj] < config.badlo) || U[ii][jj] > config.badhi))
-                        || (!((V[i][j] < config.badlo) || V[i][j] > config.badhi))
-                        || (!((V[i][jj] < config.badlo) || V[i][jj] > config.badhi))
-                        || (!((V[ii][j] < config.badlo) || V[ii][j] > config.badhi))
-                        || (!((V[ii][jj] < config.badlo) || V[ii][jj] > config.badhi))) {
+                if ((!((U.getDataValue(i, j) < config.badlo) || U.getDataValue(
+                        i, j) > config.badhi))
+                        || (!((U.getDataValue(i, jj) < config.badlo) || U
+                                .getDataValue(i, jj) > config.badhi))
+                        || (!((U.getDataValue(ii, j) < config.badlo) || U
+                                .getDataValue(ii, j) > config.badhi))
+                        || (!((U.getDataValue(ii, jj) < config.badlo) || U
+                                .getDataValue(ii, jj) > config.badhi))
+                        || (!((V.getDataValue(i, j) < config.badlo) || V
+                                .getDataValue(i, j) > config.badhi))
+                        || (!((V.getDataValue(i, jj) < config.badlo) || V
+                                .getDataValue(i, jj) > config.badhi))
+                        || (!((V.getDataValue(ii, j) < config.badlo) || V
+                                .getDataValue(ii, j) > config.badhi))
+                        || (!((V.getDataValue(ii, jj) < config.badlo) || V
+                                .getDataValue(ii, jj) > config.badhi))) {
                     Work[0][i][j] = -1;
                     Work[1][i][j] = -1;
                     continue;
@@ -205,19 +256,23 @@ public final class StrmPak {
                 if ((minmag <= 0.0f) && (maxmag >= config.badlo)) {
                     continue;
                 }
-                float mag2 = U[i][j] * U[i][j] + V[i][j] * V[i][j];
+                double mag2 = U.getDataValue(i, j) * U.getDataValue(i, j)
+                        + V.getDataValue(i, j) * V.getDataValue(i, j);
                 if ((mag2 >= minmag2) && (mag2 <= maxmag2)) {
                     continue;
                 }
-                mag2 = U[ii][j] * U[ii][j] + V[ii][j] * V[ii][j];
+                mag2 = U.getDataValue(ii, j) * U.getDataValue(ii, j)
+                        + V.getDataValue(ii, j) * V.getDataValue(ii, j);
                 if ((mag2 >= minmag2) && (mag2 <= maxmag2)) {
                     continue;
                 }
-                mag2 = U[i][jj] * U[i][jj] + V[i][jj] * V[i][jj];
+                mag2 = U.getDataValue(i, jj) * U.getDataValue(i, jj)
+                        + V.getDataValue(i, jj) * V.getDataValue(i, jj);
                 if ((mag2 >= minmag2) && (mag2 <= maxmag2)) {
                     continue;
                 }
-                mag2 = U[ii][jj] * U[ii][jj] + V[ii][jj] * V[ii][jj];
+                mag2 = U.getDataValue(ii, jj) * U.getDataValue(ii, jj)
+                        + V.getDataValue(ii, jj) * V.getDataValue(ii, jj);
                 if ((mag2 >= minmag2) && (mag2 <= maxmag2)) {
                     continue;
                 }
@@ -250,8 +305,8 @@ public final class StrmPak {
                     float rj0 = j1;
                     for (int i = i1; i <= i2 - 1; i += k) {
                         float ri0 = i + 0.5f;
-                        StrmLin(U, V, Work, mnx, ri0, rj0, config.minspc,
-                                mymax, rVal);
+                        StrmLin(U, V, Work, ri0, rj0, config.minspc, mymax,
+                                rVal);
                     }
                     j1 -= k;
                     again = true;
@@ -261,8 +316,8 @@ public final class StrmPak {
                     float ri0 = i1;
                     for (int j = j1; j <= j2 - 1; j += k) {
                         float rj0 = j + 0.5f;
-                        StrmLin(U, V, Work, mnx, ri0, rj0, config.minspc,
-                                mymax, rVal);
+                        StrmLin(U, V, Work, ri0, rj0, config.minspc, mymax,
+                                rVal);
 
                     }
                     i1 -= k;
@@ -273,8 +328,8 @@ public final class StrmPak {
                     float rj0 = j2;
                     for (int i = i1; i <= i2 - 1; i += k) {
                         float ri0 = i + 0.5f;
-                        StrmLin(U, V, Work, mnx, ri0, rj0, config.minspc,
-                                mymax, rVal);
+                        StrmLin(U, V, Work, ri0, rj0, config.minspc, mymax,
+                                rVal);
                     }
                     j2 += k;
                     again = true;
@@ -284,8 +339,8 @@ public final class StrmPak {
                     float ri0 = i2;
                     for (int j = j1; j <= j2 - 1; j += k) {
                         float rj0 = j + 0.5f;
-                        StrmLin(U, V, Work, mnx, ri0, rj0, config.minspc,
-                                mymax, rVal);
+                        StrmLin(U, V, Work, ri0, rj0, config.minspc, mymax,
+                                rVal);
                     }
                     i2 += k;
                     again = true;
@@ -311,8 +366,6 @@ public final class StrmPak {
      *            drawn in each cell. A value of -1 designates a cell as having
      *            bad or missing data. 1 is for previously drawn streamlines, 2
      *            includes the streamline currently being drawn.
-     * @param mnx
-     *            First dimension of array to be countoured.
      * @param ri0
      *            X-coordinate to draw the streamline through. Coordinates are
      *            in array index space.
@@ -331,7 +384,7 @@ public final class StrmPak {
      *            <code>StreamLineContainer</code> object accumulating all line
      *            segments necessary to draw stream lines for U and V.
      */
-    private void StrmLin(float[][] U, float[][] V, byte[][][] Work, int mnx,
+    private void StrmLin(DataSource U, DataSource V, byte[][][] Work,
             float ri0, float rj0, float minspc, float maxspc,
             StreamLineContainer container) {
         if ((ri0 < ill) || (ri0 > iur) || (rj0 < jll) || (rj0 > jur)) {
@@ -463,15 +516,19 @@ public final class StrmPak {
                     // Determine whether we are working with or against the
                     // flow.
                     float dirflg;
-                    float influx;
+                    double influx;
                     if (side0 == 1) {
-                        influx = V[i][j] * (1.0f - x) + V[ii][j] * x;
+                        influx = V.getDataValue(i, j) * (1.0f - x)
+                                + V.getDataValue(ii, j) * x;
                     } else if (side0 == 2) {
-                        influx = -(U[ii][j] * (1.0f - y) + U[ii][jj] * y);
+                        influx = -(U.getDataValue(ii, j) * (1.0f - y) + U
+                                .getDataValue(ii, jj) * y);
                     } else if (side0 == 3) {
-                        influx = -(V[i][jj] * (1.0f - x) + V[ii][jj] * x);
+                        influx = -(V.getDataValue(i, jj) * (1.0f - x) + V
+                                .getDataValue(ii, jj) * x);
                     } else {
-                        influx = U[i][j] * (1.0f - y) + U[i][jj] * y;
+                        influx = U.getDataValue(i, j) * (1.0f - y)
+                                + U.getDataValue(i, jj) * y;
                     }
                     if (influx < 0.0f) {
                         dirflg = -1.0f;
@@ -587,11 +644,15 @@ public final class StrmPak {
                         // Determine flux contributions from each component.
                         // FIXME? in fortran Flux was a size 8 array, indexed 1
                         // -> 8
-                        float[] Flux = { Float.NaN, (-dirflg) * V[i][j],
-                                (-dirflg) * V[ii][j], dirflg * U[ii][j],
-                                dirflg * U[ii][jj], dirflg * V[ii][jj],
-                                dirflg * V[i][jj], (-dirflg) * U[i][jj],
-                                (-dirflg) * U[i][j] };
+                        float[] Flux = { Float.NaN,
+                                (-dirflg) * (float) V.getDataValue(i, j),
+                                (-dirflg) * (float) V.getDataValue(ii, j),
+                                dirflg * (float) U.getDataValue(ii, j),
+                                dirflg * (float) U.getDataValue(ii, jj),
+                                dirflg * (float) V.getDataValue(ii, jj),
+                                dirflg * (float) V.getDataValue(i, jj),
+                                (-dirflg) * (float) U.getDataValue(i, jj),
+                                (-dirflg) * (float) U.getDataValue(i, j) };
 
                         // Count total number of in, out, and zero contributions
                         // to net flux.
@@ -711,20 +772,22 @@ public final class StrmPak {
                             boolean forward;
                             if (side0 == 1) {
                                 curloc = x;
-                                forward = ((dirflg * (U[i][j] * (1.0f - x) + U[ii][j]
+                                forward = ((dirflg * (U.getDataValue(i, j)
+                                        * (1.0f - x) + U.getDataValue(ii, j)
                                         * x)) > 0.0f);
                             } else if (side0 == 2) {
                                 curloc = 1.0f + y;
-                                forward = ((dirflg * (V[ii][j] * (1.0f - y) + V[ii][jj]
+                                forward = ((dirflg * (V.getDataValue(ii, j)
+                                        * (1.0f - y) + V.getDataValue(ii, jj)
                                         * y)) > 0.0f);
                             } else if (side0 == 3) {
                                 curloc = 3.0f - x;
-                                forward = ((dirflg * (U[i][jj] * x + U[ii][jj]
-                                        * (1.0f - x))) < 0.0f);
+                                forward = ((dirflg * (U.getDataValue(i, jj) * x + U
+                                        .getDataValue(ii, jj) * (1.0f - x))) < 0.0f);
                             } else {
                                 curloc = 4.0f - y;
-                                forward = ((dirflg * (V[i][j] * y + V[i][jj]
-                                        * (1.0f - y))) < 0.0f);
+                                forward = ((dirflg * (V.getDataValue(i, j) * y + V
+                                        .getDataValue(i, jj) * (1.0f - y))) < 0.0f);
                             }
 
                             // Determine stream function value of entry
