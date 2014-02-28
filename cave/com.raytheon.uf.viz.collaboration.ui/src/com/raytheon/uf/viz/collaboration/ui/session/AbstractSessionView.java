@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,15 +53,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
-import sun.audio.AudioData;
-import sun.audio.AudioDataStream;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
-
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
@@ -82,6 +69,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -99,6 +87,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Jan 30, 2014 2698       bclement    get display name from child class
  * Feb 13, 2014 2751       bclement    made generic
  * Feb 18, 2014 2631       mpduff      Add ability to play sounds on join actions
+ * Feb 24, 2014 2632       mpduff      Moved sound generation code to CollaborationUtils
  * 
  * </pre>
  * 
@@ -108,9 +97,6 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
 
 public abstract class AbstractSessionView<T extends IUser> extends
         CaveFloatingView {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AbstractSessionView.class);
-
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
     private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
@@ -134,8 +120,6 @@ public abstract class AbstractSessionView<T extends IUser> extends
     protected SessionMsgArchive msgArchive;
 
     private List<AlertWord> alertWords = null;
-
-    private AudioDataStream ads = null;
 
     private Map<String, Font> fonts = null;
 
@@ -475,53 +459,8 @@ public abstract class AbstractSessionView<T extends IUser> extends
         playSound(filename);
     }
 
-    /**
-     * Play a sound.
-     * 
-     * @param filename
-     *            The file to play
-     */
     protected void playSound(String filename) {
-        if (filename == null || filename.isEmpty()) {
-            return;
-        }
-        File soundFile = new File(filename);
-        InputStream in = null;
-        AudioStream as = null;
-        AudioData data = null;
-        try {
-            if (ads != null) {
-                AudioPlayer.player.stop(ads);
-                ads.close();
-                ads = null;
-            }
-            in = new FileInputStream(soundFile);
-            as = new AudioStream(in);
-            data = as.getData();
-            ads = new AudioDataStream(data);
-            AudioPlayer.player.start(ads);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to find sound file",
-                    e);
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to read sound file",
-                    e);
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-            try {
-                if (as != null) {
-                    as.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
-        }
+        SoundUtil.playSound(filename);
     }
 
     protected String getJoinFile() {
@@ -581,13 +520,6 @@ public abstract class AbstractSessionView<T extends IUser> extends
             msgArchive = null;
         }
 
-        try {
-            if (ads != null) {
-                ads.close();
-            }
-        } catch (IOException e) {
-            // Ignore
-        }
         super.dispose();
     }
 
