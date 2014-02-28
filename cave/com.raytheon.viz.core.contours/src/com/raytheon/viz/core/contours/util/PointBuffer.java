@@ -25,9 +25,10 @@ package com.raytheon.viz.core.contours.util;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 23, 2010 #4583      rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 23, 2010  4583     rjpeter     Initial creation
+ * Feb 27, 2014  2791     bsteffen    Remove unused constructor arg
  * 
  * </pre>
  * 
@@ -59,7 +60,7 @@ public class PointBuffer {
      * @param initialIndex
      * @param forwardDirection
      */
-    public PointBuffer(int capacity, int initialIndex, boolean forwardDirection) {
+    public PointBuffer(int capacity, int initialIndex) {
         buffer = new float[capacity * 2];
         minIndex = initialIndex;
         index = initialIndex;
