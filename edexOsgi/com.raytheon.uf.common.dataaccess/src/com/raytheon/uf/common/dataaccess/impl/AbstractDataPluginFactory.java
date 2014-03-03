@@ -21,6 +21,7 @@ package com.raytheon.uf.common.dataaccess.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -53,10 +54,14 @@ import com.raytheon.uf.common.time.TimeRange;
  * Jan 17, 2013           bsteffen    Initial creation
  * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                    single request.
- * Nov 26, 2013  2537     bsteffen    Fix NPEs for dataTimes and timeRange requests.
- * Jan 14, 2014  2667     mnash       Change getGridData and getGeometryData methods
- *                                    to throw exception by default
- * Jan 21, 2014  2667     bclement    changed timeRange buildDbQueryRequest method to query against valid times
+ * Nov 26, 2013  2537     bsteffen    Fix NPEs for dataTimes and timeRange 
+ *                                    equests.
+ * Jan 14, 2014  2667     mnash       Change getGridData and getGeometryData
+ *                                    methods to throw exception by default
+ * Jan 21, 2014  2667     bclement    changed timeRange buildDbQueryRequest
+ *                                    method to query against valid times
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
+ * 
  * 
  * </pre>
  * 
@@ -68,6 +73,8 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
 
     protected static final String FIELD_DATATIME = "dataTime";
 
+    protected static final String FIELD_REFTIME = FIELD_DATATIME + ".refTime";
+
     protected static final String FIELD_VALID_START = FIELD_DATATIME
             + ".validPeriod.start";
 
@@ -76,11 +83,29 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
 
     protected static final String DBQUERY_PLUGIN_NAME_KEY = "pluginName";
 
-    public DataTime[] getAvailableTimes(IDataRequest request)
+    @Override
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            boolean refTimeOnly)
             throws TimeAgnosticDataException {
-        return this.getAvailableTimes(request, null);
+        if (refTimeOnly) {
+            DbQueryRequest dbQueryRequest = buildDbQueryRequest(request);
+            dbQueryRequest.setDistinct(Boolean.TRUE);
+            dbQueryRequest.addRequestField(FIELD_REFTIME);
+            DbQueryResponse dbQueryResponse = this.executeDbQueryRequest(
+                    dbQueryRequest, request.toString());
+            List<DataTime> times = new ArrayList<DataTime>(dbQueryResponse
+                    .getResults().size());
+            for (Map<String, Object> result : dbQueryResponse.getResults()) {
+                Date refTime = (Date) result.get(FIELD_REFTIME);
+                times.add(new DataTime(refTime));
+            }
+            return times.toArray(new DataTime[0]);
+        } else {
+            return this.getAvailableTimes(request, null);
+        }
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public DataTime[] getAvailableTimes(IDataRequest request,
             BinOffset binOffset) throws TimeAgnosticDataException {
@@ -109,6 +134,7 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
         return dataTimes.toArray(new DataTime[dataTimes.size()]);
     }
 
+    @Override
     public IGeometryData[] getGeometryData(IDataRequest request,
             DataTime... times) {
         validateRequest(request);
@@ -119,6 +145,7 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
         return getGeometryData(request, dbQueryResponse);
     }
 
+    @Override
     public IGeometryData[] getGeometryData(IDataRequest request,
             TimeRange timeRange) {
         validateRequest(request);
@@ -129,6 +156,7 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
         return getGeometryData(request, dbQueryResponse);
     }
 
+    @Override
     public IGridData[] getGridData(IDataRequest request, DataTime... times) {
         validateRequest(request);
         DbQueryRequest dbQueryRequest = this
@@ -138,6 +166,7 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
         return getGridData(request, dbQueryResponse);
     }
 
+    @Override
     public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
         validateRequest(request);
         DbQueryRequest dbQueryRequest = this.buildDbQueryRequest(request,
@@ -276,6 +305,7 @@ public abstract class AbstractDataPluginFactory extends AbstractDataFactory {
 
         return dbQueryRequest;
     }
+
 
     protected IGridData[] getGridData(IDataRequest request,
             DbQueryResponse dbQueryResponse) {
