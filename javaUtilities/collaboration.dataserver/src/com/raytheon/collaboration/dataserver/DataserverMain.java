@@ -26,6 +26,8 @@ import java.util.TimeZone;
 
 import org.eclipse.jetty.util.RolloverFileOutputStream;
 
+import com.raytheon.collaboration.dataserver.auth.ServerAuthManager;
+
 /**
  * Entry class for dataserver
  * 
@@ -35,7 +37,8 @@ import org.eclipse.jetty.util.RolloverFileOutputStream;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2014  2756      bclement     Initial creation
+ * Feb  5, 2014  2756      bclement     Initial creation
+ * Feb 28, 2014  2756      bclement     added authManager
  * 
  * </pre>
  * 
@@ -62,15 +65,17 @@ public class DataserverMain {
                     .println("Continuing using standard out and standard error");
         }
         final XmppServerConnection xmppConnection;
+        final ServerAuthManager authManager;
         try {
             xmppConnection = new XmppServerConnection();
+            authManager = new ServerAuthManager(xmppConnection);
         } catch (Exception e) {
             System.err
                     .println("Unable to connect to XMPP server, shutting down");
             e.printStackTrace();
             return;
         }
-        final WebServerRunner webServer = new WebServerRunner();
+        final WebServerRunner webServer = new WebServerRunner(authManager);
         new Thread(webServer).start();
         wait(CONNECTION_DELAY);
         new Thread(xmppConnection).start();
