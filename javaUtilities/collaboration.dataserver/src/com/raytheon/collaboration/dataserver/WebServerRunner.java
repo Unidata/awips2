@@ -20,10 +20,21 @@
 package com.raytheon.collaboration.dataserver;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
+import org.eclipse.jetty.server.DispatcherType;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+
+import com.raytheon.collaboration.dataserver.auth.AuthFilter;
+import com.raytheon.collaboration.dataserver.auth.DeleteAuthHandler;
+import com.raytheon.collaboration.dataserver.auth.MethodAuthHandler;
+import com.raytheon.collaboration.dataserver.auth.PutAuthHandler;
+import com.raytheon.collaboration.dataserver.auth.ServerAuthManager;
 
 /**
  * Start and run jetty webserver
@@ -35,6 +46,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2014 2756       bclement     Initial creation
+ * Feb 28, 2014  2756      bclement     added authManager
  * 
  * </pre>
  * 
@@ -44,6 +56,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 public class WebServerRunner implements Runnable {
 
     private Server server;
+
+    private final ServerAuthManager authManager;
+
+    public WebServerRunner(ServerAuthManager authManager) {
+        this.authManager = authManager;
+    }
 
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
@@ -66,8 +84,14 @@ public class WebServerRunner implements Runnable {
 
         String datapath = Config.getPath(Config.DATAPATH_KEY,
                 Config.DATAPATH_DEFAULT);
-        context.addServlet(new ServletHolder(new DataService(base)), datapath
-                + "*");
+        String pathspec = datapath
+                + "*";
+        context.addServlet(new ServletHolder(new DataService(base)), pathspec);
+        
+        List<MethodAuthHandler> methods = Arrays.asList(new PutAuthHandler(
+                authManager), new DeleteAuthHandler(authManager));
+        context.addFilter(new FilterHolder(new AuthFilter(methods)), pathspec,
+                EnumSet.allOf(DispatcherType.class));
         try {
             server.start();
             System.out.println("Server started");
