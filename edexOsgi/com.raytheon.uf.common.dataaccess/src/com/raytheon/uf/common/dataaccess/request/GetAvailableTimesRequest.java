@@ -30,9 +30,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 23, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 23, 2013           dgilling    Initial creation
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -43,6 +44,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @DynamicSerialize
 public final class GetAvailableTimesRequest extends AbstractDataAccessRequest {
 
+    private boolean refTimeOnly = false;
+
     public GetAvailableTimesRequest() {
         super();
     }
@@ -50,4 +53,13 @@ public final class GetAvailableTimesRequest extends AbstractDataAccessRequest {
     public GetAvailableTimesRequest(final IDataRequest request) {
         super(request);
     }
+
+    public boolean isRefTimeOnly() {
+        return refTimeOnly;
+    }
+
+    public void setRefTimeOnly(boolean refTimeOnly) {
+        this.refTimeOnly = refTimeOnly;
+    }
+
 }
