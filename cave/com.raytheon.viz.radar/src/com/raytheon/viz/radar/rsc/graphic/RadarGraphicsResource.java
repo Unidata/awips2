@@ -43,11 +43,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.IMiddleClickCapableResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.radar.IRadarConfigListener;
+import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
-import com.raytheon.viz.radar.VizRadarRecord;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -62,7 +62,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * May 13, 2010            mnash     Initial creation
  * Jul 20, 2010 #6187      bkowal    The cache will be cleared out every time
  *                                   a refresh is required.
- * 03/05/2013   DCS51      zwang     Handle GFM product                                   
+ * 03/05/2013   DCS51      zwang     Handle GFM product
+ * Mar  3, 2014 2804       mschenke  Set back up clipping pane
  * 
  * </pre>
  * 
@@ -164,14 +165,14 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
     @Override
     public String[] getUpperText(DataTime time) {
 
-    	VizRadarRecord record = getRadarRecord(time);
-    	
-    	// Use upper text to display gfmCount for GFM (140)
-    	if (record != null && record.getProductCode() == 140) {
-    		return super.getUpperText(time);
-    	}
-        
-    	// Upper text would interfere with the table
+        VizRadarRecord record = getRadarRecord(time);
+
+        // Use upper text to display gfmCount for GFM (140)
+        if (record != null && record.getProductCode() == 140) {
+            return super.getUpperText(time);
+        }
+
+        // Upper text would interfere with the table
         return null;
     }
 
@@ -223,48 +224,53 @@ public class RadarGraphicsResource extends AbstractRadarResource<MapDescriptor>
         // DMD specify
         if (radarRecord.getProductCode() == 149) {
             target.clearClippingPlane();
-            int xPos = 95;
-            int yPos = 10;
-            xPos = paintProps.getCanvasBounds().x
-                    + paintProps.getCanvasBounds().width - xPos;
+            try {
+                int xPos = 95;
+                int yPos = 10;
+                xPos = paintProps.getCanvasBounds().x
+                        + paintProps.getCanvasBounds().width - xPos;
 
-            // Get the Lat/Lon of the screen Extent
-            Envelope screenLatLon = descriptor.pixelToWorld(paintProps
-                    .getView().getExtent());
+                // Get the Lat/Lon of the screen Extent
+                Envelope screenLatLon = descriptor.pixelToWorld(paintProps
+                        .getView().getExtent());
 
-            int offScreenCount = 0;
-            int filteredCount = 0;
-            Coordinate currFeature;
-            for (RadarDataKey currPt : radarRecord.getSymbologyData().keySet()) {
-                currFeature = new Coordinate(currPt.getLon(), currPt.getLat());
+                int offScreenCount = 0;
+                int filteredCount = 0;
+                Coordinate currFeature;
+                for (RadarDataKey currPt : radarRecord.getSymbologyData()
+                        .keySet()) {
+                    currFeature = new Coordinate(currPt.getLon(),
+                            currPt.getLat());
 
-                if (!screenLatLon.contains(currFeature)) {
-                    // Count how many are not on the screen
-                    offScreenCount++;
-                } else if (!radarRecord.getSymbologyData().get(currPt)
-                        .isVisible()) {
-                    // Count how many are not visible, that would be on the
-                    // screen
-                    filteredCount++;
+                    if (!screenLatLon.contains(currFeature)) {
+                        // Count how many are not on the screen
+                        offScreenCount++;
+                    } else if (!radarRecord.getSymbologyData().get(currPt)
+                            .isVisible()) {
+                        // Count how many are not visible, that would be on the
+                        // screen
+                        filteredCount++;
+                    }
                 }
+
+                DrawableString offscreen = new DrawableString(offScreenCount
+                        + " FEATURES OFF SCREEN", this.getCapability(
+                        ColorableCapability.class).getColor());
+                offscreen.setCoordinates(xPos, yPos);
+                offscreen.horizontalAlignment = HorizontalAlignment.CENTER;
+                offscreen.verticallAlignment = VerticalAlignment.MIDDLE;
+
+                DrawableString notShown = new DrawableString(filteredCount
+                        + " FEATURES NOT SHOWN", this.getCapability(
+                        ColorableCapability.class).getColor());
+                notShown.setCoordinates(xPos, yPos + 20);
+                notShown.horizontalAlignment = HorizontalAlignment.CENTER;
+                notShown.verticallAlignment = VerticalAlignment.MIDDLE;
+                target.getExtension(ICanvasRenderingExtension.class)
+                        .drawStrings(paintProps, offscreen, notShown);
+            } finally {
+                target.setupClippingPlane(paintProps.getClippingPane());
             }
-
-            DrawableString offscreen = new DrawableString(offScreenCount
-                    + " FEATURES OFF SCREEN", this.getCapability(
-                    ColorableCapability.class).getColor());
-            offscreen.setCoordinates(xPos, yPos);
-            offscreen.horizontalAlignment = HorizontalAlignment.CENTER;
-            offscreen.verticallAlignment = VerticalAlignment.MIDDLE;
-
-            DrawableString notShown = new DrawableString(filteredCount
-                    + " FEATURES NOT SHOWN", this.getCapability(
-                    ColorableCapability.class).getColor());
-            notShown.setCoordinates(xPos, yPos + 20);
-            notShown.horizontalAlignment = HorizontalAlignment.CENTER;
-            notShown.verticallAlignment = VerticalAlignment.MIDDLE;
-            target.getExtension(ICanvasRenderingExtension.class).drawStrings(
-                    paintProps, offscreen, notShown);
-
         }
     }
 
