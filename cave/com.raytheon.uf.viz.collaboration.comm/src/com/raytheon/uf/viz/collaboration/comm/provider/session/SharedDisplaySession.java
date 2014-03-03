@@ -19,11 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.http.client.methods.HttpDelete;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
@@ -49,14 +51,17 @@ import org.jivesoftware.smackx.pubsub.listener.ItemEventListener;
 import org.jivesoftware.smackx.pubsub.packet.SyncPacketSend;
 
 import com.google.common.eventbus.EventBus;
+import com.raytheon.uf.common.comm.HttpClient;
+import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.xmpp.ext.ChangeAffiliationExtension;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
@@ -82,6 +87,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 18, 2014 2751       bclement    implemented room and pubsub ownership transfer
  * Feb 19, 2014 2751       bclement    added isClosed()
  * Feb 24, 2014 2751       bclement    added validation for change leader event
+ * Feb 28, 2014 2756       bclement    added cleanUpHttpStorage()
  * 
  * </pre>
  * 
@@ -156,6 +162,7 @@ public class SharedDisplaySession extends VenueSession implements
                     // before cleanup?
                     log.info("Deleting old topic: " + aff.getNodeId());
                     try {
+                        cleanUpHttpStorage(aff.getNodeId());
                         pubsubMgr.deleteNode(aff.getNodeId());
                     } catch (XMPPException e) {
                         log.error(
@@ -481,6 +488,7 @@ public class SharedDisplaySession extends VenueSession implements
             topic.removeItemDeleteListener(this);
             topic.removeItemEventListener(this);
             if (hasRole(SharedDisplayRole.SESSION_LEADER)) {
+                cleanUpHttpStorage(topic.getId());
                 pubsubMgr.deleteNode(topic.getId());
             }
             topic = null;
@@ -491,6 +499,38 @@ public class SharedDisplaySession extends VenueSession implements
             // if an error happens, we still want to advertise that we were
             // closed
             closed = true;
+        }
+    }
+
+    /**
+     * Delete session directory on HTTP server. This should only be called if
+     * this client is the owner of the topic associated with the session and
+     * only after the session is closed.
+     * 
+     * TODO this will not be needed if the xmpp server takes care of shared
+     * display session lifecycle (create, transfer ownership, destroy, etc)
+     * 
+     * @param sessionid
+     */
+    private void cleanUpHttpStorage(String sessionid) {
+        try {
+            String userid = getAccount().getNormalizedId();
+            String url = PeerToPeerCommHelper.getCollaborationHttpServer();
+            url += sessionid + "/";
+            URI uri = new URI(url);
+            HttpDelete delete = new HttpDelete(uri);
+            ClientAuthManager authManager = getConnection().getAuthManager();
+            authManager.signRequest(delete, userid, uri);
+            HttpClientResponse response = HttpClient.getInstance()
+                    .executeRequest(delete);
+            if (!response.isSuccess() && !response.isNotExists()) {
+                throw new CollaborationException("Session deletion failed for "
+                        + uri + ": " + new String(response.data));
+            }
+        } catch (Exception e) {
+            log.error(
+                    "Problem cleaning up old HTTP storage objects for session: "
+                            + sessionid, e);
         }
     }
 
