@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.common.xmpp;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -43,6 +43,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 17, 2013 2562       bclement     Initial creation
+ * Feb 27, 2013 2756       bclement     moved to common.xmpp from collaboration
  * 
  * </pre>
  * 

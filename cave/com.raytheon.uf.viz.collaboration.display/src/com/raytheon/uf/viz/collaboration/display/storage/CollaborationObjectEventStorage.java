@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 
 import com.raytheon.uf.common.comm.HttpClient;
 import com.raytheon.uf.common.comm.HttpClient.HttpClientResponse;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.compression.CompressionUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.ClientAuthManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.remote.graphics.Dispatcher;
@@ -75,6 +77,8 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Feb 17, 2014 2756       bclement     added xml parsing for HTTP directory listing
  * Feb 24, 2014 2751       bclement     added separate paths for each provider under session id
  * Feb 25, 2014 2751       bclement     fixed provider id path for webDAV
+ * Feb 28, 2014 2756       bclement     added auth, moved response code checks to response object
+ * 
  * </pre>
  * 
  * @author mschenke
@@ -90,15 +94,17 @@ public class CollaborationObjectEventStorage implements
     private static NetworkStatistics stats = com.raytheon.uf.viz.collaboration.comm.Activator
             .getDefault().getNetworkStats();
 
+    private static final String SLASH = "/";
+
     public static IObjectEventPersistance createPersistanceObject(
             ISharedDisplaySession session, Dispatcher dispatcher)
             throws CollaborationException {
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
                 session, dispatcher.getDispatcherId());
         persistance.createFolder(URI.create(persistance.sessionDataURL));
-        persistance.sessionDataURL += persistance.displayId + "/";
-        persistance.createFolder(URI.create(persistance.sessionDataURL));
         appendProviderIdToPath(persistance);
+        persistance.createFolder(URI.create(persistance.sessionDataURL));
+        persistance.sessionDataURL += persistance.displayId + SLASH;
         persistance.createFolder(URI.create(persistance.sessionDataURL));
         return persistance;
     }
@@ -112,8 +118,8 @@ public class CollaborationObjectEventStorage implements
     private static void appendProviderIdToPath(
             CollaborationObjectEventStorage persistance) {
         try {
-            persistance.sessionDataURL += URLEncoder.encode(persistance.providerid,
-                    "UTF-8") + "/";
+            persistance.sessionDataURL += URLEncoder.encode(
+                    persistance.providerid, HTTP.UTF_8) + SLASH;
         } catch (UnsupportedEncodingException e) {
             log.warn("URL encoding failed, retrying with default encoding: "
                     + e.getLocalizedMessage());
@@ -127,8 +133,8 @@ public class CollaborationObjectEventStorage implements
             ISharedDisplaySession session, int displayId) {
         CollaborationObjectEventStorage persistance = new CollaborationObjectEventStorage(
                 session, displayId);
-        persistance.sessionDataURL += persistance.displayId + "/";
         appendProviderIdToPath(persistance);
+        persistance.sessionDataURL += persistance.displayId + SLASH;
         return persistance;
     }
 
@@ -148,14 +154,17 @@ public class CollaborationObjectEventStorage implements
 
     private final String providerid;
 
+    private final ClientAuthManager authManager;
+
     private CollaborationObjectEventStorage(ISharedDisplaySession session,
             int displayId) {
         this.displayId = displayId;
         this.client = HttpClient.getInstance();
+        this.authManager = session.getConnection().getAuthManager();
         VenueParticipant dataProvider = session.getCurrentDataProvider();
         this.providerid = dataProvider.getUserid().getNormalizedId();
         this.sessionDataURL = PeerToPeerCommHelper.getCollaborationHttpServer();
-        this.sessionDataURL += session.getSessionId() + "/";
+        this.sessionDataURL += session.getSessionId() + SLASH;
     }
 
     /*
@@ -187,10 +196,9 @@ public class CollaborationObjectEventStorage implements
 
         try {
             CollaborationHttpPersistedEvent wrapped = new CollaborationHttpPersistedEvent();
-            String objectPath = event.getObjectId() + "/"
+            String objectPath = event.getObjectId() + SLASH
                     + event.getClass().getName() + ".obj";
             String eventObjectURL = sessionDataURL + objectPath;
-            HttpPut put = new HttpPut(eventObjectURL);
 
             CollaborationHttpPersistedObject persistObject = new CollaborationHttpPersistedObject();
             persistObject.persistTime = System.currentTimeMillis();
@@ -198,9 +206,9 @@ public class CollaborationObjectEventStorage implements
             byte[] toPersist = CompressionUtil.compress(SerializationUtil
                     .transformToThrift(persistObject));
             stats.log(event.getClass().getSimpleName(), toPersist.length, 0);
-            put.setEntity(new ByteArrayEntity(toPersist));
+            HttpPut put = createPut(eventObjectURL, toPersist);
             HttpClientResponse response = executeRequest(put);
-            if (isSuccess(response.code) == false) {
+            if (response.isSuccess() == false) {
                 throw new CollaborationException(
                         "Error uploading event object (" + event.getObjectId()
                                 + ") to server @ " + eventObjectURL + " : "
@@ -214,6 +222,35 @@ public class CollaborationObjectEventStorage implements
         } catch (Exception e) {
             throw new CollaborationException(e);
         }
+    }
+
+    /**
+     * Create http put method object. Adds auth header if needed.
+     * 
+     * @param url
+     * @param body
+     * @return
+     * @throws CollaborationException
+     */
+    private HttpPut createPut(String url, byte[] body) throws CollaborationException{
+        URI uri = URI.create(url);
+        HttpPut put = new HttpPut(uri);
+        authManager.signRequest(put, providerid, uri, body);
+        put.setEntity(new ByteArrayEntity(body));
+        return put;
+    }
+
+    /**
+     * Create http delete method object. Adds auth header if needed.
+     * 
+     * @param uri
+     * @return
+     * @throws CollaborationException
+     */
+    private HttpDelete createDelete(URI uri) throws CollaborationException {
+        HttpDelete delete = new HttpDelete(uri);
+        authManager.signRequest(delete, providerid, uri);
+        return delete;
     }
 
     /*
@@ -273,7 +310,7 @@ public class CollaborationObjectEventStorage implements
         String objectPath = event.getResourcePath();
         HttpGet get = new HttpGet(sessionDataURL + objectPath);
         HttpClientResponse response = executeRequest(get);
-        if (isSuccess(response.code)) {
+        if (response.isSuccess()) {
             try {
                 CollaborationHttpPersistedObject dataObject = SerializationUtil
                         .transformFromThrift(
@@ -286,7 +323,7 @@ public class CollaborationObjectEventStorage implements
             } catch (SerializationException e) {
                 throw new CollaborationException(e);
             }
-        } else if (isNotExists(response.code)) {
+        } else if (response.isNotExists()) {
             // Object was deleted
             return null;
         } else {
@@ -310,8 +347,8 @@ public class CollaborationObjectEventStorage implements
         get.addHeader(new BasicHeader(ACCEPTS_HEADER, XML_CONTENT_TYPE + ","
                 + HTML_CONTENT_TYPE));
         HttpClientResponse response = executeRequest(get);
-        if (isSuccess(response.code) == false) {
-            if (isNotExists(response.code)) {
+        if (response.isSuccess() == false) {
+            if (response.isNotExists()) {
                 return new AbstractDispatchingObjectEvent[0];
             }
             throw new CollaborationException("Error retrieving object ("
@@ -475,7 +512,7 @@ public class CollaborationObjectEventStorage implements
         };
         mkcol.setURI(folderPath);
         HttpClientResponse rsp = executeRequest(mkcol);
-        if (isSuccess(rsp.code) == false && isDirExists(rsp.code) == false) {
+        if (rsp.isSuccess() == false && isDirExists(rsp.code) == false) {
             throw new CollaborationException("Folder creation failed for "
                     + folderPath + ": " + new String(rsp.data));
         }
@@ -488,9 +525,9 @@ public class CollaborationObjectEventStorage implements
      * @throws CollaborationException
      */
     private void deleteResource(URI uri) throws CollaborationException {
-        HttpClientResponse rsp = executeRequest(new HttpDelete(uri));
+        HttpClientResponse rsp = executeRequest(createDelete(uri));
         // If request was success or resource doesn't exist, we are good
-        if (isSuccess(rsp.code) == false && isNotExists(rsp.code) == false) {
+        if (rsp.isSuccess() == false && rsp.isNotExists() == false) {
             throw new CollaborationException("Folder creation failed for "
                     + uri + ": " + new String(rsp.data));
         }
@@ -510,22 +547,6 @@ public class CollaborationObjectEventStorage implements
         } catch (Exception e) {
             throw new CollaborationException(e);
         }
-    }
-
-    /**
-     * @param code
-     * @return true if code is a 200 level return code
-     */
-    private boolean isSuccess(int code) {
-        return code >= 200 && code < 300;
-    }
-
-    /**
-     * @param code
-     * @return true if resource does not exist on server
-     */
-    private boolean isNotExists(int code) {
-        return code == 404 || code == 410;
     }
 
     /**
