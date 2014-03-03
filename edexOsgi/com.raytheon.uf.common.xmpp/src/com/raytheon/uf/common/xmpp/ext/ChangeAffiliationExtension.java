@@ -17,12 +17,17 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.common.xmpp.ext;
+
+import java.util.Arrays;
 
 import org.jivesoftware.smackx.pubsub.Affiliation;
 import org.jivesoftware.smackx.pubsub.Node;
 import org.jivesoftware.smackx.pubsub.NodeExtension;
 import org.jivesoftware.smackx.pubsub.PubSubElementType;
+
+import com.raytheon.uf.common.xmpp.XmlBuilder;
+import com.raytheon.uf.common.xmpp.XmlBuilder.Pair;
 
 /**
  * Packet extension for changing a user's affiliation with a pubsub topic.
@@ -36,6 +41,7 @@ import org.jivesoftware.smackx.pubsub.PubSubElementType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2014 2751       bclement     Initial creation
+ * Feb 27, 2013 2756       bclement     moved to common.xmpp from collaboration
  * 
  * </pre>
  * 
@@ -74,19 +80,14 @@ public class ChangeAffiliationExtension extends NodeExtension {
      */
     @Override
     public String toXML() {
-        StringBuilder builder = new StringBuilder("<");
-        builder.append(getElementName());
-        builder.append(" node='");
-        builder.append(getNode());
-        builder.append("'><").append(affiliationName).append(" ");
-        builder.append(jidAttribute).append("='");
-        builder.append(this.id);
-        builder.append("' ").append(affiliationName).append("='");
-        builder.append(this.type.toString());
-        builder.append("'/></");
-        builder.append(getElementName());
-        builder.append(">");
-        return builder.toString();
+        XmlBuilder builder = new XmlBuilder();
+        builder.startTag(getElementName(),
+                Arrays.asList(new Pair("node", getNode())));
+        builder.selfClosingTag(affiliationName, Arrays.asList(new Pair(
+                jidAttribute, this.id),
+                new Pair(affiliationName, this.type.toString())));
+        builder.endTag(getElementName());
+        return builder.toXml();
     }
 
 }
