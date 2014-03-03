@@ -23,14 +23,17 @@ import java.net.UnknownHostException;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.util.SyncPacketSend;
+
+import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.common.xmpp.iq.AuthInfo;
+import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
+import com.raytheon.uf.common.xmpp.iq.HttpInfo;
 
 /**
  * Starts and runs XMPP client thread for communication with XMPP server
@@ -42,6 +45,7 @@ import org.jivesoftware.smack.util.SyncPacketSend;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2014 2756       bclement     Initial creation
+ * Feb 28, 2014 2756       bclement     added custom IQ packet support
  * 
  * </pre>
  * 
@@ -49,6 +53,12 @@ import org.jivesoftware.smack.util.SyncPacketSend;
  * @version 1.0
  */
 public class XmppServerConnection implements Runnable {
+
+    static {
+        ProviderManager pm = ProviderManager.getInstance();
+        pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
+                AuthInfo.AUTH_QUERY_XMLNS, new AuthInfoProvider());
+    }
 
     private static final int PACKET_SEND_TIMEOUT = 5000; // 5 seconds
 
@@ -87,25 +97,7 @@ public class XmppServerConnection implements Runnable {
      */
     @Override
     public void run() {
-        conn.addPacketListener(new PacketListener() {
-            @Override
-            public void processPacket(Packet packet) {
-                log.debug(packet.toXML());
-            }
-        }, new PacketFilter() {
-            @Override
-            public boolean accept(Packet packet) {
-                return true;
-            }
-        });
-        IQ packet = new IQ() {
-            @Override
-            public String getChildElementXML() {
-                return "<query xmlns=\"urn:uf:viz:collaboration:iq:http\">"
-                        + "<httpinfo xmlns=\"urn:uf:viz:collaboration\">"
-                        + "<url>" + dataServerUrl + "</url></httpinfo></query>";
-            }
-        };
+        HttpInfo packet = new HttpInfo(dataServerUrl);
         packet.setType(Type.SET);
         try {
             Packet reply = SyncPacketSend.getReply(conn, packet,
@@ -130,6 +122,13 @@ public class XmppServerConnection implements Runnable {
     public void disconnect() {
         log.debug("Disconnecting from XMPP server");
         conn.disconnect();
+    }
+
+    /**
+     * @return the conn
+     */
+    public XMPPConnection getConnection() {
+        return conn;
     }
 
 }
