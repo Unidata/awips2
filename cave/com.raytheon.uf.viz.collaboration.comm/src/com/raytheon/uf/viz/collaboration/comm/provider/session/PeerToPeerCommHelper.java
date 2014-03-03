@@ -29,6 +29,7 @@ import org.jivesoftware.smack.packet.Packet;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.xmpp.PacketConstants;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -36,7 +37,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
@@ -61,6 +62,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
  * Feb 17, 2014 2756       bclement    null check for message from field
  *                                      moved url validation from regex to java utility
+ * Feb 24, 2014 2756       bclement    moved xmpp objects to new packages
  * 
  * </pre>
  * 
@@ -134,7 +136,7 @@ public class PeerToPeerCommHelper implements PacketListener {
                 }
             } else {
                 SessionPayload payload = (SessionPayload) msg
-                        .getExtension(SessionPayload.XMLNS);
+                        .getExtension(PacketConstants.COLLAB_XMLNS);
                 if (payload != null) {
                     switch (payload.getPayloadType()) {
                     case Command:
