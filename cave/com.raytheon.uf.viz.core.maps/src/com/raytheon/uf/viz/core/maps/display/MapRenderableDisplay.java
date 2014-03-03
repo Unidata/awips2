@@ -66,6 +66,9 @@ import com.raytheon.uf.viz.core.rsc.sampling.SamplingResource;
  * Jul 20, 2010     6187  bkowal      The alpha level will always be reset for every
  *                                    resource when the paint method is called now.
  * 06/24/2013       2140  randerso    Changed to use standardized paint error handling
+ * Mar 3, 2014      2804  mschenke    Setup display to clip before each resource is
+ *                                    to ensure resources do not affect each other
+ * 
  * 
  * </pre>
  * 
@@ -145,7 +148,6 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
         this.mapCenter = descriptor.pixelToWorld(paintProps.getView()
                 .getExtent().getCenter());
 
-        target.setupClippingPlane(getMapExtent());
         paintProps.setClippingPane(getMapExtent());
 
         int displayWidth = (int) (((MapDescriptor) descriptor).getMapWidth() * zoomLevel);
@@ -173,6 +175,7 @@ public class MapRenderableDisplay extends AbstractRenderableDisplay implements
                 }
 
                 paintProps = calcPaintDataTime(paintProps, rsc);
+                target.setupClippingPlane(paintProps.getClippingPane());
                 paintResource(pair, target, paintProps);
             }
         }
