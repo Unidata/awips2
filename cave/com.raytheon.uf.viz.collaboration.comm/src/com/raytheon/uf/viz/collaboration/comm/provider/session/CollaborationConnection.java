@@ -48,6 +48,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.net.HostAndPort;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.common.xmpp.iq.AuthInfo;
+import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -59,9 +62,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEve
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayload.PayloadType;
-import com.raytheon.uf.viz.collaboration.comm.provider.SessionPayloadProvider;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayloadProvider;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
@@ -114,6 +117,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 13, 2014 2751       bclement    better types for venueid and invitor
  * Feb 18, 2014 2793       bclement    improved disconnection notification and handling
  * Feb 24, 2014 2632       mpduff      Fix roster change type for presence change.
+ * Feb 28, 2014 2756       bclement    added authManager
  * 
  * </pre>
  * 
@@ -125,9 +129,11 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 public class CollaborationConnection implements IEventPublisher {
 
     static {
-        ProviderManager.getInstance().addExtensionProvider(
-                SessionPayload.ELEMENT_NAME, SessionPayload.XMLNS,
-                new SessionPayloadProvider());
+        ProviderManager pm = ProviderManager.getInstance();
+        pm.addExtensionProvider(SessionPayload.ELEMENT_NAME,
+                PacketConstants.COLLAB_XMLNS, new SessionPayloadProvider());
+        pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
+                AuthInfo.AUTH_QUERY_XMLNS, new AuthInfoProvider());
     }
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -154,6 +160,8 @@ public class CollaborationConnection implements IEventPublisher {
     private final CollaborationConnectionData connectionData;
 
     private XMPPConnection connection;
+
+    private final ClientAuthManager authManager;
 
     public static boolean COMPRESS = true;
 
@@ -208,6 +216,8 @@ public class CollaborationConnection implements IEventPublisher {
         setupInternalVenueInvitationListener();
         setupP2PComm();
         getPeerToPeerSession();
+
+        authManager = new ClientAuthManager(connection);
 
         userPresence = initialPresence;
         if (accountManager != null && initialPresence != null) {
@@ -632,7 +642,7 @@ public class CollaborationConnection implements IEventPublisher {
 
                             if (message != null) {
                                 SessionPayload payload = (SessionPayload) message
-                                        .getExtension(SessionPayload.XMLNS);
+                                        .getExtension(PacketConstants.COLLAB_XMLNS);
                                 if (payload != null) {
                                     handleCollabInvite(venueId, invitor,
                                             payload);
@@ -768,6 +778,13 @@ public class CollaborationConnection implements IEventPublisher {
         for (Entry<String, ISession> entry : sessions.entrySet()) {
             entry.getValue().postEvent(new VenueUserEvent(message));
         }
+    }
+
+    /**
+     * @return the authManager
+     */
+    public ClientAuthManager getAuthManager() {
+        return authManager;
     }
 
 }
