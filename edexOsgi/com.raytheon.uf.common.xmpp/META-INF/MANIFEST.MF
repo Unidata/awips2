@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Xmpp
+Bundle-SymbolicName: com.raytheon.uf.common.xmpp
+Bundle-Version: 1.14
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.jivesoftware.smack,
+ org.apache.commons.lang
+Export-Package: com.raytheon.uf.common.xmpp,
+ com.raytheon.uf.common.xmpp.ext,
+ com.raytheon.uf.common.xmpp.iq
