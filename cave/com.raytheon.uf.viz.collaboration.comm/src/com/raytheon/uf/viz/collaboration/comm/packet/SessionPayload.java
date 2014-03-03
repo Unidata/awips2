@@ -17,15 +17,22 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider;
+package com.raytheon.uf.viz.collaboration.comm.packet;
 
-import org.jivesoftware.smack.packet.PacketExtension;
+import java.util.Arrays;
+
 import org.jivesoftware.smack.util.Base64;
 
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.common.xmpp.XmlBuilder;
+import com.raytheon.uf.common.xmpp.XmlBuilder.Pair;
+import com.raytheon.uf.common.xmpp.ext.BaseExtension;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.provider.CollaborationXmlManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.SerializationMode;
 
 /**
  * XMPP packet extension for collaboration session data
@@ -37,13 +44,14 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2013 2562       bclement     Initial creation
+ * Feb 27, 2013 2756       bclement     extends BaseExtension
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public class SessionPayload implements PacketExtension {
+public class SessionPayload extends BaseExtension {
 
     private static final IUFStatusHandler log = UFStatus
             .getHandler(SessionPayload.class);
@@ -52,8 +60,6 @@ public class SessionPayload implements PacketExtension {
         Config, Command, Invitation;
     };
     
-    public static final String XMLNS = "urn:uf:viz:collaboration";
-
     public static final String ELEMENT_NAME = "SessionData"; 
 
     public static final String TYPE_ATTRIBUTE = "payloadtype";
@@ -75,6 +81,7 @@ public class SessionPayload implements PacketExtension {
      *            message object
      */
     public SessionPayload(PayloadType type, SerializationMode mode, Object data) {
+        super(ELEMENT_NAME, PacketConstants.COLLAB_XMLNS);
         this.payloadType = type;
         this.mode = mode;
         this.data = data;
@@ -106,18 +113,16 @@ public class SessionPayload implements PacketExtension {
      */
     public static String createXml(PayloadType type, SerializationMode mode,
             Object data) throws CollaborationException {
-        StringBuilder builder = new StringBuilder();
-        builder = new StringBuilder();
-        builder.append("<").append(ELEMENT_NAME).append(" ");
-        appendAttribute(builder, "xmlns", XMLNS);
-        appendAttribute(builder, TYPE_ATTRIBUTE, type.name());
-        appendAttribute(builder, ENCODING_ATTRIBUTE, mode.name());
-        builder.append(">");
+        XmlBuilder builder = new XmlBuilder();
+        Pair typeAttr = new Pair(TYPE_ATTRIBUTE, type.name());
+        Pair encAttr = new Pair(ENCODING_ATTRIBUTE, mode.name());
+        builder.startTag(ELEMENT_NAME, PacketConstants.COLLAB_XMLNS,
+                Arrays.asList(typeAttr, encAttr));
         switch (mode) {
         case THRIFT:
             try {
                 byte[] arr = SerializationUtil.transformToThrift(data);
-                builder.append(Base64.encodeBytes(arr));
+                builder.appendText(Base64.encodeBytes(arr));
             } catch (Exception e) {
                 throw new CollaborationException(
                         "[THRIFT] Could not serialize object", e);
@@ -128,14 +133,14 @@ public class SessionPayload implements PacketExtension {
                 CollaborationXmlManager jaxb = CollaborationXmlManager
                         .getInstance();
                 String xml = jaxb.marshalToFragment(data);
-                builder.append(xml);
+                builder.appendText(xml);
             } catch (Exception je) {
                 throw new CollaborationException(
                         "[JAXB] Could not serialize object", je);
             }
             break;
         case STRING:
-            builder.append(data.toString());
+            builder.appendText(data.toString());
             break;
         case NONE:
             throw new CollaborationException("Serialization of "
@@ -143,22 +148,9 @@ public class SessionPayload implements PacketExtension {
         case ISNULL:
             break;
         }
-        builder.append("</").append(ELEMENT_NAME).append(">");
+        builder.endTag(ELEMENT_NAME);
         return builder.toString();
     }
-
-    /**
-     * Format XML attribute name/value pair and append to string builder
-     * 
-     * @param sb
-     * @param name
-     * @param value
-     */
-    private static void appendAttribute(StringBuilder sb, String name,
-            String value) {
-        sb.append(name).append("='").append(value).append("' ");
-    }
-
 
     /**
      * @return the payloadType
@@ -184,26 +176,6 @@ public class SessionPayload implements PacketExtension {
     /*
      * (non-Javadoc)
      * 
-     * @see org.jivesoftware.smack.packet.PacketExtension#getElementName()
-     */
-    @Override
-    public String getElementName() {
-        return ELEMENT_NAME;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.jivesoftware.smack.packet.PacketExtension#getNamespace()
-     */
-    @Override
-    public String getNamespace() {
-        return XMLNS;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see org.jivesoftware.smack.packet.PacketExtension#toXML()
      */
     @Override
@@ -218,6 +190,5 @@ public class SessionPayload implements PacketExtension {
             return "";
         }
     }
-
 
 }

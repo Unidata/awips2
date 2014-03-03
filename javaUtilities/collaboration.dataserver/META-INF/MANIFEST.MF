@@ -7,4 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.jetty,
  com.raytheon.uf.common.util,
  org.jivesoftware.smack,
- com.raytheon.uf.common.http
+ com.raytheon.uf.common.http,
+ com.raytheon.uf.common.xmpp,
+ org.apache.http,
+ org.apache.commons.collections
