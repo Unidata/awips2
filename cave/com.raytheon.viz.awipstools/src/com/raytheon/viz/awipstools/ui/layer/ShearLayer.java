@@ -72,6 +72,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 29, 2013  2281     bsteffen       Fix click distance calculations.
  * Sep 03, 2013  2310     bsteffen       Move MouseHandler from ShearAction to
  *                                       ShearLayer.
+ * Mar  3, 2014  2804     mschenke       Set back up clipping pane
  * 
  * </pre>
  * 
@@ -167,7 +168,11 @@ public class ShearLayer extends
         drawLineString(target, ls, color, IGraphicsTarget.LineStyle.SOLID);
         String label = drawLabeling(target, ls, color, paintProps);
         target.clearClippingPlane();
-        drawUpperLeftCornerLabel(target, paintProps, label);
+        try {
+            drawUpperLeftCornerLabel(target, paintProps, label);
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
+        }
     }
 
     public void drawLines(Coordinate[] coors) {
@@ -227,7 +232,7 @@ public class ShearLayer extends
         return coorOnCircle;
 
     }
-    
+
     protected void drawBaselineLabel(IGraphicsTarget target,
             Coordinate latLong, String label) throws VizException {
 
@@ -244,7 +249,7 @@ public class ShearLayer extends
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
-        .getMagnification().floatValue();
+                .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -309,8 +314,7 @@ public class ShearLayer extends
      *            y location in screen pixels
      * @return T Coordinate of the endpoint, null if not found.
      */
-    public Coordinate isInsideEndpoint(int x,
-            int y) {
+    public Coordinate isInsideEndpoint(int x, int y) {
         IDisplayPaneContainer container = getResourceContainer();
         if (container == null) {
             return null;
@@ -378,7 +382,7 @@ public class ShearLayer extends
         ds.horizontalAlignment = HorizontalAlignment.LEFT;
         // set the magnification
         ds.magnification = this.getCapability(MagnificationCapability.class)
-        .getMagnification().floatValue();
+                .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -425,9 +429,10 @@ public class ShearLayer extends
         String separatorSymbol;
 
         public VelocityRange(Map<String, Object> map) {
-            if (map != null && map.containsKey("Mnemonic")
-                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) ||
-                            map.containsKey(VALUE_KEY))) {
+            if (map != null
+                    && map.containsKey("Mnemonic")
+                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) || map
+                            .containsKey(VALUE_KEY))) {
                 String mnemonic = map.get("Mnemonic").toString();
 
                 if (mnemonic.equalsIgnoreCase("V")
