@@ -116,13 +116,22 @@
 				</then>
 			</if>
 			
-			<ant antfile="${basedir}/deploy-common/external-rules.xml" 
-			inheritAll="false">
-				<property name="plugin._directory"
-					value="${plugin.base}" />
-				<property name="deployment._root"
-					value="${edex.root.directory}" />
-			</ant>
+			<if>
+				<!-- skip external rules if we are not deploying to edex -->
+				<isset property="edex.root.directory" />
+				<then>
+				<ant antfile="${basedir}/deploy-common/external-rules.xml" 
+				inheritAll="false">
+					<property name="plugin._directory"
+						value="${plugin.base}" />
+					<property name="deployment._root"
+						value="${edex.root.directory}" />
+				</ant>
+				</then>
+				<else>
+					<echo>Missing property edex.root.directory, skipping external rules for deployment</echo>
+				</else>
+			</if>
 		</sequential>
 	</macrodef>
 
