@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * Jul 26, 2011 10043      rferrel     Modified identifyReports to
  *                                     have checks like A1.
+ * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
  * </pre>
  * 
  * @author jkorman
@@ -108,6 +109,9 @@ public class StdTextSeparator extends WMOMessageSeparator {
         }
         int startIndex = wmoHeader.getMessageDataStart();
         int endIndex = TextSeparatorFactory.findDataEnd(rawData);
+        if (endIndex <= startIndex) {
+            endIndex = rawData.length - 1;
+        }
         StringBuilder buffer = new StringBuilder(new String(rawData,
                 startIndex, endIndex - startIndex));
         if (!decodeStdMsg(buffer, ispanId, wmoHeader)) {
@@ -176,7 +180,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
             }
 
             StringBuilder newProductId = new StringBuilder();
-            
+
             if (!makeStdId(newProductId, nnnxxx, ispanId)) {
                 logger.debug("No AFOS ID found; use TTAAii CCCC to store: "
                         + ispanId);
@@ -374,7 +378,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
                 return true;
             }
         }
-        
+
         // Try to map the nnnId with the bit table for a national bit product;
         // otherwise, check the AFOS table for the ccc value of the origin.
         newId = staticData.getSiteIdFromNNN(nnnId);
@@ -383,9 +387,11 @@ public class StdTextSeparator extends WMOMessageSeparator {
             cccId = staticData.getAFOSTableMap(origin);
             if (cccId == null) {
                 if (nnnxxx.length() >= 6) {
-                    cccId = staticData.getAFOSTableMap("K" + nnnxxx.substring(3, 6));
+                    cccId = staticData.getAFOSTableMap("K"
+                            + nnnxxx.substring(3, 6));
                 } else if (nnnxxx.length() > 3) {
-                    cccId = staticData.getAFOSTableMap("K" + nnnxxx.substring(3));
+                    cccId = staticData.getAFOSTableMap("K"
+                            + nnnxxx.substring(3));
                 }
                 if (cccId == null) { // KWBC RCM,VER
                     // logger.error("Can't get ccc: " + origin);
