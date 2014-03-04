@@ -19,7 +19,7 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +29,8 @@ import java.util.Map;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -53,6 +54,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 27, 2013  2287     randerso    Added densityFactor to allow application
  *                                    specific adjustment of density.
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
+ * Feb 28, 2013  2791     bsteffen    Use DataSource for data, custom callback
+ *                                    for image.
+ * 
  * 
  * </pre>
  * 
@@ -62,7 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
 
-    private float[] values;
+    private DataSource values;
 
     private Map<Integer, IImage> images = new HashMap<Integer, IImage>();
 
@@ -78,7 +82,7 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
      * @param densityFactor
      *            adjustment factor to make density match A1
      */
-    public GriddedIconDisplay(float[] values, IMapDescriptor descriptor,
+    public GriddedIconDisplay(DataSource values, IMapDescriptor descriptor,
             GeneralGridGeometry gridGeometryOfGrid, int imageSize,
             double densityFactor) {
         super(descriptor, gridGeometryOfGrid, imageSize, densityFactor);
@@ -115,9 +119,8 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
         int i = getValue(coord);
         IImage image = images.get(i);
         if (image == null) {
-            BufferedImage bImage = iconFactory.getIcon(i);
-            image = target.initializeRaster(new IODataPreparer(bImage, "icon"
-                    + bImage, 0), null);
+            image = target.initializeRaster(new PointIconImageCallback(
+                    iconFactory, i));
             images.put(i, image);
             // keep around the image that is entirely empty/transparent so we
             // can match it up and don't waste time drawing it later
@@ -129,8 +132,7 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
     }
 
     private int getValue(Coordinate coord) {
-        int idx = (int) (coord.x + (coord.y * gridDims[0]));
-        return (int) values[idx];
+        return (int) values.getDataValue((int) coord.x, (int) coord.y);
     }
 
     @Override
@@ -183,4 +185,22 @@ public class GriddedIconDisplay extends AbstractGriddedDisplay<IImage> {
                 paintProps, images);
     }
 
+    protected static class PointIconImageCallback implements
+            IRenderedImageCallback {
+        private final PointIconFactory iconFactory;
+
+        private final int iconIndex;
+
+        private PointIconImageCallback(PointIconFactory iconFactory,
+                int iconIndex) {
+            this.iconFactory = iconFactory;
+            this.iconIndex = iconIndex;
+        }
+
+        @Override
+        public RenderedImage getImage() throws VizException {
+            return iconFactory.getIcon(iconIndex);
+        }
+
+    }
 }

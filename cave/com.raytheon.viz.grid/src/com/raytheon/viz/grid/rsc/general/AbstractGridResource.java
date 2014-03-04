@@ -31,11 +31,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -44,7 +46,9 @@ import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities.MinMax;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -84,13 +88,15 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.tile.DataSourceTileImageCreator;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable;
+import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 import com.raytheon.viz.core.contours.ContourRenderable;
 import com.raytheon.viz.core.contours.rsc.displays.AbstractGriddedDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedStreamlineDisplay;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedVectorDisplay;
 import com.raytheon.viz.core.contours.util.VectorGraphicsConfig;
-import com.raytheon.viz.core.rsc.displays.GriddedImageDisplay2;
 import com.raytheon.viz.grid.rsc.GriddedIconDisplay;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -118,6 +124,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
  * Jan 14, 2014  2594     bsteffen    Switch vector mag/dir to use data source
  *                                    instead of raw float data.
+ * Feb 28, 2014  2791     bsteffen    Switch all data to use data source.
  * 
  * 
  * </pre>
@@ -137,6 +144,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
     /* Unknown source, provides acceptable density. */
     private static final double VECTOR_DENSITY_FACTOR = 1.875;
 
+    private static final int IMAGE_TILE_SIZE = 1024;
+    
     public static final String INTERROGATE_VALUE = "value";
 
     public static final String INTERROGATE_UNIT = "unit";
@@ -485,6 +494,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
         switch (displayType) {
         case IMAGE:
+            ColorMapCapability colorMapCap = getCapability(ColorMapCapability.class);
+            ImagingCapability imagingCap = getCapability(ImagingCapability.class);
             if (renderableMap.isEmpty()) {
                 ColorMapParameters params = createColorMapParameters(data);
                 if (params.getColorMap() == null) {
@@ -494,15 +505,15 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                     params.setColorMap(ColorMapLoader.loadColorMap(params
                             .getColorMapName()));
                 }
-                this.getCapability(ColorMapCapability.class)
-                        .setColorMapParameters(params);
+                colorMapCap.setColorMapParameters(params);
             }
-            ColorMapParameters params = getCapability(ColorMapCapability.class)
-                    .getColorMapParameters();
-            data.convert(params.getImageUnit());
-            GriddedImageDisplay2 imageRenderable = new GriddedImageDisplay2(
-                    data.getScalarData(), gridGeometry, this);
-            renderable = imageRenderable;
+            TileImageCreator creator = new DataSourceTileImageCreator(
+                    data.getScalarData(), data.getDataUnit(),
+                    ColorMapDataType.FLOAT, colorMapCap);
+            TileSetRenderable tsr = new TileSetRenderable(imagingCap,
+                    gridGeometry, creator, 1, IMAGE_TILE_SIZE);
+            tsr.project(descriptor.getGridGeometry());
+            renderable = tsr;
             break;
         case BARB:
         case ARROW:
@@ -545,9 +556,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             renderable = vectorDisplay;
             break;
         case ICON:
-            GriddedIconDisplay iconDisplay = new GriddedIconDisplay(data
-                    .getScalarData().array(), descriptor, gridGeometry, 80,
-                    0.75);
+            GriddedIconDisplay iconDisplay = new GriddedIconDisplay(
+                    data.getScalarData(), descriptor, gridGeometry, 80, 0.75);
             iconDisplay.setColor(getCapability(ColorableCapability.class)
                     .getColor());
             iconDisplay.setDensity(getCapability(DensityCapability.class)
@@ -608,17 +618,23 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             throws VizException {
         ParamLevelMatchCriteria criteria = getMatchCriteria();
         ColorMapParameters newParameters;
+        GridEnvelope2D range = data.getGridGeometry().getGridRange2D();
+        DataSource source = data.getScalarData();
+        MinMax mm = DataUtilities.getMinMax(source, range.getSpan(0),
+                range.getSpan(1));
         try {
-            newParameters = ColorMapParameterFactory.build(data.getScalarData()
-                    .array(), data.getDataUnit(), criteria);
+            newParameters = ColorMapParameterFactory.build((float) mm.getMin(),
+                    (float) mm.getMax(), data.getDataUnit(), criteria);
         } catch (StyleException e) {
             throw new VizException("Unable to build colormap parameters", e);
         }
         ColorMapParameters oldParameters = this.getCapability(
                 ColorMapCapability.class).getColorMapParameters();
         if (oldParameters != null
-                && oldParameters.getDataMin() <= newParameters.getDataMin()
-                && oldParameters.getDataMax() >= newParameters.getDataMax()) {
+                && oldParameters.getColorMapMin() <= newParameters
+                        .getColorMapMin()
+                && oldParameters.getColorMapMax() >= newParameters
+                        .getColorMapMax()) {
             // if the oldParameters have a larger range than the new parameters,
             // reuse the old parameters. This is useful when the resource is
             // sharing capabilities, for example in an FFGVizGroupResource.
@@ -684,6 +700,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 GeneralGridData merged = GeneralGridData
                         .mergeData(data1, data2);
                 if (merged != null) {
+                    data1 = merged;
                     dataList.set(i, merged);
                     dataList.remove(j);
                     j -= 1;
@@ -709,8 +726,8 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
 
             @Override
             public void run() {
-                if (renderable instanceof GriddedImageDisplay2) {
-                    ((GriddedImageDisplay2) renderable).dispose();
+                if (renderable instanceof TileSetRenderable) {
+                    ((TileSetRenderable) renderable).dispose();
                 } else if (renderable instanceof AbstractGriddedDisplay<?>) {
                     ((AbstractGriddedDisplay<?>) renderable).dispose();
                 } else if (renderable instanceof ContourRenderable) {
@@ -734,7 +751,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
                 List<IRenderable> renderableList = iter.next();
                 boolean remove = false;
                 for (IRenderable renderable : renderableList) {
-                    if (!projectRenderable(renderable, crs)) {
+                    if (!projectRenderable(renderable)) {
                         remove = true;
                         break;
                     }
@@ -757,14 +774,13 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
      * the new projection.
      * 
      * @param renderable
-     * @param crs
      * @return
      * @throws VizException
      */
-    protected boolean projectRenderable(IRenderable renderable,
-            CoordinateReferenceSystem crs) throws VizException {
-        if (renderable instanceof GriddedImageDisplay2) {
-            ((GriddedImageDisplay2) renderable).project(descriptor
+    protected boolean projectRenderable(IRenderable renderable)
+            throws VizException {
+        if (renderable instanceof TileSetRenderable) {
+            ((TileSetRenderable) renderable).project(descriptor
                     .getGridGeometry());
             return true;
         } else if (renderable instanceof AbstractGriddedDisplay<?>) {
@@ -786,7 +802,7 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
         return requestData(time);
     }
 
-    protected Interpolation getInspectInterpolation(GeneralGridData data) {
+    protected Interpolation getInspectInterpolation() {
         Interpolation sampleInterpolion = null;
         if (this.hasCapability(ImagingCapability.class)) {
             ImagingCapability imagingCap = this
@@ -847,13 +863,12 @@ public abstract class AbstractGridResource<T extends AbstractResourceData>
             throw new VizException(
                     "Error transforming coordinate for interrogate", e);
         }
-        Interpolation interpolation = getInspectInterpolation(data);
+        Interpolation interpolation = getInspectInterpolation();
         GridSampler sampler = null;
         if (data.isVector()) {
             sampler = new GridSampler(data.getMagnitude(), interpolation);
         } else {
-            sampler = new GridSampler(new FloatBufferWrapper(
-                data.getScalarData(), data.getGridGeometry()), interpolation);
+            sampler = new GridSampler(data.getScalarData(), interpolation);
         }
         double value = sampler.sample(pixel.x, pixel.y);
         if (Double.isNaN(value)) {
