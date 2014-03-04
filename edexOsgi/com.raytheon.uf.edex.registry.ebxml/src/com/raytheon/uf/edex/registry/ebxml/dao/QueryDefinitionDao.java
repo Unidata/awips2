@@ -24,6 +24,9 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ParameterType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryDefinitionType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 
  * Data access object for QueryDefinitionType objects
@@ -36,6 +39,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryDefinitionType;
  * ------------ ----------  ----------- --------------------------
  * 10/8/2013    1682        bphillip    Initial implementation
  * 12/2/2013    1829        bphillip    Changed get parameters for query method
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * </pre>
  * 
  * @author bphillip
@@ -55,6 +59,7 @@ public class QueryDefinitionDao extends
      * 
      * @return The ids of the query definitions in the registry
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<String> getQueryIds() {
         return executeHQLQuery(GET_QUERY_IDS_QUERY);
     }
@@ -66,6 +71,7 @@ public class QueryDefinitionDao extends
      *            The query id to get the parameters for
      * @return The parameters for the specified query
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ParameterType> getParametersForQuery(String queryId) {
         return this.getById(queryId).getParameter();
     }
