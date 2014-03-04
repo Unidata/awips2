@@ -51,14 +51,24 @@ import com.raytheon.uf.common.util.GridUtil;
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Jul 25, 2007             chammack    Initial Creation.
- *    Mar 26, 2009 2086        jsanchez    Added a entityList to the match criteria.
- *    Feb 15, 2013 1638        mschenke    Moved GRID_FILL_VALUE from edex.common Util into GridUtil
- *    Jun 24, 2013 2122        mschenke    Added method for constructing {@link ColorMapParameters} from {@link StyleRule}
- *    Sep 24, 2013 2404        bclement    moved to common.style from viz.core, added build method that takes ParamLevelMatchCriteria, removed unused methods
- *    Nov 13, 2013 2492        mschenke    Create build that does not take data for adaptive building
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jul 25, 2007           chammack    Initial Creation.
+ * Mar 26, 2009  2086     jsanchez    Added a entityList to the match criteria.
+ * Feb 15, 2013  1638     mschenke    Moved GRID_FILL_VALUE from edex.common
+ *                                    Util into GridUtil
+ * Jun 24, 2013  2122     mschenke    Added method for constructing 
+ *                                    {@link ColorMapParameters} from
+ *                                    {@link StyleRule}
+ * Sep 24, 2013  2404     bclement    moved to common.style from viz.core,
+ *                                    added build method that takes
+ *                                    ParamLevelMatchCriteria, removed unused
+ *                                    methods
+ * Nov 13, 2013  2492     mschenke    Create build that does not take data for
+ *                                    adaptive building
+ * Feb 28, 2014  2791     bsteffen    Add a build method that takes min/max
+ *                                    data values.
+ * 
  * </pre>
  * 
  * @author chammack
@@ -118,7 +128,14 @@ public class ColorMapParameterFactory {
         return build(sr, data, level, parameterUnits);
     }
 
-    public static ColorMapParameters build(StyleRule sr, Object data,
+    public static ColorMapParameters build(float minValue, float maxValue,
+            Unit<?> parameterUnits, ParamLevelMatchCriteria match)
+            throws StyleException {
+        float[] data = { minValue, maxValue };
+        return build(data, parameterUnits, match);
+    }
+
+    protected static ColorMapParameters build(StyleRule sr, Object data,
             SingleLevel level, Unit<?> parameterUnits) {
 
         ColorMapParameters params = new ColorMapParameters();
