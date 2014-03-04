@@ -36,6 +36,7 @@ import java.util.Properties;
  * ------------ ---------- ----------- --------------------------
  * Feb  5, 2014 2756       bclement     Initial creation
  * Feb 28, 2014 2756       bclement     added auth cache size
+ * Mar 04, 2014 2756       bclement     added xmpp server retry
  * 
  * </pre>
  * 
@@ -81,6 +82,11 @@ public class Config{
     public static final String AUTH_CACHE_SIZE_KEY = "auth.key.cache.size";
 
     public static final int AUTH_CACHE_SIZE_DEFAULT = 64;
+
+    public static final String XMPP_SERVER_RETRY_PERIOD_KEY = "xmpp.server.retry.period";
+
+    // 5 seconds
+    public static final int XMPP_SERVER_RETRY_PERIOD_DEFAULT = 5000;
 
     public static final String config = System.getProperty(
             "collaboration.dataserver.config", "config/settings.properties");

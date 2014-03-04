@@ -52,6 +52,7 @@ import org.xmpp.packet.PacketError.Condition;
  * ------------ ---------- ----------- --------------------------
  * Feb 12, 2014 2756       bclement     Initial creation
  * Feb 28, 2014 2756       bclement     reordered retrieve method operations for clarity
+ * Mar 04, 2014 2756       bclement     public createError(), trimmed getPrimaryDataServer() return
  * 
  * </pre>
  * 
@@ -161,7 +162,7 @@ public abstract class AbstractConfigHandler extends IQHandler implements
      * @param error
      * @return
      */
-    protected static IQ createError(IQ request, PacketError error) {
+    public static IQ createError(IQ request, PacketError error) {
         Element child = request.getChildElement();
         child.setParent(null);
         IQ rval = IQ.createResultIQ(request);
@@ -249,7 +250,7 @@ public abstract class AbstractConfigHandler extends IQHandler implements
             return null;
         }
         // primary server is the only one or first in list
-        return users[0];
+        return users[0].trim();
     }
 
     /**
