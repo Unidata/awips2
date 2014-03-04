@@ -34,6 +34,7 @@ import com.raytheon.uf.common.xmpp.XmlBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 26, 2014 2756       bclement     Initial creation
+ * Mar 04, 2014 2756       bclement     fixed null return from getChildElementXML
  * 
  * </pre>
  * 
@@ -80,7 +81,7 @@ public class HttpInfo extends IQ {
         builder.endTag(URL_ELEMENT);
         builder.endTag(INFO_ELEMENT);
         builder.endTag(PacketConstants.QUERY_ELEMENT_NAME);
-        return null;
+        return builder.toXml();
     }
 
     /**
