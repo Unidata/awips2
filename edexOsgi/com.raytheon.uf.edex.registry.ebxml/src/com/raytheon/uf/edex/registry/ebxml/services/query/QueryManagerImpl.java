@@ -123,13 +123,13 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/2013      1682       bphillip    Fixed federated query invocation
  * 10/23/2013   1538       bphillip    Remove extra executeQuery method
  * 10/30/2013   1538       bphillip    Changed to use non-static soap service client
+ * 2/19/2014    2769        bphillip   Moved Transactional Annotation, fixed plugin cache usage
  * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-@Transactional(propagation = Propagation.MANDATORY)
 public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
 
     /** The logger */
@@ -223,6 +223,7 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
      * The QueryResponse contains a set of objects that match the query.
      */
     @Override
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(QueryRequest queryRequest)
             throws MsgRegistryException {
         String client = EbxmlObjectUtil.getClientHost(wsContext);
@@ -518,7 +519,7 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
         String queryDefinition = query.getQueryDefinition();
         RegistryQueryPlugin plugin = queryPlugins.get(queryDefinition);
         if (plugin == null) {
-            QueryDefinitionType queryDef = queryDefinitionDao.getById(query
+            QueryDefinitionType queryDef = queryDefinitionDao.loadById(query
                     .getQueryDefinition());
             if (queryDef == null) {
                 throw EbxmlExceptionUtil.createQueryExceptionType(
@@ -551,7 +552,6 @@ public class QueryManagerImpl implements QueryManager, ApplicationContextAware {
                     .executeHQLQuery(queryString, queryParameters);
             queryResponse.addRegistryObjects(results);
         } else {
-            queryPlugins.put(queryDefinition, plugin);
             checkQueryParameters(queryRequest.getQuery());
             QueryResponse response = plugin.executeQuery(queryRequest);
             consolidateQueryResponse(queryResponse, response);
