@@ -51,6 +51,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * Feb 05, 2013 1580       mpduff      EventBus refactor.
  * Feb 12, 2013 1615       bgonzale    Changed ProcessEvent pluginName to dataType.
  * Jan 21, 2014 2627       njensen     Added logFailedData() and logFailureAsInfo()
+ * Mar 04, 2014 2627       njensen     Harden static initialization
  * 
  * </pre>
  * 
@@ -79,19 +80,30 @@ public class ProcessUtil {
     protected static final boolean RETAIN_FAILED_DATA;
 
     static {
-        // this will probably only ever be true on a testbed
-        RETAIN_FAILED_DATA = Boolean.getBoolean("retain.failed.data");
-        if (RETAIN_FAILED_DATA) {
-            FAILED_DIR = PropertiesFactory.getInstance().getEnvProperties()
-                    .getEnvValue("DEFAULTDATADIR")
-                    + File.separator + "failed";
-            File file = new File(FAILED_DIR);
-            if (!file.exists()) {
-                file.mkdir();
+        boolean retain = false;
+        String dir = null;
+        try {
+            /*
+             * this will probably only ever be true on a testbed because sites
+             * typically keep multiple days of raw data
+             */
+            retain = Boolean.getBoolean("retain.failed.data");
+            if (retain) {
+                dir = PropertiesFactory.getInstance().getEnvProperties()
+                        .getEnvValue("DEFAULTDATADIR")
+                        + File.separator + "failed";
+                File file = new File(dir);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
             }
-        } else {
-            FAILED_DIR = null;
+        } catch (Throwable t) {
+            dir = null;
+            retain = false;
+            handler.error("Error validating retain.failed.data settings", t);
         }
+        FAILED_DIR = dir;
+        RETAIN_FAILED_DATA = retain;
     }
 
     /**
@@ -235,7 +247,7 @@ public class ProcessUtil {
         String fullpath = getHeaderProperty(headers, ("ingestFileName"));
         handler.error("Failed to ingest " + fullpath, e);
 
-        if (RETAIN_FAILED_DATA) {
+        if (RETAIN_FAILED_DATA && FAILED_DIR != null) {
             File badfile = new File(fullpath);
             if (badfile.exists()) {
                 String filename = badfile.getName();
