@@ -24,6 +24,9 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -41,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 6/4/2013     2022       bphillip    Added delete objects of type method
  * 7/29/2013    2191       bphillip    Added new methods to support registry synchronization
  * 8/1/2013     1693       bphillip    Added methods to facilitate implementation of the lifecyclemanager according to the 4.0 spec
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -96,6 +100,7 @@ public class RegistryObjectDao extends
      *            The object to get the next version number for
      * @return The next version number
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public String getNextVersion(RegistryObjectType objectToVersion) {
         String lid = objectToVersion.getLid();
         String version = objectToVersion.getVersionInfo().getVersionName();
@@ -126,6 +131,7 @@ public class RegistryObjectDao extends
      *            The id to check
      * @return True if the id exists, else false
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public boolean idExists(String id) {
         return ((Long) this.executeHQLQuery(ID_EXISTS_QUERY, "id", id).get(0)) != 0;
     }
@@ -137,6 +143,7 @@ public class RegistryObjectDao extends
      *            The lid to check
      * @return Treu if the lid exists, else false
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public boolean lidExists(String lid) {
         return ((Long) this.executeHQLQuery(LID_EXISTS_QUERY, "lid", lid)
                 .get(0)) != 0;
@@ -149,6 +156,7 @@ public class RegistryObjectDao extends
      *            The object type to get the ids for
      * @return The list of object ids of objects of the given type
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<String> getRegistryObjectIdsOfType(String objectType) {
         return this.executeHQLQuery(GET_IDS_BY_OBJECT_TYPE, "objectType",
                 objectType);
@@ -180,6 +188,7 @@ public class RegistryObjectDao extends
      * @throws EbxmlRegistryException
      *             If the HQL query fails
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<RegistryObjectType> getAllRegistryObjects() {
         return getAll();
     }

@@ -73,6 +73,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * 10/30/2013   1538        bphillip    Made methods in this class non-static
  * 11/20/2013   2534        bphillip    Eliminated service caching
  * 1/15/2014    2613        bphillip    Eliminated service caching...again
+ * 2/19/2014    2769        bphillip    Renamed getPort method
  * </pre>
  * 
  * @author bphillip
@@ -81,37 +82,37 @@ import com.raytheon.uf.common.status.UFStatus;
 public class RegistrySOAPServices {
 
     /** The logger */
-    private static final IUFStatusHandler statusHandler = UFStatus
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistrySOAPServices.class);
 
     /** Default timeout for receiving HTTP data */
-    private static final long DEFAULT_RECEIVE_TIMEOUT = 60000;
+    protected static final long DEFAULT_RECEIVE_TIMEOUT = 60000;
 
     /** Default value for establishing an HTTP connection */
-    private static final long DEFAULT_CONNECT_TIMEOUT = 10000;
+    protected static final long DEFAULT_CONNECT_TIMEOUT = 10000;
 
     /** Path separator */
-    private static final String PATH_SEPARATOR = "/";
+    protected static final String PATH_SEPARATOR = "/";
 
     /** WSDL suffix */
-    private static final String WSDL = "?wsdl";
+    protected static final String WSDL = "?wsdl";
 
     /** The name of the notification listener service */
-    private static final String NOTIFICATION_SERVICE_NAME = "notificationListener";
+    protected static final String NOTIFICATION_SERVICE_NAME = "notificationListener";
 
     /** The name of the lifecycle manager service */
-    private static final String LIFECYCLE_MANAGER_SERVICE_NAME = "lifecycleManager";
+    protected static final String LIFECYCLE_MANAGER_SERVICE_NAME = "lifecycleManager";
 
     /** The name of the cataloger service */
-    private static final String CATALOGER_SERVICE_NAME = "cataloger";
+    protected static final String CATALOGER_SERVICE_NAME = "cataloger";
 
     /** The name of the query service */
-    private static final String QUERY_SERVICE_NAME = "queryManager";
+    protected static final String QUERY_SERVICE_NAME = "queryManager";
 
     /** The name of the validator service */
-    private static final String VALIDATOR_SERVICE_NAME = "validator";
+    protected static final String VALIDATOR_SERVICE_NAME = "validator";
 
-    private static final ProxyConfiguration proxyConfig;
+    protected static final ProxyConfiguration proxyConfig;
 
     protected static final HTTPClientPolicy httpClientPolicy;
 
@@ -187,7 +188,7 @@ public class RegistrySOAPServices {
      */
     public NotificationListener getNotificationListenerServiceForUrl(
             final String url) throws RegistryServiceException {
-        return getPort(url, NotificationListener.class);
+        return createService(url, NotificationListener.class);
     }
 
     /**
@@ -210,7 +211,7 @@ public class RegistrySOAPServices {
      * @return The lifecycle manager service at the given URL string
      */
     public LifecycleManager getLifecycleManagerServiceForUrl(final String url) {
-        return getPort(url, LifecycleManager.class);
+        return createService(url, LifecycleManager.class);
     }
 
     /**
@@ -233,7 +234,7 @@ public class RegistrySOAPServices {
      * @return The cataloger service
      */
     public Cataloger getCatalogerServiceForUrl(final String url) {
-        return getPort(url, Cataloger.class);
+        return createService(url, Cataloger.class);
     }
 
     /**
@@ -255,7 +256,7 @@ public class RegistrySOAPServices {
      * @return The query manager service at the given url string
      */
     public QueryManager getQueryServiceForUrl(final String url) {
-        return getPort(url, QueryManager.class);
+        return createService(url, QueryManager.class);
     }
 
     /**
@@ -281,7 +282,7 @@ public class RegistrySOAPServices {
      */
     public Validator getValidatorServiceForUrl(final String url)
             throws RegistryServiceException {
-        return getPort(url, Validator.class);
+        return createService(url, Validator.class);
     }
 
     /**
@@ -336,7 +337,7 @@ public class RegistrySOAPServices {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Object> T createService(String serviceUrl,
+    protected <T extends Object> T createService(String serviceUrl,
             Class<?> serviceInterface) throws RegistryServiceException {
         W3CEndpointReferenceBuilder endpointBuilder = new W3CEndpointReferenceBuilder();
         endpointBuilder.wsdlDocumentLocation(serviceUrl.toString() + WSDL);
@@ -352,11 +353,6 @@ public class RegistrySOAPServices {
                 Arrays.asList(RegistryUtil.LOCAL_REGISTRY_ADDRESS));
         client.getRequestContext().put(Message.PROTOCOL_HEADERS, headers);
         return port;
-    }
-
-    private <T extends Object> T getPort(String serviceUrl,
-            final Class<T> serviceInterface) {
-        return createService(serviceUrl, serviceInterface);
     }
 
     /**
