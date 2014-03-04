@@ -130,6 +130,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
  *                                      box around text
  * Nov  4, 2013 2492        mschenke    Switched colormap drawing to use 1D texture object for alpha mask
+ * Mar  3, 2014 2804        mschenke    Added clipping pane field to only setup if changed
  * 
  * </pre>
  * 
@@ -249,6 +250,8 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
     protected FontFactory fontFactory;
 
     protected Rectangle monitorBounds;
+
+    protected IExtent clippingPane;
 
     /**
      * Construct a GL target using a canvas (inherited from IGraphicsTarget)
@@ -406,6 +409,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         gl.glDisable(GL.GL_CLIP_PLANE1);
         gl.glDisable(GL.GL_CLIP_PLANE2);
         gl.glDisable(GL.GL_CLIP_PLANE3);
+        this.clippingPane = null;
     }
 
     /*
@@ -1394,9 +1398,19 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      */
     @Override
     public void setupClippingPlane(IExtent extent) {
-        if (extent == null) {
+        if (this.clippingPane == extent
+                || (this.clippingPane != null && extent != null && this.clippingPane
+                        .equals(extent))) {
+            // Clipping pane already set to this
             return;
         }
+        this.clippingPane = extent;
+        if (clippingPane == null) {
+            clearClippingPlane();
+            return;
+        }
+        // Clone to preserve clipping pane extent
+        this.clippingPane = clippingPane.clone();
 
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPushMatrix();
