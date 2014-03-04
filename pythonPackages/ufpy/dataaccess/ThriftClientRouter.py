@@ -29,6 +29,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    05/21/13         #2023        dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Share geometry WKT.
+#    03/03/14         #2673        bsteffen       Add ability to query only ref times.
 #
 
 
@@ -51,9 +52,10 @@ class ThriftClientRouter(object):
     def __init__(self, host='localhost'):
         self._client = ThriftClient.ThriftClient(host)
     
-    def getAvailableTimes(self, request):
+    def getAvailableTimes(self, request, refTimeOnly):
         timesRequest = GetAvailableTimesRequest()
         timesRequest.setRequestParameters(request)
+        timesRequest.setRefTimeOnly(refTimeOnly)
         response = self._client.sendRequest(timesRequest)
         return response
     
