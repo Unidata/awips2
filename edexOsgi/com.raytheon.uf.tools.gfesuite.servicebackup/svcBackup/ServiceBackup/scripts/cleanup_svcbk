@@ -64,6 +64,13 @@ fi
 
 # end DR 16362
 
+# DR 16464
+if [ -d /awips2/GFESuite/ServiceBackup/data/${CAPS_FAILED_SITE} ]; then
+    log_msg "Removing rsync_parms.site for site ${CAPS_FAILED_SITE}"
+    rm -f /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_FAILED_SITE}
+fi
+# end DR 16464
+
 #-- Remove the rsync grids
 if [ "$CAPS_FAILED_SITE" = "aer" ]
 then
