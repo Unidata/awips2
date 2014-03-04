@@ -28,9 +28,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import com.raytheon.uf.common.xmpp.BaseProvider;
 import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.common.xmpp.iq.SecurityToggle.Mode;
 
 /**
- * Custom XMPP IQ packet parser for HTTP configuration
+ * Custom XMPP IQ packet parser for security toggle
  * 
  * <pre>
  * 
@@ -38,56 +39,58 @@ import com.raytheon.uf.common.xmpp.PacketConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 26, 2014 2756       bclement     Initial creation
- * Mar 03, 2014 2756       bclement     fixed call to super constructor
+ * Mar 03, 2014 2756       bclement     Initial creation
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public class HttpInfoProvider extends BaseProvider<HttpInfo> implements
-        IQProvider {
+public class SecurityToggleProvider extends BaseProvider<SecurityToggle>
+        implements IQProvider {
 
     /**
-     * @param extensionTagName
+     * @param tagName
      */
-    public HttpInfoProvider() {
+    public SecurityToggleProvider() {
         super(PacketConstants.QUERY_ELEMENT_NAME);
     }
 
     /* (non-Javadoc)
-     * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.XmlPullParser)
+     * @see com.raytheon.uf.common.xmpp.BaseProvider#parseInternal(org.xmlpull.v1.XmlPullParser)
      */
     @Override
-    public IQ parseIQ(XmlPullParser parser) throws Exception {
-        return parse(parser);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.xmpp.BaseProvider#parseInternal(org.xmlpull.v1
-     * .XmlPullParser)
-     */
-    @Override
-    protected HttpInfo parseInternal(XmlPullParser parser)
+    protected SecurityToggle parseInternal(XmlPullParser parser)
             throws XmlPullParserException, IOException {
-        String url = null;
+        Mode mode = null;
 
         do {
             String tagName = parser.getName();
             switch (parser.getEventType()) {
             case XmlPullParser.START_TAG:
-                if (HttpInfo.URL_ELEMENT.equals(tagName)) {
-                    url = getText(parser);
+                if (PacketConstants.QUERY_ELEMENT_NAME.equals(tagName)) {
+                    String modeStr = parser.getAttributeValue(null,
+                            SecurityToggle.MODE_ATTRIBUTE);
+                    if (modeStr != null && !modeStr.trim().isEmpty()) {
+                        mode = Mode.valueOf(modeStr.trim().toUpperCase());
+                    }
                 }
                 break;
             }
             parser.next();
         } while (!atEndOfPacket(parser));
-        return new HttpInfo(url);
+        return new SecurityToggle(mode);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.jivesoftware.smack.provider.IQProvider#parseIQ(org.xmlpull.v1.
+     * XmlPullParser)
+     */
+    @Override
+    public IQ parseIQ(XmlPullParser parser) throws Exception {
+        return super.parse(parser);
     }
 
 }
