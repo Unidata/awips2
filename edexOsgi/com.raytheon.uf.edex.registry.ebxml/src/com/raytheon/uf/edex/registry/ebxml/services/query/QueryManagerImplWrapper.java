@@ -28,6 +28,7 @@ import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.QueryManager;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
@@ -43,12 +44,13 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 7/11/2013    1707        bphillip    Initial implementation
+ * 2/19/2014    2769        bphillip    Added readOnly flag to Transactional annotation
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Transactional
+@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 public class QueryManagerImplWrapper implements QueryManager {
 
     private QueryManagerImpl queryManager;

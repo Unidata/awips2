@@ -21,6 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Data access object for FederationType objects
  * 
@@ -32,6 +35,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/21/2013    2022        bphillip    Initial implementation
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * </pre>
  * 
  * @author bphillip
@@ -46,10 +50,12 @@ public class FederationDao extends RegistryObjectTypeDao<FederationType> {
         return FederationType.class;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public long getFederationCount() {
         return (Long) this.executeHQLQuery(COUNT_QUERY).get(0);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public boolean federationsExist() {
         return getFederationCount() > 0;
     }

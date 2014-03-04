@@ -30,6 +30,9 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -78,6 +81,7 @@ public class AdhocQuery extends RegistryQueryPlugin {
     @Override
     @WebMethod(action = EXECUTE_QUERY_ACTION)
     @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException {
