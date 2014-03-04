@@ -30,8 +30,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.map.LRUMap;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
+import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.packet.XMPPError.Condition;
@@ -44,6 +46,8 @@ import com.raytheon.uf.common.http.auth.ServerSignatureAuth;
 import com.raytheon.uf.common.http.auth.SignedCredential;
 import com.raytheon.uf.common.xmpp.BaseProvider;
 import com.raytheon.uf.common.xmpp.iq.AuthInfo;
+import com.raytheon.uf.common.xmpp.iq.SecurityToggle;
+import com.raytheon.uf.common.xmpp.iq.SecurityToggle.Mode;
 
 /**
  * Manages authentication credentials for HTTP data server which are stored on
@@ -56,6 +60,7 @@ import com.raytheon.uf.common.xmpp.iq.AuthInfo;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 25, 2014 2756       bclement     Initial creation
+ * Mar 04, 2014 2756       bclement     added security toggle
  * 
  * </pre>
  * 
@@ -70,7 +75,7 @@ public class ServerAuthManager {
 
     private final ServerSignatureAuth sigAuth = new ServerSignatureAuth();
 
-    private final boolean isEnabled;
+    private boolean isEnabled;
 
     private final Map<String, Signature> sigCache;
 
@@ -81,14 +86,85 @@ public class ServerAuthManager {
     @SuppressWarnings("unchecked")
     public ServerAuthManager(XmppServerConnection xmppServer)
             throws XMPPException {
-        isEnabled = BaseProvider.serverSupportsFeature(
-                xmppServer.getConnection(), AuthInfo.AUTH_QUERY_XMLNS);
         this.xmppServer = xmppServer;
+        XMPPConnection conn = xmppServer.getConnection();
+        registerListeners(conn);
+        isEnabled = isEnabledOnServer(conn);
         int cacheSize = Config.getInt(Config.AUTH_CACHE_SIZE_KEY,
                 Config.AUTH_CACHE_SIZE_DEFAULT);
         this.sigCache = Collections.synchronizedMap(new LRUMap(cacheSize));
     }
     
+    /**
+     * Register XMPP packet and event listeners with connection
+     * 
+     * @param conn
+     */
+    private void registerListeners(final XMPPConnection conn) {
+        conn.addPacketListener(new PacketListener() {
+            @Override
+            public void processPacket(Packet packet) {
+                /*
+                 * XMPP server doesn't send disable/enable message, only update
+                 * messages that signal the client to query for the new state
+                 */
+                if (packet instanceof SecurityToggle) {
+                    if (((SecurityToggle) packet).getMode()
+                            .equals(Mode.UPDATED)) {
+                        try {
+                            isEnabled = querySecurityToggle(conn);
+                        } catch (XMPPException e) {
+                            log.warn(
+                                    "Problem getting updated security settings",
+                                    e);
+                        }
+                    }
+                }
+            }
+        }, new PacketTypeFilter(SecurityToggle.class));
+    }
+
+    /**
+     * @param conn
+     * @return true if security is enabled on the server
+     * @throws XMPPException
+     */
+    public boolean isEnabledOnServer(XMPPConnection conn) throws XMPPException {
+        boolean rval = BaseProvider.serverSupportsFeature(conn,
+                AuthInfo.AUTH_QUERY_XMLNS);
+        if (rval) {
+            // assume enabled if server doesn't support toggle
+            if (BaseProvider.serverSupportsFeature(conn,
+                    SecurityToggle.TOGGLE_QUERY_XMLNS)) {
+                rval = querySecurityToggle(conn);
+            }
+        }
+        return rval;
+    }
+
+    /**
+     * Check for security enabled toggle on server. This allows for the xmpp
+     * server to run the public key auth service with new clients without
+     * enforcing security; allowing compatibility with legacy clients
+     * 
+     * @param conn
+     * @return true if security toggle is set to enabled
+     * @throws XMPPException
+     */
+    private boolean querySecurityToggle(XMPPConnection conn)
+            throws XMPPException {
+        boolean rval = false;
+        SecurityToggle query = SecurityToggle.createGet();
+        Packet response = SyncPacketSend.getReply(conn, query);
+        if (response instanceof SecurityToggle) {
+            rval = ((SecurityToggle) response).getMode().equals(Mode.ENABLED);
+        } else {
+            log.warn("Unexpected response from security toggle query: "
+                    + response.toXML());
+        }
+        return rval;
+    }
+
     /**
      * Returns cached signature verification for credential.
      * 
