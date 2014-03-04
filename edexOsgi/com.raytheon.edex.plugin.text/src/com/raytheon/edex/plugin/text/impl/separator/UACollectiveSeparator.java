@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Sep 3, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
+ * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
  * </pre>
  * 
  * @author jkorman
@@ -113,6 +114,9 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         WMOHeader wmoHdr = getWmoHeader();
         int startIndex = wmoHdr.getMessageDataStart();
         int endIndex = TextSeparatorFactory.findDataEnd(rawData);
+        if (endIndex <= startIndex) {
+            endIndex = rawData.length - 1;
+        }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
         if (nnnxxxMatcher.find()) {
