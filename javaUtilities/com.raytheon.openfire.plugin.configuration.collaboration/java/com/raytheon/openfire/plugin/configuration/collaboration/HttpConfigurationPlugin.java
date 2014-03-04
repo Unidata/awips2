@@ -20,27 +20,34 @@
 package com.raytheon.openfire.plugin.configuration.collaboration;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.jivesoftware.openfire.IQRouter;
+import org.jivesoftware.openfire.RoutingTable;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
 import org.jivesoftware.openfire.disco.IQDiscoInfoHandler;
 import org.jivesoftware.openfire.event.SessionEventDispatcher;
+import org.jivesoftware.openfire.session.ClientSession;
 import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.TaskEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xmpp.packet.IQ;
 import org.xmpp.packet.JID;
+import org.xmpp.packet.Packet;
 
 import com.raytheon.openfire.plugin.configuration.collaboration.configuration.ConfigurationPacket;
 import com.raytheon.openfire.plugin.configuration.collaboration.http.HttpStatusMonitor;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.AbstractConfigHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.DataAuthHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.iq.HttpAddressHandler;
+import com.raytheon.openfire.plugin.configuration.collaboration.iq.SecurityToggleHandler;
 import com.raytheon.openfire.plugin.configuration.collaboration.listener.CollaborationSessionEventListener;
 
 /**
@@ -58,6 +65,7 @@ import com.raytheon.openfire.plugin.configuration.collaboration.listener.Collabo
  *                                     added legacy format setter/accessor
  * Feb 14, 2013 2756       bclement    rename and refactor for operation with generic http
  *                                     server configured over XMPP
+ * Mar 04, 2014 2756       bclement    added dataserver security toggle update to setLegacySupport
  * 
  * </pre>
  * 
@@ -79,6 +87,8 @@ public class HttpConfigurationPlugin implements Plugin {
 	private CollaborationSessionEventListener listener;
 
 	private HttpStatusMonitor httpStatusMonitor;
+
+    private JID serverId;
 
 	/**
 	 * 
@@ -142,11 +152,12 @@ public class HttpConfigurationPlugin implements Plugin {
 
         DataAuthHandler authHandler = new DataAuthHandler();
         HttpAddressHandler addressHandler = new HttpAddressHandler();
+        SecurityToggleHandler secTogHandler = new SecurityToggleHandler();
         registerConfigHandlers(server,
-                Arrays.asList(authHandler, addressHandler));
+                Arrays.asList(authHandler, addressHandler, secTogHandler));
 
         /* Retrieve openfire components. */
-        JID serverId = new JID(server.getServerInfo().getXMPPDomain());
+        serverId = new JID(server.getServerInfo().getXMPPDomain());
 
         /* The http status monitor */
         this.httpStatusMonitor = new HttpStatusMonitor(addressHandler, serverId);
@@ -177,6 +188,50 @@ public class HttpConfigurationPlugin implements Plugin {
         }
         this.monitorTaskEngine.schedule(this.httpStatusMonitor,
                 MONITOR_DELAY_MS, this.getHttpMonitorInterval());
+    }
+
+    /**
+     * Send packet to all available client sessions for the primary dataserver
+     * user
+     * 
+     * @param p
+     */
+    private void sendPacketToDataserver(final Packet p) {
+        String primary = AbstractConfigHandler.getPrimaryDataServer();
+        if ( primary != null){
+            JID to = new JID(primary);
+            p.setTo(to);
+            p.setFrom(serverId);
+            Collection<ClientSession> sessions = getSessions(to);
+            if (sessions.isEmpty()) {
+                logger.warn("No sessions found for dataserver user");
+            }
+            for (ClientSession session : sessions) {
+                session.process(p);
+            }
+        } else {
+            logger.warn("No dataserver user configured in settings");
+        }
+    }
+
+    /**
+     * Get a collection of client sessions with server for a user
+     * 
+     * @param id
+     * @return
+     */
+    private Collection<ClientSession> getSessions(JID id) {
+        XMPPServer server = XMPPServer.getInstance();
+        RoutingTable routingTable = server.getRoutingTable();
+        List<JID> routes = routingTable.getRoutes(id, serverId);
+        List<ClientSession> rval = new ArrayList<ClientSession>(routes.size());
+        for (JID route : routes) {
+            ClientSession session = routingTable.getClientRoute(route);
+            if (session != null) {
+                rval.add(session);
+            }
+        }
+        return rval;
     }
 
     /**
@@ -226,6 +281,8 @@ public class HttpConfigurationPlugin implements Plugin {
     public void setLegacySupport(boolean legacy) {
         JiveGlobals.setProperty(ConfigurationPacket.LEGACY_KEY,
                 Boolean.toString(legacy));
+        IQ update = SecurityToggleHandler.createUpdatePacket();
+        sendPacketToDataserver(update);
     }
 
     /**
