@@ -19,9 +19,11 @@
  **/
 package com.raytheon.uf.common.geospatial.interpolation.data;
 
+import javax.measure.converter.UnitConverter;
+
 /**
- * Provide utility method for copying data from a {@link DataSource} to a
- * {@link DataDestination}.
+ * 
+ * Source which wraps another source and converts data on demand.
  * 
  * <pre>
  * 
@@ -29,23 +31,37 @@ package com.raytheon.uf.common.geospatial.interpolation.data;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Feb 27, 2014  2791     bsteffen    Initial creation
+ * Feb 25, 2014  2791     bsteffen    Initial creation
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
+public class UnitConvertingDataSource implements DataSource {
 
-public class DataCopy {
+    protected UnitConverter unitConverter;
 
-    public static final <D extends DataDestination> D copy(DataSource source,
-            D destination, int nx, int ny) {
-        for (int i = 0; i < nx; i += 1) {
-            for (int j = 0; j < ny; j += 1) {
-                destination.setDataValue(source.getDataValue(i, j), i, j);
-            }
-        }
-        return destination;
+    protected DataSource wrappedSource;
+
+    /**
+     * Constructor
+     * 
+     * @param converter
+     *            the unit converter to apply when setting the values in the
+     *            destination
+     * @param source
+     *            the source to get values from
+     */
+    public UnitConvertingDataSource(UnitConverter converter, DataSource source) {
+        this.unitConverter = converter;
+        this.wrappedSource = source;
     }
+
+    @Override
+    public double getDataValue(int x, int y) {
+        double val = unitConverter.convert(wrappedSource.getDataValue(x, y));
+        return val;
+    }
+
 }
