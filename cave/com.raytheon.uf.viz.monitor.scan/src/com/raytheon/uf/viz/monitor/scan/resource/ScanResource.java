@@ -84,7 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     D2DTimeMatcher.
  * Apr 02, 2013 1731       mpduff      Fix problem with DMD updates.
  * Apr 22, 2013   1926       njensen     Faster rendering
- * 
+ * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * </pre>
  * 
  * @author dhladky
@@ -246,7 +246,6 @@ public class ScanResource extends
             PaintProperties paintProps) throws VizException {
         getScan().setFrames(paintProps.getFramesInfo().getFrameCount());
 
-        target.setupClippingPlane(paintProps.getClippingPane());
         this.paintTime = paintProps.getDataTime();
 
         if (paintTime != null) {
@@ -393,6 +392,7 @@ public class ScanResource extends
                 } else if (getTable().equals(ScanTables.DMD)) {
                     paintElevationAngle(target, paintProps);
                 }
+                target.setupClippingPlane(paintProps.getClippingPane());
             }
         }
 
