@@ -93,6 +93,8 @@ public class EbxmlObjectUtil {
      */
     public static final String HOME_SLOT_NAME = "urn:oasis:names:tc:ebxml-regrep:rim:RegistryObject:home";
 
+    public static final String EVENT_SOURCE_SLOT = "EventSource";
+
     /** The name of the slot designated to hold the email notification formatter */
     public static final String EMAIL_NOTIFICATION_FORMATTER_SLOT = "urn:oasis:names:tc:ebxml-regrep:rim:DeliveryInfo:emailNotificationFormatter";
 
