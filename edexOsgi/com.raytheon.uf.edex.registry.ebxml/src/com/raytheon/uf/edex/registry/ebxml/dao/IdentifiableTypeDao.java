@@ -27,6 +27,8 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.IdentifiableType;
 
 import org.hibernate.criterion.Property;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
@@ -44,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 4/9/2013     1802       bphillip    Removed exception catching
  * 10/08/2013   1682       bphillip    Added the id like query
  * 12/2/2013    1829       bphillip    Now extends ExtensibleObjectTypeDao
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -68,6 +71,7 @@ public class IdentifiableTypeDao<ENTITY extends IdentifiableType> extends
      * @throws EbxmlRegistryException
      *             If the query encounters errors
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getById(String... ids) throws EbxmlRegistryException {
         return getById(Arrays.asList(ids));
     }
@@ -84,6 +88,7 @@ public class IdentifiableTypeDao<ENTITY extends IdentifiableType> extends
      *             If the query encounters errors
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getById(List<String> ids) throws EbxmlRegistryException {
         return createCriteria()
                 .add(Property.forName(QueryConstants.ID).in(ids)).list();
@@ -97,6 +102,7 @@ public class IdentifiableTypeDao<ENTITY extends IdentifiableType> extends
      * @return All IdentifiableType objects matching the given id
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByIdUsingLike(String id) {
         return createCriteria().add(
                 Property.forName(QueryConstants.ID).like(id)).list();

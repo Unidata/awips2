@@ -36,6 +36,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryPackageType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TaxonomyElementType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.common.util.CollectionUtil;
@@ -158,6 +161,7 @@ public class GetChildrenByParentId extends RegistryQueryPlugin {
     @Override
     @WebMethod(action = EXECUTE_QUERY_ACTION)
     @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException {
