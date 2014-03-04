@@ -86,6 +86,7 @@
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
 		<includeMode>excludeDpaAndOgc</includeMode>
+		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
 		<exclude>aww-ingest.xml</exclude>
 		<exclude>ncairep-ingest.xml</exclude>
@@ -120,7 +121,8 @@
     	<include>shef-ingest.xml</include>
     	<include>persist-ingest.xml</include>
     	<include>obs-common.xml</include>
-        <include>obs-ingest.xml</include>
+    	<include>obs-ingest.xml</include>
+        <include>obs-ingest-metarshef.xml</include>
         <include>metartohmdb-plugin.xml</include>
         <include>pointdata-common.xml</include>
     	<include>shef-common.xml</include>
