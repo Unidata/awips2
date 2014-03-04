@@ -25,6 +25,9 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -40,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
  * 4/9/2013     1802       bphillip    Removed exception catching
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -47,6 +51,8 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * @version 1.0
  */
 public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
+
+    private static final String GET_ORGANIZATION_BY_NAME_QUERY = "select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like :name1 or lower(theName.value) like :name2 order by obj.id asc";
 
     /** The Association data access object */
     private AssociationDao associationDao;
@@ -65,6 +71,7 @@ public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<OrganizationType> getAllOrganizations() {
         return getAll();
     }
@@ -79,11 +86,12 @@ public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<OrganizationType> getOrganizationByName(String name) {
-        List<OrganizationType> orgs = executeHQLQuery("select obj from OrganizationType obj inner join obj.name.localizedString as theName where lower(obj.id) like '%"
-                + name.toLowerCase()
-                + "%' or lower(theName.value) like '%"
-                + name.toLowerCase() + "%' order by obj.id asc");
+        List<OrganizationType> orgs = executeHQLQuery(
+                GET_ORGANIZATION_BY_NAME_QUERY, "name1",
+                "%" + name.toLowerCase() + "%", "name2",
+                "%" + name.toLowerCase() + "%");
         return orgs;
     }
 
@@ -96,6 +104,7 @@ public class OrganizationDao extends RegistryObjectTypeDao<OrganizationType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public OrganizationType getOrganizationForUser(String user)
             throws EbxmlRegistryException {
         List<AssociationType> associations = associationDao.getBySourceAndType(
