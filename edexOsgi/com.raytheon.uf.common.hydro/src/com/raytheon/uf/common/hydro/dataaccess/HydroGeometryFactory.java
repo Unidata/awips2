@@ -43,13 +43,14 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 13, 2012            njensen     Initial creation
- * Jan 30, 2012 1551       bkowal      Refactored
- * Jan 31, 2012 1555       bkowal      Modification based on existing hydro code
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 13, 2012           njensen     Initial creation
+ * Jan 30, 2012  1551     bkowal      Refactored
+ * Jan 31, 2012  1555     bkowal      Modification based on existing hydro code
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -135,7 +136,7 @@ public class HydroGeometryFactory extends AbstractGeometryDatabaseFactory {
      * #assembleGetTimes (com.raytheon.uf.common.dataaccess.geom.IDataRequest)
      */
     @Override
-    protected String assembleGetTimes(IDataRequest request) {
+    protected String assembleGetTimes(IDataRequest request, boolean refTimeOnly) {
         return HydroQueryAssembler.assembleGetTimes(request);
     }
 
