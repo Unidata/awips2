@@ -29,6 +29,8 @@
 #    ??/??/??                      xxxxxxxx       Initial Creation.
 #    05/28/13         2023         dgilling       Implement __str__().
 #    01/22/14         2667         bclement       preserved milliseconds in string representation 
+#    03/03/14         2673         bsteffen       allow construction using a Date for refTime
+#
 #
 
 import calendar
@@ -39,8 +41,8 @@ import StringIO
 
 from dynamicserialize.dstypes.java.util import Date
 from dynamicserialize.dstypes.java.util import EnumSet
-from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
+from TimeRange import TimeRange
 
 class DataTime(object):
 
@@ -58,6 +60,10 @@ class DataTime(object):
                 self.refTime = long(calendar.timegm(self.refTime.utctimetuple()) * 1000) 
             elif isinstance(self.refTime, time.struct_time):
                 self.refTime = long(calendar.timegm(self.refTime) * 1000)
+            elif hasattr(self.refTime, 'getTime'):
+                # getTime should be returning ms, there is no way to check this
+                # This is expected for java Date 
+                self.refTime = long(self.refTime.getTime())
             else:
                 self.refTime = long(refTime)
             dateObj = Date()
@@ -65,10 +71,10 @@ class DataTime(object):
             self.refTime = dateObj
             
             if self.validPeriod is None:
-                validTimeMillis = self.refTime + long(fcstTime * 1000)
+                validTimeMillis = self.refTime.getTime() + long(self.fcstTime * 1000)
                 self.validPeriod = TimeRange()
-                self.validPeriod.setStart(validTimeMills/1000)
-                self.validPeriod.setEnd(validTimeMills/1000)
+                self.validPeriod.setStart(validTimeMillis/1000)
+                self.validPeriod.setEnd(validTimeMillis/1000)
                 
         # figure out utility flags
         if fcstTime:
