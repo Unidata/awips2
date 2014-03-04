@@ -138,13 +138,13 @@
             </table>
             </br></br></br>
             <p>
-               Legacy message format support. If enabled, configuration is sent in chat message to support clients older than version 14.3.
+               Legacy client support. If enabled, HTTP server security is disabled and configuration is sent in chat messages to support clients older than version 14.3.
             </p>
 
             <table cellpadding="3" cellspacing="0" border="0" width="100%">
               <tbody>
                 <tr>
-                  <td width="15%" valign="top">legacy message format:&nbsp;</td>
+                  <td width="15%" valign="top">legacy mode:&nbsp;</td>
                   <td width="85%">
                     <input type="checkbox" id="chkLegacy" name="chkLegacy" value="true" <%= legacyChkValue %> >
                   </td>
