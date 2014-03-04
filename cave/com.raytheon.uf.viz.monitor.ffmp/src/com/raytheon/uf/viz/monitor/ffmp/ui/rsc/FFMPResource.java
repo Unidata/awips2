@@ -174,6 +174,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
  * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
+ * Mar  3, 2014 2804        mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -1211,198 +1212,208 @@ public class FFMPResource extends
         }
 
         aTarget.clearClippingPlane();
+        try {
 
-        paintTime = paintProps.getDataTime();
-        paintProps.setAlpha(getCapability(ImagingCapability.class).getAlpha());
+            paintTime = paintProps.getDataTime();
+            paintProps.setAlpha(getCapability(ImagingCapability.class)
+                    .getAlpha());
 
-        FFMPDrawable drawable = null;
+            FFMPDrawable drawable = null;
 
-        if (paintTime != null) {
-            if (!drawables.containsKey(paintTime)) {
+            if (paintTime != null) {
+                if (!drawables.containsKey(paintTime)) {
 
-                drawable = new FFMPDrawable(getDomains());
-                drawables.put(paintTime, drawable);
-            } else {
-                // we found it!
-                drawable = drawables.get(paintTime);
-                // System.out.println("Found the drawable");
+                    drawable = new FFMPDrawable(getDomains());
+                    drawables.put(paintTime, drawable);
+                } else {
+                    // we found it!
+                    drawable = drawables.get(paintTime);
+                    // System.out.println("Found the drawable");
 
-                if (!paintTime.equals(drawable.getTime())) {
-                    drawable.setDirty(true);
-                }
-
-                // auto refresh state
-                if (isQuery) {
-                    drawable.setDirty(true);
-                }
-            }
-
-            if (getResourceData().tableLoad
-                    && !paintTime.getRefTime().equals(getMostRecentTime())) {
-                setMostRecentTime(paintTime.getRefTime());
-                setTableTime();
-                // if (isLinkToFrame && loader != null && loader.loadType !=
-                // LOADER_TYPE.GENERAL) {
-                if (isLinkToFrame) {
-                    updateDialog();
-                }
-            }
-        } else {
-            getResourceData().getMonitor().forceKillFFMPSplash();
-        }
-
-        if ((drawable != null) && drawable.isDirty()) {
-            // only need to do the query if extent changed, pfafs may be
-            // fine
-            if (!isFirst || (queryJob.getState() == Job.NONE)) {
-                queryJob.request(aTarget, drawable, paintTime);
-            }
-        }
-
-        if ((drawable != null) && isFfmpDataToggle()) {
-            IColormapShadedShapeExtension ext = aTarget
-                    .getExtension(IColormapShadedShapeExtension.class);
-            ImagingCapability imageCap = getCapability(ImagingCapability.class);
-            float brightness = imageCap.getBrightness();
-            float alpha = imageCap.getAlpha();
-            for (DomainXML domain : getDomains()) {
-                String cwa = domain.getCwa();
-                IColormapShadedShape shape = shadedShapes.getDrawableShape(cwa,
-                        drawable.getShadedHuc());
-                Map<Object, RGB> colorMap = drawable.getColorMap(cwa);
-                if ((shape != null) && (colorMap != null)) {
-                    ext.drawColormapShadedShape(shape, colorMap, alpha,
-                            brightness);
-                }
-            }
-        }
-
-        boolean isAllHuc = getHuc().equals(FFMPRecord.ALL);
-        if (getResourceData().tableLoad) {
-
-            int mapWidth = getDescriptor().getMapWidth() / 1000;
-            double zoom = getDescriptor().getRenderableDisplay().getZoom();
-
-            // determine whether or not to draw the small guys
-            if ((mapWidth * zoom) > 250.0) {
-                if (isSmallBasins) {
-                    isSmallBasins = false;
-                    refresh();
-                }
-
-            } else if ((mapWidth * zoom) < 250.0) {
-                if (!isSmallBasins) {
-                    isSmallBasins = true;
-                    if (smallBasinOverlayShape == null) {
+                    if (!paintTime.equals(drawable.getTime())) {
                         drawable.setDirty(true);
-                    } else {
+                    }
+
+                    // auto refresh state
+                    if (isQuery) {
+                        drawable.setDirty(true);
+                    }
+                }
+
+                if (getResourceData().tableLoad
+                        && !paintTime.getRefTime().equals(getMostRecentTime())) {
+                    setMostRecentTime(paintTime.getRefTime());
+                    setTableTime();
+                    // if (isLinkToFrame && loader != null && loader.loadType !=
+                    // LOADER_TYPE.GENERAL) {
+                    if (isLinkToFrame) {
+                        updateDialog();
+                    }
+                }
+            } else {
+                getResourceData().getMonitor().forceKillFFMPSplash();
+            }
+
+            if ((drawable != null) && drawable.isDirty()) {
+                // only need to do the query if extent changed, pfafs may be
+                // fine
+                if (!isFirst || (queryJob.getState() == Job.NONE)) {
+                    queryJob.request(aTarget, drawable, paintTime);
+                }
+            }
+
+            if ((drawable != null) && isFfmpDataToggle()) {
+                IColormapShadedShapeExtension ext = aTarget
+                        .getExtension(IColormapShadedShapeExtension.class);
+                ImagingCapability imageCap = getCapability(ImagingCapability.class);
+                float brightness = imageCap.getBrightness();
+                float alpha = imageCap.getAlpha();
+                for (DomainXML domain : getDomains()) {
+                    String cwa = domain.getCwa();
+                    IColormapShadedShape shape = shadedShapes.getDrawableShape(
+                            cwa, drawable.getShadedHuc());
+                    Map<Object, RGB> colorMap = drawable.getColorMap(cwa);
+                    if ((shape != null) && (colorMap != null)) {
+                        ext.drawColormapShadedShape(shape, colorMap, alpha,
+                                brightness);
+                    }
+                }
+            }
+
+            boolean isAllHuc = getHuc().equals(FFMPRecord.ALL);
+            if (getResourceData().tableLoad) {
+
+                int mapWidth = getDescriptor().getMapWidth() / 1000;
+                double zoom = getDescriptor().getRenderableDisplay().getZoom();
+
+                // determine whether or not to draw the small guys
+                if ((mapWidth * zoom) > 250.0) {
+                    if (isSmallBasins) {
+                        isSmallBasins = false;
                         refresh();
                     }
-                }
-            }
 
-            if (isSmallBasins && this.isBasinToggle()) {
-                OutlineCapability lineCap = getCapability(OutlineCapability.class);
-                if ((smallBasinOverlayShape != null)
-                        && smallBasinOverlayShape.isDrawable()) {
-
-                    if (basinBoundaryColor == null) {
-                        basinBoundaryColor = getCapability(
-                                ColorableCapability.class).getColor();
-                    }
-
-                    aTarget.drawWireframeShape(smallBasinOverlayShape,
-                            basinBoundaryColor, lineCap.getOutlineWidth(),
-                            lineCap.getLineStyle());
-                } else if ((smallBasinOverlayShape == null)
-                        && lineCap.isOutlineOn()) {
-                    issueRefresh();
-                }
-            }
-
-            // the product string
-            if (isFfmpDataToggle() && (fieldDescString != null)) {
-                paintProductString(aTarget, paintProps);
-            }
-        }
-        // re-centered ?
-        if (centeredAggregationKey != null) {
-            vgbDrawables.clear();
-            // create pixelCoverages for the VGB's
-            if (isAllHuc) {
-                for (DomainXML domain : getDomains()) {
-                    for (Long pfaf : monitor.getTemplates(getSiteKey())
-                            .getMap(getSiteKey(), domain.getCwa(), getHuc())
-                            .keySet()) {
-                        List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
-                                .getTemplates(getSiteKey())
-                                .getVirtualGageBasinMetaData(getSiteKey(),
-                                        domain.getCwa(), pfaf);
-                        if (fvgmdList != null) {
-                            for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                vgbDrawables.put(
-                                        fvgmd.getLid(),
-                                        getPixelCoverage(fvgmd.getCoordinate(),
-                                                paintProps));
-                            }
+                } else if ((mapWidth * zoom) < 250.0) {
+                    if (!isSmallBasins) {
+                        isSmallBasins = true;
+                        if (smallBasinOverlayShape == null) {
+                            drawable.setDirty(true);
+                        } else {
+                            refresh();
                         }
                     }
                 }
-            } else {
-                if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
-                    for (Long pfaf : monitor.getTemplates(getSiteKey())
-                            .getAllAggregatePfafs(centeredAggregationKey,
-                                    getHuc())) {
-                        List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
+
+                if (isSmallBasins && this.isBasinToggle()) {
+                    OutlineCapability lineCap = getCapability(OutlineCapability.class);
+                    if ((smallBasinOverlayShape != null)
+                            && smallBasinOverlayShape.isDrawable()) {
+
+                        if (basinBoundaryColor == null) {
+                            basinBoundaryColor = getCapability(
+                                    ColorableCapability.class).getColor();
+                        }
+
+                        aTarget.drawWireframeShape(smallBasinOverlayShape,
+                                basinBoundaryColor, lineCap.getOutlineWidth(),
+                                lineCap.getLineStyle());
+                    } else if ((smallBasinOverlayShape == null)
+                            && lineCap.isOutlineOn()) {
+                        issueRefresh();
+                    }
+                }
+
+                // the product string
+                if (isFfmpDataToggle() && (fieldDescString != null)) {
+                    paintProductString(aTarget, paintProps);
+                }
+            }
+            // re-centered ?
+            if (centeredAggregationKey != null) {
+                vgbDrawables.clear();
+                // create pixelCoverages for the VGB's
+                if (isAllHuc) {
+                    for (DomainXML domain : getDomains()) {
+                        for (Long pfaf : monitor
                                 .getTemplates(getSiteKey())
-                                .getVirtualGageBasinMetaData(getSiteKey(),
-                                        null, pfaf);
-                        if (fvgmdList != null) {
-                            for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
-                                vgbDrawables.put(
-                                        fvgmd.getLid(),
-                                        getPixelCoverage(fvgmd.getCoordinate(),
-                                                paintProps));
+                                .getMap(getSiteKey(), domain.getCwa(), getHuc())
+                                .keySet()) {
+                            List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
+                                    .getTemplates(getSiteKey())
+                                    .getVirtualGageBasinMetaData(getSiteKey(),
+                                            domain.getCwa(), pfaf);
+                            if (fvgmdList != null) {
+                                for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
+                                    vgbDrawables.put(
+                                            fvgmd.getLid(),
+                                            getPixelCoverage(
+                                                    fvgmd.getCoordinate(),
+                                                    paintProps));
+                                }
                             }
                         }
                     }
                 } else {
-                    for (DomainXML domain : getDomains()) {
-                        for (Entry<String, FFMPVirtualGageBasinMetaData> entry : monitor
-                                .getTemplates(getSiteKey())
-                                .getVirtualGageBasins(getSiteKey(),
-                                        domain.getCwa()).entrySet()) {
-                            if (entry.getValue() != null) {
-                                vgbDrawables.put(
-                                        entry.getKey(),
-                                        getPixelCoverage(entry.getValue()
-                                                .getCoordinate(), paintProps));
+                    if (lowestCenter == FFMPRecord.ZOOM.AGGREGATE) {
+                        for (Long pfaf : monitor.getTemplates(getSiteKey())
+                                .getAllAggregatePfafs(centeredAggregationKey,
+                                        getHuc())) {
+                            List<FFMPVirtualGageBasinMetaData> fvgmdList = monitor
+                                    .getTemplates(getSiteKey())
+                                    .getVirtualGageBasinMetaData(getSiteKey(),
+                                            null, pfaf);
+                            if (fvgmdList != null) {
+                                for (FFMPVirtualGageBasinMetaData fvgmd : fvgmdList) {
+                                    vgbDrawables.put(
+                                            fvgmd.getLid(),
+                                            getPixelCoverage(
+                                                    fvgmd.getCoordinate(),
+                                                    paintProps));
+                                }
+                            }
+                        }
+                    } else {
+                        for (DomainXML domain : getDomains()) {
+                            for (Entry<String, FFMPVirtualGageBasinMetaData> entry : monitor
+                                    .getTemplates(getSiteKey())
+                                    .getVirtualGageBasins(getSiteKey(),
+                                            domain.getCwa()).entrySet()) {
+                                if (entry.getValue() != null) {
+                                    vgbDrawables.put(
+                                            entry.getKey(),
+                                            getPixelCoverage(entry.getValue()
+                                                    .getCoordinate(),
+                                                    paintProps));
+                                }
                             }
                         }
                     }
                 }
+
+                paintCenter(aTarget, paintProps);
+                paintVGBs(aTarget, paintProps);
             }
 
-            paintCenter(aTarget, paintProps);
-            paintVGBs(aTarget, paintProps);
-        }
+            // draw or clear the colorMap
+            if (!isFfmpDataToggle()) { // clear if ffmpDataToggle is false
+                getCapability(ColorMapCapability.class).setColorMapParameters(
+                        null);
+            } else if (getColorUtil().getColorMapParameters() != null) {
+                // restore if null
+                getCapability(ColorMapCapability.class).setColorMapParameters(
+                        getColorUtil().getColorMapParameters());
+            }
 
-        // draw or clear the colorMap
-        if (!isFfmpDataToggle()) { // clear if ffmpDataToggle is false
-            getCapability(ColorMapCapability.class).setColorMapParameters(null);
-        } else if (getColorUtil().getColorMapParameters() != null) {
-            // restore if null
-            getCapability(ColorMapCapability.class).setColorMapParameters(
-                    getColorUtil().getColorMapParameters());
-        }
+            // draw stream trace?
+            if (isShowStream() && isStreamFollow()) {
+                paintUpAndDownStream(aTarget, paintProps);
+            }
 
-        // draw stream trace?
-        if (isShowStream() && isStreamFollow()) {
-            paintUpAndDownStream(aTarget, paintProps);
+            // always reset
+            isQuery = false;
+        } finally {
+            aTarget.setupClippingPlane(paintProps.getClippingPane());
         }
-
-        // always reset
-        isQuery = false;
     }
 
     /**
