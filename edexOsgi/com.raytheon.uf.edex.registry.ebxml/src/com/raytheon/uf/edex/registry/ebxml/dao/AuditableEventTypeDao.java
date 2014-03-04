@@ -107,7 +107,7 @@ public class AuditableEventTypeDao extends
     private static final String ORDER_CLAUSE = " order by event.timestamp asc";
 
     /** The number of hours to retain auditable events */
-    private static final int AUDITABLE_EVENT_RETENTION_TIME = 48;
+    public static final int AUDITABLE_EVENT_RETENTION_TIME = 48;
 
     /** Cutoff parameter for the query to get the expired events */
     private static final String GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER = "cutoff";
@@ -146,7 +146,7 @@ public class AuditableEventTypeDao extends
      * @throws EbxmlRegistryException
      *             If errors occur purging auditable events
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public List<AuditableEventType> getExpiredEvents(int limit)
             throws EbxmlRegistryException {
         Calendar cutoffTime = TimeUtil.newGmtCalendar();
@@ -174,6 +174,7 @@ public class AuditableEventTypeDao extends
      * @throws EbxmlRegistryException
      * @throws MsgRegistryException
      */
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public List<AuditableEventType> getEventsOfInterest(
             SubscriptionType subscription, String serviceAddress,
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
@@ -336,6 +337,7 @@ public class AuditableEventTypeDao extends
      *            The delivery address to check
      * @return The last sent date in millis
      */
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public Long getSendTime(AuditableEventType auditableEvent,
             String subscriptionId, String deliveryAddress) {
         SlotType slot = auditableEvent.getSlotByName(subscriptionId
