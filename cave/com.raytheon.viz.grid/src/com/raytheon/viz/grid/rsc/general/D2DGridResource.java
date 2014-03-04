@@ -45,6 +45,8 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -93,6 +95,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    world.
  * Feb 04, 2014  2672     bsteffen    Extract subgridding logic to geospatial
  *                                    plugin.
+ * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
+ *                                    for data access
  * 
  * </pre>
  * 
@@ -227,22 +231,24 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 MathTransform crs2ll = MapUtil
                         .getTransformToLatLon(gridGeometry
                                 .getCoordinateReferenceSystem());
+                DataSource oldScalar = data.getScalarData();
+                FloatBufferWrapper newScalar = new FloatBufferWrapper(
+                        gridGeometry);
                 for (int i = 0; i < gridRange.width; i++) {
                     for (int j = 0; j < gridRange.height; j++) {
-                        int index = i + (j * gridRange.width);
-                        float dir = data.getScalarData().get(index);
-                        if (dir > -9999) {
-                            DirectPosition2D dp = new DirectPosition2D(i, j);
-                            grid2crs.transform(dp, dp);
-                            crs2ll.transform(dp, dp);
-                            Coordinate ll = new Coordinate(dp.x, dp.y);
-                            float rot = (float) MapUtil.rotation(ll,
-                                    gridGeometry);
-                            dir = (dir + rot) % 360;
-                            data.getScalarData().put(index, dir);
-                        }
+                        double dir = oldScalar.getDataValue(i, j);
+                        DirectPosition2D dp = new DirectPosition2D(i, j);
+                        grid2crs.transform(dp, dp);
+                        crs2ll.transform(dp, dp);
+                        Coordinate ll = new Coordinate(dp.x, dp.y);
+                        float rot = (float) MapUtil.rotation(ll,
+                                gridGeometry);
+                        dir = (dir + rot) % 360;
+                        newScalar.setDataValue(dir, i, j);
                     }
                 }
+                data = GeneralGridData.createScalarData(gridGeometry,
+                        newScalar, data.getDataUnit());
             } catch (TransformException e) {
                 throw new VizException(e);
             } catch (InvalidGridGeometryException e) {
