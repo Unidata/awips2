@@ -32,6 +32,7 @@
 #                                                 to use single request.
 #    04/10/13         1871         mnash          move getLatLonCoords to JGridData and add default args
 #    05/29/13         2023         dgilling       Hook up ThriftClientRouter.
+#    03/03/14         2673         bsteffen       Add ability to query only ref times.
 #    
 # 
 #
@@ -54,17 +55,20 @@ except ImportError:
     USING_NATIVE_THRIFT = True
     
 
-def getAvailableTimes(request):
+def getAvailableTimes(request, refTimeOnly=False):
     """
     Get the times of available data to the request.
     
     Args: 
             request: the IDataRequest to get data for
     
+    Args: 
+            refTimeOnly: True if only unique refTimes should be returned(without
+            a forecastHr)
     Returns:
             a list of DataTimes    
     """
-    return router.getAvailableTimes(request)
+    return router.getAvailableTimes(request, refTimeOnly)
 
 def getGridData(request, times=[]):
     """
