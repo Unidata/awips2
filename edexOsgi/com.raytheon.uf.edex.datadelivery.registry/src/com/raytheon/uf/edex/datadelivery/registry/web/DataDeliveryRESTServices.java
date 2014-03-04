@@ -25,7 +25,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryAvailableRestService;
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryDataAccessService;
-import com.raytheon.uf.common.datadelivery.registry.web.IRegistryFederationService;
+import com.raytheon.uf.common.datadelivery.registry.web.IRegistryFederationManager;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
 import com.raytheon.uf.common.registry.services.RegistryRESTServices;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -42,6 +42,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ----------  ----------- --------------------------
  * 10/30/2013    1538       bphillip    Initial Creation
  * 11/20/2013   2534        bphillip    Eliminated service caching
+ * 2/27/2014     2769       bphillip    Add RegistryFederationManager to exposed REST services
  * </pre>
  * 
  * @author bphillip
@@ -62,9 +63,10 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
         super();
     }
 
-    public IRegistryFederationService getFederationService(String baseURL) {
-        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
-                IRegistryFederationService.class);
+    public IRegistryFederationManager getRegistryFederationManager(
+            String baseURL) {
+        return createService(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+                IRegistryFederationManager.class);
     }
 
     /**
@@ -76,7 +78,7 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
      */
     public IRegistryAvailableRestService getRegistryAvailableService(
             String baseURL) {
-        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+        return createService(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
                 IRegistryAvailableRestService.class);
     }
 
@@ -118,7 +120,7 @@ public class DataDeliveryRESTServices extends RegistryRESTServices {
      */
     public IRegistryDataAccessService getRegistryDataAccessService(
             String baseURL) {
-        return getPort(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
+        return createService(baseURL + DATA_DELIVERY_REST_SERVICE_PATH,
                 IRegistryDataAccessService.class);
 
     }
