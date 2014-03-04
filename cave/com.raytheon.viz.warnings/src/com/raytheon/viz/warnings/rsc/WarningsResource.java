@@ -52,7 +52,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 1, 2010            jsanchez     Initial creation
- * Aug 22, 2011  10631    njensen  Major refactor
+ * Aug 22, 2011  10631    njensen      Major refactor
  * May 3, 2012  DR 14741  porricel     Stop setting end time of orig.
  *                                     warning to start time of update.
  * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
@@ -63,6 +63,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
+ * Mar 04, 2014 2832       njensen     Set fonts to null in disposeInternal() so recycle works
+ *                                        Set entry.project to true for recycle
  * </pre>
  * 
  * @author jsanchez
@@ -139,15 +141,22 @@ public class WarningsResource extends AbstractWWAResource {
             if (entry.wireframeShape != null) {
                 entry.wireframeShape.dispose();
             }
+
+            /*
+             * we set this to true and keep the entries around solely in case
+             * this resource is being recycled
+             */
+            entry.project = true;
         }
 
-        entryMap.clear();
         if (warningsFont != null) {
             warningsFont.dispose();
+            warningsFont = null;
         }
 
         if (emergencyFont != null) {
             emergencyFont.dispose();
+            emergencyFont = null;
         }
     }
 
