@@ -49,12 +49,16 @@ public class CreateAuditTrailEvent extends Event {
 
     private List<RegistryObjectType> objectsAffected;
 
+    private long eventTime;
+
     public CreateAuditTrailEvent(String id, RegistryRequestType request,
-            String actionType, List<RegistryObjectType> objectsAffected) {
+            String actionType, List<RegistryObjectType> objectsAffected,
+            long eventTime) {
         super(id);
         this.request = request;
         this.actionType = actionType;
         this.objectsAffected = objectsAffected;
+        this.eventTime = eventTime;
     }
 
     public RegistryRequestType getRequest() {
@@ -67,6 +71,10 @@ public class CreateAuditTrailEvent extends Event {
 
     public List<RegistryObjectType> getObjectsAffected() {
         return objectsAffected;
+    }
+
+    public long getEventTime() {
+        return eventTime;
     }
 
 }
