@@ -145,6 +145,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
  * Feb 26, 2014   #2833    lvenable     Added code to prevent the Subset (this) dialog from
  *                                      disappearing when the Subscription button is double clicked.
+ *                                      Added dispose check for subscription button.
  * </pre>
  * 
  * @author mpduff
@@ -449,8 +450,10 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                     launchCreateSubscriptionGui(subscription);
                 }
 
-                // Enable the button.
-                subscribeBtn.setEnabled(true);
+                // Enable the subscription button if it is not disposed.
+                if (subscribeBtn.isDisposed() == false) {
+                    subscribeBtn.setEnabled(true);
+                }
             }
         });
 
