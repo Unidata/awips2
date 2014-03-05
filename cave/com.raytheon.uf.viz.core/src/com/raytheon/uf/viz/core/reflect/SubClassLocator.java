@@ -20,19 +20,18 @@
 package com.raytheon.uf.viz.core.reflect;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 import org.reflections.scanners.SubTypesScanner;
 
@@ -56,6 +55,7 @@ import com.raytheon.uf.viz.core.Activator;
  * Oct 18, 2013  2491     bsteffen    Initial creation
  * Dec 10, 2013  2602     bsteffen    Add null checks to detect unloaded
  *                                    bundles.
+ * Feb 03, 2013  2764     bsteffen    Use OSGi API to get dependencies.
  * 
  * </pre>
  * 
@@ -68,15 +68,11 @@ public class SubClassLocator implements ISubClassLocator {
 
     private static final String CACHE_FILENAME = "subclassCache.txt";
 
-    private static final Pattern COMMA_SPLIT = Pattern.compile("[,]");
-
-    private static final Pattern SEMICOLON_SPLIT = Pattern.compile("[;]");
-
     private final Map<String, BundleReflections> reflectionLookup = new HashMap<String, BundleReflections>();
 
     private final Map<String, Bundle> bundleLookup = new HashMap<String, Bundle>();
 
-    private final Map<String, List<Bundle>> requiredBundles = new HashMap<String, List<Bundle>>();
+    private final Map<String, Collection<Bundle>> requiredBundles = new HashMap<String, Collection<Bundle>>();
 
     private final BundleClassCache cache;
 
@@ -146,6 +142,14 @@ public class SubClassLocator implements ISubClassLocator {
             return Collections.emptySet();
         }
 
+        if (bundle.getState() == Bundle.UNINSTALLED) {
+            /*
+             * We won't be able to get a class loader for uninstalled bundles so
+             * don't process them.
+             */
+            return Collections.emptySet();
+        }
+
         if (includeRequiredSubclasses) {
             /* Short circut if we already did this. */
             Set<Class<?>> result = recursiveClasses.get(bundleName);
@@ -159,7 +163,8 @@ public class SubClassLocator implements ISubClassLocator {
             Set<Class<?>> dependencies = getRequiredSubclasses(base, bundle,
                     recursiveClasses);
             /* Must pass dependencies in so type heirarchy is complete. */
-            Set<Class<?>> owned = loadSubClassesReflectively(bundle, dependencies);
+            Set<Class<?>> owned = loadSubClassesReflectively(bundle,
+                    dependencies);
             /* populate the cache */
             ownedNames = new String[owned.size()];
             int index = 0;
@@ -180,8 +185,7 @@ public class SubClassLocator implements ISubClassLocator {
                     Arrays.asList(ownedNames));
             if (includeRequiredSubclasses) {
                 Set<Class<?>> dependencies = getRequiredSubclasses(base,
-                        bundle,
-                        recursiveClasses);
+                        bundle, recursiveClasses);
                 Set<Class<?>> all = new HashSet<Class<?>>(dependencies);
                 all.addAll(owned);
                 recursiveClasses.put(bundleName, all);
@@ -279,31 +283,32 @@ public class SubClassLocator implements ISubClassLocator {
     }
 
     /**
-     * Parse bundle header to get all required bundles
+     * Get back all the bundles this bundle depends on.
      * 
      * @param bundle
      *            the bundle
      * @return bundles required by bundle.
      */
-    private List<Bundle> getRequiredBundles(Bundle bundle) {
+    private Collection<Bundle> getRequiredBundles(Bundle bundle) {
         String bundleName = bundle.getSymbolicName();
-        List<Bundle> required = requiredBundles.get(bundle);
+        Collection<Bundle> required = requiredBundles.get(bundleName);
         if (required == null) {
-            required = new ArrayList<Bundle>();
-            String requiredBundlesHeader = bundle.getHeaders().get(
-                    Constants.REQUIRE_BUNDLE);
-            if (requiredBundlesHeader != null) {
-                String[] requiredBundles = COMMA_SPLIT
-                        .split(requiredBundlesHeader);
-                for (String requiredBundleName : requiredBundles) {
-                    String[] nameParts = SEMICOLON_SPLIT
-                            .split(requiredBundleName);
-                    Bundle reqBundle = bundleLookup.get(nameParts[0]);
-                    if (reqBundle != null) {
-                        required.add(reqBundle);
-                    }
+            required = new HashSet<Bundle>();
+            BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+            if (bundleWiring != null) {
+                /* Get Required bundles */
+                for (BundleWire bw : bundleWiring
+                        .getRequiredWires(BundleNamespace.BUNDLE_NAMESPACE)) {
+                    required.add(bw.getProviderWiring().getBundle());
+                }
+                /* Get Bundles through import package */
+                for (BundleWire bw : bundleWiring
+                        .getRequiredWires(PackageNamespace.PACKAGE_NAMESPACE)) {
+                    required.add(bw.getProviderWiring().getBundle());
                 }
             }
+            /* Avoid recursion */
+            required.remove(bundle);
             requiredBundles.put(bundleName, required);
 
         }
