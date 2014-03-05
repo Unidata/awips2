@@ -47,15 +47,9 @@ public class DerbyAppender extends AppenderBase<ILoggingEvent> {
 
     private DerbyDao dao;
 
-    private String[] ignoreThreads;
-
     public DerbyAppender() {
         super();
         dao = DerbyDao.getInstance();
-        String ignore = dao.getConfig().getIgnoreThreads();
-        if (ignore != null) {
-            ignoreThreads = ignore.split(",");
-        }
     }
 
     @Override
@@ -78,13 +72,6 @@ public class DerbyAppender extends AppenderBase<ILoggingEvent> {
      * @return
      */
     private boolean shouldStoreMsg(ILoggingEvent event) {
-        if (ignoreThreads != null) {
-            for (String ignore : ignoreThreads) {
-                if (event.getThreadName().startsWith(ignore)) {
-                    return false;
-                }
-            }
-        }
         return true;
     }
 }

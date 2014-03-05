@@ -36,7 +36,7 @@ function dropDatauriAndAddConstraint {
 
 echo "INFO: Dropping dataURI columns."
 
-dropDatauriAndAddConstraint lsr lsr_latitude_longitude_stationId_reftime_forecasttime_eventtype_key "(latitude, longitude, stationId, reftime, forecasttime, eventtype)"
+dropDatauriAndAddConstraint lsr lsr_latitude_longitude_officeId_reftime_forecasttime_eventtype_key "(latitude, longitude, officeId, reftime, forecasttime, eventtype)"
 
 
 echo "INFO: LSR dataURI column dropped successfully"
