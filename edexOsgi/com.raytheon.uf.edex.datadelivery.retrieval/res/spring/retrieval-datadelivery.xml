@@ -52,22 +52,13 @@
 
     <bean id="scheduledExecutorService" class="java.util.concurrent.Executors"
         factory-method="newScheduledThreadPool">
-        <constructor-arg value="3" />
+        <constructor-arg value="${retrieval-subNotify.threads}" />
     </bean>
 
     <bean id="retrievalHandler"
         class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalHandler">
         <constructor-arg ref="scheduledExecutorService" />
         <constructor-arg ref="retrievalDao" />
-        <constructor-arg ref="retrievalTaskList" />
-        <constructor-arg ref="subNotifyTask" />
-        <!-- How often to execute the retrieval tasks -->
-        <constructor-arg>
-            <bean class="com.raytheon.uf.common.time.domain.Durations"
-                factory-method="fromString">
-                <constructor-arg value="${retrieval.task.frequency}" />
-            </bean>
-        </constructor-arg>
         <!-- How often to execute the subscription notify tasks -->
         <constructor-arg>
             <bean class="com.raytheon.uf.common.time.domain.Durations"
@@ -75,21 +66,33 @@
                 <constructor-arg value="${subnotify.task.frequency}" />
             </bean>
         </constructor-arg>
+        <constructor-arg ref="subNotifyTask" />
+	<constructor-arg ref="retrievalTaskFactoryMap" />
     </bean>
-
-    <camelContext id="dataDeliveryNotify-camel"
-        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <!-- Wake retrieval threads if were not running -->
-        <route id="notifyRetrieval">
-            <!-- If data delivery clustered, move this to topic -->
-            <from uri="direct-vm:notifyRetrieval" />
-            <bean ref="retrievalHandler" method="notify" />
-        </route>
-
-        <route id="dataDeliveryNotify">
-            <from uri="direct-vm:dataDeliveryNotify" />
-            <to uri="direct-vm:stageNotification" />
-        </route>
-    </camelContext>
+    
+	<camelContext id="dataDeliveryNotify-camel" xmlns="http://camel.apache.org/schema/spring"
+	errorHandlerRef="errorHandler">
+	<endpoint id="notifyRetrievalQueue"
+		uri="jms-durable:queue:notifyRetrieval?concurrentConsumers=${retrieval-process.threads}" />
+	<!-- SendToRetrievals method from RetrievalGeneratorUtilities links to this 
+		queue -->
+	<route id="notifyRetrieval">
+		<from ref="notifyRetrievalQueue" />
+		<doTry>
+			<pipeline>
+				<bean ref="retrievalHandler" method="notify" />
+			</pipeline>
+			<doCatch>
+				<exception>java.lang.Throwable</exception>
+				<to uri="log:notifyRetrieval?level=ERROR" />
+			</doCatch>
+		</doTry>
+	</route>
+	<!-- event bus messages -->
+	<route id="dataDeliveryNotify">
+		<from uri="direct-vm:dataDeliveryNotify" />
+		<to uri="direct-vm:stageNotification" />
+	</route>
+</camelContext>
 
 </beans>

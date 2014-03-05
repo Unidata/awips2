@@ -54,6 +54,9 @@ import com.raytheon.uf.common.time.domain.api.ITimePoint;
  * Jun 05, 2013 DR 16279   D. Friedman Add timeOfDayToAbsoluteTime
  * Oct 30, 2013  2448      dhladky     Added current year addition to calendar object.
  * Nov 05, 2013 2499       rjpeter     Added prettyDuration.
+ * Jan 08, 2014 2615       bgonzale    Added Calendar min and max methods.
+ *                                     Added newGmtCalendar from a date method.
+ * Jan 28, 2014  2636      mpduff      Removed unused methods.
  * </pre>
  * 
  * @author njensen
@@ -178,6 +181,13 @@ public final class TimeUtil {
      * The strategy to retrieve the "current time" value from.
      */
     static ITimeStrategy timeStrategy = SYSTEM_TIME_STRATEGY;
+
+    /**
+     * Disabled constructor.
+     */
+    private TimeUtil() {
+
+    }
 
     /**
      * Converts a Calendar in the local time zone to a GMT date
@@ -323,6 +333,54 @@ public final class TimeUtil {
         return (laterCal.get(Calendar.DAY_OF_YEAR) > earlierCal
                 .get(Calendar.DAY_OF_YEAR))
                 || (laterCal.get(Calendar.YEAR) > earlierCal.get(Calendar.YEAR));
+    }
+
+    /**
+     * Max comparison of two Calendars; returns the greater.
+     * 
+     * @param lhs
+     * @param rhs
+     * @return the greater of two Calendars; returns null if both are null.
+     */
+    public static Calendar max(Calendar lhs, Calendar rhs) {
+        if (lhs != null && rhs == null) {
+            return lhs;
+        }
+        if (lhs == null && rhs != null) {
+            return rhs;
+        }
+        if (lhs != null && rhs != null) {
+            if (lhs.equals(rhs)) {
+                return lhs;
+            } else {
+                return lhs.after(rhs) ? lhs : rhs;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Min comparison of two Calendars; returns the lesser.
+     * 
+     * @param lhs
+     * @param rhs
+     * @return the lesser of two Calendars; returns null if both are null.
+     */
+    public static Calendar min(Calendar lhs, Calendar rhs) {
+        if (lhs != null && rhs == null) {
+            return lhs;
+        }
+        if (lhs == null && rhs != null) {
+            return rhs;
+        }
+        if (lhs != null && rhs != null) {
+            if (lhs.equals(rhs)) {
+                return lhs;
+            } else {
+                return lhs.before(rhs) ? lhs : rhs;
+            }
+        }
+        return null;
     }
 
     /**
@@ -504,13 +562,8 @@ public final class TimeUtil {
     }
 
     /**
-     * Disabled constructor.
-     */
-    private TimeUtil() {
-    }
-    
-    /**
      * New Calendar from a Date
+     * 
      * @param date
      * @return
      */
@@ -522,11 +575,12 @@ public final class TimeUtil {
         }
         return t;
     }
-    
+
     /**
      * New Calendar from an existing calendar
+     * 
      * @param calendar
-     * @return
+     * @return new calendar
      */
     public static Calendar newCalendar(final Calendar calendar) {
         Calendar t = null;
@@ -536,20 +590,37 @@ public final class TimeUtil {
         }
         return t;
     }
-    
+
     /**
-     * Adds the current year to the calendar object that does not already have it set.
-     * Some calendar objects are only concerned with the day and month.  When a 
-     * comparison of years is necessary, you must add the current year to that calendar object.
+     * New GMT Calendar from a Date
+     * 
+     * @param date
+     * @return
+     */
+    public static Calendar newGmtCalendar(final Date date) {
+        Calendar t = null;
+        if (date != null) {
+            t = TimeUtil.newGmtCalendar();
+            t.setTime(date);
+        }
+        return t;
+    }
+
+    /**
+     * Adds the current year to the calendar object that does not already have
+     * it set. Some calendar objects are only concerned with the day and month.
+     * When a comparison of years is necessary, you must add the current year to
+     * that calendar object.
+     * 
      * @param calendar
      * @return
      */
     public static Calendar addCurrentYearCalendar(final Calendar calendar) {
-        
+
         Calendar yearTime = TimeUtil.newGmtCalendar();
         calendar.set(Calendar.YEAR, yearTime.get(Calendar.YEAR));
-        
+
         return calendar;
     }
-   
+
 }

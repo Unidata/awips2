@@ -8,8 +8,7 @@
  * implied data will range 0-1 and need scaling to get raw value
  * where scaleMin maps to 0 and scaleMax maps to 1.
  */
-struct DataTexture {
-	sampler2D rawTex;
+struct DataTextureInfo {
 	float noDataValue;
 	int isScaled;
 	float scaleMin;
@@ -18,23 +17,9 @@ struct DataTexture {
 	float height;
 };
 
-/** 
- * Fields used for converting from image data values to 
- * colormapping data values. Done to avoid conversions in 
- * application code.  dmv[i] -> cmv[i]. Linear interpolation 
- * is done where non-exact matches are found.  Mappings should 
- * be uploaded as floats so no scaling is needed
- */
-struct DataMapping {
-	sampler1D dataMappingValues;
-	sampler1D colorMappingValues;
-	int numMappingValues;
-};
-
 struct ColorMapping {
 	/** Fields for color map and size. colorMap contains colors to
 	 * use for mapping. cmapMin/Max is range colormap is applied over */
-	sampler1D colorMap;
 	float cmapMin;
 	float cmapMax;
 
@@ -42,7 +27,6 @@ struct ColorMapping {
 	 * same size as colorMap and contains 0s and 1s, 1 indicating alpha
 	 * should be set to completely transparent */
 	int applyMask;
-	sampler1D alphaMask;
 
 	/** Fields for logarithmic and mirrored indexing into the colorMap */
 	int isMirrored;
@@ -51,28 +35,28 @@ struct ColorMapping {
 };
 
 /**
- * Returns the data value for the DataTexture at location.
+ * Returns the data value for the DataTextureInfo at location.
  */
-float textureToDataValue(DataTexture texture, vec2 location) {
-	vec4 textureValue = texture2D(texture.rawTex, location);
+float textureToDataValue(sampler2D texture, DataTextureInfo info, vec2 location) {
+	vec4 textureValue = texture2D(texture, location);
 	float dataValue = textureValue.r;
 
-	if (texture.isScaled == 1) {
+	if (info.isScaled == 1) {
 		// Convert to non-scaled value
-		dataValue = ((dataValue * (texture.scaleMax - texture.scaleMin))
-				+ texture.scaleMin);
+		dataValue = ((dataValue * (info.scaleMax - info.scaleMin))
+				+ info.scaleMin);
 	}
 	return dataValue;
 }
 
 /**
- * Returns the data value for the DataTexture at location.
+ * Returns the data value for the DataTextureInfo at location.
  */
-float dataToTextureValue(DataTexture texture, float dataValue) {
+float dataToTextureValue(DataTextureInfo info, float dataValue) {
 	float textureValue = dataValue;
-	if (texture.isScaled == 1) {
-		textureValue = (dataValue - texture.scaleMin)
-				/ (texture.scaleMax - texture.scaleMin);
+	if (info.isScaled == 1) {
+		textureValue = (dataValue - info.scaleMin)
+				/ (info.scaleMax - info.scaleMin);
 	}
 	return textureValue;
 }
@@ -86,10 +70,9 @@ float lookupMappingValue(sampler1D mappingTex, int index,
 }
 
 /**
- * Converts a data value into a colorMap value given the DataMapping
+ * Converts a data value into a colorMap value given the data mapping info
  */
-float dataToColorMapValue(float dataValue, DataMapping mapping) {
-	int numMappingValues = mapping.numMappingValues;
+float dataToColorMapValue(float dataValue, sampler1D dataMappingDataValues, sampler1D dataMappingColorValues, int numMappingValues) {
 	if (numMappingValues == 0) {
 		// Short circuit if no mapping is needed
 		return dataValue;
@@ -99,9 +82,9 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 	int lowIndex = 0;
 	int highIndex = numMappingValues - 1;
 
-	float lowValue = lookupMappingValue(mapping.dataMappingValues, lowIndex,
+	float lowValue = lookupMappingValue(dataMappingDataValues, lowIndex,
 			numMappingValues);
-	float highValue = lookupMappingValue(mapping.dataMappingValues, highIndex,
+	float highValue = lookupMappingValue(dataMappingDataValues, highIndex,
 			numMappingValues);
 	int reversed = 0;
 	if (lowValue > highValue) {
@@ -117,7 +100,7 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 		int nextIndex = lowIndex + ((highIndex - lowIndex) / 2);
 		if (nextIndex > lowIndex && nextIndex < highIndex) {
 			// Look up next value and determine if it is a high or low
-			float nextValue = lookupMappingValue(mapping.dataMappingValues,
+			float nextValue = lookupMappingValue(dataMappingDataValues,
 					nextIndex, numMappingValues);
 			if (nextValue < dataValue) {
 				if (reversed == 0) {
@@ -146,9 +129,9 @@ float dataToColorMapValue(float dataValue, DataMapping mapping) {
 		factor = 1.0 - factor;
 	}
 
-	float lowCmapValue = lookupMappingValue(mapping.colorMappingValues,
+	float lowCmapValue = lookupMappingValue(dataMappingColorValues,
 			lowIndex, numMappingValues);
-	float highCmapValue = lookupMappingValue(mapping.colorMappingValues,
+	float highCmapValue = lookupMappingValue(dataMappingColorValues,
 			highIndex, numMappingValues);
 
 	return lowCmapValue + (highCmapValue - lowCmapValue) * factor;
@@ -180,16 +163,16 @@ float getLinearIndex(float cmapValue, float cmapMin, float cmapMax) {
  */
 float valueToLogIndex(float value, float rangeMin, float rangeMax) {
 	// Account for 0 min index
-	if (rangeMin == 0) {
+	if (rangeMin == 0.0) {
 		rangeMin = 0.0000001;
-		if (rangeMax < 0) {
+		if (rangeMax < 0.0) {
 			rangeMin = -rangeMin;
 		}
 	}
 
 	int reverse = 0;
-	if ((value < rangeMin && rangeMin > 0)
-			|| (value > rangeMin && rangeMin < 0)) {
+	if ((value < rangeMin && rangeMin > 0.0)
+			|| (value > rangeMin && rangeMin < 0.0)) {
 		reverse = 1;
 	}
 
@@ -200,10 +183,10 @@ float valueToLogIndex(float value, float rangeMin, float rangeMax) {
 	// Check uncomputable index value, everything between this range is 0,
 	// rangeMin->rangeMax 0 -> 1, -rangeMin->-rangeMax 0 -> -1
 	if (value <= rangeMin && value >= -rangeMin) {
-		return 0;
+		return 0.0;
 	}
 
-	double index = (log(value) - log(rangeMin))
+	float index = (log(value) - log(rangeMin))
 			/ (log(rangeMax) - log(rangeMin));
 	if (reverse != 0) {
 		index = -index;
@@ -232,12 +215,12 @@ float getLogIndex(float cmapValue, float cmapMin, float cmapMax, int mirror) {
 	float index = 0.0;
 	// Flag if min/max values are on opposite sides of zero
 	int minMaxOpposite = 0;
-	if ((cmapMin < 0 && cmapMax > 0) || (cmapMin > 0 && cmapMax < 0)) {
+	if ((cmapMin < 0.0 && cmapMax > 0.0) || (cmapMin > 0.0 && cmapMax < 0.0)) {
 		minMaxOpposite = 1;
 	}
 
 	if (mirror != 0 || minMaxOpposite != 0) {
-		if (cmapMax < 0) {
+		if (cmapMax < 0.0) {
 			// Invert colormapping if negative range was given
 			cmapValue = -cmapValue;
 		}
@@ -261,9 +244,9 @@ float getLogIndex(float cmapValue, float cmapMin, float cmapMax, int mirror) {
 		float logPosCmapMax = absLogZeroVal + log(posCmapMax);
 		// Calculate index which zeroVal is at based on neg max and pos max
 		float zeroValIndex = logNegCmapMax / (logNegCmapMax + logPosCmapMax);
-		if (cmapValue > 0) {
+		if (cmapValue > 0.0) {
 			index = valueToLogIndex(rangeValue, zeroVal, posCmapMax);
-			index = zeroValIndex + (1 - zeroValIndex) * index;
+			index = zeroValIndex + (1.0 - zeroValIndex) * index;
 		} else {
 			index = valueToLogIndex(rangeValue, zeroVal, negCmapMax);
 			index = zeroValIndex - zeroValIndex * index;
@@ -277,8 +260,8 @@ float getLogIndex(float cmapValue, float cmapMin, float cmapMax, int mirror) {
 		if (inverted == 1) {
 			index = 1.0 - index;
 		}
-		if (cmapMin > 0 && cmapValue < rangeMin
-				|| (cmapMin < 0 && cmapValue > -rangeMin)) {
+		if (cmapMin > 0.0 && cmapValue < rangeMin
+				|| (cmapMin < 0.0 && cmapValue > -rangeMin)) {
 			index = -index;
 		}
 	}
@@ -333,13 +316,13 @@ float getColorMappingIndex(float cmapValue, ColorMapping colorMapping) {
 /**
  * Returns a color for the index based on the ColorMapping
  */
-vec4 getColorByIndex(float index, ColorMapping colorMapping) {
+vec4 getColorByIndex(float index, sampler1D colorMap, sampler1D alphaMask, int applyMask) {
 	// Lookup color in colorMap for index
-	vec4 textureColor = texture1D(colorMapping.colorMap, index).rgba;
+	vec4 textureColor = texture1D(colorMap, index).rgba;
 
 	// Apply alpha mask
-	if (colorMapping.applyMask == 1) {
-		if (texture1D(colorMapping.alphaMask, index).r != 0.0) {
+	if (applyMask == 1) {
+		if (texture1D(alphaMask, index).r != 0.0) {
 			textureColor = vec4(textureColor.rgb, 0.0);
 		}
 	}
@@ -349,7 +332,7 @@ vec4 getColorByIndex(float index, ColorMapping colorMapping) {
 /**
  * Returns a color for the cmapValue based on the ColorMapping
  */
-vec4 getColorByValue(float cmapValue, ColorMapping colorMapping) {
-	return getColorByIndex(getColorMappingIndex(cmapValue, colorMapping),
-			colorMapping);
+vec4 getColorByValue(float cmapValue, ColorMapping colorMapping, sampler1D colorMap, sampler1D alphaMask) {
+	float index = getColorMappingIndex(cmapValue, colorMapping);
+	return getColorByIndex(index, colorMap, alphaMask, colorMapping.applyMask);
 }

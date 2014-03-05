@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Model Sounding Data Plugin
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.modelsounding
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Eclipse-RegisterBuddy:  com.raytheon.uf.common.serialization
+Require-Bundle: com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.dataaccess,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm
+Export-Package: com.raytheon.uf.common.dataplugin.modelsounding

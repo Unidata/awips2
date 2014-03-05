@@ -18,6 +18,7 @@
  * 05/2010      14       T. Lee      Migration to TO11DR11
  * 06/2010      14       T. Lee      Added traceId output
  * Aug 30, 2013 2298     rjpeter     Make getPluginName abstract
+ * Jan 07, 2013          njensen     Null check on traceId
  * </pre>
  *
  * @author T.Lee
@@ -61,7 +62,7 @@ public class FfgDecoder extends AbstractDecoder {
 
         if (headers != null) {
             traceId = (String) headers.get("traceId");
-            if (traceId.compareTo(lastTraceId) != 0) {
+            if (traceId != null && traceId.compareTo(lastTraceId) != 0) {
                 System.out
                         .println(" Start decode FFG file: " + traceId + " \n");
                 lastTraceId = traceId;
