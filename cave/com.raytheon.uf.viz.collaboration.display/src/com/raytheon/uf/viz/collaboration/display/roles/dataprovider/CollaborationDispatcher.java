@@ -62,10 +62,12 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 19, 2012            mschenke     Initial creation
- * Feb 19, 2014 2751       bclement     added check for closed session
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 19, 2012           mschenke    Initial creation
+ * Feb 19, 2014  2751     bclement    added check for closed session
+ * Mar 05, 2014  2843     bsteffen    Prevent exceptions on dispose.
+ * 
  * 
  * </pre>
  * 
@@ -250,7 +252,22 @@ public class CollaborationDispatcher extends Dispatcher {
             });
             // Need to immediately send eventObject
             if (immediateSend) {
-                send(eventObject);
+                try {
+                    send(eventObject);
+                } catch (RuntimeException e) {
+                    /*
+                     * Dispose events should never throw exceptions. Since
+                     * disposed objects are not used after dispose the exception
+                     * is not useful and it often corrupts the display
+                     * permanently so it is better to log it and ignore it.
+                     */
+                    if (eventObject instanceof DisposeObjectEvent) {
+                        Activator.statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    } else {
+                        throw e;
+                    }
+                }
             }
         } else if (eventObject instanceof IRenderEvent) {
             if (eventObject instanceof BeginFrameEvent && currentFrame == null) {
