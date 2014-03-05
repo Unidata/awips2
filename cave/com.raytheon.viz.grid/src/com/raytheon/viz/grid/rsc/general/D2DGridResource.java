@@ -257,6 +257,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 throw new VizException(e);
             }
         }
+        data = GridMemoryManager.getInstance().manage(data);
         return data;
     }
 
