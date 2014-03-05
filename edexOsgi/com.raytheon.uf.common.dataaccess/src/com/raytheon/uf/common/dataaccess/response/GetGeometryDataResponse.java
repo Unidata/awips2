@@ -34,9 +34,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 3, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 3, 2013            dgilling    Initial creation
+ * Jan 06, 2014  2537     bsteffen    Share geometry WKT.
  * 
  * </pre>
  * 
@@ -48,6 +49,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class GetGeometryDataResponse {
 
     @DynamicSerializeElement
+    private List<String> geometryWKTs;
+
+    @DynamicSerializeElement
     private List<GeometryResponseData> geoData;
 
     public GetGeometryDataResponse() {
@@ -55,9 +59,16 @@ public class GetGeometryDataResponse {
     }
 
     public GetGeometryDataResponse(final Collection<IGeometryData> geoData) {
+        this.geometryWKTs = new ArrayList<String>();
         this.geoData = new ArrayList<GeometryResponseData>(geoData.size());
         for (IGeometryData element : geoData) {
-            this.geoData.add(new GeometryResponseData(element));
+            String wkt = element.getGeometry().toText();
+            int index = geometryWKTs.indexOf(wkt);
+            if (index == -1) {
+                index = geometryWKTs.size();
+                geometryWKTs.add(wkt);
+            }
+            this.geoData.add(new GeometryResponseData(element, index));
         }
     }
 
@@ -68,4 +79,13 @@ public class GetGeometryDataResponse {
     public void setGeoData(List<GeometryResponseData> geoData) {
         this.geoData = geoData;
     }
+
+    public List<String> getGeometryWKTs() {
+        return geometryWKTs;
+    }
+
+    public void setGeometryWKTs(List<String> geometryWKTs) {
+        this.geometryWKTs = geometryWKTs;
+    }
+
 }

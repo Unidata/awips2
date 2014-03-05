@@ -22,7 +22,6 @@ package com.raytheon.uf.common.dataquery.db;
 
 import java.util.Arrays;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -31,16 +30,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 11/07/08     #1673      bphillip    Initial Creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 07, 2008  1673     bphillip    Initial Creation
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 @DynamicSerialize
-public class QueryResultRow implements ISerializableObject {
+public class QueryResultRow {
 
     /**
      * The values of the returned columns

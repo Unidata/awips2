@@ -19,7 +19,7 @@
 ##
 
 import string, IrtAccess, JUtil, logging
-import xml, pickle, tempfile, os
+import xml, pickle, tempfile, os, socket
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import LogStream
@@ -50,7 +50,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #    03/11/13        1759          dgilling       Move siteConfig import into
 #                                                 methods where it's needed.
 #    11/07/13        2517          randerso       Allow getLogger to override logLevel
-#
+#    01/22/14/       2504          randerso       Added hostname to log path
 #
 #
 
@@ -285,17 +285,17 @@ def getLogger(scriptName, logName=None, logLevel=logging.INFO):
     # modify its include path with the proper siteConfig just before
     # execution time
     import siteConfig
-
+    hostname = socket.gethostname().split('.')[0]
+    logPath = os.path.join(siteConfig.GFESUITE_LOGDIR, strftime("%Y%m%d", gmtime()), hostname) 
     if logName is None:
-        logPath = siteConfig.GFESUITE_LOGDIR + "/" + strftime("%Y%m%d", gmtime())
         logName = scriptName + ".log"
     else:
-        logPath = os.path.dirname(logName)
-        if len(logPath) == 0:
-            logPath = siteConfig.GFESUITE_LOGDIR + "/" + strftime("%Y%m%d", gmtime())
+        logDir = os.path.dirname(logName)
+        if len(logDir) > 0:
+            logPath = logDir
         logName = os.path.basename(logName)
 
-    logFile = logPath + "/" + logName
+    logFile = os.path.join(logPath, logName)
 
     if not os.path.exists(logPath):
         os.makedirs(logPath)

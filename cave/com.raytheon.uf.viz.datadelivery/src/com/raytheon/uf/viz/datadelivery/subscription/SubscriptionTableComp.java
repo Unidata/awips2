@@ -46,7 +46,9 @@ import org.eclipse.swt.widgets.TableItem;
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.datadelivery.service.BaseSubscriptionNotificationResponse;
@@ -55,6 +57,7 @@ import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
@@ -106,6 +109,9 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jul 29, 2013  2232      mpduff       IndexOutOfBoundsException check.
  * Jul 26, 2031  2232      mpduff       Refactored Data Delivery permissions.
  * Oct 11, 2013  2386      mpduff       Refactor DD Front end.
+ * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
+ * Feb 04, 2014  2722      mpduff       Add last update time.
+ * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
  * @version 1.0
  */
 
@@ -114,6 +120,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     /** Status Handler */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubscriptionTableComp.class);
+
+    /** Current site constant */
+    private final String CURRENT_SITE = DataDeliveryUtils.getDataDeliveryId();
 
     /** Pop up menu object. */
     private Menu popupMenu;
@@ -151,6 +160,12 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
 
     /** The subscription type. */
     private SubscriptionType subType = SubscriptionType.VIEWER;
+
+    /** Currently selected site */
+    private boolean currentSiteSelected;
+
+    /** Last table update time */
+    protected long lastUpdateTime = TimeUtil.currentTimeMillis();
 
     /**
      * Constructor.
@@ -668,7 +683,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
         if (subType == SubscriptionType.MANAGER) {
             MenuItem editItem = new MenuItem(popupMenu, SWT.PUSH);
             editItem.setText("Edit...");
-            editItem.setEnabled(menuItemsEnabled);
+            editItem.setEnabled(menuItemsEnabled && this.currentSiteSelected);
             editItem.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
@@ -679,13 +694,32 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             // Add the selected row to a subscription group
             MenuItem groupItem = new MenuItem(popupMenu, SWT.PUSH);
             groupItem.setText("Add to Group...");
-            groupItem.setEnabled(menuItemsEnabled);
+            groupItem.setEnabled(menuItemsEnabled && this.currentSiteSelected);
             groupItem.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     handleGroupAdd();
                 }
             });
+
+            /*
+             * If a single shared sub is selected and another site's subs are
+             * loaded then allow the user to add their site to the shared sub.
+             */
+            if (table.getSelectionCount() == 1) {
+                final Subscription sub = getSelectedSubscription();
+                if (sub instanceof SharedSubscription) {
+                    MenuItem addToShared = new MenuItem(popupMenu, SWT.PUSH);
+                    addToShared.setText("Add site to shared");// subscription");
+                    addToShared.setEnabled(true);
+                    addToShared.addSelectionListener(new SelectionAdapter() {
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            handleAddSiteToShared(sub);
+                        }
+                    });
+                }
+            }
         }
 
         table.setMenu(popupMenu);
@@ -730,6 +764,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
+                    lastUpdateTime = TimeUtil.currentTimeMillis();
                     if (!isDisposed()) {
                         handleRefresh();
                     }
@@ -753,9 +788,11 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
      */
     @Override
     public void handleRefresh() {
-        populateData();
-        populateTable();
-
+        if (!isDisposed()) {
+            populateData();
+            populateTable();
+            this.lastUpdateTime = TimeUtil.currentTimeMillis();
+        }
     }
 
     @Override
@@ -785,5 +822,84 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
     public void setSubscriptionFilter(
             ISubscriptionManagerFilter subscriptionFilter) {
         this.subscriptionFilter = subscriptionFilter;
+    }
+
+    /**
+     * Enable based on the current site selected in the SubscriptionManagerDlg.
+     * 
+     * @param enable
+     *            true to enable the menu
+     */
+    protected void enableMenus(boolean enable) {
+        this.currentSiteSelected = enable;
+    }
+
+    /**
+     * Add the current site ID to the shared subscription.
+     * 
+     * @param sub
+     *            The subscription to add the current site
+     */
+    private void handleAddSiteToShared(final Subscription sub) {
+        final Shell shell = table.getShell();
+        Job job = new Job("Updating Subscription...") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    DataDeliveryGUIUtils.markBusyInUIThread(shell);
+                    final String permission = DataDeliveryPermission.SUBSCRIPTION_EDIT
+                            .toString();
+                    IUser user = UserController.getUserObject();
+                    String msg = user.uniqueId()
+                            + " is not authorized to add site to existing shared subscriptions.\nPermission: "
+                            + permission;
+
+                    try {
+                        if (DataDeliveryServices.getPermissionsService()
+                                .checkPermissions(user, msg, permission)
+                                .isAuthorized()) {
+                            sub.getOfficeIDs().add(CURRENT_SITE);
+                            DataDeliveryHandlers.getSubscriptionHandler()
+                                    .update(sub);
+                        }
+                    } catch (AuthException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Error occurred in authorization request", e);
+                    } catch (RegistryHandlerException e) {
+                        statusHandler.handle(Priority.PROBLEM,
+                                e.getLocalizedMessage(), e);
+                    }
+
+                    return Status.OK_STATUS;
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Unexpected Exception", e);
+                    return Status.CANCEL_STATUS;
+                }
+            }
+        };
+        job.addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void done(IJobChangeEvent event) {
+                try {
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            populateTable();
+                        }
+                    });
+                } finally {
+                    DataDeliveryGUIUtils.markNotBusyInUIThread(shell);
+                }
+            }
+        });
+        job.schedule();
+    }
+
+    /**
+     * @return the lastUpdateTime
+     */
+    public long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 }
