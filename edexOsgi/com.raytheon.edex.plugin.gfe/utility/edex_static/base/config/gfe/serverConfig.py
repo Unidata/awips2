@@ -33,8 +33,9 @@
 #    08/09/2013          #1571     randerso       Changed projections to use the Java             
 #                                                 ProjectionType enumeration
 #    10/03/2013          #2418     dgilling       Update for new pSurge 2.0 data.
-#    10/03/2013      2424          randerso       Change localTC to use dateutil instead of pytz
+#    10/03/2013          #2424     randerso       Change localTC to use dateutil instead of pytz
 #                                                 to get correct offsets for Alaska
+#    01/17/2014          #2719     randerso       Added NHA domain
 #
 ########################################################################
 
@@ -628,12 +629,17 @@ NDFD_Oceanic_10K = ('NDFD_Oceanic_10km', MERCATOR,
       (-230.094, -30.4192), (10.71, 80.01),
       (0.0, 0.0), 0.0, 0.0, (1, 1), (2517, 1793), 0.0, -109.962, 0.0)
 
+#  Add a new domain for NHC purposes
+GridForNHA = ('GridForNHA', LAMBERT_CONFORMAL,
+      (-102.551, 16.6069), (-50.5524, 47.3806),
+      (-95.0, 35.0), 35.0, 35.0, (1, 1), (1729,1601), 0.0, 0.0, 0.0)
+
 # list of all projections
 allProjections = [Grid201, Grid202, Grid203, Grid204, Grid205, Grid206,
  Grid207, Grid208, Grid209, Grid210, Grid211, Grid212, Grid213, Grid214,
  Grid214AK, Grid215, Grid216, Grid217, Grid218, Grid219, Grid221, Grid222,
  Grid225, Grid226, Grid227, Grid228, Grid229, Grid230, Grid231, Grid232,
- Grid233, Grid234, Grid235, HRAP, NDFD_Oceanic_10K]
+ Grid233, Grid234, Grid235, HRAP, NDFD_Oceanic_10K, GridForNHA]
 
 #---------------------------------------------------------------------------
 #
@@ -838,6 +844,7 @@ SITES = {
 #National Centers
     'HAK' : ( [825,553], ( 1.0, 1.0), (103.0, 69.0), 'EST5EDT', Grid214AK, "nc"),
     'HUS' : ([1073,689], (19.0, 8.0), ( 67.0, 43.0), 'EST5EDT', Grid211,   "nc"),                
+    'NHA' : ([1729,1601], (1.0,1.0), (1728.0, 1600.0), 'EST5EDT', GridForNHA, "nc"),
 }
 
 
@@ -1146,7 +1153,7 @@ elif SID in CONUS_EAST_SITES:
                  ('HiResW-NMM-East', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-		 ('ENPWAVE253', 'ENPwave'),
+                 ('ENPWAVE253', 'ENPwave'),
                ]
 
 else:   #######DCS3501 WEST_CONUS
@@ -1197,7 +1204,7 @@ else:   #######DCS3501 WEST_CONUS
                  ('HiResW-NMM-West', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
-		 ('ENPWAVE253', 'ENPwave'),
+                 ('ENPWAVE253', 'ENPwave'),
                ]
 
 if SID in GreatLake_SITES:
@@ -1433,7 +1440,7 @@ else:
 #        "WCwave4" : ["WCwave4"],
 #        "WNAwave10" : ["WNAwave10"],
 #        "WNAwave4" : ["WNAwave4"],
-#	 "ENPwave": ["ENPwave"],
+#        "ENPwave": ["ENPwave"],
         }
 
 #initialization skip certain model runs
@@ -1875,7 +1882,7 @@ DATABASES = [(Official, OFFICIALDBS + localParms),
              (RTMA, RTMAPARMS + localRTMAParms),
              (NamDNG5, NamDNG5PARMS + localNamDNG5Parms),
              (TPCProb, TPCProbPARMS + localTPCProbParms),
-	     (ENPwave, ENPwave_parms + localENPwaveParms),
+             (ENPwave, ENPwave_parms + localENPwaveParms),
              (Test, OFFICIALDBS + localParms)] + localDBs
 
 # Intersite coordination database parameter groupings, based on
