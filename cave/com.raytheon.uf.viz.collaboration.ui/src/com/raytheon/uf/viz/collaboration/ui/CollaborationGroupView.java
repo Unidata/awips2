@@ -146,6 +146,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Feb 12, 2014 2799       bclement    fixed double click chat not working for roster entries
  * Feb 24, 2014 2632       mpduff      Add Notifier actions.
  * Mar 05, 2014 2837       bclement    separate rename action for groups, added more icons
+ * Mar 05, 2014 2798       mpduff      Add getter for displayFeedAction.
  * 
  * </pre>
  * 
@@ -949,5 +950,12 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 logOut.closeCollaboration();
             }
         });
+    }
+
+    /**
+     * @return the displayFeedAction
+     */
+    public DisplayFeedAction getDisplayFeedAction() {
+        return displayFeedAction;
     }
 }
