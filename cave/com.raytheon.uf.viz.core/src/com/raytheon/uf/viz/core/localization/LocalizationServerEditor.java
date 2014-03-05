@@ -86,7 +86,7 @@ public class LocalizationServerEditor extends StringFieldEditor implements
             ConnectivityManager.checkHttpServer(this.getTextControl().getText(),
                     this);
         } else {
-            ConnectivityManager.checkJmsServer(this.getTextControl().getText(),
+            ConnectivityManager.checkAlertService(this.getTextControl().getText(),
                     this);
         }
         if (!good) {

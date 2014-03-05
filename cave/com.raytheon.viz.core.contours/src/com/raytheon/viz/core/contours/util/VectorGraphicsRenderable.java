@@ -278,7 +278,7 @@ public class VectorGraphicsRenderable {
             lineShape.addLineSegment(new double[][] { { ix2, jy2 },
                     { ix3, jy3 } });
             if (config.isBarbFillFiftyTriangle()) {
-                double[] triangleRaw = { ix1, jy1, ix2, jy2, ix3, jy3 };
+                double[] triangleRaw = { ix1, jy1, ix2, jy2, ix3, jy3, ix1, jy1 };
                 CoordinateSequence triangleSeq = new PackedCoordinateSequence.Double(
                         triangleRaw, 2);
                 LineString triangleLS = new GeometryFactory()

@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.common.registry.schemas.ebxml.util;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
@@ -34,6 +36,8 @@ import org.reflections.util.ConfigurationBuilder;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * A JAXB Manager for transforming EBXML objects to/from XML.
@@ -44,11 +48,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 30, 2013 2361       njensen     Initial creation
- * Nov 14, 2013 2252       bkowal      Added the ability to dynamically inject packages
- *                                     that this jaxb implementation should support.
- *                                     Eliminated use of System.out.
- * 
+ * Nov 12, 2013  ----      njensen     Initial release.
+ * Nov 24, 2013  2584      dhladky     versioning
  * </pre>
  * 
  * @author njensen
@@ -61,21 +62,31 @@ public class EbxmlJaxbManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EbxmlJaxbManager.class);
 
+    private JAXBManager jaxb;
+
+    private Set<Class<?>> jaxables;
+    
+    private Map<String, Class<?>> convertables = new HashMap<String, Class<?>>(1);
+    
+    private Map<String, String> versions = new HashMap<String, String>(1);
+    
     private static EbxmlJaxbManager instance;
 
-    private static JAXBManager jaxb;
-
-    private static Set<Class<?>> jaxables;
-
+    /**
+     * Get the desired version of the EbxmlJaxbManager
+     * @param version
+     * @return
+     */
     public static synchronized EbxmlJaxbManager getInstance() {
         if (instance == null) {
             instance = new EbxmlJaxbManager();
         }
         return instance;
     }
-
+        
     public String findJaxables(String packageName) {
-        statusHandler.info("Scanning package ... " + packageName);
+
+        statusHandler.info(" Scanning package ... " + packageName);
 
         long t0 = System.currentTimeMillis();
         ConfigurationBuilder cb = new ConfigurationBuilder();
@@ -124,4 +135,86 @@ public class EbxmlJaxbManager {
 
         statusHandler.info("Initialization Complete.");
     }
+       
+    /**
+     * Gets the set of classes for this encoder.
+     * @return
+     */
+    public Set<Class<?>> getJaxables() {
+        return jaxables;
+    }
+    
+    /**
+     * Gets the class from the convertables
+     * 
+     * @param className
+     * @return
+     */
+    public Class<?> getClass(String className) {
+        
+        Class<?> clazz = convertables.get(className);
+
+        if (clazz == null) {
+
+            for (Class<?> pclazz : jaxables) {
+                if (pclazz.getCanonicalName().equals(className)) {
+                    clazz = pclazz;
+                    addClass(className, clazz);
+                    break;
+                }
+            }
+            // Didn't find it, now we have a possible problem.
+            // Try reflecting a version of it.
+            if (clazz == null) {
+                statusHandler.handle(Priority.WARN,
+                        "Didn't find class in list of jaxables! class: "
+                                + className);
+                try {
+                    clazz = ReflectionUtil.forName(className);
+                    addClass(className, clazz);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.ERROR,
+                            "Can not reflect a version of this class. class: "
+                                    + className, e);
+                }
+            }
+        }
+
+        return clazz;
+    }
+    
+    /**
+     * Set the class to the cache
+     * 
+     * @param className
+     * @param clazz
+     */
+    private void addClass(String className, Class<?> clazz) {
+        synchronized (convertables) {
+            convertables.put(className, clazz);
+        }
+    }
+    
+    /**
+     * Set the version to the cache
+     * 
+     * @param className
+     * @param clazz
+     */
+    public void addVersion(String className, String version) {
+        synchronized (versions) {
+            versions.put(className, version);
+        }
+    }
+    
+    /**
+     * Get the version of the class
+     * 
+     * @param className
+     * @return version
+     */
+    public String getVersion(String className) {
+        return versions.get(className);
+    }
+
 }
