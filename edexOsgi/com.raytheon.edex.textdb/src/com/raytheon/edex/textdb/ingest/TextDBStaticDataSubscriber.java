@@ -39,6 +39,8 @@ import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * TODO Add Description
@@ -51,6 +53,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * Jan 25, 2011            bfarmer     Initial creation
  * Oct 18, 2011 10909      rferrel     notify() now saves a file.
+ * Mar 17, 2014 DR 16449   D. Friedman Send 'setDirty' notification to all nodes.
  * 
  * </pre>
  * 
@@ -61,6 +64,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 public class TextDBStaticDataSubscriber implements INationalDatasetSubscriber {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextDBStaticDataSubscriber.class);
+
+    private String setDirtyURI;
+
+    public TextDBStaticDataSubscriber(String setDirtyURI) {
+        this.setDirtyURI = setDirtyURI;
+    }
 
     @Override
     public void notify(String fileName, File file) {
@@ -98,7 +107,18 @@ public class TextDBStaticDataSubscriber implements INationalDatasetSubscriber {
 
             }
         }
-        TextDBStaticData.setDirty();
+        try {
+            if (setDirtyURI != null) {
+                EDEXUtil.getMessageProducer().sendAsyncUri(setDirtyURI, "");
+            } else {
+                setDirty();
+            }
+        } catch (EdexException e) {
+            statusHandler.error("Unable to notify that TextDB static files have changes", e);
+        }
     }
 
+    public void setDirty() {
+        TextDBStaticData.setDirty();
+    }
 }
