@@ -35,8 +35,6 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
 
-import sun.audio.AudioDataStream;
-
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -62,7 +60,8 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2014   2632     mpduff      Initial creation
+ * Feb 24, 2014   2632     mpduff      Initial creation.
+ * Mar 05, 2014   2632     mpduff      Removed unused field.
  * 
  * </pre>
  * 
@@ -82,9 +81,6 @@ public class NotifierTools {
 
     /** Sound directory in localization */
     private static final String SOUND_DIR = "collaboration/sounds";
-
-    /** AudioDataStream object */
-    private static AudioDataStream ads = null;
 
     /** The contact notifier localization file */
     private static LocalizationFile taskFile;
