@@ -78,7 +78,10 @@ fi
 
 TOPO_TO_COPY=\
 (\
-   'srtm30.hdf'\
+   'gtopo30.h5'\
+   'srtm30.h5'\
+   'srtm30_plus.h5'\
+   'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
    'modelStaticTopo.h5' \
@@ -91,20 +94,12 @@ TOPO_TO_COPY=\
 
 for topoFile in ${TOPO_TO_COPY[*]};
 do
-   cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
+   cp -Pp %{_awipscm_share}/${TOPO_SRC_DIR}/${topoFile} \
       ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo
    if [ $? -ne 0 ]; then
       exit 1
    fi
 done
-
-# Copy our hlsTopo
-mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
-cp -r %{_awipscm_share}/${TOPO_SRC_DIR}/hlsTopo/* \
-   ${RPM_BUILD_ROOT}/awips2/edex/data/hdf5/topo/hlsTopo
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 
 copyLegal "awips2/edex/data/hdf5/topo"
 

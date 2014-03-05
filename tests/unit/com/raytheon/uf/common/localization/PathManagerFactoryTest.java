@@ -22,6 +22,7 @@ package com.raytheon.uf.common.localization;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.TestPathManager.TestLocalizationAdapter;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.TestUtil;
 
 /**
@@ -47,6 +49,7 @@ import com.raytheon.uf.common.util.TestUtil;
  * Jul 18, 2012 740        djohnson     Initial creation
  * Oct 23, 2012 1286       djohnson     Handle executing tests in Eclipse/command-line transparently.
  * Apr 18, 2013 1914       djohnson     Allow initializing test localization support from Spring.
+ * Jan 08, 2014 2615       bgonzale     Fixes for PropertiesFactory configuration loading in test.
  * 
  * </pre>
  * 
@@ -74,7 +77,8 @@ public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
         // Clear known file cache and the directory each time
         PathManager.fileCache.clear();
         File file = TestUtil.setupTestClassDir(PathManagerFactoryTest.class);
-        savedLocalizationFileDir = new File(file, "utility");
+        savedLocalizationFileDir = new File(file, "data");
+        savedLocalizationFileDir = new File(savedLocalizationFileDir, "utility");
         savedLocalizationFileDir.mkdirs();
 
         // But only install the path manager if the test version is not already
@@ -85,6 +89,20 @@ public class PathManagerFactoryTest implements BeanFactoryPostProcessor {
                     : new CommandLineTestLocalizationAdapter(site,
                             savedLocalizationFileDir);
             PathManagerFactory.pathManager = new TestPathManager(adapter);
+            
+            System.setProperty("edex.home", file.getAbsolutePath());
+            File confResDataDir = new File(file, "conf/res");
+            confResDataDir.mkdirs();
+            File confResTestDataDir = new File("conf/res/");
+
+            try {
+                FileUtil.copyDirectory(confResTestDataDir, confResDataDir);
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Failed to setup test configuration directory conf/res",
+                        e);
+            }
+
         }
     }
 

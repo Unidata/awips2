@@ -66,15 +66,16 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 13, 2009            chammack     Initial creation
- * Jan 14, 2013 1469       bkowal       Removed the hdf5 data directory.
- * Feb 27, 2013 1638       mschenke    Switched logger to use statusHandler
- * Apr 15, 2013 1868       bsteffen    Rewrite mergeAll in PluginDao.
- * Apr 29, 2013 1861       bkowal      Refactor hdf5 filename generation during reads
- *                                     into its own method so modelsounding dao can
- *                                     override it.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Apr 13, 2009           chammack    Initial creation
+ * Jan 14, 2013  1469     bkowal      Removed the hdf5 data directory.
+ * Feb 27, 2013  1638     mschenke    Switched logger to use statusHandler
+ * Apr 15, 2013  1868     bsteffen    Rewrite mergeAll in PluginDao.
+ * Apr 29, 2013  1861     bkowal      Refactor hdf5 filename generation during
+ *                                    reads into its own method so modelsounding
+ *                                    dao can override it.
+ * Jan 03, 2014  2309     bsteffen    Allow fcstTime in hdf5 path.
  * 
  * </pre>
  * 
@@ -487,7 +488,13 @@ public abstract class PointDataPluginDao<T extends PluginDataObject> extends
         try {
             if (obj.containsKey("dataTime.refTime")) {
                 Date d = (Date) obj.remove("dataTime.refTime");
-                DataTime dt = new DataTime(d);
+                DataTime dt = null;
+                if (obj.containsKey("dataTime.fcstTime")) {
+                    int fcstTime = (Integer) obj.remove("dataTime.fcstTime");
+                    dt = new DataTime(d, fcstTime);
+                }else{
+                    dt = new DataTime(d);
+                }
                 obj.put("dataTime", dt);
             }
             bm.putAll(obj);

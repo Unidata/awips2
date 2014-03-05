@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -37,9 +36,10 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 21, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 21, 2010           mschenke    Initial creation
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -47,7 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @DynamicSerialize
-public class DbQueryResponse implements ISerializableObject {
+public class DbQueryResponse {
 
     public static final String ENTITY_RESULT_KEY = null;
 

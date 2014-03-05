@@ -29,9 +29,6 @@
     <bean id="bandwidthDbInit" factory-bean="bandwidthContextFactory"
         factory-method="getBandwidthDbInit" />
 
-    <bean id="bandwidthManagerInitializer" factory-bean="bandwidthContextFactory"
-        factory-method="getBandwidthInitializer" />
-
     <bean id="bandwidthMapConfigFile" factory-bean="bandwidthContextFactory"
         factory-method="getBandwidthMapConfigFile" />
 
@@ -43,13 +40,12 @@
         <constructor-arg ref="retrievalManager" />
         <constructor-arg ref="bandwidthDaoUtil" />
         <property name="aggregator" ref="aggregator" />
-        <property name="initializer" ref="bandwidthManagerInitializer" />
+        <property name="initializer" ref="bandwidthInitializer" />
     </bean>
 
     <bean id="bandwidthUtil"
         class="com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil"
-        factory-method="getInstance">
-        <property name="dataSetAvailabilityCalculator" ref="dataSetAvailabilityCalculator" />
+        factory-method="getInstance" depends-on="registerDataDeliveryHandlers">
         <property name="subscriptionLatencyCalculator">
             <bean
                 class="com.raytheon.uf.edex.datadelivery.bandwidth.util.SubscriptionValueLatencyCalculator" />

@@ -34,6 +34,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
+import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
@@ -43,6 +46,8 @@ import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
+import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.SizeUtil;
@@ -82,8 +87,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 26, 2031 2232       mpduff       Removed sendAuthorizationRequest method.
  * Aug 30, 2013 2288       bgonzale     Added latency to details display.
  * Sep 30, 2013 1797       dhladky      Time GriddedTime separation
- * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
- * Nov 07, 2013   2291     skorolev     Added showText() method for messages with many lines.
+ * Oct 11, 2013 2386       mpduff       Refactor DD Front end.
+ * Nov 07, 2013 2291       skorolev     Added showText() method for messages with many lines.
+ * Feb 11, 2014 2771       bgonzale     Added Data Delivery ID, getter, and retrieval method.
  * </pre>
  * 
  * @author mpduff
@@ -120,6 +126,8 @@ public class DataDeliveryUtils {
     };
 
     public static final String UNABLE_TO_RETRIEVE_PENDING_SUBSCRIPTIONS = "Unable to retrieve pending subscriptions!";
+
+    private static final String dataDeliveryId = retrieveDataDeliveryId();
 
     /**
      * TABLE_TYPE enumeration.
@@ -831,5 +839,22 @@ public class DataDeliveryUtils {
      */
     public static int getMaxLatency(GriddedDataSet dataSet) {
         return getMaxLatency(new ArrayList<Integer>(dataSet.getCycles()));
+    }
+
+    public static String getDataDeliveryId() {
+        return dataDeliveryId;
+    }
+
+    private static String retrieveDataDeliveryId() {
+        IBandwidthRequest request = new IBandwidthRequest();
+        request.setRequestType(RequestType.GET_DATADELIVERY_ID);
+        try {
+            SuccessfulExecution response = (SuccessfulExecution) RequestRouter
+                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+            return (String) response.getResponse();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Unable to retrieve Data Delivery ID from EDEX.", e);
+        }
     }
 }
