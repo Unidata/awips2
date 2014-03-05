@@ -21,10 +21,8 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -67,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2014    2632    mpduff      Initial creation
+ * Mar 05, 2014    2632    mpduff      Changed task set to map of user->task.
  * 
  * </pre>
  * 
@@ -83,7 +82,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
     private final Map<Button, Notifier> buttonMap = new HashMap<Button, Notifier>();
 
     /** Set of NotifierTask objects */
-    private final Set<NotifierTask> taskSet = new HashSet<NotifierTask>();
+    private final Map<String, NotifierTask> taskMap = new HashMap<String, NotifierTask>();
 
     /** The user select Combo box */
     private Combo userCbo;
@@ -94,10 +93,13 @@ public class AddNotifierDlg extends CaveSWTDialog {
     /** Recurring radio button */
     private Button recurringRdo;
 
+    /** The non-recurring radio button */
+    private Button singleRdo;
+
     /** Close callback */
     private final ICloseCallback callback;
 
-    /** The class return value  */
+    /** The class return value */
     private boolean returnValue = false;
 
     /**
@@ -286,7 +288,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
         freqComp.setLayoutData(gd);
 
         gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
-        Button singleRdo = new Button(freqComp, SWT.RADIO);
+        singleRdo = new Button(freqComp, SWT.RADIO);
         singleRdo.setLayoutData(gd);
         singleRdo.setText("Single Instance");
         singleRdo.setSelection(true);
@@ -338,14 +340,11 @@ public class AddNotifierDlg extends CaveSWTDialog {
      */
     @Override
     protected void opened() {
-        // Check for existing notifiers
         List<NotifierTask> taskList = NotifierTools.getNotifierTasks();
-
         for (NotifierTask task : taskList) {
-            taskSet.add(task);
+            this.taskMap.put(task.getUserName(), task);
             if (task.getUserName().equals(userCbo.getText())) {
                 this.populate(task);
-                return;
             }
         }
     }
@@ -364,6 +363,14 @@ public class AddNotifierDlg extends CaveSWTDialog {
         }
 
         soundTxt.setText(task.getSoundFilePath());
+
+        if (task.isRecurring()) {
+            recurringRdo.setSelection(true);
+            singleRdo.setSelection(false);
+        } else {
+            recurringRdo.setSelection(false);
+            singleRdo.setSelection(true);
+        }
     }
 
     /**
@@ -405,10 +412,9 @@ public class AddNotifierDlg extends CaveSWTDialog {
         }
 
         task.setRecurring(recurringRdo.getSelection());
+        this.taskMap.put(task.getUserName(), task);
 
-        taskSet.add(task);
-
-        if (NotifierTools.saveNotifiers(Lists.newArrayList(taskSet))) {
+        if (NotifierTools.saveNotifiers(Lists.newArrayList(taskMap.values()))) {
             MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
             messageDialog.setText("Notifier Saved");
             messageDialog
