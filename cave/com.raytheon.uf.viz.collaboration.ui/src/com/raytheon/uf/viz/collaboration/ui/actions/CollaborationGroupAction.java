@@ -43,7 +43,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            rferrel     Initial creation
+ * Mar 1, 2012             rferrel     Initial creation
+ * Mar 05, 2014   2798     mpduff      Don't create a new DisplayFeedAction
  * 
  * </pre>
  * 
@@ -58,6 +59,9 @@ public class CollaborationGroupAction extends AbstractHandler {
     public Object execute(ExecutionEvent event) throws ExecutionException {
         // this opens the collaboration group view
         try {
+            // If connection is null then user has not logged in
+            boolean initialExecutionFlag = CollaborationConnection
+                    .getConnection() == null;
             new LoginAction().run();
             CollaborationConnection connection = CollaborationConnection
                     .getConnection();
@@ -66,15 +70,18 @@ public class CollaborationGroupAction extends AbstractHandler {
                 return event;
             }
 
-            CaveWorkbenchPageManager.getActiveInstance().showView(
-                    CollaborationGroupView.ID);
+            CollaborationGroupView view = (CollaborationGroupView) CaveWorkbenchPageManager
+                    .getActiveInstance().showView(CollaborationGroupView.ID);
 
-            // if autojoin is selected (to join the default room)
-            if (Activator.getDefault().getPreferenceStore()
-                    .getBoolean(CollabPrefConstants.AUTO_JOIN)) {
-                DisplayFeedAction displayFeed = new DisplayFeedAction();
-                displayFeed.setChecked(true);
-                displayFeed.run();
+            // Is this is the first log in
+            if (initialExecutionFlag) {
+                // if autojoin is selected (to join the default room)
+                if (Activator.getDefault().getPreferenceStore()
+                        .getBoolean(CollabPrefConstants.AUTO_JOIN)) {
+                    DisplayFeedAction action = view.getDisplayFeedAction();
+                    action.setChecked(true);
+                    action.run();
+                }
             }
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
