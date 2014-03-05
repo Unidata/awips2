@@ -20,21 +20,23 @@
 package com.raytheon.edex.plugin.gfe.server.handler;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.request.SaveCombinationsFileRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.dataplugin.gfe.server.notify.CombinationsFileChangedNotification;
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.util.FileUtil;
@@ -55,6 +57,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * May 16, 2011            dgilling     Initial creation
  * Dec 02, 2013  #2591     dgilling     Only send notification after Writer is
  *                                      flushed/closed.
+ * Feb 05, 2014  #2591                  Added CombinationFileChangedNotification
  * 
  * </pre>
  * 
@@ -78,19 +81,22 @@ public class SaveCombinationsFileHandler implements
     @Override
     public ServerResponse<Object> handleRequest(
             SaveCombinationsFileRequest request) throws Exception {
+        String siteID = request.getSiteID();
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext localization = pm.getContextForSite(
-                LocalizationType.CAVE_STATIC, request.getSiteID());
+                LocalizationType.CAVE_STATIC, siteID);
 
-        File localFile = pm.getFile(localization,
-                FileUtil.join(COMBO_FILE_DIR, request.getFileName()));
-        boolean isAdded = (!localFile.exists());
+        String comboName = request.getFileName();
+        String fileName = FileUtil.join(COMBO_FILE_DIR, comboName) + ".py";
+        LocalizationFile lf = pm.getLocalizationFile(localization, fileName);
+        boolean isAdded = (!lf.exists());
 
         Writer outWriter = null;
         try {
-            outWriter = new BufferedWriter(new FileWriter(localFile));
+            outWriter = new BufferedWriter(new OutputStreamWriter(
+                    lf.openOutputStream()));
             String zoneComments = "\n# Automatically generated combinations file\n# "
-                    + request.getFileName() + "\n\nCombinations = [\n";
+                    + comboName + "\n\nCombinations = [\n";
             outWriter.write(zoneComments);
 
             NumberFormat df = new DecimalFormat("00");
@@ -115,20 +121,25 @@ public class SaveCombinationsFileHandler implements
                 outWriter.close();
             }
         }
+        lf.save();
 
         // placing the notification code here ensures we only send the
         // notification on a successful file write operation. Otherwise we would
         // have thrown an IOException and never gotten to this portion of the
         // request handler.
+
+        // TODO: remove sending of FileUpdateMessage after DR #2768 is fixed
         FileChangeType changeType = isAdded ? FileChangeType.ADDED
                 : FileChangeType.UPDATED;
         EDEXUtil.getMessageProducer().sendAsync(
                 "utilityNotify",
-                new FileUpdatedMessage(localization, FileUtil.join(
-                        COMBO_FILE_DIR, request.getFileName()), changeType,
-                        localFile.lastModified()));
+                new FileUpdatedMessage(localization, fileName, changeType, lf
+                        .getTimeStamp().getTime()));
+
+        CombinationsFileChangedNotification notif = new CombinationsFileChangedNotification(
+                comboName, request.getWorkstationID(), siteID);
+        SendNotifications.send(notif);
 
         return new ServerResponse<Object>();
     }
-
 }
