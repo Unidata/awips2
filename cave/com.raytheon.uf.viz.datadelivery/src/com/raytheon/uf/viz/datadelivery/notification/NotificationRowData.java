@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jun 07, 2012   687     lvenable   Table data refactor.
  * Aug 30, 2013  2314     mpduff     Fix formatting.
  * Sep 16, 2013  2375     mpduff     Change date sort order.
+ * Feb 07, 2014  2453     mpduff     Added toString()
  * 
  * </pre>
  * 
@@ -299,4 +300,8 @@ public class NotificationRowData implements ITableData<NotificationRowData> {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.date.toString() + " - " + this.message;
+    }
 }

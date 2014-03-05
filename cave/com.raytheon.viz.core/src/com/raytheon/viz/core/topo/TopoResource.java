@@ -36,6 +36,8 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.PersistedParameters;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
+import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
@@ -90,6 +92,8 @@ public class TopoResource extends
     protected File dataFile;
 
     protected TileSetRenderable topoTileSet;
+
+    private double noDataValue;
 
     protected TopoResource(TopoResourceData topoData,
             LoadProperties loadProperties, File dataFile) throws VizException {
@@ -189,12 +193,13 @@ public class TopoResource extends
             }
 
             SamplePreferences samplePrefs = prefs.getSamplePrefs();
-            if (samplePrefs != null && samplePrefs.getFormatString() != null) {
+            if ((samplePrefs != null)
+                    && (samplePrefs.getFormatString() != null)) {
                 params.setFormatString(samplePrefs.getFormatString());
             }
 
             LabelingPreferences labelPrefs = prefs.getColorbarLabeling();
-            if (labelPrefs != null && labelPrefs.getValues() != null) {
+            if ((labelPrefs != null) && (labelPrefs.getValues() != null)) {
                 params.setColorBarIntervals(labelPrefs.getValues());
             }
         }
@@ -212,6 +217,16 @@ public class TopoResource extends
         }
 
         getCapability(ColorMapCapability.class).setColorMapParameters(params);
+
+        IDataStore dataStore = DataStoreFactory.getDataStore(this.dataFile);
+        try {
+            IDataRecord rec = dataStore.retrieve("/", "full",
+                    Request.buildPointRequest(new java.awt.Point(0, 0)));
+            noDataValue = rec.getFillValue().doubleValue();
+        } catch (Exception e) {
+            statusHandler.error(e.getLocalizedMessage(), e);
+            noDataValue = Double.NaN;
+        }
 
         topoTileSet = new TileSetRenderable(
                 getCapability(ImagingCapability.class), getTopoGeometry(),
@@ -284,7 +299,7 @@ public class TopoResource extends
         double height;
         try {
             // height = TopoQuery.getInstance().getHeight(coord.asLatLon());
-            height = topoTileSet.interrogate(coord.asLatLon());
+            height = topoTileSet.interrogate(coord.asLatLon(), noDataValue);
         } catch (Exception e) {
             throw new VizException("Error transforming", e);
         }

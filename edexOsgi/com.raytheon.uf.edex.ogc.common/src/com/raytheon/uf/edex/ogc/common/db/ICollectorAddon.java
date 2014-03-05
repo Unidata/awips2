@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Set;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 
 /**
  * Interface for extending layer collectors to perform additional tasks
@@ -30,7 +31,7 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
  * @author bclement
  * @version 1.0
  */
-public interface ICollectorAddon<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PluginDataObject> {
+public interface ICollectorAddon<D extends SimpleDimension, L extends SimpleLayer<D>, R extends PersistableDataObject> {
 
 	/**
 	 * Called after record is added to layer. Both should be treated as

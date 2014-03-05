@@ -39,6 +39,9 @@ import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOver
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
+ * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
+ *                                     Change halfNumAttrs comp to a double for comparisons
+ *                                     against half of uneven numbers of attributes.
  * 
  * </pre>
  * 
@@ -55,7 +58,7 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
     private int timeDuplication = -999;
 
     /** Time duplication pass flag */
-    private boolean timeDuplicationPass = false;
+    protected boolean timeDuplicationPass = false;
 
     /**
      * Constructor.
@@ -98,7 +101,7 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
         super.determineOverlapping();
         PointSubscriptionOverlapConfig config = (PointSubscriptionOverlapConfig) this.config;
         calculateTimeDuplicationPercent(sub1, sub2);
-        this.timeDuplicationPass = this.timeDuplication > config
+        this.timeDuplicationPass = this.timeDuplication >= config
                 .getMaxAllowedTimeDuplication();
     }
 
@@ -117,7 +120,7 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
             response = this.parameterPass || this.spatialPass
                     || this.timeDuplicationPass;
         } else if (matchStrategy == SubscriptionOverlapMatchStrategy.AT_LEAST_HALF) {
-            int halfNumAttrs = (numberOfPointAttributes + numberOfCommonAttributes) / 2;
+            double halfNumAttrs = (numberOfPointAttributes + numberOfCommonAttributes) / 2.0;
             List<Boolean> toCheck = new ArrayList<Boolean>(3);
             toCheck.add(timeDuplicationPass);
             toCheck.add(spatialPass);
