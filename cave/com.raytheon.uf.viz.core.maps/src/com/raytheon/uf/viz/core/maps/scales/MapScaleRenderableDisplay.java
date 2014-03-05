@@ -53,6 +53,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
  * Mar 22, 2013           mschenke    Initial creation
  * Oct 10, 2013  2104     mschenke    Switched to use MapScalesManager
  * Nov 20, 2013  2492     bsteffen    Recycle resources in clear.
+ * Mar 05, 2014  2843     bsteffen    Catch recycle errors in clear.
+ * 
  * 
  * </pre>
  * 
@@ -140,8 +142,16 @@ public class MapScaleRenderableDisplay extends PlainMapRenderableDisplay
                         && props.isSystemResource() == false) {
                     list.remove(rp);
                 } else {
-                    props.setVisible(true);
-                    rp.getResource().recycle();
+                    try {
+                        props.setVisible(true);
+                        rp.getResource().recycle();
+                    } catch (Throwable e) {
+                        props.setVisible(false);
+                        statusHandler.handle(Priority.PROBLEM, "Clear error: "
+                                + e.getMessage() + ":: The resource ["
+                                + rp.getResource().getSafeName()
+                                + "] has been disabled.", e);
+                    }
                 }
             }
 
