@@ -74,6 +74,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 10/23/2013   1538        bphillip    Adding log messages and changed methods to handle DateTime value on 
  *                                      AuditableEvents instead of integer
  * 12/9/2013    2613        bphillip    Changed start time boundary of get auditable events to be the last run time of the subscription
+ * 01/21/2014   2613        bphillip    Changed start time boundary again and also a few minor cleanup items
  * </pre>
  * 
  * @author bphillip
@@ -136,12 +137,16 @@ public class RegistryNotificationManager {
      * @param objectsOfInterest
      *            The objects to get events for
      * @return The events of interest for the given set of objects
+     * @throws MsgRegistryException
+     * @throws EbxmlRegistryException
      */
     public List<AuditableEventType> getEventsOfInterest(
+            SubscriptionType subscription, String serviceAddress,
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
-            List<ObjectRefType> objectsOfInterest) {
-        return this.auditableEventDao.getEventsOfInterest(startTime, endTime,
-                objectsOfInterest);
+            List<ObjectRefType> objectsOfInterest)
+            throws EbxmlRegistryException, MsgRegistryException {
+        return this.auditableEventDao.getEventsOfInterest(subscription,
+                serviceAddress, startTime, endTime, objectsOfInterest);
     }
 
     /**
@@ -221,28 +226,26 @@ public class RegistryNotificationManager {
      *             If errors occur while sending the notifications
      * @throws MsgRegistryException
      */
-    protected void sendNotifications(
-            SubscriptionNotificationListeners notificationListeners)
-            throws EbxmlRegistryException, MsgRegistryException {
+    protected XMLGregorianCalendar sendNotifications(
+            SubscriptionNotificationListeners notificationListeners,
+            XMLGregorianCalendar startTime) throws EbxmlRegistryException,
+            MsgRegistryException {
 
+        // Object to hold the last timestampe of the latest event in order to
+        // update the subscription last run time correctly
+        XMLGregorianCalendar lastTime = null;
         final List<NotificationListenerWrapper> listeners = notificationListeners.listeners;
         final SubscriptionType subscription = notificationListeners.subscription;
 
         List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
 
-        XMLGregorianCalendar startTime = subscription
-                .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
-
-        if (startTime == null) {
-            startTime = subscription.getStartTime();
-        }
-
-        List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
-                subscription.getStartTime(), subscription.getEndTime(),
-                objectsOfInterest);
-
-        if (!eventsOfInterest.isEmpty()) {
-            for (NotificationListenerWrapper listener : listeners) {
+        for (NotificationListenerWrapper listener : listeners) {
+            List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
+                    subscription, listener.address, startTime,
+                    subscription.getEndTime(), objectsOfInterest);
+            if (!eventsOfInterest.isEmpty()) {
+                lastTime = eventsOfInterest.get(eventsOfInterest.size() - 1)
+                        .getTimestamp();
                 int subListCount = eventsOfInterest.size()
                         / notificationBatchSize;
                 int lastListSize = eventsOfInterest.size()
@@ -281,6 +284,7 @@ public class RegistryNotificationManager {
 
             }
         }
+        return lastTime;
     }
 
     /**
@@ -326,23 +330,28 @@ public class RegistryNotificationManager {
                 List<ActionType> actionList = event.getAction();
                 for (ActionType action : actionList) {
                     objectsToRemove.clear();
+                    refsToRemove.clear();
 
                     if (action.getAffectedObjectRefs() != null) {
                         List<ObjectRefType> objRefs = action
                                 .getAffectedObjectRefs().getObjectRef();
                         for (ObjectRefType obj : objRefs) {
                             boolean found = objectInList(objectsOfInterest, obj);
-                            if (!found && !action.equals(ActionTypes.delete)) {
+                            if (!found
+                                    && !action.getEventType().equals(
+                                            ActionTypes.delete)) {
                                 refsToRemove.add(obj);
                             }
                         }
-                        objRefs.removeAll(objectsToRemove);
+                        objRefs.removeAll(refsToRemove);
                     } else if (action.getAffectedObjects() != null) {
                         List<RegistryObjectType> regObjs = action
                                 .getAffectedObjects().getRegistryObject();
                         for (RegistryObjectType obj : regObjs) {
                             boolean found = objectInList(objectsOfInterest, obj);
-                            if (!found && !action.equals(ActionTypes.delete)) {
+                            if (!found
+                                    && !action.getEventType().equals(
+                                            ActionTypes.delete)) {
                                 objectsToRemove.add(obj);
                             }
                         }

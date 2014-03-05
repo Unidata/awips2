@@ -19,11 +19,13 @@
  **/
 package com.raytheon.viz.gfe.vtec;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 
 import com.google.common.collect.ImmutableSet;
@@ -58,6 +60,9 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
  *                                      multiple NEW VTEC lines for the same
  *                                      phensig but disjoint TimeRanges.
+ * Dec 18, 2013  #2641     dgilling     Force ordering of items returned by
+ *                                      getVtecLinesThatNeedEtn().
+ * Feb 05, 2014  #2774     dgilling     Additional correction to previous fix.
  * 
  * </pre>
  * 
@@ -75,6 +80,24 @@ public class GFEVtecUtil {
 
     public static final Collection<String> IGNORE_NATIONAL_ETN = ImmutableSet
             .copyOf(GFEVtecConfig.getInstance().getSitesIgnoreNationalEtn());
+
+    private static final Comparator<VtecObject> VTEC_COMPARATOR = new Comparator<VtecObject>() {
+
+        @Override
+        public int compare(VtecObject vtec1, VtecObject vtec2) {
+            TimeRange tr1 = new TimeRange(vtec1.getStartTime(),
+                    vtec1.getEndTime());
+            TimeRange tr2 = new TimeRange(vtec2.getStartTime(),
+                    vtec2.getEndTime());
+
+            int retVal = tr1.getStart().compareTo(tr2.getStart());
+            if (retVal == 0) {
+                retVal = tr1.getEnd().compareTo(tr2.getEnd());
+            }
+
+            return retVal;
+        }
+    };
 
     /**
      * A private constructor so that Java does not attempt to create one for us.
@@ -192,12 +215,12 @@ public class GFEVtecUtil {
      * @return A <code>Set</code> of <code>VtecObject</code>s that need to have
      *         a new ETN assigned to them.
      */
-    public static Set<VtecObject> getVtecLinesThatNeedEtn(String product) {
+    public static Map<String, List<VtecObject>> initETNCache(String product) {
         if (StringUtil.isEmptyString(product)) {
-            return Collections.emptySet();
+            return Collections.emptyMap();
         }
 
-        Set<VtecObject> phensigs = new HashSet<VtecObject>();
+        Map<String, List<VtecObject>> cache = new HashMap<String, List<VtecObject>>();
 
         Matcher vtecMatcher = VtecUtil.VTEC_REGEX.matcher(product);
         while (vtecMatcher.find()) {
@@ -206,11 +229,24 @@ public class GFEVtecUtil {
                     && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
-                phensigs.add(vtec);
+                List<VtecObject> vtecsForPhensig = cache.get(vtec.getPhensig());
+                if (vtecsForPhensig == null) {
+                    vtecsForPhensig = new ArrayList<VtecObject>();
+                }
+                vtec.setSequence(0);
+                vtecsForPhensig.add(vtec);
+                cache.put(vtec.getPhensig(), vtecsForPhensig);
             }
         }
 
-        return phensigs;
+        for (String phensig : cache.keySet()) {
+            List<VtecObject> vtecsByTimeOrder = new ArrayList<VtecObject>(
+                    cache.get(phensig));
+            Collections.sort(vtecsByTimeOrder, VTEC_COMPARATOR);
+            cache.put(phensig, vtecsByTimeOrder);
+        }
+
+        return cache;
     }
 
     /**
@@ -242,46 +278,12 @@ public class GFEVtecUtil {
                     && ((!NATIONAL_PHENSIGS.contains(vtec.getPhensig())) || (IGNORE_NATIONAL_ETN
                             .contains(vtec.getOffice()) && TROPICAL_PHENSIGS
                             .contains(vtec.getPhensig())))) {
-                // With GFE VTEC products, it's possible to have multiple
-                // segments with
-                // NEW vtec action codes and the same phensig. For this reason,
-                // HazardsTable.py implemented a "cache" that would ensure all
-                // NEWs for
-                // the same phensig would be assigned the same ETN. This Map
-                // replicates
-                // that legacy behavior.
-                //
-                // This "cache" has two levels:
-                // 1. The first level is keyed by the hazard's phensig.
-                // 2. The second level is keyed by the valid period of the
-                // hazard.
-                // Effectively, making this a Map<Phensig, Map<ValidPeriod,
-                // ETN>>.
-
-                // Some more clarification on the ETN assignment behavior: all
-                // NEW VTEC lines with the same phensig should be assigned the
-                // same ETN if the hazards' valid periods are adjacent or
-                // overlapping.
-                // If there's a discontinuity in TimeRanges we increment to the
-                // next ETN.
-                Integer newEtn = null;
-                String cacheKey = vtec.getPhensig();
+                String phensig = vtec.getPhensig();
                 TimeRange validPeriod = new TimeRange(vtec.getStartTime()
                         .getTime(), vtec.getEndTime().getTime());
-
-                Map<TimeRange, Integer> etnsByTR = etnCache.get(cacheKey);
-                if (etnsByTR != null) {
-                    newEtn = etnsByTR.get(validPeriod);
-                    for (TimeRange tr : etnsByTR.keySet()) {
-                        if ((validPeriod.isAdjacentTo(tr))
-                                || (validPeriod.overlaps(tr))) {
-                            vtec.setSequence(newEtn);
-                            break;
-                        }
-                    }
-                }
+                Integer newEtn = etnCache.get(phensig).get(validPeriod);
+                vtec.setSequence(newEtn);
             }
-
             vtecMatcher
                     .appendReplacement(
                             finalOutput,
