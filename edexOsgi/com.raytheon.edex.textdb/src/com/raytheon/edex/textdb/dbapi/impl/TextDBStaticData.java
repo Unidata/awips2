@@ -46,6 +46,7 @@ import com.raytheon.uf.common.site.SiteMap;
  * ------------ ---------- ----------- --------------------------
  * Sep 2, 2008        1538 jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Added additional methods.
+ * Mar 17, 2014 DR 16449   D. Friedman Fix reload/populate.
  * </pre>
  * 
  * @author jkorman
@@ -351,47 +352,33 @@ public class TextDBStaticData {
         tablesLoaded = true;
 
         // ******************************
-        if (stdCollectiveMap != null) {
-            stdCollectiveMap = new HashMap<String, String>();
-        }
+        stdCollectiveMap = new HashMap<String, String>();
         tablesLoaded &= loadFile("textdb/collective_table.dat",
                 stdCollectiveMap, COLLECTIVE_TABLE_KEY_LEN);
         // ******************************
-        if (uaCollectiveMap != null) {
-            uaCollectiveMap = new HashMap<String, String>();
-        }
+        uaCollectiveMap = new HashMap<String, String>();
         tablesLoaded &= loadFile("textdb/upair_table.dat", uaCollectiveMap,
                 UPAIR_KEY_LEN);
         // ******************************
-        if (stationTable != null) {
-            stationTable = new HashMap<String, String>();
-        }
+        stationTable = new HashMap<String, String>();
         tablesLoaded &= loadFile("textdb/station_table.dat", stationTable,
                 STATION_TABLE_KEY_LEN);
         // ******************************
-        if (exclusionList != null) {
-            exclusionList = new HashSet<String>();
-        }
+        exclusionList = new HashSet<String>();
         if (exclusionFileInplay) {
             tablesLoaded &= loadFile("textdb/exclusionProductList.dat",
                     exclusionList);
         }
         // ******************************
-        if (duplicateCheckList != null) {
-            duplicateCheckList = new HashSet<String>();
-        }
+        duplicateCheckList = new HashSet<String>();
         tablesLoaded &= loadFile("textdb/checkProductFile.dat",
                 duplicateCheckList);
         // ******************************
-        if (ispanTable != null) {
-            ispanTable = new HashMap<String, String>();
-        }
+        ispanTable = new HashMap<String, String>();
         tablesLoaded &= loadISpanFile("textdb/ispan_table.dat", ispanTable);
 
         // ******************************
-        if (bitTable != null) {
-            bitTable = new HashMap<String, String>();
-        }
+        bitTable = new HashMap<String, String>();
         tablesLoaded &= loadFile("textdb/bit_table.dat", bitTable,
                 BIT_TABLE_KEY_LEN);
         String node = SiteMap.getInstance().getCCCFromXXXCode(siteId);
