@@ -39,6 +39,7 @@ import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOver
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
+ * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
  * 
  * </pre>
  * 
@@ -59,10 +60,10 @@ public class GridOverlapData<T extends GriddedTime, C extends GriddedCoverage>
     private int cycleDuplication = -999;
 
     /** Forecast hour pass flag */
-    private boolean fcstHrPass = false;
+    protected boolean fcstHrPass = false;
 
     /** Cycle time pass flag */
-    private boolean cyclePass = false;
+    protected boolean cyclePass = false;
 
     /**
      * Constructor.
@@ -122,10 +123,10 @@ public class GridOverlapData<T extends GriddedTime, C extends GriddedCoverage>
         calculateForecastHourDuplicationPercent(sub1, sub2);
         GridSubscriptionOverlapConfig config = (GridSubscriptionOverlapConfig) this.config;
 
-        fcstHrPass = fcstHrDuplication > config
+        fcstHrPass = fcstHrDuplication >= config
                 .getMaxAllowedForecastHourDuplication();
 
-        cyclePass = cycleDuplication > config.getMaxAllowedCycleDuplication();
+        cyclePass = cycleDuplication >= config.getMaxAllowedCycleDuplication();
     }
 
     /**
