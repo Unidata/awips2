@@ -111,9 +111,6 @@ diam    |         ||     | Feature Diameter
 g2gsh   |         ||     | Gate to Gate Shear
 wDiv    |         ||     | Divergence
 ICEG    | iceg    ||     | Ice growth rate
-Prob34  | prob34  ||     | Probability of Wind Speed > 34 knots 
-Prob50  | prob50  ||     | Probability of Wind Speed > 50 knots 
-Prob64  | prob64  ||     | Probability of Wind Speed > 64 knots 
 POP12hr | pop12hr ||     | Probability of 12hr precip
 POP6hr  | pop6hr  ||     | Probability of 6hr precip
 POP3hr  | pop3hr  ||     | Probability of 3hr precip
@@ -265,9 +262,6 @@ TP_ECMWF  |tp_ecmwf ||     | ECMWF Total Precipitation
 TP_ECMWF12hr  |     ||     | ECMWF 12-hr Total Precipitation
 TP120hr |tp120hr    ||     | 120-hr Total Precipitation
 PPFFG   | ppffg     ||     | Probability of excessive rain
-PWS34    | pws34     ||    | Incremental Prob WS 34 kts or greater
-PWS50    | pws50     ||    | Incremental Prob WS 50 kts or greater
-PWS64    | pws64     ||    | Incremental Prob WS 64 kts or greater
 SHerranl | sherranl ||     | RTMA Alaska specific humidity error analysis
 Perranl  | perranl  ||     | RTMA Alaska pressure error analysis
 TiltAng  |           ||    | Tilt angle of a radar PPI
