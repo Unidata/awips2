@@ -100,6 +100,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 18, 2014 2751       bclement    Fixed history message 'from' type
  * Feb 18, 2014 2751       bclement    log privilege changes instead of spamming chat window
  * Feb 24, 2014 2751       bclement    added isRoomOwner()
+ * Mar 05, 2014 2798       mpduff      Don't handle Presence, get from MUC instead..
  * 
  * </pre>
  * 
@@ -107,7 +108,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * @version 1.0
  * @see com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent
  * @see com.raytheon.uf.viz.collaboration.comm.provider.TextMessage
- * @see com.raytheon.uf.viz.collaboration.comm.provider.CollaborationMessage
  */
 
 public class VenueSession extends BaseSession implements IVenueSession {
@@ -519,7 +519,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 logParticipantEvent(participant, ParticipantEventType.UPDATED,
                         "is now an admin.");
             }
-            
+
             private void logParticipantEvent(String participant,
                     ParticipantEventType type, String desciption) {
                 StringBuilder builder = new StringBuilder();
@@ -537,6 +537,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                 VenueParticipantEvent event = new VenueParticipantEvent(user,
                         type);
                 event.setEventDescription(desciption);
+
                 postEvent(event);
             }
 
@@ -551,7 +552,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     String fromID = p.getFrom();
                     VenueParticipant user = IDConverter.convertFromRoom(muc,
                             fromID);
-                    venue.handlePresenceUpdated(user, p);
                     postEvent(new VenueParticipantEvent(user, p,
                             ParticipantEventType.PRESENCE_UPDATED));
                 }

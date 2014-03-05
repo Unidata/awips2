@@ -21,10 +21,8 @@ package com.raytheon.uf.viz.collaboration.comm.provider.info;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.packet.Presence;
@@ -51,6 +49,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, getSubject never returns null
  * Feb 13, 2014 2751       bclement    changed to use VenueParticipant handle instead of alias
+ * Mar 05, 2014 2798       mpduff      Get Presence from MUC.
  * 
  * </pre>
  * 
@@ -60,8 +59,6 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 public class Venue implements IVenue {
 
     private final MultiUserChat muc;
-
-    private Map<String, Presence> presenceMap = new HashMap<String, Presence>();
 
     public Venue(XMPPConnection conn, MultiUserChat muc) {
         this.muc = muc;
@@ -80,16 +77,12 @@ public class Venue implements IVenue {
 
     @Override
     public Presence getPresence(VenueParticipant user) {
-        Presence presence = presenceMap.get(user.getHandle());
+        Presence presence = muc.getOccupantPresence(user.getFQName());
         if (presence == null) {
             presence = new Presence(Type.unavailable);
             presence.setMode(Mode.away);
         }
         return presence;
-    }
-
-    public void handlePresenceUpdated(VenueParticipant fromID, Presence presence) {
-        presenceMap.put(fromID.getHandle(), presence);
     }
 
     /*
