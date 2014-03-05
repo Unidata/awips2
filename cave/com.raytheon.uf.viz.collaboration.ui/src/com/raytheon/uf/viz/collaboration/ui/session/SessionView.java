@@ -102,6 +102,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
  * Feb 24, 2014 2632       mpduff      Move playSound to CollaborationUtils
+ * Mar 05, 2014 2798       mpduff      Moved processJoinAlert() call from participantHandler
+ *                                         to participantArrived.
  * 
  * </pre>
  * 
@@ -632,7 +634,6 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
                 switch (type) {
                 case ARRIVED:
                     participantArrived(participant, description);
-                    processJoinAlert();
                     break;
                 case DEPARTED:
                     participantDeparted(participant, description);
@@ -671,6 +672,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         String message = description != null ? description
                 : "has entered the room.";
         sendParticipantSystemMessage(participant, message);
+        processJoinAlert();
     }
 
     /**
@@ -728,7 +730,6 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     protected SessionMsgArchive createMessageArchive() {
         String sessionName = getSessionName();
         UserId me = CollaborationConnection.getConnection().getUser();
-        // UserId me = session.getUserID();
         return new SessionMsgArchive(me.getHost(), me.getName(), sessionName);
     }
 
