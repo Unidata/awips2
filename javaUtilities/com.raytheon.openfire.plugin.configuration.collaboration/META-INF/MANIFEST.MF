@@ -5,6 +5,6 @@ Bundle-SymbolicName: com.raytheon.openfire.plugin.configuration.collaboration;si
 Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.jivesoftware.openfire;bundle-version="3.7.1",
- org.apache.commons.collections;bundle-version="3.2.0",
- org.apache.http;bundle-version="4.1.2"
+Require-Bundle: org.jivesoftware.openfire,
+ org.apache.commons.collections,
+ org.apache.http
