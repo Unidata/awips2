@@ -32,8 +32,4 @@
 30:30:Frictional velocity:m/s:FRICV
 # 31-191 Reserved
 # 192-254 Reserved for local use
-# AWIPS override of the PWS parameters
-198:198:Incremental Prob WS 34 kts or greater:%:PWS34 
-199:199:Incremental Prob WS 50 kts or greater:%:PWS50
-200:200:Incremental Prob WS 50 kts or greater:%:PWS64
 255:255:Missing

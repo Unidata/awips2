@@ -803,6 +803,15 @@ public class DiscreteGridSlice extends AbstractGridSlice implements Cloneable {
     }
 
     /**
+     * Used by iscMosaic.py
+     * 
+     * @param key
+     */
+    public void setKey(List<DiscreteKey[]> key) {
+        setKeys(key.toArray(new DiscreteKey[] {}));
+    }
+
+    /**
      * @param keys
      *            the keys to set
      */

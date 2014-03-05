@@ -20,8 +20,8 @@ package com.raytheon.uf.common.dataplugin.madis;
  * further licensing information.
  **/
 
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +74,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 14, 2013 2361       njensen     Removed IDecoderGettable
  * Dec 10, 2013 2616       mpduff      Added stationId to the unique constraint
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  * 
  * </pre>
  * 
@@ -124,7 +125,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     /** A string denoting the time of observation */
     @DynamicSerializeElement
     @Transient
-    private Date timeObs;
+    private Calendar timeObs;
 
     /** A float denoting the dewpoint temp */
     @DynamicSerializeElement
@@ -905,11 +906,11 @@ public class MadisRecord extends PersistablePluginDataObject implements
         this.pressure_qcr = pressure_qcr;
     }
 
-    public void setTimeObs(Date timeObs) {
+    public void setTimeObs(Calendar timeObs) {
         this.timeObs = timeObs;
     }
 
-    public Date getTimeObs() {
+    public Calendar getTimeObs() {
         return timeObs;
     }
 

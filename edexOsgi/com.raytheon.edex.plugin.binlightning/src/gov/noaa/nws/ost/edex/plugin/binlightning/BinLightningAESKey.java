@@ -235,5 +235,9 @@ public class BinLightningAESKey {
 	public void setKeyDate(Date keyDate) {
 		this.keyDate = keyDate;
 	}
+
+	public static Properties getProps() {
+		return props;
+	}
 	
 }
