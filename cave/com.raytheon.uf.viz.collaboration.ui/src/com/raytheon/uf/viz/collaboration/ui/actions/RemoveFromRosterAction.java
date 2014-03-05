@@ -26,6 +26,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Action to remove entry from roster on server
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 20, 2013 2563       bclement     Initial creation
+ * Mar 05, 2014 2837       bclement     changed wording from Roster to Contacts, added image
  * 
  * </pre>
  * 
@@ -49,7 +52,8 @@ public class RemoveFromRosterAction extends Action {
     private final RosterEntry entry;
 
     public RemoveFromRosterAction(RosterEntry entry) {
-        super("Remove From Roster");
+        super("Remove From Contacts", IconUtil.getImageDescriptor(Activator
+                .getDefault().getBundle(), "remove_contact.gif"));
         this.entry = entry;
     }
 

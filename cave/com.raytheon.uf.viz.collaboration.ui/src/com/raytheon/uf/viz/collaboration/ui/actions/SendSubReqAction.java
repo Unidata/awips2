@@ -29,6 +29,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Action to send a subscription request to a user
@@ -40,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 24, 2014            bclement     Initial creation
+ * Mar 05, 2014 2837       bclement     added image
  * 
  * </pre>
  * 
@@ -56,7 +58,8 @@ public class SendSubReqAction extends Action {
      *            roster entry to request a subscription to
      */
     public SendSubReqAction(RosterEntry entry) {
-        super("Send Contact Request");
+        super("Send Contact Request", IconUtil.getImageDescriptor(Activator
+                .getDefault().getBundle(), "add_contact.gif"));
         this.entry = entry;
     }
 
