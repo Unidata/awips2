@@ -36,6 +36,7 @@ import org.junit.Ignore;
  * May 28, 2013 1650       djohnson     Add event bus spring files.
  * Jun 24, 2013 2106       djohnson     Remove spring file.
  * Jul 10, 2013 2106       djohnson     Add MEMORY_DATADELIVERY_HANDLERS_XML.
+ * Jan 09, 2014 2615       bgonzale     Add DATADELIVERY_STANDALONE_XML.
  * 
  * </pre>
  * 
@@ -72,6 +73,8 @@ public class SpringFiles {
     public static final String DATADELIVERY_HANDLERS_XML = "/spring/datadelivery-handlers.xml";
 
     public static final String DATADELIVERY_HANDLERS_IMPL_XML = "/spring/datadelivery-handlers-impl.xml";
+
+    public static final String DATADELIVERY_STANDALONE_XML = "/spring/datadelivery-standalone.xml";
 
     public static final String EBXML_XML = "/spring/ebxml.xml";
 

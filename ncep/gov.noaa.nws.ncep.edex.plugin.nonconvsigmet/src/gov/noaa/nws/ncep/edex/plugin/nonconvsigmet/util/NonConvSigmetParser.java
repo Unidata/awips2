@@ -11,6 +11,7 @@
  * 07/2011		F. J. Yen	Fix for RTN TTR 9973--ConvSigment Decoder Ignoring
  * 							time range (NonConvsigmet, too).  Set the rangeEnd
  * 							time to the endTime
+ * Jan 17, 2014         njensen         Handle if one or more locations not found in LatLonLocTbl							
  * 
  * This code has been developed by the SIB for use in the AWIPS2 system.
  */
@@ -344,14 +345,17 @@ public class NonConvSigmetParser {
                     currentLocation.setLocationLine(lines);
                     currentLocation.setLocation(location);
                     point = LatLonLocTbl.getLatLonPoint(location, "vors");
-                    currentLocation.setIndex(idxLocation + 1);
-                    idxLocation++;
-                    currentLocation.setLatitude(point
+                    if(point != null) {
+                       currentLocation.setIndex(idxLocation + 1);
+                       idxLocation++;
+                       currentLocation.setLatitude(point
                             .getLatitude(LatLonPoint.INDEGREES));
-                    currentLocation.setLongitude(point
+                       currentLocation.setLongitude(point
                             .getLongitude(LatLonPoint.INDEGREES));
-                    recordTable.addNonConvSigmetLocation(currentLocation);
+                       recordTable.addNonConvSigmetLocation(currentLocation);
+                    }
                 }
+                hasLocationLine = (idxLocation > 0);
             } else {
                 hasLocationLine = false;
             }

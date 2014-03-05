@@ -24,16 +24,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
+import com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalRequestWrapper;
+import com.raytheon.uf.edex.datadelivery.retrieval.handlers.SubscriptionRetrievalRequestWrapper;
 
 /**
  * 
@@ -48,6 +53,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Nov 19, 2012            bsteffen     Initial javadoc
  * Dec 10, 2012   1259     bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Dec 11, 2013   2625     mpduff       Remove creation of DataURI.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -68,13 +74,17 @@ public class RetrievalGeneratorUtilities {
     public static boolean findDuplicateUri(String dataUri, String plugin) {
 
         boolean isDuplicate = false;
-        String sql = "select id from " + plugin + " where datauri = '"
-                + dataUri + "'";
+        try {
+            String sql = "select id from " + plugin + " where datauri = '"
+                    + dataUri + "'";
 
-        CoreDao dao = new CoreDao(DaoConfig.forDatabase("metadata"));
-        Object[] results = dao.executeSQLQuery(sql);
-        if (results.length > 0) {
-            isDuplicate = true;
+            CoreDao dao = new CoreDao(DaoConfig.forDatabase("metadata"));
+            Object[] results = dao.executeSQLQuery(sql);
+            if (results.length > 0) {
+                isDuplicate = true;
+            }
+        } catch (Exception e) {
+            statusHandler.error("Couldn't determine duplicate status! ", e);
         }
 
         return isDuplicate;
@@ -129,5 +139,34 @@ public class RetrievalGeneratorUtilities {
         }
 
         return dups;
+    }
+    
+    /**
+     * 
+     * Drops Retrievals by subscription into a common queue for processing
+     * 
+     * @param destinationUri
+     * @param network
+     * @param payload
+     * @throws Exception
+     */
+    public static void sendToRetrieval(String destinationUri, Network network,
+            Object[] payload) throws Exception{
+
+        if (payload != null) {
+
+            List<RetrievalRequestWrapper> wrappers = new ArrayList<RetrievalRequestWrapper>(
+                    payload.length);
+
+            for (Object o : payload) {
+                RetrievalRequestWrapper rrw = new RetrievalRequestWrapper(o);
+                wrappers.add(rrw);
+            }
+
+            SubscriptionRetrievalRequestWrapper srrw = new SubscriptionRetrievalRequestWrapper(
+                    network, wrappers);
+            byte[] bytes = SerializationUtil.transformToThrift(srrw);
+            EDEXUtil.getMessageProducer().sendAsync(destinationUri, bytes);
+        }
     }
 }
