@@ -100,7 +100,7 @@ public class HierarchicalPreferenceStore implements IPersistentPreferenceStore {
             this.config = new XMLConfiguration();
         }
 
-        public XMLConfiguration accessConfiguration() {
+        public synchronized XMLConfiguration accessConfiguration() {
             if (loaded == false) {
                 // Loaded flag is used for first access
                 loaded = true;
@@ -120,10 +120,6 @@ public class HierarchicalPreferenceStore implements IPersistentPreferenceStore {
 
         public boolean isDirty() {
             return dirty;
-        }
-
-        public LocalizationFile getFile() {
-            return file;
         }
 
         public void save() throws LocalizationException {
@@ -220,7 +216,7 @@ public class HierarchicalPreferenceStore implements IPersistentPreferenceStore {
         this.defaultPersistLevel = defaultLevel;
     }
 
-    private MapConfiguration getDefaultConfig() {
+    private synchronized MapConfiguration getDefaultConfig() {
         if (defaults == null) {
             defaults = new MapConfiguration(new HashMap<String, Object>());
             // Populate defaults with base first, setDefault* method will
