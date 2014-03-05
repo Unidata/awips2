@@ -20,7 +20,10 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
@@ -66,6 +69,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
  * Feb 19, 2014 2751       bclement    add change color icon, fix NPE when user cancels change color
+ * Mar 05, 2014 2798       mpduff      Changed how messages are processed for the feed view.
  * 
  * </pre>
  * 
@@ -90,6 +94,12 @@ public class SessionFeedView extends SessionView {
     private final List<String> userEnabledSites;
 
     private List<SiteColor> colors;
+
+    /**
+     * Set of users logged in.
+     */
+    private final Set<String> enabledUsers = Collections
+            .newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     /**
      * 
@@ -382,17 +392,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void sendParticipantSystemMessage(VenueParticipant participant,
             String message) {
-        Presence presence = session.getVenue().getPresence(participant);
-        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
-        String siteName = siteObj == null ? "" : siteObj.toString();
-        // only show sites you care about
-        if (enabledSites.contains(siteName)
-                || userEnabledSites.contains(siteName)) {
-            super.sendParticipantSystemMessage(participant, message);
-        } else {
-            usersTable.setInput(session.getVenue().getParticipants());
-            usersTable.refresh();
-        }
+        super.sendParticipantSystemMessage(participant, message);
     }
 
     /*
@@ -406,8 +406,56 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantPresenceUpdated(VenueParticipant participant,
             Presence presence) {
-        setColorForSite(participant, presence);
-        super.participantPresenceUpdated(participant, presence);
+        usersTable.refresh();
+
+        // Verify we have properties
+        if (!presence.getPropertyNames().contains(
+                SiteConfigInformation.SITE_NAME)) {
+            return;
+        }
+
+        Object roleObj = presence.getProperty(SiteConfigInformation.ROLE_NAME);
+        String roleName = roleObj == null ? "" : roleObj.toString();
+        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
+        String siteName = siteObj == null ? "" : siteObj.toString();
+        String user = participant.getName();
+
+        // only show sites you care about
+        if (enabledSites.contains(siteName)
+                || userEnabledSites.contains(siteName)) {
+            if (!enabledUsers.contains(user) && presence.isAvailable()) {
+                // New user
+                enabledUsers.add(user);
+                StringBuilder message = new StringBuilder();
+                message.append(user);
+                message.append(" ").append(roleName).append(" ")
+                        .append(siteName);
+                setColorForSite(participant, presence);
+                sendSystemMessage(message);
+                processJoinAlert();
+            }
+        }
+    }
+
+    /**
+     * No operation for Session Feed View
+     */
+    @Override
+    protected void participantArrived(VenueParticipant participant,
+            String description) {
+        usersTable.setInput(session.getVenue().getParticipants());
+        usersTable.refresh();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void participantDeparted(VenueParticipant participant,
+            String description) {
+        if (enabledUsers.remove(participant.getName())) {
+            super.participantDeparted(participant, description);
+        }
     }
 
     /*
