@@ -145,6 +145,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  *                                     removed unneeded subscription for nickname changed events
  * Feb 12, 2014 2799       bclement    fixed double click chat not working for roster entries
  * Feb 24, 2014 2632       mpduff      Add Notifier actions.
+ * Mar 05, 2014 2837       bclement    separate rename action for groups, added more icons
  * 
  * </pre>
  * 
@@ -164,6 +165,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
     private CreateSessionAction createSessionAction;
 
     private Action aliasAction;
+
+    private Action renameAction;
 
     private DisplayFeedAction displayFeedAction;
 
@@ -267,7 +270,16 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
         createSessionAction = new CreateSessionAction(userSelector);
 
-        aliasAction = new Action("Alias") {
+        aliasAction = new Action("Alias", IconUtil.getImageDescriptor(Activator
+                .getDefault().getBundle(), "alias.gif")) {
+            @Override
+            public void run() {
+                aliasItem(getId());
+            };
+        };
+
+        renameAction = new Action("Rename Group", IconUtil.getImageDescriptor(
+                Activator.getDefault().getBundle(), "rename_group.gif")) {
             @Override
             public void run() {
                 aliasItem(getId());
@@ -432,9 +444,8 @@ public class CollaborationGroupView extends CaveFloatingView implements
             if (o instanceof RosterGroup) {
                 RosterGroup group = (RosterGroup) o;
                 manager.add(new DeleteGroupAction(group.getName()));
-                aliasAction.setId(group.getName());
-                aliasAction.setText("Rename Group");
-                manager.add(aliasAction);
+                renameAction.setId(group.getName());
+                manager.add(renameAction);
             }
         }
     }
@@ -478,7 +489,6 @@ public class CollaborationGroupView extends CaveFloatingView implements
                 .getConnection();
         String name = connection.getContactsManager().getDisplayName(user);
         aliasAction.setId(name);
-        aliasAction.setText("Alias");
         manager.add(aliasAction);
     }
 
