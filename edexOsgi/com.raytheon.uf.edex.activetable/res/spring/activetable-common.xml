@@ -15,17 +15,6 @@
 		<constructor-arg value="com.raytheon.uf.common.activetable"/>
 		<constructor-arg ref="activeTableDatabaseProperties"/>
 	</bean>
-    <bean id="jms-activetable" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsActiveTableConfig" />
-		<property name="taskExecutor" ref="activeTableMergeThreadPool" />
-	</bean>
-	<bean id="jmsActiveTableConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
-	<bean id="activeTableMergeThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="2" />
-	</bean>
 	<bean id="timeOffsetDecoder" class="com.raytheon.uf.edex.python.decoder.TimeOffsetDecoder">
 		<property name="pluginName" value="warning" />
 		<property name="pluginFQN" value="com.raytheon.edex.plugin.warning" />
@@ -45,7 +34,7 @@
             <to uri="jms-generic:topic:edex.alerts.vtec?timeToLive=60000" />
         </route>
 		<route id="practiceVtecRoute">
-			<from uri="jms-activetable:queue:practiceActiveTable?concurrentConsumers=1" />
+			<from uri="jms-generic:queue:practiceActiveTable" />
             <doTry>
                <bean ref="activeTable" method="dumpProductToTempFile" />
                <bean ref="practiceWarningDecoder" method="decode" />
