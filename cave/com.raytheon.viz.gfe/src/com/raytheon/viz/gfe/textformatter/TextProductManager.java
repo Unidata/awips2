@@ -55,9 +55,10 @@ import com.raytheon.viz.gfe.core.DataManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 1, 2009            njensen     Initial creation
- * Jan 15, 2010  3395     ryu         Fix &quot;issued by&quot; functionality
- * Apr 24, 2013  1936     dgilling    Remove unused imports.
+ * May 1, 2009             njensen     Initial creation
+ * Jan 15, 2010  3395      ryu         Fix &quot;issued by&quot; functionality
+ * Apr 24, 2013  1936      dgilling    Remove unused imports.
+ * Feb 12, 2014  2591      randerso    Removed reloadModule method
  * 
  * </pre>
  * 
@@ -267,17 +268,6 @@ public class TextProductManager {
         Object mapName = null;
         mapName = getDefinitionValue(productName, "mapNameForCombinations");
         return mapName;
-    }
-
-    protected void reloadModule(String moduleName) {
-        Map<String, Object> args = new HashMap<String, Object>(1);
-        args.put("moduleName", moduleName);
-        try {
-            script.execute("reloadModule", args);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Exception reloading module " + moduleName, e);
-        }
     }
 
     public void setIssuedBy(String issuedBy) {
