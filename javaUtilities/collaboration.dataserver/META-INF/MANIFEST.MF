@@ -10,4 +10,6 @@ Require-Bundle: org.eclipse.jetty,
  com.raytheon.uf.common.http,
  com.raytheon.uf.common.xmpp,
  org.apache.http,
- org.apache.commons.collections
+ org.apache.commons.collections,
+ org.slf4j,
+ ch.qos.logback
