@@ -34,18 +34,14 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
-import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
 import com.raytheon.uf.viz.collaboration.ui.prefs.AutoSubscribePropertyListener;
@@ -70,8 +66,9 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Dec 18, 2013 2562      bclement    fixed venue invite
  * Jan 14, 2014 2630      bclement    added away timeout
  * Jan 27, 2014 2700      bclement    added auto subscribe property listener
- * Jan 30, 2014 2698       bclement    moved xmpp join logic to dialog so we can reprompt user on failure
- * Feb 13, 2014 2751       bclement    messages return IUser instead of IQualifiedID
+ * Jan 30, 2014 2698      bclement    moved xmpp join logic to dialog so we can reprompt user on failure
+ * Feb 13, 2014 2751      bclement    messages return IUser instead of IQualifiedID
+ * Mar 06, 2014 2848      bclement    moved SharedDisplaySessionMgr.joinSession call to InviteDialog
  * 
  * </pre>
  * 
@@ -195,11 +192,6 @@ public class ConnectionSubscriber {
                 try {
                     IVenueSession session = inviteBox.getSession();
                     if (inviteBox.isSharedDisplay()) {
-                        ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
-                        SessionColorManager man = new SessionColorManager();
-                        SharedDisplaySessionMgr.joinSession(displaySession,
-                                SharedDisplayRole.PARTICIPANT, man);
-
                         CaveWorkbenchPageManager.getActiveInstance().showView(
                                 CollaborationSessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);

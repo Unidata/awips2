@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Mar 21, 2012            mnash       Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 11, 2014 2751       njensen     Fixed scary ==
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -143,7 +144,7 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
         if (editor != null) {
             List<ISharedDisplaySession> sessions = getSessions();
             for (final ISharedDisplaySession session : sessions) {
-                String sessionName = session.getVenue().getName();
+                String sessionName = session.getVenueName();
                 ActionContributionItem aci = new ActionContributionItem(
                         new Action(sessionName) {
                             @Override
