@@ -2,7 +2,7 @@
 <cave-memory-settings>
 	<!-- The version should be incremented whenever
 		 the file layout changes. -->
-	<file-version>3.0</file-version>
+	<file-version>4.0</file-version>
 	
 	<!-- Example Entry ... See Below. -->
 	<!--
@@ -141,6 +141,7 @@
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
+
 	</arch.x86>
 	
 	<arch.x86_64>
@@ -250,6 +251,61 @@
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
+
+        <!-- memory default overrides for a particular site type (wfo, ncep, etc) -->
+        <!-- site-type names need to be all lower case -->
+        <site-type-override>
+            <site-type>wfo</site-type>
+			<ini-substitutions>
+				<max-memory>
+					<value>3072M</value>
+				</max-memory>
+			
+				<max-perm>
+					<value>DEFAULT</value>
+				</max-perm>
+			</ini-substitutions>
+        </site-type-override>
+
+        <site-type-override>
+            <site-type>rfc</site-type>
+			<ini-substitutions>
+				<max-memory>
+					<value>2048M</value>
+				</max-memory>
+			
+				<max-perm>
+					<value>DEFAULT</value>
+				</max-perm>
+			</ini-substitutions>
+        </site-type-override>
+
+        <site-type-override>
+            <site-type>ncep</site-type>
+			<ini-substitutions>
+				<max-memory>
+					<value>2048M</value>
+				</max-memory>
+			
+				<max-perm>
+					<value>DEFAULT</value>
+				</max-perm>
+			</ini-substitutions>
+        </site-type-override>
+
+        <site-type-override>
+            <site-type>cwsu</site-type>
+			<ini-substitutions>
+				<max-memory>
+					<value>3072M</value>
+				</max-memory>
+			
+				<max-perm>
+					<value>DEFAULT</value>
+				</max-perm>
+			</ini-substitutions>
+        </site-type-override>
+
 	</arch.x86_64>
 	
 </cave-memory-settings>
