@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    <bean id="fileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy"/>
+
+    <bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber" />
+    <bean id="siteMapListener" class="com.raytheon.edex.textdb.ingest.SiteMapNationalDatasetSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="bit_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="collective_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="exclusionProductList.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="ispan_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="station_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="upair_table.dat" />
+        <constructor-arg ref="textDBStaticDataListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="afos_lookup_table.dat" />
+        <constructor-arg ref="siteMapListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="national_category_table.template" />
+        <constructor-arg ref="siteMapListener" />
+    </bean>
+</beans>

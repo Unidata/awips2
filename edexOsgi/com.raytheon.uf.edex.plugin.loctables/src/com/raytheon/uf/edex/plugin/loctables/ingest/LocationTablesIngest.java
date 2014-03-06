@@ -29,12 +29,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.site.SiteUtil;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.monitor.config.FogMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.MonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SSMonitorConfigurationManager;
 import com.raytheon.uf.common.monitor.config.SnowMonitorConfigurationManager;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.ingest.IDataSetIngester;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.loctables.util.CommonObsSpatialBuilder;
 import com.raytheon.uf.edex.plugin.loctables.util.TableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.DefaultHandler;
@@ -45,12 +45,9 @@ import com.raytheon.uf.edex.plugin.loctables.util.handlers.PirepTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.RAOBTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.handlers.SynopticLandTableHandler;
 import com.raytheon.uf.edex.plugin.loctables.util.store.ObStationStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.PrintStreamStoreStrategy;
-import com.raytheon.uf.edex.plugin.loctables.util.store.RowStoreStrategy;
-import com.raytheon.uf.edex.site.ingest.IDataSetIngester;
 
 /**
- * TODO Add Description
+ * Location Tables NDM subscriber
  * 
  * <pre>
  * 
@@ -58,7 +55,8 @@ import com.raytheon.uf.edex.site.ingest.IDataSetIngester;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 8, 2010            jkorman     Initial creation
+ * Apr 08, 2010            jkorman     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -74,7 +72,7 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
 
     private IDataSetIngester ingester = null;
 
-    private Log logger = LogFactory.getLog(getClass());
+    private final Log logger = LogFactory.getLog(getClass());
 
     @SuppressWarnings("unused")
     private LocationTablesIngest() {
@@ -130,7 +128,9 @@ public class LocationTablesIngest implements INationalDatasetSubscriber {
             try {
                 monitor.readConfigXml(currentSite);
             } catch (Throwable t) {
-                logger.error("Could not configure " + monitor.getClass().getName() + " for site " + currentSite, t);
+                logger.error("Could not configure "
+                        + monitor.getClass().getName() + " for site "
+                        + currentSite, t);
             }
         }
     }
