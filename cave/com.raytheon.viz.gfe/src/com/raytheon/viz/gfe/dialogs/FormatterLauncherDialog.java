@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuAdapter;
@@ -97,6 +98,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     up warnings.
  * May 15, 2013 1842       dgilling    Pass DataManager instance down to sub-
  *                                     components.
+ * Feb 12, 2014 2801       randerso    Added prompting if formatter is run against non-normal database
  * 
  * </pre>
  * 
@@ -106,6 +108,12 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 public class FormatterLauncherDialog extends CaveJFACEDialog implements
         IProductTab {
+
+    // formatter data sources. Fcst must be first
+    private static enum FormatterDataSource {
+        Fcst, ISC, Official, Default,
+    }
+
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FormatterLauncherDialog.class);
 
@@ -161,24 +169,9 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     private Image failedImg;
 
     /**
-     * Fcst data source menu item.
+     * data source menu items
      */
-    private MenuItem fcstMI = null;
-
-    /**
-     * Official data source menu item.
-     */
-    private MenuItem officialMI = null;
-
-    /**
-     * ISC data source menu item.
-     */
-    private MenuItem iscMI = null;
-
-    /**
-     * Default data source menu item.
-     */
-    private MenuItem defaultMI = null;
+    private java.util.List<MenuItem> dataSourceMI;
 
     /**
      * Products menu.
@@ -211,8 +204,6 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
     private TextProductManager textProductMgr;
 
     private DataManager dataMgr;
-
-    private String selectedDataSource = null;
 
     private boolean doClose = false;
 
@@ -338,59 +329,47 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         // Get the CAVE operating mode
         CAVEMode mode = dataMgr.getOpMode();
 
-        // Forecast menu item, set text based on operating mode
-        fcstMI = new MenuItem(dataSourceMenu, SWT.RADIO);
-        if (mode.equals(CAVEMode.OPERATIONAL)) {
-            fcstMI.setText("Fcst");
-        } else if (mode.equals(CAVEMode.PRACTICE)) {
-            fcstMI.setText("Fcst_Prac");
-            fcstMI.setSelection(true);
-        } else {
-            fcstMI.setText("Fcst_Test");
-            fcstMI.setSelection(true);
-        }
-        fcstMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-                selectedDataSource = dataMgr.getParmManager()
-                        .getMutableDatabase().toString();
+        this.dataSourceMI = new ArrayList<MenuItem>();
+        // create menu items
+        for (FormatterDataSource source : FormatterDataSource.values()) {
+            MenuItem item = new MenuItem(dataSourceMenu, SWT.RADIO);
+            item.setData(source);
+            this.dataSourceMI.add(item);
+            String text = source.toString();
+            if (source.equals(FormatterDataSource.Fcst)) {
+                if (mode.equals(CAVEMode.PRACTICE)) {
+                    text += "_Prac";
+                } else if (mode.equals(CAVEMode.TEST)) {
+                    text += "_Test";
+                }
             }
-        });
+            item.setText(text);
+            item.addSelectionListener(new SelectionAdapter() {
 
-        // Only show these menu items when in operational mode
-        if (mode.equals(CAVEMode.OPERATIONAL)) {
-            // ISC menu item
-            iscMI = new MenuItem(dataSourceMenu, SWT.RADIO);
-            iscMI.setText("ISC");
-            iscMI.addSelectionListener(new SelectionAdapter() {
                 @Override
-                public void widgetSelected(SelectionEvent event) {
-                    getIscDataSource();
+                public void widgetSelected(SelectionEvent e) {
+                    MenuItem item = (MenuItem) e.getSource();
+                    if (item.getSelection()) {
+                        statusHandler.handle(
+                                Priority.EVENTB,
+                                "User selected formatter data source: "
+                                        + item.getText());
+                    }
                 }
             });
 
-            // Official menu item
-            officialMI = new MenuItem(dataSourceMenu, SWT.RADIO);
-            officialMI.setText("Official");
-            officialMI.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                    selectedDataSource = getOfficialDataSource();
-                }
-            });
+            if (!mode.equals(CAVEMode.OPERATIONAL)) {
+                item.setSelection(true);
+                statusHandler.handle(Priority.EVENTB,
+                        "Formatter default data source: " + item.getText());
+                break;
+            }
 
-            // Default menu item
-            defaultMI = new MenuItem(dataSourceMenu, SWT.RADIO);
-            defaultMI.setText("Default");
-            defaultMI.setSelection(true);
-            defaultMI.addSelectionListener(new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent event) {
-                }
-            });
-        } else {
-            selectedDataSource = dataMgr.getParmManager().getMutableDatabase()
-                    .toString();
+            if (source.equals(FormatterDataSource.Default)) {
+                item.setSelection(true);
+                statusHandler.handle(Priority.EVENTB,
+                        "Formatter default data source: " + item.getText());
+            }
         }
     }
 
@@ -731,32 +710,108 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      *            The name of the product
      * @return The data source
      */
-    public String getSelectedDataSource(String productName) {
-        if (fcstMI.getSelection()) {
-            selectedDataSource = getFcstDataSource();
-        } else if (iscMI.getSelection()) {
-            selectedDataSource = getIscDataSource();
-        } else if (officialMI.getSelection()) {
-            selectedDataSource = getOfficialDataSource();
-        } else {
-            // Default value
-            ProductDefinition prodDef = textProductMgr
-                    .getProductDefinition(productName);
-            String dataSource = (String) prodDef.get("database");
-            if (dataSource == null) {
-                dataSource = "Official";
-            }
-
-            if (dataSource.equals("ISC")) {
-                selectedDataSource = getIscDataSource();
-            } else if (dataSource.equals("Official")) {
-                selectedDataSource = getOfficialDataSource();
-            } else {
-                selectedDataSource = getFcstDataSource();
+    public DatabaseID getSelectedDataSource(String productName) {
+        FormatterDataSource menuDataSource = FormatterDataSource.Default;
+        for (MenuItem item : dataSourceMI) {
+            if (item.getSelection()) {
+                menuDataSource = (FormatterDataSource) item.getData();
+                break;
             }
         }
 
-        return selectedDataSource;
+        // Default value
+        ProductDefinition prodDef = textProductMgr
+                .getProductDefinition(productName);
+        String dbString = (String) prodDef.get("database");
+        FormatterDataSource productDataSource;
+        if (dbString == null) {
+            productDataSource = FormatterDataSource.Default;
+        } else {
+            try {
+                productDataSource = FormatterDataSource.valueOf(dbString);
+            } catch (IllegalArgumentException e) {
+                StringBuilder msg = new StringBuilder();
+                msg.append("The ");
+                msg.append(productName);
+                msg.append(" product definition contains an invalid database selection: \"");
+                msg.append(dbString);
+                msg.append("\". Valid values are: [");
+                for (FormatterDataSource src : FormatterDataSource.values()) {
+                    if (!src.equals(FormatterDataSource.Default)) {
+                        msg.append(src).append(", ");
+                    }
+                }
+                msg.delete(msg.length() - 2, msg.length());
+                msg.append("]");
+                statusHandler.error(msg.toString());
+                return null;
+            }
+        }
+
+        FormatterDataSource dataSource;
+        if (menuDataSource.equals(FormatterDataSource.Default)) {
+            if (productDataSource.equals(FormatterDataSource.Default)) {
+                dataSource = FormatterDataSource.Official;
+            } else {
+                dataSource = productDataSource;
+            }
+        } else {
+            dataSource = menuDataSource;
+        }
+
+        if (!productDataSource.equals(FormatterDataSource.Default)) {
+            if (!dataSource.equals(productDataSource)) {
+                // A check should be made that a hazard formatter is actually
+                // being run on the database specified in the Local or
+                // Definition file (Definition["database"] entry). If the
+                // database being run is different, provide a warning to the
+                // forecaster that requires acknowledgment before running.
+                MessageDialog dlg = new MessageDialog(getShell(),
+                        "Confirm Data Source", null,
+                        "The product definition indicates the " + productName
+                                + " formatter should be run against the "
+                                + productDataSource
+                                + " database, but you have selected the "
+                                + dataSource
+                                + " database.\n\nDo you wish to continue?",
+                        MessageDialog.WARNING, new String[] { "Yes", "No" }, 1);
+                int retVal = dlg.open();
+                if (retVal != 0) {
+                    dataSource = null;
+                }
+            }
+        } else {
+            if (dataSource.equals(FormatterDataSource.ISC)) {
+                // If the database is not explicitly defined (default), provide
+                // a a warning to the forecaster that requires acknowledgment
+                // before running if the database being used is ISC
+                MessageDialog dlg = new MessageDialog(
+                        getShell(),
+                        "Confirm Data Source",
+                        null,
+                        "You are about to run the "
+                                + productName
+                                + " formatter against the ISC database.\n\nDo you wish to continue?",
+                        MessageDialog.WARNING, new String[] { "Yes", "No" }, 1);
+                int retVal = dlg.open();
+                if (retVal != 0) {
+                    dataSource = null;
+                }
+            }
+        }
+
+        DatabaseID selectedDbId;
+        if (dataSource == null) {
+            selectedDbId = null;
+        } else if (dataSource.equals(FormatterDataSource.ISC)) {
+            selectedDbId = getIscDataSource();
+        } else if (dataSource.equals(FormatterDataSource.Official)) {
+            selectedDbId = getOfficialDataSource();
+        } else {
+            selectedDbId = getFcstDataSource();
+        }
+
+        return selectedDbId;
     }
 
     /**
@@ -1009,8 +1064,8 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * 
      * @return The FcstDataSource
      */
-    private String getFcstDataSource() {
-        return dataMgr.getParmManager().getMutableDatabase().toString();
+    private DatabaseID getFcstDataSource() {
+        return dataMgr.getParmManager().getMutableDatabase();
     }
 
     /**
@@ -1021,13 +1076,13 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * 
      * @return The ISC Data Source
      */
-    private String getIscDataSource() {
+    private DatabaseID getIscDataSource() {
         java.util.List<DatabaseID> dbs = dataMgr.getParmManager()
                 .getIscDatabases();
 
         if (dbs.size() > 0) {
             // Always return the last one in the list
-            return dbs.get(dbs.size() - 1).toString();
+            return dbs.get(dbs.size() - 1);
         }
 
         return null;
@@ -1038,12 +1093,12 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
      * 
      * @return The Official Data source
      */
-    private String getOfficialDataSource() {
-        String source = null;
+    private DatabaseID getOfficialDataSource() {
+        DatabaseID source = null;
         try {
             ServerResponse<java.util.List<DatabaseID>> sr = dataMgr.getClient()
                     .getOfficialDBName();
-            source = sr.getPayload().get(0).toString();
+            source = sr.getPayload().get(0);
         } catch (GFEServerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to determine official db", e);

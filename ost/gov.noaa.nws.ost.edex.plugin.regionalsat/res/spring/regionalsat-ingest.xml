@@ -3,20 +3,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 	
-	<bean id="jms-regionalsat" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIngestRegionalSatConfig" />
-		<property name="taskExecutor" ref="regionalSatThreadPool" />		
-	</bean>
-	
-	<bean id="jmsIngestRegionalSatConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-			factory-bean="jmsConfig" factory-method="copy" />
-			
-	<bean id="regionalSatThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean>
-
 	<bean id="regionalSatDecoder" class="gov.noaa.nws.ost.edex.plugin.regionalsat.decoder.RegionalSatDecoder">
 		<property name="source" value="Source" />
 		<property name="filename" value="regional_satellite_netcdf3" />
@@ -25,10 +11,10 @@
 	<bean id="regionalSatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="regionalsat" />
-		<constructor-arg value="jms-dist:queue:Ingest.regionalsat"/>
+		<constructor-arg value="jms-durable:queue:Ingest.regionalsat"/>
 	</bean>
     
-	<!-- 	<constructor-arg value="jms-dist:queue:Ingest.Satellite" />  -->
+	<!-- 	<constructor-arg value="jms-durable:queue:Ingest.Satellite" />  -->
 	
     <bean id="regionalSatCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">

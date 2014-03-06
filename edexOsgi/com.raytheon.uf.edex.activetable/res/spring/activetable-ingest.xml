@@ -25,8 +25,8 @@
 			<from uri="jms-generic:queue:practiceNotify" />
             <doTry>
             	<multicast parallelProcessing="false">
-					<to uri="jms-warning:queue:edex.spcWatch" />
-					<to uri="jms-warning:queue:edex.tpcWatch" />
+					<to uri="jms-durable:queue:edex.spcWatch" />
+					<to uri="jms-durable:queue:edex.tpcWatch" />
             	</multicast>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
