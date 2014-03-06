@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.site.ingest;
+package com.raytheon.edex.plugin.bufrua.ingest;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,9 +38,10 @@ import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * RAOB NDM subscriber.
  * 
  * <pre>
  * 
@@ -48,7 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 29, 2011            bfarmer     Initial creation
+ * Feb 08, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -56,28 +58,30 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * @version 1.0
  */
 
-public class MTRSubscriber implements INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(MTRSubscriber.class);
+public class RAOBSubscriber implements INationalDatasetSubscriber {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RAOBSubscriber.class);
 
     private Thread combineThread = null;
 
     @Override
     public void notify(String fileName, File file) {
-        if ("MTR.spi".equals(fileName)) {
+        if ("raob.spi".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            File outFile = pathMgr.getFile(lc, "basemaps/MTR.spi");
+            File outFile = pathMgr.getFile(lc, "basemaps/raob.spi");
             saveFile(file, outFile);
-        } else if ("MTR.goodness".equals(fileName)) {
+        } else if ("raob.goodness".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            File outFile = pathMgr.getFile(lc, "basemaps/MTR.goodness");
+            File outFile = pathMgr.getFile(lc, "basemaps/raob.goodness");
             saveFile(file, outFile);
             if (null == combineThread) {
                 combineThread = new Thread(new Runnable() {
 
+                    @Override
                     public void run() {
                         try {
                             Thread.sleep(60 * 1000);
@@ -89,18 +93,19 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
                         processGoodness();
                     }
 
-                }, "MTR.goodness Processing");
+                }, "raob.goodness Processing");
                 combineThread.start();
             }
-        } else if ("MTR.primary".equals(fileName)) {
+        } else if ("raob.primary".equals(fileName)) {
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext lc = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-            File outFile = pathMgr.getFile(lc, "basemaps/MTR.primary");
+            File outFile = pathMgr.getFile(lc, "basemaps/raob.primary");
             saveFile(file, outFile);
             if (null == combineThread) {
                 combineThread = new Thread(new Runnable() {
 
+                    @Override
                     public void run() {
                         try {
                             Thread.sleep(60 * 1000);
@@ -112,21 +117,21 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
                         processGoodness();
                     }
 
-                }, "MTR.goodness Processing");
+                }, "raob.goodness Processing");
                 combineThread.start();
             }
         }
+
     }
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
+            BufferedReader fis = null;
+            BufferedWriter fos = null;
             try {
-                if (!outFile.exists()) {
-                    outFile.createNewFile();
-                }
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
+                fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(file)));
-                BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                fos = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(outFile)));
                 String line = null;
                 try {
@@ -134,19 +139,29 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
                         fos.write(line);
                         fos.newLine();
                     }
-                    fos.close();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Could not read File ", e);
+                            "Could not read file: " + file.getName(), e);
 
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find File ", e);
-
-            } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Could not create output file. ", e);
+                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
+                        + file.getName(), e);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         }
     }
@@ -155,15 +170,16 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        File goodness = pathMgr.getFile(lc, "basemaps/MTR.goodness");
-        File primary = pathMgr.getFile(lc, "basemaps/MTR.primary");
-        File spi = pathMgr.getFile(lc, "basemaps/MTR.spi");
+        File goodness = pathMgr.getFile(lc, "basemaps/raob.goodness");
+        File primary = pathMgr.getFile(lc, "basemaps/raob.primary");
+        File spi = pathMgr.getFile(lc, "basemaps/raob.spi");
         if (!primary.exists()) {
             try {
                 primary.createNewFile();
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Could not create primary file. ", e);
+                        "Could not create primary file: " + primary.getName(),
+                        e);
             }
         }
         if (!spi.exists()) {
@@ -171,7 +187,7 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
                 spi.createNewFile();
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "Could not create primary file. ", e);
+                        "Could not create spi file: " + spi.getName(), e);
             }
         }
         if (goodness.exists()) {
@@ -181,4 +197,5 @@ public class MTRSubscriber implements INationalDatasetSubscriber {
         }
         combineThread = null;
     }
+
 }
