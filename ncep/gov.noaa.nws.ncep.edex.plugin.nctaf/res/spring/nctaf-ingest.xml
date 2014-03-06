@@ -12,7 +12,7 @@
 	<bean id="nctafDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="nctaf" />
-		<constructor-arg value="jms-dist:queue:Ingest.nctaf"/>
+		<constructor-arg value="jms-durable:queue:Ingest.nctaf"/>
 	</bean>
 
     <bean id="nctafCamelRegistered" factory-bean="contextManager"
