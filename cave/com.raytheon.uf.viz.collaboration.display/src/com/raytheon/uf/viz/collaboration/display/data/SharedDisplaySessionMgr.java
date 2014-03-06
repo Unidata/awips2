@@ -42,6 +42,7 @@ import com.raytheon.uf.viz.collaboration.display.roles.ParticipantEventControlle
  * Apr 16, 2012            njensen     Initial creation
  * Jan 28, 2014 2698       bclement    removed false throws statement
  * Feb 12, 2014 2751       njensen     Register session containers to session event bus
+ * Mar 07, 2014 2848       bclement    split event handler registration from joinSession() to registerSession()
  * 
  * </pre>
  * 
@@ -61,8 +62,15 @@ public class SharedDisplaySessionMgr {
         return sharedDisplaySessionMap.keySet();
     }
 
-    public static void joinSession(ISharedDisplaySession session,
-            SharedDisplayRole initialRole, SessionColorManager colors) {
+    /**
+     * Add a session to the manager and register listeners with session event
+     * bus.
+     * 
+     * @param session
+     * @param initialRole
+     */
+    public static void registerSession(ISharedDisplaySession session,
+            SharedDisplayRole initialRole) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
@@ -80,13 +88,20 @@ public class SharedDisplaySessionMgr {
                     "ParticipantRole must be DataProvider or Participant for initialization");
         }
         container.setRoleEventController(rec);
-        if (colors != null) {
-            container.setColorManager(colors);
-        }
         sharedDisplaySessionMap.put(session.getSessionId(), container);
-
-        rec.startup();
         session.registerEventHandler(container);
+    }
+
+    /**
+     * Join a session registered in the manager
+     * 
+     * @param sessionId
+     */
+    public static void joinSession(String sessionId) {
+        SessionContainer container = sharedDisplaySessionMap.get(sessionId);
+        if (container != null) {
+            container.getRoleEventController().startup();
+        }
     }
 
     /**

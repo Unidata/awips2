@@ -107,6 +107,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 05, 2014 2798       mpduff      Moved processJoinAlert() call from participantHandler
  *                                         to participantArrived.
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -462,7 +463,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     protected void styleAndAppendText(StringBuilder sb, int offset,
             String name, VenueParticipant userId, String subject,
             List<StyleRange> ranges) {
-        RGB rgb = colorManager.getColorFromUser(userId);
+        RGB rgb = colorManager.getColorForUser(userId);
         if (mappedColors.get(rgb) == null) {
             Color col = new Color(Display.getCurrent(), rgb);
             mappedColors.put(rgb, col);
@@ -610,7 +611,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         if (session == null) {
             return sessionId;
         }
-        return session.getVenue().getName();
+        return session.getVenueName();
     }
 
     @Subscribe

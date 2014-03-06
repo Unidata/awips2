@@ -41,8 +41,12 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEve
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
@@ -61,6 +65,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Feb  3, 2014 2699       bclement    added default handle preference
  * Feb 11, 2014 2699       bclement    require non-blank handle
  * Feb 13, 2014 2751       bclement    better types for roomid and inviter
+ * Mar 06, 2014 2848       bclement    moved join logic to separate method
  * 
  * </pre>
  * 
@@ -86,7 +91,7 @@ public class InviteDialog extends CaveSWTDialogBase {
 
     private Text handleText;
 
-    private IVenueSession session;
+    private VenueSession session;
 
     private boolean sharedDisplay;
 
@@ -256,20 +261,13 @@ public class InviteDialog extends CaveSWTDialogBase {
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent se) {
-                CollaborationConnection connection = CollaborationConnection
-                        .getConnection();
                 String handle = handleText.getText().trim();
                 try {
                     if (handle.isEmpty()) {
                         throw new CollaborationException(
                                 "Handle cannot be empty.");
                     }
-                    if (sharedDisplay) {
-                        session = connection.joinCollaborationVenue(event,
-                                handle);
-                    } else {
-                        session = connection.joinTextOnlyVenue(room, handle);
-                    }
+                    join(event, handle);
                     setReturnValue(Boolean.TRUE);
                     se.doit = true;
                     close();
@@ -294,6 +292,49 @@ public class InviteDialog extends CaveSWTDialogBase {
                 close();
             }
         });
+    }
+
+    /**
+     * Create session object, register listeners and join.
+     * 
+     * @param invitation
+     * @param handle
+     * @throws CollaborationException
+     */
+    public void join(IVenueInvitationEvent invitation, String handle)
+            throws CollaborationException {                  
+        String venueName = invitation.getRoomId().getName();
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        // create session object
+        if (sharedDisplay) {
+            SharedDisplaySession displaySession = connection
+                    .createCollaborationVenue(invitation, handle);
+            /*
+             * this will register event bus listeners, needs to be done before
+             * connecting to venue
+             */
+            SharedDisplaySessionMgr.registerSession(displaySession,
+                    SharedDisplayRole.PARTICIPANT);
+            session = displaySession;
+        } else {
+            session = connection.createTextOnlyVenue(venueName, handle);
+        }
+        try {
+            // join session
+            session.configureVenue();
+            session.connectToRoom();
+            if (sharedDisplay) {
+                SharedDisplaySessionMgr.joinSession(session.getSessionId());
+            }
+            connection.postEvent(session);
+        } catch (CollaborationException e) {
+            if (sharedDisplay) {
+                SharedDisplaySessionMgr.exitSession(session.getSessionId());
+            }
+            connection.removeSession(session);
+            throw e;
+        }
     }
 
     public IVenueSession getSession() {
