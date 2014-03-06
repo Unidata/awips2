@@ -102,6 +102,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 24, 2014 2751       bclement    added isRoomOwner()
  * Mar 05, 2014 2798       mpduff      Don't handle Presence, get from MUC instead..
  * Mar 06, 2014 2751       bclement    added isAdmin()
+ * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
+ *                                      moved muc close logic to closeMuc()
+ *                                      handle is now set in constructor
+ * 
  * 
  * </pre>
  * 
@@ -132,14 +136,21 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
     private volatile boolean admin = false;
 
+    private String venueName;
+
+    private volatile boolean otherParticipants = false;
+
     /**
      * 
      * @param container
      * @param eventBus
      */
     protected VenueSession(EventBus externalBus,
-            CollaborationConnection manager, String sessionId) {
+            CollaborationConnection manager, String venueName, String handle,
+            String sessionId) {
         super(externalBus, manager, sessionId);
+        this.venueName = venueName;
+        this.handle = handle;
     }
 
     /**
@@ -147,8 +158,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus, CollaborationConnection manager) {
+    protected VenueSession(EventBus externalBus,
+            CollaborationConnection manager, CreateSessionData data) {
         super(externalBus, manager);
+        this.venueName = data.getName();
+        this.handle = data.getHandle();
     }
 
     /**
@@ -159,6 +173,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
      */
     @Override
     public void close() {
+        closeMuc();
+        super.close();
+    }
+
+    private void closeMuc() {
         if (muc == null) {
             return;
         }
@@ -172,8 +191,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
         }
         muc.leave();
         muc = null;
-
-        super.close();
     }
 
     /**
@@ -262,8 +279,12 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param handle
      * @throws CollaborationException
      */
-    protected void configureVenue(String venueName, String handle)
-            throws CollaborationException {
+    public void configureVenue() throws CollaborationException {
+        /*
+         * the throws statement is for subclasses. if this method ever actually
+         * throws an exception, it needs to call closeMuc() to ensure that we
+         * remove the listeners
+         */
         CollaborationConnection manager = getSessionManager();
         XMPPConnection conn = manager.getXmppConnection();
         String roomId = getRoomId(conn.getServiceName(), venueName);
@@ -300,7 +321,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param data
      * @throws CollaborationException
      */
-    protected void createVenue(CreateSessionData data)
+    public void createVenue(CreateSessionData data)
             throws CollaborationException {
         try {
             CollaborationConnection manager = getSessionManager();
@@ -333,6 +354,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             } else {
                 msg = "Error creating venue " + data.getName();
             }
+            closeMuc();
             throw new CollaborationException(msg, e);
         }
     }
@@ -527,8 +549,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             private void logParticipantEvent(String participant,
                     ParticipantEventType type, String desciption) {
                 StringBuilder builder = new StringBuilder();
-                IVenue v = getVenue();
-                builder.append("In session '").append(v.getName())
+                builder.append("In session '").append(getVenueName())
                         .append("': ");
                 builder.append(participant).append(" ").append(desciption);
                 log.debug(builder.toString());
@@ -536,6 +557,11 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             private void sendParticipantEvent(String participant,
                     ParticipantEventType type, String desciption) {
+                if (type.equals(ParticipantEventType.ARRIVED)) {
+                    otherParticipants = true;
+                } else if (type.equals(ParticipantEventType.DEPARTED)) {
+                    otherParticipants = venue.hasOtherParticipants();
+                }
                 VenueParticipant user = IDConverter.convertFromRoom(muc,
                         participant);
                 VenueParticipantEvent event = new VenueParticipantEvent(user,
@@ -663,8 +689,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
 
             private void logUserEvent(String message) {
                 StringBuilder builder = new StringBuilder();
-                IVenue v = getVenue();
-                builder.append("In session '").append(v.getName())
+                builder.append("In session '").append(getVenueName())
                         .append("': ");
                 builder.append(message);
                 log.info(builder.toString());
@@ -711,6 +736,13 @@ public class VenueSession extends BaseSession implements IVenueSession {
         try {
             this.muc.join(handle);
             sendPresence(CollaborationConnection.getConnection().getPresence());
+            /*
+             * can't rely on having received any presence updates yet (used in
+             * venue.getParticipantCount()). This code should only happen when
+             * the client is joining an existing room, so error on the side of
+             * caution and assume that the room isn't empty
+             */
+            otherParticipants = true;
         } catch (XMPPException e) {
             XMPPError xmppError = e.getXMPPError();
             String msg;
@@ -788,7 +820,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
                             message.getBody());
                     UserId account = CollaborationConnection.getConnection()
                             .getUser();
-                    msg.setFrom(new VenueParticipant(this.venue.getName(),
+                    msg.setFrom(new VenueParticipant(this.getVenueName(),
                             getQualifiedHost(account.getHost()), msgHandle));
                     msg.setTimeStamp(time);
                     msg.setSubject(site);
@@ -867,7 +899,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
     @Override
     public VenueParticipant getUserID() {
         UserId account = getAccount();
-        return new VenueParticipant(this.venue.getName(),
+        return new VenueParticipant(this.getVenueName(),
                 getQualifiedHost(account.getHost()), handle, account);
     }
 
@@ -902,4 +934,26 @@ public class VenueSession extends BaseSession implements IVenueSession {
         return admin;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#getVenueName
+     * ()
+     */
+    @Override
+    public String getVenueName() {
+        return venueName;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#
+     * hasOtherParticipants()
+     */
+    @Override
+    public boolean hasOtherParticipants() {
+        return otherParticipants;
+    }
 }
