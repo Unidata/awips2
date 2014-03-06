@@ -25,6 +25,10 @@ import java.io.PrintStream;
 import java.util.TimeZone;
 
 import org.eclipse.jetty.util.RolloverFileOutputStream;
+import org.slf4j.LoggerFactory;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 import com.raytheon.collaboration.dataserver.auth.ServerAuthManager;
 
@@ -39,6 +43,7 @@ import com.raytheon.collaboration.dataserver.auth.ServerAuthManager;
  * ------------ ---------- ----------- --------------------------
  * Feb  5, 2014  2756      bclement     Initial creation
  * Feb 28, 2014  2756      bclement     added authManager
+ * Mar 06, 2014  2756      bclement     added logging level config
  * 
  * </pre>
  * 
@@ -108,6 +113,8 @@ public class DataserverMain {
      * @throws IOException
      */
     private static void configureLogging() throws IOException {
+        Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        root.setLevel(Level.valueOf(Config.loggingLevel));
         if (Config.useStdOut){
             return;
         }

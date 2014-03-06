@@ -37,6 +37,7 @@ import java.util.Properties;
  * Feb  5, 2014 2756       bclement     Initial creation
  * Feb 28, 2014 2756       bclement     added auth cache size
  * Mar 04, 2014 2756       bclement     added xmpp server retry
+ * Mar 06, 2014 2756       bclement     added logging level
  * 
  * </pre>
  * 
@@ -98,6 +99,9 @@ public class Config{
     public static final Boolean useStdOut = Boolean
             .getBoolean("collaboration.dataserver.stdout");
     
+    public static final String loggingLevel = System.getProperty(
+            "dataserver.logging.level", "INFO");
+
     private static Properties _props = null;
 
     private static Properties _credProps = null;
