@@ -33,9 +33,11 @@ import com.raytheon.uf.viz.remote.graphics.objects.AbstractDispatchingImage;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 08, 2012           mschenke    Initial creation
+ * Mar 06, 2014  2831     bsteffen    Add support for no data value.
+ * 
  * 
  * </pre>
  * 
@@ -72,6 +74,9 @@ public class UpdateColorMapParametersEvent extends
 
     @DynamicSerializeElement
     private boolean useMask;
+
+    @DynamicSerializeElement
+    private double noDataValue;
 
     /**
      * @return the alphaMask
@@ -208,6 +213,14 @@ public class UpdateColorMapParametersEvent extends
         this.useMask = useMask;
     }
 
+    public double getNoDataValue() {
+        return noDataValue;
+    }
+
+    public void setNoDataValue(double noDataValue) {
+        this.noDataValue = noDataValue;
+    }
+
     /**
      * Set the ColorMapParameters for the event
      * 
@@ -224,6 +237,7 @@ public class UpdateColorMapParametersEvent extends
             setLogFactor(parameters.getLogFactor());
             setMirror(parameters.isMirror());
             setUseMask(parameters.isUseMask());
+            setNoDataValue(parameters.getNoDataValue());
         }
     }
 
@@ -243,6 +257,7 @@ public class UpdateColorMapParametersEvent extends
         params.setLogFactor(getLogFactor());
         params.setMirror(isMirror());
         params.setUseMask(isUseMask());
+        params.setNoDataValue(getNoDataValue());
         return params;
     }
 
