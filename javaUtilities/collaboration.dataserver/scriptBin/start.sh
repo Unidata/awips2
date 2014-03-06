@@ -23,29 +23,19 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
 # Mar 03, 2014 2756       bclement    initial creation
+# Mar 06, 2014 2756       bclement    changed classpath to reflect new lib structure
+#                                     added log level change when debugging
 #
 #
-
-function pathgen()
-{
-    echo -n 'lib/plugins/*'
-    for x in lib/dependencies/*
-    do
-        if [[ $x =~ ^.*\.jar$ ]]
-        then
-            echo -n ":$x"
-        elif [[ -d $x ]]
-        then
-            echo -n ":${x}/*"
-        fi
-    done
-}
 
 if [[ $# > 0 && $1 == '-d' ]]
 then
     dbArg='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5118'
+    logLevel='-Ddataserver.logging.level=DEBUG'
 else
+    # defaults
     dbArg=''
+    logLevel=''
 fi
 
 (cd $(dirname "$0")/..
@@ -55,7 +45,7 @@ then
 	echo "PID file already exists at $PIDFILE, exiting"
 	exit 1
 fi
-nohup java $dbArg -server -cp $(pathgen) com.raytheon.collaboration.dataserver.DataserverMain &
+nohup java $dbArg $logLevel -server -cp lib/uframe/*:lib/foss/* com.raytheon.collaboration.dataserver.DataserverMain &
 
 echo $! > $PIDFILE
 )
