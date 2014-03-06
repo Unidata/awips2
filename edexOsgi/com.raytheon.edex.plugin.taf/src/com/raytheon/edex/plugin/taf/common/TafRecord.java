@@ -65,6 +65,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
  * Nov 01, 2013 2361        njensen     Remove XML annotations
+ * Feb 10, 2014 2777        rferrel     Assign parent id when setting ChangeGroup.
+ * Feb 11, 2014 2784        rferrel     Remove override of setIdentifier.
  * 
  * </pre>
  * 
@@ -277,6 +279,11 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public void setChangeGroups(Set<ChangeGroup> changeGroups) {
         this.changeGroups = changeGroups;
+        if ((changeGroups != null) && (changeGroups.size() > 0)) {
+            for (ChangeGroup changeGroup : changeGroups) {
+                changeGroup.setParentID(this);
+            }
+        }
     }
 
     /**
@@ -322,19 +329,6 @@ public class TafRecord extends PluginDataObject implements ISpatialEnabled {
      */
     public void setRemarks(String remarks) {
         this.remarks = remarks;
-    }
-
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
-        if ((this.changeGroups != null) && (this.changeGroups.size() > 0)) {
-            for (ChangeGroup group : this.changeGroups) {
-                group.setParentID(this);
-            }
-        }
-
     }
 
     @Override

@@ -1,38 +1,3 @@
-/**
- * AwwRecord
- * 
- * This java class performs the mapping to the database tables for AWW.
- * 
- * HISTORY
- *
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 12/2008      38				L. Lin     	Initial coding
- * 04/2009      38				L. Lin      Convert to TO10.
- * 07/2009		38			    L. Lin		Migration to TO11
- * 05/2010      38              L. Lin      Migration to TO11DR11
- * 01/11/2011   N/A             M. Gao      Add mndTime as the 5th element to construct 
- *                                          dataUri value that is used as a unique constraint 
- *                                          when the aww record is inserted into relational DB
- *                                          The reason mndTime is used is because the combination 
- *                                          of original 4 elements is not unique in some scenarios.                                       
- * 01/26/2011   N/A             M. Gao      Add designatorBBB as the 6th (No.4) element to construct 
- *                                          dataUri value that is used as a unique constraint 
- *                                          when the aww record is inserted into relational DB
- *                                          The reason mndTime is used is because the combination 
- *                                          of original 5 elements is not unique in some scenarios.                                       
- * 09/2011      				Chin Chen   changed to improve purge performance and
- * 											removed xml serialization as well
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869            bsteffen    Remove dataURI column from
- *                                          PluginDataObject.
- * July 29, 2013 1028           ghull       add AwwReportType enum
- * 
- * </pre>
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
 package gov.noaa.nws.ncep.common.dataplugin.aww;
 
 import java.util.Calendar;
@@ -59,6 +24,43 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * AwwRecord
+ * 
+ * This java class performs the mapping to the database tables for AWW.
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * <pre>
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 12/2008      38              L. Lin      Initial coding
+ * 04/2009      38              L. Lin      Convert to TO10.
+ * 07/2009      38              L. Lin      Migration to TO11
+ * 05/2010      38              L. Lin      Migration to TO11DR11
+ * 01/11/2011   N/A             M. Gao      Add mndTime as the 5th element to construct 
+ *                                          dataUri value that is used as a unique constraint 
+ *                                          when the aww record is inserted into relational DB
+ *                                          The reason mndTime is used is because the combination 
+ *                                          of original 4 elements is not unique in some scenarios.                                       
+ * 01/26/2011   N/A             M. Gao      Add designatorBBB as the 6th (No.4) element to construct 
+ *                                          dataUri value that is used as a unique constraint 
+ *                                          when the aww record is inserted into relational DB
+ *                                          The reason mndTime is used is because the combination 
+ *                                          of original 5 elements is not unique in some scenarios.                                       
+ * 09/2011                      Chin Chen   changed to improve purge performance and
+ *                                          removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ * July 29, 2013 1028           ghull       add AwwReportType enum
+ * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "awwseq")
 @Table(name = "aww", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -86,68 +88,42 @@ public class AwwRecord extends PluginDataObject {
      * REPORT 27. HIGH WIND WARNING 28. FREEZE WARNING 29. ADVERTENCIA DE
      * INUNDACIONES 30. HYDROLOGIC STATEMENT 31. URGENT WEATHER MESSAGE
      */
-	public static enum AwwReportType {
-		  SEVERE_THUNDERSTORM_WARNING,
-		  SEVERE_THUNDERSTORM_WATCH,
-		  TORNADO_WARNING,
-		  TORNADO_WATCH,
-		  SEVERE_THUNDERSTORM_OUTLINE_UPDATE,
-		  TORNADO_WATCH_OUTLINE_UPDATE,
-		  FLASH_FLOOD_WARNING,
-		  FLASH_FLOOD_WATCH,
-		  FLOOD_WARNING,
-		  FLOOD_WATCH,
-		  FLOOD_STATEMENT,
-		  // WINTER STORM. something is getting decoded as WINTER STORM
-		  WINTER_STORM_WARNING,
-		  WINTER_STORM_WATCH,
-		  WATCH_COUNTY_NOTIFICATION, 
-		  SEVERE_WEATHER_STATEMENT,
-		  WIND_ADVISORY,  // ?WIND CHILL ADVISORY?  
-		  // WIND CHILL ADVISORYs getting decoded as "ADVISORY"
-		  FOG_ADVISORY,
-		  HEAT_ADVISORY,
-		  FROST_ADVISORY,
-		  SMOKE_ADVISORY,
-		  WEATHER_ADVISORY,
-		  WINTER_WEATHER_ADVISORY,
-		  SIGNIGICANT_WEATHER_ADVISORY,
-		  SPECIAL_WEATHER_STATEMENT,
-		  RED_FLAG_WARNING,
-		  TORNADO_REPORT,
-		  HIGH_WIND_WARNING,
-		  FREEZE_WARNING,
-		  ADVERTENCIA_DE_INUNDACIONES,
-		  HYDROLOGIC_STATEMENT,
-		  URGENT_WEATHER_MESSAGE,
-		  UNKNOWN_AWW_REPORT_TYPE,
-		  // DON"T know what this is but WTCH is looking for it (isSevereWeatherStatusNotification)?
-		  STATUS_REPORT; 
+    public static enum AwwReportType {
+        SEVERE_THUNDERSTORM_WARNING, SEVERE_THUNDERSTORM_WATCH, TORNADO_WARNING, TORNADO_WATCH, SEVERE_THUNDERSTORM_OUTLINE_UPDATE, TORNADO_WATCH_OUTLINE_UPDATE, FLASH_FLOOD_WARNING, FLASH_FLOOD_WATCH, FLOOD_WARNING, FLOOD_WATCH, FLOOD_STATEMENT,
+        // WINTER STORM. something is getting decoded as WINTER STORM
+        WINTER_STORM_WARNING, WINTER_STORM_WATCH, WATCH_COUNTY_NOTIFICATION, SEVERE_WEATHER_STATEMENT, WIND_ADVISORY, // ?WIND
+                                                                                                                      // CHILL
+                                                                                                                      // ADVISORY?
+        // WIND CHILL ADVISORYs getting decoded as "ADVISORY"
+        FOG_ADVISORY, HEAT_ADVISORY, FROST_ADVISORY, SMOKE_ADVISORY, WEATHER_ADVISORY, WINTER_WEATHER_ADVISORY, SIGNIGICANT_WEATHER_ADVISORY, SPECIAL_WEATHER_STATEMENT, RED_FLAG_WARNING, TORNADO_REPORT, HIGH_WIND_WARNING, FREEZE_WARNING, ADVERTENCIA_DE_INUNDACIONES, HYDROLOGIC_STATEMENT, URGENT_WEATHER_MESSAGE, UNKNOWN_AWW_REPORT_TYPE,
+        // DON"T know what this is but WTCH is looking for it
+        // (isSevereWeatherStatusNotification)?
+        STATUS_REPORT;
 
-		  public static AwwReportType getReportType( String rtStr ) {
-			  rtStr = rtStr.trim().replace(" ", "_" );
-			  for( AwwReportType rt : values() ) {
-				  if( rt.toString().equals( rtStr ) ) {
-					  return rt;
-				  }
-			  }
-			  // WTCH is looking for 
-			  if( rtStr.equals("THUNDERSTORM_REPORT" ) ) {
-				  return SEVERE_THUNDERSTORM_WATCH;
-			  }
-			  if( rtStr.endsWith( "STATUS REPORT" ) ) {
-// ???				  return AwwReportType.SEVERE_WEATHER_STATUS_NOTIFICATION
-			  }
-			  // WSTM is looking for 
-			  if( rtStr.equals( "WINTER_STORM" ) ) {
-				  // ???
-			  }
-			  if( rtStr.equals( "ADVISORY" ) ) {
-				  // ???? WIND CHILL ADVISORY is getting decoded as "ADVISORY"???
-			  }
-			  return UNKNOWN_AWW_REPORT_TYPE;
-		  } 		  
-	}
+        public static AwwReportType getReportType(String rtStr) {
+            rtStr = rtStr.trim().replace(" ", "_");
+            for (AwwReportType rt : values()) {
+                if (rt.toString().equals(rtStr)) {
+                    return rt;
+                }
+            }
+            // WTCH is looking for
+            if (rtStr.equals("THUNDERSTORM_REPORT")) {
+                return SEVERE_THUNDERSTORM_WATCH;
+            }
+            if (rtStr.endsWith("STATUS REPORT")) {
+                // ??? return AwwReportType.SEVERE_WEATHER_STATUS_NOTIFICATION
+            }
+            // WSTM is looking for
+            if (rtStr.equals("WINTER_STORM")) {
+                // ???
+            }
+            if (rtStr.equals("ADVISORY")) {
+                // ???? WIND CHILL ADVISORY is getting decoded as "ADVISORY"???
+            }
+            return UNKNOWN_AWW_REPORT_TYPE;
+        }
+    }
 
     @Column(length = 40)
     @DataURI(position = 1)
@@ -302,17 +278,6 @@ public class AwwRecord extends PluginDataObject {
     public void addAwwUGC(AwwUgc pugc) {
         awwUGC.add(pugc);
         // pugc.setParentID(this);
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
     }
 
     /**
