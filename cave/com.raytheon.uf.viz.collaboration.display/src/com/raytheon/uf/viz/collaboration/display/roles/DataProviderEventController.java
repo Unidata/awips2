@@ -55,6 +55,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Mar 26, 2012            njensen     Initial creation
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * Feb 13, 2014 2751       njensen     Renamed container to displayContainer
+ * Mar 06, 2014 2848       bclement    removed check for self from participantChanged
  * 
  * </pre>
  * 
@@ -72,10 +73,14 @@ public class DataProviderEventController extends
         super(session);
     }
 
+
     @Subscribe
     public void participantChanged(IVenueParticipantEvent event) {
-        if (event.getEventType().equals(ParticipantEventType.ARRIVED)
-                && !event.getParticipant().isSameUser(session.getUserID())) {
+        /*
+         * arrived events only trigger when others join the venue, no need to
+         * check if the event is about us
+         */
+        if (event.getEventType().equals(ParticipantEventType.ARRIVED)) {
             try {
                 AbstractEditor active = displayContainer
                         .getActiveSharedEditor();
@@ -93,7 +98,7 @@ public class DataProviderEventController extends
                 SessionColorManager scm = SharedDisplaySessionMgr
                         .getSessionContainer(session.getSessionId())
                         .getColorManager();
-                RGB color = scm.getColorFromUser(event.getParticipant());
+                RGB color = scm.getColorForUser(event.getParticipant());
 
                 ColorChangeEvent cce = new ColorChangeEvent(
                         event.getParticipant(), color);
