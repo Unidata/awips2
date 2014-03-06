@@ -3,18 +3,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="jms-satellite" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsSatelliteConfig" />
-		<property name="taskExecutor" ref="satelliteThreadPool" />		
-	</bean>
-    <bean id="jmsSatelliteConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="satelliteThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean>
-
 	<bean id="satelliteDecoder" class="com.raytheon.edex.plugin.satellite.SatelliteDecoder">
 		<property name="dao" ref="satelliteDao" />
 	</bean>
@@ -26,7 +14,7 @@
 	<bean id="satDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="satellite" />
-		<constructor-arg value="jms-dist:queue:Ingest.Satellite" />
+		<constructor-arg value="jms-durable:queue:Ingest.Satellite" />
 	</bean>
 
     <bean id="satCamelRegistered" factory-bean="contextManager"
@@ -53,7 +41,7 @@
 
 		<!-- Begin Sat routes -->
 		<route id="satIngestRoute">
-			<from uri="jms-satellite:queue:Ingest.Satellite"/>
+			<from uri="jms-durable:queue:Ingest.Satellite"/>
 			<setHeader headerName="pluginName">
 				<constant>satellite</constant>
 			</setHeader>

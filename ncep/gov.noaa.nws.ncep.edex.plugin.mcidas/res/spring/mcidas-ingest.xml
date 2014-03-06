@@ -21,7 +21,7 @@
     <bean id="mcidasRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="mcidas" />
-		<constructor-arg value="jms-dist:queue:Ingest.mcidas" />
+		<constructor-arg value="jms-durable:queue:Ingest.mcidas" />
 	</bean>
 
 	<bean id="mcidasCamelRegistered" factory-bean="contextManager"
