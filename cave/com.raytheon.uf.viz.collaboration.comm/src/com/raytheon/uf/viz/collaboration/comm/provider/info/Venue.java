@@ -23,16 +23,23 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.muc.Affiliate;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -50,6 +57,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, getSubject never returns null
  * Feb 13, 2014 2751       bclement    changed to use VenueParticipant handle instead of alias
  * Mar 05, 2014 2798       mpduff      Get Presence from MUC.
+ * Mar 06, 2014 2751       bclement    added getParticipantUserid()
  * 
  * </pre>
  * 
@@ -58,7 +66,12 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  */
 public class Venue implements IVenue {
 
+    private final static IUFStatusHandler log = UFStatus
+            .getHandler(Venue.class);
+
     private final MultiUserChat muc;
+
+    private final Map<String, UserId> participantIdCache = new ConcurrentHashMap<String, UserId>();
 
     public Venue(XMPPConnection conn, MultiUserChat muc) {
         this.muc = muc;
@@ -126,6 +139,37 @@ public class Venue implements IVenue {
     public String getSubject() {
         String rval = muc.getSubject();
         return rval != null ? rval : "";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#
+     * getParticipantUserid
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant)
+     */
+    @Override
+    public UserId getParticipantUserid(VenueParticipant participant) {
+        if (participant.hasActualUserId()) {
+            return participant.getUserid();
+        }
+        UserId rval = participantIdCache.get(participant.getHandle());
+        if (rval == null) {
+            try {
+                Collection<Affiliate> members = muc.getMembers();
+                for (Affiliate member : members) {
+                    if (!org.apache.commons.lang.StringUtils.isBlank(member
+                            .getJid())) {
+                        UserId id = IDConverter.convertFrom(member.getJid());
+                        participantIdCache.put(member.getNick(), id);
+                    }
+                }
+            } catch (XMPPException e) {
+                log.error("Unable to get room member list from " + getName(), e);
+            }
+            rval = participantIdCache.get(participant.getHandle());
+        }
+        return rval;
     }
 
 }
