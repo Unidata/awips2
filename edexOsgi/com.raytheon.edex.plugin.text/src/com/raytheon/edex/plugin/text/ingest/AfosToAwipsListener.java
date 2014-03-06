@@ -34,13 +34,14 @@ import com.raytheon.edex.plugin.text.dao.AfosToAwipsDao;
 import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwips;
 import com.raytheon.uf.common.dataplugin.text.db.AfosToAwipsId;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * Updates the afos_to_awips table in the database based on the supplied
+ * afos2awips.txt file.
  * 
  * <pre>
  * 
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 11, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -57,7 +59,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class AfosToAwipsListener implements INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AfosToAwipsListener.class);
 
     /*
@@ -93,6 +95,14 @@ public class AfosToAwipsListener implements INationalDatasetSubscriber {
                         "Could not read ingested afos2awips file:"
                                 + file.getAbsolutePath(), e);
                 return;
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         } catch (FileNotFoundException e) {
             statusHandler.handle(
@@ -100,15 +110,6 @@ public class AfosToAwipsListener implements INationalDatasetSubscriber {
                     "Could not read ingested afos2awips file:"
                             + file.getAbsolutePath(), e);
             return;
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Exception e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error closing file: " + file.getAbsolutePath(), e);
-                }
-            }
         }
         AfosToAwipsDao afosDao = new AfosToAwipsDao();
         AfosWmoIdDataContainer allRecords = afosDao.getAllRecords();
