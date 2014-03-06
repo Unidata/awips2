@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.site.ingest;
+package com.raytheon.edex.plugin.sfcobs.ingest;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,9 +38,10 @@ import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * Buoy NDM subscriber.
  * 
  * <pre>
  * 
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 28, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -57,7 +59,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class BuoySubscriber implements INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(BuoySubscriber.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BuoySubscriber.class);
+
     private Thread combineThread = null;
 
     @Override
@@ -77,6 +81,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
             if (null == combineThread) {
                 combineThread = new Thread(new Runnable() {
 
+                    @Override
                     public void run() {
                         try {
                             Thread.sleep(60 * 1000);
@@ -100,6 +105,7 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
             if (null == combineThread) {
                 combineThread = new Thread(new Runnable() {
 
+                    @Override
                     public void run() {
                         try {
                             Thread.sleep(60 * 1000);
@@ -128,8 +134,10 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
                 try {
                     spiFile.createNewFile();
                 } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not create primary file. ", e);
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Could not create primary file: "
+                                    + spiFile.getName(), e);
                 }
             }
 
@@ -143,52 +151,65 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
     private void generateSPI(File file, File goodnessFile) {
         String line;
         String[] splitLine;
+        BufferedReader fis = null;
+        BufferedWriter fos = null;
         try {
-            BufferedReader fis = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(file)));
+            fis = new BufferedReader(new InputStreamReader(new FileInputStream(
+                    file)));
             if (!goodnessFile.exists()) {
                 goodnessFile.createNewFile();
             }
-            BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+            fos = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream(goodnessFile)));
             for (line = fis.readLine(); line != null; line = fis.readLine()) {
                 splitLine = line.split("\\|");
                 Integer elevation;
-                Double latitude;
-                Double longitude;
-                String stationName;
                 try {
                     elevation = Integer.parseInt(splitLine[4].trim());
                 } catch (Exception e) {
                     continue;
                 }
-                latitude = Double.parseDouble(splitLine[2].trim());
-                longitude = Double.parseDouble(splitLine[3].trim());
-                stationName = splitLine[1].trim();
+                Double latitude = Double.parseDouble(splitLine[2].trim());
+                Double longitude = Double.parseDouble(splitLine[3].trim());
+                String stationName = splitLine[1].trim();
                 fos.write("0 ");
                 fos.write(stationName);
                 fos.write(String.format(" %8.4f %9.4f %5d %9d", latitude,
                         longitude, elevation, 0));
                 fos.newLine();
             }
-            fos.close();
-
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not read File ", e);
-
+            statusHandler.handle(Priority.PROBLEM, "Could not read file: "
+                    + file.getName(), e);
         } catch (IOException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error with file: " + file.getName(), e);
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            }
         }
-
     }
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
+            BufferedReader fis = null;
+            BufferedWriter fos = null;
             try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
+                fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(file)));
-                BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                fos = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(outFile)));
                 String line = null;
                 try {
@@ -196,16 +217,29 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
                         fos.write(line);
                         fos.newLine();
                     }
-                    fos.close();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Could not read File ", e);
+                            "Could not read file: " + file.getName(), e);
 
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find File ", e);
-
+                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
+                        + file.getName(), e);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         }
     }
