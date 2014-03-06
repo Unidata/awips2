@@ -17,44 +17,48 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.site.ingest;
+package com.raytheon.uf.edex.ndm.ingest;
 
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * NDM Dataset ingester interface.
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 22, 2011            jkorman     Initial creation
- *
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IDataSetIngester {
 
     /**
-     * Register a filename to be processed and the subscription listener that will process
-     * the file.
-     * @param filename 
+     * Register a filename to be processed and the subscription listener that
+     * will process the file.
+     * 
+     * @param filename
      * @param listener
      * @return
      */
-    INationalDatasetSubscriber registerListener(String filename, INationalDatasetSubscriber listener);
+    INationalDatasetSubscriber registerListener(String filename,
+            INationalDatasetSubscriber listener);
 
     /**
      * Remove a subscription listener for a given file.
-     * @param filename 
+     * 
+     * @param filename
      * @param listener
      * @return
      */
-    INationalDatasetSubscriber removeListener(String filename, INationalDatasetSubscriber listener);
-    
+    INationalDatasetSubscriber removeListener(String filename,
+            INationalDatasetSubscriber listener);
+
 }

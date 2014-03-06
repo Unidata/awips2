@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.site.ingest;
+package com.raytheon.edex.textdb.ingest;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -38,9 +38,10 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * Site Map NDM subscriber.
  * 
  * <pre>
  * 
@@ -48,7 +49,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 6, 2011            bfarmer     Initial creation
+ * Jan 06, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -58,7 +60,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class SiteMapNationalDatasetSubscriber implements
         INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(SiteMapNationalDatasetSubscriber.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(SiteMapNationalDatasetSubscriber.class);
+
     private static final String AFOS_LOOKUP_FILENAME = "textdb/afos_lookup_table.dat";
 
     private static final String NATIONAL_CATEGORY_TABLE_FILENAME = "textdb/national_category_table.template";
@@ -91,10 +95,12 @@ public class SiteMapNationalDatasetSubscriber implements
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
+            BufferedReader fis = null;
+            BufferedWriter fos = null;
             try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
+                fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(file)));
-                BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                fos = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(outFile)));
                 String line = null;
                 try {
@@ -102,18 +108,29 @@ public class SiteMapNationalDatasetSubscriber implements
                         fos.write(line);
                         fos.newLine();
                     }
-                    fos.close();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Could not read AFOS Lookup File "
-                                    + AFOS_LOOKUP_FILENAME, e);
+                            "Could not read file: " + file.getName(), e);
 
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find AFOS Lookup File "
-                                + AFOS_LOOKUP_FILENAME, e);
-
+                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
+                        + file.getName(), e);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         }
     }
