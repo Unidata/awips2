@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 13, 2014 2751       bclement    made AbstractUsersLabelProvider generic
  * Feb 17, 2014 2751       bclement    added block image logic to userLabelProvider
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -193,7 +194,7 @@ public class UsersTreeLabelProvider extends ColumnLabelProvider {
             if (venue.getVenue() == null) {
                 return null;
             }
-            return venue.getVenue().getName();
+            return venue.getVenueName();
         }
         return null;
     }
