@@ -9,7 +9,7 @@
     <bean id="nucapsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="nucapsPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.nucaps" />
+		<constructor-arg value="jms-durable:queue:Ingest.nucaps" />
 	</bean>
 
 	<bean id="nucapsCamelRegistered" factory-bean="contextManager"
