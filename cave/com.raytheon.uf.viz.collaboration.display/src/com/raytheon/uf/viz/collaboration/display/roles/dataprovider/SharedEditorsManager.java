@@ -80,9 +80,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 8, 2012            mschenke     Initial creation
+ * Jun 08, 2012            mschenke    Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Mar 06, 2014 2848       bclement    only send to venue if non empty
  * 
  * </pre>
  * 
@@ -445,7 +446,7 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
     private SharedEditorsManager(ISharedDisplaySession session) {
         this.session = session;
         session.registerEventHandler(eventHandler);
-        String title = session.getVenue().getName();
+        String title = session.getVenueName();
         editorTitleSuffix = " (" + title + ")";
     }
 
@@ -854,7 +855,13 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
      */
     private void sendEvent(Object event) {
         try {
-            session.sendObjectToVenue(event);
+            if (session.hasOtherParticipants()) {
+                session.sendObjectToVenue(event);
+            } else {
+                Activator.statusHandler
+                        .debug("Skipping sending event to empty room: "
+                                + event.getClass());
+            }
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);

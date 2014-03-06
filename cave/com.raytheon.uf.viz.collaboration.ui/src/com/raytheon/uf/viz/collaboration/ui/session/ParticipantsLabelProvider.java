@@ -159,7 +159,7 @@ public class ParticipantsLabelProvider extends
             return null;
         }
         VenueParticipant user = ((VenueParticipant) element);
-        RGB rgb = manager.getColorFromUser(user);
+        RGB rgb = manager.getColorForUser(user);
         if (rgb == null) {
             rgb = new RGB(0, 0, 0);
         }
