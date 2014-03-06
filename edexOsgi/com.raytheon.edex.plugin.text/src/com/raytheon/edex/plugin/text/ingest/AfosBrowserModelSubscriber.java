@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.site.ingest;
+package com.raytheon.edex.plugin.text.ingest;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -37,9 +37,10 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * AFOS NDM Subscriber.
  * 
  * <pre>
  * 
@@ -48,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 12, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -56,7 +58,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class AfosBrowserModelSubscriber implements INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(AfosBrowserModelSubscriber.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AfosBrowserModelSubscriber.class);
 
     private static final String CCC_HELP = "textdb/textCCChelp.txt";
 
@@ -112,10 +115,12 @@ public class AfosBrowserModelSubscriber implements INationalDatasetSubscriber {
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
+            BufferedReader fis = null;
+            BufferedWriter fos = null;
             try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
+                fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(file)));
-                BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                fos = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(outFile)));
                 String line = null;
                 try {
@@ -123,18 +128,30 @@ public class AfosBrowserModelSubscriber implements INationalDatasetSubscriber {
                         fos.write(line);
                         fos.newLine();
                     }
-                    fos.close();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Could not read File ", e);
+                            "Could not read file: " + file.getName(), e);
 
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find File ", e);
-
+                statusHandler.handle(Priority.PROBLEM, "Failed to find File: "
+                        + file.getName(), e);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         }
     }
-
 }
