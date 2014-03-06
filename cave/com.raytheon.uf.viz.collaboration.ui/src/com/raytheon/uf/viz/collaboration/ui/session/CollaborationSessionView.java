@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Feb 12, 2014 2751       njensen     Added transfer leadership and shutdown safety
  * Feb 18, 2014 2751       bclement    update participants list and notify on leader change
  * Feb 19, 2014 2751       bclement    add change color and transfer leader icons
+ * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * 
  * </pre>
  * 
@@ -850,8 +851,7 @@ public class CollaborationSessionView extends SessionView implements
             public void run() {
                 if (usersTable != null
                         && !usersTable.getTable().isDisposed()) {
-                    usersTable.setInput(session.getVenue().getParticipants());
-                    usersTable.refresh();
+                    refreshParticipantList();
                 }
                 sendParticipantSystemMessage(event.getNewLeader(),
                         " is now leader.");
