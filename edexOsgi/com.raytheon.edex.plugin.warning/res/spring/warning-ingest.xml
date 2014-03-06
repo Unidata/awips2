@@ -8,13 +8,13 @@
 	<bean id="warningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="warning" />
-		<constructor-arg value="jms-dist:queue:Ingest.Warning"/>
+		<constructor-arg value="jms-durable:queue:Ingest.Warning"/>
 	</bean>
 	
 	<bean id="warningHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="warning" />
-		<constructor-arg value="jms-dist:queue:Ingest.Warning"/>
+		<constructor-arg value="jms-durable:queue:Ingest.Warning"/>
 	</bean>
 
     <bean id="warningCamelRegistered" factory-bean="contextManager"
@@ -22,18 +22,6 @@
 		<constructor-arg ref="warning-camel"/>
   	</bean>  
 
-	<bean id="jms-warning" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsWarningConfig" />
-		<property name="taskExecutor" ref="warningThreadPool" />		
-	</bean>
-    <bean id="jmsWarningConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="warningThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean>
-	
 	<camelContext id="warning-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"
@@ -56,7 +44,7 @@
 			Warning routes
 		-->
 		<route id="warningIngestRoute">
-			<from uri="jms-warning:queue:Ingest.Warning"/>
+			<from uri="jms-durable:queue:Ingest.Warning"/>
 			<setHeader headerName="pluginName">
 				<constant>warning</constant>
 			</setHeader>
@@ -67,10 +55,10 @@
 					<bean ref="index" method="index" />
                     <bean ref="processUtil" method="log" />
 					<multicast parallelProcessing="false">
-						<to uri="direct-vm:warningIngestAlert" />
+						<to uri="direct-vm:stageNotification" />
 						<filter>
 							<method bean="vtecFilter" method="hasVTEC" />
-							<to uri="jms-warning:queue:activeTablePending"/>
+							<to uri="jms-durable:queue:activeTablePending"/>
 						</filter>
 					</multicast>
 				</pipeline>
@@ -79,11 +67,6 @@
 					<to uri="log:warning?level=ERROR&amp;showBody=true" />
 				</doCatch>
 			</doTry>
-		</route>
-
-		<route id="warningIngestAlert">
-			<from uri="direct-vm:warningIngestAlert" />
-			<to uri="direct-vm:stageNotification" />
 		</route>
 	</camelContext>
 </beans>
