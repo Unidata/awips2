@@ -8,7 +8,7 @@
 	<bean id="q2DistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="q2" />
-		<constructor-arg value="jms-dist:queue:Ingest.q2"/>
+		<constructor-arg value="jms-durable:queue:Ingest.q2"/>
 	</bean>
 
 	<camelContext id="q2Proc-context"
