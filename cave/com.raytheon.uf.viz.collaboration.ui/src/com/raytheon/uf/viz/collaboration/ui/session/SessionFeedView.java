@@ -70,6 +70,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
  * Feb 19, 2014 2751       bclement    add change color icon, fix NPE when user cancels change color
  * Mar 05, 2014 2798       mpduff      Changed how messages are processed for the feed view.
+ * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * 
  * </pre>
  * 
@@ -443,8 +444,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantArrived(VenueParticipant participant,
             String description) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
+        refreshParticipantList();
     }
 
     /**
