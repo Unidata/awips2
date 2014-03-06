@@ -41,6 +41,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
@@ -62,6 +63,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
  * Jan 30, 2014 2698       bclement    added default handle of username
  * Feb  3, 2014 2699       bclement    use preference handle default, display error if handle taken
+ * Mar 06, 2014 2848       bclement    removed CollaborationConnection.joinTextOnlyVenue()
  * 
  * </pre>
  * 
@@ -104,7 +106,7 @@ public class DisplayFeedAction extends Action {
         String sessionId = null;
         for (ISession session : connection.getSessions()) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenue().getName()
+                if (((IVenueSession) session).getVenueName()
                         .equalsIgnoreCase(FEED_VENUE)) {
                     sessionId = session.getSessionId();
                 }
@@ -121,13 +123,18 @@ public class DisplayFeedAction extends Action {
      * @return
      */
     private String joinFeedVenue() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        String defaultHandle = HandleUtil.getDefaultHandle();
+        VenueSession session = connection.createTextOnlyVenue(FEED_VENUE,
+                defaultHandle);
         try {
-            CollaborationConnection connection = CollaborationConnection
-                    .getConnection();
-            IVenueSession session = connection.joinTextOnlyVenue(FEED_VENUE,
-                    HandleUtil.getDefaultHandle());
+            session.configureVenue();
+            session.connectToRoom();
+            connection.postEvent(session);
             return session.getSessionId();
         } catch (CollaborationException e) {
+            connection.removeSession(session);
             final String msg = e.getLocalizedMessage()
                     + "\n\nDefault handle options can be set in the Collaboration Preferences page.";
             VizApp.runAsync(new Runnable() {
