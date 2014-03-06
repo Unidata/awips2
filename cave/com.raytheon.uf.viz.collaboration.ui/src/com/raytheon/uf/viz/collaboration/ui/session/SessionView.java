@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventType;
+import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -104,6 +106,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Feb 24, 2014 2632       mpduff      Move playSound to CollaborationUtils
  * Mar 05, 2014 2798       mpduff      Moved processJoinAlert() call from participantHandler
  *                                         to participantArrived.
+ * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * 
  * </pre>
  * 
@@ -369,7 +372,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         // });
 
         if (session != null) {
-            usersTable.setInput(session.getVenue().getParticipants());
+            refreshParticipantList();
         } else {
             // session was null, why this would happen we don't know but this
             // will somewhat gracefully let the user know a problem occurred and
@@ -654,10 +657,26 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
         });
     }
 
+    /**
+     * get an updated list of participants from session and refresh usersTable
+     */
+    protected void refreshParticipantList(){
+        IVenue venue = session.getVenue();
+        Collection<VenueParticipant> participants = venue.getParticipants();
+        if (session.isAdmin()) {
+            for (VenueParticipant p : participants) {
+                if (!p.hasActualUserId()) {
+                    p.setUserid(venue.getParticipantUserid(p));
+                }
+            }
+        }
+        usersTable.setInput(participants);
+        usersTable.refresh();
+    }
+
     @Subscribe
     public void userNicknameChanged(UserNicknameChangedEvent e) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
+        refreshParticipantList();
     }
 
     /**
@@ -667,8 +686,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
      */
     protected void participantArrived(VenueParticipant participant,
             String description) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
+        refreshParticipantList();
         String message = description != null ? description
                 : "has entered the room.";
         sendParticipantSystemMessage(participant, message);
@@ -682,8 +700,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
      */
     protected void participantDeparted(VenueParticipant participant,
             String description) {
-        usersTable.setInput(session.getVenue().getParticipants());
-        usersTable.refresh();
+        refreshParticipantList();
         String message = description != null ? description
                 : "has left the room.";
         sendParticipantSystemMessage(participant, message);
