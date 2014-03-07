@@ -9,8 +9,6 @@
 		errorHandlerRef="errorHandler" autoStartup="false">
 		<endpoint id="manualFileEndpoint"
             uri="file:${edex.home}/data/manual?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
-		<endpoint id="ndmFileEndpoint"
-            uri="file:${edex.home}/data/ndm?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#ndmFileChangedStrategy" />
 
 		<route id="manualFileScan">
 		    <from ref="manualFileEndpoint" />
@@ -18,167 +16,10 @@
 		    <bean ref="manualProc" />
 		    <to uri="jms-durable:queue:external.dropbox"/>
 		</route>
-
-		<route id="ndmFileScan">
-		    <from ref="ndmFileEndpoint" />
-		    <bean ref="ndmProc" method="processEvent" />
-		</route>
     </camelContext>
 
 	<bean factory-bean="clusteredCamelContextMgr"
 		factory-method="register">
 		<constructor-arg ref="clusteredManualProc" />
   	</bean>
-
-	<bean id="ndmProc" class="com.raytheon.uf.edex.site.ingest.NationalDatasetIngester"/>
-	<bean id="ndmFileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy"/>
-	<bean id="siteMapListener" class="com.raytheon.uf.common.site.ingest.SiteMapNationalDatasetSubscriber" />
-	<bean id="afosBrowserListener" class="com.raytheon.uf.common.site.ingest.AfosBrowserModelSubscriber" />
-	<bean id="buoyListener" class="com.raytheon.uf.common.site.ingest.BuoySubscriber" />
-	<bean id="mtrListener" class="com.raytheon.uf.common.site.ingest.MTRSubscriber" />
-	<bean id="afosToAwipsListener" class="com.raytheon.edex.plugin.text.ingest.AfosToAwipsListener" />
-	<bean id="disseminationListener" class="com.raytheon.uf.edex.dissemination.ingest.DisseminationNationalDatasetSubscriber" />
-	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber" />
-	<bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
-
-	<bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
-	<bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
-
-	<bean id="marineInfoListener" class="com.raytheon.uf.edex.site.ingest.MarineInfoSubscriber">
-		<constructor-arg value="${db.port}" />
-		<constructor-arg value="${edex.home}" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="MarineInfo.txt" />
-		<constructor-arg ref="marineInfoListener" />
-	</bean>
-	<bean id="raobListener" class="com.raytheon.uf.common.site.ingest.RAOBSubscriber" />
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="raob.spi" />
-		<constructor-arg ref="raobListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="raob.goodness" />
-		<constructor-arg ref="raobListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="raob.primary" />
-		<constructor-arg ref="raobListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="tdwrElevations.txt" />
-		<constructor-arg ref="radarMenuCreator" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="fsl-w88d.shp" />
-		<constructor-arg ref="import88dLocations" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="fsl-w88d.shx" />
-		<constructor-arg ref="import88dLocations" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="fsl-w88d.dbf" />
-		<constructor-arg ref="import88dLocations" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="modelBufr.spi" />
-		<constructor-arg ref="modelBufrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="modelBufrStationInfo.txt" />
-		<constructor-arg ref="modelBufrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="modelBufrStationList.txt" />
-		<constructor-arg ref="modelBufrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="BUOY.spi" />
-		<constructor-arg ref="buoyListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="BUOY.goodness" />
-		<constructor-arg ref="buoyListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="BUOY.primary" />
-		<constructor-arg ref="buoyListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="maritimeStationInfo.txt" />
-		<constructor-arg ref="buoyListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="MTR.spi" />
-		<constructor-arg ref="mtrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="MTR.goodness" />
-		<constructor-arg ref="mtrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="MTR.primary" />
-		<constructor-arg ref="mtrListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="bit_table.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="collective_table.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="exclusionProductList.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="ispan_table.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="station_table.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="upair_table.dat" />
-		<constructor-arg ref="textDBStaticDataListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="awipsPriorities.txt" />
-		<constructor-arg ref="disseminationListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="afos_lookup_table.dat" />
-		<constructor-arg ref="siteMapListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="national_category_table.template" />
-		<constructor-arg ref="siteMapListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="afos2awips.txt" />
-		<constructor-arg ref="afosToAwipsListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="textCCChelp.txt" />
-		<constructor-arg ref="afosBrowserListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="textNNNhelp.txt" />
-		<constructor-arg ref="afosBrowserListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="textCategoryClass.txt" />
-		<constructor-arg ref="afosBrowserListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="textOriginTable.txt" />
-		<constructor-arg ref="afosBrowserListener" />
-	</bean>
-	<bean factory-bean="ndmProc" factory-method="registerListener">
-		<constructor-arg value="afosMasterPIL.txt" />
-		<constructor-arg ref="afosBrowserListener" />
-	</bean>
 </beans>
