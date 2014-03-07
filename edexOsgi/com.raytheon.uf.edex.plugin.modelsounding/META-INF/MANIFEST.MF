@@ -7,7 +7,7 @@ Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
-Require-Bundle:  com.raytheon.uf.edex.core,
+Require-Bundle: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.pointdata,
  com.raytheon.uf.edex.decodertools,
@@ -18,7 +18,8 @@ Require-Bundle:  com.raytheon.uf.edex.core,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.localization,
- com.raytheon.uf.common.site
+ com.raytheon.uf.common.site,
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.edex.plugin
 Export-Package: com.raytheon.uf.edex.plugin.modelsounding,
