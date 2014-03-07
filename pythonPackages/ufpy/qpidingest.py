@@ -58,6 +58,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    ....
 #    06/13/2013      DR 16242      D. Friedman    Add Qpid authentication info
+#    03/06/2014      DR 17907      D. Friedman    Workaround for issue QPID-5569
 #
 #===============================================================================   
 
@@ -97,7 +98,8 @@ class IngestViaQPID:
         @param header: string header used to determine plugin decoder to use
         '''
         props = self.session.delivery_properties(routing_key='external.dropbox')
-        head = self.session.message_properties(application_headers={'header':header})
+        head = self.session.message_properties(application_headers={'header':header},
+                                               user_id=QPID_USERNAME) # For issue QPID-5569.  Fixed in Qpid 0.27
         self.session.message_transfer(destination='amq.direct', message=Message(props, head, filepath))
            
     def close(self):
