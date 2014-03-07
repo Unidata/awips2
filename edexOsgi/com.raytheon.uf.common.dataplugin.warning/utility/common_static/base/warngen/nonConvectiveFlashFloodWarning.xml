@@ -112,10 +112,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!-- following two lines from 14.1.1 baseline, MR not sure why they are so different than GP lines -->
+<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
 <!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
-<!--  end of 14.1.1 baseline items -->  
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -195,10 +194,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why so different from GP lines -->
+<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
 <!--  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
-<!--  end 14.1.1 lines -->  
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
@@ -277,10 +275,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why so different from GP lines -->
+<!-- following two lines from 13.5.2 baseline, may need the more complex parseString added to the GP changes above -->
 <!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/>  -->
-<!--  end 14.1.1 lines --> 
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
   <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
