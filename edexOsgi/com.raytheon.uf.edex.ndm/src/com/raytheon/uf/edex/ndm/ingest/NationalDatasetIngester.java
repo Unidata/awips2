@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.site.ingest;
+package com.raytheon.uf.edex.ndm.ingest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,14 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
- * TODO Add Description
+ * National Dataset Maintenance ingester.
  * 
  * <pre>
  * 
@@ -44,6 +43,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Aug 11,2011  9965      rferrel     Added logging to processEvent
  * Aug 24,2011  10775     rferrel     Fixed error in processEvent and added
  *                                    check on statusHandler messages.
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -53,15 +53,17 @@ import com.raytheon.uf.edex.core.EdexException;
 
 public class NationalDatasetIngester implements IDataSetIngester {
 
-    private Map<String, List<INationalDatasetSubscriber>> listeners = new HashMap<String, List<INationalDatasetSubscriber>>();
+    private final Map<String, List<INationalDatasetSubscriber>> listeners = new HashMap<String, List<INationalDatasetSubscriber>>();
 
     /**
-     * Register a filename to be processed and the subscription listener that will process
-     * the file.
-     * @param filename 
+     * Register a filename to be processed and the subscription listener that
+     * will process the file.
+     * 
+     * @param filename
      * @param listener
      * @return
      */
+    @Override
     public INationalDatasetSubscriber registerListener(String filename,
             INationalDatasetSubscriber listener) {
         if (listeners.get(filename) == null) {
@@ -74,22 +76,23 @@ public class NationalDatasetIngester implements IDataSetIngester {
 
     /**
      * Remove a subscription listener for a given file.
-     * @param filename 
+     * 
+     * @param filename
      * @param listener
-     * @return Returns the listener reference that was removed, otherwise a
-     * null reference is returned.
+     * @return Returns the listener reference that was removed, otherwise a null
+     *         reference is returned.
      */
     @Override
     public INationalDatasetSubscriber removeListener(String filename,
             INationalDatasetSubscriber listener) {
 
         INationalDatasetSubscriber storedListener = null;
-        if(filename != null) {
-            if(listeners.containsKey(filename)) {
+        if (filename != null) {
+            if (listeners.containsKey(filename)) {
                 List<INationalDatasetSubscriber> list = listeners.get(filename);
-                for(int i = 0;i < list.size();i++) {
-                    
-                    if(list.get(i).equals(listener)) {
+                for (int i = 0; i < list.size(); i++) {
+
+                    if (list.get(i).equals(listener)) {
                         storedListener = list.get(i);
                         list.remove(i);
                         break;
@@ -99,7 +102,7 @@ public class NationalDatasetIngester implements IDataSetIngester {
         }
         return storedListener;
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -144,7 +147,5 @@ public class NationalDatasetIngester implements IDataSetIngester {
             }
         }
     }
-
-
 
 }

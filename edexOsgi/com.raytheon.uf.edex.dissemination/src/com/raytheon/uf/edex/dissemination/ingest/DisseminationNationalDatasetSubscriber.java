@@ -35,13 +35,13 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
- * TODO Add Description
+ * Dissemination NDM subscriber.
  * 
  * <pre>
  * 
@@ -50,6 +50,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 
@@ -59,7 +60,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 public class DisseminationNationalDatasetSubscriber implements
         INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DisseminationNationalDatasetSubscriber.class);
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DisseminationNationalDatasetSubscriber.class);
 
     private static final String AWIPS_PRIORITIES_FILENAME = "dissemination/awipsPriorities.txt";
 
@@ -84,7 +86,8 @@ public class DisseminationNationalDatasetSubscriber implements
             try {
                 backupFile.createNewFile();
             } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, "Failed to create File " + backupFilename, e);
+                statusHandler.handle(Priority.PROBLEM, "Failed to create file "
+                        + backupFilename, e);
             }
             saveFile(outFile, backupFile);
             saveFile(file, outFile);
@@ -93,10 +96,12 @@ public class DisseminationNationalDatasetSubscriber implements
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
+            BufferedReader fis = null;
+            BufferedWriter fos = null;
             try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
+                fis = new BufferedReader(new InputStreamReader(
                         new FileInputStream(file)));
-                BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                fos = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(outFile)));
                 String line = null;
                 try {
@@ -104,19 +109,30 @@ public class DisseminationNationalDatasetSubscriber implements
                         fos.write(line);
                         fos.newLine();
                     }
-                    fos.close();
                 } catch (IOException e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Could not read File " + AWIPS_PRIORITIES_FILENAME,
-                            e);
+                            "Could not read file: " + file.getName(), e);
 
                 }
             } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find File " + AWIPS_PRIORITIES_FILENAME, e);
-
+                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
+                        + file.getName(), e);
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
             }
         }
     }
-
 }
