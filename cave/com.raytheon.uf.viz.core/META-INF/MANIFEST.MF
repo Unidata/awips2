@@ -37,7 +37,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.velocity;bundle-version="1.0.0",
  ch.qos.logback;bundle-version="1.0.13",
  com.raytheon.uf.common.style;bundle-version="1.0.0",
- org.reflections;bundle-version="0.9.9"
+ org.reflections;bundle-version="0.9.9",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: ext, registered, global
 Eclipse-RegisterBuddy: org.apache.velocity, com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm, com.raytheon.uf.common.status, com.raytheon.uf.common.dataplugin.level, com.raytheon.uf.common.comm, ch.qos.logback

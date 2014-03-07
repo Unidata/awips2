@@ -34,7 +34,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.style;bundle-version="1.0.0",
  com.raytheon.uf.common.activetable,
  com.raytheon.uf.viz.image.export;bundle-version="1.14.0",
- com.raytheon.uf.viz.kml.export
+ com.raytheon.uf.viz.kml.export;bundle-version="1.14.1",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.gfe,
  com.raytheon.viz.gfe.constants,
