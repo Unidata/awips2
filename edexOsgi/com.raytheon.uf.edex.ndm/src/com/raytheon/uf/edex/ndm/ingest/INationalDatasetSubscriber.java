@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.site.ingest;
+package com.raytheon.uf.edex.ndm.ingest;
 
 import java.io.File;
 
 /**
- * TODO Add Description
+ * National Dataset Subscriber Interface.
  * 
  * <pre>
  * 
@@ -30,7 +30,8 @@ import java.io.File;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 5, 2011            bfarmer     Initial creation
+ * Jan 05, 2011            bfarmer     Initial creation
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * 
  * </pre>
  * 

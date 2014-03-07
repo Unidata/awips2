@@ -31,16 +31,30 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
  * Give this program a path containing the files you wish to read. It will then
  * give you back SQL files you can then insert into the AWIPS DB
  * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial release.
+ * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * 
+ * </pre>
+ * 
  * @author dhladky
  * 
  */
 public class AWIPSCommonObsSQLGenerator implements INationalDatasetSubscriber {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(AWIPSCommonObsSQLGenerator.class);
 
     private static final String FILE_NAME_PREFIX = "common_obs_spatial_";
 
@@ -135,68 +149,70 @@ public class AWIPSCommonObsSQLGenerator implements INationalDatasetSubscriber {
 
         FileWriter fstream = null;
         BufferedWriter bw = null;
+        try {
+            while (it.hasNext()) {
 
-        while (it.hasNext()) {
+                if (fstream == null) {
+                    fstream = new FileWriter(path + FILE_NAME_PREFIX
+                            + (fileCount) + FILE_NAME_SUFFIX);
+                }
+                if (bw == null) {
+                    bw = new BufferedWriter(fstream);
+                }
 
-            if (fstream == null) {
-                fstream = new FileWriter(path + FILE_NAME_PREFIX + (fileCount)
-                        + FILE_NAME_SUFFIX);
+                SpatialLine sline = stationMap.get(it.next());
+
+                String gid = sline.getGid();
+                String state = sline.getState();
+                String elevation = sline.getElevation();
+                String icao = sline.getICAO();
+                String the_geom = sline.getGeom();
+                String name = sline.getName();
+                String rbsnindicator = NULL;
+                String country = sline.getCountry();
+                // TODO: these are hard coded to the same as surface, must fix
+                String upperairelevation = sline.getElevation();
+                String upperairgeom = sline.getGeom();
+                String wmoindex = sline.getWmo();
+                String wmoregion = NULL;
+
+                StringBuffer line = new StringBuffer();
+                line.append(INSERT_PREFIX);
+                line.append(addParam(gid, true, false, false));
+                line.append(addParam(country, false, false, false));
+                line.append(addParam(elevation, false, false, true));
+                line.append(addParam(icao, false, false, false));
+                line.append(addParam(the_geom, false, false, false));
+                line.append(addParam(name, false, false, false));
+                line.append(addParam(rbsnindicator, false, false, false));
+                line.append(addParam(state, false, false, false));
+                line.append(addParam(upperairelevation, false, false, true));
+                line.append(addParam(upperairgeom, false, false, false));
+                line.append(addParam(wmoindex, false, false, false));
+                line.append(addParam(wmoregion, false, true, false));
+
+                bw.write(line.toString() + "\n");
+                count++;
+
+                if (count == (FILE_SIZE_LIMIT * fileCount) - 1) {
+                    bw.close();
+                    fstream.close();
+                    bw = null;
+                    fstream = null;
+                    fileCount++;
+
+                    fstream = new FileWriter(path + FILE_NAME_PREFIX
+                            + (fileCount) + FILE_NAME_SUFFIX);
+                    bw = new BufferedWriter(fstream);
+                }
             }
-            if (bw == null) {
-                bw = new BufferedWriter(fstream);
-            }
-
-            SpatialLine sline = stationMap.get(it.next());
-
-            String gid = sline.getGid();
-            String state = sline.getState();
-            String elevation = sline.getElevation();
-            String icao = sline.getICAO();
-            String the_geom = sline.getGeom();
-            String name = sline.getName();
-            String rbsnindicator = NULL;
-            String country = sline.getCountry();
-            // TODO: these are hard coded to the same as surface, must fix
-            String upperairelevation = sline.getElevation();
-            String upperairgeom = sline.getGeom();
-            String wmoindex = sline.getWmo();
-            String wmoregion = NULL;
-
-            StringBuffer line = new StringBuffer();
-            line.append(INSERT_PREFIX);
-            line.append(addParam(gid, true, false, false));
-            line.append(addParam(country, false, false, false));
-            line.append(addParam(elevation, false, false, true));
-            line.append(addParam(icao, false, false, false));
-            line.append(addParam(the_geom, false, false, false));
-            line.append(addParam(name, false, false, false));
-            line.append(addParam(rbsnindicator, false, false, false));
-            line.append(addParam(state, false, false, false));
-            line.append(addParam(upperairelevation, false, false, true));
-            line.append(addParam(upperairgeom, false, false, false));
-            line.append(addParam(wmoindex, false, false, false));
-            line.append(addParam(wmoregion, false, true, false));
-
-            bw.write(line.toString() + "\n");
-            count++;
-
-            if (count == (FILE_SIZE_LIMIT * fileCount) - 1) {
+        } finally {
+            if (bw != null) {
                 bw.close();
-                fstream.close();
-                bw = null;
-                fstream = null;
-                fileCount++;
-
-                fstream = new FileWriter(path + FILE_NAME_PREFIX + (fileCount)
-                        + FILE_NAME_SUFFIX);
-                bw = new BufferedWriter(fstream);
             }
-        }
-        if (bw != null) {
-            bw.close();
-        }
-        if (fstream != null) {
-            fstream.close();
+            if (fstream != null) {
+                fstream.close();
+            }
         }
     }
 
@@ -210,25 +226,47 @@ public class AWIPSCommonObsSQLGenerator implements INationalDatasetSubscriber {
      * @param filename
      */
     private void readFile(String filename) {
+        FileInputStream fis = null;
+        DataInputStream dis = null;
+        BufferedReader br = null;
 
-        System.out.println("Read : " + filename);
-        System.out.println("\n");
         try {
-            FileInputStream fis = new FileInputStream(filename);
-            DataInputStream dis = new DataInputStream(fis);
-            BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+            fis = new FileInputStream(filename);
+            dis = new DataInputStream(fis);
+            br = new BufferedReader(new InputStreamReader(dis));
             String strLine;
             while ((strLine = br.readLine()) != null) {
                 if (!strLine.startsWith(SKIP)) {
                     String[] readLine = strLine.split(DELIMITER);
                     SpatialLine line = new SpatialLine(readLine);
                     stationMap.put(line.getGid(), line);
-                    System.out.println(strLine);
                     read++;
                 }
             }
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            statusHandler.error("Error processing file: " + filename, ioe);
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
     }
 
