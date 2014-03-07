@@ -16,7 +16,7 @@
     <bean id="bufrascatDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="bufrascat" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrascat" />
+		<constructor-arg value="jms-durable:queue:Ingest.bufrascat" />
 	</bean>
 
 	<bean id="bufrascatCamelRegistered" factory-bean="contextManager"
