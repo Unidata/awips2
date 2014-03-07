@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.services.query.plugins;
 
+import javax.jws.WebMethod;
 import javax.jws.WebParam;
+import javax.jws.WebResult;
 
 import oasis.names.tc.ebxml.regrep.wsdl.registry.services.v4.MsgRegistryException;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
@@ -56,12 +58,14 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
  * @author bphillip
  * @version 1.0
  */
-@Transactional(propagation = Propagation.REQUIRED)
 public class GetObjectById extends RegistryQueryPlugin {
 
     private RegistryObjectDao registryObjectDao;
 
     @Override
+    @WebMethod(action = EXECUTE_QUERY_ACTION)
+    @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException {
