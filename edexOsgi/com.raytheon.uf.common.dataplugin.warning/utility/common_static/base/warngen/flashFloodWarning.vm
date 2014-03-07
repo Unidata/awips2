@@ -9,6 +9,7 @@
 ##           Evan Bookbinder 9-18-2013 Implemented config.vm
 ##           Gene Petrescu 09-19-2013 Added Alaska Modifications (GP comments)
 ##           Mike Rega     01-18-2014 added Alaska GP changes for 14.2.1
+##           Mike Rega     03-05-2014 added 3rd bullet text ACROSS THE WARNED AREA
 #################################### SET SOME VARIABLES ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -25,7 +26,7 @@
 #set($snowMelt = "")
 #if(${list.contains(${bullets}, "icrs")})
 	#set($ic = "RS")
-    #set($hycType = "HEAVY RAIN AND EXTREMELY RAPID SNOWMELT IN...")
+    #set($hycType = "EXTREMELY RAPID SNOWMELT IN...")
     #set($snowMelt = "RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING. ")
 #end
 ##
@@ -391,7 +392,8 @@ THE RAIN IS MOVING ##
 #end
 #end
 #else
-!** LOCATION **! ##
+ACROSS THE WARNED AREA. ##
+##  !** LOCATION **! ##
 #end
 ${rainAmount}${isExpected}${snowMelt}${burnScar}
 
