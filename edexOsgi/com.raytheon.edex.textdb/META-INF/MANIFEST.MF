@@ -12,7 +12,8 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.status;bundle-version="1.12.1122",
- com.raytheon.uf.common.site;bundle-version="1.0.0"
+ com.raytheon.uf.common.site;bundle-version="1.0.0",
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
 Export-Package: com.raytheon.edex.textdb.alarms,
  com.raytheon.edex.textdb.dao,
  com.raytheon.edex.textdb.dbapi.impl,

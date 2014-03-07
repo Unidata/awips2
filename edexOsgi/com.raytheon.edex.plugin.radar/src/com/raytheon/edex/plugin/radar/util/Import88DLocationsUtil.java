@@ -23,11 +23,11 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -43,12 +43,13 @@ import com.vividsolutions.jts.io.WKTReader;
  * ------------ ----------  ----------- --------------------------
  * 10Oct2011   10520       JWork       Initial check-in.
  * 09/11/2012   DR 15366    D. Friedman Set SRID on radar stations.
+ * Mar 06, 2014   2876      mpduff      Moved NationalDatasetSubscriber.
  * </pre>
  * 
  */
 
 public class Import88DLocationsUtil implements INationalDatasetSubscriber {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Import88DLocationsUtil.class);
 
     private static final String SHAPEFILE = "fsl-w88d.shp";
@@ -58,34 +59,30 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
 
     private static final int WGS84_SRID = 4326;
 
-    // The list of the required file comprising a Shapefile set
-    private ArrayList<String> theRadarShapeFileList = new ArrayList<String>() {
-        private static final long serialVersionUID = 1L;
+    /** The list of the required files comprising a Shapefile set */
+    private static final String[] SHAPE_FILES = new String[] { "fsl-w88d.shp",
+            "fsl-w88d.shx", "fsl-w88d.dbf" };
 
-        {
-            add("fsl-w88d.shp");
-            add("fsl-w88d.shx");
-            add("fsl-w88d.dbf");
-        }
-    };
-
-    // The collection of feature attribute names this code needs from the
-    // shapefile
+    /**
+     * The collection of feature attribute names this code needs from the
+     * shapefile
+     */
     private enum databaseColumns {
         LAT, EQP_ELV, NAME, LON, IMMUTABLEX, RDA_ID, ELEVMETER, THE_GEOM, WFO_ID, RPG_ID_DEC
     }
 
-    private long theTimeRange = 3600000l;
+    private final long theTimeRange = 3600000l;
 
-    // The file name of the file currently being processed.
+    /** The file name of the file currently being processed. */
     private String theFileName = null;
 
-    // The date, in millis, of the file currently being processed.
+    /** The date, in millis, of the file currently being processed. */
     private long theCurrentFileDateMillis = 0;
 
-    // The list of RDA_ID's from the shapefile used to determine if an ID has
-    // been
-    // removed from the database
+    /**
+     * The list of RDA_ID's from the shapefile used to determine if an ID has
+     * been removed from the database
+     */
     private ArrayList<String> theRDAList = null;
 
     private IPathManager thePathMgr = null;
@@ -140,16 +137,16 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
      */
     private void saveFile(File file, LocalizationFile outFile) {
         if ((file != null) && file.exists()) {
+            FileInputStream fis = null;
+            FileOutputStream fos = null;
             try {
                 byte[] fileByteArray = new byte[(int) file.length()];
-                FileInputStream fis = new FileInputStream(file);
+                fis = new FileInputStream(file);
                 fis.read(fileByteArray);
 
-                FileOutputStream fos = new FileOutputStream(outFile.getFile());
+                fos = new FileOutputStream(outFile.getFile());
                 fos.write(fileByteArray);
 
-                fis.close();
-                fos.close();
                 /*
                  * BufferedReader fis = new BufferedReader(new
                  * InputStreamReader( new FileInputStream(file)));
@@ -165,12 +162,29 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
             } catch (FileNotFoundException e) {
                 if (statusHandler.isPriorityEnabled(Priority.PROBLEM)) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Failed to find File ", e);
+                            "Failed to find file: " + file.getName(), e);
                 }
             } catch (IOException e) {
                 if (statusHandler.isPriorityEnabled(Priority.PROBLEM)) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not create output file. ", e);
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Could not create output file: "
+                                    + outFile.getName(), e);
+                }
+            } finally {
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
+                }
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
                 }
             }
         }
@@ -193,7 +207,7 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
 
         // Determine if the two other files are available or if the time
         // threshold has been crossed and are to old to process
-        for (String key : theRadarShapeFileList) {
+        for (String key : SHAPE_FILES) {
             if (!key.equals(theFileName)) {
                 tempFile = getPathInfoRead(key);
                 timeStampMillis = tempFile.lastModified();
@@ -271,7 +285,7 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
         for (RadarStation station : aStationList) {
             radarStationDAO.saveOrUpdate(station);
         }
-        
+
         /*
          * Kludge for DR 15366: The GeoTools WKBWriter does not store SRIDs so
          * we must update them manually.
@@ -285,7 +299,7 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
             statusHandler.handle(Priority.ERROR,
                     "Failed to update the SRIDs in the radar_spatial_table", e);
         }
-        
+
         if (statusHandler.isPriorityEnabled(Priority.INFO)) {
             statusHandler
                     .handle(Priority.INFO,
@@ -322,7 +336,8 @@ public class Import88DLocationsUtil implements INationalDatasetSubscriber {
         String rda_id = null;
         RadarStation tempStation = null;
         Set<String> keySet = null;
-        GeometryFactory gf = new GeometryFactory(new PrecisionModel(), WGS84_SRID);
+        GeometryFactory gf = new GeometryFactory(new PrecisionModel(),
+                WGS84_SRID);
         WKTReader wkt = new WKTReader(gf);
         for (HashMap<String, String> aHashMap : aDataList) {
             keySet = aHashMap.keySet();
