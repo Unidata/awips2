@@ -3,18 +3,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="jms-shef" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsShefConfig" />
-		<property name="taskExecutor" ref="shefThreadPool" />
-	</bean>
-    <bean id="jmsShefConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="shefThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="3" />
-		<property name="maxPoolSize" value="3" />
-	</bean>
-
 	<bean id="shefDecoder" class="com.raytheon.edex.plugin.shef.ShefDecoder">
 		<constructor-arg value="shef" />
 	</bean>
@@ -47,13 +35,13 @@
 		factory-method="register">
 		<constructor-arg value="shef" />
 		<constructor-arg
-			value="jms-dist:queue:Ingest.Shef"/>
+			value="jms-durable:queue:Ingest.Shef"/>
 	</bean>
 
     <bean id="shefHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
         factory-method="register">
         <constructor-arg value="shef" />
-        <constructor-arg value="jms-dist:queue:Ingest.Shef"/>
+        <constructor-arg value="jms-durable:queue:Ingest.Shef"/>
     </bean>
 
 	<bean id="shefCamelRegistered" factory-bean="contextManager"
@@ -92,7 +80,7 @@
 		<!-- Begin shef routes -->
 		<route id="shefIngestRoute">
 			<from
-				uri="jms-shef:queue:Ingest.Shef"/>
+				uri="jms-durable:queue:Ingest.Shef"/>
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
@@ -103,7 +91,7 @@
 		</route>
 		<route id="shefStagedRoute">
 			<from
-				uri="jms-shef:queue:Ingest.ShefStaged"/>
+				uri="jms-durable:queue:Ingest.ShefStaged"/>
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
@@ -155,7 +143,7 @@
 
 		<route id="shefManualIngestRoute">
 			<from
-				uri="jms-shef:queue:Ingest.ShefManual"/>
+				uri="jms-durable:queue:Ingest.ShefManual"/>
 			<setHeader headerName="pluginName">
 				<constant>shef</constant>
 			</setHeader>
