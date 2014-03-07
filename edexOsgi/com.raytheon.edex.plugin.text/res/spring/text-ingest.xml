@@ -11,13 +11,13 @@
 	<bean id="textDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="text" />
-		<constructor-arg value="jms-dist:queue:Ingest.Text"/>
+		<constructor-arg value="jms-durable:queue:Ingest.Text"/>
 	</bean>
 
 	<bean id="textHandleoupDistRegistry" factory-bean="handleoupDistributionSrv"
 		factory-method="register">
 		<constructor-arg value="text" />
-		<constructor-arg value="jms-dist:queue:Ingest.Text"/>
+		<constructor-arg value="jms-durable:queue:Ingest.Text"/>
 	</bean>
 
 	<!-- define the bean that handles automatic faxing of products. -->
@@ -27,18 +27,6 @@
     <!-- verify text product info for site, spawns in separate thread to not delay start up -->
     <bean id="textVersionPurge" class="com.raytheon.edex.plugin.text.TextVersionPurge" depends-on="textRegistered"/>
 
-	<bean id="jms-text" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsTextConfig" />
-		<property name="taskExecutor" ref="textThreadPool" />		
-	</bean>
-    <bean id="jmsTextConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="textThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="2" />
-		<property name="maxPoolSize" value="2" />
-	</bean>
-	
 	<!-- Special handler for text plugin archives that bases filenames off 
 	     creation time-->
     <bean id="textArchiveNamer" class="com.raytheon.edex.plugin.text.maintenance.archiver.TextArchiveFileNameFormatter" />
@@ -147,7 +135,7 @@
 		</route>
 
 		<route id="textUndecodedIngestRoute">
-			<from uri="jms-text:queue:Ingest.Text?concurrentConsumers=2" />
+			<from uri="jms-durable:queue:Ingest.Text?concurrentConsumers=2" />
 			<setHeader headerName="pluginName">
 				<constant>text</constant>
 			</setHeader>			
@@ -174,7 +162,7 @@
 		<route id="textToWatchWarnRoute">
 			<from uri="direct:textToWatchWarn" />
 			<bean ref="textDecoder" method="transformToProductIds" />
-			<to uri="jms-text:queue:watchwarn" />
+			<to uri="jms-durable:queue:watchwarn" />
 		</route>
 
 		<route id="textSerializationRoute">
