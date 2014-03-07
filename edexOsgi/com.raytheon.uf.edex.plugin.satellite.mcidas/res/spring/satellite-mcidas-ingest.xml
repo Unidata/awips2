@@ -3,25 +3,13 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="jms-satellite-mcidas" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsSatelliteMcidasConfig" />
-		<property name="taskExecutor" ref="satelliteMcidasThreadPool" />		
-	</bean>
-	<bean id="satelliteMcidasThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean>
-    <bean id="jmsSatelliteMcidasConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-	<bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder">
-	</bean>
-	
 	<bean id="satMcidasDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="satellite.mcidas" />
-		<constructor-arg value="jms-dist:queue:Ingest.Satellite.Mcidas" />
+		<constructor-arg value="jms-durable:queue:Ingest.Satellite.Mcidas" />
 	</bean>
+
+    <bean id="satelliteMcidasDecoder" class="com.raytheon.uf.edex.plugin.satellite.mcidas.McidasSatelliteDecoder"/>
 
     <bean id="satMcidasCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
@@ -35,7 +23,7 @@
 
 		<!-- Begin McIDAS Sat routes -->
 		<route id="satMcidasIngestRoute">
-			<from uri="jms-satellite-mcidas:queue:Ingest.Satellite.Mcidas" />
+			<from uri="jms-durable:queue:Ingest.Satellite.Mcidas" />
 			<setHeader headerName="pluginName">
 				<constant>satellite-mcidas</constant>
 			</setHeader>
