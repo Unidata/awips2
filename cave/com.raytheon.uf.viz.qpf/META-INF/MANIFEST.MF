@@ -2,10 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: QPF Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.qpf;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.uf.viz.qpf.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core,
@@ -19,7 +17,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.pointdata;bundle-version="1.11.1",
  com.raytheon.uf.common.dataplugin.qpf;bundle-version="1.0.0",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.12.1153",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.qpf
