@@ -82,6 +82,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Jun 28, 2012  #827      dgilling     Annotate id field for
  *                                      serialization.
  * Nov 01, 2013  2361      njensen     Remove XML annotations
+ * Feb 10, 2014  2777      rferrel      set the parentId when assinging sets.
  * 
  * </pre>
  * 
@@ -102,7 +103,6 @@ public class ChangeGroup extends PersistableDataObject {
 
     @Id
     @GeneratedValue
-    @DynamicSerializeElement
     private int id;
 
     /** A String containing the change group */
@@ -885,6 +885,11 @@ public class ChangeGroup extends PersistableDataObject {
 
     public void setTurbulence_layers(Set<TurbulenceLayer> turbulence_layers) {
         this.turbulence_layers = turbulence_layers;
+        if ((turbulence_layers != null) && (turbulence_layers.size() > 0)) {
+            for (TurbulenceLayer turbulence_layer : turbulence_layers) {
+                turbulence_layer.setParentID(this);
+            }
+        }
     }
 
     public Set<IcingLayer> getIcing_layers() {
@@ -893,6 +898,11 @@ public class ChangeGroup extends PersistableDataObject {
 
     public void setIcing_layers(Set<IcingLayer> icing_layers) {
         this.icing_layers = icing_layers;
+        if ((icing_layers != null) && (icing_layers.size() > 0)) {
+            for (IcingLayer icing_layer : icing_layers) {
+                icing_layer.setParentID(this);
+            }
+        }
     }
 
     public Set<TemperatureForecast> getTemp_forecasts() {
@@ -901,6 +911,11 @@ public class ChangeGroup extends PersistableDataObject {
 
     public void setTemp_forecasts(Set<TemperatureForecast> temp_forecasts) {
         this.temp_forecasts = temp_forecasts;
+        if ((temp_forecasts != null) && (temp_forecasts.size() > 0)) {
+            for (TemperatureForecast temForecast : temp_forecasts) {
+                temForecast.setParentID(this);
+            }
+        }
     }
 
     public Set<TafWeatherCondition> getWeather() {
@@ -909,6 +924,11 @@ public class ChangeGroup extends PersistableDataObject {
 
     public void setWeather(Set<TafWeatherCondition> weather) {
         this.weather = weather;
+        if ((weather != null) && (weather.size() > 0)) {
+            for (TafWeatherCondition twc : weather) {
+                twc.setParentID(this);
+            }
+        }
     }
 
     public Set<TafSkyCover> getSky_cover() {
@@ -917,6 +937,11 @@ public class ChangeGroup extends PersistableDataObject {
 
     public void setSky_cover(Set<TafSkyCover> sky_cover) {
         this.sky_cover = sky_cover;
+        if ((sky_cover != null) && (sky_cover.size() > 0)) {
+            for (TafSkyCover tsc : sky_cover) {
+                tsc.setParentID(this);
+            }
+        }
     }
 
     private void checkGroupDataEnd(StringBuilder group) {
