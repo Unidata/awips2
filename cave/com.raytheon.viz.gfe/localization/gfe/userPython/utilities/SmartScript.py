@@ -54,6 +54,7 @@
 #    Oct 31, 2013    2508          randerso       Change to use DiscreteGridSlice.getKeys()
 #    Nov 07, 2013    2476          dgilling       Fix _getGridsResult() for retrieving 
 #                                                 Wx/Discrete in First mode.
+#    Dec 23, 2013    16893         ryu            Added unloadWEs() method (created by njensen)
 #
 ########################################################################
 import types, string, time, sys
@@ -1500,7 +1501,6 @@ class SmartScript(BaseTool.BaseTool):
             tzname = self.__dataMgr.getClient().getSiteTimeZone()
             tz = dateutil.tz.gettz(tzname)
 
-
         utczone = dateutil.tz.gettz('UTC')
         gmdt = self._gmtime(date).replace(tzinfo=utczone)
         tzdt = gmdt.astimezone(tz)
@@ -1802,6 +1802,19 @@ class SmartScript(BaseTool.BaseTool):
         parmJA = jep.jarray(1, parm)
         parmJA[0] = parm
         self.__parmMgr.deleteParm(parmJA)
+
+    def unloadWEs(self, model, elementLevelPairs, mostRecent=0):
+        jparms = []
+        for element, level in elementLevelPairs:
+            exprName = self.getExprName(model, element, level, mostRecent)
+            parm = self.__parmMgr.getParmInExpr(exprName, 1)
+            if parm:
+                jparms.append(parm)
+        if jparms:
+            parmJA = jep.jarray(len(jparms), jparms[0])
+            for i in xrange(len(jparms)):
+                parmJA[i] = jparms[i]
+            self.__parmMgr.deleteParm(parmJA)
 
     def saveElements(self, elementList):
         # Save the given Fcst elements to the server

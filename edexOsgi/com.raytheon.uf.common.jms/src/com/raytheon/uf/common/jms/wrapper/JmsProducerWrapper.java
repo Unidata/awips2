@@ -37,9 +37,10 @@ import com.raytheon.uf.common.jms.JmsPooledProducer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec  fi8, 2011            rjpeter     Initial creation
+ * Dec 08, 2011            rjpeter     Initial creation.
  * Feb 26, 2013 1642       rjpeter     Added volatile references for better concurrency handling.
- * Jun 07, 2013 DR 16316   rjpeter     Fix memory leak
+ * Jun 07, 2013 DR 16316   rjpeter     Fix memory leak.
+ * Feb 07, 2014 2357       rjpeter     Set linked exception in exception handling.
  * </pre>
  * 
  * @author rjpeter
@@ -122,6 +123,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -142,6 +146,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -162,6 +169,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -182,6 +192,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -202,6 +215,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -222,6 +238,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -242,6 +261,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -264,6 +286,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -285,6 +310,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -309,6 +337,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -329,6 +360,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -349,6 +383,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -369,6 +406,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -389,6 +429,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
@@ -409,6 +452,9 @@ public class JmsProducerWrapper implements MessageProducer {
             JMSException exc = new JMSException(
                     "Exception occurred on pooled producer");
             exc.initCause(e);
+            if (e instanceof Exception) {
+                exc.setLinkedException((Exception) e);
+            }
             throw exc;
         }
     }
