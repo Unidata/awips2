@@ -43,12 +43,11 @@ import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -61,17 +60,18 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 11, 2009            bphillip     Initial creation
- * - AWIPS2 Baseline Repository --------
- * 07/09/2012    798        jkorman     Modified datastore population.
- * 03/25/2013    1823       dgilling    Modified getSatelliteData() and 
- *                                      getSatelliteInventory() to allow optional
- *                                      input arguments.
- * 06/24/2013    2044       randerso    Added methods to get data by TimeRange and 
- *                                      getInventory with maxRecord limit
- * Nov 14, 2013  2393       bclement    moved interpolation code to parent class
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 11, 2009           bphillip    Initial creation
+ * Jul 09, 2012  798      jkorman     Modified datastore population.
+ * Mar 25, 2013  1823     dgilling    Modified getSatelliteData() and 
+ *                                    getSatelliteInventory() to allow optional
+ *                                    input arguments.
+ * Jun 24, 2013  2044     randerso    Added methods to get data by TimeRange and 
+ *                                    getInventory with maxRecord limit
+ * Nov 14, 2013  2393     bclement    moved interpolation code to parent class
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * </pre>
  * 
  * @author bphillip
@@ -148,8 +148,8 @@ public class SatelliteDao extends PluginDao {
                     coverage.getGridGeometry());
 
             Rectangle fullScale = downScaler.getDownscaleSize(0);
-            DataWrapper1D dataSource = DataRecordWrapUtil.wrap(
-                    storageRecord, fullScale.width, fullScale.height, true);
+            BufferWrapper dataSource = BufferWrapper.wrapArray(
+                    storageRecord.getDataObject(), fullScale.width, fullScale.height);
 
             int levels = DownscaleStoreUtil.storeInterpolated(dataStore,
                     downScaler, dataSource,
@@ -173,6 +173,12 @@ public class SatelliteDao extends PluginDao {
                             // always the same fill value
                             return fillValue;
                         }
+
+                        @Override
+                        public boolean isSigned() {
+                            return false;
+                        }
+
                     });
             // set the number of levels in the 'parent' satellite data.
             satRecord.setInterpolationLevels(levels);
@@ -513,7 +519,7 @@ public class SatelliteDao extends PluginDao {
      * @throws PluginException
      */
     private IDataRecord createDataRecord(SatelliteRecord satRec, Object data,
-            int downscaleLevel, Rectangle size) throws StorageException {
+            int downscaleLevel, Rectangle size) {
         SatelliteMessageData msgData = null;
         msgData = new SatelliteMessageData(data, size.width, size.height);
         IDataRecord rec = msgData.getStorageRecord(satRec,

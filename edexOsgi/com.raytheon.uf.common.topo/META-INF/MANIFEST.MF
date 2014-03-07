@@ -2,12 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Topo Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.topo
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Eclipse-BuddyPolicy: registered, ext, global
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.raytheon.uf.common.datastorage;bundle-version="1.11.17",
- com.raytheon.uf.common.serialization;bundle-version="1.11.17",
- com.raytheon.uf.common.geospatial;bundle-version="1.11.17",
- com.raytheon.uf.common.status;bundle-version="1.12.1174"
+Require-Bundle: com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.common.topo

@@ -32,9 +32,13 @@ import org.opengis.coverage.grid.GridEnvelope;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.DataUtilities;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.filter.FillValueFilter;
+import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.wxmath.Constants;
 import com.raytheon.uf.common.wxmath.DistFilter;
@@ -325,8 +329,7 @@ public abstract class ContourRenderable implements IRenderable {
                             int retries = 0;
                             LoopProperties loopProps = paintProps
                                     .getLoopProperties();
-                            if (loopProps != null && loopProps
-                                            .isLooping()) {
+                            if (loopProps != null && loopProps.isLooping()) {
                                 /**
                                  * If the display is looping, wait a few ms to
                                  * let contouring finish so that if the
@@ -452,14 +455,17 @@ public abstract class ContourRenderable implements IRenderable {
             // smoothingDistance is in km
             float npts = (float) (distanceInPoints
                     * contourPrefs.getSmoothingDistance() / (distanceInM / 1000));
-            FloatArrayWrapper data = new FloatArrayWrapper(gridGeometry);
-            data.setFillValue(Constants.LEGACY_NAN);
-            DataUtilities.copy(dataRecord[0], data, nx, ny);
+            FloatBufferWrapper data = new FloatBufferWrapper(nx, ny);
+            DataDestination dest = InverseFillValueFilter.apply(
+                    (DataDestination) data, Constants.LEGACY_NAN);
+            DataUtilities.copy(dataRecord[0], dest, nx, ny);
             float[] dataArray = data.getArray();
             dataArray = DistFilter.filter(dataArray, npts, nx, ny, 1);
-            data = new FloatArrayWrapper(dataArray, gridGeometry);
-            data.setFillValue(Constants.LEGACY_NAN);
-            return new DataSource[] {data};
+            data = new FloatBufferWrapper(dataArray, nx, ny);
+            DataSource source = FillValueFilter.apply((DataSource) data,
+                    Constants.LEGACY_NAN);
+            source = new GeographicDataSource(source, gridGeometry);
+            return new DataSource[] { data };
         } else {
             return dataRecord;
         }

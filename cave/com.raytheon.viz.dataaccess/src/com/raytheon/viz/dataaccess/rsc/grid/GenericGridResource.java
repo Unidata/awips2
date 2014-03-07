@@ -33,7 +33,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.image.ColorMapParameterFactory;
 import com.raytheon.uf.common.style.level.Level.LevelType;
@@ -56,10 +56,12 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 8, 2013            bkowal     Initial creation
- * Jan 31, 2013 #1555     bkowal     Refactor
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 8, 2013            bkowal      Initial creation
+ * Jan 31, 2013  1555     bkowal      Refactor
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -96,7 +98,8 @@ public class GenericGridResource extends
         GridGeometry2D gridGeometry = gridData.getGridGeometry();
 
         // Extract the raw data
-        FloatBufferWrapper bufferWrapper = new FloatBufferWrapper(gridGeometry);
+        FloatBufferWrapper bufferWrapper = new FloatBufferWrapper(
+                gridGeometry.getGridRange2D());
         bufferWrapper = gridData.populateData(bufferWrapper);
         Buffer buffer = bufferWrapper.getBuffer();
 
