@@ -7,21 +7,6 @@
         <constructor-arg ref="madisPluginName" />
     </bean>
 
-    <bean id="jmsIngestMadisConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-        factory-bean="jmsConfig" factory-method="copy">
-    </bean>
-
-    <bean id="madisThreadPool"
-        class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="2" />
-        <property name="maxPoolSize" value="2" />
-    </bean>
-
-    <bean id="jms-madis" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsIngestMadisConfig" />
-        <property name="taskExecutor" ref="madisThreadPool" />
-    </bean>
-
     <bean id="madisPointData"
         class="com.raytheon.uf.edex.plugin.madis.MadisPointDataTransform"
         depends-on="registerMadisPlugin" />
@@ -29,8 +14,7 @@
     <bean id="madisDistRegistry" factory-bean="distributionSrv"
         factory-method="register">
         <constructor-arg value="madis" />
-        <constructor-arg
-            value="jms-dist:queue:Ingest.madis" />
+        <constructor-arg value="jms-durable:queue:Ingest.madis" />
     </bean>
 
     <bean id="madisCamelRegistered" factory-bean="contextManager"
@@ -41,7 +25,7 @@
 	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator"
 		depends-on="jmsIngestMadisConfig, jms-madis, madisThreadPool">
 		<constructor-arg
-			value="jms-madis:queue:Ingest.madisSeparator?destinationResolver=#qpidDurableResolver" />
+			value="jms-durable:queue:Ingest.madisSeparator" />
 		<!-- time in hours for orphan purging -->
 		<constructor-arg value="1" />
 	</bean>
@@ -95,13 +79,12 @@
             <setHeader headerName="pluginName">
                 <constant>madis</constant>
             </setHeader>
-            <to uri="jms-generic:queue:Ingest.madis" />
+            <to uri="jms-durable:queue:Ingest.madis" />
         </route>
 
         <!-- Separates MADIS files into manageable chunks -->
         <route id="madisSeperatorRoute">
-            <from
-                uri="jms-generic:queue:Ingest.madis?destinationResolver=#qpidDurableResolver" />
+            <from uri="jms-durable:queue:Ingest.madis" />
             <setHeader headerName="pluginName">
                 <constant>madis</constant>
             </setHeader>
@@ -122,7 +105,7 @@
         <!-- Begin MADIS production route -->
         <route id="madisIngestRoute">
             <from
-                uri="jms-madis:queue:Ingest.madisSeparator?destinationResolver=#qpidDurableResolver" />
+                uri="jms-durable:queue:Ingest.madisSeparator" />
             <setHeader headerName="pluginName">
                 <constant>madis</constant>
             </setHeader>

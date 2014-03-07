@@ -4,6 +4,6 @@
   	 <bean id="gribDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="grib" />
-		<constructor-arg value="jms-dist:queue:Ingest.GribSplit" />
+		<constructor-arg value="jms-durable:queue:Ingest.GribSplit" />
   	</bean>
 </beans>

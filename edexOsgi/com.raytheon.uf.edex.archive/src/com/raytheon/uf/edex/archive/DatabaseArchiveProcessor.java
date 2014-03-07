@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
  * Dec 10, 2013 2555       rjpeter     Initial creation.
  * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
  * Feb 04, 2014 2770       rferrel     The dumpPdos now dumps all PluginDataObjects.
+ * Feb 12, 2014 2784       rjpeter     Update logging for dup elim scenarios.
  * </pre>
  * 
  * @author rjpeter
@@ -194,6 +195,7 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
         if (entriesInMemory > 0) {
             try {
                 savePdoMap(pdosByFile);
+                pdosByFile.clear();
                 int prev = recordsSaved;
                 recordsSaved += entriesInMemory;
                 statusHandler.info(pluginName + ": Processed rows " + prev
@@ -436,74 +438,93 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                 }
 
                 List<PersistableDataObject<?>> pdosFromDisk = readDataFromDisk(dataFile);
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler.debug(pluginName + ": Checking "
-                            + pdosFromDisk.size() + " old records from file: "
-                            + dataFile.getAbsolutePath());
-                }
-                Iterator<PersistableDataObject<?>> pdoIter = pdosFromDisk
-                        .iterator();
-                boolean needsUpdate = false;
-                int dupsRemoved = 0;
-                int index = 0;
-                while (pdoIter.hasNext() && (index < dupElimUntil)) {
-                    PersistableDataObject<?> pdo = pdoIter.next();
-
-                    if (identifierSet.contains(pdo.getIdentifier())) {
-                        pdoIter.remove();
-                        needsUpdate = true;
-                        dupsRemoved++;
-                    }
-
-                    index++;
-                }
-
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)
-                        && (dupsRemoved > 0)) {
-                    statusHandler.debug(pluginName + ": Removed " + dupsRemoved
-                            + " old records from file: "
-                            + dataFile.getAbsolutePath());
-                }
-
-                if (!fileIter.hasNext() && (pdosFromDisk.size() < fetchSize)) {
-                    // last file, add more data to it
-                    needsUpdate = true;
-
-                    if (prevFileStatus == null) {
-                        prevFileStatus = new FileStatus();
-                        prevFileStatus.dupElimUntilIndex = pdosFromDisk.size();
-                        prevFileStatus.fileFull = pdos.size() >= fetchSize;
-                        filesCreatedThisSession.put(dataFile.getAbsolutePath(),
-                                prevFileStatus);
-                    }
-
-                    int numToAdd = fetchSize - pdosFromDisk.size();
-                    numToAdd = Math.min(numToAdd, pdos.size());
-
+                if (pdosFromDisk.size() > 0) {
                     if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                        statusHandler.debug(pluginName + ": Adding " + numToAdd
-                                + " records to file: "
+                        statusHandler.debug(pluginName + ": Checking "
+                                + pdosFromDisk.size()
+                                + " old records from file: "
                                 + dataFile.getAbsolutePath());
                     }
 
-                    pdosFromDisk.addAll(pdos.subList(0, numToAdd));
-                    if (numToAdd < pdos.size()) {
-                        pdos = pdos.subList(numToAdd, pdos.size());
-                    } else {
-                        pdos = Collections.emptyList();
-                    }
-                }
+                    Iterator<PersistableDataObject<?>> pdoIter = pdosFromDisk
+                            .iterator();
+                    int dupsRemoved = 0;
+                    int index = 0;
+                    boolean needsUpdate = false;
 
-                if (needsUpdate) {
-                    if (!pdosFromDisk.isEmpty()) {
-                        writeDataToDisk(dataFile, pdosFromDisk);
-                        if (prevFileStatus != null) {
-                            prevFileStatus.fileFull = pdosFromDisk.size() >= fetchSize;
+                    while (pdoIter.hasNext() && (index < dupElimUntil)) {
+                        PersistableDataObject<?> pdo = pdoIter.next();
+
+                        if (identifierSet.contains(pdo.getIdentifier())) {
+                            pdoIter.remove();
+                            needsUpdate = true;
+                            dupsRemoved++;
                         }
-                    } else {
-                        dirsToCheckNumbering.add(dataFile.getParentFile());
-                        dataFile.delete();
-                        fileIter.remove();
+
+                        index++;
+                    }
+
+                    if (dupsRemoved > 0) {
+                        statusHandler.info(pluginName + ": Removed "
+                                + dupsRemoved + " old records from file: "
+                                + dataFile.getAbsolutePath());
+                    }
+
+                    if (!fileIter.hasNext()
+                            && (pdosFromDisk.size() < fetchSize)) {
+                        // last file, add more data to it
+                        needsUpdate = true;
+
+                        if (prevFileStatus == null) {
+                            prevFileStatus = new FileStatus();
+                            prevFileStatus.dupElimUntilIndex = pdosFromDisk
+                                    .size();
+                            prevFileStatus.fileFull = pdos.size() >= fetchSize;
+                            filesCreatedThisSession.put(
+                                    dataFile.getAbsolutePath(), prevFileStatus);
+                        }
+
+                        int numToAdd = fetchSize - pdosFromDisk.size();
+                        numToAdd = Math.min(numToAdd, pdos.size());
+
+                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                            statusHandler.debug(pluginName + ": Adding "
+                                    + numToAdd + " records to file: "
+                                    + dataFile.getAbsolutePath());
+                        }
+
+                        pdosFromDisk.addAll(pdos.subList(0, numToAdd));
+                        if (numToAdd < pdos.size()) {
+                            pdos = pdos.subList(numToAdd, pdos.size());
+                        } else {
+                            pdos = Collections.emptyList();
+                        }
+                    }
+
+                    if (needsUpdate) {
+                        if (!pdosFromDisk.isEmpty()) {
+                            writeDataToDisk(dataFile, pdosFromDisk);
+                            if (prevFileStatus != null) {
+                                prevFileStatus.fileFull = pdosFromDisk.size() >= fetchSize;
+                            }
+                        } else {
+
+                            dirsToCheckNumbering.add(dataFile.getParentFile());
+                            if (dataFile.exists() && !dataFile.delete()) {
+                                statusHandler
+                                        .error(pluginName
+                                                + ": Failed to delete file ["
+                                                + dataFile.getAbsolutePath()
+                                                + "], all entries have been updated in later files.");
+                                if (!dataFile.renameTo(new File(dataFile
+                                        .getAbsoluteFile() + ".bad"))) {
+                                    statusHandler.error(pluginName + ": file ["
+                                            + dataFile.getAbsoluteFile()
+                                            + "] cannot be renamed to .bad");
+                                }
+                            }
+                            fileIter.remove();
+                        }
                     }
                 }
             }
@@ -543,7 +564,13 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
             } finally {
                 if (!successful) {
                     // couldn't read in file, move it to bad
-                    file.renameTo(new File(file.getAbsoluteFile() + ".bad"));
+                    if (file.exists()
+                            && !file.renameTo(new File(file.getAbsoluteFile()
+                                    + ".bad"))) {
+                        statusHandler.error(pluginName + ": file ["
+                                + file.getAbsoluteFile()
+                                + "] cannot be renamed to .bad");
+                    }
                 }
                 if (is != null) {
                     try {
@@ -668,8 +695,9 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
             writer = new BufferedWriter(new FileWriter(dumpFile));
 
             if (statusHandler.isPriorityEnabled(Priority.INFO)) {
-                statusHandler.info(String.format("%s: Dumping records to: %s",
-                        pluginName, dumpFile.getAbsolutePath()));
+                statusHandler.info(String.format("%s: Dumping " + pdos.size()
+                        + " records to: %s", pluginName,
+                        dumpFile.getAbsolutePath()));
             }
 
             while (pdoIter.hasNext()) {
@@ -753,6 +781,8 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
         } while (size > 0);
 
         DecimalFormat format = new DecimalFormat(formatString.toString());
+        statusHandler.info("Checking file numbering consistency for "
+                + dir.getAbsolutePath());
 
         for (Map.Entry<Integer, File> entry : fileMap.entrySet()) {
             int fileNum = entry.getKey();
@@ -771,7 +801,15 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                     }
 
                     File newFile = new File(oldFile.getParent(), newFileName);
-                    oldFile.renameTo(newFile);
+                    if (!oldFile.renameTo(newFile)) {
+                        statusHandler
+                                .error("Failed rename file "
+                                        + oldFile.getAbsolutePath()
+                                        + " to "
+                                        + newFile.getAbsolutePath()
+                                        + ".  Stopping file number consistency checking.");
+                        return;
+                    }
                 }
 
                 nextFileCount++;
