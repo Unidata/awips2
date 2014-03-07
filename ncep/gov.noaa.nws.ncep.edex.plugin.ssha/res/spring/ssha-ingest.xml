@@ -19,7 +19,7 @@
     <bean id="sshaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="sshaPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.ssha" />
+		<constructor-arg value="jms-durable:queue:Ingest.ssha" />
 	</bean>
     
 	<bean id="sshaCamelRegistered" factory-bean="contextManager"
