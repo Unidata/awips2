@@ -16,7 +16,7 @@
     <bean id="bufrssmiDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrssmiPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrssmi"/>
+		<constructor-arg value="jms-durable:queue:Ingest.bufrssmi"/>
 	</bean>
 
 	<bean id="bufrssmiCamelRegistered" factory-bean="contextManager"
