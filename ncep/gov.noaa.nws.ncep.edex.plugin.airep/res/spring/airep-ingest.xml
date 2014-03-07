@@ -14,7 +14,7 @@
 	<bean id="airepDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="airep" />
-		<constructor-arg value="jms-dist:queue:Ingest.airep" />
+		<constructor-arg value="jms-durable:queue:Ingest.airep" />
 	</bean>
 
     <bean id="airepCamelRegistered" factory-bean="contextManager"
