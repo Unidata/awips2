@@ -10,7 +10,7 @@
     <bean id="lsrDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="lclstrmrptPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.lsr" />
+		<constructor-arg value="jms-durable:queue:Ingest.lsr" />
 	</bean>
 
 	<bean id="lclstrmrptCamelRegistered" factory-bean="contextManager"
