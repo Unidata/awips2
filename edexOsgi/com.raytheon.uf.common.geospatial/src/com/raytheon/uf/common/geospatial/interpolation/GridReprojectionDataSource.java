@@ -22,7 +22,7 @@ package com.raytheon.uf.common.geospatial.interpolation;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

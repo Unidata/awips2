@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.geospatial.interpolation;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Provides logic for deriving a value at a single point from a 2D numeric
