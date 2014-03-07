@@ -29,6 +29,7 @@
 # Jan 30, 2014  #2593     bclement    extracted generic part of getPidsOfMyRunningCaves into forEachRunningCave
 #                                     added methods for reading max memory from .ini files
 #                                     fixes for INI files with spaces
+# Feb 20, 2014  #2780     bclement    added site type ini file check
 #
 #
 
@@ -68,7 +69,13 @@ function lookupINI()
             if [ ${RC} -eq 0 ]; then
                export CAVE_INI_ARG="--launcher.ini /awips2/cave/${ASSOCIATED_INI}"
             else
-               export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
+               siteTypeIni="/awips2/cave/${SITE_TYPE}.ini"
+               if [[ -e ${siteTypeIni} ]] 
+               then
+                   export CAVE_INI_ARG="--launcher.ini ${siteTypeIni}"
+               else
+                   export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
+               fi
             fi
             return 0
       fi
@@ -294,7 +301,7 @@ function logExitStatus()
      hostPath="$basePath/$hostName/"
      mkdir -p $hostPath
      if [ -d "$hostPath" ]; then
-       cp $coreFile $hostPath
+       mv $coreFile $hostPath
      fi
    fi
 }
