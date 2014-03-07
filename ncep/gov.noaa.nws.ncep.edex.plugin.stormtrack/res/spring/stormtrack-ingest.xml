@@ -20,7 +20,7 @@
 		factory-method="register">
 		<constructor-arg value="stormtrack" />
 		<!-- <constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />  -->
-		<constructor-arg value="jms-dist:queue:Ingest.stormTrack" />
+		<constructor-arg value="jms-durable:queue:Ingest.stormTrack" />
 	</bean>
 
 	<bean id="stormTrackCamelRegistered" factory-bean="contextManager"
