@@ -8,7 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.uf.common.style,
  com.raytheon.uf.common.topo,
  com.raytheon.uf.common.wxmath,
@@ -16,11 +16,12 @@ Require-Bundle: com.raytheon.uf.common.colormap,
  com.raytheon.uf.viz.d2d.core,
  com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.xy,
- com.raytheon.viz.core.contours,
+ com.raytheon.viz.core.contours;bundle-version="1.14.0",
  com.raytheon.viz.core.graphing,
  javax.measure,
  org.eclipse.core.runtime;bundle-version="3.8.0",
- org.eclipse.ui;bundle-version="3.8.0"
+ org.eclipse.ui;bundle-version="3.8.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Import-Package: com.raytheon.viz.core.imagery,
  com.raytheon.viz.core.map,
  com.raytheon.viz.core.rsc.jts

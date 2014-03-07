@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MPE Ui Plug-in
 Bundle-SymbolicName: com.raytheon.viz.mpe.ui;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.mpe.ui.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -23,7 +23,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.application,
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.mpe.ui.dialogs.gagetable.xml,
  com.raytheon.viz.mpe.ui.displays,

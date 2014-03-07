@@ -23,9 +23,9 @@ import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDestination;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -71,8 +71,8 @@ public class GridResponseData extends AbstractResponseData {
         parameter = data.getParameter();
 
         Unit<?> dataUnit = data.getUnit();
-        FloatArrayWrapper dataGrid = new FloatArrayWrapper(
-                data.getGridGeometry());
+        FloatBufferWrapper dataGrid = new FloatBufferWrapper(data
+                .getGridGeometry().getGridRange2D());
         DataDestination dataDest = dataGrid;
         if (data.getUnit() != null) {
             try {
@@ -86,8 +86,8 @@ public class GridResponseData extends AbstractResponseData {
                 Unit<?> stdUnit = dataUnit.getStandardUnit();
                 try {
                     this.unit = UnitFormat.getUCUMInstance().format(stdUnit);
-                    dataDest = new UnitConvertingDataDestination(
-                            dataUnit.toStandardUnit(), dataDest);
+                    dataDest = UnitConvertingDataFilter.apply(dataDest,
+                            dataUnit.toStandardUnit());
                 } catch (IllegalArgumentException e2) {
                     /*
                      * The standard unit is also unstringable so treat the data
