@@ -32,9 +32,25 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 //import org.hibernate.mapping.Array;
 
+/**
+ * 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#     Engineer       Description
+ * ------------ ---------- ----------- --------------------------
+ * 05/20/2013     988        Archana.S    Initial creation.
+ * 02/26/2014    1061        B. Hebbard   Relax tolerance for extent/zoom compare to avoid infinite loop.
+ */
+
 public final class ProgressiveDisclosure {
 
-    private final static double TOLERANCE = 0.0000000001;// 0.00000001;//0.000000000001;
+    private final static double TOLERANCE = 1E-03; // 0.0000000001;//
+                                                   // 0.00000001;//0.000000000001;
+
+    private final static double ZOOM_TOLERANCE = TOLERANCE; // need different?
 
     private ConcurrentLinkedQueue<QueueEntry> queueOfStationsToBeDisclosed;
 
@@ -308,7 +324,7 @@ public final class ProgressiveDisclosure {
             }
         }
 
-        if (Math.abs(progDiscTask.zoomLevel - activePane.getZoomLevel()) > 0.00000000000001) {
+        if (Math.abs(progDiscTask.zoomLevel - activePane.getZoomLevel()) > ZOOM_TOLERANCE) {
             progDiscTask.zoomLevel = activePane.getZoomLevel();
             progDiscTask.extent = currViewExtents.clone();
             Tracer.print("Changed zoom level");
