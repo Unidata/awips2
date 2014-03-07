@@ -9,7 +9,7 @@
 	<bean id="ccfpDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="ccfp" />
-		<constructor-arg value="jms-dist:queue:Ingest.ccfp" />
+		<constructor-arg value="jms-durable:queue:Ingest.ccfp" />
 	</bean>
 
     <bean id="ccfpCamelRegistered" factory-bean="contextManager"

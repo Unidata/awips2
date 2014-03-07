@@ -18,7 +18,7 @@
     <bean id="sgwhDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="sgwhPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.sgwh" />
+		<constructor-arg value="jms-durable:queue:Ingest.sgwh" />
 	</bean>
     
 	<bean id="sgwhCamelRegistered" factory-bean="contextManager"
