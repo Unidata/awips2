@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Geospatial Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.geospatial
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-BuddyPolicy: registered
@@ -10,16 +10,17 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, org.geotools
 Require-Bundle: org.geotools;bundle-version="2.5.2";visibility:=reexport,
  org.apache.commons.collections;bundle-version="3.2.0",
  org.apache.commons.lang;bundle-version="2.3.0",
- javax.measure;bundle-version="1.0.0",
+ javax.measure,
  org.apache.commons.beanutils;bundle-version="1.8.3",
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174"
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.geospatial.data,
  com.raytheon.uf.common.geospatial.interpolation,
- com.raytheon.uf.common.geospatial.interpolation.data,
  com.raytheon.uf.common.geospatial.projection,
  com.raytheon.uf.common.geospatial.request,
  com.raytheon.uf.common.geospatial.spi,

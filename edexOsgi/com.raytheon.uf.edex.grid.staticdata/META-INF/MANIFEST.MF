@@ -2,20 +2,21 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grid Static Data
 Bundle-SymbolicName: com.raytheon.uf.edex.grid.staticdata
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: javax.measure;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.grid;bundle-version="1.0.0",
- com.raytheon.uf.edex.plugin.grid;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.parameter;bundle-version="1.0.0",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.gridcoverage;bundle-version="1.0.0",
- com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174",
- com.raytheon.edex.common;bundle-version="1.12.1174",
- com.raytheon.edex.plugin.gfe;bundle-version="1.12.1174",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.topo;bundle-version="1.12.1174"
+Require-Bundle: javax.measure,
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.13.0",
+ com.raytheon.uf.edex.plugin.grid,
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.14.0",
+ com.raytheon.uf.common.parameter,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.gridcoverage;bundle-version="1.13.0",
+ com.raytheon.uf.edex.decodertools,
+ com.raytheon.edex.common,
+ com.raytheon.edex.plugin.gfe,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.topo;bundle-version="1.14.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.grid.staticdata,
  com.raytheon.uf.edex.grid.staticdata.topo
