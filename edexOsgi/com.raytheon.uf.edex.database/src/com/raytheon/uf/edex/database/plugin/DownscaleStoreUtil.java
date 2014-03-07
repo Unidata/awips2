@@ -29,8 +29,14 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.filter.FillValueFilter;
+import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Utility for storing downscaled data to datastore
@@ -39,9 +45,11 @@ import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 19, 2013  2393      bclement     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 19, 2013  2393     bclement    Initial creation
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -72,6 +80,8 @@ public class DownscaleStoreUtil {
          * @return fill value
          */
         public double getFillValue();
+
+        public boolean isSigned();
     }
 
     /**
@@ -86,7 +96,7 @@ public class DownscaleStoreUtil {
      */
     public static <T extends PluginDataObject> int storeInterpolated(
             IDataStore dataStore, GridDownscaler downScaler,
-            DataWrapper1D dataSource, IDataRecordCreator creator)
+            BufferWrapper dataSource, IDataRecordCreator creator)
             throws StorageException {
         // default to batch storage
         return storeInterpolated(dataStore, downScaler, dataSource, creator,
@@ -108,10 +118,8 @@ public class DownscaleStoreUtil {
      */
     public static <T extends PluginDataObject> int storeInterpolated(
             IDataStore dataStore, GridDownscaler downScaler,
-            DataWrapper1D dataSource, IDataRecordCreator creator,
+            BufferWrapper dataWrapper, IDataRecordCreator creator,
             boolean storeAfterEach) throws StorageException {
-
-        dataSource.setFillValue(creator.getFillValue());
 
         // How many interpolation levels do we need for this data?
         int levels = downScaler.getNumberOfDownscaleLevels();
@@ -125,18 +133,33 @@ public class DownscaleStoreUtil {
                 int downScaleLevel = level + 1;
                 Rectangle size = downScaler.getDownscaleSize(downScaleLevel);
 
-                DataWrapper1D dest = AbstractDataWrapper.createNew(
-                        dataSource.getClass(), size);
-                dest.setFillValue(creator.getFillValue());
+                BufferWrapper destWrapper = BufferWrapper
+                        .create(dataWrapper.getPrimitiveType(),
+                                size.width, size.height);
+
+                DataSource dataSource = dataWrapper;
+                if (creator.isSigned() == false) {
+                    if (dataSource instanceof ByteBufferWrapper) {
+                        dataSource = UnsignedFilter
+                                .apply((ByteBufferWrapper) dataSource);
+                    } else if (dataSource instanceof ShortBufferWrapper) {
+                        dataSource = UnsignedFilter
+                                .apply((ShortBufferWrapper) dataSource);
+                    }
+                }
+                dataSource = FillValueFilter.apply(dataSource,
+                        creator.getFillValue());
+                DataDestination dataDest = InverseFillValueFilter.apply(
+                        (DataDestination) destWrapper, creator.getFillValue());
                 try {
                     // Downscale from previous level
                     downScaler.downscale(downScaleLevel - 1, downScaleLevel,
-                            dataSource, dest);
-                    Object data = dest.getArray();
+                            dataSource, dataDest);
+                    Object data = destWrapper.getArray();
                     if (data == null) {
                         throw new StorageException(
                                 "Unable to get downscaled data from destination type: "
-                                        + dest.getClass(), null);
+                                        + destWrapper.getClass(), null);
                     }
                     IDataRecord dr = creator.create(data, downScaleLevel, size);
                     dataStore.addDataRecord(dr);
@@ -144,7 +167,7 @@ public class DownscaleStoreUtil {
                         dataStore.store();
                     }
                     // Set source to current level
-                    dataSource = dest;
+                    dataWrapper = destWrapper;
                 } catch (TransformException e) {
                     throw new StorageException(
                             "Error creating downscaled data", null, e);
