@@ -13,7 +13,7 @@
     <bean id="tcmDistRegistry" factory-bean="distributionSrv"
                 factory-method="register" >
                 <constructor-arg value="tcm" />
-                <constructor-arg value="jms-dist:queue:Ingest.tcm" />
+                <constructor-arg value="jms-durable:queue:Ingest.tcm" />
     </bean>
 
     <bean id="tcmCamelRegistered" factory-bean="contextManager"

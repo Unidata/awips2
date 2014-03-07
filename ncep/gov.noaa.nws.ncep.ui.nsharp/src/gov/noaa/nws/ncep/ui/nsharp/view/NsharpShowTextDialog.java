@@ -12,7 +12,8 @@ package gov.noaa.nws.ncep.ui.nsharp.view;
  * Date         Ticket#    	Engineer    Description
  * -------		------- 	-------- 	-----------
  * 03/23/2010	229			Chin Chen	Initial coding
- *
+ * 01/22/2014               Chin Chen   DR17003: fixed show text cause error exception when in D2D swapping from main pane to side pane
+ * 01/22/2014               Chin Chen   fixed show text cause nsharp hang issue, when text shown and then start looping action
  * </pre>
  * 
  * @author Chin Chen
@@ -54,17 +55,19 @@ public class NsharpShowTextDialog extends Dialog {
 	private Text text=null;
 	private Group textGp;
 	private Font newFont ;
-	private static boolean iAmClosed;
-	//private static String textToSave="";
+	
+	
 	public Text getText() {
 		return text;
 	}
 
 	protected NsharpShowTextDialog(Shell parentShell) throws VizException {
 		super(parentShell);
+		//System.out.println("ShowText Dialog constructed");
 		this.setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE );
 		shell = parentShell;
 		// TODO Auto-generated constructor stub
+		
 	}
 	
 	private void createShowtextDialogContents(Composite parent){
@@ -89,39 +92,6 @@ public class NsharpShowTextDialog extends Dialog {
 		
 	}
 	
-	/*private String createDefaultSaveFileName() {
-		StringTokenizer st = new StringTokenizer(text.getText());
-		int i =0;
-		String fileName;
-		if(st.hasMoreTokens()== true){
-			fileName = "";
-			//text header are the first 2,3,4 tokens. use them as default file name
-			while (st.hasMoreTokens()) {
-				i++;
-				String tok = st.nextToken();
-				//System.out.println("tok "+ i + " ="+ tok);
-				if(i==1)
-					continue;
-				if(i > 4){
-					break;
-				}
-				
-				if(i ==4) {
-					if(tok.length() >= 5)
-						tok = " " + tok.substring(0, 5);
-					else 
-						tok = " " + tok;
-				}
-				fileName = fileName + tok;
-				
-			}
-			fileName = fileName + ".nsp";
-		}
-		else
-			fileName= "nsharp.nsp";
-		
-		return fileName;
-	}*/
 	@Override
 	public void createButtonsForButtonBar(Composite parent) {
 		// create buttons with "CLOSE" label but with cancel function
@@ -135,63 +105,6 @@ public class NsharpShowTextDialog extends Dialog {
 			public void handleEvent(Event event) {  
 				// Action to save text report 
 				NsharpSaveHandle.saveFile(shell);
-				/*FileDialog dlg = new FileDialog(shell, SWT.SAVE);
-				String fileName = null;
-
-				// The user has finished when one of the
-				// following happens:
-				// 1) The user dismisses the dialog by pressing Cancel
-				// 2) The selected file name does not exist
-				// 3) The user agrees to overwrite existing file
-				boolean done = false;
-				boolean saveFile = false;
-				while (!done) {
-					// Open the File Dialog
-					dlg.setText("Save");
-	                String[] filterExt = {"*.nsp"};
-	                dlg.setFilterExtensions(filterExt);
-	                dlg.setFileName(createDefaultSaveFileName());
-					fileName = dlg.open();
-					//System.out.println("file name = "+ fileName);
-					if (fileName == null) {
-						// User has cancelled, so quit and return
-						done = true;
-					} else {
-						// User has selected a file; see if it already exists
-						File file = new File(fileName);
-						if (file.exists()) {
-							// The file already exists; asks for confirmation
-							MessageBox mb = new MessageBox(dlg.getParent(), SWT.ICON_WARNING
-									| SWT.YES | SWT.NO);
-
-							// We really should read this string from a
-							// resource bundle
-							mb.setMessage(fileName + " already exists. Do you want to replace it?");
-
-							// If they click Yes, we're done and we drop out. If
-							// they click No, we redisplay the File Dialog
-							done = mb.open() == SWT.YES;
-							if(done == true)
-								saveFile = true;
-						} else {
-							// File does not exist, so drop out
-							done = true;
-							saveFile = true;
-						}
-					}
-				}
-				if(saveFile == true) {
-					try{
-						// Create file 
-						FileWriter fstream = new FileWriter(fileName);
-						BufferedWriter out = new BufferedWriter(fstream);
-						out.write(textToSave);
-						//Close the output stream
-						out.close();
-					}catch (Exception e){//Catch exception if any
-						System.err.println("Error: " + e.getMessage());
-					}
-				}*/
 			}         	            	 	
 		} );
 	}
@@ -212,7 +125,7 @@ public class NsharpShowTextDialog extends Dialog {
 	        // Initialize all of the menus, controls, and layouts
 	        createShowtextDialogContents(top);
 	             
-	        refreshTextData();
+	        doRefreshTextData();/*FixMark:looping */
 	        return top;
 	}   
 	
@@ -226,15 +139,27 @@ public class NsharpShowTextDialog extends Dialog {
    	    this.getShell().setLocation(this.getShell().getParent().getLocation().x+700,
    	    		this.getShell().getParent().getLocation().y+200);
    	    
-   	    iAmClosed = false;
    	    return super.open();
     	
     }
 	@Override
 	public boolean close() {
-		
 		//System.out.println("ShowText close called");
-		iAmClosed = true;
+		/*FixMark:SwapPaneShowText */
+		if(text != null){
+			if(text.getFont()!= null){
+				text.getFont().dispose();
+				newFont=null;
+			}
+			text.dispose();
+			text=null;
+		}
+		if(textGp!=null){
+			textGp.dispose();
+			textGp= null;
+		}
+		INSTANCE = null;
+		/*end FixMark:SwapPaneShowText */
 		if(newFont!= null){
 			newFont.dispose();
 			newFont=null;
@@ -260,19 +185,16 @@ public class NsharpShowTextDialog extends Dialog {
 		
 	}
 	public static NsharpShowTextDialog getAccess() {
-		if(iAmClosed == true)
-			return null;
 		
 		return INSTANCE;
 	}
-	public static NsharpShowTextDialog getAccess(boolean force) {
-		if(force == true)
-			return INSTANCE;
-		else
-			return getAccess();
-	}
 	
-	public void refreshTextData() {
+	/*FixMark:looping */
+	private void doRefreshTextData() {		
+		
+		if(NsharpEditor.getActiveNsharpEditor() == null){
+			return;
+		}
 		NsharpResourceHandler rsc = NsharpEditor.getActiveNsharpEditor().getRscHandler();
 		if(rsc!=null && rsc.getSoundingLys()!= null && !text.isDisposed() && text!=null){
 			String hdr;
@@ -306,18 +228,19 @@ public class NsharpShowTextDialog extends Dialog {
 			textGp.layout();
 		}
 	}
-
 	
 	//Need use asyncExec to handle update text request from other thread (worker thread)
-	public void updateTextFromWorkerThread(){  
+	public void refreshTextData(){  
 		try{  
 		Display.getDefault().asyncExec(new Runnable(){  
 			public void run(){  
-				refreshTextData(); 
+				doRefreshTextData(); 
 			}  
 		});  
 		}catch(SWTException e){  
-			System.out.println("updateTextFromWorkerThread: can not run asyncExec()");
+			System.out.println("refreshTextData: can not run asyncExec()");
 		}  
-	}
+	}	
+	/* end FixMark:looping  */
+
 }
