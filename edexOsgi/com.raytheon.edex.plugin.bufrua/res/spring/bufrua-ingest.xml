@@ -19,6 +19,21 @@
 		<constructor-arg ref="bufrua-camel"/>
   	</bean>
     
+    <bean id="raobListener" class="com.raytheon.edex.plugin.bufrua.ingest.RAOBSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.spi" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.goodness" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="raob.primary" />
+        <constructor-arg ref="raobListener" />
+    </bean>
+
     <camelContext id="bufrua-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
                   errorHandlerRef="errorHandler"
