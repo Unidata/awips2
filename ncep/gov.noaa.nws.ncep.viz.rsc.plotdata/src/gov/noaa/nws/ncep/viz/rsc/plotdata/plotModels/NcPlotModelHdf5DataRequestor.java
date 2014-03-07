@@ -52,6 +52,19 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
+/**
+ * 
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#     Engineer       Description
+ * ------------ ---------- ----------- --------------------------
+ * 05/20/2013??   988        Archana.S    Initial creation.
+ * 02/26/2014    1061        B. Hebbard   Don't block on JobPool cancel, so CAVE doesn't freeze if resource unloaded during long retrieval
+ */
+
 public class NcPlotModelHdf5DataRequestor {
     StringBuffer sb = new StringBuffer();
 
@@ -136,6 +149,10 @@ public class NcPlotModelHdf5DataRequestor {
 
     Map<String, RequestConstraint> condFilterMap = null;
 
+    // Indicates the dataRequestJobPool is being cancelled, so jobs
+    // should just exit gracefully on return from a long HDF5 request.
+    private boolean canceling = false;
+
     // Map< AbstractMetParameter, RequestConstraint >
     // condMetParamReqConstraintMap = null;
     public void queueStationsForHdf5Query(DataTime dt,
@@ -183,7 +200,8 @@ public class NcPlotModelHdf5DataRequestor {
         allMetParamsMap = new HashMap<String, AbstractMetParameter>();
         plotPrmDefns = PlotParameterDefnsMngr.getInstance().getPlotParamDefns(
                 plotModel.getPlugin());
-        dataRequestJobPool = new JobPool("Requesting HDF5 data...", 8, false);
+        dataRequestJobPool = new JobPool("Requesting met param data...", 8,
+                false);
         queueOfStations = new ConcurrentLinkedQueue<QueueEntry>();
         parameters = new String[0];
         metParamNameToDbNameMap = new HashMap<String, String>();
@@ -700,8 +718,10 @@ public class NcPlotModelHdf5DataRequestor {
     public void dispose() {
         Tracer.print("> Entry");
         Tracer.print("Invoking NcPlotModelHdf5DataRequestor.dispose()");
+        canceling = true;
         if (dataRequestJobPool != null) {
-            dataRequestJobPool.cancel();
+            dataRequestJobPool.cancel(false); // false = don't wait for jobs to
+                                              // complete
             dataRequestJobPool = null;
         }
         imageCreator.dispose();
@@ -1229,6 +1249,7 @@ public class NcPlotModelHdf5DataRequestor {
     private Collection<Station> requestSurfaceData(DataTime time,
             List<Station> listOfStationsRequestingForData) {
         Tracer.print("> Entry  " + Tracer.shortTimeString(time));
+
         // sem1.acquireUninterruptibly();
         Map<String, Station> stationMap = new HashMap<String, Station>(
                 listOfStationsRequestingForData.size());
@@ -1467,6 +1488,7 @@ public class NcPlotModelHdf5DataRequestor {
                                                 .shortTimeString(time)
                                                 + " "
                                                 + Tracer.shortTimeString(dataTime)
+                                                + " "
                                                 + currentStation.info.stationId
                                                 + " "
                                                 + " from pkeySet updating prmToPlot(Key) "
@@ -1479,6 +1501,7 @@ public class NcPlotModelHdf5DataRequestor {
                                                     .shortTimeString(time)
                                                     + " "
                                                     + Tracer.shortTimeString(dataTime)
+                                                    + " "
                                                     + currentStation.info.stationId
                                                     + " "
                                                     + " prmToPlot non-null "
@@ -1492,6 +1515,7 @@ public class NcPlotModelHdf5DataRequestor {
                                                     .shortTimeString(time)
                                                     + " "
                                                     + Tracer.shortTimeString(dataTime)
+                                                    + " "
                                                     + currentStation.info.stationId
                                                     + " "
                                                     + " from pkeySet updating prmToPlot(Key) "
@@ -1523,6 +1547,7 @@ public class NcPlotModelHdf5DataRequestor {
                                     Tracer.print(Tracer.shortTimeString(time)
                                             + " "
                                             + Tracer.shortTimeString(dataTime)
+                                            + " "
                                             + currentStation.info.stationId
                                             + " "
                                             + " NULL metPrm return from dbParamsMap for key -- skipping"
@@ -1572,9 +1597,9 @@ public class NcPlotModelHdf5DataRequestor {
                             if (jfk)
                                 Tracer.print(Tracer.shortTimeString(time) + " "
                                         + Tracer.shortTimeString(dataTime)
-                                        + currentStation.info.stationId + " "
-                                        + " before setMetParamFromPDV " + dbPrm
-                                        + " " + metPrm);
+                                        + " " + currentStation.info.stationId
+                                        + " " + " before setMetParamFromPDV "
+                                        + dbPrm + " " + metPrm);
 
                             /*
                              * Set the value for Met parameters from the
@@ -1584,9 +1609,9 @@ public class NcPlotModelHdf5DataRequestor {
                             if (jfk)
                                 Tracer.print(Tracer.shortTimeString(time) + " "
                                         + Tracer.shortTimeString(dataTime)
-                                        + currentStation.info.stationId + " "
-                                        + " after setMetParamFromPDV " + dbPrm
-                                        + " " + metPrm);
+                                        + " " + currentStation.info.stationId
+                                        + " " + " after setMetParamFromPDV "
+                                        + dbPrm + " " + metPrm);
 
                             // if(
                             // metPrm.getMetParamName().compareTo("StationID")
@@ -1617,9 +1642,9 @@ public class NcPlotModelHdf5DataRequestor {
                             if (jfk)
                                 Tracer.print(Tracer.shortTimeString(time) + " "
                                         + Tracer.shortTimeString(dataTime)
-                                        + currentStation.info.stationId + " "
-                                        + " after put " + dbPrm + " " + metPrm
-                                        + " into dbParamsMap");
+                                        + " " + currentStation.info.stationId
+                                        + " " + " after put " + dbPrm + " "
+                                        + metPrm + " into dbParamsMap");
 
                             if (condFilterMap != null
                                     && !condFilterMap.isEmpty()) {
@@ -1734,6 +1759,7 @@ public class NcPlotModelHdf5DataRequestor {
                                     Tracer.print(Tracer.shortTimeString(time)
                                             + " "
                                             + Tracer.shortTimeString(dataTime)
+                                            + " "
                                             + currentStation.info.stationId
                                             + " " + " trying to add metParam "
                                             + metParam);
@@ -1744,6 +1770,7 @@ public class NcPlotModelHdf5DataRequestor {
                                                 .shortTimeString(time)
                                                 + " "
                                                 + Tracer.shortTimeString(dataTime)
+                                                + " "
                                                 + currentStation.info.stationId
                                                 + " "
                                                 + " newPrm NULL from newInstance -- skipping!!! "
@@ -1755,6 +1782,7 @@ public class NcPlotModelHdf5DataRequestor {
                                     Tracer.print(Tracer.shortTimeString(time)
                                             + " "
                                             + Tracer.shortTimeString(dataTime)
+                                            + " "
                                             + currentStation.info.stationId
                                             + " " + " added newPrm " + newPrm);
                             }
@@ -2061,9 +2089,14 @@ public class NcPlotModelHdf5DataRequestor {
 
             Tracer.sanityCheckStationSet(stationsWithData);
 
-            if (stationsWithData.size() > 0)
+            if (canceling) {
+                Tracer.print("CANCEL in progress; no plot creation will occur for frame "
+                        + Tracer.shortTimeString(time));
+
+            } else if (stationsWithData.size() > 0) {
                 imageCreator.queueStationsToCreateImages(time,
                         stationsWithData, plotDensity);
+            }
 
             Tracer.print("< Exit   END TASK   " + Tracer.shortTimeString(time));
 
