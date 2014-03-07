@@ -39,13 +39,16 @@ import com.raytheon.uf.common.datastorage.StorageProperties;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -59,11 +62,13 @@ import com.raytheon.uf.edex.plugin.npp.viirs.VIIRSMessageData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 1, 2011             mschenke     Initial creation
- * Feb 21, 2012 #30        mschenke     Updated code to account for missingValue 
- *                                      in messageData being float now
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 01, 2011           mschenke    Initial creation
+ * Feb 21, 2012  30       mschenke    Updated code to account for missingValue 
+ *                                    in messageData being float now
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * 
  * </pre>
@@ -179,6 +184,12 @@ public class VIIRSDao extends PluginDao {
                 idr.setCorrelationObject(record);
                 return idr;
             }
+
+            @Override
+            public boolean isSigned() {
+                return false;
+            }
+
         };
         
         IDataRecord fullSize = creator
@@ -187,16 +198,21 @@ public class VIIRSDao extends PluginDao {
         // Data sources are create anonymously here to avoid having the
         // fillValue/validMin/validMax even checked when getting values but
         // still getting the getDataValueInternal functionality
-        DataWrapper1D ds = DataRecordWrapUtil.wrap(fullSize, nx, ny, true);
+        BufferWrapper ds = BufferWrapper.wrapArray(rawData, nx, ny);
 
-        ds.setFillValue(fillValue);
+        DataDestination dest = InverseFillValueFilter.apply(
+                (DataDestination) ds, fillValue);
 
         // Wrap the source and replace set each value which will replace
         // anything in missingValues with fillValue
-        DataSource source = new VIIRSDataSourceWrapper(ds, missingValues);
+        DataSource source = ds;
+        if (ds instanceof ShortBufferWrapper) {
+            source = UnsignedFilter.apply((ShortBufferWrapper) ds);
+        }
+        source = new VIIRSDataSourceWrapper(source, missingValues);
         for (int y = 0; y < ny; ++y) {
             for (int x = 0; x < nx; ++x) {
-                ds.setDataValue(source.getDataValue(x, y), x, y);
+                dest.setDataValue(source.getDataValue(x, y), x, y);
             }
         }
 
