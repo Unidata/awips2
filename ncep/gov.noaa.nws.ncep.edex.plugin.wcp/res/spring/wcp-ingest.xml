@@ -13,7 +13,7 @@
 	<bean id="wcpDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="wcp" />
-		<constructor-arg value="jms-dist:queue:Ingest.wcp" />
+		<constructor-arg value="jms-durable:queue:Ingest.wcp" />
 	</bean>
 
     <bean id="wcpCamelRegistered" factory-bean="contextManager"
