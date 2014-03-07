@@ -178,7 +178,7 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>RadarLog:radarThreadPool.*;SatelliteLog:satelliteThreadPool.*;ShefLog:shefThreadPool.*;TextLog:textThreadPool.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*</threadPatterns>
+      <threadPatterns>RadarLog:Ingest.Radar.*;SatelliteLog:Ingest.Satellite.*;ShefLog:Ingest.Shef.*;TextLog:Ingest.Text.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*</threadPatterns>
       <defaultAppender>asyncConsole</defaultAppender>
       <appender-ref ref="asyncConsole"/>
       <appender-ref ref="RadarLog"/>
