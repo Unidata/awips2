@@ -1,8 +1,7 @@
 #!/bin/csh
 
 # Determine where ant has been installed.
-set ANT_INSTALL=`rpm -q --queryformat '%{INSTPREFIXES}' awips2-ant`
-setenv ANT_HOME "${ANT_INSTALL}"
+setenv ANT_INSTALL "/awips2/ant"
 
 if $?PATH then
    setenv PATH ${ANT_INSTALL}/bin:$PATH
