@@ -44,7 +44,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * can be released to the pool. Any exception will close pooled session instead
  * of returning to the pool. The consumers/producers are tracked in both active
  * and available states. An available consumer/producer can be reused by the
- * next client.
+ * next client. Once a consumer has been closed the entire session is closed at
+ * next opportunity since QPID tracks consumers at the session level. Not doing
+ * this can leave a topic with no consumers on the qpid broker.
  * 
  * Synchronization Principle To prevent deadlocks: Chained sync blocks can only
  * happen in a downward direction. A manager has a synchronized lock can make a
@@ -61,6 +63,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Mar 08, 2012 194        njensen     Improved logging
  * Feb 21, 2013 1642       rjpeter     Fix deadlock scenario
  * Jan 26, 2014 2357       rjpeter     Close a session when it has no producers or consumers.
+ * Feb 07, 2014 2357       rjpeter     Close session at next return to pool after a
+ *                                     consumer has closed.
  * </pre>
  * 
  * @author rjpeter
@@ -78,13 +82,17 @@ public class JmsPooledSession {
 
     // The thread this session was most recently used by for tracking a pending
     // session that is being reserved for a given thread.
-    private String threadKey;
+    private final Thread thread;
 
     private volatile boolean exceptionOccurred = false;
 
     private final Object stateLock = new Object();
 
     private volatile State state = State.InUse;
+
+    // flag to stat that session should be closed instead of returned to pool on
+    // next iteration
+    private volatile boolean shouldClose = false;
 
     // keeps track of number of creates vs. closes to know when it can be
     // returned to the pool
@@ -102,6 +110,8 @@ public class JmsPooledSession {
     public JmsPooledSession(JmsPooledConnection conn, Session sess) {
         this.conn = conn;
         this.sess = sess;
+        this.thread = conn.getThread();
+        statusHandler.info("Opening session: " + this.toString());
     }
 
     public long getCreateTime() {
@@ -121,12 +131,8 @@ public class JmsPooledSession {
         return conn;
     }
 
-    public String getThreadKey() {
-        return threadKey;
-    }
-
-    public void setThreadKey(String threadKey) {
-        this.threadKey = threadKey;
+    public Thread getThread() {
+        return thread;
     }
 
     public boolean isValid() {
@@ -437,6 +443,9 @@ public class JmsPooledSession {
         String destKey = consumer.getDestKey();
         boolean removed = false;
 
+        // a consumer was closed, close the session at next opportunity
+        shouldClose = true;
+
         synchronized (inUseConsumers) {
             JmsPooledConsumer inUse = inUseConsumers.remove(destKey);
             removed = inUse == consumer;
@@ -463,6 +472,7 @@ public class JmsPooledSession {
         }
 
         if (canClose) {
+            statusHandler.info("Closing session: " + this.toString());
             closePooledConsumersProducers();
 
             // need to close down all wrappers
@@ -628,7 +638,7 @@ public class JmsPooledSession {
             }
         }
 
-        boolean valid = isValid() && hasProducersOrConsumers();
+        boolean valid = isValid() && !shouldClose && hasProducersOrConsumers();
         if (valid && returnToPool) {
             valid = conn.returnSessionToPool(this);
         }
