@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.AxisSwapDataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArray2DWrapper;
+import com.raytheon.uf.common.numeric.array.FloatArray2DWrapper;
+import com.raytheon.uf.common.numeric.source.AxisSwapDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 
 /**
