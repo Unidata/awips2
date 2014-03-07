@@ -36,7 +36,7 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.CombinedDataTime;
 import com.raytheon.uf.common.time.DataTime;

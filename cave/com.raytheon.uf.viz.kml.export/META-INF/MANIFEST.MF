@@ -10,11 +10,12 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  com.raytheon.uf.viz.core;bundle-version="1.14.1",
  com.raytheon.viz.ui;bundle-version="1.14.0",
  de.micromata.opengis.kml,
- com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.time,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.viz.pointdata,
  com.raytheon.viz.radar,
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
  javax.measure
 Export-Package: com.raytheon.uf.viz.kml.export

@@ -63,7 +63,9 @@ import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.BufferUtil;
 import com.raytheon.uf.viz.core.HDF5Util;
@@ -116,6 +118,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 02/11/2013   972         G. Hull     IDisplayPane instead of NCDisplayPane
  * 10/13/2013               T. Lee      Fixed station data retrieval; Fixed moist adiabatic computation error;
  *                                      Added climate cloud height
+ * 03/07/2014   2791        bsteffen    Move Data Source/Destination to numeric plugin.
  * 
  * @version 1
  */
@@ -1104,8 +1107,9 @@ public class CloudHeightProcesser {
                                      * Wrap the raw data of bytes into a
                                      * ByteBufferWrapper object
                                      */
-                                    UnsignedByteBufferWrapper bdf = new UnsignedByteBufferWrapper(
-                                            byteBuffer, maxX, maxY);
+                                    DataSource bdf = UnsignedFilter
+                                            .apply(new ByteBufferWrapper(
+                                                    byteBuffer, maxX, maxY));
                                     /*
                                      * Get the actual pixel value information
                                      * from the byte array
