@@ -8,10 +8,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.site;bundle-version="1.12.1174";visibility:=reexport,
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
+ com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.site,
- com.raytheon.uf.edex.site.ingest,
  com.raytheon.uf.edex.site.notify
