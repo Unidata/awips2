@@ -48,11 +48,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
+import com.raytheon.uf.common.numeric.source.OffsetDataSource;
 import com.raytheon.uf.common.util.StringUtil;
 
 /**
@@ -221,19 +221,19 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory implements
         if (slice instanceof ScalarGridSlice) {
             // This also grabs vector data.
             Grid2DFloat data = ((ScalarGridSlice) slice).getScalarGrid();
-            dataSource = new FloatArrayWrapper(data.getFloats(), loc.getNx(),
+            dataSource = new FloatBufferWrapper(data.getFloats(), loc.getNx(),
                     loc.getNy());
         } else if (slice instanceof DiscreteGridSlice) {
             DiscreteGridSlice discreteSlice = (DiscreteGridSlice) slice;
             Grid2DByte data = discreteSlice.getDiscreteGrid();
             keys = discreteSlice.getKeys();
-            dataSource = new ByteArrayWrapper(data.getBytes(), loc.getNx(),
+            dataSource = new ByteBufferWrapper(data.getBytes(), loc.getNx(),
                     loc.getNy());
         } else if (slice instanceof WeatherGridSlice) {
             WeatherGridSlice weatherSlice = (WeatherGridSlice) slice;
             Grid2DByte data = weatherSlice.getWeatherGrid();
             keys = weatherSlice.getKeys();
-            dataSource = new ByteArrayWrapper(data.getBytes(), loc.getNx(),
+            dataSource = new ByteBufferWrapper(data.getBytes(), loc.getNx(),
                     loc.getNy());
         } else {
             throw new DataRetrievalException("Unknown slice of type "
