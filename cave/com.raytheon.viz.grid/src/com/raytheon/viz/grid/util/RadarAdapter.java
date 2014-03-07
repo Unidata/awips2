@@ -20,6 +20,7 @@
 package com.raytheon.viz.grid.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -81,6 +82,7 @@ import com.raytheon.viz.radar.util.StationUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2010 #4473      rjpeter     Initial creation
+ * Feb 21, 2014 DR 16744   D. Friedman Add getUpdateConstraints
  * 
  * </pre>
  * 
@@ -399,5 +401,24 @@ public class RadarAdapter {
         rval.setDataMin(0);
 
         return rval;
+    }
+
+    public Map<String, RequestConstraint> getUpdateConstraints() {
+        RadarProductCodeMapping rpcMap = RadarProductCodeMapping.getInstance();
+        HashSet<Integer> productCodes = new HashSet<Integer>();
+        for (String abbrev : rpcMap.getParameterAbbrevs()) {
+            productCodes.addAll(rpcMap.getProductCodesForAbbrev(abbrev));
+        }
+        Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
+        rcMap.put(RadarAdapter.PLUGIN_NAME_QUERY, new RequestConstraint(
+                RADAR_SOURCE));
+        rcMap.put(ICAO_QUERY, new RequestConstraint(getConfiguredRadar()
+                .getRdaId().toLowerCase()));
+        rcMap.put(
+                PRODUCT_CODE_QUERY,
+                new RequestConstraint(Arrays.toString(new ArrayList<Integer>(
+                        productCodes).toArray()),
+                        RequestConstraint.ConstraintType.IN));
+        return rcMap;
     }
 }
