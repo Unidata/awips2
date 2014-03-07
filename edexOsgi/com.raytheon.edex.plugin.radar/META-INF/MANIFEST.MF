@@ -16,7 +16,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.status;bundle-version="1.11.11",
  com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.edex.menus;bundle-version="1.0.0",
- org.itadaki.bzip2;bundle-version="0.9.1"
+ org.itadaki.bzip2;bundle-version="0.9.1",
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.edex.plugin.radar,
  com.raytheon.edex.plugin.radar.dao,
@@ -25,5 +26,4 @@ Export-Package: com.raytheon.edex.plugin.radar,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.text.db,
- com.raytheon.uf.common.site.ingest,
  org.apache.commons.logging
