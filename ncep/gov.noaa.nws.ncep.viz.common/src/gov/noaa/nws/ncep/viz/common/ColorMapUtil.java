@@ -236,7 +236,7 @@ public class ColorMapUtil {
 
         Map<LocalizationLevel, LocalizationFile> files = PathManagerFactory
                 .getPathManager().getTieredLocalizationFile(
-                        LocalizationType.COMMON_STATIC,
+                        LocalizationType.CAVE_STATIC,
                         NcPathConstants.LOCKED_CMAP_TBL);
 
         File locCmapFile = null;
