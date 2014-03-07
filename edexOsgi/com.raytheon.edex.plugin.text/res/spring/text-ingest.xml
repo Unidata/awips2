@@ -52,6 +52,35 @@
         <constructor-arg value="1000" type="java.lang.Integer"/>
     </bean>
 
+    <bean id="afosToAwipsListener" class="com.raytheon.edex.plugin.text.ingest.AfosToAwipsListener" />
+    <bean id="afosBrowserListener" class="com.raytheon.edex.plugin.text.ingest.AfosBrowserModelSubscriber" />
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="afos2awips.txt" />
+        <constructor-arg ref="afosToAwipsListener" />
+    </bean>
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="textCCChelp.txt" />
+        <constructor-arg ref="afosBrowserListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="textNNNhelp.txt" />
+        <constructor-arg ref="afosBrowserListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="textCategoryClass.txt" />
+        <constructor-arg ref="afosBrowserListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="textOriginTable.txt" />
+        <constructor-arg ref="afosBrowserListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="afosMasterPIL.txt" />
+        <constructor-arg ref="afosBrowserListener" />
+    </bean>
+    
 	<camelContext id="text-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
