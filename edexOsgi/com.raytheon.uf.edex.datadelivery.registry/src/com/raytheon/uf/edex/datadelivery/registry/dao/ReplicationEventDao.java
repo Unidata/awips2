@@ -17,41 +17,44 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.registry.ebxml.dao;
+package com.raytheon.uf.edex.datadelivery.registry.dao;
 
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
+import java.util.List;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.raytheon.uf.edex.database.dao.SessionManagedDao;
+import com.raytheon.uf.edex.datadelivery.registry.federation.ReplicationEvent;
+
 /**
- * 
- * Data access object for RegistryType objects
- * 
  * <pre>
+ * 
+ * Data Access object for interactions with ReplicationEvent objects
  * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 5/21/2013    2022        bphillip    Initial implementation
+ * 2/19/2014    2769       bphillip    Initial Creation
  * </pre>
  * 
  * @author bphillip
  * @version 1
- */
-public class RegistryDao extends RegistryObjectTypeDao<RegistryType> {
+ **/
+public class ReplicationEventDao extends
+        SessionManagedDao<Long, ReplicationEvent> {
 
-    private static final String QUERY_BY_BASE_URL = "FROM RegistryType reg where reg.baseURL=:baseURL";
-
-    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public RegistryType getRegistryByBaseURL(String baseURL) {
-        return this.uniqueResult(QUERY_BY_BASE_URL, "baseURL", baseURL);
-    }
+    private static final String GET_REPLICATION_EVENT_QUERY = "from ReplicationEvent event where (event.source is null or event.source != '%s') and (event.replicatedTo is null or event.replicatedTo not like '%%%s%%') order by event.eventTime asc";
 
     @Override
-    protected Class<RegistryType> getEntityClass() {
-        return RegistryType.class;
+    protected Class<ReplicationEvent> getEntityClass() {
+        return ReplicationEvent.class;
     }
 
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
+    public List<ReplicationEvent> getReplicationEvents(String remoteRegistry) {
+        return this.executeHQLQuery(String.format(GET_REPLICATION_EVENT_QUERY,
+                remoteRegistry, remoteRegistry));
+    }
 }
