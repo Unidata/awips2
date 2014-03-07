@@ -14,7 +14,7 @@
 	<bean id="obsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="obs" />
-		<constructor-arg value="jms-dist:queue:Ingest.obs?destinationResolver=#qpidDurableResolver" />
+		<constructor-arg value="jms-durable:queue:Ingest.obs" />
 	</bean>
 
     <bean id="obsCamelRegistered" factory-bean="contextManager"
@@ -44,7 +44,7 @@
 
 		<!-- Begin METAR routes -->
  		<route id="metarIngestRoute">
-			<from uri="jms-generic:queue:Ingest.obs?destinationResolver=#qpidDurableResolver" />
+			<from uri="jms-durable:queue:Ingest.obs"/>
 			<setHeader headerName="pluginName">
 				<constant>obs</constant>
 			</setHeader>
