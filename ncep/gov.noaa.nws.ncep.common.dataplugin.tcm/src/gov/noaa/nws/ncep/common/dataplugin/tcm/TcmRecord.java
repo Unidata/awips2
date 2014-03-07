@@ -47,6 +47,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 12, 2013 1857    bgonzale   Added SequenceGenerator annotation.
  * May 07, 2013 1869    bsteffen   Remove dataURI column from PluginDataObject.
  * Aug 30, 2013 2298   rjpeter Make getPluginName abstract
+ * Feb 11, 2014 2784    rferrel    Remove override of setIdentifier.
  * </pre>
  * 
  * @author T.Lee
@@ -491,16 +492,6 @@ public class TcmRecord extends PluginDataObject {
      */
     public void addPosWinds(TcmPositionWinds poswinds) {
         tcmPosWinds.add(poswinds);
-
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
 
     }
 
