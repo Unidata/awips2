@@ -53,7 +53,7 @@
         </route>
 
         <route id="notifyIfpServer">
-            <from uri="jms-generic:topic:edex.alerts.gfe"/>
+            <from uri="jms-generic:topic:edex.alerts.gfe?threadName=notifyIfpServer-edex.alerts.gfe" />
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift"/>
                 <bean ref="ifpServer" method="processNotification"/>
