@@ -23,6 +23,9 @@ import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * Data access object for retrieving ClassificationNodeTypes
  * 
@@ -36,6 +39,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
  * 8/3/2012     724        bphillip    Added more methods for getting classification nodes
  * 3/18/2013    1802       bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802       bphillip    Removed exception catching
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -45,19 +49,23 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ClassificationNodeType;
 public class ClassificationNodeDao extends
         RegistryObjectTypeDao<ClassificationNodeType> {
 
-    /** Regex to use when querying for telephone types */
-    public static final String TELEPHONE_TYPE_REGEX = "urn:oasis:names:tc:ebxml-regrep:PhoneType:%";
+    private static final String GET_BY_PATH_QUERY = "select obj from ClassificationNodeType obj where obj.path=:path";
 
-    /** Regex to use when querying for postal address types */
-    public static final String ADDRESS_TYPE_REGEX = "urn:oasis:names:tc:ebxml-regrep:PostalAddressType%";
+    private static final String GET_NODE_FROM_CODE_QUERY = "select obj.id from ClassificationNodeType obj where obj.code=:code";
 
-    /** Regex to use when querying for email types */
-    public static final String EMAIL_TYPE_REGEX = "urn:oasis:names:tc:ebxml-regrep:EmailType:%";
+    private static final String GET_CODE_FROM_NODE_QUERY = "select obj.code from ClassificationNodeType obj where obj.id=:id";
+
+    private static final String GET_TELEPHONE_TYPES_QUERY = "select obj.code from ClassificationNodeType obj where obj.lid like 'urn:oasis:names:tc:ebxml-regrep:PhoneType:%'";
+
+    private static final String GET_ADDRESS_TYPES_QUERY = "select obj.code from ClassificationNodeType obj where obj.lid like 'urn:oasis:names:tc:ebxml-regrep:PostalAddressType%'";
+
+    private static final String GET_EMAIL_TYPES_QUERY = "select obj.code from ClassificationNodeType obj where obj.lid like 'urn:oasis:names:tc:ebxml-regrep:EmailType:%'";
 
     public ClassificationNodeDao() {
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public boolean isValidNode(String id) {
         return getById(id) != null;
     }
@@ -69,10 +77,10 @@ public class ClassificationNodeDao extends
      *            The path to get the classification node type for
      * @return The ClassificationNode object with the specified path
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public ClassificationNodeType getByPath(String path) {
-        List<ClassificationNodeType> result = this
-                .executeHQLQuery("select obj from ClassificationNodeType obj where obj.path='"
-                        + path + "'");
+        List<ClassificationNodeType> result = this.executeHQLQuery(
+                GET_BY_PATH_QUERY, "path", path);
         if (result.isEmpty()) {
             return null;
         } else {
@@ -87,10 +95,10 @@ public class ClassificationNodeDao extends
      *            The code of the classification node
      * @return The ID of the classification node with the given code
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public String getNodeFromCode(String code) {
-        List<String> results = this
-                .executeHQLQuery("select obj.id from ClassificationNodeType obj where obj.code='"
-                        + code + "'");
+        List<String> results = this.executeHQLQuery(GET_NODE_FROM_CODE_QUERY,
+                "code", code);
 
         if (results.isEmpty()) {
             return null;
@@ -106,10 +114,10 @@ public class ClassificationNodeDao extends
      *            The object ID of the classification node
      * @return The code of the classification node with the given ID
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public String getCodeFromNode(String id) {
-        List<String> results = this
-                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.id='"
-                        + id + "'");
+        List<String> results = this.executeHQLQuery(GET_CODE_FROM_NODE_QUERY,
+                "id", id);
 
         if (results.isEmpty()) {
             return null;
@@ -123,11 +131,10 @@ public class ClassificationNodeDao extends
      * 
      * @return The codes of the telephone types in the registry
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<String> getTelephoneTypes() {
 
-        return this
-                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                        + TELEPHONE_TYPE_REGEX + "'");
+        return this.executeHQLQuery(GET_TELEPHONE_TYPES_QUERY);
 
     }
 
@@ -136,11 +143,10 @@ public class ClassificationNodeDao extends
      * 
      * @return The codes of the address types in the registry
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<String> getAddressTypes() {
 
-        return this
-                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                        + ADDRESS_TYPE_REGEX + "'");
+        return this.executeHQLQuery(GET_ADDRESS_TYPES_QUERY);
 
     }
 
@@ -149,10 +155,9 @@ public class ClassificationNodeDao extends
      * 
      * @return The codes dmail types in the registry
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<String> getEmailTypes() {
-        return this
-                .executeHQLQuery("select obj.code from ClassificationNodeType obj where obj.lid like '"
-                        + EMAIL_TYPE_REGEX + "'");
+        return this.executeHQLQuery(GET_EMAIL_TYPES_QUERY);
     }
 
     @Override
