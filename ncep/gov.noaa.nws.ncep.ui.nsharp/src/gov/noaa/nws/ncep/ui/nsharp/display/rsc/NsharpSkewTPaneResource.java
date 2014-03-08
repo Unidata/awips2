@@ -11,6 +11,7 @@ package gov.noaa.nws.ncep.ui.nsharp.display.rsc;
  * -------		------- 	-------- 	-----------
  * 04/23/2012	229			Chin Chen	Initial coding
  * May 08, 2013 1847        bsteffen	Allow painting with no Wind Data.
+ * 02/03/2014   1106        Chin Chen   Need to be able to use clicking on the Src,Time, or StnId to select display 
  *
  * </pre>
  * 
@@ -175,7 +176,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		this.cursorTopWindBarb = cursorTopWindBarb;
 	}
 
-	public boolean isJustMoveToSidePane() {
+    public boolean isJustMoveToSidePane() {
 		return justMoveToSidePane;
 	}
 
@@ -797,7 +798,7 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
             WGraphics world,  RGB iicolor, List<NcSoundingLayer> sndLys, double xPosition, double botPress)throws VizException {
         if(sndLys.size()< 4)
         	return;
-        //ArrayList<List<LineStroke>> windList = new ArrayList<List<LineStroke>>();
+    	//ArrayList<List<LineStroke>> windList = new ArrayList<List<LineStroke>>();
         List<windPickedElement>  layerStateList = new ArrayList<windPickedElement>();
         float lastHeight = -9999;
         RGB icolor = iicolor;//graphConfigProperty.getWindBarbColor();
@@ -897,10 +898,10 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
             		//Chin::if we want pgen to draw un-picked wind as a circle, then set this.
             		spd=0.1f;
             		curWbSize = 1;
-            	}
+        	}
             	else
                 	continue;
-        	}    
+                }
             /* TBDWB
             else if(windBarbMagnify==true && cursorTopWindBarb == true && currentWindBarbSoundingLayerIndex == this.soundingLys.indexOf(layer)){
                 curWbSize = wbSize*2;
@@ -1417,9 +1418,12 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 	protected void paintInternal(IGraphicsTarget target,
 			PaintProperties paintProps) throws VizException {
 		this.paintProps = paintProps;
-		if(soundingLys==null)
-			return;
 		super.paintInternal(target, paintProps);
+		if(soundingLys==null){
+			drawNoDataMessage(target);// FixMark:clickOnTimeStnPane
+			return;
+		}
+		
 		//System.out.println("skew paintInternal zoomL="+currentZoomLevel);
 		if(rscHandler== null)
 			return;
@@ -2071,6 +2075,27 @@ public class NsharpSkewTPaneResource extends NsharpAbstractPaneResource{
 		
 		dacpeTraceRscShape.compile();
 	}
+	//start  FixMark:clickOnTimeStnPane
+	private void drawNoDataMessage(IGraphicsTarget target){
+		IExtent ext = descriptor.getRenderableDisplay().getExtent();
+        double xmin = ext.getMinX();  //Extent's viewable envelope min x and y
+        double xmax = ext.getMaxX();
+        double xDefault = world.mapX(NsharpConstants.left);
+        if(xmin <xDefault)
+        	xmin = xDefault;
+        double x = xmin + 15 * currentZoomLevel * xRatio;
+        x= (xmax-xmin)/4;
+        double y = world.mapY(NsharpWxMath.getSkewTXY(300, 0).y);
+        try {
+			target.drawString(font12,"Data is not loaded at selected current time line/station/source", x,y, 0.0, TextStyle.BOXED,
+					NsharpConstants.color_red, HorizontalAlignment.LEFT,
+					VerticalAlignment.MIDDLE, null);
+		} catch (VizException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	// end FixMark:clickOnTimeStnPane
 	// Chin: to handle dynamically moving height mark within viewable zone when zooming, I could not use wireframeShape successfully
 	// It will chop off lower part of marks. Therefore use this draw function.
 	@SuppressWarnings("deprecation")
