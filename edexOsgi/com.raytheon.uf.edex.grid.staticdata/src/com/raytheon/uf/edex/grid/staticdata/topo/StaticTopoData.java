@@ -59,8 +59,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -534,7 +534,7 @@ public class StaticTopoData {
      */
     private float[] getTopoData(GridGeometry2D inGeom,
             CoordinateReferenceSystem inCrs, int coverageNx, int coverageNy) {
-        FloatArrayWrapper finalDataWrapper = null;
+        FloatBufferWrapper finalDataWrapper = null;
         BilinearInterpolation interp = new BilinearInterpolation();
         interp.setMissingThreshold(0.0001f);
 
@@ -546,7 +546,8 @@ public class StaticTopoData {
             GridSampler sampler = new GridSampler(source, interp);
             try {
                 if (finalDataWrapper == null) {
-                    finalDataWrapper = new FloatArrayWrapper(inGeom);
+                    finalDataWrapper = new FloatBufferWrapper(
+                            inGeom.getGridRange2D());
                     reprojection.reprojectedGrid(sampler, finalDataWrapper);
                 } else {
                     boolean done = true;

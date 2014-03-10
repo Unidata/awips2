@@ -38,8 +38,8 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**

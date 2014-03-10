@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.common.geospatial.interpolation;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Nearest Neighbor interpolation

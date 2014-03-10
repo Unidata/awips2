@@ -45,12 +45,12 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -233,7 +233,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                                 .getCoordinateReferenceSystem());
                 DataSource oldScalar = data.getScalarData();
                 FloatBufferWrapper newScalar = new FloatBufferWrapper(
-                        gridGeometry);
+                        gridGeometry.getGridRange2D());
                 for (int i = 0; i < gridRange.width; i++) {
                     for (int j = 0; j < gridRange.height; j++) {
                         double dir = oldScalar.getDataValue(i, j);
