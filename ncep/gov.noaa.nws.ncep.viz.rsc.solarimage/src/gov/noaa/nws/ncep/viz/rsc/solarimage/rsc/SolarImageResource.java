@@ -21,12 +21,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
+
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.FactoryException;
@@ -38,8 +41,10 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.jaxb.JAXBClassLocator;
+import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -53,12 +58,14 @@ import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.DataScale.Type;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.image.SamplePreferences;
+import com.raytheon.uf.common.style.level.Level;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.reflect.SubClassLocator;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
@@ -90,6 +97,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 12/16/2013    #958      sgurung          Set virtual cursor to point to lat/lon instead of pixel coordinates (in multipnaes)
  * 12/27/2013    #1046     qzhou            Added getFunctioningRecords method
  * Sep 5,2013    2051       mnash           Fixed a deprecated method.
+ * 02/27/2014              qzhou            Changed SerializaitionUtil to JAXBManager. Added getJaxbManager function
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -135,6 +143,8 @@ public class SolarImageResource extends
     private RGB rgbW;
 
     private RGB rgbB;
+
+    private static JAXBManager jaxb;
 
     protected static class SampleResult {
 
@@ -260,7 +270,6 @@ public class SolarImageResource extends
             return legendStr;
         }
 
-        // TODO : probably not correct : fix this as it needs to be.
         public void setLegendForFrame(SolarImageRecord rec) {
 
             String timeStr = dateFmt.format(rec.getDataTime().getRefTime());
@@ -393,7 +402,6 @@ public class SolarImageResource extends
                         sampleCoord);
             }
 
-            // TODO : draw the lat lon lines even if there is no image?
             if (isLatLonOverlayOn()) {
                 try {
                     if (isCarrington) {
@@ -838,6 +846,31 @@ public class SolarImageResource extends
         return NcPathConstants.SOLAR_IMG_STYLE_RULES;
     }
 
+    public static synchronized JAXBManager getJaxbManager()
+            throws JAXBException {
+        if (jaxb == null) {
+            SubClassLocator locator = new SubClassLocator();
+            Collection<Class<?>> classes = JAXBClassLocator.getJAXBClasses(
+                    locator, StyleRuleset.class, StyleRule.class, Level.class,
+                    AbstractStylePreferences.class, MatchCriteria.class);
+
+            locator.save();
+
+            Class<?>[] jaxbClasses = new Class<?>[classes.size() + 1];
+            classes.toArray(jaxbClasses);
+
+            /*
+             * Add JaxbDummyObject at the beginning so properties are loaded
+             * correctly
+             */
+            jaxbClasses[jaxbClasses.length - 1] = jaxbClasses[0];
+            jaxbClasses[0] = JaxbDummyObject.class;
+
+            jaxb = new JAXBManager(jaxbClasses);
+        }
+        return jaxb;
+    }
+
     private void setColorMapParametersAndColorBar() throws VizException {
         double minPixVal = Double.NaN;
         double maxPixVal = Double.NaN;
@@ -881,8 +914,10 @@ public class SolarImageResource extends
         File file = NcPathManager.getInstance().getStaticFile(locFileName);
         StyleRule sRule = null;
         try {
-            StyleRuleset styleSet = (StyleRuleset) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(StyleRuleset.class, file);
+            StyleRuleset styleSet = (StyleRuleset) getJaxbManager()
+                    .unmarshalFromXmlFile(file);
+
+            // .jaxbUnmarshalFromXmlFile(StyleRuleset.class, file);
 
             if (styleSet != null) {
                 List<StyleRule> styleRuleList = styleSet.getStyleRules();
@@ -932,6 +967,9 @@ public class SolarImageResource extends
                 }
 
             }
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+
         } catch (SerializationException e1) {
 
             e1.printStackTrace();
