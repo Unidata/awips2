@@ -20,6 +20,7 @@
 
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
@@ -75,6 +77,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  *                                      AuditableEvents instead of integer
  * 12/9/2013    2613        bphillip    Changed start time boundary of get auditable events to be the last run time of the subscription
  * 01/21/2014   2613        bphillip    Changed start time boundary again and also a few minor cleanup items
+ * 2/13/2014    2769        bphillip    Optimized sendNotifications method
  * </pre>
  * 
  * @author bphillip
@@ -117,13 +120,14 @@ public class RegistryNotificationManager {
     public List<ObjectRefType> getObjectsOfInterest(
             SubscriptionType subscription) throws MsgRegistryException {
         // Get objects that match selector query
-        return queryManager
-                .executeQuery(
-                        new QueryRequest("Objects of Interest Query for ["
-                                + subscription.getId() + "]", subscription
-                                .getSelector(), new ResponseOptionType(
-                                QueryReturnTypes.OBJECT_REF, false)))
-                .getObjectRefList().getObjectRef();
+        QueryRequest queryRequest = new QueryRequest(
+                "Objects of Interest Query for [" + subscription.getId() + "]",
+                subscription.getSelector(), new ResponseOptionType(
+                        QueryReturnTypes.OBJECT_REF, false));
+        queryRequest.setMaxResults(new BigInteger(System
+                .getProperty("ebxml-notification-batch-size")));
+        return queryManager.executeQuery(queryRequest).getObjectRefList()
+                .getObjectRef();
     }
 
     /**
@@ -140,6 +144,7 @@ public class RegistryNotificationManager {
      * @throws MsgRegistryException
      * @throws EbxmlRegistryException
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<AuditableEventType> getEventsOfInterest(
             SubscriptionType subscription, String serviceAddress,
             XMLGregorianCalendar startTime, XMLGregorianCalendar endTime,
@@ -164,6 +169,7 @@ public class RegistryNotificationManager {
      * @throws EbxmlRegistryException
      *             If errors occur while creating or checking the notification
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public NotificationType getNotification(SubscriptionType subscription,
             String address, List<ObjectRefType> objectsOfInterest,
             List<AuditableEventType> eventsOfInterest)
@@ -226,53 +232,35 @@ public class RegistryNotificationManager {
      *             If errors occur while sending the notifications
      * @throws MsgRegistryException
      */
-    protected XMLGregorianCalendar sendNotifications(
+    protected void sendNotifications(
             SubscriptionNotificationListeners notificationListeners,
-            XMLGregorianCalendar startTime) throws EbxmlRegistryException,
-            MsgRegistryException {
+            XMLGregorianCalendar startTime, XMLGregorianCalendar endTime)
+            throws EbxmlRegistryException, MsgRegistryException {
 
-        // Object to hold the last timestampe of the latest event in order to
-        // update the subscription last run time correctly
-        XMLGregorianCalendar lastTime = null;
         final List<NotificationListenerWrapper> listeners = notificationListeners.listeners;
         final SubscriptionType subscription = notificationListeners.subscription;
 
         List<ObjectRefType> objectsOfInterest = getObjectsOfInterest(subscription);
 
         for (NotificationListenerWrapper listener : listeners) {
-            List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
-                    subscription, listener.address, startTime,
-                    subscription.getEndTime(), objectsOfInterest);
-            if (!eventsOfInterest.isEmpty()) {
-                lastTime = eventsOfInterest.get(eventsOfInterest.size() - 1)
-                        .getTimestamp();
-                int subListCount = eventsOfInterest.size()
-                        / notificationBatchSize;
-                int lastListSize = eventsOfInterest.size()
-                        % notificationBatchSize;
-                try {
-                    for (int i = 0; i < subListCount; i++) {
 
-                        NotificationType notification = getNotification(
-                                subscription,
-                                listener.address,
-                                objectsOfInterest,
-                                eventsOfInterest.subList(notificationBatchSize
-                                        * i, notificationBatchSize * i
-                                        + notificationBatchSize));
-                        if (!notification.getEvent().isEmpty()) {
-                            sendNotification(listener, notification,
-                                    listener.address);
+            List<AuditableEventType> eventsOfInterest = getEventsOfInterest(
+                    subscription, listener.address, startTime, endTime,
+                    objectsOfInterest);
+
+            if (!eventsOfInterest.isEmpty()) {
+                try {
+                    int totalEvents = eventsOfInterest.size();
+                    int endIndex = 0;
+                    for (int startIndex = 0; startIndex < totalEvents; startIndex += notificationBatchSize) {
+                        endIndex = startIndex + notificationBatchSize;
+                        if (endIndex >= totalEvents) {
+                            endIndex = totalEvents;
                         }
-                    }
-                    if (lastListSize > 0) {
                         NotificationType notification = getNotification(
-                                subscription,
-                                listener.address,
+                                subscription, listener.address,
                                 objectsOfInterest,
-                                eventsOfInterest.subList(notificationBatchSize
-                                        * subListCount, notificationBatchSize
-                                        * subListCount + lastListSize));
+                                eventsOfInterest.subList(startIndex, endIndex));
                         if (!notification.getEvent().isEmpty()) {
                             sendNotification(listener, notification,
                                     listener.address);
@@ -284,7 +272,6 @@ public class RegistryNotificationManager {
 
             }
         }
-        return lastTime;
     }
 
     /**

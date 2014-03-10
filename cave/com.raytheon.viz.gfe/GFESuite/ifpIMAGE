@@ -22,8 +22,6 @@
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
-# Dec 04, 2013  #2589     dgilling    Create command-line arg that controls
-#                                     xvfb initialization.
 # Feb 07, 2014  #2509     dgilling    Fix baseline merge issue.
 #
 #
