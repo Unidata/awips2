@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Connection;
@@ -54,8 +55,6 @@ import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
@@ -118,6 +117,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 18, 2014 2793       bclement    improved disconnection notification and handling
  * Feb 24, 2014 2632       mpduff      Fix roster change type for presence change.
  * Feb 28, 2014 2756       bclement    added authManager
+ * Mar 07, 2014 2848       bclement    removed join*Venue methods, now only creates venue objects
+ *                                      changed session map to a concurrent hash map
  * 
  * </pre>
  * 
@@ -190,7 +191,7 @@ public class CollaborationConnection implements IEventPublisher {
         Tools.setProperties(initialPresence, connectionData.getAttributes());
 
         eventBus = new EventBus();
-        sessions = new HashMap<String, ISession>();
+        sessions = new ConcurrentHashMap<String, ISession>();
 
         HostAndPort hnp = HostAndPort.fromString(connectionData.getServer());
         ConnectionConfiguration conConfig;
@@ -383,62 +384,84 @@ public class CollaborationConnection implements IEventPublisher {
         return chatInstance;
     }
 
-    public ISharedDisplaySession joinCollaborationVenue(
-            IVenueInvitationEvent invitation, String handle)
-            throws CollaborationException {
-        String venueName = invitation.getRoomId().getName();
+    /**
+     * Create shared display venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
+     * 
+     * @param invitation
+     * @param handle
+     * @return
+     */
+    public SharedDisplaySession createCollaborationVenue(
+            IVenueInvitationEvent invitation, String handle) {
+        SharedDisplayVenueInvite sdvInvite = (SharedDisplayVenueInvite) invitation
+                .getInvite();
         String sessionId = invitation.getInvite().getSessionId();
-        SharedDisplaySession session = new SharedDisplaySession(eventBus, this,
-                sessionId);
-        session.configureVenue(venueName, handle);
-        session.connectToRoom();
-        if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
-            SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
-                    .getInvite();
-            session.setCurrentDataProvider(invite.getDataProvider());
-            session.setCurrentSessionLeader(invite.getSessionLeader());
-        }
-
-        sessions.put(session.getSessionId(), session);
-        postEvent(session);
-        return session;
+        String venueName = invitation.getRoomId().getName();
+        SharedDisplaySession rval = new SharedDisplaySession(eventBus, this,
+                venueName, handle, sessionId);
+        setupCollaborationVenue(rval, sdvInvite.getSessionLeader(),
+                sdvInvite.getDataProvider());
+        return rval;
     }
 
     /**
+     * Configure shared display venue object and register with session map
      * 
-     * @param venueName
-     * @return
-     * @throws CollaborationException
+     * @param session
+     * @param leader
+     * @param provider
      */
-    public ISharedDisplaySession createCollaborationVenue(CreateSessionData data)
-            throws CollaborationException {
-        SharedDisplaySession session = null;
-        session = new SharedDisplaySession(eventBus, this);
-
-        session.createVenue(data);
-        VenueParticipant leader = session.getUserID();
-        leader.setHandle(session.getHandle());
+    private void setupCollaborationVenue(SharedDisplaySession session,
+            VenueParticipant leader, VenueParticipant provider) {
         session.setCurrentSessionLeader(leader);
-        session.setCurrentDataProvider(leader);
-
+        session.setCurrentDataProvider(provider);
         sessions.put(session.getSessionId(), session);
-        postEvent(session);
+    }
+
+    /**
+     * Create shared display venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
+     * 
+     * @param data
+     * @return
+     * @throws CollaborationException
+     */
+    public SharedDisplaySession createCollaborationVenue(CreateSessionData data) {
+        SharedDisplaySession session = new SharedDisplaySession(eventBus, this,
+                data);
+        VenueParticipant leader = session.getUserID();
+        setupCollaborationVenue(session, leader, leader);
         return session;
     }
 
     /**
+     * Create text only venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
      * 
      * @param venueName
+     * @param handle
      * @return
      * @throws CollaborationException
      */
-    public IVenueSession joinTextOnlyVenue(String venueName, String handle)
-            throws CollaborationException {
-        VenueSession session = new VenueSession(eventBus, this);
-        session.configureVenue(venueName, handle);
-        session.connectToRoom();
+    public VenueSession createTextOnlyVenue(String venueName, String handle) {
+        return createTextOnlyVenue(new CreateSessionData(venueName, handle));
+    }
+
+    /**
+     * Create text only venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
+     * 
+     * @param data
+     * @return
+     */
+    public VenueSession createTextOnlyVenue(CreateSessionData data) {
+        VenueSession session = new VenueSession(eventBus, this, data);
         sessions.put(session.getSessionId(), session);
-        postEvent(session);
         return session;
     }
 
@@ -461,24 +484,9 @@ public class CollaborationConnection implements IEventPublisher {
 
     /**
      * 
-     * @param venueName
-     * @return
-     * @throws CollaborationException
-     */
-    public IVenueSession createTextOnlyVenue(CreateSessionData data)
-            throws CollaborationException {
-        VenueSession session = new VenueSession(eventBus, this);
-        session.createVenue(data);
-        sessions.put(session.getSessionId(), session);
-        postEvent(session);
-        return session;
-    }
-
-    /**
-     * 
      * @param session
      */
-    protected void removeSession(ISession session) {
+    public void removeSession(ISession session) {
         sessions.remove(session.getSessionId());
         postEvent(session);
     }
