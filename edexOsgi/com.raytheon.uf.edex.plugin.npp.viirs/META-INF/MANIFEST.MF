@@ -14,5 +14,6 @@ Require-Bundle: com.raytheon.edex.common;bundle-version="1.12.1174",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.edex.plugin.npp;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174"
+ com.raytheon.uf.common.localization;bundle-version="1.12.1174",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Import-Package: org.apache.commons.logging

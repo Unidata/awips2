@@ -21,7 +21,7 @@ package com.raytheon.viz.core.contours;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
