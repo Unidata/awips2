@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.plugin.vaa.decoder;
 
+import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
 import com.raytheon.uf.common.dataplugin.vaa.VAASubPart;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
@@ -47,6 +49,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 26, 2013 2582       njensen     Cleanup
  * Feb 11, 2014 2763       skorolev    Made LFCR correction of input data.
+ * Mar 10, 2014 2807       skorolev    Added MalformedDataException for VAA decoding.
  * 
  * </pre>
  * 
@@ -96,12 +99,14 @@ public class VAAParser implements Iterable<VAARecord> {
     private final List<VAARecord> records = new ArrayList<VAARecord>();
 
     /**
-     * 
      * @param message
-     * @param wmoHeader
-     * @param pdd
+     * @param traceId
+     * @param headers
+     * @throws MalformedDataException
+     * @throws IOException
      */
-    public VAAParser(byte[] message, String traceId, Headers headers) {
+    public VAAParser(byte[] message, String traceId, Headers headers)
+            throws MalformedDataException, IOException {
         this.traceId = traceId;
         byte[] msg = correctLFCR(message);
         wmoHeader = new WMOHeader(msg, headers);
@@ -150,10 +155,11 @@ public class VAAParser implements Iterable<VAARecord> {
      * 
      * @param message
      *            Raw message data.
-     * @param traceId
-     *            Trace id for this data.
+     * @param headers
+     * @throws MalformedDataException
      */
-    private void setData(byte[] message, Headers headers) {
+    private void setData(byte[] message, Headers headers)
+            throws MalformedDataException {
 
         List<InternalReport> reports = InternalReport.identifyMessage(message,
                 headers);
@@ -240,8 +246,11 @@ public class VAAParser implements Iterable<VAARecord> {
             default: {
             }
             } // switch
+        }// for
+        if (vaa.getDataTime() == null) {
+            throw new MalformedDataException(
+                    "VAA product does not have a date time group");
         }
-
         records.add(vaa);
     }
 
@@ -475,8 +484,11 @@ public class VAAParser implements Iterable<VAARecord> {
     /**
      * 
      * @param args
+     * @throws MalformedDataException
+     * @throws IOException
      */
-    public static final void main(String[] args) {
+    public static final void main(String[] args) throws MalformedDataException,
+            IOException {
 
         String msg1 = "\u0001\r\r\n738\r\r\nFVXX20 KNES 041708 CAA"
                 + "\r\r\nVA ADVISORY" + "\r\r\nDTG: 20091104/1708Z"
