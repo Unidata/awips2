@@ -41,7 +41,7 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;

@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.kml.export.graphics.ext;
 
+import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -30,13 +31,13 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.IntBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.ShortBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedByteBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedShortBufferWrapper;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.IntBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.drawables.IColormappedImage;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
@@ -55,6 +56,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * ------------- -------- ----------- --------------------------
  * Jun 01, 2012           bsteffen    Initial creation
  * Jan 23, 2014  2703     bsteffen    Use data to get width and height.
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -90,33 +93,45 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
 
     public DataSource getData(GridGeometry2D geometry) throws VizException {
         loadData();
+        Rectangle gridRange = geometry.getGridRange2D();
+        DataSource source = null;
         switch (data.getDataType()) {
         case FLOAT:
-            return new FloatBufferWrapper(((FloatBuffer) data.getBuffer()),
-                    geometry);
+            source = new FloatBufferWrapper(((FloatBuffer) data.getBuffer()),
+                    gridRange);
+            break;
         case BYTE: {
-            return new UnsignedByteBufferWrapper(
-                    ((ByteBuffer) data.getBuffer()), geometry);
+            source = UnsignedFilter.apply(new ByteBufferWrapper(
+                    ((ByteBuffer) data.getBuffer()), gridRange));
+            break;
         }
         case SIGNED_BYTE: {
-            return new ByteBufferWrapper(((ByteBuffer) data.getBuffer()),
-                    geometry);
+            source = new ByteBufferWrapper(((ByteBuffer) data.getBuffer()),
+                    gridRange);
+            break;
         }
         case INT: {
-            return new IntBufferWrapper(((IntBuffer) data.getBuffer()),
-                    geometry);
+            source = new IntBufferWrapper(((IntBuffer) data.getBuffer()),
+                    gridRange);
+            break;
         }
         case SHORT: {
-            return new ShortBufferWrapper(((ShortBuffer) data.getBuffer()),
-                    geometry);
+            source = new ShortBufferWrapper(((ShortBuffer) data.getBuffer()),
+                    gridRange);
+            break;
         }
         case UNSIGNED_SHORT: {
-            return new UnsignedShortBufferWrapper(
-                    ((ShortBuffer) data.getBuffer()), geometry);
+            source = UnsignedFilter.apply(new ShortBufferWrapper(
+                    ((ShortBuffer) data.getBuffer()), gridRange));
+            break;
+        }
+        default: {
+            throw new UnsupportedOperationException(
+                    "Kml Export does not supprt image type: "
+                            + data.getDataType());
         }
         }
-        throw new UnsupportedOperationException(
-                "Kml Export does not supprt image type: " + data.getDataType());
+        return new GeographicDataSource(source, geometry);
 
     }
 
@@ -167,6 +182,5 @@ public class KmlColormappedImage extends KmlImage implements IColormappedImage {
             return super.getHeight();
         }
     }
-
 
 }

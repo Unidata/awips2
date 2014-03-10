@@ -38,16 +38,16 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojectionDataSource;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataSource;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
+import com.raytheon.uf.common.numeric.source.OffsetDataSource;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -85,11 +85,11 @@ public class GeneralGridData {
 
     private GridGeometry2D gridGeometry;
 
-    private DataSource scalarData;
+    private GeographicDataSource scalarData;
 
-    private DataSource uComponent = null;
+    private GeographicDataSource uComponent = null;
 
-    private DataSource vComponent = null;
+    private GeographicDataSource vComponent = null;
 
     private Unit<?> dataUnit;
 
@@ -103,7 +103,7 @@ public class GeneralGridData {
     public static GeneralGridData createScalarData(
             GeneralGridGeometry gridGeometry, FloatBuffer scalarData,
             Unit<?> dataUnit) {
-        DataSource scalarSource = new FloatBufferWrapper(scalarData,
+        DataSource scalarSource = new GeographicDataSource(scalarData,
                 gridGeometry);
         return createScalarData(gridGeometry, scalarSource, dataUnit);
     }
@@ -159,8 +159,8 @@ public class GeneralGridData {
     public static GeneralGridData createVectorDataUV(
             GeneralGridGeometry gridGeometry, FloatBuffer uComponent,
             FloatBuffer vComponent, Unit<?> dataUnit) {
-        DataSource uSource = new FloatBufferWrapper(uComponent, gridGeometry);
-        DataSource vSource = new FloatBufferWrapper(vComponent, gridGeometry);
+        DataSource uSource = new GeographicDataSource(uComponent, gridGeometry);
+        DataSource vSource = new GeographicDataSource(vComponent, gridGeometry);
         return createVectorDataUV(gridGeometry, uSource, vSource, dataUnit);
     }
 
@@ -183,15 +183,18 @@ public class GeneralGridData {
     private GeneralGridData(GeneralGridGeometry gridGeometry,
             DataSource scalarData, Unit<?> dataUnit) {
         this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
-        this.scalarData = scalarData;
+        this.scalarData = GeographicDataSource.wrap(scalarData,
+                this.gridGeometry);
         this.dataUnit = dataUnit;
     }
 
     private GeneralGridData(GeneralGridGeometry gridGeometry,
             DataSource uComponent, DataSource vComponent, Unit<?> dataUnit) {
         this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
-        this.uComponent = uComponent;
-        this.vComponent = vComponent;
+        this.uComponent = GeographicDataSource.wrap(uComponent,
+                this.gridGeometry);
+        this.vComponent = GeographicDataSource.wrap(vComponent,
+                this.gridGeometry);
         this.dataUnit = dataUnit;
     }
 
@@ -216,15 +219,17 @@ public class GeneralGridData {
             // no need to actually convert if they are the same.
             return true;
         }
+        UnitConvertingDataFilter filter = new UnitConvertingDataFilter(
+                converter);
         if (scalarData != null) {
-            scalarData = new UnitConvertingDataSource(converter, scalarData);
+            scalarData = scalarData.applyFilters(filter);
         }
         if (uComponent != null) {
-            uComponent = new UnitConvertingDataSource(converter, uComponent);
+            uComponent = uComponent.applyFilters(filter);
 
         }
         if (vComponent != null) {
-            vComponent = new UnitConvertingDataSource(converter, vComponent);
+            vComponent = vComponent.applyFilters(filter);
         }
         dataUnit = unit;
         return true;
@@ -249,10 +254,12 @@ public class GeneralGridData {
         if (isVector()) {
             sampler.setSource(getUComponent());
             float[] udata = reproj.reprojectedGrid(sampler,
-                    new FloatArrayWrapper(newGeom)).getArray();
+                    new FloatBufferWrapper(newGeom.getGridRange2D()))
+                    .getArray();
             sampler.setSource(getVComponent());
             float[] vdata = reproj.reprojectedGrid(sampler,
-                    new FloatArrayWrapper(newGeom)).getArray();
+                    new FloatBufferWrapper(newGeom.getGridRange2D()))
+                    .getArray();
             // When reprojecting it is necessary to recalculate the
             // direction of vectors based off the change in the "up"
             // direction
@@ -299,11 +306,12 @@ public class GeneralGridData {
         return (uComponent != null && vComponent != null);
     }
 
-    public DataSource getMagnitude() {
-        return new MagnitudeDataSource(uComponent, vComponent);
+    public GeographicDataSource getMagnitude() {
+        DataSource rawSource = new MagnitudeDataSource(uComponent, vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
     }
 
-    public DataSource getScalarData() {
+    public GeographicDataSource getScalarData() {
         if (isVector()) {
             return getMagnitude();
         } else {
@@ -318,8 +326,10 @@ public class GeneralGridData {
      *         wind is coming from the north and moving to the south.
      * @see #getDirectionTo()
      */
-    public DataSource getDirectionFrom() {
-        return new DirectionFromDataSource(uComponent, vComponent);
+    public GeographicDataSource getDirectionFrom() {
+        DataSource rawSource = new DirectionFromDataSource(uComponent,
+                vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
     }
 
     /**
@@ -327,15 +337,16 @@ public class GeneralGridData {
      *         mathematical deffinition of a vector.
      * @see #getDirectionFrom()
      */
-    public DataSource getDirectionTo() {
-        return new DirectionToDataSource(uComponent, vComponent);
+    public GeographicDataSource getDirectionTo() {
+        DataSource rawSource = new DirectionToDataSource(uComponent, vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
     }
 
-    public DataSource getUComponent() {
+    public GeographicDataSource getUComponent() {
         return uComponent;
     }
 
-    public DataSource getVComponent() {
+    public GeographicDataSource getVComponent() {
         return vComponent;
     }
 
