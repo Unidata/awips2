@@ -29,8 +29,10 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -44,6 +46,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
+import com.raytheon.viz.grid.inv.RadarUpdater;
+import com.raytheon.viz.grid.util.RadarAdapter;
 
 /**
  * TODO Add Description
@@ -55,6 +59,7 @@ import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 13, 2011            bsteffen     Initial creation
+ * Feb 21, 2014 DR 16744   D. Friedman  Add radar/grid updates
  * 
  * </pre>
  * 
@@ -63,7 +68,7 @@ import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
  */
 
 public class ThinClientDataUpdateTree extends DataUpdateTree {
-    private IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ThinClientDataUpdateTree.class);
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
@@ -95,8 +100,9 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
         for (DataPair pair : getDataPairs()) {
             AbstractResourceData resourceData = pair.data.getResourceData();
             if (!(resourceData instanceof AbstractRequestableResourceData)
-                    || resourceData.isFrozen())
+                    || resourceData.isFrozen()) {
                 continue;
+            }
             Map<String, RequestConstraint> metadata = pair.metadata;
             metadata = new HashMap<String, RequestConstraint>(metadata);
             metadata.put("insertTime", new RequestConstraint(time,
@@ -115,7 +121,68 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                         e);
             }
         }
+        getRadarUpdates(time, messages);
+        getGridUpdates(time, messages);
         return messages;
+    }
+
+    /**
+     * Get radar update messages. This is needed to update the
+     * radar-as-gridded-data inventory.
+     */
+    private void getRadarUpdates(String time, Set<AlertMessage> messages) {
+        Set<AlertMessage> radarMessages = new HashSet<AlertMessage>();
+        Map<String, RequestConstraint> metadata = RadarAdapter.getInstance()
+                .getUpdateConstraints();
+        metadata = new HashMap<String, RequestConstraint>(metadata);
+        metadata.put("insertTime", new RequestConstraint(time,
+                ConstraintType.GREATER_THAN));
+        try {
+            PluginDataObject[] pdos = DataCubeContainer.getData(metadata);
+            for (PluginDataObject pdo : pdos) {
+                AlertMessage am = new AlertMessage();
+                am.dataURI = pdo.getDataURI();
+                am.decodedAlert = RecordFactory.getInstance().loadMapFromUri(
+                        am.dataURI);
+                radarMessages.add(am);
+            }
+            messages.addAll(radarMessages);
+            for (String dataURI : RadarUpdater.getInstance()
+                    .convertRadarAlertsToGridDatauris(radarMessages)) {
+                AlertMessage am = new AlertMessage();
+                am.dataURI = dataURI;
+                am.decodedAlert = RecordFactory.getInstance().loadMapFromUri(
+                        am.dataURI);
+                messages.add(am);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    /** Get gridded data update messages. */
+    private void getGridUpdates(String time, Set<AlertMessage> messages) {
+        Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>();
+        DbQueryRequest dbRequest = new DbQueryRequest();
+        newQuery.put("pluginName", new RequestConstraint("grid"));
+        newQuery.put("insertTime", new RequestConstraint(time,
+                ConstraintType.GREATER_THAN));
+        dbRequest.setConstraints(newQuery);
+        dbRequest.addRequestField("dataURI");
+        DbQueryResponse response = null;
+        try {
+            response = (DbQueryResponse) ThriftClient.sendRequest(dbRequest);
+            for (String dataURI : response.getFieldObjects("dataURI",
+                    String.class)) {
+                AlertMessage am = new AlertMessage();
+                am.dataURI = dataURI;
+                am.decodedAlert = RecordFactory.getInstance().loadMapFromUri(
+                        am.dataURI);
+                messages.add(am);
+            }
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
     }
 
     /**
