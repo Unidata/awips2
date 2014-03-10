@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
  * Feb 12, 2014 2751       njensen     Renamed container to displayContainer
+ * Mar 07, 2014 2848       bclement    moved event handler registration to constructor
  * 
  * </pre>
  * 
@@ -52,11 +53,11 @@ public abstract class AbstractRoleEventController<T extends IRemoteDisplayContai
 
     protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
+        session.registerEventHandler(this);
     }
 
     @Override
     public void startup() {
-        session.registerEventHandler(this);
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         displayContainer = createDisplayContainer();
@@ -69,8 +70,10 @@ public abstract class AbstractRoleEventController<T extends IRemoteDisplayContai
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
         sc.setDisplayContainer(null);
-        displayContainer.disposeContainer();
-        displayContainer = null;
+        if (displayContainer != null) {
+            displayContainer.disposeContainer();
+            displayContainer = null;
+        }
     }
 
     protected abstract T createDisplayContainer();

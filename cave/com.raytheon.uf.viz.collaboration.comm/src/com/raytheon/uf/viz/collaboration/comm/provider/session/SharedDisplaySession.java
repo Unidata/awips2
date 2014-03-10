@@ -89,6 +89,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 24, 2014 2751       bclement    added validation for change leader event
  * Feb 28, 2014 2756       bclement    added cleanUpHttpStorage()
  * Mar 06, 2014 2751       bclement    added calls to getParticipantUserid()
+ * Mar 07, 2014 2848       bclement    moved pubsub close logic to closePubSub()
+ *                                      ensure that subscription is setup before joining room
  * 
  * </pre>
  * 
@@ -115,14 +117,15 @@ public class SharedDisplaySession extends VenueSession implements
     private boolean closed = false;
 
     public SharedDisplaySession(EventBus externalBus,
-            CollaborationConnection manager) {
-        super(externalBus, manager);
+            CollaborationConnection manager, String venueName, String handle,
+            String sessionId) {
+        super(externalBus, manager, venueName, handle, sessionId);
         init();
     }
 
     public SharedDisplaySession(EventBus externalBus,
-            CollaborationConnection manager, String sessionId) {
-        super(externalBus, manager, sessionId);
+            CollaborationConnection manager, CreateSessionData data) {
+        super(externalBus, manager, data);
         init();
     }
 
@@ -297,14 +300,20 @@ public class SharedDisplaySession extends VenueSession implements
      * configureVenue(java.lang.String)
      */
     @Override
-    protected void configureVenue(String venueName, String handle)
+    public void configureVenue()
             throws CollaborationException {
-        super.configureVenue(venueName, handle);
         try {
             configureSubscription();
         } catch (XMPPException e) {
+            closePubSub();
             throw new CollaborationException(
                     "Unable to configure subscription", e);
+        }
+        try {
+            super.configureVenue();
+        } catch (CollaborationException e) {
+            closePubSub();
+            throw e;
         }
     }
 
@@ -357,19 +366,22 @@ public class SharedDisplaySession extends VenueSession implements
      * createVenue(java.lang.String, java.lang.String)
      */
     @Override
-    protected void createVenue(CreateSessionData data)
+    public void createVenue(CreateSessionData data)
             throws CollaborationException {
-        super.createVenue(data);
+        boolean topicCreated = false;
         try {
             createNode(getSessionId());
-        } catch (XMPPException e) {
-            throw new CollaborationException("Unable to create topic", e);
-        }
-        try {
+            topicCreated = true;
             configureSubscription();
+            super.createVenue(data);
         } catch (XMPPException e) {
-            throw new CollaborationException(
-                    "Unable to configure pubsub topic", e);
+            closePubSub();
+            String action = topicCreated ? "configure" : "create";
+            throw new CollaborationException("Unable to " + action
+                    + " session topic", e);
+        } catch (CollaborationException e) {
+            closePubSub();
+            throw e;
         }
     }
 
@@ -482,6 +494,10 @@ public class SharedDisplaySession extends VenueSession implements
     @Override
     public void close() {
         super.close();
+        closePubSub();
+    }
+
+    private void closePubSub() {
         try {
             if (pubsubMgr == null || topic == null || !topicExists()) {
                 return;
