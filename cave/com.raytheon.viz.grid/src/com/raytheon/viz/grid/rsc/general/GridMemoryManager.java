@@ -34,8 +34,8 @@ import java.util.regex.Pattern;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.DataUtilities;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -166,11 +166,11 @@ public class GridMemoryManager {
                 dataBuffer.position(0);
                 dataBuffer.limit(numGridPoints);
                 FloatBufferWrapper uWrapper = new FloatBufferWrapper(
-                        dataBuffer.slice(), gridGeometry);
+                        dataBuffer.slice(), gridRange);
                 dataBuffer.position(numGridPoints);
                 dataBuffer.limit(numGridPoints * 2);
                 FloatBufferWrapper vWrapper = new FloatBufferWrapper(
-                        dataBuffer.slice(), gridGeometry);
+                        dataBuffer.slice(), gridRange);
                 DataUtilities.copy(data.getUComponent(), uWrapper,
                         gridRange.width, gridRange.height);
                 DataUtilities.copy(data.getVComponent(), vWrapper,
@@ -179,7 +179,7 @@ public class GridMemoryManager {
                         uWrapper, vWrapper, data.getDataUnit());
             } else {
                 FloatBufferWrapper wrapper = new FloatBufferWrapper(dataBuffer,
-                        gridGeometry);
+                        gridRange);
                 DataUtilities.copy(data.getScalarData(), wrapper,
                         gridRange.width, gridRange.height);
                 data = GeneralGridData.createScalarData(gridGeometry, wrapper,

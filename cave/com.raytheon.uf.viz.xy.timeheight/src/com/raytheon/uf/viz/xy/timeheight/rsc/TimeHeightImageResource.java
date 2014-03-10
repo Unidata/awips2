@@ -30,7 +30,9 @@ import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.filter.ValidRangeFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
@@ -58,11 +60,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 4, 2007            njensen     Initial creation
- * Feb 20, 2009            njensen     Refactored to new rsc architecture
- * Dec 11, 2013 DR 16795   D. Friedman Transform pixel coordinate in inspect
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 04, 2007           njensen     Initial creation
+ * Feb 20, 2009           njensen     Refactored to new rsc architecture
+ * Dec 11, 2013  16795    D. Friedman Transform pixel coordinate in inspect
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -269,8 +273,10 @@ public class TimeHeightImageResource extends AbstractTimeHeightResource
         if (sliceData == null) {
             return null;
         }
-        FloatArrayWrapper source = new FloatArrayWrapper(sliceData, geometry);
-        source.setValidRange(-9998, Double.POSITIVE_INFINITY);
+        DataSource source = new FloatBufferWrapper(sliceData,
+                geometry.getGridRange2D());
+        source = ValidRangeFilter
+                .apply(source, -9998, Double.POSITIVE_INFINITY);
         GridSampler sampler = new GridSampler(source,
                 new BilinearInterpolation());
         GridReprojection reproj = new GridReprojection(geometry,
