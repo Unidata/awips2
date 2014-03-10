@@ -63,8 +63,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
- * Mar 04, 2014 2832       njensen     Set fonts to null in disposeInternal() so recycle works
- *                                        Set entry.project to true for recycle
+ * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -134,30 +134,7 @@ public class WarningsResource extends AbstractWWAResource {
     @Override
     protected void disposeInternal() {
         cancelRefreshTask(this);
-        for (WarningEntry entry : entryMap.values()) {
-            if (entry.shadedShape != null) {
-                entry.shadedShape.dispose();
-            }
-            if (entry.wireframeShape != null) {
-                entry.wireframeShape.dispose();
-            }
-
-            /*
-             * we set this to true and keep the entries around solely in case
-             * this resource is being recycled
-             */
-            entry.project = true;
-        }
-
-        if (warningsFont != null) {
-            warningsFont.dispose();
-            warningsFont = null;
-        }
-
-        if (emergencyFont != null) {
-            emergencyFont.dispose();
-            emergencyFont = null;
-        }
+        super.disposeInternal();
     }
 
     @Override
