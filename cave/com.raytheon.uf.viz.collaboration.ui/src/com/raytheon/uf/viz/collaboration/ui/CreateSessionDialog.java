@@ -59,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.ISharedEditorsManagerListener;
@@ -91,6 +92,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb  3, 2014 2699       bclement    added default handle preference
  * Feb  7, 2014 2699       bclement    removed handle validation
  * Feb 11, 2014 2699       bclement    require non-blank handle
+ * Mar 06, 2014 2848       bclement    moved session creation logic to separate method
  * 
  * </pre>
  * 
@@ -463,10 +465,9 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     }
 
                     if (focusField == null) {
-                        CreateSessionData result = new CreateSessionData();
-                        result.setName(name);
+                        CreateSessionData result = new CreateSessionData(name,
+                                handle);
                         result.setSubject(subject);
-                        result.setHandle(handle);
                         result.setCollaborationSessioh(sharedSessionDisplay
                                 .getSelection());
                         if (inviteUsers == null) {
@@ -478,19 +479,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
 
                         IVenueSession session = null;
                         try {
-                            CollaborationConnection connection = CollaborationConnection
-                                    .getConnection();
-                            if (result.isCollaborationSession()) {
-                                session = connection
-                                        .createCollaborationVenue(result);
-                                ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
-                                SharedDisplaySessionMgr.joinSession(
-                                        displaySession,
-                                        SharedDisplayRole.DATA_PROVIDER, null);
-                            } else {
-                                session = connection
-                                        .createTextOnlyVenue(result);
-                            }
+                            session = create(result);
                             result.setSessionId(session.getSessionId());
                             setReturnValue(result);
                             CreateSessionDialog.this.getShell().dispose();
@@ -526,6 +515,47 @@ public class CreateSessionDialog extends CaveSWTDialog {
             }
         }
         return button;
+    }
+
+    /**
+     * Create session object, register required listeners and join.
+     * 
+     * @param data
+     * @return
+     * @throws CollaborationException
+     */
+    private IVenueSession create(CreateSessionData data)
+            throws CollaborationException {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        VenueSession session;
+        if (data.isCollaborationSession()) {
+            SharedDisplaySession displaySession = connection
+                    .createCollaborationVenue(data);
+            /*
+             * this will register event bus listeners, needs to be done before
+             * connecting to venue
+             */
+            SharedDisplaySessionMgr.registerSession(displaySession,
+                    SharedDisplayRole.DATA_PROVIDER);
+            session = displaySession;
+        } else {
+            session = connection.createTextOnlyVenue(data);
+        }
+        try {
+            session.createVenue(data);
+            if (data.isCollaborationSession()) {
+                SharedDisplaySessionMgr.joinSession(session.getSessionId());
+            }
+        } catch (CollaborationException e) {
+            if (data.isCollaborationSession()) {
+                SharedDisplaySessionMgr.exitSession(session.getSessionId());
+            }
+            connection.removeSession(session);
+            throw e;
+        }
+        connection.postEvent(session);
+        return session;
     }
 
     private String validateVenueName() {
