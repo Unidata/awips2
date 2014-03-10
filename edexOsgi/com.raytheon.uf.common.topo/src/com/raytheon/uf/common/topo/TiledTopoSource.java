@@ -31,13 +31,10 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
-import com.raytheon.uf.common.geospatial.interpolation.data.AbstractTiledDataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.source.AbstractTiledDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Tiled data source for loading topo tiles and caching tiles as soft reference
@@ -47,10 +44,12 @@ import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 11, 2012            bsteffen    Initial creation
- * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 11, 2012           bsteffen    Initial creation
+ * Aug 06, 2013  2235     bsteffen    Added Caching version of TopoQuery.
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -69,8 +68,7 @@ public class TiledTopoSource extends AbstractTiledDataSource {
     private Map<Point, Reference<DataSource>> tiles = new HashMap<Point, Reference<DataSource>>();
 
     public TiledTopoSource(int tileSize, GridGeometry2D gridGeometry,
-            IDataStore dataStore,
-            String dataset) {
+            IDataStore dataStore, String dataset) {
         super(tileSize, gridGeometry.getGridRange2D().width, gridGeometry
                 .getGridRange2D().height);
         this.gridGeometry = gridGeometry;
@@ -96,6 +94,7 @@ public class TiledTopoSource extends AbstractTiledDataSource {
 
     }
 
+    @Override
     protected DataSource getTile(int startX, int startY, int width, int height) {
         Point key = new Point(startX, startY);
         DataSource tile = null;
@@ -114,21 +113,11 @@ public class TiledTopoSource extends AbstractTiledDataSource {
     protected DataSource requestTile(int startX, int startY, int width,
             int height) {
         try {
-            IDataRecord record = dataStore.retrieve(
-                    "/",
-                    dataset,
-                    Request.buildSlab(new int[] { startX, startY }, new int[] {
-                            startX + width, startY + height }));
-            if (record instanceof FloatDataRecord) {
-                return new FloatArrayWrapper((float[]) record.getDataObject(),
-                        width, height);
-            } else if (record instanceof ShortDataRecord) {
-                return new ShortArrayWrapper((short[]) record.getDataObject(),
-                        width, height);
-            } else {
-                throw new DataRetrievalException("Unrecognized record type: "
-                        + record.getClass().getSimpleName());
-            }
+            Request req = Request.buildSlab(new int[] { startX, startY },
+                    new int[] { startX + width, startY + height });
+            IDataRecord record = dataStore.retrieve("/", dataset, req);
+            return BufferWrapper.wrapArray(record.getDataObject(), width,
+                    height);
         } catch (FileNotFoundException e) {
             throw new DataRetrievalException(e);
         } catch (StorageException e) {

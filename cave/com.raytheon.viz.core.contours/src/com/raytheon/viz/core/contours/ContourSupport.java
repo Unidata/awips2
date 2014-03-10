@@ -44,13 +44,13 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataUtilities.MinMax;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.OffsetDataSource;
 import com.raytheon.uf.common.geospatial.util.GridGeometryWrapChecker;
 import com.raytheon.uf.common.geospatial.util.WorldWrapChecker;
+import com.raytheon.uf.common.numeric.DataUtilities;
+import com.raytheon.uf.common.numeric.DataUtilities.MinMax;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
+import com.raytheon.uf.common.numeric.source.OffsetDataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -352,7 +352,7 @@ public class ContourSupport {
 
             if (copyData) {
                 subgridSource = DataUtilities.copy(subgridSource,
-                        new FloatArrayWrapper(szX, szY), szX, szY);
+                        new FloatBufferWrapper(szX, szY), szX, szY);
             }
 
             // Use ported legacy code to determine contour interval
@@ -1072,9 +1072,9 @@ public class ContourSupport {
             int maxX = (int) (sz[0] - 1);
             int maxY = (int) (sz[1] - 1);
 
-            DataSource uWSource = new FloatArrayWrapper(uW, (int) sz[0],
+            DataSource uWSource = new FloatBufferWrapper(uW, (int) sz[0],
                     (int) sz[1]);
-            DataSource vWSource = new FloatArrayWrapper(vW, (int) sz[0],
+            DataSource vWSource = new FloatBufferWrapper(vW, (int) sz[0],
                     (int) sz[1]);
 
             makeStreamLines(uWSource, vWSource, minX, minY, maxX, maxY, sz,
