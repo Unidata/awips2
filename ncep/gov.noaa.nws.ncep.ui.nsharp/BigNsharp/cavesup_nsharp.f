@@ -2,11 +2,11 @@ c       program sup_nsharp
  
        subroutine cavespnsharp(mlcape, mllcl, temp, lr, shr,
      +                 srh, tier1, matches, p1, sndglist, supl2,
-     +                  fname,shr3k,shr9k,srh3, cnt)
+     +                  fname,shr3k,shr9k,srh3, totalSnd)
 
       
 c SARS For Supercells
-       integer saob,maob
+
        parameter (maob=15000) ! Max number of raobs allowed.
        parameter (saob=15)    ! Number of raobs to return to NSHARP.
        
@@ -26,10 +26,10 @@ c SARS For Supercells
        character sndglist(saob)*15, fname*(256), fname1*(256)
        character tortype(maob)*8,suplist(saob)*8       
 
-       integer i,j,cnt,mlmrmat(maob),mlcapemat(maob),
+       integer totalSnd, cnt, maob,i,j,mlmrmat(maob),mlcapemat(maob),
      & mlcinmat(maob),mllclmat(maob),mucapemat(maob),sblclmat(maob),
-     & shrmat(maob),srhmat(maob),tempmat(maob),lrmat(maob),stpmat(maob),
-     & h500umat(maob),h500vmat(maob),shrcat(maob),matshrcat(maob),tier1,
+     &shrmat(maob),srhmat(maob),tempmat(maob),lrmat(maob),stpmat(maob),
+     &h500umat(maob),h500vmat(maob),shrcat(maob),matshrcat(maob),tier1,
      & tier1cnt,matcat(maob),srh3mat(maob)
        
 c        print *, "****************************************************"
@@ -39,7 +39,7 @@ c        print *, "****************************************************"
 
 1     format(a)
         fname1 = fname(1:len_trim(fname))
-c        print *, "SUP Opening input file:  ", fname1(1:len_trim(fname1))
+c        print *, "Opening input file:  ", fname1(1:len_trim(fname1))
         open(unit=10,status='old',file=fname1,err=999,iostat=IERR)
 
        
@@ -72,7 +72,6 @@ c         matsrh(j) = abs(matsrh(j))
 
 c count number of soundings      
       cnt = j - 1
-
 
 c mlcape ranges - k2
         ranmlcape= 1300
@@ -139,7 +138,7 @@ c using sounding i , check against all soundings j .
        noncnt = 0
        p1=0
        p2=0
-      
+       totalSnd = cnt
       DO 99 j=1,cnt
          
 	mlcapemat(j) = 0
@@ -248,8 +247,8 @@ c       endif
        
         matches = torcnt + noncnt
 
-c	print *, 'SARS Supercell Searching',cnt,' soundings, found',matches
-
+c	print *, 'SARS Searching',cnt,' soundings, found',matches
+              
        if(matches.ne.0) then
         p1 = torcnt/matches*100
 	p2 = noncnt/matches*100
@@ -280,6 +279,6 @@ c	write(*,*) ''
 999     matches = 0     
         p1 = 0
         tier1 = 0
-        print *, "ERROR - SUPERCELL input file not found.  Aborting..."
+        print *, "ERROR - SARS input file not found.  Aborting..."
        end 
       
