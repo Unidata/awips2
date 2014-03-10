@@ -23,7 +23,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * An event for a remote graphic that is tied to a particular display.
  * 
  * <pre>
  * 
@@ -31,7 +31,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Mar 08, 2012            mschenke    Initial creation
+ * Mar 06, 2014 2826       njensen     Improved javadoc
  * 
  * </pre>
  * 
@@ -41,6 +42,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 public abstract class AbstractRemoteGraphicsEvent {
 
+    /**
+     * the renderable display the object was created on
+     */
     @DynamicSerializeElement
     private int displayId;
 
