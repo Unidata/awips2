@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
-import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.geometry.Envelope;
@@ -40,12 +39,18 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
 import com.raytheon.uf.common.geospatial.interpolation.BilinearInterpolation;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnsignedShortArrayWrapper;
+import com.raytheon.uf.common.numeric.DataUtilities;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.filter.FillValueFilter;
+import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
+import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
@@ -58,9 +63,11 @@ import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 19, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 19, 2012           mschenke    Initial creation
+ * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
+ *                                    plugin.
  * 
  * </pre>
  * 
@@ -152,8 +159,8 @@ public class VIIRSRequestableData extends AbstractRequestableData {
                 double diffRatioY = recordLevelRect.getHeight()
                         / requestLevelRect.getHeight();
 
-                GeneralGridGeometry requestSliceGeometry = null;
-                GeneralGridGeometry recordSliceGeometry = null;
+                GridGeometry2D requestSliceGeometry = null;
+                GridGeometry2D recordSliceGeometry = null;
 
                 Request req = request.request;
                 Request recordRequest = req;
@@ -212,19 +219,22 @@ public class VIIRSRequestableData extends AbstractRequestableData {
 
                     GridReprojection reprojection = new GridReprojection(
                             recordSliceGeometry, requestSliceGeometry);
-                    UnsignedShortArrayWrapper dest = new UnsignedShortArrayWrapper(
-                            requestSliceGeometry);
-                    dest.setFillValue(noData);
-                    UnsignedShortArrayWrapper source = new UnsignedShortArrayWrapper(
+                    ShortBufferWrapper rawDest = new ShortBufferWrapper(
+                            requestSliceGeometry.getGridRange2D());
+                    DataDestination dest = InverseFillValueFilter.apply(
+                            (DataDestination) rawDest, noData);
+                    ShortBufferWrapper rawSource = new ShortBufferWrapper(
                             ((ShortDataRecord) record).getShortData(),
-                            recordSliceGeometry);
-                    source.setFillValue(noData);
+                            recordSliceGeometry.getGridRange2D());
+                    DataSource source = UnsignedFilter.apply(rawSource);
+
+                    source = FillValueFilter.apply(source, noData);
                     reprojection.reprojectedGrid(new BilinearInterpolation(),
                             source, dest);
 
                     ShortDataRecord scaled = new ShortDataRecord(
                             record.getName(), record.getGroup(),
-                            dest.getArray());
+                            rawDest.getArray());
                     copyRecord(scaled, record);
                     // set correct sizes after copying attributes
                     scaled.setIntSizes(new int[] {
@@ -286,26 +296,16 @@ public class VIIRSRequestableData extends AbstractRequestableData {
             }
             float[] floatData = new float[width * height];
             final UnitConverter converter = dataUnit.getConverterTo(Unit.ONE);
-            FloatArrayWrapper destination = new FloatArrayWrapper(floatData,
-                    width, height) {
-                @Override
-                public void setDataValueInternal(double dataValue, int index) {
-                    // Apply unit converter for each value
-                    super.setDataValueInternal(converter.convert(dataValue),
-                            index);
-                }
-            };
-            destination.setFillValue(Float.NaN);
-            UnsignedShortArrayWrapper source = new UnsignedShortArrayWrapper(
+            DataDestination destination = new FloatBufferWrapper(floatData,
+                    width, height);
+            destination = UnitConvertingDataFilter
+                    .apply(destination, converter);
+            ShortBufferWrapper shortData = new ShortBufferWrapper(
                     ((ShortDataRecord) record).getShortData(), width, height);
-            source.setFillValue(noDataValue);
+            DataSource source = UnsignedFilter.apply(shortData);
+            source = FillValueFilter.apply(source, noDataValue);
 
-            // For each point, set in destination
-            for (int y = 0; y < height; ++y) {
-                for (int x = 0; x < width; ++x) {
-                    destination.setDataValue(source.getDataValue(x, y), x, y);
-                }
-            }
+            DataUtilities.copy(source, destination, width, height);
 
             // Create float data record from converted data
             FloatDataRecord fdr = new FloatDataRecord(record.getName(),
