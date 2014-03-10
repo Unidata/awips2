@@ -88,6 +88,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 19, 2014 2751       bclement    added isClosed()
  * Feb 24, 2014 2751       bclement    added validation for change leader event
  * Feb 28, 2014 2756       bclement    added cleanUpHttpStorage()
+ * Mar 06, 2014 2751       bclement    added calls to getParticipantUserid()
  * 
  * </pre>
  * 
@@ -211,11 +212,11 @@ public class SharedDisplaySession extends VenueSession implements
             return;
         }
         // TODO should we use MUC private chat for this?
-        if (!participant.hasActualUserId()) {
+        UserId userid = getVenue().getParticipantUserid(participant);
+        if (userid == null) {
             log.warn("Attempted to send object to peer when actual userid is unknown");
             return;
         }
-        UserId userid = participant.getUserid();
         SessionPayload payload = new SessionPayload(PayloadType.Command, obj);
         Message msg = new Message(userid.getFQName(), Type.normal);
         msg.addExtension(payload);
@@ -424,6 +425,11 @@ public class SharedDisplaySession extends VenueSession implements
             if (obj instanceof LeaderChangeEvent) {
                 validEvent = handleLeaderChange((LeaderChangeEvent) obj);
             }
+            /*
+             * TODO create white list of events that non-leaders can send to
+             * topic (ie telestration). Ignore all other events that are not
+             * from leader.
+             */
             if (validEvent) {
                 postEvent(obj);
             }
@@ -601,12 +607,13 @@ public class SharedDisplaySession extends VenueSession implements
             throw new CollaborationException(
                     "Only the leader can transfer leadership");
         }
-        if (!newLeader.hasActualUserId()) {
+        UserId actualId = getVenue().getParticipantUserid(newLeader);
+        if (actualId == null) {
             throw new CollaborationException(
                     "Unable to grant ownership because new leader's actual userid is not known");
         }
 
-        final String newLeaderId = newLeader.getUserid().getNormalizedId();
+        final String newLeaderId = actualId.getNormalizedId();
 
         boolean topicOwnershipGranted = false;
         boolean roomOwnershipGranted = false;
