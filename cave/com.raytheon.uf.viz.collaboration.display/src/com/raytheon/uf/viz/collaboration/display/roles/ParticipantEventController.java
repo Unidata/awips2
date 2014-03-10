@@ -37,6 +37,7 @@ import com.raytheon.viz.ui.VizWorkbenchManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Mar 06, 2014 2848       bclement    get venueName direct from session
  * 
  * </pre>
  * 
@@ -60,7 +61,7 @@ public class ParticipantEventController extends
      */
     @Override
     protected ICollaborationEditor createDisplayContainer() {
-        String name = session.getVenue().getName();
+        String name = session.getVenueName();
         CollaborationEditorInput input = new CollaborationEditorInput(
                 session.getSessionId(), name);
         try {
