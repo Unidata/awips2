@@ -62,6 +62,7 @@ import com.raytheon.uf.common.registry.services.rest.IRepositoryItemsRestService
  * 11/20/2013   2534        bphillip    Added HTTPClient policy for rest connections.  Eliminated service caching.
  * 12/2/2013    1829        bphillip    Removed expectedType argument on getRegistryObject method
  * 1/15/2014    2613        bphillip    Removed Service cache due to unexpected behavior
+ * 2/19/2014    2769        bphillip    Added service cache
  * </pre>
  * 
  * @author bphillip
@@ -105,7 +106,7 @@ public class RegistryRESTServices {
      * @return The service implementation
      */
     public IRegistryObjectsRestService getRegistryObjectService(String baseURL) {
-        return getPort(baseURL + REGISTRY_REST_SERVICE_PATH,
+        return createService(baseURL + REGISTRY_REST_SERVICE_PATH,
                 IRegistryObjectsRestService.class);
     }
 
@@ -142,7 +143,7 @@ public class RegistryRESTServices {
      * @return The service implementation
      */
     public IRepositoryItemsRestService getRepositoryItemService(String baseURL) {
-        return getPort(baseURL + REGISTRY_REST_SERVICE_PATH,
+        return createService(baseURL + REGISTRY_REST_SERVICE_PATH,
                 IRepositoryItemsRestService.class);
     }
 
@@ -171,7 +172,8 @@ public class RegistryRESTServices {
     public Object accessXMLRestService(String url) {
         String response = null;
         try {
-            response = Resources.toString(new URL(url), Charset.forName("UTF8"));
+            response = Resources
+                    .toString(new URL(url), Charset.forName("UTF8"));
         } catch (Exception e) {
             throw new RegistryServiceException(
                     "Error accessing REST service at URL: [" + url + "]", e);
@@ -183,11 +185,6 @@ public class RegistryRESTServices {
                     "Error unmarshalling xml response from REST Service at URL: ["
                             + url + "]");
         }
-    }
-
-    protected <T extends Object> T getPort(String serviceUrl,
-            final Class<T> serviceInterface) {
-        return createService(serviceUrl, serviceInterface);
     }
 
     protected <T extends Object> T createService(String url,
