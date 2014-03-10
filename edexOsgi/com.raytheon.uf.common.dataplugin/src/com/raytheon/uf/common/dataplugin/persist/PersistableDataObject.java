@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * This is the root class for any object being persisted in the database using
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 7/24/07      353         bphillip    Initial Check in    
  * 20080408           1039 jkorman     Added traceId for tracing data.
  * Oct 10, 2012 1261        djohnson     Add generic for identifier.
+ * Feb 11, 2014 2784        rferrel     Identifier no longer a DynamicSerializeElement.
  * 
  * </pre>
  * 
@@ -59,8 +59,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public abstract class PersistableDataObject<IDENTIFIER_TYPE> implements
-        IPersistableDataObject<IDENTIFIER_TYPE>,
-        Serializable, ISerializableObject {
+        IPersistableDataObject<IDENTIFIER_TYPE>, Serializable,
+        ISerializableObject {
 
     private static final long serialVersionUID = -6747395152869923909L;
 
@@ -69,7 +69,6 @@ public abstract class PersistableDataObject<IDENTIFIER_TYPE> implements
      * key for the associated database table.
      */
     @XmlElement
-    @DynamicSerializeElement
     protected IDENTIFIER_TYPE identifier;
 
     private String traceId = "";

@@ -1,32 +1,3 @@
-/**
- * AirmetRecord
- * 
- * This java class performs the mapping to the database table for AIRMET
- * 
- * HISTORY
- *
- * Date     	Author		Description
- * ------------	----------	-----------	--------------------------
- * 05/2009		L. Lin		Initial creation	
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * 
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 05/2009      39				L. Lin     	Initial coding
- * 07/2009		39			    L. Lin		Migration to TO11
- * 09/2011                 		Chin Chen   changed to improve purge performance and
- * 											removed xml serialization as well
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013       1857 bgonzale         Added SequenceGenerator annotation.
- * May 07, 2013 1869            bsteffen    Remove dataURI column from
- *                                          PluginDataObject.
- *
- * </pre>
- *
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.airmet;
 
 import java.util.Calendar;
@@ -52,6 +23,37 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * AirmetRecord
+ * 
+ * This java class performs the mapping to the database table for AIRMET
+ * 
+ * <pre>
+ * HISTORY
+ * 
+ * Date         Author      Description
+ * ------------ ----------  ----------- --------------------------
+ * 05/2009      L. Lin      Initial creation    
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 05/2009      39              L. Lin      Initial coding
+ * 07/2009      39              L. Lin      Migration to TO11
+ * 09/2011                      Chin Chen   changed to improve purge performance and
+ *                                          removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013       1857 bgonzale         Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "airmetseq")
@@ -319,24 +321,6 @@ public class AirmetRecord extends PluginDataObject {
      */
     public void addAirmetReport(AirmetReport curReport) {
         airmetReport.add(curReport);
-        // curReport.setParentID(this);
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-        /*
-         * if(this.getAirmetReport() != null && this.getAirmetReport().size() >
-         * 0) { for (Iterator<AirmetReport> iter =
-         * this.getAirmetReport().iterator(); iter.hasNext();) { AirmetReport cs
-         * = iter.next(); cs.setParentID(this); } }
-         */
-
     }
 
     @Override
