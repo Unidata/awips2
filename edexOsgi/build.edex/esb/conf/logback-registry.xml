@@ -90,11 +90,10 @@
    </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>HarvesterLog:harvesterThreadPool.*,crawlerThreadPool.*,Crawler.*,RetrievalLog:retrievalThreadPool.*,retrievalThreadPool.*,Retrieval.*</threadPatterns>
+      <threadPatterns>HarvesterLog:harvester.*,crawlerThreadPool.*,Crawler.*</threadPatterns>
       <defaultAppender>console</defaultAppender>
       <appender-ref ref="console"/>
       <appender-ref ref="HarvesterLog"/>
-      <appender-ref ref="RetrievalLog"/>
    </appender>
   
    <logger name="com.raytheon">
