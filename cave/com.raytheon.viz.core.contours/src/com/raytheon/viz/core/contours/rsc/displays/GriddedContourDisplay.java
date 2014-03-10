@@ -24,8 +24,8 @@ import java.nio.FloatBuffer;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -59,7 +59,8 @@ public class GriddedContourDisplay extends ContourRenderable {
 
     public GriddedContourDisplay(IMapDescriptor descriptor,
             final GridGeometry2D gridGeometry, final FloatBuffer fb) {
-        this(descriptor, gridGeometry, new FloatBufferWrapper(fb, gridGeometry));
+        this(descriptor, gridGeometry, new GeographicDataSource(fb,
+                gridGeometry));
     }
 
     public GriddedContourDisplay(IMapDescriptor descriptor,

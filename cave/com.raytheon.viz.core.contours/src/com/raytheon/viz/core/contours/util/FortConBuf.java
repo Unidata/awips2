@@ -24,10 +24,10 @@ import java.text.ParseException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.AxisSwapDataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArray2DWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.InvalidRangeDataSource;
+import com.raytheon.uf.common.numeric.array.FloatArray2DWrapper;
+import com.raytheon.uf.common.numeric.filter.InvalidRangeFilter;
+import com.raytheon.uf.common.numeric.source.AxisSwapDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * Port of the fortCon.f routine. Minimal changes made to make it perform better
@@ -116,7 +116,7 @@ public class FortConBuf {
         DataSource source = new FloatArray2DWrapper(data, nx, ny);
         source = new AxisSwapDataSource(source);
         if (config.badlo < config.badhi) {
-            source = new InvalidRangeDataSource(source, config.badlo,
+            source = InvalidRangeFilter.apply(source, config.badlo,
                     config.badhi);
         }
         return contour(source, ny, nx, config);

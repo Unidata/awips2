@@ -50,11 +50,12 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarInfoDict;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.geospatial.interpolation.data.ByteArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.ShortArrayWrapper;
 import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.numeric.buffer.ByteBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.filter.FillValueFilter;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -282,15 +283,13 @@ public class RadarGridFactory extends AbstractGridDataPluginFactory implements
         int ny = radarRecord.getNumRadials();
         byte[] bytes = radarRecord.getRawData();
         if (bytes != null) {
-            ByteArrayWrapper wrapper = new ByteArrayWrapper(bytes, nx, ny);
-            wrapper.setFillValue(0);
-            return wrapper;
+            ByteBufferWrapper wrapper = new ByteBufferWrapper(bytes, nx, ny);
+            return FillValueFilter.apply((DataSource) wrapper, 0);
         }
         short[] shorts = radarRecord.getRawShortData();
         if (shorts != null) {
-            ShortArrayWrapper wrapper = new ShortArrayWrapper(shorts, nx, ny);
-            wrapper.setFillValue(0);
-            return wrapper;
+            ShortBufferWrapper wrapper = new ShortBufferWrapper(shorts, nx, ny);
+            return FillValueFilter.apply((DataSource) wrapper, 0);
         }
         return null;
 
