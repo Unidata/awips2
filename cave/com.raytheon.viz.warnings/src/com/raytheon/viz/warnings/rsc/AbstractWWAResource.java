@@ -84,6 +84,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
  * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
  * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
+ * Mar 10, 2014   2832   njensen        Moved duplicated subclass's disposeInternal() logic here
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -694,5 +696,35 @@ public abstract class AbstractWWAResource extends
             timeRange = new TimeRange(baseTime, cal.getTime());
         }
         return timeRange;
+    }
+
+    @Override
+    protected void disposeInternal() {
+        for (WarningEntry entry : entryMap.values()) {
+            if (entry.shadedShape != null) {
+                entry.shadedShape.dispose();
+            }
+            if (entry.wireframeShape != null) {
+                entry.wireframeShape.dispose();
+            }
+
+            /*
+             * we set this to true and keep the entries around solely in case
+             * this resource is being recycled
+             */
+            entry.project = true;
+        }
+
+        if (warningsFont != null) {
+            warningsFont.dispose();
+            // set font to null for recycle safety
+            warningsFont = null;
+        }
+
+        if (emergencyFont != null) {
+            emergencyFont.dispose();
+            // set font to null for recylcle safety
+            emergencyFont = null;
+        }
     }
 }
