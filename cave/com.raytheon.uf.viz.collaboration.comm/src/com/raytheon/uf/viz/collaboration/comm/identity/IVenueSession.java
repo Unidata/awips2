@@ -53,6 +53,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * ------------ ---------- ----------- --------------------------
  * Mar 5, 2012             jkorman     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2751       bclement    added isAdmin()
  * 
  * </pre>
  * 
@@ -107,8 +108,13 @@ public interface IVenueSession extends ISession {
     public void sendPresence(Presence presence) throws CollaborationException;
 
     /**
-     * 
-     * @return
+     * @return participant id of current user
      */
     public VenueParticipant getUserID();
+
+    /**
+     * @return true if current user has admin privileges in venue
+     */
+    public boolean isAdmin();
+
 }
