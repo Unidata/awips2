@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.radar
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.common.geospatial
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
@@ -10,14 +10,15 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.dataaccess;bundle-version="1.0.0",
  com.raytheon.uf.common.units;bundle-version="1.0.0",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0"
+ org.hibernate;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.radar,
