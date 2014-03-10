@@ -76,7 +76,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * @author bclement
  * @version 1.0
  */
-public class BinLightingAccessFactory extends AbstractDataPluginFactory {
+public class BinLightningAccessFactory extends AbstractDataPluginFactory {
     
     private static final String sourceKey = "source";
 
