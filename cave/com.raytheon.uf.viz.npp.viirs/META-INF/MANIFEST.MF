@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: VIIRS Satellite
 Bundle-SymbolicName: com.raytheon.uf.viz.npp.viirs;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.npp.viirs.Activator
 Bundle-Vendor: RAYTHEON
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core
@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  com.raytheon.uf.viz.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.time;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
  org.geotools;bundle-version="2.6.4",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.comm;bundle-version="1.12.1174",
  com.raytheon.viz.alerts;bundle-version="1.12.1174",
  com.raytheon.uf.viz.npp;bundle-version="1.0.0",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.npp.viirs.rsc
