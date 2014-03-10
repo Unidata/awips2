@@ -143,6 +143,9 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jan 14, 2014   2459     mpduff       Change Subscription status code
  * Jan 20, 2014   2538     mpduff       Call doesNameExist method to check for dupes
  * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
+ * Feb 26, 2014   #2833    lvenable     Added code to prevent the Subset (this) dialog from
+ *                                      disappearing when the Subscription button is double clicked.
+ *                                      Added dispose check for subscription button.
  * </pre>
  * 
  * @author mpduff
@@ -417,7 +420,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         int buttonWidth = 87;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
 
-        Button subscribeBtn = new Button(bottomComp, SWT.PUSH);
+        final Button subscribeBtn = new Button(bottomComp, SWT.PUSH);
         if (!create) {
             subscribeBtn.setText("Continue...");
             subscribeBtn.setToolTipText("Click to continue editing");
@@ -430,6 +433,14 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         subscribeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+
+                /*
+                 * Need to disable the Subscription button as it takes time to
+                 * do all of the validation. Once the subscription dialog
+                 * returns the button will enable.
+                 */
+                subscribeBtn.setEnabled(false);
+
                 if (subscription == null) {
                     launchCreateSubscriptionGui(createSubscription(
                             new SiteSubscription(), Network.OPSNET));
@@ -437,6 +448,11 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                     setupCommonSubscriptionAttributes(subscription,
                             subscription.getRoute());
                     launchCreateSubscriptionGui(subscription);
+                }
+
+                // Enable the subscription button if it is not disposed.
+                if (subscribeBtn.isDisposed() == false) {
+                    subscribeBtn.setEnabled(true);
                 }
             }
         });
