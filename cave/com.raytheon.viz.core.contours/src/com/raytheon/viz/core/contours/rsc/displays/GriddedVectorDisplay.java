@@ -27,8 +27,8 @@ import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -143,8 +143,8 @@ public class GriddedVectorDisplay extends AbstractGriddedDisplay<Coordinate> {
             IMapDescriptor descriptor, GeneralGridGeometry gridGeometryOfGrid,
             double densityFactor, boolean gridRelative,
             DisplayType displayType, VectorGraphicsConfig config) {
-        this(new FloatBufferWrapper(magnitude, gridGeometryOfGrid),
-                new FloatBufferWrapper(direction, gridGeometryOfGrid),
+        this(new GeographicDataSource(magnitude, gridGeometryOfGrid),
+                new GeographicDataSource(direction, gridGeometryOfGrid),
                 descriptor, gridGeometryOfGrid, densityFactor, gridRelative,
                 displayType, config);
     }
