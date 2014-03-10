@@ -23,8 +23,8 @@ import java.nio.FloatBuffer;
 
 import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 
@@ -58,7 +58,7 @@ public class GriddedStreamlineDisplay extends GriddedContourDisplay {
     public GriddedStreamlineDisplay(IMapDescriptor descriptor,
             GridGeometry2D gridGeometry, FloatBuffer ufb, FloatBuffer vfb) {
         super(descriptor, gridGeometry, ufb);
-        this.vSource = new FloatBufferWrapper(vfb, gridGeometry);
+        this.vSource = new GeographicDataSource(vfb, gridGeometry);
     }
 
     public GriddedStreamlineDisplay(IMapDescriptor descriptor,
