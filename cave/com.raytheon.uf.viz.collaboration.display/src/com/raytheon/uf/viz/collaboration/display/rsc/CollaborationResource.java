@@ -70,7 +70,7 @@ import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
 
 /**
  * A resource for displaying rendered data that is received from the Data
- * Provider.
+ * Provider. Only participants (non-leaders) will have this resource.
  * 
  * <pre>
  * 
@@ -78,7 +78,8 @@ import com.raytheon.viz.ui.cmenu.IContextMenuProvider;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            njensen     Initial creation
+ * Apr 03, 2012            njensen     Initial creation
+ * Mar 06, 2014 2826       njensen     Fix spelling mistake
  * 
  * </pre>
  * 
@@ -339,7 +340,7 @@ public class CollaborationResource extends
     }
 
     @Subscribe
-    public void persitableArrived(final IPersistedEvent event) {
+    public void persistableArrived(final IPersistedEvent event) {
         if (event.getDisplayId() != resourceData.getDisplayId()) {
             return;
         }
