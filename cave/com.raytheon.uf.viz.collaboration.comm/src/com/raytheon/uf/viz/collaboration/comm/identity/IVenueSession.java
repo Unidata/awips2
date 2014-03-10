@@ -51,9 +51,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2012             jkorman     Initial creation
+ * Mar 05, 2012            jkorman     Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Mar 06, 2014 2751       bclement    added isAdmin()
+ * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
  * 
  * </pre>
  * 
@@ -69,6 +70,11 @@ public interface IVenueSession extends ISession {
      * @return Information about a venue
      */
     public IVenue getVenue();
+
+    /**
+     * @return name of chat room serving as venue
+     */
+    public String getVenueName();
 
     /**
      * Send a chat message.
@@ -117,4 +123,8 @@ public interface IVenueSession extends ISession {
      */
     public boolean isAdmin();
 
+    /**
+     * @return false if current user is the only participant in the session
+     */
+    public boolean hasOtherParticipants();
 }

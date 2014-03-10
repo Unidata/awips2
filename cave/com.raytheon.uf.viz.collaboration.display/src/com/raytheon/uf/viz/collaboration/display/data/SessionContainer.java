@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.ColorPopulator;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
@@ -47,6 +48,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            njensen     Initial creation
  * Feb 11, 2014 2751       njensen     Added leaderChanged() and listeners
+ * Mar 07, 2014 2848       bclement    made colorManager final, added modifyColors() listeners
  * 
  * </pre>
  * 
@@ -65,7 +67,7 @@ public class SessionContainer {
     /** subscribes to events related to the session based on role **/
     private IRoleEventController roleEventController;
 
-    private SessionColorManager colorManager;
+    private final SessionColorManager colorManager = new SessionColorManager();
 
     private IRemoteDisplayContainer displayContainer;
 
@@ -116,19 +118,9 @@ public class SessionContainer {
      * @return the colorManager
      */
     public SessionColorManager getColorManager() {
-        if (colorManager == null) {
-            colorManager = new SessionColorManager();
-        }
         return colorManager;
     }
 
-    /**
-     * @param colorManager
-     *            the colorManager to set
-     */
-    public void setColorManager(SessionColorManager colorManager) {
-        this.colorManager = colorManager;
-    }
 
     @Subscribe
     public void leaderChanged(LeaderChangeEvent event) {
@@ -143,7 +135,7 @@ public class SessionContainer {
             if (!(formerRole instanceof DataProviderEventController)) {
                 throw new IllegalStateException(
                         "Shared Display Session "
-                                + session.getVenue().getName()
+                                + session.getVenueName()
                                 + " attempted to surrender leadership when it's not the leader!");
             }
             VizApp.runSync(new Runnable() {
@@ -164,7 +156,7 @@ public class SessionContainer {
             if (!(formerRole instanceof ParticipantEventController)) {
                 throw new IllegalStateException(
                         "Shared Display Session "
-                                + session.getVenue().getName()
+                                + session.getVenueName()
                                 + " attempted to acquire leadership when it wasn't a participant!");
             }
             VizApp.runSync(new Runnable() {
@@ -178,6 +170,16 @@ public class SessionContainer {
                 }
             });
         }
+    }
+
+    @Subscribe
+    public void modifyColors(ColorPopulator populator) {
+        colorManager.setColors(populator.getColors());
+    }
+
+    @Subscribe
+    public void modifyColors(ColorChangeEvent event) {
+        colorManager.setColorForUser(event.getUserName(), event.getColor());
     }
 
     /**

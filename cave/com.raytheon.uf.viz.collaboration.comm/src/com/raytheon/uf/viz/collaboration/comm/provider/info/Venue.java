@@ -58,6 +58,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 13, 2014 2751       bclement    changed to use VenueParticipant handle instead of alias
  * Mar 05, 2014 2798       mpduff      Get Presence from MUC.
  * Mar 06, 2014 2751       bclement    added getParticipantUserid()
+ * Mar 07, 2014 2848       bclement    added hasOtherParticipants()
  * 
  * </pre>
  * 
@@ -77,6 +78,13 @@ public class Venue implements IVenue {
         this.muc = muc;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getParticipants
+     * ()
+     */
     @Override
     public Collection<VenueParticipant> getParticipants() {
         List<VenueParticipant> participants = new ArrayList<VenueParticipant>();
@@ -88,6 +96,13 @@ public class Venue implements IVenue {
         return participants;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getPresence
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant)
+     */
     @Override
     public Presence getPresence(VenueParticipant user) {
         Presence presence = muc.getOccupantPresence(user.getFQName());
@@ -170,6 +185,14 @@ public class Venue implements IVenue {
             rval = participantIdCache.get(participant.getHandle());
         }
         return rval;
+    }
+
+    /**
+     * @return false if current user is the only participant in the venue
+     */
+    public boolean hasOtherParticipants() {
+        // current user is included in participant count
+        return getParticipantCount() > 1;
     }
 
 }
