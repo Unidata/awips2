@@ -214,7 +214,7 @@ THIS IS A TEST MESSAGE. ##
 #end
 
 ###### mile markers ##############
-#parse("milemarkers.vm")
+## #parse("mileMarkers.vm")
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -425,7 +425,7 @@ THIS IS A TEST MESSAGE. ##
 
 #end
 ###### mile markers ##############
-## #parse("milemarkers.vm")
+## #parse("mileMarkers.vm")
 
 ##################################
 ######### CALLS TO ACTION ########
