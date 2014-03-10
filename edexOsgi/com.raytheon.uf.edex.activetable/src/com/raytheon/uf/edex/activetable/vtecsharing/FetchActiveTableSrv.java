@@ -201,7 +201,7 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
      */
     @Override
     public String validateConfig(String siteID) {
-        return null;
+        return "";
     }
 
     /*
