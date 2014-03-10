@@ -1,34 +1,3 @@
-/**
- * 
- * FfgRecord
- * 
- * This java class performs the mapping to the database tables for FFG.
- *  
- * <pre>
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 08/2008      14         T. Lee      Initial coding
- * 12/2008      14         T. Lee      Initialized variable
- * 03/2009      14         T. Lee      Migration to TO10
- * 07/2009      14         T. Lee      Migration to TO11
- * 09/2011                 Chin Chen   changed to improve purge performance
- *                                     and  removed xml serialization as
- *                                     well
- * Apr 04, 2013 1846       bkowal      Added an index on refTime and
- *                                     forecastTime
- * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869       bsteffen    Remove dataURI column from
- *                                     PluginDataObject.
- * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
- *
- * </pre>
- *
- * @author T.Lee
- * @version 1.0
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.ffg;
 
 import java.util.Calendar;
@@ -54,6 +23,38 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * 
+ * FfgRecord
+ * 
+ * This java class performs the mapping to the database tables for FFG.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 08/2008      14         T. Lee      Initial coding
+ * 12/2008      14         T. Lee      Initialized variable
+ * 03/2009      14         T. Lee      Migration to TO10
+ * 07/2009      14         T. Lee      Migration to TO11
+ * 09/2011                 Chin Chen   changed to improve purge performance
+ *                                     and  removed xml serialization as
+ *                                     well
+ * Apr 04, 2013 1846       bkowal      Added an index on refTime and
+ *                                     forecastTime
+ * Apr 12, 2013 1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869       bsteffen    Remove dataURI column from
+ *                                     PluginDataObject.
+ * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 11, 2014 2784       rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * @author T.Lee
+ * @version 1.0
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ffgseq")
@@ -286,22 +287,6 @@ public class FfgRecord extends PluginDataObject {
     public void addPrecip(FfgPrecip precip) {
         ffgP.add(precip);
         // precip.setParentID (this);
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-        /*
-         * if (this.getFfgP() != null && this.getFfgP().size() > 0) { for
-         * (Iterator<FfgPrecip> iter = this.getFfgP().iterator();
-         * iter.hasNext();) { FfgPrecip fp = iter.next();
-         * //fp.setParentID(this); } }
-         */
     }
 
     @Override
