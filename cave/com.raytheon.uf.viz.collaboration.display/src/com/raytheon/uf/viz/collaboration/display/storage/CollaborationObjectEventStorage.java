@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Feb 24, 2014 2751       bclement     added separate paths for each provider under session id
  * Feb 25, 2014 2751       bclement     fixed provider id path for webDAV
  * Feb 28, 2014 2756       bclement     added auth, moved response code checks to response object
+ * Mar 06, 2014 2826       njensen      Fix spelling mistake
  * 
  * </pre>
  * 
@@ -125,7 +126,8 @@ public class CollaborationObjectEventStorage implements
                     + e.getLocalizedMessage());
             // unlikely that utf8 isn't supported, but just go again with the
             // default encoding
-            persistance.sessionDataURL += URLEncoder.encode(persistance.providerid);
+            persistance.sessionDataURL += URLEncoder
+                    .encode(persistance.providerid);
         }
     }
 
@@ -232,7 +234,8 @@ public class CollaborationObjectEventStorage implements
      * @return
      * @throws CollaborationException
      */
-    private HttpPut createPut(String url, byte[] body) throws CollaborationException{
+    private HttpPut createPut(String url, byte[] body)
+            throws CollaborationException {
         URI uri = URI.create(url);
         HttpPut put = new HttpPut(uri);
         authManager.signRequest(put, providerid, uri, body);
@@ -277,7 +280,7 @@ public class CollaborationObjectEventStorage implements
     public AbstractDispatchingObjectEvent retrieveEvent(IPersistedEvent event)
             throws CollaborationException {
         if (event instanceof CollaborationHttpPersistedEvent) {
-            CollaborationHttpPersistedObject object = retreiveStoredObject((CollaborationHttpPersistedEvent) event);
+            CollaborationHttpPersistedObject object = retrieveStoredObject((CollaborationHttpPersistedEvent) event);
             if (object == null) {
                 // No object available
                 return null;
@@ -304,7 +307,7 @@ public class CollaborationObjectEventStorage implements
      * @return null if object was deleted
      * @throws CollaborationException
      */
-    private CollaborationHttpPersistedObject retreiveStoredObject(
+    private CollaborationHttpPersistedObject retrieveStoredObject(
             CollaborationHttpPersistedEvent event)
             throws CollaborationException {
         String objectPath = event.getResourcePath();
@@ -421,7 +424,7 @@ public class CollaborationObjectEventStorage implements
                 text = reader.getText().trim();
                 if (inFileTag && text.endsWith(".obj")) {
                     event.setResourcePath(objectPath + text);
-                    CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
+                    CollaborationHttpPersistedObject eventObject = retrieveStoredObject(event);
                     if (eventObject != null) {
                         objectEvents.add(eventObject);
                     } else {
@@ -466,7 +469,7 @@ public class CollaborationObjectEventStorage implements
                     String object = htmlStr.substring(foundAt, endsAt);
                     if (object.endsWith(objectEnding)) {
                         event.setResourcePath(objectPath + object);
-                        CollaborationHttpPersistedObject eventObject = retreiveStoredObject(event);
+                        CollaborationHttpPersistedObject eventObject = retrieveStoredObject(event);
                         if (eventObject != null) {
                             objectEvents.add(eventObject);
                         } else {
