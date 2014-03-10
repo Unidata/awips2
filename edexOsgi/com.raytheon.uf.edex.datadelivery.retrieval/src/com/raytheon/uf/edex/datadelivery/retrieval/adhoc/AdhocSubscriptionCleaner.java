@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.database.purge.PurgeRuleSet;
  * ------------ ---------- ----------- --------------------------
  * Oct 11, 2013  2460      dhladky     Initial creation
  * Oct 23, 2013  2469      dhladky     Refined the time check and accommodation for lack of purge rules.
+ * Feb 24, 2014  2469      dhladky     Added check to add in default rules when regular rules don't exist.
  * 
  * </pre>
  * 
@@ -75,8 +76,9 @@ public class AdhocSubscriptionCleaner {
      * Cleans old adhoc subscriptions from the WFO registry.
      * Compares the end() time on the sub to the expiration period in 
      * associated purge rules derived from the plugin each subs data 
-     * is stored too. Runs on every 20 minutes.
+     * is stored too. Runs on every 60 minutes.
      */
+    @SuppressWarnings("rawtypes")
     public void processSubscriptions() {
        
         statusHandler.handle(Priority.INFO, "Processing Adhoc Subscriptions for expiration...");
@@ -153,7 +155,11 @@ public class AdhocSubscriptionCleaner {
                         if (purgeRuleSet != null) {
                             
                             List<PurgeRule> rules = purgeRuleSet.getRules();
-                            // if no rules exist, create a default, 12 hours
+                            // If no regular rules, try defaults.
+                            if (rules.isEmpty()) {
+                                rules = purgeRuleSet.getDefaultRules();
+                            }
+                            // if still no rules exist, create a default, 12 hours
                             if (rules.isEmpty()) {
                                 rules = new ArrayList<PurgeRule>();
                                 PurgeRule rule = new PurgeRule();

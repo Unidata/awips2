@@ -9,7 +9,7 @@
     <bean id="bufrncwfDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="bufrncwfPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.bufrncwf"/>
+		<constructor-arg value="jms-durable:queue:Ingest.bufrncwf"/>
 	</bean>
 
 	<bean id="bufrncwfCamelRegistered" factory-bean="contextManager"
