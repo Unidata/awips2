@@ -1,31 +1,3 @@
-/**
- * NcUairRecord
- * 
- * <pre>
- * The java class defines the parameters in the postgres table and
- * the for HDF5 dataset for the upper air data.
- * 
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 03/2010      210				L. Lin     	Initial creation
- * 4/2011						T. Lee		Persist to HDF5
- * 09/2011      457             S. Gurung   Renamed H5 to Nc and h5 to nc
- * 09/2011                   	Chin Chen   support batch decoding methods for better performance and
- * 											remove xml serialization as well
- * 10/2011                      S. Gurung   Replace slat/slon/selv with location of type SurfaceObsLocation
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * 04/2013      1293            bkowal      Removed references to hdffileid. 
- * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869            bsteffen    Remove dataURI column from
- *                                          PluginDataObject.
- * Dec 03, 2013 2551            rjpeter     Remove get/setPersistenceTime
- * </pre>
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- * @author L. Lin
- * @version 1.0
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.ncuair;
 
 import java.util.Calendar;
@@ -59,6 +31,39 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Geometry;
 
+/**
+ * NcUairRecord
+ * 
+ * <pre>
+ * The java class defines the parameters in the postgres table and
+ * the for HDF5 dataset for the upper air data.
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 03/2010      210             L. Lin      Initial creation
+ * 4/2011                       T. Lee      Persist to HDF5
+ * 09/2011      457             S. Gurung   Renamed H5 to Nc and h5 to nc
+ * 09/2011                      Chin Chen   support batch decoding methods for better performance and
+ *                                          remove xml serialization as well
+ * 10/2011                      S. Gurung   Replace slat/slon/selv with location of type SurfaceObsLocation
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * 04/2013      1293            bkowal      Removed references to hdffileid. 
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ * Dec 03, 2013 2551            rjpeter     Remove get/setPersistenceTime
+ * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ * 
+ * @author L. Lin
+ * @version 1.0
+ */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncuairseq")
 @Table(name = "ncuair", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
@@ -475,17 +480,6 @@ public class NcUairRecord extends PersistablePluginDataObject implements
     public void addLiftedIndex(NcUairLiftedIndex li) {
         liftedindex.add(li);
         // li.setParentID(this);
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
     }
 
     @Override
