@@ -20,21 +20,15 @@
 package com.raytheon.uf.edex.registry.ebxml.services;
 
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.database.RunnableWithTransaction;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -54,6 +48,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/29/2013    2191        bphillip    Added executors to remove orphaned slots and expired events
  * 1/15/2014    2613        bphillip    Added Hibernate flush() call
  * 2/4/2014     2769        bphillip    Removed flush and clear call
+ * 2/13/2014    2769        bphillip    Refactored to no longer use executor threads
  * </pre>
  * 
  * @author bphillip
@@ -70,23 +65,16 @@ public class RegistryGarbageCollector {
     /** Sentinel to denote if the garbage collection is currently running */
     private AtomicBoolean running = new AtomicBoolean(false);
 
-    /** The executor service to remove expired events */
-    private ThreadPoolExecutor expiredEventExecutor;
-
-    /** The transaction template to use for asynchronous tasks */
-    private TransactionTemplate txTemplate;
-
     /** Data access object for AuditableEventType */
     private AuditableEventTypeDao eventDao;
 
-    private static final int QUEUE_MAX_SIZE = 500;
+    /** The number of events to delete per batch */
+    private static final int DELETE_BATCH_SIZE = 100;
 
     /**
      * Creates a new GarbageCollector object
      */
     public RegistryGarbageCollector() {
-        expiredEventExecutor = new ThreadPoolExecutor(1, 3, 1L,
-                TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(250));
     }
 
     /**
@@ -97,11 +85,9 @@ public class RegistryGarbageCollector {
      * @param eventDao
      *            The auditable event dao to use
      */
-    public RegistryGarbageCollector(AuditableEventTypeDao eventDao,
-            TransactionTemplate txTemplate) {
+    public RegistryGarbageCollector(AuditableEventTypeDao eventDao) {
         this();
         this.eventDao = eventDao;
-        this.txTemplate = txTemplate;
 
     }
 
@@ -129,41 +115,15 @@ public class RegistryGarbageCollector {
      *             If errors occur while enqueuing events to be deleted
      */
     private void purgeExpiredEvents() throws EbxmlRegistryException {
-        int limit = expiredEventExecutor.getQueue().remainingCapacity();
-        if (limit > QUEUE_MAX_SIZE * .25) {
-            List<AuditableEventType> expiredEvents = eventDao
-                    .getExpiredEvents(limit);
-            for (AuditableEventType event : expiredEvents) {
-                try {
-                    expiredEventExecutor.submit(new RemoveExpiredEvent(
-                            txTemplate, event));
-                } catch (RejectedExecutionException e) {
-                    // Could not add more to the queue since it is full
-                }
+
+        List<AuditableEventType> expiredEvents = null;
+        do {
+            expiredEvents = eventDao.getExpiredEvents(DELETE_BATCH_SIZE);
+            if (!expiredEvents.isEmpty()) {
+                statusHandler.info("Deleting " + expiredEvents.size()
+                        + " expired Auditable Events");
+                eventDao.deleteAll(expiredEvents);
             }
-        }
-    }
-
-    /**
-     * Task to remove expired auditable eventss
-     * 
-     * @author bphillip
-     * 
-     */
-    private class RemoveExpiredEvent extends RunnableWithTransaction {
-
-        /** The event to be removed */
-        private AuditableEventType event;
-
-        public RemoveExpiredEvent(TransactionTemplate txTemplate,
-                AuditableEventType event) {
-            super(txTemplate);
-            this.event = event;
-        }
-
-        @Override
-        public void runWithTransaction() {
-            eventDao.delete(event);
-        }
+        } while (!expiredEvents.isEmpty());
     }
 }
