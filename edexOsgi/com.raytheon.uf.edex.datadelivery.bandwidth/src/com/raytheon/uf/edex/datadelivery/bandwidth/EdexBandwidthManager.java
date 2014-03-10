@@ -126,6 +126,7 @@ import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
  *                                      because of efficiency.
  * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
  * Feb 10, 2014 2636       mpduff       Pass Network map to be scheduled.
+ * Feb 21, 2014, 2636      dhladky      Try catch to keep MaintTask from dying.
  * </pre>
  * 
  * @author djohnson
@@ -837,44 +838,53 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     private class MaintenanceTask implements Runnable {
         @Override
         public void run() {
-            IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
-            timer.start();
-            statusHandler.info("MaintenanceTask starting...");
 
-            for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
-                    .values()) {
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler.info("MaintenanceTask: " + plan.getNetwork());
-                    statusHandler.info("MaintenanceTask: planStart: "
-                            + plan.getPlanStart().getTime());
-                    statusHandler.info("MaintenanceTask: planEnd: "
-                            + plan.getPlanEnd().getTime());
-                }
-                plan.resize();
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    statusHandler.info("MaintenanceTask: resized planStart: "
-                            + plan.getPlanStart().getTime());
-                    statusHandler.info("MaintenanceTask: resized planEnd: "
-                            + plan.getPlanEnd().getTime());
-                    statusHandler.info("MaintenanceTask: Update schedule");
-                }
-                // Find DEFERRED Allocations and load them into the plan...
-                List<BandwidthAllocation> deferred = bandwidthDao.getDeferred(
-                        plan.getNetwork(), plan.getPlanEnd());
-                if (!deferred.isEmpty()) {
-                    retrievalManager.schedule(deferred);
-                }
-            }
+            try {
 
-            int numSubsProcessed = 0;
-            for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
-                    .values()) {
-                numSubsProcessed += updateSchedule(plan.getNetwork());
+                IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+                timer.start();
+                statusHandler.info("MaintenanceTask starting...");
+
+                for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
+                        .values()) {
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler.info("MaintenanceTask: "
+                                + plan.getNetwork());
+                        statusHandler.info("MaintenanceTask: planStart: "
+                                + plan.getPlanStart().getTime());
+                        statusHandler.info("MaintenanceTask: planEnd: "
+                                + plan.getPlanEnd().getTime());
+                    }
+                    plan.resize();
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler
+                                .info("MaintenanceTask: resized planStart: "
+                                        + plan.getPlanStart().getTime());
+                        statusHandler.info("MaintenanceTask: resized planEnd: "
+                                + plan.getPlanEnd().getTime());
+                        statusHandler.info("MaintenanceTask: Update schedule");
+                    }
+                    // Find DEFERRED Allocations and load them into the plan...
+                    List<BandwidthAllocation> deferred = bandwidthDao
+                            .getDeferred(plan.getNetwork(), plan.getPlanEnd());
+                    if (!deferred.isEmpty()) {
+                        retrievalManager.schedule(deferred);
+                    }
+                }
+
+                int numSubsProcessed = 0;
+                for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
+                        .values()) {
+                    numSubsProcessed += updateSchedule(plan.getNetwork());
+                }
+                timer.stop();
+                statusHandler.info("MaintenanceTask complete: "
+                        + timer.getElapsed() + " - " + numSubsProcessed
+                        + " Subscriptions processed.");
+
+            } catch (Throwable t) {
+                statusHandler.error("MaintenanceTask: Subscription update scheduling has failed", t);
             }
-            timer.stop();
-            statusHandler.info("MaintenanceTask complete: "
-                    + timer.getElapsed() + " - " + numSubsProcessed
-                    + " Subscriptions processed.");
         }
     }
 }

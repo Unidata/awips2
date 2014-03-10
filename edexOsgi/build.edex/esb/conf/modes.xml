@@ -87,6 +87,7 @@
 		<exclude>.*datadelivery.*</exclude>
 		<exclude>.*bandwidth.*</exclude>
 		<includeMode>excludeDpaAndOgc</includeMode>
+		<exclude>obs-ingest-metarshef.xml</exclude>
 		<!-- ncep excludes until tested -->
 		<exclude>aww-ingest.xml</exclude>
 		<exclude>ncep-util-on-edex-ingest</exclude>
@@ -117,10 +118,12 @@
     	<include>shef-ingest.xml</include>
     	<include>persist-ingest.xml</include>
     	<include>obs-common.xml</include>
-	<include>obs-ingest.xml</include>
-	<include>metartohmdb-plugin.xml</include>
-	<include>pointdata-common.xml</include>
+    	<include>obs-ingest.xml</include>
+        <include>obs-ingest-metarshef.xml</include>
+        <include>metartohmdb-plugin.xml</include>
+        <include>pointdata-common.xml</include>
     	<include>shef-common.xml</include>
+        <include>ohd-common-database.xml</include>
     	<include>ohd-common.xml</include>
     	<include>alarmWhfs-spring.xml</include>
     	<include>arealffgGenerator-spring.xml</include>
@@ -145,6 +148,7 @@
     	<exclude>fssobs-common.xml</exclude>
     </mode>
     <mode name="requestHydro">
+        <include>ohd-common-database.xml</include>
     	<include>ohd-common.xml</include>
     	<include>database-common.xml</include>
     	<include>ohd-request.xml</include>
@@ -227,6 +231,7 @@
 		<include>shef-common.xml</include>
 		<include>satellite-common.xml</include>
 		<include>satellite-dataplugin-common.xml</include>
+        <include>ohd-common-database.xml</include>
 		<include>ohd-common.xml</include>
 		<include>management-common.xml</include>
 		<include>auth-common.xml</include>
