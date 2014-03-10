@@ -23,7 +23,6 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
@@ -62,7 +61,6 @@ import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.IRemote
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplay;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer.RemoteDisplayChangeType;
 import com.raytheon.uf.viz.collaboration.display.data.ColorChangeEvent;
-import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer.IDisplayContainerChangedListener;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
@@ -99,6 +97,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Feb 18, 2014 2751       bclement    update participants list and notify on leader change
  * Feb 19, 2014 2751       bclement    add change color and transfer leader icons
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
+ * Mar 06, 2014 2848       bclement    moved colormanager update code to session container
  * 
  * </pre>
  * 
@@ -544,12 +543,6 @@ public class CollaborationSessionView extends SessionView implements
 
     @Subscribe
     public void modifyColors(ColorPopulator populator) {
-        SessionColorManager colorMan = SharedDisplaySessionMgr
-                .getSessionContainer(sessionId).getColorManager();
-        for (Entry<VenueParticipant, RGB> entry : populator.getColors()
-                .entrySet()) {
-            colorMan.setColorForUser(entry.getKey(), entry.getValue());
-        }
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
@@ -560,9 +553,6 @@ public class CollaborationSessionView extends SessionView implements
 
     @Subscribe
     public void modifyColors(ColorChangeEvent event) {
-        SharedDisplaySessionMgr.getSessionContainer(sessionId)
-                .getColorManager()
-                .setColorForUser(event.getUserName(), event.getColor());
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
