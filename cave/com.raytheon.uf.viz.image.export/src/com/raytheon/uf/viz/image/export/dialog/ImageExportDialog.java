@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2312     bsteffen    Initial creation
+ * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * 
  * </pre>
  * 
@@ -169,7 +170,8 @@ public class ImageExportDialog extends CaveSWTDialog {
         gridData.widthHint = 24;
         framesFromText.setLayoutData(gridData);
         framesFromText.setEnabled(selectedFramesButton.getSelection());
-        framesFromText.setText(String.valueOf(options.getFirstFrameIndex() + 1));
+        framesFromText
+                .setText(String.valueOf(options.getFirstFrameIndex() + 1));
         new Label(group, SWT.NONE).setText("to:");
         framesToText = new Text(group, SWT.BORDER);
         gridData = new GridData();
@@ -376,14 +378,28 @@ public class ImageExportDialog extends CaveSWTDialog {
     }
 
     protected boolean validate() {
-        if (options.getFrameSelection() == FrameSelection.USER
-                && (options.getFirstFrameIndex() > options.getLastFrameIndex() || options
-                        .getLastFrameIndex() < 0)) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR | SWT.OK);
-            mb.setText("Invalid Range");
-            mb.setMessage("The frame range is invalid, please enter a valid range");
-            mb.open();
-            return false;
+        if (options.getFrameSelection() == FrameSelection.USER) {
+            String message = null;
+            if ((options.getFirstFrameIndex() < options.getMinFrameIndex())) {
+                message = "The first frame cannot be less than "
+                        + (options.getMinFrameIndex() + 1);
+            } else if ((options.getLastFrameIndex() > options
+                    .getMaxFrameIndex() + 1)) {
+                message = "The last frame cannot be greater than than "
+                        + (options.getMaxFrameIndex() + 1);
+            } else if ((options.getFirstFrameIndex() > options
+                    .getLastFrameIndex())) {
+                message = "The last frame must be after the first frame";
+            }
+            if (message != null) {
+                MessageBox mb = new MessageBox(getShell(), SWT.ICON_ERROR
+                        | SWT.OK);
+                mb.setText("Invalid Range");
+                mb.setMessage("The frame range is invalid.\n" + message
+                        + ".\nPlease enter a valid range");
+                mb.open();
+                return false;
+            }
         }
 
         String path = options.getFileLocation().getAbsolutePath();
