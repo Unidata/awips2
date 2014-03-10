@@ -1,54 +1,48 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Grid Plug-in
+Bundle-Name: Grid Display Plug-in
 Bundle-SymbolicName: com.raytheon.viz.grid;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.viz.grid.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core, com.raytheon.uf.common.dataplugin.grid.coverage
 Eclipse-BuddyPolicy: ext, global
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- javax.measure,
- org.geotools,
- com.raytheon.viz.core.contours,
- com.raytheon.viz.pointdata,
- com.raytheon.uf.viz.core,
+Require-Bundle: org.eclipse.ui;bundle-version="3.8.0",
+ org.eclipse.core.runtime;bundle-version="3.8.0",
+ com.raytheon.uf.common.dataplugin.grid;bundle-version="1.13.0";visibility:=reexport,
+ com.raytheon.uf.viz.core;bundle-version="1.14.2",
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage,
- com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
+ com.raytheon.viz.core.contours;bundle-version="1.14.0",
+ com.raytheon.viz.pointdata,
  com.raytheon.viz.radar,
  com.raytheon.uf.viz.productbrowser,
- com.raytheon.uf.common.dataplugin.radar,
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.14.0",
  com.raytheon.uf.viz.points,
- com.raytheon.uf.common.gridcoverage,
- com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.dataplugin.level,
  com.raytheon.uf.common.colormap,
- com.raytheon.uf.viz.derivparam
-Bundle-ActivationPolicy: lazy
+ com.raytheon.uf.viz.derivparam;bundle-version="1.14.0",
+ com.raytheon.uf.common.style,
+ com.raytheon.uf.common.localization;bundle-version="1.14.0",
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.derivparam,
+ com.raytheon.uf.common.pointdata;bundle-version="1.13.0",
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.common.topo;bundle-version="1.14.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ javax.measure
 Export-Package: com.raytheon.viz.grid,
  com.raytheon.viz.grid.inv,
  com.raytheon.viz.grid.rsc,
  com.raytheon.viz.grid.rsc.general,
  com.raytheon.viz.grid.util,
  com.raytheon.viz.grid.xml
-Import-Package: com.raytheon.uf.common.comm,
- com.raytheon.uf.common.derivparam.tree,
- com.raytheon.uf.common.localization,
- com.raytheon.uf.common.parameter,
- com.raytheon.uf.common.pointdata,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.style,
- com.raytheon.uf.common.style.arrow,
- com.raytheon.uf.common.style.contour,
- com.raytheon.uf.common.style.image,
- com.raytheon.uf.common.style.level,
- com.raytheon.uf.common.time,
- com.raytheon.uf.common.topo,
- com.raytheon.uf.viz.d2d.core.map,
- com.raytheon.viz.alerts,
+Import-Package: com.raytheon.viz.alerts,
  com.raytheon.viz.alerts.observers,
  com.raytheon.viz.core.rsc,
- com.raytheon.viz.core.rsc.displays
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ com.raytheon.viz.core.units
