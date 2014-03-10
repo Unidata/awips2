@@ -36,6 +36,7 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 20, 2014  2312     bsteffen    Initial creation
+ * Mar 10, 2014  2867     bsteffen    Better frame range validation.
  * 
  * </pre>
  * 
@@ -87,6 +88,10 @@ public class ImageExportOptions {
     private int firstFrameIndex = 0;
 
     private int lastFrameIndex = 0;
+
+    private int minFrameIndex = 0;
+
+    private int maxFrameIndex = 0;
 
     /** first frame dwell time in ms */
     private int firstFrameDwell = 700;
@@ -145,6 +150,22 @@ public class ImageExportOptions {
         this.firstFrameDwell = firstFrameDwell;
     }
 
+    public int getMinFrameIndex() {
+        return minFrameIndex;
+    }
+
+    public void setMinFrameIndex(int minFrameIndex) {
+        this.minFrameIndex = minFrameIndex;
+    }
+
+    public int getMaxFrameIndex() {
+        return maxFrameIndex;
+    }
+
+    public void setMaxFrameIndex(int maxFrameIndex) {
+        this.maxFrameIndex = maxFrameIndex;
+    }
+
     public int getLastFrameDwell() {
         return lastFrameDwell;
     }
@@ -166,6 +187,7 @@ public class ImageExportOptions {
         int frameCount = container.getActiveDisplayPane().getDescriptor()
                 .getFramesInfo().getFrameCount();
         lastFrameIndex = Math.max(frameCount - 1, 0);
+        maxFrameIndex = lastFrameIndex;
     }
 
     public void populate(LoopProperties loopProperties) {
