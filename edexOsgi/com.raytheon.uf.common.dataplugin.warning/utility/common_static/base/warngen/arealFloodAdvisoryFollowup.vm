@@ -49,7 +49,7 @@
 #end
 #if(${ic} == "IJ")
   #set ($cause = "AN ICE JAM") 
-  #set ($hycType = "FOR ICE JAM FLOODING ")  
+  #set ($hycType = "FOR AN ICE JAM ")  
 #end
 #if(${ic} == "DR")
   #set ($cause = "A DAM FLOODGATE RELEASE") 
