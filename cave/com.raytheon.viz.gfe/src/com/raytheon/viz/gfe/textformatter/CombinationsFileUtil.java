@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.textformatter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -223,12 +224,18 @@ public class CombinationsFileUtil {
         // retrieve combinations file if it's changed
         LocalizationFile lf = pm.getStaticLocalizationFile(FileUtil.join(
                 COMBO_DIR_PATH, comboName + ".py"));
-        File pyFile;
-        try {
-            pyFile = lf.getFile(true);
-        } catch (LocalizationException e) {
-            throw new GfeException("Error retrieving combinations file: "
-                    + comboName, e);
+        File pyFile = null;
+        if (lf != null) {
+            try {
+                pyFile = lf.getFile(true);
+            } catch (LocalizationException e) {
+                throw new GfeException("Error retrieving combinations file: "
+                        + comboName, e);
+            }
+        }
+
+        if (pyFile == null || !pyFile.exists()) {
+            return Collections.emptyList();
         }
 
         LocalizationContext baseContext = pm.getContext(

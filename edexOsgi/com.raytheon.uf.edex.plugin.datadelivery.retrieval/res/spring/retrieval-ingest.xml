@@ -6,7 +6,7 @@
     <bean factory-bean="distributionSrv" factory-method="register">
         <constructor-arg ref="dataDeliveryRetrievalPluginName" />
         <constructor-arg
-            value="jms-dist:queue:dataDeliveryRetrievalProcess?destinationResolver=#qpidDurableResolver" />
+            value="jms-durable:queue:dataDeliveryRetrievalProcess"/>
     </bean>
 
 </beans>
