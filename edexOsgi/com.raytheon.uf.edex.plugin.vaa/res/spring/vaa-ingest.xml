@@ -47,8 +47,12 @@
                         <to uri="direct-vm:indexAlert" />
                     </pipeline>
                     <doCatch>
+                        <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+                        <to uri="direct-vm:logFailureAsInfo" />
+                    </doCatch>                    
+                    <doCatch>
                         <exception>java.lang.Throwable</exception>
-                        <to uri="log:vaa?level=ERROR"/>
+                        <to uri="direct-vm:logFailedData"/>
                     </doCatch>
                 </doTry>
             </pipeline>
