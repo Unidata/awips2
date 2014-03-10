@@ -53,7 +53,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Nov  8, 2013 16758      mgamazaychikov Changed access modifier of mergeWatches to protected 
  * 										  so a child class can override the implementation.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
- * Mar 04, 2014 2832       njensen     Set fonts to null in disposeInternal() so recycle works
+ * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -131,26 +132,7 @@ public class WatchesResource extends AbstractWWAResource {
     @Override
     protected void disposeInternal() {
         timer.cancel();
-
-        for (WarningEntry entry : entryMap.values()) {
-            if (entry.shadedShape != null) {
-                entry.shadedShape.dispose();
-            }
-            if (entry.wireframeShape != null) {
-                entry.wireframeShape.dispose();
-            }
-        }
-
-        entryMap.clear();
-        if (warningsFont != null) {
-            warningsFont.dispose();
-            warningsFont = null;
-        }
-
-        if (emergencyFont != null) {
-            emergencyFont.dispose();
-            emergencyFont = null;
-        }
+        super.disposeInternal();
     }
 
     @Override
