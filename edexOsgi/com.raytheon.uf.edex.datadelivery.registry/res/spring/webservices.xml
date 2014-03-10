@@ -23,18 +23,20 @@
 
 	<bean id="registryAvailabilityService"
 		class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryAvailableRestService" />
-		
-	<bean id="registryStatus" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryFederationStatus">
-		<property name="registryDao" ref="registryDao"/>
-		<property name="subscriptionDao" ref="subscriptionTypeDao"/>
-		<property name="federationManager" ref="RegistryFederationManager"/>
-		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
-		<property name="registrySoapServices" ref="registryWebServiceClient"/>
-	</bean>
 	
 	<bean id="defineRegistryQuery" class="com.raytheon.uf.edex.datadelivery.registry.web.RegistryQueryDefinitionService">
 		<property name="registryObjectDao" ref="registryObjectDao"/>
 	</bean>
+
+	<!-- SOAP Service definitions -->
+	<jaxws:server id="RegistryFederationManagerService" address="/registryFederationManager">
+		<jaxws:inInterceptors>
+			<ref bean="webServiceInInterceptor" />
+		</jaxws:inInterceptors>
+		<jaxws:serviceBean>
+			<ref bean="RegistryFederationManager" />
+		</jaxws:serviceBean>
+	</jaxws:server>
 
 
 	<!-- REST Service Definitions -->
@@ -45,7 +47,7 @@
 		<jaxrs:serviceBeans>
 			<ref bean="registryDataAccessService" />
 			<ref bean="registryAvailabilityService" />
-			<ref bean="registryStatus"/>
+			<ref bean="RegistryFederationManager"/>
 			<ref bean="defineRegistryQuery"/>
 		</jaxrs:serviceBeans>
 	</jaxrs:server>

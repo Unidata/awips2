@@ -31,6 +31,8 @@ import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryRequest;
 import oasis.names.tc.ebxml.regrep.xsd.query.v4.QueryResponse;
 
 import org.apache.cxf.annotations.FastInfoset;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 
@@ -44,6 +46,7 @@ import com.raytheon.uf.common.registry.EbxmlNamespaces;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 12/9/2013     2613       bphillip    Changed to use FastInfoset
+ * 2/19/2014    2769        bphillip    Added Transactional annotation to executeQuery method
  * </pre>
  * 
  * @author bphillip
@@ -71,6 +74,7 @@ public interface QueryManager {
      */
     @WebMethod(action = EXECUTE_QUERY_ACTION)
     @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException;
