@@ -31,6 +31,7 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
  * Mar 7, 2012            rferrel     Initial creation
  * Jan 30, 2014 2698       bclement    moved to collaboration.comm project from collaboration.ui
  *                                     added handle
+ * Mar 10, 2014 2848       bclement    added constructor with required fields
  * 
  * </pre>
  * 
@@ -51,6 +52,18 @@ public class CreateSessionData {
     private String inviteMessage;
 
     private String sessionId;
+
+    /**
+     * @param name
+     *            name of session venue
+     * @param handle
+     *            name user is known by in venue
+     */
+    public CreateSessionData(String name, String handle) {
+        this.name = name;
+        this.handle = handle;
+        this.collaborationSession = false;
+    }
 
     public String getSessionId() {
         return sessionId;
