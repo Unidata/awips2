@@ -24,7 +24,7 @@
     <bean id="loctablesDistRegistry" factory-bean="distributionSrv"
         factory-method="register">
         <constructor-arg ref="loctablesPluginName" />
-        <constructor-arg value="jms-dist:queue:Ingest.loctables" />
+        <constructor-arg value="jms-durable:queue:Ingest.loctables" />
     </bean>
 
     <camelContext id="loctables-camel"

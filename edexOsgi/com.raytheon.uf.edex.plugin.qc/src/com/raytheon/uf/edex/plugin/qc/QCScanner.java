@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.plugin.qc.dao.QCDao;
  *                                     pupynere
  * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 20, 2014 DR 17098   D. Friedman Filter out invalid lat/lon values.
  * 
  * </pre>
  * 
@@ -207,13 +208,15 @@ public class QCScanner {
                     while (ri < records.length) {
                         QCRecord r = new QCRecord();
                         double obsTime = dObsTime.getDouble(ri);
+                        double lat = dLat.getDouble(ri);
+                        double lon = dLon.getDouble(ri);
                         if ((obsTime != vObsTimeFillValue)
-                                && ((vObsTimeMissingValue == null) || (vObsTimeMissingValue != obsTime))) {
+                                && ((vObsTimeMissingValue == null) || (vObsTimeMissingValue != obsTime))
+                                && Math.abs(lon) <= 180 && Math.abs(lat) <= 90) {
                             r.setDataTime(new DataTime(new Date(
                                     (long) (obsTime * 1000))));
                             SurfaceObsLocation loc = new SurfaceObsLocation();
-                            loc.assignLocation(dLat.getDouble(ri),
-                                    dLon.getDouble(ri));
+                            loc.assignLocation(lat, lon);
                             loc.setElevation(dElev.getInt(ri));
                             StringBuilder stationId = new StringBuilder(
                                     ID_LENGTH);
@@ -230,10 +233,12 @@ public class QCScanner {
                         ++index;
                         ++ri;
                     }
-                    if (oi < records.length) {
-                        records = Arrays.copyOf(records, oi);
+                    if (oi > 0) {
+                        if (oi < records.length) {
+                            records = Arrays.copyOf(records, oi);
+                        }
+                        target.acceptRecords(records);
                     }
-                    target.acceptRecords(records);
                 }
             } finally {
                 nc.close();

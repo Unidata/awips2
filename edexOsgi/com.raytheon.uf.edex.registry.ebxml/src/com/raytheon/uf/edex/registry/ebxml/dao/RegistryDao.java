@@ -21,6 +21,9 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 /**
  * 
  * Data access object for RegistryType objects
@@ -41,6 +44,7 @@ public class RegistryDao extends RegistryObjectTypeDao<RegistryType> {
 
     private static final String QUERY_BY_BASE_URL = "FROM RegistryType reg where reg.baseURL=:baseURL";
 
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public RegistryType getRegistryByBaseURL(String baseURL) {
         return this.uniqueResult(QUERY_BY_BASE_URL, "baseURL", baseURL);
     }
