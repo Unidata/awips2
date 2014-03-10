@@ -67,6 +67,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * Apr 19, 2012           mschenke    Initial creation
  * Feb 19, 2014  2751     bclement    added check for closed session
  * Mar 05, 2014  2843     bsteffen    Prevent exceptions on dispose.
+ * Mar 06, 2014  2848     bclement    only send to venue if non empty
  * 
  * 
  * </pre>
@@ -329,7 +330,13 @@ public class CollaborationDispatcher extends Dispatcher {
 
     private void send(Object obj) {
         try {
-            session.sendObjectToVenue(obj);
+            if (session.hasOtherParticipants()) {
+                session.sendObjectToVenue(obj);
+            } else {
+                Activator.statusHandler
+                        .debug("Skipping sending event to empty room: "
+                                + obj.getClass());
+            }
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
