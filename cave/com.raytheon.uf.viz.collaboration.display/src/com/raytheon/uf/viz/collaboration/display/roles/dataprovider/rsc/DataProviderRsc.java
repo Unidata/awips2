@@ -25,7 +25,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
@@ -58,6 +57,7 @@ import com.raytheon.uf.viz.remote.graphics.DispatchGraphicsTarget;
  * ------------ ---------- ----------- --------------------------
  * Apr 13, 2012            njensen     Initial creation
  * Jan 28, 2014 2698       bclement    removed venue info
+ * Mar 06, 2014 2848       bclement    get subject dynamically from session
  * 
  * </pre>
  * 
@@ -69,8 +69,6 @@ public class DataProviderRsc extends
         AbstractVizResource<DataProviderRscData, IDescriptor> {
 
     private String roomName;
-
-    private String subject;
 
     private ISharedDisplaySession session;
 
@@ -86,9 +84,7 @@ public class DataProviderRsc extends
         if (container != null) {
             session = container.getSession();
             colorManager = container.getColorManager();
-            IVenue venue = session.getVenue();
-            roomName = venue.getName();
-            subject = venue.getSubject();
+            roomName = session.getVenueName();
         }
     }
 
@@ -105,7 +101,7 @@ public class DataProviderRsc extends
         }
         target.clearClippingPlane();
         IExtent extent = paintProps.getView().getExtent();
-        RGB color = colorManager.getColorFromUser(session.getUserID());
+        RGB color = colorManager.getColorForUser(session.getUserID());
         target.drawRect(extent, color, 3.0f, 1.0f);
 
         DrawableString string = new DrawableString(getName(), color);
@@ -153,8 +149,12 @@ public class DataProviderRsc extends
 
     public String getName() {
         String text = "Sharing with " + roomName;
-        if (subject.isEmpty() == false) {
-            text += " (" + subject + ")";
+        if (session.getVenue() != null) {
+            // session subject could change
+            String subject = session.getVenue().getSubject();
+            if (subject.isEmpty() == false) {
+                text += " (" + subject + ")";
+            }
         }
         return text;
     }
