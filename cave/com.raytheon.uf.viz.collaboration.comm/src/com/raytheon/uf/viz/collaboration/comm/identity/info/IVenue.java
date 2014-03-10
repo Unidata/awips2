@@ -23,6 +23,8 @@ import java.util.Collection;
 
 import org.jivesoftware.smack.packet.Presence;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
@@ -37,6 +39,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 1, 2012             jkorman     Initial creation
  * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2751       bclement    added getParticipantUserid()
  * 
  * </pre>
  * 
@@ -53,10 +56,10 @@ public interface IVenue {
     /**
      * Get the presence for a user in the session.
      * 
-     * @param user
+     * @param participant
      * @return
      */
-    public Presence getPresence(VenueParticipant user);
+    public Presence getPresence(VenueParticipant participant);
 
     /**
      * @return id of venue "name@service"
@@ -77,5 +80,15 @@ public interface IVenue {
      * @return venue subject
      */
     public String getSubject();
+
+    /**
+     * Attempt to find actual userid for participant. The success of this method
+     * may depend on admin rights in the venue.
+     * 
+     * @param participant
+     * @return null if no userid was found
+     * @throws CollaborationException
+     */
+    public UserId getParticipantUserid(VenueParticipant participant);
 
 }
