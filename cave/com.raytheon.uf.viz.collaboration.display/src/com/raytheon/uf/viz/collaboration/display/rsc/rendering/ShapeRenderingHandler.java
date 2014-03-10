@@ -19,7 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.display.rsc.rendering;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -63,7 +65,8 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 16, 2012            mschenke     Initial creation
+ * Apr 16, 2012            mschenke    Initial creation
+ * Mar 05, 2014 2826       njensen     Fixed null pointer in renderShadedShapes
  * 
  * </pre>
  * 
@@ -238,13 +241,22 @@ public class ShapeRenderingHandler extends CollaborationRenderingHandler {
         DrawShadedShapeEvent[] shapeEvents = event.getObjects();
         float alpha = event.getAlpha();
         float brightness = event.getBrightness();
-        IShadedShape[] shapes = new IShadedShape[shapeEvents.length];
-        for (int i = 0; i < shapes.length; ++i) {
-            shapes[i] = dataManager.getRenderableObject(
+        List<IShadedShape> shapes = new ArrayList<IShadedShape>(
+                shapeEvents.length);
+        for (int i = 0; i < shapeEvents.length; ++i) {
+            IShadedShape shp = dataManager.getRenderableObject(
                     shapeEvents[i].getObjectId(), IShadedShape.class);
+            /*
+             * small potential for the shape to be null if it was disposed and
+             * removed from the server before we got it
+             */
+            if (shp != null) {
+                shapes.add(shp);
+            }
         }
         try {
-            getGraphicsTarget().drawShadedShapes(alpha, brightness, shapes);
+            getGraphicsTarget().drawShadedShapes(alpha, brightness,
+                    shapes.toArray(new IShadedShape[0]));
         } catch (VizException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);
