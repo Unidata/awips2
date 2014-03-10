@@ -174,7 +174,7 @@ public class CollaborationDrawingResource extends
                     layer.setLineStyle(outline.getLineStyle());
                     layer.setLineWidth(outline.getOutlineWidth());
                     layer.setColor(container.getColorManager()
-                            .getColorFromUser(user));
+                            .getColorForUser(user));
                     layer.paint(target, paintProps);
                 }
             }

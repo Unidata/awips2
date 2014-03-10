@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Dec  6, 2013 2561       bclement    removed ECF
  * Jan 28, 2014 2698       bclement    removed venue info
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -212,7 +213,7 @@ public class InviteAction extends Action {
 
         private void fill() {
             for (IVenueSession session : getNewSessions()) {
-                String name = session.getVenue().getName();
+                String name = session.getVenueName();
                 Action action = new InviteAction(session, name, users);
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
