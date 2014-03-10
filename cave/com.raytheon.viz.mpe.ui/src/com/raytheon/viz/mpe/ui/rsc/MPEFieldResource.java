@@ -79,7 +79,9 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  *                                      hour less than the file time stamp. 
  * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * Sep 17, 2013 16563      snaples      Updated createFrameImage to handle trace precip 
- *                                      properly when mapping to screen.													 
+ *                                      properly when mapping to screen.	
+ * Mar 10, 2014 17059      snaples      Added case for Prism data for unit conversion correction.
+ * 												 
  * </pre>
  * 
  * @author mschenke
@@ -435,6 +437,17 @@ public class MPEFieldResource extends
                     }
                 } 
             	break;
+            
+            case Prism:
+                for (int i = 0; i < length; ++i) {
+                    short value = data[i];
+                    if (value < 0) {
+                        imageData[i] = 0;
+                    } else {
+                        imageData[i] = (short) dataToImage.convert(value);
+                    }
+                } 
+                break;   
                 
             default :
             	for (int i = 0; i < length; ++i) {
