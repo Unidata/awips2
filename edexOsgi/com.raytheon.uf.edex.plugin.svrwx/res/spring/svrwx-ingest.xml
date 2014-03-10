@@ -10,7 +10,7 @@
 	<bean id="svrwxDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="svrwxPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.svrwx" />
+		<constructor-arg value="jms-durable:queue:Ingest.svrwx" />
 	</bean>
 	
 	<bean id="svrwxCamelRegistered" factory-bean="contextManager"

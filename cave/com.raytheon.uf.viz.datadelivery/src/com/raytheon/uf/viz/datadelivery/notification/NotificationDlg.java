@@ -541,6 +541,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         id = Activator.imageDescriptorFromPlugin(
                 "com.raytheon.uf.viz.datadelivery", "icons/dd_new.png");
         trayImg2 = id.createImage();
+
         tray = display.getSystemTray();
 
         createTray();
