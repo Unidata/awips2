@@ -101,6 +101,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 18, 2014 2751       bclement    log privilege changes instead of spamming chat window
  * Feb 24, 2014 2751       bclement    added isRoomOwner()
  * Mar 05, 2014 2798       mpduff      Don't handle Presence, get from MUC instead..
+ * Mar 06, 2014 2751       bclement    added isAdmin()
  * 
  * </pre>
  * 
@@ -128,6 +129,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
     private String handle;
 
     private Venue venue;
+
+    private volatile boolean admin = false;
 
     /**
      * 
@@ -314,6 +317,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
             muc.changeSubject(data.getSubject());
             this.venue = new Venue(conn, muc);
             sendPresence(CollaborationConnection.getConnection().getPresence());
+            admin = true;
         } catch (XMPPException e) {
             XMPPError xmppError = e.getXMPPError();
             String msg;
@@ -596,11 +600,13 @@ public class VenueSession extends BaseSession implements IVenueSession {
             @Override
             public void ownershipRevoked() {
                 logUserEvent("You are no longer an owner of this room.");
+                admin = false;
             }
 
             @Override
             public void ownershipGranted() {
                 logUserEvent("You are now an owner of this room.");
+                admin = true;
             }
 
             @Override
@@ -642,11 +648,13 @@ public class VenueSession extends BaseSession implements IVenueSession {
             @Override
             public void adminRevoked() {
                 logUserEvent("You have had admin privileges revoked.");
+                admin = false;
             }
 
             @Override
             public void adminGranted() {
                 logUserEvent("You have had admin privileges granted.");
+                admin = true;
             }
 
             private void sendUserEvent(String message) {
@@ -881,6 +889,17 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     e);
         }
         return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession#isAdmin()
+     */
+    @Override
+    public boolean isAdmin() {
+        return admin;
     }
 
 }
