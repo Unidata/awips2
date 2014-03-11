@@ -84,6 +84,15 @@ if [ "${2}" = "-nobinlightning" ]; then
    LIGHTNING=false
 fi
 
+if [ "${1}" = "-buildRPM" -a -n "${2}" ]; then
+   echo "Building RPM: ${2}"
+   buildRPM ${2}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   exit 0
+fi
+
 if [ "${1}" = "-64bit" ]; then
    buildCAVE
    if [ $? -ne 0 ]; then
