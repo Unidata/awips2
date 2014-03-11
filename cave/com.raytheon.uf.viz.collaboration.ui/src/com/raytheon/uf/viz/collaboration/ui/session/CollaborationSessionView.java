@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Feb 19, 2014 2751       bclement    add change color and transfer leader icons
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * Mar 06, 2014 2848       bclement    moved colormanager update code to session container
+ * Mar 11, 2014 #2865      lvenable    Added null checks in threads
  * 
  * </pre>
  * 
@@ -546,7 +547,9 @@ public class CollaborationSessionView extends SessionView implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                usersTable.refresh();
+                if (usersTable.getTable().isDisposed() == false) {
+                    usersTable.refresh();
+                }
             }
         });
     }
@@ -556,7 +559,9 @@ public class CollaborationSessionView extends SessionView implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                usersTable.refresh();
+                if (usersTable.getTable().isDisposed() == false) {
+                    usersTable.refresh();
+                }
             }
         });
     }
@@ -839,8 +844,7 @@ public class CollaborationSessionView extends SessionView implements
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                if (usersTable != null
-                        && !usersTable.getTable().isDisposed()) {
+                if (usersTable != null && !usersTable.getTable().isDisposed()) {
                     refreshParticipantList();
                 }
                 sendParticipantSystemMessage(event.getNewLeader(),
