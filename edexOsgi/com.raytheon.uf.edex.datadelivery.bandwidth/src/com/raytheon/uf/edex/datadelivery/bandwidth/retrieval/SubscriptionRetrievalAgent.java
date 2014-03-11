@@ -1,3 +1,4 @@
+
 /**
  * 
  */
@@ -6,6 +7,8 @@ package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
@@ -55,6 +58,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.util.RetrievalGeneratorUtilit
  *                                      RetrievalTasks (PerformRetrievalsThenReturnFinder).
  *                                      Added constructor that sets the retrievalQueue to null.
  * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Feb 10, 2014  2678      dhladky      Prevent duplicate allocations.
  * 
  * </pre>
  * 
@@ -86,59 +90,108 @@ public class SubscriptionRetrievalAgent extends
     }
 
     @Override
-    void processAllocation(SubscriptionRetrieval retrieval)
+    void processAllocations(List<SubscriptionRetrieval> subRetrievals)
             throws EdexException {
-        Subscription<?, ?> sub;
-        try {
-            sub = bandwidthDao.getSubscriptionRetrievalAttributes(retrieval)
-                    .getSubscription();
-        } catch (SerializationException e) {
-            throw new EdexException("Unable to deserialize the subscription.",
-                    e);
-        }
-        final String originalSubName = sub.getName();
 
         SubscriptionBundle bundle = new SubscriptionBundle();
-        Provider provider = getProvider(sub.getProvider());
-        if (provider == null) {
-            statusHandler.error("provider was null, skipping subscription ["
-                    + originalSubName + "]");
-            return;
-        }
-        bundle.setBundleId(sub.getSubscriptionId());
-        bundle.setPriority(retrieval.getPriority());
-        bundle.setProvider(provider);
-        bundle.setConnection(provider.getConnection());
-        bundle.setSubscription(sub);
+        ConcurrentHashMap<Subscription<?, ?>, SubscriptionRetrieval> retrievalsMap = new ConcurrentHashMap<Subscription<?, ?>, SubscriptionRetrieval>();
 
-        retrieval.setActualStart(TimeUtil.newGmtCalendar());
-        retrieval.setStatus(RetrievalStatus.RETRIEVAL);
+        // Get subs from allocations and search for duplicates
+        for (SubscriptionRetrieval subRetrieval : subRetrievals) {
 
-        // update database
-        bandwidthDao.update(retrieval);
+            Subscription<?, ?> sub = null;
 
-        // generateRetrieval will pipeline the RetrievalRecord Objects created to the DB.
-        // The PK objects returned are sent to the RetrievalQueue for processing.
-        List<RetrievalRequestRecordPK> retrievals = generateRetrieval(bundle,
-                retrieval.getIdentifier());
-
-        if (!CollectionUtil.isNullOrEmpty(retrievals)) {
             try {
-                Object[] payload = retrievals.toArray();
-                RetrievalGeneratorUtilities.sendToRetrieval(destinationUri,
-                        network, payload);
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Couldn't send RetrievalRecords to Queue!", e);
+                sub = bandwidthDao.getSubscriptionRetrievalAttributes(
+                        subRetrieval).getSubscription();
+            } catch (SerializationException e) {
+                throw new EdexException(
+                        "Unable to deserialize the subscription.", e);
             }
-            statusHandler.info("Sent " + retrievals.size()
-                    + " retrievals to queue. " + network.toString());
-        } else {
-            // Normally this is the job of the SubscriptionNotifyTask, but if no
-            // retrievals were generated we have to send it manually
-            RetrievalManagerNotifyEvent retrievalManagerNotifyEvent = new RetrievalManagerNotifyEvent();
-            retrievalManagerNotifyEvent.setId(Long.toString(retrieval.getId()));
-            EventBus.publish(retrievalManagerNotifyEvent);
+
+            // We only allow one subscription retrieval per DSM update.
+            // Remove any duplicate subscription allocations/retrievals, cancel them.
+            if (!retrievalsMap.containsKey(sub)) {
+                retrievalsMap.put(sub, subRetrieval);
+            } else {
+                // Check for most recent startTime, that's the one we want for
+                // retrieval.
+                SubscriptionRetrieval currentRetrieval = retrievalsMap.get(sub);
+                if (subRetrieval.getStartTime().getTime()
+                        .after(currentRetrieval.getStartTime().getTime())) {
+                    // Replace it in the map, set previous to canceled.
+                    currentRetrieval.setStatus(RetrievalStatus.CANCELLED);
+                    bandwidthDao.update(currentRetrieval);
+                    retrievalsMap.replace(sub, subRetrieval);
+                    statusHandler
+                            .info("More recent, setting previous allocation to Cancelled ["
+                                    + currentRetrieval.getIdentifier()
+                                    + "] "
+                                    + sub.getName());
+                } else {
+                    // Not more recent, cancel
+                    subRetrieval.setStatus(RetrievalStatus.CANCELLED);
+                    bandwidthDao.update(subRetrieval);
+                    statusHandler
+                            .info("Older, setting to Cancelled ["
+                                    + currentRetrieval.getIdentifier() + "] "
+                                    + sub.getName());
+                }
+            }
+        }
+
+        for (Entry<Subscription<?, ?>, SubscriptionRetrieval> entry: retrievalsMap.entrySet()) {
+
+            SubscriptionRetrieval retrieval = entry.getValue();
+            Subscription<?, ?> sub = entry.getKey();
+            final String originalSubName = sub.getName();
+
+            Provider provider = getProvider(sub.getProvider());
+            if (provider == null) {
+                statusHandler
+                        .error("provider was null, skipping subscription ["
+                                + originalSubName + "]");
+                return;
+            }
+            bundle.setBundleId(sub.getSubscriptionId());
+            bundle.setPriority(retrieval.getPriority());
+            bundle.setProvider(provider);
+            bundle.setConnection(provider.getConnection());
+            bundle.setSubscription(sub);
+
+            retrieval.setActualStart(TimeUtil.newGmtCalendar());
+            retrieval.setStatus(RetrievalStatus.RETRIEVAL);
+
+            // update database
+            bandwidthDao.update(retrieval);
+
+            // generateRetrieval will pipeline the RetrievalRecord Objects
+            // created to the DB.
+            // The PK objects returned are sent to the RetrievalQueue for
+            // processing.
+            List<RetrievalRequestRecordPK> retrievals = generateRetrieval(
+                    bundle, retrieval.getIdentifier());
+
+            if (!CollectionUtil.isNullOrEmpty(retrievals)) {
+                try {
+                    Object[] payload = retrievals.toArray();
+                    RetrievalGeneratorUtilities.sendToRetrieval(destinationUri,
+                            network, payload);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Couldn't send RetrievalRecords to Queue!", e);
+                }
+                statusHandler.info("Sent " + retrievals.size()
+                        + " retrievals to queue. " + network.toString());
+            } else {
+                // Normally this is the job of the SubscriptionNotifyTask, but
+                // if no
+                // retrievals were generated we have to send it manually
+                RetrievalManagerNotifyEvent retrievalManagerNotifyEvent = new RetrievalManagerNotifyEvent();
+                retrievalManagerNotifyEvent.setId(Long.toString(retrieval
+                        .getId()));
+                EventBus.publish(retrievalManagerNotifyEvent);
+            }
         }
     }
     
