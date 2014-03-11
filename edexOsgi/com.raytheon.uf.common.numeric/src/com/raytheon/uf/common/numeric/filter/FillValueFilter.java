@@ -55,7 +55,7 @@ public class FillValueFilter implements DataFilter {
         if (value == fillValue) {
             return Double.NaN;
         }
-        return fillValue;
+        return value;
     }
 
     public static FilteredDataSource apply(DataSource source, double fillValue) {
