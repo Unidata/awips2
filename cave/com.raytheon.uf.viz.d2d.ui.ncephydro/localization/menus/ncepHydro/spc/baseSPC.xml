@@ -27,18 +27,5 @@
                menuText="Svr Wx Plot" id="spcWxPlot">
 	</contribute>
 	
-	<contribute xsi:type="subMenu" menuText="SPC Convective Outlooks"
-	            id="ncepHydro.spc.convectiveOutlooks">
-	    <contribute xsi:type="separator" id="ncepHydro.spc.convectiveOutlooks.top" visible="false"/>
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/convectiveOutlooks.xml"/>
-	    <contribute xsi:type="separator" id="ncepHydro.spc.convectiveOutlooks.bottom" visible="false"/>
-	</contribute>
-
-	<contribute xsi:type="subMenu" menuText="Fire Weather"
-	            id="ncepHydro.spc.fireWeather">
-	    <contribute xsi:type="separator" id="ncepHydro.spc.fireWeather.top" visible="false"/>
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/spc/fireWeather.xml"/>
-	    <contribute xsi:type="separator" id="ncepHydro.spc.fireWeather.bottom" visible="false"/>
-	</contribute>
-
+	<contribute xsi:type="subinclude" fileName="menus/spc/hazardMenus.xml"/>
 </menuTemplate>
