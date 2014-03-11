@@ -90,7 +90,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Feb 24, 2014 2632       mpduff      Moved sound generation code to CollaborationUtils
  * Mar 06, 2014 #2865      lvenable    Fixed font memory leaks added SWT dispose checks when
  *                                     running in an asynchronous thread.
- * 
+ * Mar 11, 2014 #2865      lvenable    Added null checks for msgArchive.
  * </pre>
  * 
  * @author rferrel
@@ -446,7 +446,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 }
 
                 // Archive the message
-                msgArchive.archive(sb.toString());
+                if (msgArchive != null) {
+                    msgArchive.archive(sb.toString());
+                }
 
                 // Append the text to the search control.
                 if (searchComp.isDisposed() == false) {
@@ -636,7 +638,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 }
 
                 // Archive the message
-                msgArchive.archiveLine(builder.toString());
+                if (msgArchive != null) {
+                    msgArchive.archiveLine(builder.toString());
+                }
 
                 // Append the text to the search control.
                 if (searchComp.isDisposed() == false) {
