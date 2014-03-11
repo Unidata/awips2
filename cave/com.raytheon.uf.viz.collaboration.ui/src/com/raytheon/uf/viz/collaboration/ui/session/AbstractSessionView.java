@@ -88,6 +88,8 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Feb 13, 2014 2751       bclement    made generic
  * Feb 18, 2014 2631       mpduff      Add ability to play sounds on join actions
  * Feb 24, 2014 2632       mpduff      Moved sound generation code to CollaborationUtils
+ * Mar 06, 2014 #2865      lvenable    Fixed font memory leaks added SWT dispose checks when
+ *                                     running in an asynchronous thread.
  * 
  * </pre>
  * 
@@ -114,6 +116,9 @@ public abstract class AbstractSessionView<T extends IUser> extends
     private static int SASH_COLOR = SWT.COLOR_DARK_GRAY;
 
     protected StyledText messagesText;
+
+    /** Font used with the messagesText control. */
+    private Font messagesTextFont;
 
     private StyledText composeText;
 
@@ -205,9 +210,10 @@ public abstract class AbstractSessionView<T extends IUser> extends
             }
         });
         // here need to grab the font from preferences and use that font
-        messagesText.setFont(new Font(Display.getCurrent(), PreferenceConverter
-                .getFontData(Activator.getDefault().getPreferenceStore(),
-                        "font")));
+        messagesTextFont = new Font(Display.getCurrent(),
+                PreferenceConverter.getFontData(Activator.getDefault()
+                        .getPreferenceStore(), "font"));
+        messagesText.setFont(messagesTextFont);
 
         searchComp.setSearchText(messagesText);
 
@@ -341,92 +347,111 @@ public abstract class AbstractSessionView<T extends IUser> extends
                 }
 
                 StringBuilder sb = new StringBuilder();
-                if (messagesText.getCharCount() != 0) {
+
+                if (messagesText.isDisposed() == false
+                        && messagesText.getCharCount() != 0) {
                     sb.append("\n");
                 }
+
                 sb.append("(").append(time).append(") ");
                 int offset = sb.length();
 
                 sb.append(name).append(": ").append(body);
+
                 // here is the place to put the font and color changes for
                 // keywords
                 // read in localization file once and then don't read in again,
                 // per
                 // chat room?
-                List<AlertWord> alertWords = retrieveAlertWords();
-                List<StyleRange> ranges = new ArrayList<StyleRange>();
-                if (alertWords != null) {
-                    for (AlertWord keyword : alertWords) {
-                        String text = keyword.getText().toLowerCase();
-                        if (sb.toString().toLowerCase().contains(text)) {
-                            String lowerCase = sb.toString().toLowerCase();
-                            // getting the current length of the text
-                            int currentLength = messagesText.getCharCount();
-                            int index = lowerCase.indexOf(text);
-                            while (index >= 0) {
-                                Font font = null;
-                                // storing off fonts so we don't leak
-                                if (fonts.containsKey(keyword.getFont())) {
-                                    font = fonts.get(keyword.getFont());
-                                } else {
-                                    FontData fd = StringConverter
-                                            .asFontData(keyword.getFont());
-                                    font = new Font(Display.getCurrent(), fd);
-                                    fonts.put(keyword.getFont(), font);
-                                }
+                if (messagesText.isDisposed() == false) {
+                    List<AlertWord> alertWords = retrieveAlertWords();
+                    List<StyleRange> ranges = new ArrayList<StyleRange>();
+                    if (alertWords != null) {
+                        for (AlertWord keyword : alertWords) {
+                            String text = keyword.getText().toLowerCase();
+                            if (sb.toString().toLowerCase().contains(text)) {
+                                String lowerCase = sb.toString().toLowerCase();
+                                // getting the current length of the text
+                                int currentLength = messagesText.getCharCount();
+                                int index = lowerCase.indexOf(text);
+                                while (index >= 0) {
+                                    Font font = null;
+                                    // storing off fonts so we don't leak
+                                    if (fonts.containsKey(keyword.getFont())) {
+                                        font = fonts.get(keyword.getFont());
+                                    } else {
+                                        FontData fd = StringConverter
+                                                .asFontData(keyword.getFont());
+                                        font = new Font(Display.getCurrent(),
+                                                fd);
+                                        fonts.put(keyword.getFont(), font);
+                                    }
 
-                                RGB rgb = new RGB(keyword.getRed(), keyword
-                                        .getGreen(), keyword.getBlue());
-                                Color color = null;
-                                // using the stored colors so we don't leak
-                                if (colors.containsKey(rgb)) {
-                                    color = colors.get(rgb);
-                                } else {
-                                    color = new Color(Display.getCurrent(), rgb);
-                                    colors.put(rgb, color);
-                                }
-                                TextStyle style = new TextStyle(font, color,
-                                        null);
-                                StyleRange keywordRange = new StyleRange(style);
-                                keywordRange.start = currentLength + index;
-                                keywordRange.length = keyword.getText()
-                                        .length();
+                                    RGB rgb = new RGB(keyword.getRed(), keyword
+                                            .getGreen(), keyword.getBlue());
+                                    Color color = null;
+                                    // using the stored colors so we don't leak
+                                    if (colors.containsKey(rgb)) {
+                                        color = colors.get(rgb);
+                                    } else {
+                                        color = new Color(Display.getCurrent(),
+                                                rgb);
+                                        colors.put(rgb, color);
+                                    }
+                                    TextStyle style = new TextStyle(font,
+                                            color, null);
+                                    StyleRange keywordRange = new StyleRange(
+                                            style);
+                                    keywordRange.start = currentLength + index;
+                                    keywordRange.length = keyword.getText()
+                                            .length();
 
-                                ranges.add(keywordRange);
-                                // compare to see if this position is already
-                                // styled
-                                List<StyleRange> rnges = new ArrayList<StyleRange>();
-                                rnges.addAll(ranges);
-                                for (StyleRange range : rnges) {
-                                    if (range.start <= keywordRange.start
-                                            && (range.start + range.length) >= keywordRange.start) {
-                                        if (keywordRange != range) {
-                                            if (range.length < keywordRange.length) {
-                                                ranges.remove(range);
-                                            } else {
-                                                ranges.remove(keywordRange);
+                                    ranges.add(keywordRange);
+                                    // compare to see if this position is
+                                    // already
+                                    // styled
+                                    List<StyleRange> rnges = new ArrayList<StyleRange>();
+                                    rnges.addAll(ranges);
+                                    for (StyleRange range : rnges) {
+                                        if (range.start <= keywordRange.start
+                                                && (range.start + range.length) >= keywordRange.start) {
+                                            if (keywordRange != range) {
+                                                if (range.length < keywordRange.length) {
+                                                    ranges.remove(range);
+                                                } else {
+                                                    ranges.remove(keywordRange);
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                // only execute things if the same user didn't
-                                // type it
-                                if (!myUser.equals(userId)) {
-                                    executeSightsSounds(keyword);
+                                    // only execute things if the same user
+                                    // didn't
+                                    // type it
+                                    if (!myUser.equals(userId)) {
+                                        executeSightsSounds(keyword);
+                                    }
+                                    // need to handle all instances of the
+                                    // keyword
+                                    // within the chat
+                                    index = lowerCase.indexOf(text,
+                                            text.length() + index);
                                 }
-                                // need to handle all instances of the keyword
-                                // within the chat
-                                index = lowerCase.indexOf(text, text.length()
-                                        + index);
                             }
                         }
                     }
+
+                    styleAndAppendText(sb, offset, name, userId, subject,
+                            ranges);
                 }
 
-                styleAndAppendText(sb, offset, name, userId, subject, ranges);
+                // Archive the message
                 msgArchive.archive(sb.toString());
-                searchComp.appendText(sb.toString());
+
+                // Append the text to the search control.
+                if (searchComp.isDisposed() == false) {
+                    searchComp.appendText(sb.toString());
+                }
             }
         });
     }
@@ -500,6 +525,10 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     @Override
     public void dispose() {
+        if (messagesTextFont != null) {
+            messagesTextFont.dispose();
+        }
+
         for (Image im : imageMap.values()) {
             im.dispose();
         }
@@ -540,7 +569,11 @@ public abstract class AbstractSessionView<T extends IUser> extends
 
     @Subscribe
     public void changeFont(FontData data) {
-        messagesText.setFont(new Font(Display.getCurrent(), data));
+        if (messagesTextFont != null) {
+            messagesTextFont.dispose();
+        }
+        messagesTextFont = new Font(Display.getCurrent(), data);
+        messagesText.setFont(messagesTextFont);
     }
 
     public void setAlertWords(List<AlertWord> words) {
@@ -582,21 +615,33 @@ public abstract class AbstractSessionView<T extends IUser> extends
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                Color color = Display.getCurrent().getSystemColor(swtColor);
                 Date date = new Date();
                 String time = dateFormatter.get().format(date);
                 builder.insert(0, "(" + time + ") : ");
-                if (messagesText.getCharCount() != 0) {
-                    builder.insert(0, "\n");
+
+                // Update the messagesText with the StyleRange highlights
+                if (messagesText.isDisposed() == false) {
+                    if (messagesText.getCharCount() != 0) {
+                        builder.insert(0, "\n");
+                    }
+
+                    Color color = Display.getCurrent().getSystemColor(swtColor);
+                    StyleRange range = new StyleRange(messagesText
+                            .getCharCount(), builder.length(), color, null,
+                            SWT.BOLD);
+                    List<StyleRange> ranges = new ArrayList<StyleRange>();
+                    ranges.add(range);
+                    styleAndAppendText(builder, 0, builder.toString(), null,
+                            ranges, color);
                 }
-                StyleRange range = new StyleRange(messagesText.getCharCount(),
-                        builder.length(), color, null, SWT.BOLD);
-                List<StyleRange> ranges = new ArrayList<StyleRange>();
-                ranges.add(range);
-                styleAndAppendText(builder, 0, builder.toString(), null,
-                        ranges, color);
+
+                // Archive the message
                 msgArchive.archiveLine(builder.toString());
-                searchComp.appendText(builder.toString());
+
+                // Append the text to the search control.
+                if (searchComp.isDisposed() == false) {
+                    searchComp.appendText(builder.toString());
+                }
             }
         });
     }
