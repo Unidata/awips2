@@ -108,6 +108,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  *                                         to participantArrived.
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * Mar 06, 2014 2848       bclement    get venueName directly from session
+ * Mar 11, 2014 #2865      lvenable    Added null checks in threads
  * 
  * </pre>
  * 
@@ -646,7 +647,9 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
                     participantPresenceUpdated(participant, presence);
                     break;
                 case UPDATED:
-                    usersTable.refresh();
+                    if (usersTable.getTable().isDisposed() == false) {
+                        usersTable.refresh();
+                    }
                     if (description != null) {
                         sendParticipantSystemMessage(participant, description);
                     }
@@ -661,7 +664,7 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
     /**
      * get an updated list of participants from session and refresh usersTable
      */
-    protected void refreshParticipantList(){
+    protected void refreshParticipantList() {
         IVenue venue = session.getVenue();
         Collection<VenueParticipant> participants = venue.getParticipants();
         if (session.isAdmin()) {
