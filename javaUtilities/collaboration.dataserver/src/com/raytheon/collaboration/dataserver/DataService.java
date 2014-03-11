@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,7 +43,8 @@ import com.raytheon.uf.common.http.AcceptHeaderValue;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 5, 2014  2756      bclement     Initial creation
+ * Feb 05, 2014 2756       bclement    Initial creation
+ * Mar 11, 2014 2827       bclement    pass response object to FileManager in doGet
  * 
  * </pre>
  * 
@@ -113,18 +113,17 @@ public class DataService extends HttpServlet {
                 throw new RestException(HttpServletResponse.SC_NOT_FOUND,
                         "No Such Resource: " + file.getAbsolutePath());
             }
-            ServletOutputStream out = resp.getOutputStream();
             if (file.isDirectory()) {
                 if (acceptsXml(req)) {
                     resp.setContentType(XML_CONTENT_TYPE);
-                    manager.readDirectoryAsXml(file, out);
+                    manager.readDirectoryAsXml(file, resp);
                 } else {
                     resp.setContentType(HTML_CONTENT_TYPE);
-                    manager.readDirectoryAsHtml(file, out);
+                    manager.readDirectoryAsHtml(file, resp);
                 }
             } else {
                 resp.setContentType(BINARY_CONTENT_TYPE);
-                manager.readFile(file, out);
+                manager.readFile(file, resp);
             }
         } catch (IOException e) {
             log.warn("Problem handling GET", e);
