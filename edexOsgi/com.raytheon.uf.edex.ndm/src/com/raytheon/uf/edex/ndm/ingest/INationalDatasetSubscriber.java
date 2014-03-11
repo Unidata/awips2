@@ -32,6 +32,7 @@ import java.io.File;
  * ------------ ---------- ----------- --------------------------
  * Jan 05, 2011            bfarmer     Initial creation
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Mar 11, 2014   2858     mpduff      javadoc update.
  * 
  * </pre>
  * 
@@ -40,5 +41,13 @@ import java.io.File;
  */
 
 public interface INationalDatasetSubscriber {
+    /**
+     * Called when a new file is found in NDM.
+     * 
+     * @param fileName
+     *            The filename
+     * @param file
+     *            The file object
+     */
     public void notify(String fileName, File file);
 }
