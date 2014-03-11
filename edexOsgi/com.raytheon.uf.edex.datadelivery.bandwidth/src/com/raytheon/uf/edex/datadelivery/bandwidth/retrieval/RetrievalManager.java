@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jul 09, 2013 2106       djohnson     Only needs to unregister from the EventBus when used in an EDEX instance, so handled in EdexBandwidthManager.
  * Oct 03, 2013 2267       bgonzale     Added check for no retrieval plan matching in the proposed retrieval plans.
  * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Feb 10, 2014  2678      dhladky      Prevent duplicate allocations.
  * 
  * </pre>
  * 
@@ -53,7 +54,7 @@ public class RetrievalManager {
 
     // Package-private on purpose so agents have visibility
     static final BandwidthAllocation POISON_PILL = new BandwidthAllocation();
-
+   
     private final IBandwidthDao bandwidthDao;
 
     // A Map of the Paths to retrievalPlans
@@ -192,6 +193,32 @@ public class RetrievalManager {
             }
         }
         return null;
+    }
+    
+    /***
+     * Method used in practice because we need to search for expired allocations.
+     * @param network
+     * @param agentType
+     * @return
+     */
+    public List<BandwidthAllocation> getRecentAllocations(Network network, String agentType) {
+        
+        List<BandwidthAllocation> allocations = null;
+        
+        if (shutdown) {
+            allocations = new ArrayList<BandwidthAllocation>(1);
+            allocations.add(POISON_PILL);
+            return allocations;
+        }
+
+        RetrievalPlan plan = getRetrievalPlans().get(network);
+        if (plan != null) {
+            synchronized (plan) {
+                return plan.getRecentAllocations(agentType);
+            }
+        }
+        
+        return allocations;
     }
 
     public final RetrievalPlan getPlan(Network network) {
