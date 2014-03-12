@@ -47,6 +47,7 @@ import com.raytheon.collaboration.dataserver.auth.ServerAuthManager;
  * ------------ ---------- ----------- --------------------------
  * Feb 14, 2014 2756       bclement     Initial creation
  * Feb 28, 2014  2756      bclement     added authManager
+ * Mar 11, 2014  2827      bclement     disabled sessions on servlet context handler
  * 
  * </pre>
  * 
@@ -72,7 +73,7 @@ public class WebServerRunner implements Runnable {
                 Config.PORT_DEFAULT));
 
         ServletContextHandler context = new ServletContextHandler(
-                ServletContextHandler.SESSIONS);
+                ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
 
@@ -84,8 +85,7 @@ public class WebServerRunner implements Runnable {
 
         String datapath = Config.getPath(Config.DATAPATH_KEY,
                 Config.DATAPATH_DEFAULT);
-        String pathspec = datapath
-                + "*";
+        String pathspec = datapath + "*";
         context.addServlet(new ServletHolder(new DataService(base)), pathspec);
         
         List<MethodAuthHandler> methods = Arrays.asList(new PutAuthHandler(
