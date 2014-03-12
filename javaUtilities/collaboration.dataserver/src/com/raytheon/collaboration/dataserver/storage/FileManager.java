@@ -25,12 +25,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import com.raytheon.collaboration.dataserver.RestException;
@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.concurrent.KeyLocker;
  * ------------ ---------- ----------- --------------------------
  * Feb  6, 2014  2756      bclement     Initial creation
  * Feb 28, 2014  2756      bclement     moved to storage package, made buffer size public
+ * Mar 11, 2014  2827      bclement     read methods take servlet response object
  * 
  * </pre>
  * 
@@ -213,31 +214,43 @@ public class FileManager {
     }
 
     /**
-     * Output file to stream
+     * Output file to servlet response
      * 
      * @param file
-     * @param out
+     * @param resp
      * @throws IOException
      * @throws RestException
      */
-    public void readFile(File file, OutputStream out) throws IOException,
+    public void readFile(File file, HttpServletResponse resp)
+            throws IOException,
             RestException {
         InputStream in = null;
         List<UsedLock> locks = null;
+        ServletOutputStream out = null;
         try {
             locks = getReadLocks(file);
-            if ( !file.exists()){
+            if ( !file.isFile()){
                 throw new RestException(HttpServletResponse.SC_NOT_FOUND,
                         "No Such File: " + file.getAbsoluteFile());
             }
             in = new FileInputStream(file);
+            /*
+             * We have to wait until we are sure we can read the file before we
+             * get the outputstream. This is because the act of getting the
+             * output stream commits to using it with a 200 response. If we
+             * throw an error, we won't be able to use the response object to
+             * send an error and we will send a 200 with an empty body
+             */
+            out = resp.getOutputStream();
             copy(in, out);
         } finally {
             unlock(locks);
             if (in != null) {
                 in.close();
             }
-            out.close();
+            if (out != null) {
+                out.close();
+            }
         }
     }
 
@@ -267,25 +280,25 @@ public class FileManager {
     }
 
     /**
-     * Output contents of directory to stream in XML format
+     * Output contents of directory to response in XML format
      * 
      * @param directory
-     * @param out
+     * @param resp
      * @throws IOException
      * @throws RestException
      */
-    public void readDirectoryAsXml(File directory, OutputStream out)
+    public void readDirectoryAsXml(File directory, HttpServletResponse resp)
             throws IOException, RestException {
         List<UsedLock> locks = null;
         Writer w = null;
         try {
             locks = getReadLocks(directory);
-            if (!directory.exists()) {
+            if (!directory.isDirectory()) {
                 // someone else modified it while waiting for lock
                 throw new RestException(HttpServletResponse.SC_NOT_FOUND,
                         "No Such Directory: " + directory.getAbsolutePath());
             }
-            w = new OutputStreamWriter(out, "UTF-8");
+            w = resp.getWriter();
             w.write("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
             w.write("<Contents xmlns=\"urn:uf:viz:collaboration\">");
             for (File f : directory.listFiles()) {
@@ -325,25 +338,25 @@ public class FileManager {
     }
 
     /**
-     * Output contents of directory to stream in HTML format
+     * Output contents of directory to response in HTML format
      * 
      * @param directory
-     * @param out
+     * @param resp
      * @throws IOException
      * @throws RestException
      */
-    public void readDirectoryAsHtml(File directory, OutputStream out)
+    public void readDirectoryAsHtml(File directory, HttpServletResponse resp)
             throws IOException, RestException {
         List<UsedLock> locks = null;
         Writer w = null;
         try {
             locks = getReadLocks(directory);
-            if (!directory.exists()) {
+            if (!directory.isDirectory()) {
                 // someone else modified it while waiting for lock
                 throw new RestException(HttpServletResponse.SC_NOT_FOUND,
                         "No Such Directory: " + directory.getAbsolutePath());
             }
-            w = new OutputStreamWriter(out, "UTF-8");
+            w = resp.getWriter();
             w.write("<!DOCTYPE html>\n");
             w.write("<html><body>");
             for (File f : directory.listFiles()) {
@@ -379,7 +392,7 @@ public class FileManager {
     }
 
     /**
-     * Copy bytes from input to output
+     * Copy bytes from input to output. Flushes output after writing.
      * 
      * @param in
      * @param out
@@ -392,6 +405,7 @@ public class FileManager {
         while ((len = in.read(buff)) != -1) {
             out.write(buff, 0, len);
         }
+        out.flush();
     }
 
     /**
