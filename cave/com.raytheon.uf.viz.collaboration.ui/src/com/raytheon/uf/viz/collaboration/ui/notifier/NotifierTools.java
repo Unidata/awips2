@@ -62,6 +62,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2014   2632     mpduff      Initial creation.
  * Mar 05, 2014   2632     mpduff      Removed unused field.
+ * Mar 12, 2014   2632     mpduff      Don't process the notifier if the presence is null.
  * 
  * </pre>
  * 
@@ -92,6 +93,10 @@ public class NotifierTools {
      *            The updated Presence
      */
     public static void processNotifiers(Presence presence) {
+        if (presence == null) {
+            return;
+        }
+
         UserId userId = IDConverter.convertFrom(presence.getFrom());
         NotifierTask task = NotifierTools.getNotifierTask(userId.getName());
         if (task != null && task.getUserName().equals(userId.getName())) {
