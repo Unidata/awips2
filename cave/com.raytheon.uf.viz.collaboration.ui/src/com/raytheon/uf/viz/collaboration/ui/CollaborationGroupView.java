@@ -84,6 +84,7 @@ import org.osgi.framework.Bundle;
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
@@ -147,6 +148,7 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Feb 24, 2014 2632       mpduff      Add Notifier actions.
  * Mar 05, 2014 2837       bclement    separate rename action for groups, added more icons
  * Mar 05, 2014 2798       mpduff      Add getter for displayFeedAction.
+ * Mar 12, 2014 2632       mpduff      Force group deletes from UI if last user is removed.
  * 
  * </pre>
  * 
@@ -877,11 +879,25 @@ public class CollaborationGroupView extends CaveFloatingView implements
 
     @Subscribe
     public void handleRosterChangeEvent(IRosterChangeEvent rosterChangeEvent) {
+        /*
+         * If a user is deleted and that user is the only user in a group the
+         * group does not get removed from the UI even though the group was
+         * deleted within XMPP. Force the delete here.
+         */
+        if (rosterChangeEvent.getType() == RosterChangeType.DELETE) {
+            ContactsManager contacts = CollaborationConnection.getConnection()
+                    .getContactsManager();
+            for (RosterGroup group : contacts.getGroups()) {
+                if (group.getEntryCount() == 0) {
+                    groupDeleted(group);
+                }
+            }
+        }
+
         // Refresh the whole tree since there can be instances of the same user
         // elsewhere that might not .equals this one.
         refreshUsersTreeViewerAsync(usersTreeViewer.getInput());
         NotifierTools.processNotifiers(rosterChangeEvent.getPresence());
-
     }
 
     @Subscribe
