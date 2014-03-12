@@ -30,5 +30,7 @@ insert into awips.satellite_units values (28,'SounderCloudAmountPixel');
 insert into awips.satellite_units values (29,'RainfallRatePixel');
 insert into awips.satellite_units values (43,'IRPixel');
 insert into awips.satellite_units values (48,'IRPixel');
+insert into awips.satellite_units values (55,'IRPixel');
+insert into awips.satellite_units values (57,'IRPixel');
 insert into awips.satellite_units values (60,'PercentOfNormalTPWPixel');
 insert into awips.satellite_units values (64,'IRPixel');
