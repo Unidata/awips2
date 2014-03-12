@@ -2,9 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Nc2
 Bundle-SymbolicName: ucar.nc2
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 4.2
 Bundle-ClassPath: netcdf-4.2.jar,
- grib-8.0.jar
+ grib-8.0.jar,
+ bufr-3.0.jar
 Export-Package: net.jcip.annotations,
  thredds.catalog,
  thredds.catalog.crawl,
@@ -111,6 +112,9 @@ Export-Package: net.jcip.annotations,
  ucar.nc2.geotiff,
  ucar.nc2.iosp,
  ucar.nc2.iosp.adde,
+ ucar.nc2.iosp.bufr,
+ ucar.nc2.iosp.bufr.tables,
+ ucar.nc2.iosp.bufr.writer,
  ucar.nc2.iosp.cinrad,
  ucar.nc2.iosp.dmsp,
  ucar.nc2.iosp.dorade,
