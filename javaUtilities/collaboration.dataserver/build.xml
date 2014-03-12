@@ -1,168 +1,145 @@
 <project default="deploy" basedir=".">
 
-    <property name="workspace" value="${basedir}/../.." />
-    <property name="esb.build.directory" value="${workspace}/edexOsgi/build.edex" />
-    <property name="feature.file" value="${basedir}.feature/feature.xml"/>
-    <property name="dataserver.root.directory" value="/awips2/collab-dataserver" />
-    <property name="includegen.filter" value="raytheon|collaboration.dataserver" />
-    <property name="basedirectories" value="${workspace}/edexOsgi;${workspace}/javaUtilities;${workspace}/cots" />
+	<property name="workspace" value="${basedir}/../.." />
+	<property name="esb.build.directory" value="${workspace}/edexOsgi/build.edex" />
+	<property name="feature.file" value="${basedir}.feature/feature.xml" />
+	<property name="dataserver.root.directory" value="/awips2/collab-dataserver" />
+	<property name="includegen.filter" value="raytheon|collaboration.dataserver" />
+	<property name="basedirectories" value="${workspace}/edexOsgi;${workspace}/javaUtilities;${workspace}/cots" />
 
-    <property name="tmp.dir" value="${basedir}/tmp" />
-    <property name="includes.directory" value="${tmp.dir}/includes" />
-    <property name="tmp.src.dir" value="${tmp.dir}/src" />
-    <property name="tmp.bin.dir" value="${tmp.dir}/bin" />
-    <property name="tmp.lib.dir" value="${tmp.dir}/lib" />
+	<property name="tmp.dir" value="${basedir}/tmp" />
+	<property name="includes.directory" value="${tmp.dir}/includes" />
+	<property name="tmp.src.dir" value="${tmp.dir}/src" />
+	<property name="tmp.bin.dir" value="${tmp.dir}/bin" />
+	<property name="tmp.lib.dir" value="${tmp.dir}/lib" />
 
-    <!-- public static final -->
-    <path id="ant.classpath">
-        <fileset dir="${esb.build.directory}/lib/ant">
-            <include name="*.jar" />
-        </fileset>
-    </path>
+	<property name="compile.with.debug" value="on" />
 
-    <target name="clean" >
-        <!-- cleanup the temporary directories -->
-        <if>
-            <available file="${basedir}/tmp" type="dir" />
-            <then>
-                <delete includeemptydirs="true">
-                    <fileset dir="${basedir}"
-                        includes="tmp/**" />
-                </delete>
-            </then>
-        </if>
-    </target>
+	<!-- public static final -->
+	<path id="ant.classpath">
+		<fileset dir="${esb.build.directory}/lib/ant">
+			<include name="*.jar" />
+		</fileset>
+	</path>
 
-    <target name="clean-dest">
-        <!-- clean up the runtime directories -->
-        <if>
-            <available file="${dataserver.root.directory}/lib" />
-            <then>
-                <delete verbose="true" includeemptydirs="true">
-                    <fileset dir="${dataserver.root.directory}/lib"
-                        includes="*/**"/>
-                </delete>
-            </then>
-        </if>
-    </target>
+	<target name="clean">
+		<!-- cleanup the temporary directories -->
+		<if>
+			<available file="${basedir}/tmp" type="dir" />
+			<then>
+				<delete includeemptydirs="true">
+					<fileset dir="${basedir}" includes="tmp/**" />
+				</delete>
+			</then>
+		</if>
+	</target>
 
-    <target name="deploy" depends="clean-dest,build" >
-        <mkdir dir="${dataserver.root.directory}/lib/uframe"/>
-        <!-- jar up dataserver -->
-        <jar destfile="${dataserver.root.directory}/lib/uframe/collaboration.dataserver.jar" basedir="${tmp.bin.dir}"/>
-        <!-- deploy foss -->
-        <copy todir="${dataserver.root.directory}/lib/foss" overwrite="true" verbose="true">
-            <fileset dir="${tmp.lib.dir}" includes="*.jar"/>
-        </copy>
-        <!-- deploy scripts and config -->
-        <copy todir="${dataserver.root.directory}/config" overwrite="false" verbose="true">
-            <fileset dir="${basedir}/config" />
-        </copy>
-        <copy todir="${dataserver.root.directory}/bin" overwrite="true" verbose="true">
-            <fileset dir="${basedir}/scriptBin" />
-        </copy>
-        <chmod dir="${dataserver.root.directory}/bin" perm="ug+rx" includes="**/*.sh"/>
-        <!-- clean up -->
-        <antcall target="clean"/>
-    </target> 
+	<target name="clean-dest">
+		<!-- clean up the runtime directories -->
+		<if>
+			<available file="${dataserver.root.directory}/lib" />
+			<then>
+				<delete verbose="true" includeemptydirs="true">
+					<fileset dir="${dataserver.root.directory}/lib" includes="*/**" />
+				</delete>
+			</then>
+		</if>
+	</target>
 
-    <target name="build" >
-        <sequential>
-            <!-- prepare to run includegen -->
-            <if>
-                <available file="${includes.directory}" type="dir" />
-                <then>
-                    <delete verbose="true" includeemptydirs="true">
-                        <fileset dir="${includes.directory}" 
-                            includes="*/**" />
-                    </delete>
-                </then>
-            </if>
-            <mkdir dir="${includes.directory}" />
+	<target name="deploy" depends="clean-dest,build">
+		<mkdir dir="${dataserver.root.directory}/lib/uframe" />
+		<!-- jar up dataserver -->
+		<jar destfile="${dataserver.root.directory}/lib/uframe/collaboration.dataserver.jar" basedir="${tmp.bin.dir}" />
+		<!-- deploy foss -->
+		<copy todir="${dataserver.root.directory}/lib/foss" overwrite="true" verbose="true">
+			<fileset dir="${tmp.lib.dir}" includes="*.jar" />
+		</copy>
+		<!-- deploy scripts and config -->
+		<copy todir="${dataserver.root.directory}/config" overwrite="false" verbose="true">
+			<fileset dir="${basedir}/config" />
+		</copy>
+		<copy todir="${dataserver.root.directory}/bin" overwrite="true" verbose="true">
+			<fileset dir="${basedir}/scriptBin" />
+		</copy>
+		<chmod dir="${dataserver.root.directory}/bin" perm="ug+rx" includes="**/*.sh" />
+		<!-- clean up -->
+		<antcall target="clean" />
+	</target>
 
-            <!-- run includegen -->
-            <echo message="Generating deployment list for feature: ${feature}" />
+	<target name="build">
+		<sequential>
+			<!-- prepare to run includegen -->
+			<if>
+				<available file="${includes.directory}" type="dir" />
+				<then>
+					<delete verbose="true" includeemptydirs="true">
+						<fileset dir="${includes.directory}" includes="*/**" />
+					</delete>
+				</then>
+			</if>
+			<mkdir dir="${includes.directory}" />
 
-            <includegen providerfilter="${includegen.filter}" 
-                basedirectories="${basedirectories}" 
-                featurefile="${feature.file}" 
-                cotsout="${includes.directory}/cots.includes" 
-                plugsout="${includes.directory}/plugins.includes" 
-                coreout="${includes.directory}/core.includes" />
+			<!-- run includegen -->
+			<echo message="Generating deployment list for feature: ${feature}" />
 
-            <!-- copy foss jars to tmp lib folder -->
-            <copyToBuild includes.file="${includes.directory}/cots.includes"
-                source.base="${workspace}/cots"
-                source.suffix=""
-                includes.pattern="*.jar"
-                target.dir="${tmp.lib.dir}" />
+			<includegen providerfilter="${includegen.filter}" basedirectories="${basedirectories}" featurefile="${feature.file}" cotsout="${includes.directory}/cots.includes" plugsout="${includes.directory}/plugins.includes" coreout="${includes.directory}/core.includes" />
 
-            <!-- copy all uframe source to tmp src folder -->
-            <copyToBuild includes.file="${includes.directory}/core.includes"
-                source.base="${workspace}/edexOsgi"
-                source.suffix="src"
-                includes.pattern="**/*.java"
-                target.dir="${tmp.src.dir}" />
+			<!-- copy foss jars to tmp lib folder -->
+			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace}/cots" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
 
-            <copyToBuild includes.file="${includes.directory}/plugins.includes"
-                source.base="${workspace}/edexOsgi"
-                source.suffix="src"
-                includes.pattern="**/*.java"
-                target.dir="${tmp.src.dir}" />
+			<!-- copy all uframe source to tmp src folder -->
+			<copyToBuild includes.file="${includes.directory}/core.includes" source.base="${workspace}/edexOsgi" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
 
-            <copy todir="${tmp.src.dir}" overwrite="true" verbose="true">
-                <fileset dir="src" includes="**/*.java" />
-            </copy>
+			<copyToBuild includes.file="${includes.directory}/plugins.includes" source.base="${workspace}/edexOsgi" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
 
-            <!-- compile all uframe source at once -->
-            <path id="foss.path">
-                <fileset dir="${tmp.lib.dir}">
-                    <include name="*.jar"/>
-                </fileset>
-            </path>
-            <mkdir dir="${tmp.bin.dir}" />
-            <javac destdir="${tmp.bin.dir}">
-                <src path="${tmp.src.dir}"/>
-                <classpath refid="foss.path"/>
-            </javac>
-        </sequential>
-    </target>
+			<copy todir="${tmp.src.dir}" overwrite="true" verbose="true">
+				<fileset dir="src" includes="**/*.java" />
+			</copy>
 
-    <!-- iterates over includes file and copies files -->
-    <macrodef name="copyToBuild">
-        <attribute name="includes.file"/> 
-        <attribute name="source.base" />
-        <attribute name="source.suffix" />
-        <attribute name="includes.pattern" />
-        <attribute name="target.dir"/>
+			<!-- compile all uframe source at once -->
+			<path id="foss.path">
+				<fileset dir="${tmp.lib.dir}">
+					<include name="*.jar" />
+				</fileset>
+			</path>
+			<mkdir dir="${tmp.bin.dir}" />
+			<javac destdir="${tmp.bin.dir}" debug="${compile.with.debug}">
+				<src path="${tmp.src.dir}" />
+				<classpath refid="foss.path" />
+			</javac>
+		</sequential>
+	</target>
 
-        <sequential>
-            <echo>@{includes.file}</echo>
-            <loadfile property="@{includes.file}.contents"
-                srcfile="@{includes.file}" />
-            <for param="line" list="${@{includes.file}.contents}"
-                delimiter="${line.separator}">
-                <sequential>
-                    <if>
-                        <available file="@{source.base}/@{line}/@{source.suffix}" type="dir" />
-                        <then>
-                            <copy todir="@{target.dir}" overwrite="true" verbose="true">
-                                <fileset dir="@{source.base}/@{line}/@{source.suffix}" includes="@{includes.pattern}" />
-                            </copy>
-                        </then>
-                        <else>
-                            <echo>No files found at @{source.base}/@{line}/@{source.suffix}</echo>
-                        </else>
-                    </if>
-                </sequential>
-            </for>
-        </sequential>
-    </macrodef>
+	<!-- iterates over includes file and copies files -->
+	<macrodef name="copyToBuild">
+		<attribute name="includes.file" />
+		<attribute name="source.base" />
+		<attribute name="source.suffix" />
+		<attribute name="includes.pattern" />
+		<attribute name="target.dir" />
 
-    <!-- static -->
-    <taskdef name="includegen" 
-        classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature"
-        classpathref="ant.classpath" />
-    <taskdef resource="net/sf/antcontrib/antlib.xml" 
-        classpath="${esb.build.directory}/lib/ant/ant-contrib-1.0b3.jar" />
+		<sequential>
+			<echo>@{includes.file}</echo>
+			<loadfile property="@{includes.file}.contents" srcfile="@{includes.file}" />
+			<for param="line" list="${@{includes.file}.contents}" delimiter="${line.separator}">
+				<sequential>
+					<if>
+						<available file="@{source.base}/@{line}/@{source.suffix}" type="dir" />
+						<then>
+							<copy todir="@{target.dir}" overwrite="true" verbose="true">
+								<fileset dir="@{source.base}/@{line}/@{source.suffix}" includes="@{includes.pattern}" />
+							</copy>
+						</then>
+						<else>
+							<echo>No files found at @{source.base}/@{line}/@{source.suffix}</echo>
+						</else>
+					</if>
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+
+	<!-- static -->
+	<taskdef name="includegen" classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" classpathref="ant.classpath" />
+	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${esb.build.directory}/lib/ant/ant-contrib-1.0b3.jar" />
 </project>
