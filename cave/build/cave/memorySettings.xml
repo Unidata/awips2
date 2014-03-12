@@ -128,7 +128,7 @@
 		<memory-setting>
 			<command-line-args>
 				<first-arg>-perspective</first-arg>
-				<second-arg>National Centers</second-arg>
+				<second-arg>NCP</second-arg>
 			</command-line-args>
 		
 			<ini-substitutions>
@@ -238,7 +238,7 @@
 		<memory-setting>
 			<command-line-args>
 				<first-arg>-perspective</first-arg>
-				<second-arg>National Centers</second-arg>
+				<second-arg>NCP</second-arg>
 			</command-line-args>
 		
 			<ini-substitutions>
