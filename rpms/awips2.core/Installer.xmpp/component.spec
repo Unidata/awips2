@@ -5,7 +5,7 @@
 # Variables
 # -----------------------------------------------------------------------------
 %define _xmpp_server           openfire
-%define _xmpp_software_version 3.7.1
+%define _xmpp_software_version 3.9.1
 %define _xmpp_software_url     http://www.igniterealtime.org/projects/openfire
 %define _xmpp_software_license Apache License Version 2.0
 # -----------------------------------------------------------------------------
