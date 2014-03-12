@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.data.memory.MemoryFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 
@@ -36,7 +35,6 @@ import com.raytheon.uf.common.json.geo.MixedFeatureCollection;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
 
-
 /**
  * Converts simple features to GeoJSON
  * 
@@ -46,7 +44,8 @@ import com.raytheon.uf.edex.ogc.common.OgcResponse.TYPE;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 9, 2011            bclement     Initial creation
+ * Aug  9, 2011            bclement    Initial creation
+ * Mar 11, 2014      #2718 randerso    Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -57,7 +56,7 @@ public class JsonFeatureFormatter implements SimpleFeatureFormatter {
 
     public static MimeType mimeType = new MimeType("application/json");
 
-	protected GeoJsonUtil jsonUtil = new GeoJsonUtilSimpleImpl();
+    protected GeoJsonUtil jsonUtil = new GeoJsonUtilSimpleImpl();
 
     /*
      * (non-Javadoc)
@@ -80,20 +79,20 @@ public class JsonFeatureFormatter implements SimpleFeatureFormatter {
      * com.raytheon.uf.edex.wms.format.SimpleFeatureFormatter#format(java.util
      * .List)
      */
-	@Override
-	public OgcResponse format(List<List<SimpleFeature>> features)
-			throws Exception {
+    @Override
+    public OgcResponse format(List<List<SimpleFeature>> features)
+            throws Exception {
         MixedFeatureCollection mixed = convert(features);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		jsonUtil.serialize(mixed, baos);
-		return new OgcResponse(baos.toString(), mimeType, TYPE.TEXT);
-	}
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        jsonUtil.serialize(mixed, baos);
+        return new OgcResponse(baos.toString(), mimeType, TYPE.TEXT);
+    }
 
     protected MixedFeatureCollection convert(List<List<SimpleFeature>> features) {
-        List<FeatureCollection<SimpleFeatureType, SimpleFeature>> colls = new ArrayList<FeatureCollection<SimpleFeatureType, SimpleFeature>>(
+        List<MemoryFeatureCollection> colls = new ArrayList<MemoryFeatureCollection>(
                 features.size());
         for (List<SimpleFeature> l : features) {
-            if (l != null && !l.isEmpty()) {
+            if ((l != null) && !l.isEmpty()) {
                 SimpleFeatureType t = l.get(0).getFeatureType();
                 MemoryFeatureCollection c = new MemoryFeatureCollection(t);
                 c.addAll(l);
@@ -103,26 +102,26 @@ public class JsonFeatureFormatter implements SimpleFeatureFormatter {
         return new MixedFeatureCollection(colls);
     }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.raytheon.uf.edex.wms.format.SimpleFeatureFormatter#getMimeType()
-	 */
-	@Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.wms.format.SimpleFeatureFormatter#getMimeType()
+     */
+    @Override
     public MimeType getMimeType() {
-		return mimeType;
-	}
+        return mimeType;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#matchesFormat
-	 * (java.lang.String)
-	 */
-	@Override
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter#matchesFormat
+     * (java.lang.String)
+     */
+    @Override
     public boolean matchesFormat(MimeType format) {
         return mimeType.equalsIgnoreParams(format);
-	}
+    }
 
 }
