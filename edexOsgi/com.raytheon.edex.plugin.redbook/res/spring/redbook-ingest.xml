@@ -13,6 +13,13 @@
 		<constructor-arg value="jms-durable:queue:Ingest.redbook"/>
 	</bean>
 
+    <bean id="spcMenuListener" class="com.raytheon.edex.plugin.redbook.ingest.RedbookMenuSubscriber"/>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookHazardMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
 	<!-- 
     <bean id="redbookCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
