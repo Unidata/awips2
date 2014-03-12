@@ -50,6 +50,7 @@ import com.raytheon.uf.common.xmpp.iq.SecurityToggleProvider;
  * Feb 14, 2014 2756       bclement     Initial creation
  * Feb 28, 2014 2756       bclement     added custom IQ packet support
  * Mar 04, 2014 2756       bclement     added xmpp server retry
+ * Mar 11, 2014  2827      bclement     changed (dis)connect messages from debug to info
  * 
  * </pre>
  * 
@@ -97,7 +98,7 @@ public class XmppServerConnection implements Runnable {
         registerListeners(conn);
         this.conn.connect();
         this.conn.login(user, password);
-        log.debug("Connected to XMPP server at address: " + xmppServerAddress);
+        log.info("Connected to XMPP server at address: " + xmppServerAddress);
     }
 
     /**
@@ -188,7 +189,7 @@ public class XmppServerConnection implements Runnable {
      * disconnect from XMPP server
      */
     public void disconnect() {
-        log.debug("Disconnecting from XMPP server");
+        log.info("Disconnecting from XMPP server");
         conn.disconnect();
     }
 
