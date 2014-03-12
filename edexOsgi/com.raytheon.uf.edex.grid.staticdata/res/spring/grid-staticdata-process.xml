@@ -15,6 +15,7 @@
             <!-- Fed from plugin notification -->
             <from uri="jms-durable:grid-staticdata-generate" />
             <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="staticDataGenerator" method="processNotification"/>
                 <to uri="direct-vm:stageNotification"/> 
                 <doCatch>
