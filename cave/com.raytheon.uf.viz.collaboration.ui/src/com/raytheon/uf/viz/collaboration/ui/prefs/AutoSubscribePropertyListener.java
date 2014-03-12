@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Jan 24, 2014 2700       bclement     Initial creation
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * Feb 13, 2014 2755       bclement     added user input for which group to add contact to
+ * Mar 12, 2014 2632       mpduff       Property change to handle String and Boolean
  * 
  * </pre>
  * 
@@ -114,7 +115,15 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
         if (event.getProperty().equals(
                 CollabPrefConstants.AUTO_ACCEPT_SUBSCRIBE)
                 && accountManager != null) {
-            updateManager((Boolean) event.getNewValue());
+
+            // The HierarchicalPreferenceStore store sometimes returns a string
+            Object valueObject = event.getNewValue();
+
+            if (valueObject instanceof Boolean) {
+                updateManager((Boolean) valueObject);
+            } else {
+                updateManager(Boolean.valueOf(valueObject.toString()));
+            }
         }
     }
 
@@ -153,7 +162,7 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
      */
     private ISubscriptionResponder newResponder() {
         return new ISubscriptionResponder() {
-            
+
             private final UserSearch search = connection.createSearch();
 
             @Override
@@ -170,14 +179,14 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
                 String displayName = getDisplayName(fromID);
                 StringBuilder builder = new StringBuilder();
                 builder.append(fromID.getFQName());
-                if ( displayName != null){
-                    builder.append(" (").append(displayName).append(")"); 
+                if (displayName != null) {
+                    builder.append(" (").append(displayName).append(")");
                 }
                 builder.append(" wants to add you to his or her contacts list.");
                 final String msg = builder.toString();
                 final SubscriptionResponse rval = new SubscriptionResponse();
                 VizApp.runSync(new Runnable() {
-                    
+
                     @Override
                     public void run() {
                         Shell shell = new Shell(Display.getCurrent());
@@ -192,7 +201,7 @@ public class AutoSubscribePropertyListener implements IPropertyChangeListener {
 
                 return rval;
             }
-            
+
             /**
              * Get display name for user from server
              * 
