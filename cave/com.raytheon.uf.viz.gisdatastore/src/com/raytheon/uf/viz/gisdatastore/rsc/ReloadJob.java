@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -17,11 +16,12 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
@@ -57,6 +57,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 22, 2013      #1641 randerso     Added checks for using ID as label or shading attribute
  * Jul 24, 2014      #1908 randerso     Removed debug sysouts
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
+ * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -206,8 +207,8 @@ class ReloadJob extends Job {
             // System.out.println("Processing request: " + req.number);
 
             Result result = new Result();
-            FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
-            Iterator<SimpleFeature> featureIterator = null;
+            SimpleFeatureCollection featureCollection = null;
+            SimpleFeatureIterator featureIterator = null;
             try {
                 if (pendingRequest != null) {
                     // System.out.println("Canceling request: " + req.number);
@@ -262,7 +263,7 @@ class ReloadJob extends Job {
                 String shapeField = schema.getGeometryDescriptor()
                         .getLocalName();
 
-                DefaultQuery query = new DefaultQuery();
+                Query query = new Query();
 
                 String typeName = req.rsc.getTypeName();
                 query.setTypeName(typeName);
@@ -285,11 +286,11 @@ class ReloadJob extends Job {
                     query.setFilter(ff.or(filterList));
                 }
 
-                FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = req.rsc
-                        .getDataStore().getFeatureSource(typeName);
+                SimpleFeatureSource featureSource = req.rsc.getDataStore()
+                        .getFeatureSource(typeName);
 
                 featureCollection = featureSource.getFeatures(query);
-                featureIterator = featureCollection.iterator();
+                featureIterator = featureCollection.features();
 
                 // TODO: do we need to implement the GeometryCache/gidMap
                 // stuff like in DbMapResource?
@@ -467,7 +468,7 @@ class ReloadJob extends Job {
                 result.cause = e;
             } finally {
                 if (featureIterator != null) {
-                    featureCollection.close(featureIterator);
+                    featureIterator.close();
                 }
                 if (result != null) {
                     // System.out.println("Completed request: " + req.number);
