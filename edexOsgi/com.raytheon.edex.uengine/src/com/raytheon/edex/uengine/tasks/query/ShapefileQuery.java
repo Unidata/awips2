@@ -29,9 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.shapefile.indexed.IndexType;
-import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
+import org.geotools.data.Query;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureIterator;
@@ -53,9 +52,10 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date             PR#             Engineer            Description
- * -----------      ----------      ------------        --------------------------
- * Apr 11, 2007                     njensen             Initial Creation
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 11, 2007            njensen     Initial Creation
+ * Mar 11, 2014  #2718     randerso    Changes for GeoTools 10.5
  * </PRE>
  * 
  */
@@ -93,9 +93,8 @@ public class ShapefileQuery extends ScriptTask {
         logger.warn("Querying shapeFile: " + theShape.getAbsolutePath());
         Map<String, List<Object>> resultMap = new HashMap<String, List<Object>>();
         try {
-            IndexedShapefileDataStore shpDS;
-            shpDS = new IndexedShapefileDataStore(theShape.toURI().toURL(),
-                    null, false, false, IndexType.QIX);
+            ShapefileDataStore shpDS;
+            shpDS = new ShapefileDataStore(theShape.toURI().toURL());
 
             // Load up the schema attributes into memory
             List<AttributeDescriptor> at = new ArrayList<AttributeDescriptor>();
@@ -119,7 +118,7 @@ public class ShapefileQuery extends ScriptTask {
             // Get the types
             String[] types = shpDS.getTypeNames();
 
-            DefaultQuery query = new DefaultQuery();
+            Query query = new Query();
             // Query geom
             query.setTypeName(types[0]);
 
