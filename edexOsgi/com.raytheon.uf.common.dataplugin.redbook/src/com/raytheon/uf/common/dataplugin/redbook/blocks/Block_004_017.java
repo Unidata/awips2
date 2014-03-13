@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
@@ -30,9 +30,11 @@ import java.nio.ByteBuffer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and nested Factory class.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and
+ *                                     nested Factory class.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -43,21 +45,29 @@ import java.nio.ByteBuffer;
 public class Block_004_017 extends RedbookBlock {
 
     private float ulLat;
+
     private float ulLon;
+
     private float urLat;
+
     private float urLon;
+
     private float lrLat;
+
     private float lrLon;
+
     private float llLat;
+
     private float llLon;
 
     private float lon1;
+
     private float lat1;
+
     private float lat2;
-    
+
     private String projName;
-    
-    
+
     public static class Factory implements RedbookBlockFactory {
         @Override
         public RedbookBlock createBlock(RedbookBlockHeader header,
@@ -74,57 +84,58 @@ public class Block_004_017 extends RedbookBlock {
     public Block_004_017(RedbookBlockHeader header, ByteBuffer data) {
         super(header, data);
         populateProj(data);
-        if(hasChkSum()) {
+        if (hasChkSum()) {
             data.getShort();
         }
     }
 
     private void populateProj(ByteBuffer data) {
-        
+
         data.get();
-        
+
         int sel = (data.get() & 0xFF);
-        if(sel >= 1) {
+        if (sel >= 1) {
             ulLat = getFloat2(data);
             ulLon = getFloat2(data);
         }
-        if(sel >= 2) {
+        if (sel >= 2) {
             urLat = getFloat2(data);
             urLon = getFloat2(data);
         }
-        if(sel >= 3) {
+        if (sel >= 3) {
             lrLat = getFloat2(data);
             lrLon = getFloat2(data);
         }
-        if(sel >= 4) {
+        if (sel >= 4) {
             llLat = getFloat2(data);
             llLon = getFloat2(data);
         }
-        
+
         lon1 = getFloat2(data);
         lat1 = getFloat2(data);
         lat2 = getFloat2(data);
-        
-        char [] c = new char [6];
-        for(int i = 0;i < c.length;i++) {
-            c[i] = (char)(data.get() & 0xFF);
+
+        char[] c = new char[6];
+        for (int i = 0; i < c.length; i++) {
+            c[i] = (char) (data.get() & 0xFF);
         }
         projName = new String(c);
-        
+
         // empty read!
         data.getShort();
     }
-    
+
     /**
      * 
      */
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         sb = super.toString(sb);
-        sb.append(String.format(" ul[%2.2f:%2.2f]", ulLat,ulLon));
-        sb.append(String.format(",ur[%2.2f:%2.2f]", urLat,urLon));
-        sb.append(String.format(",ll[%2.2f:%2.2f]", llLat,llLon));
-        sb.append(String.format(",ur[%2.2f:%2.2f]", urLat,urLon));
-        
+        sb.append(String.format(" ul[%2.2f:%2.2f]", ulLat, ulLon));
+        sb.append(String.format(",ur[%2.2f:%2.2f]", urLat, urLon));
+        sb.append(String.format(",ll[%2.2f:%2.2f]", llLat, llLon));
+        sb.append(String.format(",ur[%2.2f:%2.2f]", urLat, urLon));
+
         sb.append(projName);
         return sb;
     }
@@ -212,5 +223,5 @@ public class Block_004_017 extends RedbookBlock {
     public String getProjName() {
         return projName;
     }
-    
+
 }
