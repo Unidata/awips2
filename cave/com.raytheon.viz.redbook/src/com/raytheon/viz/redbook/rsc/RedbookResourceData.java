@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 import org.apache.commons.lang.Validate;
 
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -39,7 +39,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 18, 2009            chammack     Initial creation
+ * Feb 18, 2009            chammack    Initial creation
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 

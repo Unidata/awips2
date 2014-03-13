@@ -36,10 +36,10 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.Block_004_016;
-import com.raytheon.edex.plugin.redbook.common.blocks.DefaultBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockBuilder;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_016;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.DefaultBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -88,11 +88,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * May 29, 2008 1162        chammack    Initial creation
- * Jan 28, 2010 4224        M. Huang    Added Line Style, Line Width
- *                                       menu choice
+ * Jan 28, 2010 4224        M. Huang    Added Line Style, Line Width menu choice
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * May 21, 2013 2001        njensen     Fixed error handling
- * Jul 19, 2013 DR 16401    D. Friedman Fix unknown block processing.
+ * Jul 19, 2013 16401       D. Friedman Fix unknown block processing.
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
  * 
  * </pre>
  * 
@@ -329,12 +330,10 @@ public class RedbookFrame implements IRenderable {
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
 
-        target.drawWireframeShape(
-                this.wireframeShape,
-                this.redbookResource.getCapability(ColorableCapability.class)
-                        .getColor(),
-                (float) this.redbookResource.getCapability(
-                        OutlineCapability.class).getOutlineWidth(),
+        target.drawWireframeShape(this.wireframeShape, this.redbookResource
+                .getCapability(ColorableCapability.class).getColor(),
+                this.redbookResource.getCapability(OutlineCapability.class)
+                        .getOutlineWidth(),
                 this.redbookResource.getCapability(OutlineCapability.class)
                         .getLineStyle());
 
