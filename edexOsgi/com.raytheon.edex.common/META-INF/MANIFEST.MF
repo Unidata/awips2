@@ -21,8 +21,7 @@ Export-Package: com.raytheon.edex.colormap,
  com.raytheon.edex.topo,
  com.raytheon.edex.urifilter,
  com.raytheon.edex.util,
- com.raytheon.edex.utility,
- com.raytheon.edex.common.shapefiles
+ com.raytheon.edex.utility
 Require-Bundle: net.sf.ehcache,
  org.apache.commons.configuration,
  org.apache.velocity;bundle-version="1.6.0",
