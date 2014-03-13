@@ -33,6 +33,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.comm.CommunicationException;
@@ -84,8 +85,9 @@ import com.vividsolutions.jts.geom.LineString;
  * Jul 31, 2012 875        rferrel     Now uses points.
  * May 30, 2013 2055       bsteffen    Remove modelName from sounding pointName.
  * Dec 06, 2013 2271       mpduff      Added check for null coordinate.
- * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ * Jan 30, 2014 #2725      ekladstrup  updated exception handling during move of derived
  *                                     parameters to common
+ * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -305,7 +307,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occured during perturbation query.", e);
         }
-        if (ensemebles != null && ensemebles.size() > 1) {
+        if ((ensemebles != null) && (ensemebles.size() > 1)) {
             Collections.sort(ensemebles);
             Collection<ResourcePair> requests = new ArrayList<ResourcePair>();
             for (String ensemble : ensemebles) {
@@ -455,7 +457,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                                 lineEnv.add(dp.x, dp.y);
                             }
                         }
-                        if (lineEnv.intersects(env)) {
+                        if (lineEnv.intersects((BoundingBox) env)) {
                             fileredSources.add(source);
                             break;
                         }
@@ -464,13 +466,13 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                             gridGeom.getCoordinateReferenceSystem());
                     rEnv = rEnv.transform(MapUtil.getLatLonProjection(), true);
                     for (Double lat : lats) {
-                        if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                        if ((rEnv.getMinY() < lat) && (rEnv.getMaxY() > lat)) {
                             fileredSources.add(source);
                             break;
                         }
                     }
                     for (Double lon : lons) {
-                        if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                        if ((rEnv.getMinX() < lon) && (rEnv.getMaxX() > lon)) {
                             fileredSources.add(source);
                             break;
                         }
@@ -489,9 +491,9 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
     protected Collection<String> get3DPlanes(Collection<String> sources) {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
-        if (sources == null || sources.isEmpty()
-                || viewSelection == ViewMenu.PLANVIEW
-                || viewSelection == ViewMenu.TIMESERIES) {
+        if ((sources == null) || sources.isEmpty()
+                || (viewSelection == ViewMenu.PLANVIEW)
+                || (viewSelection == ViewMenu.TIMESERIES)) {
             Set<String> results = new HashSet<String>();
             results.addAll(MenuItemManager.getInstance().getLatLonKeys());
             results.addAll(getPointLineKeys());
@@ -539,7 +541,7 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                                 lineEnv.add(dp.x, dp.y);
                             }
                         }
-                        if (lineEnv.intersects(env)) {
+                        if (lineEnv.intersects((BoundingBox) env)) {
                             validPlanes.add("Line" + letter);
                         }
                     }
@@ -551,13 +553,15 @@ public class GridDataCatalog extends AbstractInventoryDataCatalog {
                         if (llKey.startsWith("Lat")) {
                             double lat = Double.parseDouble(llKey.replace(
                                     "Lat", ""));
-                            if (rEnv.getMinY() < lat && rEnv.getMaxY() > lat) {
+                            if ((rEnv.getMinY() < lat)
+                                    && (rEnv.getMaxY() > lat)) {
                                 validPlanes.add(llKey);
                             }
                         } else if (llKey.startsWith("Lon")) {
                             double lon = Double.parseDouble(llKey.replace(
                                     "Lon", ""));
-                            if (rEnv.getMinX() < lon && rEnv.getMaxX() > lon) {
+                            if ((rEnv.getMinX() < lon)
+                                    && (rEnv.getMaxX() > lon)) {
                                 validPlanes.add(llKey);
                             }
                         } else {
