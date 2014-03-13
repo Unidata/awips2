@@ -22,11 +22,10 @@ package com.raytheon.edex.plugin.redbook;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
@@ -39,14 +38,17 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * 20080512           1131 jkorman     Initial implementation.
  * 20080529           1131 jkorman     Added traceId constructor and getter
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class RedbookSeparator extends AbstractRecordSeparator {
-    /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(RedbookSeparator.class);
 
     private WMOHeader wmoHeader = null;
 
@@ -68,6 +70,7 @@ public class RedbookSeparator extends AbstractRecordSeparator {
      * @return The next observation record as a String.
      */
     // @Override
+    @Override
     public Object next() {
         byte[] data = null;
         if (hasNext()) {

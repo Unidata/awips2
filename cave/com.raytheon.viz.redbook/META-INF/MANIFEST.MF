@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Redbook Plug-in
 Bundle-SymbolicName: com.raytheon.viz.redbook;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.redbook.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.common.serialization
@@ -14,10 +14,10 @@ Require-Bundle: org.apache.batik,
  com.raytheon.viz.ui,
  org.apache.commons.lang,
  com.raytheon.uf.common.serialization,
- com.raytheon.edex.plugin.redbook,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.26",
- com.raytheon.viz.pointdata;bundle-version="1.11.26",
- com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31"
+ com.raytheon.viz.pointdata,
+ com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
+ com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.redbook,
  com.raytheon.viz.redbook.blocks,
