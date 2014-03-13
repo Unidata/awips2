@@ -17,12 +17,12 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.nio.ByteBuffer;
 import java.util.Calendar;
 
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * TODO Add Description
@@ -33,9 +33,11 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and nested Factory class.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and
+ *                                     nested Factory class.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -46,28 +48,29 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 public class ProductIdBlock extends RedbookBlock {
 
     private static final String TM_FMT = "%04d%02d%02d%02d%02d";
+
     private static final int BLOCK_LEN = 34;
 
     private static final int ORIG_ID_SIZE = 4;
-    
+
     private static final int PRODM_ID_SIZE = 9;
 
     private static final int PRODC_ID_SIZE = 6;
 
     private String originatorId;
-    
+
     private String productId;
-    
+
     private Integer retentionHours;
-    
+
     private Calendar productFileTime;
 
     private String prodFileTime;
-    
+
     private Integer fileIndicator;
-    
+
     private Integer fcstHours;
-    
+
     public static class Factory implements RedbookBlockFactory {
         @Override
         public RedbookBlock createBlock(RedbookBlockHeader header,
@@ -84,101 +87,104 @@ public class ProductIdBlock extends RedbookBlock {
         super(header, data);
 
         int blockLen = (hasChkSum()) ? BLOCK_LEN : BLOCK_LEN - 2;
-        if(data.remaining() >= blockLen) {
-            char [] pId = new char [ORIG_ID_SIZE];
-            for(int i = 0;i < pId.length;i++) {
+        if (data.remaining() >= blockLen) {
+            char[] pId = new char[ORIG_ID_SIZE];
+            for (int i = 0; i < pId.length; i++) {
                 char c = (char) (data.get() & 0xFF);
-                if(c > 0) {
-                    pId[i] = c; 
+                if (c > 0) {
+                    pId[i] = c;
                 } else {
-                    pId[i] = '.'; 
+                    pId[i] = '.';
                 }
             }
             // originatorId = new String(pId);
             // Until I figure out what's actually being sent here.
             originatorId = null;
-            
+
             // classification -- empty read for now!
             data.get();
             retentionHours = (data.get() & 0xFF);
             fileIndicator = (data.get() & 0xFF);
 
             StringBuilder sb = new StringBuilder();
-            pId = new char [PRODM_ID_SIZE];
-            for(int i = 0;i < pId.length;i++) {
+            pId = new char[PRODM_ID_SIZE];
+            for (int i = 0; i < pId.length; i++) {
                 char c = (char) (data.get() & 0xFF);
-                if(c > 0) {
-                    pId[i] = c; 
+                if (c > 0) {
+                    pId[i] = c;
                 } else {
-                    pId[i] = '.'; 
+                    pId[i] = '.';
                 }
             }
             sb.append(pId);
-            
+
             int year = (data.getShort() & 0xFFFF);
             int month = (data.get() & 0xFF);
             int day = (data.get() & 0xFF);
             int hour = (data.get() & 0xFF);
             int minute = (data.get() & 0xFF);
 
-            prodFileTime = String.format(TM_FMT,year,month,day,hour,minute);
-            
-            Calendar t = TimeTools.getBaseCalendar(year, month, day);
-            if(t != null) {
-                t.set(Calendar.HOUR_OF_DAY,hour);
-                t.set(Calendar.MINUTE,minute);
-                
-                productFileTime = t;
-            }
+            prodFileTime = String
+                    .format(TM_FMT, year, month, day, hour, minute);
 
-            pId = new char [PRODC_ID_SIZE];
-            for(int i = 0;i < pId.length;i++) {
+            Calendar t = TimeUtil.newGmtCalendar();
+            t.set(Calendar.YEAR, year);
+            t.set(Calendar.MONTH, month);
+            t.set(Calendar.DAY_OF_MONTH, day);
+            t.set(Calendar.HOUR_OF_DAY, hour);
+            t.set(Calendar.MINUTE, minute);
+            t.set(Calendar.SECOND, 0);
+            t.set(Calendar.MILLISECOND, 0);
+
+            productFileTime = t;
+
+            pId = new char[PRODC_ID_SIZE];
+            for (int i = 0; i < pId.length; i++) {
                 char c = (char) (data.get() & 0xFF);
-                if(c > 0) {
-                    pId[i] = c; 
+                if (c > 0) {
+                    pId[i] = c;
                 } else {
-                    pId[i] = '.'; 
+                    pId[i] = '.';
                 }
             }
             sb.append(pId);
             productId = sb.toString();
             parseFcstHours();
-            
+
             // Just read over the checksum for now.
-            if(hasChkSum()) {
+            if (hasChkSum()) {
                 data.getShort();
             }
         }
     }
 
     private void parseFcstHours() {
-        if((productId != null) && (productId.length() > 7)) {
-            
+        if ((productId != null) && (productId.length() > 7)) {
+
             Integer fcstHour = null;
             try {
-                fcstHour = new Integer(productId.substring(4,7));
-            } catch(NumberFormatException nfe) {
+                fcstHour = new Integer(productId.substring(4, 7));
+            } catch (NumberFormatException nfe) {
                 // nothing
             }
-            if(fcstHour != null) {
-                if(fcstHour < 300) {
+            if (fcstHour != null) {
+                if (fcstHour < 300) {
                     fcstHours = fcstHour;
                 } else if (fcstHour < 400) {
-                    
+
                 } else if (fcstHour < 500) {
-                    
+
                 } else if (fcstHour == 999) {
                     fcstHours = null;
                 }
             }
         }
     }
-    
-    
-    
+
     /**
      * 
      */
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         sb = super.toString(sb);
         sb.append(":");
@@ -196,7 +202,8 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param originatorId the originatorId to set
+     * @param originatorId
+     *            the originatorId to set
      */
     public void setOriginatorId(String originatorId) {
         this.originatorId = originatorId;
@@ -210,7 +217,8 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param productId the productId to set
+     * @param productId
+     *            the productId to set
      */
     public void setProductId(String productId) {
         this.productId = productId;
@@ -224,7 +232,8 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param retentionHours the retentionHours to set
+     * @param retentionHours
+     *            the retentionHours to set
      */
     public void setRetentionHours(Integer retentionHours) {
         this.retentionHours = retentionHours;
@@ -238,7 +247,8 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param productFileTime the productFileTime to set
+     * @param productFileTime
+     *            the productFileTime to set
      */
     public void setProductFileTime(Calendar productFileTime) {
         this.productFileTime = productFileTime;
@@ -252,7 +262,8 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param fileIndicator the fileIndicator to set
+     * @param fileIndicator
+     *            the fileIndicator to set
      */
     public void setFileIndicator(Integer fileIndicator) {
         this.fileIndicator = fileIndicator;
@@ -266,10 +277,11 @@ public class ProductIdBlock extends RedbookBlock {
     }
 
     /**
-     * @param fcstHours the fcstHours to set
+     * @param fcstHours
+     *            the fcstHours to set
      */
     public void setFcstHours(Integer fcstHours) {
         this.fcstHours = fcstHours;
     }
-    
+
 }

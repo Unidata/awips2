@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common;
+package com.raytheon.uf.common.dataplugin.redbook;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -68,6 +68,8 @@ import com.raytheon.uf.common.time.DataTime;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Nov 04, 2013 2361       njensen     Remove XML annotations
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
