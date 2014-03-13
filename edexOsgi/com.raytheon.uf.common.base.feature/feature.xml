@@ -281,7 +281,7 @@
          id="org.geotools"
          download-size="0"
          install-size="0"
-         version="2.6.4"/>
+         version="10.5.0"/>
 
    <plugin
          id="org.javassist"
@@ -417,10 +417,11 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-         
+
    <plugin
          id="org.reflections"
          download-size="0"
          install-size="0"
          version="0.9.9"/>
+
 </feature>
