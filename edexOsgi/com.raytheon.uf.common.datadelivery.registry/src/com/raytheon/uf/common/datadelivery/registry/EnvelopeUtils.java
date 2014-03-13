@@ -47,6 +47,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Dec  5, 2012            bsteffen    Initial creation.
  * Jun 21, 2013   2132     mpduf       createSubEnvelopeFromLatLon now uses East/West direction.
+ * Mar 11, 2014  #2718     randerso    Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -209,10 +210,10 @@ public class EnvelopeUtils {
                     AbstractProvider.CENTRAL_MERIDIAN.getName().getCode())
                     .doubleValue();
         }
-        while (latLon.x < centralMeridian - 180.0) {
+        while (latLon.x < (centralMeridian - 180.0)) {
             latLon.x += 360.0;
         }
-        while (latLon.x > centralMeridian + 180.0) {
+        while (latLon.x > (centralMeridian + 180.0)) {
             latLon.x -= 360.0;
         }
         return latLon;
@@ -284,7 +285,7 @@ public class EnvelopeUtils {
             CoordinateReferenceSystem crs, Coordinate latLon1,
             Coordinate latLon2) {
         try {
-            ReferencedEnvelope e = new ReferencedEnvelope(crs);
+            ReferencedEnvelope e = ReferencedEnvelope.create(crs);
 
             latLon1 = normalizeLongitude(e, latLon1);
             latLon2 = normalizeLongitude(e, latLon2);
@@ -308,7 +309,7 @@ public class EnvelopeUtils {
             }
             return e;
         } catch (FactoryException e) {
-            return new ReferencedEnvelope(crs);
+            return ReferencedEnvelope.create(crs);
         }
     }
 
@@ -339,7 +340,8 @@ public class EnvelopeUtils {
      */
     public static ReferencedEnvelope createLatLonEnvelope(Coordinate latLon1,
             Coordinate latLon2) {
-        ReferencedEnvelope e = new ReferencedEnvelope(MapUtil.LATLON_PROJECTION);
+        ReferencedEnvelope e = ReferencedEnvelope
+                .create(MapUtil.LATLON_PROJECTION);
         e.expandToInclude(latLon1);
         e.expandToInclude(latLon2);
         return e;
