@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -37,11 +36,12 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.data.DataStore;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
+import org.geotools.data.Query;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
@@ -114,6 +114,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 24, 2013      #1907 randerso     Fixed sampling when cropped
  * Jul 24, 2013      #1908 randerso     Update attributes when cropped
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
+ * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -626,7 +627,7 @@ public class DataStoreResource extends
     private void loadAttributes() {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
-        DefaultQuery query = new DefaultQuery();
+        Query query = new Query();
         query.setTypeName(typeName);
 
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools
@@ -654,17 +655,17 @@ public class DataStoreResource extends
         }
         query.setFilter(ff.or(filterList));
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
-        Iterator<SimpleFeature> featureIterator = null;
+        SimpleFeatureCollection featureCollection = null;
+        SimpleFeatureIterator featureIterator = null;
         try {
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
+            SimpleFeatureSource featureSource = dataStore
                     .getFeatureSource(typeName);
 
             featureCollection = featureSource.getFeatures(query);
 
             int size = featureCollection.size();
             attributes = new Object[size][attributeNames.length];
-            featureIterator = featureCollection.iterator();
+            featureIterator = featureCollection.features();
             int i = 0;
             while (featureIterator.hasNext()) {
                 int index = i++;
@@ -686,7 +687,7 @@ public class DataStoreResource extends
                     e.getLocalizedMessage(), e);
         } finally {
             if (featureIterator != null) {
-                featureCollection.close(featureIterator);
+                featureIterator.close();
             }
         }
         timer.stop();
@@ -1264,7 +1265,7 @@ public class DataStoreResource extends
         // ITimer timer = TimeUtil.getTimer();
         // timer.start();
 
-        DefaultQuery query = new DefaultQuery();
+        Query query = new Query();
         query.setTypeName(typeName);
 
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools
@@ -1315,16 +1316,16 @@ public class DataStoreResource extends
         // query.setFilter(ff.and(clickFilter, boundingFilter));
         query.setFilter(clickFilter);
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection = null;
-        Iterator<SimpleFeature> featureIterator = null;
+        SimpleFeatureCollection featureCollection = null;
+        SimpleFeatureIterator featureIterator = null;
         List<SimpleFeature> features;
         try {
-            FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
+            SimpleFeatureSource featureSource = dataStore
                     .getFeatureSource(typeName);
 
             featureCollection = featureSource.getFeatures(query);
             features = new ArrayList<SimpleFeature>(featureCollection.size());
-            featureIterator = featureCollection.iterator();
+            featureIterator = featureCollection.features();
 
             while (featureIterator.hasNext()) {
                 SimpleFeature f = featureIterator.next();
@@ -1339,7 +1340,7 @@ public class DataStoreResource extends
             features = Collections.emptyList();
         } finally {
             if (featureIterator != null) {
-                featureCollection.close(featureIterator);
+                featureIterator.close();
             }
         }
 
