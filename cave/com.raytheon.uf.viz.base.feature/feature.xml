@@ -200,6 +200,15 @@
          install-size="0"
          version="1.1.1"
          fragment="true"/>
+         
+   <plugin
+         id="javax.media.opengl.win64"
+         os="win32"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
 
    <plugin
          id="com.raytheon.uf.common.dataplugin.maps"
