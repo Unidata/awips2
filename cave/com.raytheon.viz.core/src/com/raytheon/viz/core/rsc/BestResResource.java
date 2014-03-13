@@ -42,14 +42,17 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 
 /**
- * TODO Add Description
+ * Resource for rendering the best resource from a list. For each frame time
+ * the resource will find the first(in the order of the list in resource data)
+ * resource with data available and render only that resource.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 5, 2010            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 05, 2010           mnash       Initial creation
+ * Mar 12, 2014  2898     bsteffen    Clear times in resource data on dispose.
  * 
  * </pre>
  * 
@@ -107,6 +110,7 @@ public class BestResResource extends
                 resource.dispose();
             }
         }
+        resourceData.getMap().clear();
     }
 
     /*
