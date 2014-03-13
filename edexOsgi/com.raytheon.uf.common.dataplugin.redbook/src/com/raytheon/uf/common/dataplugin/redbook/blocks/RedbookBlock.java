@@ -17,12 +17,9 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.nio.ByteBuffer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -34,10 +31,12 @@ import org.apache.commons.logging.LogFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and nested Factory interface.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and
+ *                                     nested Factory interface.
  * May 06, 2013 1979       bgonzale    Catch Header at the end of buffer.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -47,23 +46,20 @@ import org.apache.commons.logging.LogFactory;
 
 public abstract class RedbookBlock {
 
-    @SuppressWarnings("unused")
-    private final Log logger = LogFactory.getLog(getClass());
-
     private static final int LEN_MASK = 0x8000;
-    
+
     private static final int CHKSUM_MASK = 0x4000;
-    
+
     private static final int LENGTH_MASK = 0x3FFF;
-    
+
     private boolean hasLength = false;
-    
+
     private boolean hasChkSum = false;
-    
+
     private RedbookBlockHeader header;
 
     private final int length;
-    
+
     public interface RedbookBlockFactory {
         public abstract RedbookBlock createBlock(RedbookBlockHeader header,
                 ByteBuffer data);
@@ -74,7 +70,7 @@ public abstract class RedbookBlock {
      * @param separator
      */
     public RedbookBlock(RedbookBlockHeader header, ByteBuffer data) {
-        
+
         this.header = header;
 
         hasLength = ((this.header.hdr & LEN_MASK) == 0 && data.hasRemaining());
@@ -117,7 +113,8 @@ public abstract class RedbookBlock {
     }
 
     /**
-     * @param hasLength the hasLength to set
+     * @param hasLength
+     *            the hasLength to set
      */
     public void setHasLength(boolean hasLength) {
         this.hasLength = hasLength;
@@ -131,39 +128,42 @@ public abstract class RedbookBlock {
     }
 
     /**
-     * @param hasChkSum the hasChkSum to set
+     * @param hasChkSum
+     *            the hasChkSum to set
      */
     public void setHasChkSum(boolean hasChkSum) {
         this.hasChkSum = hasChkSum;
     }
-    
+
     public StringBuilder toString(StringBuilder sb) {
-        if(sb == null) {
+        if (sb == null) {
             sb = new StringBuilder();
         }
         sb.append((hasLength) ? 'L' : '.');
         sb.append((hasChkSum) ? 'C' : '.');
         sb.append(':');
-        
-        sb.append(String.format("%05d:mode=%02X:submode=%02X",length,header.mode,header.subMode));
-        
+
+        sb.append(String.format("%05d:mode=%02X:submode=%02X", length,
+                header.mode, header.subMode));
+
         return sb;
     }
-    
+
     /**
      * 
      */
+    @Override
     public String toString() {
         return toString((StringBuilder) null).toString();
     }
-    
+
     public static float getFloat2(ByteBuffer dataBuf) {
         float f = Float.NaN;
-        
-        if(dataBuf.remaining() >= 2) {
-            
+
+        if (dataBuf.remaining() >= 2) {
+
             short s = dataBuf.getShort();
-            
+
             f = s / 100.0f;
         }
         return f;
