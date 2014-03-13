@@ -21,18 +21,20 @@ package com.raytheon.viz.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 
 /**
  * Implements the redbook plot parameter block
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * May 22, 2008	#1162		chammack	Initial creation
- * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * May 22, 2008 1162        chammack    Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader
+ * Mar 13, 2014	2907      	njensen    	split edex.redbook plugin into common and
+ *                                      edex redbook plugins
  * 
  * </pre>
  * 
