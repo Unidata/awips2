@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
@@ -30,9 +30,11 @@ import java.nio.ByteBuffer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and nested Factory class.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and
+ *                                     nested Factory class.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -57,7 +59,7 @@ public class DefaultBlock extends RedbookBlock {
      */
     public DefaultBlock(RedbookBlockHeader header, ByteBuffer data) {
         super(header, data);
-        if(hasLength()) {
+        if (hasLength()) {
             dropShortsFromTheBuffer(data);
         }
     }
@@ -65,6 +67,7 @@ public class DefaultBlock extends RedbookBlock {
     /**
      * 
      */
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         sb = super.toString(sb);
         return sb;

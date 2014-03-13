@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Redbook Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.redbook
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
@@ -11,10 +11,8 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.edex.ndm;bundle-version="1.14.0",
- com.raytheon.uf.edex.menus;bundle-version="1.0.0"
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0"
 Export-Package: com.raytheon.edex.plugin.redbook,
- com.raytheon.edex.plugin.redbook.common,
- com.raytheon.edex.plugin.redbook.common.blocks,
  com.raytheon.edex.plugin.redbook.decoder
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.apache.commons.logging

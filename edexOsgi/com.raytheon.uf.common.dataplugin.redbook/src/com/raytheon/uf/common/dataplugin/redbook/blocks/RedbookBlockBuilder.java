@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -25,12 +25,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock.RedbookBlockFactory;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlock.RedbookBlockFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.PropertiesUtil;
-import com.raytheon.uf.common.util.ReflectionException;
-import com.raytheon.uf.common.util.ReflectionUtil;
 
 /**
  * 
@@ -42,12 +40,14 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080516           1131 jkorman     Initial Coding.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and moved reflective calls to the
- *                                     mapping population method.  Map now
- *                                     contains factory objects.
- * Jul 19, 2013 DR 16401   D. Friedman Fix end-of-product block decoding.
+ * May 16, 2008 1131       jkorman     Initial Coding.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and moved
+ *                                     reflective calls to the mapping
+ *                                     population method.  Map now contains
+ *                                     factory objects.
+ * Jul 19, 2013 16401      D. Friedman Fix end-of-product block decoding.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * @version 1.0
  */
 public class RedbookBlockBuilder {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookBlockBuilder.class);
 
@@ -100,11 +101,12 @@ public class RedbookBlockBuilder {
         byte rawMode = dataBuffer.get();
         byte rawSubMode = dataBuffer.get();
 
-        /* Must have at least MIN_REMAINING,
-         * but allow the the end-of-product block (mode=1,sub=2)
+        /*
+         * Must have at least MIN_REMAINING, but allow the the end-of-product
+         * block (mode=1,sub=2)
          */
-        if (dataBuffer.remaining() >= MIN_REMAINING ||
-                (rawMode == 1 && rawSubMode == 2)) {
+        if (dataBuffer.remaining() >= MIN_REMAINING
+                || (rawMode == 1 && rawSubMode == 2)) {
             header = new RedbookBlockHeader(rawHdr, rawMode, rawSubMode);
         } else {
             header = RedbookBlockHeader.DEFAULT;
@@ -127,12 +129,11 @@ public class RedbookBlockBuilder {
                         + FACTORY_NAME;
 
                 try {
-                    RedbookBlockFactory factory = ReflectionUtil
-                            .newInstanceOfAssignableType(
-                                    RedbookBlockFactory.class, factoryClassName);
-
-                    blockFactoryMap.put((String) key, factory);
-                } catch (ReflectionException e) {
+                    Class<?> factoryClass = Class.forName(factoryClassName);
+                    RedbookBlockFactory factory = (RedbookBlockFactory) factoryClass
+                            .newInstance();
+                    blockFactoryMap.put(key, factory);
+                } catch (Exception e) {
                     statusHandler.error("Could not instantiate "
                             + factoryClassName, e);
                 }
