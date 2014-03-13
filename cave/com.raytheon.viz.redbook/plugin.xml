@@ -25,14 +25,14 @@
       <resource
             class="com.raytheon.viz.redbook.rsc.RedbookResource"
             name="RedbookResource"
-            recordClass="com.raytheon.edex.plugin.redbook.common.RedbookRecord"
+            recordClass="com.raytheon.uf.common.dataplugin.redbook.RedbookRecord"
             renderingOrderId="PLOT"
             resourceType="PLAN_VIEW">
       </resource>
       <resource
             class="com.raytheon.viz.redbookua.rsc.RedbookUpperAirResource"
             name="RedbookUpperAirResource"
-            recordClass="com.raytheon.edex.plugin.redbook.common.RedbookRecord"
+            recordClass="com.raytheon.uf.common.dataplugin.redbook.RedbookRecord"
             renderingOrderId="PLOT"
             resourceType="PLAN_VIEW">
       </resource>

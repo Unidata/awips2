@@ -31,8 +31,8 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.Block_004_017;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_017;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -43,10 +43,12 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
+ * Date         Ticket#     Engineer    Description
  * ------------	----------	-----------	--------------------------
- * May 27, 2008	#1162		chammack	Initial creation
- * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * May 27, 2008 1162        chammack    Initial creation
+ * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader
+ * Mar 13, 2014	2907      	njensen    	split edex.redbook plugin into common and
+ *                                      edex redbook plugins
  * 
  * </pre>
  * 
@@ -96,8 +98,8 @@ public class RedbookProjectionBlock extends Block_004_017 {
         MathTransform mt2 = gg.getGridToCRS(PixelInCell.CELL_CENTER);
 
         DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
-        MathTransform mt = dmtf.createConcatenatedTransform(mt2, toProj
-                .inverse());
+        MathTransform mt = dmtf.createConcatenatedTransform(mt2,
+                toProj.inverse());
 
         return mt;
     }
