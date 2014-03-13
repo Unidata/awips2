@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.redbook.common.blocks;
+package com.raytheon.uf.common.dataplugin.redbook.blocks;
 
 import java.nio.ByteBuffer;
 
@@ -30,9 +30,11 @@ import java.nio.ByteBuffer;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader,
- *                                     and nested Factory class.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Apr 29, 2013 1958       bgonzale    Added class RedbookBlockHeader, and
+ *                                     nested Factory class.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 
@@ -43,31 +45,43 @@ import java.nio.ByteBuffer;
 public class Block_004_016 extends RedbookBlock {
 
     private int piSet;
+
     private int coordinateFlag;
+
     private int scaleFactor;
+
     private int areaCode;
+
     private int labelCode;
 
     private int refM1coord;
+
     private int refN1coord;
-    
+
     private int refM2coord;
+
     private int refN2coord;
 
     private int refM3coord;
+
     private int refN3coord;
 
     private int vtMonth;
+
     private int vtDay;
+
     private int vtHour;
+
     private int vtMinute;
-    
+
     private int evtMonth;
+
     private int evtDay;
+
     private int evtHour;
+
     private int evtMinute;
-    
-    
+
     public static class Factory implements RedbookBlockFactory {
         @Override
         public RedbookBlock createBlock(RedbookBlockHeader header,
@@ -84,13 +98,13 @@ public class Block_004_016 extends RedbookBlock {
     public Block_004_016(RedbookBlockHeader header, ByteBuffer data) {
         super(header, data);
         populate(data);
-        if(hasChkSum()) {
+        if (hasChkSum()) {
             data.getShort();
         }
     }
 
     private void populate(ByteBuffer data) {
-        
+
         piSet = (data.get() & 0xFF);
         coordinateFlag = (data.get() & 0xFF);
         scaleFactor = (data.getShort() & 0xFFFF);
@@ -99,7 +113,7 @@ public class Block_004_016 extends RedbookBlock {
 
         refM1coord = (data.getShort() & 0xFFFF);
         refN1coord = (data.getShort() & 0xFFFF);
-        
+
         refM2coord = (data.getShort() & 0xFFFF);
         refN2coord = (data.getShort() & 0xFFFF);
 
@@ -110,35 +124,38 @@ public class Block_004_016 extends RedbookBlock {
         vtDay = (data.get() & 0xFF);
         vtHour = (data.get() & 0xFF);
         vtMinute = (data.get() & 0xFF);
-        
+
         evtMonth = (data.get() & 0xFF);
         evtDay = (data.get() & 0xFF);
         evtHour = (data.get() & 0xFF);
         evtMinute = (data.get() & 0xFF);
     }
-    
+
     /**
      * 
      */
+    @Override
     public StringBuilder toString(StringBuilder sb) {
         sb = super.toString(sb);
         sb.append(" piSet=");
         sb.append(piSet);
         sb.append(":CF_");
-        if(coordinateFlag == 0) {
+        if (coordinateFlag == 0) {
             sb.append("LL");
-        } else if(coordinateFlag == 1) {
+        } else if (coordinateFlag == 1) {
             sb.append("IJ");
-        } else if(coordinateFlag == 2) {
+        } else if (coordinateFlag == 2) {
             sb.append("XY");
         } else {
             sb.append("??");
         }
         sb.append(":TM_");
-        sb.append(String.format("%02d%02d%02d%02d",vtMonth,vtDay,vtHour,vtMinute));
+        sb.append(String.format("%02d%02d%02d%02d", vtMonth, vtDay, vtHour,
+                vtMinute));
         sb.append(":");
-        sb.append(String.format("%02d%02d%02d%02d",evtMonth,evtDay,evtHour,evtMinute));
-        
+        sb.append(String.format("%02d%02d%02d%02d", evtMonth, evtDay, evtHour,
+                evtMinute));
+
         return sb;
     }
 
@@ -274,5 +291,5 @@ public class Block_004_016 extends RedbookBlock {
     public int getEvtMinute() {
         return evtMinute;
     }
-    
+
 }

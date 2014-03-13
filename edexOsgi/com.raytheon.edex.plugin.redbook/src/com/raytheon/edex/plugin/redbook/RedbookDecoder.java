@@ -25,13 +25,15 @@ import java.util.Date;
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.edex.plugin.redbook.dao.RedbookDao;
 import com.raytheon.edex.plugin.redbook.decoder.RedbookParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.PerformanceStatus;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
@@ -56,6 +58,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 19, 2013 1785       bgonzale    Added performance status handler and
  *                                     added  status to decode.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * </pre>
  * 
  * @author jkorman
@@ -93,6 +97,9 @@ public class RedbookDecoder extends AbstractDecoder {
 
     // Name of the plugin controlling this decoder.
     private final String PLUGIN_NAME;
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(RedbookDecoder.class);
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("Redbook:");
@@ -150,8 +157,6 @@ public class RedbookDecoder extends AbstractDecoder {
                 if (report != null) {
                     report.setPersistenceTime(new Date());
                     try {
-                        report.constructDataURI();
-
                         reports = createMergedRecordList(report);
                     } catch (PluginException e) {
                         logger.error(traceId + "- Error constructing datauri",
@@ -220,7 +225,6 @@ public class RedbookDecoder extends AbstractDecoder {
                 // and the Wes2Bridge archiver properly finds these backdated
                 // records
                 backDatedRecord.setPersistenceTime(new Date());
-                backDatedRecord.constructDataURI();
             } catch (PluginException e) {
                 logger.error(traceId + "Could not create back-dated copy of "
                         + record.getDataURI(), e);
