@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="lib" path="common-2.6.0.jar"/>
-	<classpathentry kind="lib" path="commons-beanutils-1.7.0.jar"/>
-	<classpathentry kind="lib" path="commons-collections-3.1.jar"/>
 	<classpathentry kind="lib" path="commons-dbcp-1.3.jar"/>
 	<classpathentry kind="lib" path="commons-jxpath-1.3.jar"/>
-	<classpathentry kind="lib" path="commons-lang-2.3.jar"/>
-	<classpathentry kind="lib" path="commons-pool-1.5.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="ecore-2.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="gt-api-10.5.jar" sourcepath="geotools-source-10.5.zip"/>
 	<classpathentry exported="true" kind="lib" path="gt-coverage-10.5.jar" sourcepath="geotools-source-10.5.zip"/>
