@@ -164,9 +164,11 @@ public class FetchActiveTableSrv implements ISiteActivationListener {
      */
     @Override
     public void deactivateSite(String siteID) throws Exception {
-        statusHandler.info("Deactivating FetchAT for " + siteID);
         ScheduledFuture<?> siteJob = siteJobInstanceMap.remove(siteID);
-        siteJob.cancel(false);
+        if (siteJob != null) {
+            statusHandler.info("Deactivating FetchAT for " + siteID);
+            siteJob.cancel(false);
+        }
         siteConfigMap.remove(siteID);
     }
 
