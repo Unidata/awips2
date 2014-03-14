@@ -26,12 +26,12 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/11/13        #2083         randerso       Log active table changes, save backups
+#    03/06/14        #2883         randerso       Pass siteId into mergeFromJava
 #
 
 import time
 import copy
 import os
-import siteConfig
 import VTECTableUtil, VTECTableSqueeze, VTECPartners
 import LogStream, ActiveTableVtec, ActiveTableRecord
 from java.util import ArrayList
@@ -248,14 +248,12 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                 
         return outTable, purgedRecords, changes, changedFlag
 
-def mergeFromJava(activeTable, newRecords, logger, mode, offsetSecs=0):
+def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     pyActive = []
     szActive = activeTable.size()
     for i in range(szActive):
         pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
     
-    siteId = siteConfig.GFESUITE_SITEID
-
     decoderSites = VTECPartners.VTEC_DECODER_SITES
     decoderSites.append(VTECPartners.get4ID(siteId))
     decoderSites.append(VTECPartners.VTEC_SPC_SITE)
