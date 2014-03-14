@@ -128,7 +128,7 @@
 		<memory-setting>
 			<command-line-args>
 				<first-arg>-perspective</first-arg>
-				<second-arg>National Centers</second-arg>
+				<second-arg>NCP</second-arg>
 			</command-line-args>
 		
 			<ini-substitutions>
@@ -175,11 +175,11 @@
 		
 			<ini-substitutions>
 				<max-memory>
-					<value>512M</value>
+					<value>256M</value>
 				</max-memory>
 			
 				<max-perm>
-					<value>128m</value>
+					<value>64M</value>
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
@@ -196,7 +196,7 @@
 				</max-memory>
 			
 				<max-perm>
-					<value>128m</value>
+					<value>128M</value>
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
@@ -230,7 +230,7 @@
 				</max-memory>
 			
 				<max-perm>
-					<value>128m</value>
+					<value>64M</value>
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
@@ -238,7 +238,7 @@
 		<memory-setting>
 			<command-line-args>
 				<first-arg>-perspective</first-arg>
-				<second-arg>National Centers</second-arg>
+				<second-arg>NCP</second-arg>
 			</command-line-args>
 		
 			<ini-substitutions>
@@ -251,6 +251,142 @@
 				</max-perm>
 			</ini-substitutions>
 		</memory-setting>
+		
+		<memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>activatesite</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>avnsetup</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>metar</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>windrose</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>cigvisdist</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>cigvistrend</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>hydroTimeSeries</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
+        
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>autodqc</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>256M</value>
+                </max-memory>
+            
+                <max-perm>
+                    <value>64M</value>
+                </max-perm>
+            </ini-substitutions>
+        </memory-setting>
 
         <!-- memory default overrides for a particular site type (wfo, ncep, etc) -->
         <!-- site-type names need to be all lower case -->
