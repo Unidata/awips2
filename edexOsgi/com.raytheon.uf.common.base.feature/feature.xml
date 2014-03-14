@@ -284,6 +284,12 @@
          version="10.5.0"/>
 
    <plugin
+         id="org.apache.commons.pool"
+         download-size="0"
+         install-size="0"
+         version="1.5.4"/>
+
+   <plugin
          id="org.javassist"
          download-size="0"
          install-size="0"
