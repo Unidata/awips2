@@ -31,7 +31,7 @@
 #                                     fixes for INI files with spaces
 # Feb 20, 2014  #2780     bclement    added site type ini file check
 #
-#
+# Mar 13  2014  #15348    kjohnson    added function to remove logs
 
 
 source /awips2/cave/iniLookup.sh
@@ -305,3 +305,21 @@ function logExitStatus()
      fi
    fi
 }
+
+#Delete old CAVE logs DR 15348
+function deleteOldCaveLogs() 
+{
+
+    local curDir=$(pwd)
+    local mybox=$(hostname)
+
+    echo -e "Cleaning consoleLogs: "
+    echo -e "find $BASE_LOGDIR -type f -name "*.log" -mtime +7 -exec rm {} \;"
+
+
+    find "$BASE_LOGDIR" -type f -name "*.log" -mtime +7 -exec rm {} \;
+
+    exit 0
+
+}
+
