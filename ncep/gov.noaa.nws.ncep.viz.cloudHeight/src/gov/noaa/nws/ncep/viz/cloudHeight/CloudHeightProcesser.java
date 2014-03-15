@@ -57,6 +57,8 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -68,15 +70,14 @@ import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
 import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.BufferUtil;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.core.data.prep.HDF5DataRetriever;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.datacube.CubeUtil;
 import com.raytheon.viz.core.rsc.hdf5.FileBasedTileSet;
 import com.vividsolutions.jts.geom.Coordinate;
 //import com.raytheon.uf.viz.core.data.IDataRetrievalCallback;
@@ -1207,14 +1208,14 @@ public class CloudHeightProcesser {
 
                             }
                         }
-                    } catch (VizException e) {
-                        e.printStackTrace();
                     } catch (FactoryException e) {
                         e.printStackTrace();
                     } catch (NoninvertibleTransformException e) {
                         e.printStackTrace();
                     } catch (TransformException e) {
                         e.printStackTrace();
+                    } catch (DataCubeException e1) {
+                        e1.printStackTrace();
                     }
                 }
             }

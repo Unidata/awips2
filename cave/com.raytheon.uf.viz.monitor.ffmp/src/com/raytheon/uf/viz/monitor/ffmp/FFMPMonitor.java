@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPAggregateRecord;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
@@ -53,7 +54,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
