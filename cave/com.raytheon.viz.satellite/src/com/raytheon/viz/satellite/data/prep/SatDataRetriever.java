@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.nio.ByteBuffer;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
@@ -32,8 +33,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Data retrieval callback for satellite data, uses the DataCubeContainer
@@ -121,7 +121,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             if (dataRecord != null && dataRecord.length == 1) {
                 retData = ((ByteDataRecord) dataRecord[0]).getByteData();
             }
-        } catch (VizDataCubeException e) {
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error retrieving satellite data", e);
         }

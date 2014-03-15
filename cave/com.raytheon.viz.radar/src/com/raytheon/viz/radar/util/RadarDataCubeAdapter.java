@@ -28,13 +28,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -42,8 +45,6 @@ import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
 import com.raytheon.viz.pointdata.util.PointDataCubeAdapter;
 
@@ -87,7 +88,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
                 pointInventory.initTree(DerivedParameterGenerator
                         .getDerParLibrary());
                 this.inventory = pointInventory;
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -112,7 +113,8 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
     @Override
     public PointDataContainer getBaseRecords(
             Collection<String> baseParameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         return ((VwpInventory) inventory).getBaseRecords(baseParameters,
                 queryParams);
     }
@@ -171,7 +173,7 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
 
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
-            throws VizException {
+            throws DataCubeException {
         List<DbQueryRequest> dbRequests = new ArrayList<DbQueryRequest>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
@@ -180,8 +182,12 @@ public class RadarDataCubeAdapter extends PointDataCubeAdapter {
         }
         DbQueryRequestSet requestSet = new DbQueryRequestSet();
         requestSet.setQueries(dbRequests.toArray(new DbQueryRequest[0]));
-        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                .sendRequest(requestSet);
+        DbQueryResponseSet responseSet;
+        try {
+            responseSet = (DbQueryResponseSet) RequestRouter.route(requestSet);
+        } catch (Exception e) {
+            throw new DataCubeException(e);
+        }
         List<List<DataTime>> result = new ArrayList<List<DataTime>>(
                 requests.size());
         for (int i = 0; i < requests.size(); i++) {

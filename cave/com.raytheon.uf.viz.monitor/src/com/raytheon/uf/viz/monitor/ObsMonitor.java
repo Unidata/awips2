@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.swt.widgets.Display;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
 import com.raytheon.uf.common.dataplugin.fssobs.FSSObsRecord;
@@ -38,10 +39,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.monitor.data.MonitoringArea;
 import com.raytheon.uf.viz.monitor.data.ObReport;
 import com.raytheon.uf.viz.monitor.events.IMonitorConfigurationEvent;
@@ -283,7 +284,7 @@ public abstract class ObsMonitor extends Monitor {
                     }
                 }
             }
-        } catch (final VizException e) {
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "No data in database at startup.  " + monitorUse);
         }
@@ -296,10 +297,11 @@ public abstract class ObsMonitor extends Monitor {
      * @param times
      * @return FSSObsRecord[]
      * @throws VizException
+     * @throws DataCubeException
      */
     private FSSObsRecord[] requestFSSObs(
             Map<String, RequestConstraint> constraints, DataTime[] times)
-            throws VizException {
+            throws DataCubeException {
         if (times != null) {
             String[] timeStrs = new String[times.length];
             for (int i = 0; i < times.length; ++i) {
