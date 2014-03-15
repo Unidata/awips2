@@ -28,14 +28,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotData;
 import com.raytheon.viz.pointdata.PlotInfo;
@@ -303,6 +304,9 @@ public class PlotModelDataRequestJob extends AbstractPlotCreationJob {
             } catch (VizException e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error in Point Data request.", e1);
+            } catch (DataCubeException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error making Point Data request.", e);
             }
             // reset in case there's more
             j = 0;

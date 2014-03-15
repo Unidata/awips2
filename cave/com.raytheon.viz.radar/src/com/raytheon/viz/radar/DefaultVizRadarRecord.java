@@ -24,12 +24,12 @@ import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarStoredData;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.cache.CacheObject;
 import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetriever;
 

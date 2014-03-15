@@ -24,16 +24,19 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
+ * 
+ * Deprecated: Use ThriftClient or DataCubeContainer instead.
  * 
  * Stores the contents of a entry that will be used to create a layer within
  * CAVE.
@@ -53,6 +56,7 @@ import com.raytheon.uf.viz.core.rsc.ResourceType;
  * @author brockwoo
  * @version 1.0
  */
+@Deprecated
 public class LayerProperty {
 
     private static final String TIME_FIELD = "dataTime";
@@ -236,8 +240,12 @@ public class LayerProperty {
     }
 
     private void requestEntryTimes(BinOffset binOffset) throws VizException {
-        this.entryTimes = DataCubeContainer.performTimeQuery(
-                entryQueryParameters, false, binOffset);
+        try {
+            this.entryTimes = DataCubeContainer.performTimeQuery(
+                    entryQueryParameters, false, binOffset);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
 
         if (this.entryTimes == null) {
             throw new NoDataAvailableException();

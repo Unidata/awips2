@@ -26,13 +26,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
@@ -41,9 +45,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.viz.grid.data.GridRequestableDataFactory;
 import com.raytheon.viz.grid.util.CoverageUtils;
 
@@ -110,7 +111,7 @@ public class GridRequestableNode extends AbstractBaseDataNode {
     public Set<AbstractRequestableData> getData(
             Map<String, RequestConstraint> orignalConstraints,
             Set<TimeAndSpace> availability, Object response)
-            throws VizException {
+            throws DataCubeException {
         DbQueryResponse dbresponse = (DbQueryResponse) response;
         GridRequestableDataFactory grdf = GridRequestableDataFactory
                 .getInstance();
@@ -254,14 +255,18 @@ public class GridRequestableNode extends AbstractBaseDataNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<String, RequestConstraint> originalConstraints, Object response)
-            throws VizException {
+            throws DataCubeException {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
         if (response == null) {
             result = GridTimeCache.getInstance().getTimes(this);
             if (result == null) {
                 // Oh No! the cache has been cleared since we made our request.
-                response = ThriftClient
-                        .sendRequest(getAvailabilityRequest(originalConstraints));
+                try {
+                    response = ThriftClient
+                            .sendRequest(getAvailabilityRequest(originalConstraints));
+                } catch (VizException e) {
+                    throw new DataCubeException(e);
+                }
                 return getAvailability(originalConstraints, response);
             }
             GridTimeCache.getInstance().setTimes(this, result);
@@ -276,8 +281,12 @@ public class GridRequestableNode extends AbstractBaseDataNode {
                     coverage = GridCoverageLookup.getInstance().getCoverage(
                             locationId.intValue());
                 } else {
-                    coverage = CoverageUtils.getInstance()
-                            .getCoverages(getSource()).iterator().next();
+                    try {
+                        coverage = CoverageUtils.getInstance()
+                                .getCoverages(getSource()).iterator().next();
+                    } catch (VizException e) {
+                        throw new DataCubeException(e);
+                    }
                 }
                 result.add(new TimeAndSpace(time, coverage));
             }

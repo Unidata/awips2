@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
@@ -35,7 +36,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -589,7 +590,12 @@ public abstract class AbstractWWAResource extends
 
         earliestRequested = earliest;
 
-        PluginDataObject[] pdos = DataCubeContainer.getData(map);
+        PluginDataObject[] pdos;
+        try {
+            pdos = DataCubeContainer.getData(map);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         addRecord(sort(pdos));
     }
 
