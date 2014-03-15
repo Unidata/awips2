@@ -21,10 +21,10 @@ package com.raytheon.viz.pointdata.util;
 
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 
 /**
  * Wraps a data record from a PointDataContainer in the AbstractRequestableData
@@ -64,7 +64,7 @@ public class PointRequestableData extends AbstractRequestableData {
      * ()
      */
     @Override
-    public Object getDataValue(Object arg) throws VizException {
+    public Object getDataValue(Object arg) throws DataCubeException {
         return rec;
     }
 

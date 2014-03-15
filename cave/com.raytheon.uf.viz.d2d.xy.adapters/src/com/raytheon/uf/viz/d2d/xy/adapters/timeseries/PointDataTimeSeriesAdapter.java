@@ -35,6 +35,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
@@ -51,9 +52,9 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.objectiveanalysis.rsc.OAGridTransformer;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -149,9 +150,14 @@ public class PointDataTimeSeriesAdapter extends
                     PointDataConstants.DATASET_FORECASTHR, parameter };
         }
 
-        PointDataContainer pdc = DataCubeContainer.getPointData(
-                recordsToLoad[0].getPluginName(), parameters,
-                resourceData.getLevelKey(), constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(
+                    recordsToLoad[0].getPluginName(), parameters,
+                    resourceData.getLevelKey(), constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
 
         boolean isWind = pdc.getParameters().contains(parameter + "[1]");
         boolean isIcon = displayType == DisplayType.ICON;
