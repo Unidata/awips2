@@ -23,13 +23,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.cache.CacheObject.IObjectRetrieverAndDisposer;
 
 /**

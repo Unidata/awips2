@@ -29,6 +29,7 @@ import java.util.List;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -36,10 +37,10 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.rsc.general.AbstractGridResource;
 import com.raytheon.viz.grid.rsc.general.GeneralGridData;
 
@@ -102,7 +103,12 @@ public class QPFResource extends AbstractGridResource<QPFResourceData> {
             return Collections.emptyList();
         }
         QPFRecord rec = (QPFRecord) pdos.get(0);
-        IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(rec);
+        IDataRecord[] dataRecs;
+        try {
+            dataRecs = DataCubeContainer.getDataRecord(rec);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         FloatDataRecord fdr = (FloatDataRecord) dataRecs[0];
         FloatBuffer data = FloatBuffer.wrap(fdr.getFloatData());
         Unit<?> unit = UnitFormat.getInstance().parseObject(
