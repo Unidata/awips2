@@ -324,7 +324,7 @@
          install-size="0"
          version="2.3.0"
          fragment="true"/>
-         
+
    <plugin
          id="org.jep.win64"
          os="win32"
@@ -429,5 +429,12 @@
          download-size="0"
          install-size="0"
          version="0.9.9"/>
+
+   <plugin
+         id="com.raytheon.uf.common.inventory"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

@@ -86,3 +86,5 @@ Export-Package: com.raytheon.uf.viz.core,
  com.raytheon.viz.core.slice.request,
  com.raytheon.viz.core.units
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.viz.datacube
