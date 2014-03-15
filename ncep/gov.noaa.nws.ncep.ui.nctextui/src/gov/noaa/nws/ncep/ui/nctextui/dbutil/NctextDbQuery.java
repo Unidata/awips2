@@ -71,13 +71,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 
@@ -974,7 +976,7 @@ public class NctextDbQuery {
         try {
             pdc = DataCubeContainer.getPointData(tableName,
                     parameters.toArray(new String[parameters.size()]), null,rcMap);
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
         	System.out.println("requestObsPointData-DataCubeContainer:Error getting raw data from "+tableName+" ::" +
                     e);
         }
