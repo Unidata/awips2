@@ -42,6 +42,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.scan.ScanRecord;
 import com.raytheon.uf.common.dataplugin.scan.data.CellTableDataRow;
 import com.raytheon.uf.common.dataplugin.scan.data.DMDTableDataRow;
@@ -71,7 +72,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;

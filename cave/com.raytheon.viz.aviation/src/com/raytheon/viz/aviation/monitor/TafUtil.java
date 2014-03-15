@@ -28,14 +28,14 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.edex.plugin.taf.common.TafRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Utility functions related to TAFs
@@ -140,7 +140,7 @@ public class TafUtil {
                     }));
 
             return tafs;
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM, "Error retrieving TAFs", e);
         }
         return null;

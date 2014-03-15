@@ -24,14 +24,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * A requestable data object for which wraps a GridRecord.
@@ -111,7 +111,7 @@ public class GridRequestableData extends AbstractRequestableData {
     }
 
     @Override
-    public IDataRecord[] getDataValue(Object arg) throws VizException {
+    public IDataRecord[] getDataValue(Object arg) throws DataCubeException {
 
         if (arg instanceof Request) {
             Request request = (Request) arg;

@@ -40,6 +40,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.dataplugin.radar.util.TerminalRadarUtils;
@@ -54,7 +55,6 @@ import com.raytheon.uf.common.message.response.ResponseMessageGeneric;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.comm.Connector;
