@@ -35,6 +35,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -46,8 +47,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.display.CrossSectionDescriptor;
@@ -196,7 +197,12 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
             if (request == null) {
                 continue;
             }
-            DataCubeContainer.getDataRecords(entry.getValue(), request, null);
+            try {
+                DataCubeContainer.getDataRecords(entry.getValue(), request,
+                        null);
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
 
         }
         Coordinate[] coordinates = GeoUtil.splitLine(nx,
@@ -363,8 +369,12 @@ public class GridCSAdapter extends AbstractCrossSectionAdapter<GridRecord> {
                     new RequestConstraint(descriptor.getHeightScale()
                             .getParameter()));
 
-            PluginDataObject[] pdos = DataCubeContainer.getData(metadataMap,
-                    time);
+            PluginDataObject[] pdos;
+            try {
+                pdos = DataCubeContainer.getData(metadataMap, time);
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
             yRecords = new HashSet<GridRecord>(pdos.length);
             for (PluginDataObject pdo : pdos) {
                 yRecords.add((GridRecord) pdo);
