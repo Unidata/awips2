@@ -62,6 +62,7 @@ import com.raytheon.viz.gfe.dialogs.TimeRangeWarningDialog;
  * Nov 7, 2012  1298       rferrel     Keep EmptyEditAreaWarningDialog blocking.
  *                                     Keep TimeRangeWarningdialog blocking.
  * Jan 8, 2013  1486       dgilling    Support changes to BaseGfePyController.
+ * Mar 14, 2014 15813      ryu         Fixed default time range used.
  * 
  * </pre>
  * 
@@ -293,8 +294,7 @@ public class EditActionProcessor {
                 Date seTime = dataMgr.getSpatialDisplayManager()
                         .getSpatialEditorTime();
                 if (seTime != null) {
-                    timeRange = new TimeRange(seTime, seTime.getTime()
-                            + (10 * 1000));
+                    timeRange = new TimeRange(seTime, (10 * 1000));
                 }
             }
         }
