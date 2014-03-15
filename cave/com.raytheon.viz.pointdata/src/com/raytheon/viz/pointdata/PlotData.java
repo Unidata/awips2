@@ -27,7 +27,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
+import com.raytheon.uf.viz.datacube.CubeUtil;
 
 /**
  * Plot Data Object.

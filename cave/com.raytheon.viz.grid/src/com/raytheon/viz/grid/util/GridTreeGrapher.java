@@ -22,17 +22,18 @@ package com.raytheon.viz.grid.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.data.FloatRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
+import com.raytheon.uf.common.derivparam.library.IDerivParamField;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.derivparam.tree.DerivedLevelNode;
+import com.raytheon.uf.common.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.data.FloatRequestableData;
-import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
-import com.raytheon.uf.viz.derivparam.tree.DerivedLevelNode;
-import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.viz.grid.inv.GridInventory;
 import com.raytheon.viz.grid.inv.GridRequestableNode;
 
@@ -110,30 +111,36 @@ public class GridTreeGrapher {
                 System.out.println("node" + i + " -> node" + that);
             }
         } else if (node instanceof StaticDataLevelNode) {
-            StaticDataLevelNode cNode = (StaticDataLevelNode) node;
-            AbstractRequestableData staticData = cNode.getData(null, null)
-                    .iterator().next();
-            if (staticData instanceof FloatRequestableData) {
-                String abbr = node.getClass().getSimpleName();
-                if (cNode.getDesc() != null) {
-                    abbr = cNode.getDesc().getAbbreviation();
+            try {
+                StaticDataLevelNode cNode = (StaticDataLevelNode) node;
+                AbstractRequestableData staticData = cNode.getData(null, null)
+                        .iterator().next();
+                if (staticData instanceof FloatRequestableData) {
+                    String abbr = node.getClass().getSimpleName();
+                    if (cNode.getDesc() != null) {
+                        abbr = cNode.getDesc().getAbbreviation();
+                    }
+                    String label = "Constant: " + staticData.getDataValue(null)
+                            + "\\n" + cNode.getModelName() + "\\n" + abbr
+                            + "\\n" + cNode.getLevel();
+                    System.out.println("node" + i + " [label=\"" + label
+                            + "\"];");
+                } else {
+                    String abbr = node.getClass().getSimpleName();
+                    if (cNode.getDesc() != null) {
+                        abbr = cNode.getDesc().getAbbreviation();
+                    }
+                    String label = "StaticData\\n" + cNode.getModelName()
+                            + "\\n" + abbr + "\\n" + cNode.getLevel();
+                    System.out.println("node" + i + " [label=\"" + label
+                            + "\"];");
+                    for (Dependency dep : cNode.getDependencies()) {
+                        int that = printGraphInternal(dep.node);
+                        System.out.println("node" + i + " -> node" + that);
+                    }
                 }
-                String label = "Constant: " + staticData.getDataValue(null)
-                        + "\\n" + cNode.getModelName() + "\\n" + abbr + "\\n"
-                        + cNode.getLevel();
-                System.out.println("node" + i + " [label=\"" + label + "\"];");
-            } else {
-                String abbr = node.getClass().getSimpleName();
-                if (cNode.getDesc() != null) {
-                    abbr = cNode.getDesc().getAbbreviation();
-                }
-                String label = "StaticData\\n" + cNode.getModelName() + "\\n"
-                        + abbr + "\\n" + cNode.getLevel();
-                System.out.println("node" + i + " [label=\"" + label + "\"];");
-                for (Dependency dep : cNode.getDependencies()) {
-                    int that = printGraphInternal(dep.node);
-                    System.out.println("node" + i + " -> node" + that);
-                }
+            } catch (DataCubeException e) {
+                throw new VizException(e);
             }
         } else if (node instanceof AbstractDerivedDataNode) {
             AbstractDerivedDataNode cNode = (AbstractDerivedDataNode) node;
