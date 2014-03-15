@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.edex.plugin.ccfp.CcfpRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -41,9 +42,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Utility functions for data requesting.
@@ -189,7 +190,13 @@ public class MonitorDataUtil {
             return records;
         } catch (VizException e) {
             statusHandler.handle(Priority.ERROR,
-                    "Error retrieving radar vertical wind profile data", e);
+                            "Error making server request for radar vertical wind profile data",
+                            e);
+        } catch (DataCubeException e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Error performing time query for radar vertical wind profile data",
+                            e);
         }
         return null;
     }
@@ -231,7 +238,13 @@ public class MonitorDataUtil {
             return records;
         } catch (VizException e) {
             statusHandler.handle(Priority.ERROR,
-                    "Error retrieving Acars Sounding Records data", e);
+                            "Error making server request for Acars Sounding Records data",
+                            e);
+        } catch (DataCubeException e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Error performing time query for Acars Sounding Records data",
+                            e);
         }
         return null;
     }
