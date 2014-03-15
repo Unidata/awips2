@@ -26,23 +26,23 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.RecordFactory;
-import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
-import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.viz.datacube.DefaultDataCubeAdapter;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 /**
@@ -109,16 +109,22 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
      */
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         return getPoints(plugin, parameters, "Station", queryParams);
     }
 
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
             String levelKey, Map<String, RequestConstraint> queryParams)
-            throws VizException {
+            throws DataCubeException {
         queryParams.put(PLUGIN_NAME, new RequestConstraint(plugin));
-        String type = getType(queryParams);
+        String type;
+        try {
+            type = getType(queryParams);
+        } catch (VizException e1) {
+            throw new DataCubeException(e1);
+        }
         String source = plugin;
         if (!type.equals(plugin)) {
             source += type;
@@ -131,10 +137,15 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
                             LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey(levelKey).getLevels();
         } catch (CommunicationException e) {
-            throw new VizCommunicationException(e);
+            throw new DataCubeException(e);
         }
-        List<AbstractRequestableNode> nodes = inventory.getNodes(source,
-                Arrays.asList(parameters), levels);
+        List<AbstractRequestableNode> nodes;
+        try {
+            nodes = inventory.getNodes(source, Arrays.asList(parameters),
+                    levels);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         PointMetadataContainer pmc = new PointMetadataContainer(queryParams,
                 Arrays.asList(parameters), this);
         for (AbstractRequestableNode node : nodes) {
@@ -172,9 +183,9 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
                         .getParameter(), null, data, baseRec.getDimension(),
                         sizes));
             } else if (obj == null) {
-                throw new VizException("Invalid Object of type: null");
+                throw new DataCubeException("Invalid Object of type: null");
             } else {
-                throw new VizException("Invalid Object of type: "
+                throw new DataCubeException("Invalid Object of type: "
                         + obj.getClass().getSimpleName());
             }
             int resultCount = 0;
@@ -212,10 +223,15 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     }
 
     public PointDataContainer getBaseRecords(Collection<String> baseParams,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         String plugin = queryParams.get(PLUGIN_NAME).getConstraintValue();
-        return PointDataRequest.requestPointDataAllLevels(plugin,
-                baseParams.toArray(new String[] {}), null, queryParams);
+        try {
+            return PointDataRequest.requestPointDataAllLevels(plugin,
+                    baseParams.toArray(new String[] {}), null, queryParams);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
     }
 
     /*
@@ -246,7 +262,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
                 pointInventory.initTree(DerivedParameterGenerator
                         .getDerParLibrary());
                 this.inventory = pointInventory;
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
