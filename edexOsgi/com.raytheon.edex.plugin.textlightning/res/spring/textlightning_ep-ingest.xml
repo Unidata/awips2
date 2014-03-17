@@ -9,7 +9,7 @@
 	<bean id="textlightningDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="textlightning" />
-		<constructor-arg value="jms-dist:queue:Ingest.textlightning"/>
+		<constructor-arg value="jms-durable:queue:Ingest.textlightning"/>
 	</bean>
 
     <bean id="textlightningCamelRegistered" factory-bean="contextManager"

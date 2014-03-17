@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * ------------ ---------- ----------- --------------------------
  * Jun 25, 2013 2106       djohnson     Initial creation
  * Dec 3,  2013  1736      dhladky      Bandwidth bucket size attenuation.
+ * Feb 11, 2013  2636      mpduff       Changed GET_WHERE_START_TIME_IS_BETWEEN_INCLUSIVE query.
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class BandwidthBucketDao extends
     private static final String GET_BY_LATEST_START_TIME = "from BandwidthBucket bb where bb.network = :network and bb.bucketStartTime = "
             + "(select max(bucketStartTime) from BandwidthBucket bb where bb.network = :network)";
 
-    private static final String GET_WHERE_START_TIME_IS_BETWEEN_INCLUSIVE = "from BandwidthBucket bb where bb.network = :network and bb.bucketStartTime between :earliestTime and :latestTime";
+    private static final String GET_WHERE_START_TIME_IS_BETWEEN_INCLUSIVE = "from BandwidthBucket bb where bb.network = :network and bb.bucketStartTime >= :earliestTime and bb.bucketEndTime <= :latestTime";
 
     /**
      * {@inheritDoc}
@@ -155,14 +156,13 @@ public class BandwidthBucketDao extends
      * {@inheritDoc}
      */
     @Override
-    public BandwidthBucket getBucketContainingTime(long millis,
-            Network network) {
+    public BandwidthBucket getBucketContainingTime(long millis, Network network) {
 
         List<BandwidthBucket> buckets = getWhereStartTimeIsLessThanOrEqualTo(
                 millis, network);
         // last bucket.
         if (!buckets.isEmpty()) {
-            return buckets.get(buckets.size() -1);
+            return buckets.get(buckets.size() - 1);
         } else {
             return null;
         }

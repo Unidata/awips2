@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -65,9 +65,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Nov 14, 2013 2548       mpduff       Add a subscription type slot.
  * Jan 08, 2014 2615       bgonzale     Implement calculate start and calculate end methods.
  * Jan 14, 2014 2459       mpduff       Add subscription state.
- * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
- * Jan 24, 2013 2709       bgonzale     Fix setting of active period end.  Change active period checks
+ * Jan 20, 2014 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                
+ * Jan 24, 2014 2709       bgonzale     Fix setting of active period end.  Change active period checks
  *                                      to check day of year.  removed now unused active period methods.
+ * Jan 28, 2014 2636       mpduff       Changed to use GMT calendar.
+ * Feb 12, 2014 2636       mpduff       Return new instance of calculated start and end.
  * 
  * </pre>
  * 
@@ -472,15 +474,15 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
     private Integer getStartActivePeriodDayOfYear() {
         if (startActivePeriodDayOfYear == null && activePeriodStart != null) {
-            startActivePeriodDayOfYear = TimeUtil
-                    .newCalendar(activePeriodStart).get(Calendar.DAY_OF_YEAR);
+            startActivePeriodDayOfYear = TimeUtil.newGmtCalendar(
+                    activePeriodStart).get(Calendar.DAY_OF_YEAR);
         }
         return startActivePeriodDayOfYear;
     }
 
     private Integer getEndActivePeriodDayOfYear() {
         if (endActivePeriodDayOfYear == null && activePeriodEnd != null) {
-            endActivePeriodDayOfYear = TimeUtil.newCalendar(activePeriodEnd)
+            endActivePeriodDayOfYear = TimeUtil.newGmtCalendar(activePeriodEnd)
                     .get(Calendar.DAY_OF_YEAR);
         }
         return endActivePeriodDayOfYear;
@@ -488,14 +490,34 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
     @Override
     public Calendar calculateStart(Calendar startConstraint) {
-        return TimeUtil.newCalendar(TimeUtil.max(subscriptionStart,
-                startConstraint));
+        if (subscriptionStart == null) {
+            return startConstraint;
+        }
+
+        long subStartMillis = subscriptionStart.getTime();
+        long constaintMillis = startConstraint.getTimeInMillis();
+
+        if (subStartMillis > constaintMillis) {
+            return TimeUtil.newGmtCalendar(subscriptionStart);
+        }
+
+        return TimeUtil.newGmtCalendar(startConstraint.getTime());
     }
 
     @Override
     public Calendar calculateEnd(Calendar endConstraint) {
-        return TimeUtil.newCalendar(TimeUtil
-                .min(subscriptionEnd, endConstraint));
+        if (subscriptionEnd == null) {
+            return endConstraint;
+        }
+
+        long subEndMillis = subscriptionEnd.getTime();
+        long constaintMillis = endConstraint.getTimeInMillis();
+
+        if (subEndMillis < constaintMillis) {
+            return TimeUtil.newGmtCalendar(subscriptionEnd);
+        }
+
+        return TimeUtil.newGmtCalendar(endConstraint.getTime());
     }
 
     /**
@@ -891,9 +913,10 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
 
         return expired;
     }
-    
+
     /**
      * Check for expiration on date
+     * 
      * @param date
      * @return
      */
@@ -941,9 +964,10 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         return subscriptionState == SubscriptionState.ON
                 && !checkAndSetExpiration();
     }
-    
+
     /**
      * Should this be scheduled for this time.
+     * 
      * @param checkDate
      * @return
      */
@@ -951,10 +975,11 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
         if (!isExpired(checkCal.getTime()) && inActivePeriodWindow(checkCal)) {
             return true;
         }
-        
+
         return false;
     }
 
+    @Override
     public boolean inActivePeriodWindow(Calendar checkDate) {
         if (activePeriodStart == null && activePeriodEnd == null) {
             // no active period set
@@ -967,7 +992,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
             boolean isAfterPeriodStart = startDay <= checkDay;
             boolean isBeforePeriodEnd = checkDay < endDay;
             boolean periodCrossesYearBoundary = endDay < startDay;
-            
+
             if (periodCrossesYearBoundary) {
                 return isAfterPeriodStart || isBeforePeriodEnd;
             } else {
@@ -1048,6 +1073,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
     /**
      * @return the subscriptionState
      */
+    @Override
     public SubscriptionState getSubscriptionState() {
         return subscriptionState;
     }
@@ -1056,6 +1082,7 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      * @param subscriptionState
      *            the subscriptionState to set
      */
+    @Override
     public void setSubscriptionState(SubscriptionState subscriptionState) {
         this.subscriptionState = subscriptionState;
     }

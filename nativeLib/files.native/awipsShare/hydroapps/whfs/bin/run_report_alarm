@@ -5,157 +5,21 @@
 # a product and send them to the text database
 #
 
-# Revised:Sep 11, 2012   
+# Revised:Feb 14, 2014   
 ######################################################################
 
 
-# This allows you to call this script from outside of ./standard/bin
-RUN_FROM_DIR=`dirname $0`
-
-# set up SOME environment variables for WHFS applications
-# Run from local bin dir
-. $RUN_FROM_DIR/../../set_hydro_env
-. $RUN_FROM_DIR/../../check_app_context
-
-export EDEX_HOME=/awips2/edex
-export DB_NAME=$(get_apps_defaults db_name)
-export FXA_DB_NAME=fxatext
-export WHFS_UTIL_LOG_DIR=$(get_apps_defaults whfs_util_log_dir)
-export WHFS_PRODUCT_DIR=$(get_apps_defaults whfs_product_dir)
-export WHFS_BIN_DIR=$(get_apps_defaults whfs_bin_dir)
-export SYS_JAVA_DIR=$(get_apps_defaults sys_java_dir) 
-export UTILITYDIR=$EDEX_HOME/data/utility
-
-
+# This script has been made obsolete by a new java-based service that
+# runs within the EDEX ingest JVM named
+# com.raytheon.uf.edex.ohd.reportalarm.RunReportAlarmSrv.
 #
-# Report output goes to dedicated files named by product_id and the
-# file suffix, which is normally set according to the system time. 
-# Log output and error messages should appear in the redirected output of the program.
+# This new service can still be configured using a site-level override
+# to the standard Apps_defaults file.
 #
-
-LOGFILE=$WHFS_UTIL_LOG_DIR/report_alarm.log
-TEMPNAME=$WHFS_UTIL_LOG_DIR/report_alarm.tmp
-
-# setup the AWIPS environment
-# redirect any output from this script to the log file
+# Configuration options for that file are defined within the base file.
 #
-
-/awips2/fxa/bin/setup.env >> $LOGFILE 2>&1
-
-
+# Logging for the run_report_alarm process has been moved to 
+# /awips2/edex/logs/edex-ingest-ohd-YYYYMMDD.log.
 #
-# save only the latest events in the log file
-#
-if [ -e "${LOGFILE}" ]
-then
-	tail -1200 $LOGFILE > $TEMPNAME
-	mv $TEMPNAME $LOGFILE
-fi	
-
-# log start of script
-#
-echo "------------------------------ " >> $LOGFILE
-Dte=`date -u`
-echo Invoking report_alarm at $Dte >> $LOGFILE
-
-#
-# program usage:
-# report_alarm -d<database> -p<product_id>                    <--required args
-#              -r<report_mode> -s<file_suffix> -m<minutes>    <-- optional args
-#              -f<generalfilter>  -e<PEfilter>                <-- optional args
-#
-
-#  define the product id as per local needs - SET LOCALLY !!!!!!!!!!!!!!!!!!!!!
-#
-
-PRODUCT_ID=CCCACRXXX
-#
-# define the file suffix based on the system time
-# use extr var to avoid SCCS problem
-
-hstr="%H"
-SUFFIX=`date -u +%m%d.$hstr%M`
-
-#
-# the name of the created file is set according to how the program
-# builds the name
-
-FILENAME=$WHFS_PRODUCT_DIR/$PRODUCT_ID.$SUFFIX 
-
-#
-# To discover dependencies and dynamically 
-# build associated classpath.
-#
-
-function buildClassPath {  
-   targetDir=$1   
-   pattern=$2  
-   targetDirListing=`find $targetDir -name "$pattern"`
-   list=
-   for i in $targetDirListing 
-   do
-       list=${list}:${i}
-   done
-   printf " $list "
-}
-
-
-# set dependencies base directories
-LOG4J_CONF=$WHFS_BIN_DIR
-DEPENDENCY_DIR=$EDEX_HOME/lib/dependencies
-HIBERNATE_DIR=$DEPENDENCY_DIR/org.hibernate
-CAMEL_DIR=$DEPENDENCY_DIR/org.apache.camel
-SPRING_ORM_DIR=$DEPENDENCY_DIR/org.springframework
-
-
-# set patterns for target dependencies
-PATTERN='*\.jar'
-COMMONS_PATTERN='commons*\.jar'
-
-# get dependencies path
-PLUGINS="$EDEX_HOME/lib/plugins/*"
-CAMEL="$DEPENDENCY_DIR/org.apache.camel/*"
-GEOTOOLS="$DEPENDENCY_DIR/org.geotools/*"
-JAVAX_MEASURE="$DEPENDENCY_DIR/javax.measure/*"
-JAVAX_PERSISTANCE="$DEPENDENCY_DIR/javax.persistence/*"
-MCHANGE="$DEPENDENCY_DIR/com.mchange/*"
-LOG4J="$DEPENDENCY_DIR/org.apache.log4j/*"
-SLF4J="$DEPENDENCY_DIR/org.slf4j/*"
-DOM4J="$DEPENDENCY_DIR/org.dom4j/*"
-SPRING="$DEPENDENCY_DIR/org.springframework/*"
-HIBERNATE="$DEPENDENCY_DIR/org.hibernate/*"
-APACHE_COMMONS=`buildClassPath $DEPENDENCY_DIR $COMMONS_PATTERN`
-
-
-# set the application classpath
-export CLASSPATH=$HIBERNATE:$SPRING:$DB_DRIVER_PATH:$CAMEL:$GEOTOOLS:$JAVAX_MEASURE:$MCHANGE:$LOG4J:$SLF4J:$JAVAX_PERSISTANCE:$DOM4J:$APACHE_COMMONS:$PLUGINS:$CLASSPATH
-
-#
-# run the application
-#
-$SYS_JAVA_DIR/bin/java -Xms64m -Xmx512m com.raytheon.edex.plugin.shef.alarms.AlertalarmStdTextProductUtil -d$DB_NAME -p$PRODUCT_ID -s$SUFFIX -rNEAREST >> $LOGFILE 2>&1
-NUM_ALARMS=$?
-
-
-if [ $NUM_ALARMS -eq 0 ]
-then
-   print No alarms reported, info sent to $FILENAME  >> $LOGFILE
-   print File NOT sent to text database >> $LOGFILE
-
-else
-   print $NUM_ALARMS alarms reported, report written to $FILENAME >> $LOGFILE
-
-   echo Writing $FILENAME to textdb as id $PRODUCT_ID >> $LOGFILE
-   /awips2/fxa/bin/textdb -w $PRODUCT_ID < $FILENAME >> $LOGFILE 2>&1
-   RETURN_STATUS=$?
-
-   if [ $RETURN_STATUS -eq 0 ]
-   then
-      print Product successfully sent >> $LOGFILE
-   else
-      print Product send error detected, status= $RETURN_STATUS >> $LOGFILE
-   fi
-fi
-
-Dte=`date -u `
-echo Completed report_alarm at $Dte >> $LOGFILE
+# For more information on this change please refer to A2 redmine 
+# DR #2783.
