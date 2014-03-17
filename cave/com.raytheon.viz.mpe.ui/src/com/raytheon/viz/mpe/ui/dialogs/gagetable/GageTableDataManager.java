@@ -61,7 +61,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       header creation.
  * May 20, 2013 15962      lbousaidi   Added a new routine getRadarIdsTrue()
  *                                     for Radar Sites dialog.                                    
- * 
+ * Mar 05, 2014 17114      lbousaidi   display PC data in gage table. 
  * </pre>
  * 
  * @author mpduff
@@ -620,9 +620,6 @@ public class GageTableDataManager {
         index = 0;
 
         for (MPEGageData gage : gageRecordList) {
-            if (!gage.getPe().equalsIgnoreCase("PP")) {
-                continue;
-            }
 
             Map<String, Double> productValueMap = new HashMap<String, Double>();
 
