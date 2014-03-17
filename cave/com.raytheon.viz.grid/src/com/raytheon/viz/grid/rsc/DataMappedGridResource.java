@@ -21,7 +21,10 @@ package com.raytheon.viz.grid.rsc;
 
 import java.util.Map;
 
+import javax.measure.converter.UnitConverter;
+
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -39,9 +42,11 @@ import com.raytheon.viz.grid.rsc.general.GeneralGridData;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 13, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 13, 2010           bsteffen    Initial creation
+ * Feb 07, 2014  2211     bsteffen    Fix sampling
+ * 
  * 
  * </pre>
  * 
@@ -71,29 +76,36 @@ public class DataMappedGridResource extends D2DGridResource {
         if (map == null) {
             return "NO DATA";
         }
-        Double val = ((Float) map.get(INTERROGATE_VALUE)).doubleValue();
+        Double val = ((Number) map.get(INTERROGATE_VALUE)).doubleValue();
         if (val.isNaN() || val <= -9999) {
             return "No Data";
         }
 
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
+        if (params != null) {
+            UnitConverter d2cm = params.getDisplayToColorMapConverter();
+            if (d2cm != null) {
+                val = d2cm.convert(val);
+            }
 
-        val = params.getDisplayToImageConverter().convert(val);
+            DataMappingPreferences dataMapping = params.getDataMapping();
+            if (dataMapping != null) {
+                for (DataMappingEntry entry : dataMapping.getEntries()) {
+                    double pixelValue = entry.getPixelValue();
+                    double relError = Math.abs((pixelValue - val) / val);
+                    String text = entry.getLabel();
+                    if (relError < 0.00001 && text != null) {
+                        return text;
+                    }
+                }
+            }
 
-        for (DataMappingEntry entry : params.getDataMapping().getEntries()) {
-            double pixelValue = entry.getPixelValue();
-            double relError = Math.abs((pixelValue - val) / val);
-            String text = entry.getLabel();
-            if (relError < 0.00001 && text != null) {
-                return text;
+            UnitConverter cm2d = params.getColorMapToDisplayConverter();
+            if (cm2d != null) {
+                val = cm2d.convert(val);
             }
         }
-
-        if (params != null && params.getImageToDisplayConverter() != null) {
-            val = params.getImageToDisplayConverter().convert(val);
-        }
-
         return ((DataMappedGridResourceData) this.getResourceData())
                 .getSampleFormat().format(val) + map.get(INTERROGATE_UNIT);
     }

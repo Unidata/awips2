@@ -24,12 +24,12 @@ import java.io.IOException;
 import java.util.List;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.file.FilenameFilters;
 import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * The SBN simulator. Reads files from a configured directory, and then places
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 14, 2013 1648       djohnson     Initial creation
  * Oct 18, 2013 2267       bgonzale     Added distribution to and check in site specific directories.
+ * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -99,7 +100,7 @@ public class SbnSimulator {
      */
     public SbnSimulator() {
         this(new File(System.getProperty("sbn.retrieval.transfer.directory")),
-                new CopyFileToManualIngest(), SiteUtil.getSite());
+                new CopyFileToManualIngest(), DataDeliveryIdUtil.getId());
     }
 
     /**

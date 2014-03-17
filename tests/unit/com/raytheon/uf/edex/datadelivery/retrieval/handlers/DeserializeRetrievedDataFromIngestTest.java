@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
  * Nov 04, 2013 2506       bgonzale     Fixed IRetreivalDao mock initialization.
  *                                      Test deserialization of data with leading and trailing 
  *                                      content on the xml.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.                                     
  * 
  * </pre>
  * 
@@ -77,10 +78,7 @@ public class DeserializeRetrievedDataFromIngestTest {
     private final File directory = TestUtil
             .setupTestClassDir(DeserializeRetrievedDataFromIngestTest.class);
 
-    private final ConcurrentLinkedQueue<String> retrievalQueue = new ConcurrentLinkedQueue<String>();
-
-    private final DeserializeRetrievedDataFromIngest service = new DeserializeRetrievedDataFromIngest(
-            retrievalQueue);
+    private final DeserializeRetrievedDataFromIngest service = new DeserializeRetrievedDataFromIngest();
 
     private final IRetrievalDao mockDao = mock(IRetrievalDao.class);
 
@@ -103,7 +101,7 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         addRetrievalToQueue();
 
-        final RetrievalResponseXml restored = service.findRetrievals();
+        final RetrievalResponseXml restored = service.processRequest(null);
 
         // Just make sure the payload is present
         assertThat(restored.getRetrievalAttributePluginDataObjects().get(0)
@@ -117,15 +115,15 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         addRetrievalToQueue();
 
-        service.findRetrievals();
+        service.processRequest(null);
 
-        assertThat(retrievalQueue, is(empty()));
+        //assertThat(retrievalQueue, is(empty()));
     }
 
     @Test
     public void returnsNullWhenNothingInTheQueue() throws Exception {
 
-        final RetrievalResponseXml restored = service.findRetrievals();
+        final RetrievalResponseXml restored = service.processRequest(null);
 
         assertNull(restored);
     }
@@ -136,7 +134,7 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         addSimulatedSBNRetrievalToQueue();
 
-        final RetrievalResponseXml restored = service.findRetrievals();
+        final RetrievalResponseXml restored = service.processRequest(null);
 
         // check for the payload
         assertThat(restored.getRetrievalAttributePluginDataObjects().get(0)
@@ -158,7 +156,7 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         final List<File> files = FileUtil.listFiles(directory,
                 FilenameFilters.ACCEPT_FILES, false);
-        retrievalQueue.add(FileUtil.file2String(files.get(0)));
+        //retrievalQueue.add(FileUtil.file2String(files.get(0)));
     }
 
     private void addSimulatedSBNRetrievalToQueue()
@@ -178,7 +176,7 @@ public class DeserializeRetrievedDataFromIngestTest {
 
         final List<File> files = FileUtil.listFiles(directory,
                 FilenameFilters.ACCEPT_FILES, false);
-        retrievalQueue.add(FileUtil.file2String(files.get(0)));
+        //retrievalQueue.add(FileUtil.file2String(files.get(0)));
     }
 
     private static class WmoHeaderWithLeadingAndTrailingContent extends
