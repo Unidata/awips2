@@ -32,7 +32,6 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -47,6 +46,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 09, 2012            rjpeter     Initial creation
  * Feb 11, 2013 1543       djohnson    Override equals/hashCode to remove Hibernate warning.
  * Feb 15, 2013 1543       djohnson    Add JAXB annotations.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -59,7 +59,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class RetrievalRequestRecordPK implements
         IPersistableDataObject<RetrievalRequestRecordPK>,
-        Serializable, ISerializableObject {
+        Serializable {
 
     private static final long serialVersionUID = 1L;
 

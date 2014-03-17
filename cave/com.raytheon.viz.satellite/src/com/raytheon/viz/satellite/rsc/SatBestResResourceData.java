@@ -62,12 +62,14 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 30, 2010            mschenke     Initial creation
- * Oct 31, 2012  DR 15287  D. Friedman  Fix overlap calculation
- * Nov 06, 2012  DR 15157  D. Friedman  Allow configured inclusion percentage
- * Oct 10, 2013       2104 mschenke     Fixed broken percentage calculation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 30, 2010           mschenke    Initial creation
+ * Oct 31, 2012  15287    D. Friedman Fix overlap calculation
+ * Nov 06, 2012  15157    D. Friedman Allow configured inclusion percentage
+ * Oct 10, 2013  2104     mschenke    Fixed broken percentage calculation
+ * Mar 11, 2014  2896     bsteffen    Limit the number of divisions.
+ * 
  * 
  * </pre>
  * 
@@ -322,11 +324,22 @@ public class SatBestResResourceData extends AbstractRequestableResourceData {
                 double threshold = targetGeometry.getEnvelope().getSpan(0)
                         / targetGeometry.getGridRange().getSpan(0);
 
+                int xDiv = (int) (envWidth / 100);
+                int yDiv = (int) (envHeight / 100);
+                if (xDiv * yDiv > 1024 * 1024) {
+                    /* Don't wasste too much time/memory, preserve aspect ratio. */
+                    if (xDiv > yDiv) {
+                        yDiv = 1024 * yDiv / xDiv;
+                        xDiv = 1024;
+                    } else {
+                        xDiv = 1024 * xDiv / yDiv;
+                        yDiv = 1024;
+                    }
+                }
                 Geometry intersection = EnvelopeIntersection
                         .createEnvelopeIntersection(gridGeometry.getEnvelope(),
-                                targetGeometry.getEnvelope(), threshold,
-                                (int) (envWidth / 100.0),
-                                (int) (envHeight / 100.0));
+                                targetGeometry.getEnvelope(), threshold, xDiv,
+                                yDiv);
                 if (area == null) {
                     area = intersection;
                 } else {

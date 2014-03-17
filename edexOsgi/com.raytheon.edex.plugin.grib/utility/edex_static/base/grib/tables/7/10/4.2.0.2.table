@@ -6,9 +6,9 @@
 195:195:V-Component Storm Motion:m/s:VSTM
 196:196:Drag Coefficient::CD
 197:197:Frictional Velocity:m/s:FRICV
-198:198:Incremental Prob WS 34 kts or greater:%:PWS34
-199:199:Incremental Prob WS 50 kts or greater:%:PWS50
-200:200:Incremental Prob WS 64 kts or greater:%:PWS64
+198:198:Wind speed:m/s:PWS
+199:199:Wind speed:m/s:PWS
+200:200:Wind speed:m/s:PWS
 201:201:Longitude of V Wind Component of Velocity:degrees:LOVV
 202:202:Latitude of Presure Point:degrees:LAPP
 203:203:Longitude of Presure Point:degrees:LOPP

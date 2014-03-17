@@ -37,6 +37,7 @@ import com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 13, 2013 1543       djohnson     Initial creation
+ * 2/19/2014    2769        bphillip   Added loadById method    
  * 
  * </pre>
  * 
@@ -109,6 +110,17 @@ public interface ISessionManagedDao<IDENTIFIER extends Serializable, ENTITY exte
      * @return the entity
      */
     ENTITY getById(IDENTIFIER id);
+
+    /**
+     * Load an entity by its id. This method differs from the getById method in
+     * that it only returns a proxy. The database is not actually hit until the
+     * object is used.
+     * 
+     * @param id
+     *            the id
+     * @return the entity
+     */
+    ENTITY loadById(IDENTIFIER id);
 
     /**
      * Get all of the entities of this type.
