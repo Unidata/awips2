@@ -20,9 +20,9 @@
 
 package com.raytheon.uf.edex.database;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -120,7 +120,7 @@ public class DatabaseSessionFactoryBean extends AnnotationSessionFactoryBean {
     public void setDatabaseSessionConfiguration(
             DatabaseSessionConfiguration databaseSessionConfiguration) {
         // make own copy so can modify it
-        List<Class<?>> annotatedClasses = new ArrayList<Class<?>>(
+        List<Class<?>> annotatedClasses = new LinkedList<Class<?>>(
                 databaseSessionConfiguration.getAnnotatedClasses());
 
         if (databaseSessionConfiguration != null) {

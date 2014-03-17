@@ -77,6 +77,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                      PluginDataObject.
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract.
  * Dec 03, 2013 2551        rjpeter     Extend PersistablePluginDataObject.
+ * Feb 11, 2014 2784        rferrel     Remove override of setIdentifier.
  * </pre>
  * 
  * @author sgurung
@@ -610,13 +611,6 @@ public class NcTafRecord extends PersistablePluginDataObject implements
      */
     public void setIssue_timeString(String issue_timeString) {
         this.issue_timeString = issue_timeString;
-    }
-
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
-
     }
 
     @Override

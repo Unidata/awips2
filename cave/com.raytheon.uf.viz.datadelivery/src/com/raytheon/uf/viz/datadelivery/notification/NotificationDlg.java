@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Aug 30, 2013  2314      mpduff     Change the reading of the xml. Make load config dlg non-blocking.
  * Sep 25, 2013  2408      mpduff     Added a restore hidden notifications menu.
  * Sep 25, 2013  2410      mpduff     Check type of localization file.
+ * Feb 07, 2013  2453      mpduff     Support find dialog refactor..
  * 
  * </pre>
  * 
@@ -394,7 +395,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         hideOlderMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                tableComp.handleDeleteOlderThan();
+                tableComp.handleHideOlderThan();
             }
 
         });
@@ -405,7 +406,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         hideMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                tableComp.handleDeleteNotification();
+                tableComp.handleHideNotification();
             }
         });
 
@@ -493,7 +494,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
             mi.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    tableComp.handleDeleteByPriority((Integer) ((MenuItem) e
+                    tableComp.handleHideByPriority((Integer) ((MenuItem) e
                             .getSource()).getData());
                 }
             });
@@ -540,6 +541,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         id = Activator.imageDescriptorFromPlugin(
                 "com.raytheon.uf.viz.datadelivery", "icons/dd_new.png");
         trayImg2 = id.createImage();
+
         tray = display.getSystemTray();
 
         createTray();
@@ -572,8 +574,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
     private void handleFind() {
         if (fnd == null || fnd.isDisposed()) {
             fnd = new FindDlg(shell, tableComp.getFilteredTableList(),
-                    tableComp.getStartIndex(), tableComp.getEndIndex(),
-                    tableComp.getSelectedIndex(), tableComp);
+                    tableComp.getTable().getSelectionIndex(), tableComp);
             fnd.open();
         } else {
             fnd.bringToTop();
@@ -839,7 +840,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
                 if (isDisposed() == false && tableComp.passesFilter(records)) {
                     tableComp.populateTableDataRows(records);
                     tableComp.populateTable();
-
+                    tableComp.handlePageSelection();
                     // update title display......
                     if (tableComp.isLocked()) {
                         setText(TITLE_TEXT + tableComp.getPauseCountLabel());

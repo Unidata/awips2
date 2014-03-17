@@ -44,7 +44,9 @@ echo Starting alarm_whfs at  $Dte >> $LOGFILE
 
 $WHFS_LOCAL_BIN_DIR/run_roc_checker
 
-$WHFS_LOCAL_BIN_DIR/run_report_alarm
+# The run_report_alarm script has been replaced by an EDEX service 
+# com.raytheon.uf.edex.ohd.reportalarm.RunReportAlarmSrv
+# See A2 redmine DR #2783
 
 Dte=`date -u `
 echo Completed alarm_whfs at  $Dte >> $LOGFILE

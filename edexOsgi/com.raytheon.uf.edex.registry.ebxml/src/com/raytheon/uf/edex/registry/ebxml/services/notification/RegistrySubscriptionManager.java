@@ -20,10 +20,7 @@
 package com.raytheon.uf.edex.registry.ebxml.services.notification;
 
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.datatype.Duration;
@@ -43,17 +40,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
-import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
-import com.raytheon.uf.common.registry.event.InsertRegistryEvent;
-import com.raytheon.uf.common.registry.event.RemoveRegistryEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.IRegistrySubscriptionManager;
 import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
 
@@ -82,16 +74,16 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 12/9/2013    2613        bphillip    Setting last run time of subscription now occurs before notification is sent
  * 1/15/2014    2613        bphillip    Added Hibernate flush and clear after subscription processing
  * 01/21/2014   2613        bphillip    Changed how last run time is updated for replication subscriptions
+ * 2/4/2014     2769        bphillip    Removed flush and clear call
+ * 2/13/2014    2769        bphillip    Removed caching of subscriptions
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-@Transactional
 @Component
 public class RegistrySubscriptionManager implements
-        IRegistrySubscriptionManager, ApplicationContextAware,
-        RegistryInitializedListener {
+        IRegistrySubscriptionManager, ApplicationContextAware {
 
     /** The logger instance */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -152,61 +144,10 @@ public class RegistrySubscriptionManager implements
 
     private INotificationListenerFactory notificationListenerFactory;
 
-    private final ConcurrentMap<String, SubscriptionNotificationListeners> listeners = new ConcurrentHashMap<String, SubscriptionNotificationListeners>();
-
     private ApplicationContext applicationContext;
 
     public RegistrySubscriptionManager() {
 
-    }
-
-    @Override
-    public void executeAfterRegistryInit() throws EbxmlRegistryException {
-        for (SubscriptionType subscription : subscriptionDao.eagerLoadAll()) {
-            statusHandler.info("Adding Subscription: " + subscription.getId());
-            addSubscriptionListener(subscription);
-        }
-    }
-
-    private void addSubscriptionListener(SubscriptionType subscription)
-            throws EbxmlRegistryException {
-        final List<NotificationListenerWrapper> subscriptionListeners = getNotificationListenersForSubscription(subscription);
-        listeners.put(subscription.getId(),
-                new SubscriptionNotificationListeners(subscription,
-                        subscriptionListeners));
-    }
-
-    /**
-     * Adds subscription notification listeners for any subscriptions.
-     */
-    @Subscribe
-    public void addSubscriptionNotificationListeners(InsertRegistryEvent re) {
-        final String objectType = re.getObjectType();
-
-        if (RegistryObjectTypes.SUBSCRIPTION.equals(objectType)) {
-            final String id = re.getId();
-            try {
-                final SubscriptionType subscription = subscriptionDao
-                        .eagerGetById(id);
-                addSubscriptionListener(subscription);
-
-            } catch (EbxmlRegistryException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        }
-    }
-
-    /**
-     * Removes subscription notification listeners for any subscriptions.
-     */
-    @Subscribe
-    public void removeSubscriptionNotificationListeners(RemoveRegistryEvent re) {
-        final String objectType = re.getObjectType();
-
-        if (RegistryObjectTypes.SUBSCRIPTION.equals(objectType)) {
-            listeners.remove(re.getId());
-        }
     }
 
     /**
@@ -248,29 +189,22 @@ public class RegistrySubscriptionManager implements
      * {@inheritDoc}
      */
     @Override
+    @Transactional
     public void processSubscriptions() {
-        if (!running.compareAndSet(false, true)) {
+
+        if (DbInit.isDbInitialized() && !running.compareAndSet(false, true)) {
             return;
         }
         try {
+            statusHandler.info("Processing registry subscriptions...");
             long start = TimeUtil.currentTimeMillis();
 
-            Collection<SubscriptionNotificationListeners> subs = listeners
-                    .values();
+            List<SubscriptionType> subs = subscriptionDao.loadAll();
 
-            for (SubscriptionNotificationListeners subNotificationListener : subs) {
-                if (subscriptionDao
-                        .getById(subNotificationListener.subscription.getId()) == null) {
-                    statusHandler
-                            .info("Registry subscription removed. Cancelling processing of subscription: "
-                                    + subNotificationListener.subscription
-                                            .getId());
-                    continue;
-                }
+            for (SubscriptionType subscription : subs) {
                 RegistrySubscriptionManager myself = (RegistrySubscriptionManager) applicationContext
                         .getBean("RegistrySubscriptionManager");
-                myself.processSubscription(subNotificationListener.subscription
-                        .getId());
+                myself.processSubscription(subscription.getId());
 
             }
             if (!subs.isEmpty()) {
@@ -372,14 +306,10 @@ public class RegistrySubscriptionManager implements
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processSubscription(final String subscriptionName) {
         try {
+            XMLGregorianCalendar currentTime = EbxmlObjectUtil
+                    .getTimeAsXMLGregorianCalendar(TimeUtil.currentTimeMillis());
             SubscriptionType subscription = subscriptionDao
-                    .getById(subscriptionName);
-            if (subscription == null) {
-                statusHandler
-                        .info("Registry subscription removed. Cancelling processing of subscription: "
-                                + subscriptionName);
-                return;
-            }
+                    .load(subscriptionName);
             if (!subscriptionShouldRun(subscription)) {
                 statusHandler
                         .info("Skipping subscription ["
@@ -387,27 +317,32 @@ public class RegistrySubscriptionManager implements
                                 + "]. Required notification frequency interval has not elapsed.");
                 return;
             }
-            statusHandler.info("Processing subscription [" + subscriptionName
-                    + "]...");
+
             XMLGregorianCalendar startTime = subscription
                     .getSlotValue(EbxmlObjectUtil.SUBSCRIPTION_LAST_RUN_TIME_SLOT_NAME);
+            XMLGregorianCalendar endTime = subscription.getEndTime();
 
             if (startTime == null) {
                 startTime = subscription.getStartTime();
             }
-            XMLGregorianCalendar lastEventTime = notificationManager
-                    .sendNotifications(listeners.get(subscriptionName),
-                            startTime);
-            if (lastEventTime != null) {
-                updateLastRunTime(subscription, lastEventTime
-                        .toGregorianCalendar().getTimeInMillis());
+
+            if (endTime == null) {
+                endTime = currentTime;
             }
+
+            notificationManager
+                    .sendNotifications(
+                            new SubscriptionNotificationListeners(
+                                    subscription,
+                                    getNotificationListenersForSubscription(subscription)),
+                            startTime, endTime);
+            updateLastRunTime(subscription, currentTime.toGregorianCalendar()
+                    .getTimeInMillis());
+
         } catch (Throwable e) {
             statusHandler.error(
                     "Errors occurred while processing subscription ["
                             + subscriptionName + "]", e);
-        } finally {
-            subscriptionDao.flushAndClearSession();
         }
 
     }
