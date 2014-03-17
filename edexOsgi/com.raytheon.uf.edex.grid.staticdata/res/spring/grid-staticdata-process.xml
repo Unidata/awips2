@@ -13,8 +13,9 @@
         <!-- Begin Grid Process Route -->
         <route id="gridStaticDataGenerationRoute">
             <!-- Fed from plugin notification -->
-            <from uri="vm:grid-staticdata-generate" />
+            <from uri="jms-durable:grid-staticdata-generate" />
             <doTry>
+                <bean ref="serializationUtil" method="transformFromThrift" />
                 <bean ref="staticDataGenerator" method="processNotification"/>
                 <to uri="direct-vm:stageNotification"/> 
                 <doCatch>

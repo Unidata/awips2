@@ -31,6 +31,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.ISubscriptionAggregator;
+import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalAgent;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalAgent;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
@@ -53,6 +54,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 13, 2013 2095       djohnson    No need to query the database, we are only receiving new bandwidth subscriptions.
  * Jul 11, 2013 2106       djohnson    aggregate() signature changed.
  * Jan 06, 2014 2636       mpduff      Changed how data set offset is set.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * </pre>
  * 
  * @author jspinks
@@ -90,7 +92,7 @@ public class SimpleSubscriptionAggregator implements ISubscriptionAggregator {
             subscriptionRetrieval.setBandwidthSubscription(subDao);
             subscriptionRetrieval.setNetwork(subDao.getRoute());
             subscriptionRetrieval
-                    .setAgentType(SubscriptionRetrievalAgent.SUBSCRIPTION_AGENT);
+                    .setAgentType(RetrievalAgent.SUBSCRIPTION_AGENT);
             subscriptionRetrieval.setStatus(RetrievalStatus.PROCESSING);
             subscriptionRetrieval.setPriority(subDao.getPriority());
             subscriptionRetrieval.setEstimatedSize(subDao.getEstimatedSize());

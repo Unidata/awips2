@@ -86,7 +86,8 @@ function clean_ldm() {
 case $1 in
 
 'start')
-	if ! handle_ramdisk; then exit 1 ; fi
+#ramdisk no longer used starting in 14.2.1
+#	if ! handle_ramdisk; then exit 1 ; fi
 	if ! clean_ldm; then exit 1 ; fi
 
 	echo -n "Starting AWIPS SBN CP (LDM) processes:"

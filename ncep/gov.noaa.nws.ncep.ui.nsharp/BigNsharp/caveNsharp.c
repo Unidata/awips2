@@ -477,8 +477,8 @@ float cave_ship(){
 
 	t500 =  i_temp(500, I_PRES);
 	lr75 = lapse_rate(&ix1, 700, 500);
-	fzlh = agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES));
-	//fzlh = mtof(agl(i_hght(temp_lvl(0, &ix1), I_PRES)));
+	// Chin V9 was:: fzlh = agl(i_hght(temp_lvl( 0, &ix1 ), I_PRES));
+	fzlh = mtof(agl(i_hght(temp_lvl(0, &ix1), I_PRES)));//Chin: according to bignsharpV2013Jun12
 	ship = sig_hail(mucape, mumixr, lr75, t500, kt_to_mps(shr6), fzlh, mucinh, 0, 0, 25, mlcape);
 	/* ----- Set Parcel Back ----- */
 	if (oldlplchoice == 1)
@@ -861,122 +861,148 @@ void low_inv ( float *inv_mb, float *inv_dC )
 		}
 	}
 }
-
-void mix_height ( float *mh_mb, float *mh_drct, float *mh_sped,
-		  float *mh_dC, float *mh_lr, float *mh_drct_max,
-		  float *mh_sped_max, short flag )
-/************************************************************************
- *  OPC MODIFICATION - J. Morgan 5/3/05                      		*
- *  MIX_HEIGHT - New function                      		 	*
- *                                                           		*
- *  MIX_HEIGHT                                               		*
- *  J. Morgan OPC                                            		*
- *                                                           		*
- *  Calculates the mixing height.                            		*
- *    flag = 0		Surface-based lapse rate                 	*
- *    flag = 1		Layer-based lapse rate                   	*
- *                                                            		*
- *  mh_mb            - Pressure at mixing height (mb)        		*
- *  mh_drct          - Wind direction at mixing height (deg) 		*
- *  mh_sped          - Wind speed at mixing height (kt)      		*
- *  mh_dC            - Layer change in temperature (C)       		*
- *  mh_lr            - Layer lapse rate (C/km)               		*
- *  mh_drct_max      - Layer maximum wind direction (deg)    		*
- *  mh_sped_max      - Layer maximum wind speed (kt)         		*
- *                                                           		*
- *  Called by 	xwvid1.c: draw_skewt()                        		*
- *  Called by 	xwvid3.c: show_mixheight()                    		*
- *
- *  Chin:: not in BigNsharp, therefore ported to here. 6/8/2011
- ***********************************************************************/
+void mix_height ( float *mh_pres, float *mh_drct, float *mh_sped,
+                  float *mh_dC, float *mh_lr, float *mh_drct_max,
+                  float *mh_sped_max, short flag )
+/****************************************************************************
+ *  mix_height                                                          	*
+ *                                                                      	*
+ *  This function modifies original mix_height funtion which            	*
+ *  computes hydro meteorological parameters within empirical mix       	*
+ *  boundary layer.                    										*
+ *                                                                      	*
+ *  Calculates the mixing height.                                       	*
+ *                                                                      	*
+ *  mh_pres          - Pressure at mixing height (mb)                   	*
+ *  mh_drct          - Wind direction at mixing height (deg)            	*
+ *  mh_sped          - Wind speed at mixing height (kts)                	*
+ *  mh_dC       	 - Layer change in temperature (C)                  	*
+ *  mh_lr            - Layer lapse rate (C/km)                          	*
+ *  mh_drct_max      - Layer maximum wind direction (deg)               	*
+ *  mh_sped_max      - Layer maximum wind speed (kts)                   	*
+ *  flag                         - 0: Surface-based lapse rate          	*
+ *                                 1: Layer-based lapse rate            	*
+ *                                                                          *
+ *  Chin:: not in BigNsharp, therefore ported to here. 6/8/2011             *                                                      	*
+ *  J. Morgan	5/2005		Created											*
+ *  T. Lee      2/2014		Cleanup and fixed surface based and layer based	*
+ *  						parameters always have same values				*
+ ****************************************************************************/
 {
-	short ii, bb, b_1;
-	float thresh, lapser, lapser_1, mdrct, msped, drct, sped;
-	float dt, dz;
-	short  pIndex, zIndex, tIndex, drIndex, spIndex;
-	pIndex = getParmIndex("PRES");
-	zIndex = getParmIndex("HGHT");
-	tIndex = getParmIndex("TEMP");
-	spIndex = getParmIndex("SPED");
-	drIndex = getParmIndex("DRCT");
-	if (!sndg || pIndex == -1 || zIndex == -1 || tIndex == -1  || drIndex == -1 || spIndex == -1) return;
+        short ii, bb, b_1;
+        float thresh, lapse_rate, lapser_1, mxdrct, mxsped, drct, sped;
+        float dt, dz;
+        short  pIndex, zIndex, tIndex, drIndex, spIndex;
+        Boolean first_level = True;
 
-	*mh_mb   = -9999;
-	*mh_drct = -9999;
-	*mh_sped = -9999;
-	*mh_dC   = -9999;
-	*mh_lr   = -9999;
-	*mh_drct_max = -9999;
-	*mh_sped_max = -9999;
+        pIndex = getParmIndex("PRES");
+        zIndex = getParmIndex("HGHT");
+        tIndex = getParmIndex("TEMP");
+        spIndex = getParmIndex("SPED");
+        drIndex = getParmIndex("DRCT");
+        if (!sndg || pIndex == -1 || zIndex == -1 || tIndex == -1  || drIndex == -1 || spIndex == -1) return;
 
-	thresh	 = 8.3;
-	lapser_1 = 0.0;
-	mdrct	 = 0.0;
-	msped	 = 0.0;
-	drct	 = 0.0;
-	sped	 = 0.0;
+        *mh_pres = -9999;
+        *mh_drct = -9999;
+        *mh_sped = -9999;
+        *mh_dC = -9999;
+        *mh_lr   = -9999;
+        *mh_drct_max = -9999;
+        *mh_sped_max = -9999;
 
-	for  ( ii = 0; ii < numlvl-1; ii++ ) {//Chin
+        thresh   = 8.3;
+        lapser_1 = 0.0;
+        mxdrct   = 0.0;
+        mxsped   = 0.0;
+        drct     = 0.0;
+        sped     = 0.0;
 
-		if  ( qc( sndg[ii+1][tIndex] ) && qc( sndg[ii][tIndex]  )) {
-			/* ----- Set Method Values ----- */
-			if( flag == 0 ) {
-				bb  = 0;
-				b_1 = 0;
-			}
-			else {
-				bb  = ii;
-				b_1 = ii-1;
-			}
+        for  ( ii = 0; ii < numlvl-1; ii++ ) {//Chin
 
-			/* ----- Calculate Lapse Rate ----- */
-			dt = sndg[ii+1][tIndex]  - sndg[bb][tIndex] ;
-			dz = sndg[ii+1][zIndex] - sndg[bb][zIndex];
-			lapser = (dt / dz)*-1000;
+                if  ( qc( sndg[ii+1][tIndex] ) ) { //TL
+                        /* ----- Set Method Values ----- */
+                        if( flag == 0 ) {
+							bb  = 0;
+							b_1 = 0;
+                        }
+                        else {
+                            bb  = ii;
+                            b_1 = ii-1;
+                    }
 
-			/* ----- Test Lapse Rate ----- */
-			if  ( lapser > thresh ) {
+                    if ( first_level ) {
+                    	mxdrct = sndg[0][drIndex];
+                    	mxsped = sndg[0][spIndex];
+                    	*mh_drct = sndg[0][drIndex];
+                    	*mh_sped = sndg[0][spIndex];
+                    }
 
-				/* ----- Store Maximum Wind Data ----- */
-				drct = sndg[ii][drIndex];
-				sped = sndg[ii][spIndex];
-				if  ( drct > mdrct ) {
-					mdrct = drct;
-					msped = sped;
-				}
-			}
-			else if( ii == 0 ) {  /* ----- Surface Test failed, Mixing Height=Surface ----- */
-				*mh_mb   = sndg[ii][pIndex];
-				*mh_drct = sndg[ii][drIndex];
-				*mh_sped = sndg[ii][spIndex];
-				*mh_dC	= -(sndg[ii+1][tIndex]  - sndg[ii][tIndex] );
-				*mh_lr	= lapser;
-				*mh_drct_max = sndg[ii][drIndex];
-				*mh_sped_max = sndg[ii][spIndex];
+                    /* ----- Calculate Lapse Rate ----- */
+                    if ( qc ( snd[bb][tIndex] ) ) {
+                    	dt = sndg[ii+1][tIndex] - sndg[bb][tIndex];
+                    	dz = sndg[ii+1][zIndex] - sndg[bb][zIndex];
+                    } else {
+                    	dt = sndg[ii+1][tIndex] - sndg[0][tIndex];
+                    	dz = sndg[ii+1][zIndex] - sndg[0][zIndex];
+                    }
+                    lapse_rate = (dt / dz)*-1000;
 
-				return;
-			}
-			else if( ii > 0 ) { /* ----- Above Mixing Height ----- */
-				/* ----- Calculate Previous Rate ----- */
-				dt = sndg[ii][tIndex]  - sndg[b_1][tIndex] ;
-				dz = sndg[ii][zIndex] - sndg[b_1][zIndex];
-				lapser_1 = (dt / dz)*-1000;
-			}
-			if(ii!=0){ //Chin
-				*mh_mb   	= sndg[ii-1][pIndex];
-				*mh_drct	= sndg[ii-1][drIndex];
-				*mh_sped	= sndg[ii-1][spIndex];
-				*mh_dC		= -(sndg[ii][tIndex]  - sndg[b_1][tIndex] );
-				*mh_lr		= lapser_1;
-				*mh_drct_max 	= mdrct;
-				*mh_sped_max 	= msped;
+                    /* ----- Test Lapse Rate ----- */
+                    if  ( lapse_rate > thresh ) {
+                        	first_level = False;
 
-			}
+                            /* ----- Store Maximum Wind Data ----- */
+                            if ( qc (sndg[ii+1][drIndex] ) ) {
+                                drct = sndg[ii+1][drIndex];
+                            	sped = sndg[ii+1][spIndex];
 
-			return;
-		}
-	}
+                            	if  ( sped >= mxsped ) {		// TL
+                                	mxdrct = drct;
+                                	mxsped = sped;
+                                }
+                            }
+
+                    }
+                    else if( first_level ) {  /* ----- Surface Test failed, Mixing Height=Surface ----- */
+                            *mh_pres = sndg[0][pIndex];
+                            *mh_drct = sndg[0][drIndex];
+                            *mh_sped = sndg[0][spIndex];
+                            *mh_dC   = -(sndg[ii+1][tIndex]  - sndg[0][tIndex]);
+                            *mh_lr   = lapse_rate;
+                            *mh_drct_max = sndg[0][drIndex];
+                            *mh_sped_max = sndg[0][spIndex];
+
+                            return;
+                    }
+                    else if( ii > 0 ) { /* ----- Above Mixing Height ----- */
+                            /* ----- Calculate lapse rate within mixing layer ----- */
+                    	    if ( qc ( sndg[b_1][tIndex]) ) {
+                    	    	dt = sndg[ii][tIndex] - sndg[b_1][tIndex];
+                    	    	dz = sndg[ii][zIndex] - sndg[b_1][zIndex];
+                    	    } else {
+                    	    	dt = sndg[ii][tIndex] - sndg[0][tIndex];
+                    	    	dz = sndg[ii][zIndex] - sndg[0][zIndex];
+                    	    }
+                    	    *mh_dC = -dt;
+                            if ( dz != 0. ) lapser_1 = (dt / dz)*-1000;
+                            *mh_pres        = sndg[ii][pIndex];
+                            if ( qc (sndg[ii][drIndex] ) ) {
+                            	*mh_drct = sndg[ii][drIndex];
+                            	*mh_sped = sndg[ii][spIndex];
+                            } else {
+                                *mh_drct = drct;
+                                *mh_sped = sped;
+                            }
+                            *mh_lr       = lapser_1;
+                            *mh_drct_max = mxdrct;
+                            *mh_sped_max = mxsped;
+                            return;
+                    }
+            }
+    }
 }
+
+
 int cave_ww_type()
         /********************************************************************/
         /*      Watch type guidance                                         */
@@ -993,6 +1019,9 @@ int cave_ww_type()
 		 *  3: MRGL TOR, color 2 red
 		 *  4: TOR, color 2 red
 		 *  5: PDS TOR, color 7 Magenta
+		 *
+		 *
+		 *  Chin: 10/2/2013 : modified according to BigNsharpV2013-06-12
 		 */
         /********************************************************************/
 {
@@ -1077,15 +1106,16 @@ int cave_ww_type()
 	/*printf("sig_tor=%f sig_tor_winter=%f srh1=%f esrh=%f sr46_spd=%f shr8=%f sblcl=%f\n mllcl=%f lr1=%f bot=%f low_mid_rh=%f rm_scp=%f\n mucn=%f dncp=%f sighail=%f cbsig=%f wind_dmg=%f",
 			sig_tor,sig_tor_winter,srh1,esrh,sr46_spd,shr8, sblcl, mllcl, lr1, bot, low_mid_rh, rm_scp,mucn, dncp, sighail, cbsig, wind_dmg);
 	Decision tree below is identical to the operational "ww_type" flow chart documentation 9/23/09 RLT */
-	if ((sig_tor >= 3.0) && (sig_tor_winter >= 3.0) && (srh1 >= 150) && (esrh >= 150) && (sr46_spd >= 15.0) && (shr8 >= 40.0) && (sblcl < 1000) && (mllcl < 1100) && (lr1 >= 5.0) && (bot == 0.0)) {
+    if ((sig_tor >= 3.0) && (sig_tor_winter >= 4.0) && (srh1 >=200) && (esrh >= 200) && (sr46_spd >= 15.0) && (shr8 >= 45.0) && (sblcl < 1000) && (mllcl < 1200) && (lr1 >= 5.0) && (mlcn > -50.0) && (bot == 0.0)) {
+	// Chin V9 was::if ((sig_tor >= 3.0) && (sig_tor_winter >= 3.0) && (srh1 >= 150) && (esrh >= 150) && (sr46_spd >= 15.0) && (shr8 >= 40.0) && (sblcl < 1000) && (mllcl < 1100) && (lr1 >= 5.0) && (bot == 0.0)) {
 		//*dcp = 1;
 		//*wwtype = 5;
 		ww_choice = 5;
 
 		/*outgtext( "PDS TOR", tlx + 45, tly + 60 );*/
 	}
-
-	else if (((sig_tor >= 3.0) || (sig_tor_winter >= 4.0)) && (bot == 0.0)) {
+    else if (((sig_tor >= 3.0) || (sig_tor_winter >= 4.0)) && (mlcn > -125.0) && (bot == 0.0)) {
+    // Chin V9 was::else if (((sig_tor >= 3.0) || (sig_tor_winter >= 4.0)) && (bot == 0.0)) {
 			//*dcp = 3;
 			//*wwtype = 4;
 			ww_choice = 4;
@@ -1093,7 +1123,8 @@ int cave_ww_type()
 			/*outgtext( "TOR", tlx + 45, tly + 60 );*/
 		}
 
-	else if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && ((sr46_spd >= 15.0) || (shr8 >= 40.0)) && (bot == 0.0)) {
+	else if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && ((sr46_spd >= 15.0) || (shr8 >= 40.0)) && (mlcn > -75.0) && (bot == 0.0)) {
+		// Chin V9 was::if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && ((sr46_spd >= 15.0) || (shr8 >= 40.0)) && (bot == 0.0)) {
 				//*dcp = 4;
 				//*wwtype = 4;
 				ww_choice = 4;
@@ -1101,7 +1132,8 @@ int cave_ww_type()
 				/*outgtext( "TOR", tlx + 45, tly + 60 );*/
 			}
 
-	else if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (low_mid_rh >= 60) && (lr1 >= 5.0) && (bot == 0.0)) {
+	else if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (low_mid_rh >= 60) && (lr1 >= 5.0) && (mlcn > -50.0) && (bot == 0.0)) {
+		// Chin V9 was::if 	if (((sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (low_mid_rh >= 60) && (lr1 >= 5.0) && (bot == 0.0)) {
 					//*dcp = 5;
 					//*wwtype = 4;
 					ww_choice = 4;
@@ -1110,7 +1142,8 @@ int cave_ww_type()
                 outgtext( "TOR", tlx + 45, tly + 60 );*/
 				}
 
-	else if ((( sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (bot == 0.0)) {
+	else if ((( sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (mlcn > -150.0) && (bot == 0.0)) {
+		// Chin V9 was::	if ((( sig_tor >= 1.0) || (sig_tor_winter >= 1.0)) && (bot == 0.0)) {
 						//*dcp = 6;
 						//*wwtype = 3;
 						ww_choice = 3;
@@ -1119,7 +1152,8 @@ int cave_ww_type()
                 outgtext( "mrgl TOR", tlx + 40, tly + 60 );*/
 					}
 
-	else if (((( sig_tor >= 0.5) && (esrh >= 150)) || ((sig_tor_winter >= 0.5) && (srh1 >= 150))) && (bot == 0.0)) {
+	else  if (((( sig_tor >= 0.5) && (esrh >= 150)) || ((sig_tor_winter >= 0.5) && (srh1 >= 150))) && (mlcn > -50.0) && (bot == 0.0)) {
+		// Chin V9 was::    	if (((( sig_tor >= 0.5) && (esrh >= 150)) || ((sig_tor_winter >= 0.5) && (srh1 >= 150))) && (bot == 0.0)) {
 							//*dcp = 7;
 							//*wwtype = 3;
 							ww_choice = 3;
@@ -1939,12 +1973,17 @@ void getSarsInfo(SarsInfoStr * sarsInfo)
 	wind_shear(sndg[sfc()][pIndex], i_pres(msl(3000)), &ix1, &ix2, &ix3, &ix4); shr3k = ix4;
 
 	cavespnsharp(&mlcp, &mllcl, &t500, &lr75, &shr6k, &srh1, &nsndgs, &matches, &p1, sndglist, &suplist, &sup_filename, &shr3k, &shr9k, &srh3, &totalsndgs);
-	/*
-	for (i=0; i < 15; i++) sndglist[i][14] = '\0';
-	printf( "%d High Quality SUPERCELL Matches were found.\n", nsndgs);
-	for (i=0;i<nsndgs;i++) { printf( "SUPERCELL match = %s %.0f\n", sndglist[i]), suplist[i]; }
-	printf( "%.0f Total matches were found.\n", matches);
-	printf( "%.0f Percent were TOR.\n", p1);
+
+	/* Chin TBD::: bignsharpV2013Jun12
+	 * for (i=0; i < 15; i++) sndglist[i][14] = '\0';
+        printf( "%d High Quality SUPERCELL Matches were found.\n", nsndgs);
+	// modified loop and printf statement to properly display supercell match type - RLT 4/24/12
+        for (i=0;i<nsndgs;i++) {
+		j = suplist[i];
+		printf( "SUPERCELL match = %s %s\n", sndglist[i], tortags[j]);
+		}
+        printf( "%.0f Total matches were found.\n", matches);
+        printf( "%.0f Percent were TOR.\n", p1);
 	 */
 	// ----- Supercell SARS matches -----
 	if (nsndgs>0)

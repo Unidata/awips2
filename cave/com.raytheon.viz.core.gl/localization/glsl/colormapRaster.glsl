@@ -1,13 +1,21 @@
 #include <mapping>
 #include <coloring>
 
-uniform DataTexture rawData;
-uniform DataMapping dataMapping;
+uniform sampler2D rawDataTex;
+uniform DataTextureInfo rawData;
+
+uniform sampler1D dataMappingDataValues;
+uniform sampler1D dataMappingColorValues;
+uniform int dataMappingValues;
+
+uniform sampler1D colorMappingColorMap;
+uniform sampler1D colorMappingAlphaMask;
 uniform ColorMapping colorMapping;
+
 uniform ColorModifiers modifiers;
 
 void main(void) {
-	float dataValue = textureToDataValue(rawData, gl_TexCoord[0].st);
+	float dataValue = textureToDataValue(rawDataTex, rawData, gl_TexCoord[0].st);
 	
 	// No data check/special NaN check
 	if (dataValue == rawData.noDataValue || dataValue != dataValue) {
@@ -16,9 +24,9 @@ void main(void) {
 	}
 	
 	// Convert dataValue to cmapValue
-	float cmapValue = dataToColorMapValue(dataValue, dataMapping);
+	float cmapValue = dataToColorMapValue(dataValue, dataMappingDataValues, dataMappingColorValues, dataMappingValues);
 	// Get color for colormapping, given value
-	vec4 textureColor = getColorByValue(cmapValue, colorMapping);
+	vec4 textureColor = getColorByValue(cmapValue, colorMapping, colorMappingColorMap, colorMappingAlphaMask);
 	// Apply the color modifiers into gl_FragColor
 	gl_FragColor = applyColorModifiers(textureColor, modifiers);
 }

@@ -47,7 +47,7 @@ public class WfsConnectionUtil {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WfsConnectionUtil.class);
-    
+
     private static final Pattern COMMA_PATTERN = Pattern.compile(",");
 
     /**
@@ -119,6 +119,7 @@ public class WfsConnectionUtil {
      * Date         Ticket#    Engineer    Description
      * ------------ ---------- ----------- --------------------------
      * Jun 19, 2013  2120       dhladky     Initial creation
+     * Feb 10, 2014  2704       njensen     Added credentialsFailed()
      * 
      * </pre>
      * 
@@ -140,6 +141,12 @@ public class WfsConnectionUtil {
         public WfsCredentialsHandler(String username, String password) {
             this.password = password;
             this.username = username;
+        }
+
+        @Override
+        public void credentialsFailed() {
+            statusHandler
+                    .error("Failed to authenticate with supplied username and password");
         }
     }
 
@@ -196,9 +203,11 @@ public class WfsConnectionUtil {
             return httpPort;
         }
     }
-    
+
     /**
-     * Removes un-needed unique Identifier from PointDataSetMetaData derived URL's
+     * Removes un-needed unique Identifier from PointDataSetMetaData derived
+     * URL's
+     * 
      * @param rootUrl
      * @return
      */

@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date          Ticket#     Engineer       Description
  * ------------ ---------- ----------- --------------------------
  * 05/20/2013     988        Archana.S    Initial creation.
+ * 02/26/2014    1061        B. Hebbard   Relax tolerance for extent/zoom compare to avoid infinite loop.
  */
 
 public class NcPlotImageCreator {
@@ -219,9 +220,11 @@ public class NcPlotImageCreator {
 
     private RGB defaultColor;
 
-    private static double TOLERANCE = 0.000000000000000000000001;
+    private static double TOLERANCE = 1E-04; // 1E-24; //
+                                             // 0.000000000000000000000001;
 
-    private static double ZOOM_TOLERANCE = 0.0000000000000000000001;
+    private static double ZOOM_TOLERANCE = 1E-04; // 1E-22; //
+                                                  // 0.0000000000000000000001;
 
     private static Amount WIND_SPD_3KNOTS = new Amount(3, NonSI.KNOT);
 
