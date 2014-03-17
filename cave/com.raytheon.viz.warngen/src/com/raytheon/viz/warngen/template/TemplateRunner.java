@@ -156,6 +156,8 @@ import com.vividsolutions.jts.io.WKTReader;
  * May 30, 2013   DR 16237 D. Friedman Fix watch query.
  * Jun 18, 2013   2118     njensen     Only calculate pathcast if it's actually used
  * Aug 19, 2013   2177     jsanchez    Passed PortionsUtil to Area class.
+ * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
+ *                                     added determineAffectedMarinePortions().
  * </pre>
  * 
  * @author njensen
@@ -1057,7 +1059,7 @@ public class TemplateRunner {
                 RequestConstraint ugcConstraint = new RequestConstraint("",
                         ConstraintType.IN);
                 ugcConstraint.setConstraintValueList(warngenLayer
-                        .getAllCountyUgcs());
+                        .getAllUgcs());
                 request.addConstraint("ugcZone", ugcConstraint);
 
                 // These are the only fields we need for processing watches
@@ -1103,7 +1105,7 @@ public class TemplateRunner {
                         System.out.println("getWatches.polygonBuffer time: "
                                 + (t1 - t0));
                         validUgcZones = warngenLayer
-                                .getUgcsForCountyWatches(watchArea);
+                                .getUgcsForWatches(watchArea);
                     } catch (RuntimeException e) {
                         statusHandler
                                 .handle(Priority.ERROR,
@@ -1220,8 +1222,16 @@ public class TemplateRunner {
             if (!work.valid) {
                 continue;
             }
-            if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw)) {
-                rval.addWaw(work.waw);
+            boolean isMarineZone = warngenLayer.getConfiguration().getGeospatialConfig()
+                    .getAreaSource().equalsIgnoreCase(WarngenLayer.MARINE);
+            if (!isMarineZone) {
+                if (determineAffectedPortions(work.ugcZone, asc, geoData, work.waw)) {
+                    rval.addWaw(work.waw);
+                }
+            } else {
+                if (determineAffectedMarinePortions(work.ugcZone, asc, geoData, work.waw)) {
+                    rval.addWaw(work.waw);
+                }
             }
         }
 
@@ -1246,7 +1256,7 @@ public class TemplateRunner {
         HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
 
         for (String ugc : ugcs) {
-            Map<String, String[]> parsed = FipsUtil.parseCountyHeader(ugc);
+            Map<String, String[]> parsed = FipsUtil.parseHeader(ugc, "County");
             Entry<String, String[]> e = null;
 
             // Either zero or more than one sates/counties would be wrong
@@ -1295,6 +1305,91 @@ public class TemplateRunner {
                     .converFeAreaToPartList(mungeFeAreas(e.getValue()));
             portions.add(portion);
         }
+        waw.setPortions(portions);
+        // Set legacy values
+        if (portions.size() > 0) {
+            waw.setParentRegion(portions.get(0).parentRegion);
+            waw.setPartOfParentRegion(portions.get(0).partOfParentRegion);
+        }
+
+        return true;
+    }
+
+    /**
+     * Given the list of marine zones in a watch, fill out the "portions" part of
+     * the given WeatherAdvisoryWatch. Also checks if the given marine zones are
+     * actually in the CWA.
+     * 
+     * @param ugcs
+     * @param asc
+     * @param geoData
+     * @param waw
+     */
+    @SuppressWarnings("deprecation")
+    private static boolean determineAffectedMarinePortions(List<String> ugcs,
+            AreaSourceConfiguration asc, GeospatialData[] geoData,
+            WeatherAdvisoryWatch waw) {
+
+        // Maps state abbreviation to unique fe_area values
+        HashMap<String, Set<String>> map = new HashMap<String, Set<String>>();
+        Set<String> marinezonenameSet = new HashSet<String>();
+        for (String ugc : ugcs) {
+            for (GeospatialData gd: geoData) {
+
+                if (gd.attributes.get("ID").equals(ugc)) {
+                    marinezonenameSet.add((String)gd.attributes.get("NAME"));
+                }
+            }
+        }
+        String marinezonename = "";
+        int size = marinezonenameSet.size();
+        Iterator<String> iter = marinezonenameSet.iterator();
+        int count = 0;
+        while (iter.hasNext()) {
+            String s = iter.next();
+            marinezonename += s;
+            count += 1;
+            if (size > 1) {
+                if (size == 2 && count < 2) {
+                    marinezonename += " and ";
+                } else {
+                    if (count == size - 1) {
+                        marinezonename += ", and ";
+                    } else {
+                        if (count < size - 1) {
+                            marinezonename += ", ";
+                        }
+                    }
+                }
+            }
+        }
+
+        for (String ugc : ugcs) {
+            Map<String, String[]> parsed = FipsUtil.parseHeader(ugc, "Marine");
+            Entry<String, String[]> e = null;
+
+            // Either zero or more than one marine zone would be wrong
+            if ((parsed.size() != 1)
+                    || ((e = parsed.entrySet().iterator().next()).getValue().length != 1)) {
+                statusHandler.handle(Priority.ERROR,
+                        "Invalid ugczone in active table entry: " + ugc);
+                continue;
+            }
+
+            String stateAbbrev = e.getKey();
+            Set<String> feAreas = map.get(stateAbbrev);
+            if (feAreas == null) {
+                feAreas = new HashSet<String>();
+                map.put(stateAbbrev, feAreas);
+            }
+        }
+
+        ArrayList<Portion> portions = new ArrayList<Portion>(map.size());
+        Portion portion = new Portion();
+        portion.parentRegion = marinezonename;
+        portion.partOfParentRegion = new ArrayList<String>();
+        portion.partOfParentRegion.add("");
+        portions.add(portion);
         waw.setPortions(portions);
         // Set legacy values
         if (portions.size() > 0) {
