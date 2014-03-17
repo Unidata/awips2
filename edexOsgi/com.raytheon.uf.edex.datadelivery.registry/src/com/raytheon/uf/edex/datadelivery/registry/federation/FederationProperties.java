@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.Duration;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.FederationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.OrganizationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonNameType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PersonType;
@@ -32,9 +34,11 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.PostalAddressType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.TelephoneNumberType;
 
+import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * 
@@ -48,6 +52,8 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 5/22/2013    1707        bphillip    Initial implementation
+ * Feb 11, 2014 2771        bgonzale    Removed siteIdentifier field and use Data Delivery ID instead.
+ * 2/19/2014    2769        bphillip    Moved getFederationAssociation from RegistryFederationManager
  * </pre>
  * 
  * @author bphillip
@@ -56,6 +62,9 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FederationProperties {
+
+    /** Constant used for names of registries in the registry database */
+    public static final String REGISTRY_SUFFIX = " Registry";
 
     /**
      * A RegistryType instance MAY have an attribute named conformanceProfile
@@ -107,10 +116,6 @@ public class FederationProperties {
      */
     @XmlElement(required = true)
     private Duration federationReplicationSyncLatency;
-
-    /** The site identifier of this site */
-    @XmlElement(required = true)
-    private String siteIdentifier;
 
     /** Description of this site */
     @XmlElement
@@ -182,13 +187,14 @@ public class FederationProperties {
      */
     public RegistryType createRegistryObject() {
         RegistryType registryObj = new RegistryType();
-        registryObj.setId(siteIdentifier + " Registry");
+        registryObj.setId(DataDeliveryIdUtil.getId() + REGISTRY_SUFFIX);
         registryObj.setLid(registryObj.getId());
-        registryObj.setName(RegistryUtil.getInternationalString(siteIdentifier
-                + " Registry Specification"));
+        registryObj.setName(RegistryUtil
+                .getInternationalString(DataDeliveryIdUtil.getId()
+                        + " Registry Specification"));
         registryObj.setObjectType(RegistryObjectTypes.REGISTRY);
         registryObj.setDescription(registryObj.getName());
-        registryObj.setOwner(siteIdentifier);
+        registryObj.setOwner(DataDeliveryIdUtil.getId());
         registryObj.setStatus(StatusTypes.APPROVED);
         registryObj.setCatalogingLatency(catalogingLatency);
         registryObj.setConformanceProfile(conformanceProfile);
@@ -212,13 +218,13 @@ public class FederationProperties {
         phone.setNumber(sitePrimaryContactPhoneNumber);
 
         PersonType person = new PersonType();
-        person.setId(siteIdentifier + " Primary Contact");
+        person.setId(DataDeliveryIdUtil.getId() + " Primary Contact");
         person.setLid(person.getId());
         person.setName(RegistryUtil.getInternationalString(person.getId()));
         person.setDescription(person.getName());
         person.setStatus(StatusTypes.APPROVED);
         person.setObjectType(RegistryObjectTypes.PERSON);
-        person.setOwner(siteIdentifier);
+        person.setOwner(DataDeliveryIdUtil.getId());
         PersonNameType personName = new PersonNameType();
         personName.setFirstName(sitePrimaryContactFirstName);
         personName.setMiddleName(sitePrimaryContactMiddleName);
@@ -237,16 +243,16 @@ public class FederationProperties {
      */
     public OrganizationType createOrganization() {
         OrganizationType org = new OrganizationType();
-        org.setPrimaryContact(siteIdentifier + " Primary Contact");
-        org.setId(siteIdentifier);
+        org.setPrimaryContact(DataDeliveryIdUtil.getId() + " Primary Contact");
+        org.setId(DataDeliveryIdUtil.getId());
         org.setLid(org.getId());
         org.setName(RegistryUtil
                 .getInternationalString("National Weather Service Office: "
-                        + siteIdentifier));
+                        + DataDeliveryIdUtil.getId()));
         org.setDescription(org.getName());
         org.setStatus(StatusTypes.APPROVED);
         org.setObjectType(RegistryObjectTypes.ORGANIZATION);
-        org.setOwner(siteIdentifier);
+        org.setOwner(DataDeliveryIdUtil.getId());
         TelephoneNumberType phone = new TelephoneNumberType();
         phone.setAreaCode(sitePhoneAreaCode);
         phone.setNumber(sitePhoneNumber);
@@ -270,6 +276,24 @@ public class FederationProperties {
         siteAddress.setCountry(siteAddressCountry);
         siteAddress.setPostalCode(siteAddressPostalCode);
         return siteAddress;
+    }
+
+    protected AssociationType getFederationAssociation(RegistryType registry,
+            FederationType federation) {
+        AssociationType association = new AssociationType();
+        association.setId(registry.getId()
+                + " Federation Membership Association");
+        association.setLid(association.getId());
+        association.setObjectType(RegistryObjectTypes.ASSOCIATION);
+        association.setOwner(DataDeliveryIdUtil.getId());
+        association.setType(AssociationTypes.HAS_FEDERATION_MEMBER);
+        association.setStatus(StatusTypes.APPROVED);
+        association.setName(RegistryUtil.getInternationalString(registry
+                .getId() + " Federation Membership"));
+        association.setDescription(association.getName());
+        association.setTargetObject(registry.getId());
+        association.setSourceObject(federation.getId());
+        return association;
     }
 
     public String getConformanceProfile() {
@@ -311,14 +335,6 @@ public class FederationProperties {
     public void setFederationReplicationSyncLatency(
             Duration federationReplicationSyncLatency) {
         this.federationReplicationSyncLatency = federationReplicationSyncLatency;
-    }
-
-    public String getSiteIdentifier() {
-        return siteIdentifier;
-    }
-
-    public void setSiteIdentifier(String siteIdentifier) {
-        this.siteIdentifier = siteIdentifier;
     }
 
     public String getSiteDescription() {

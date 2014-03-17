@@ -29,7 +29,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    07/25/08                      njensen       Initial Creation.
 #    09/05/13             #2329    randerso      Added error handling
-# 
+#    02/06/2014           #2591    randerso      Changed log level to debug
 #
 
 import sys, traceback, os, time, LogStream
@@ -55,7 +55,7 @@ def getCombinations(comboName):
         with open(filename,'r') as fd:
             filecontents = fd.read()
         
-        LogStream.logProblem("\nERROR loading combinations file: "+ comboName + 
+        LogStream.logDebug("ERROR loading combinations file: "+ comboName + 
               "\nmd.__file__: " + md.__file__ + 
               "\ndir(md): " + str(dir(md)) + 
               "\n" + md.__file__ + " last modified: " + time.strftime("%Y-%m-%d %H:%M:%S",time.gmtime(os.path.getmtime(md.__file__))) +

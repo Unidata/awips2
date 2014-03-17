@@ -22,10 +22,11 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Type.JAXB;
 
 import java.text.ParseException;
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.Executors;
@@ -39,17 +40,17 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AllowConcurrentEvents;
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
 import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.ProposeScheduleResponse;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
-import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
@@ -67,17 +68,18 @@ import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.IPerformanceTimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.IFileModifiedWatcher;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.notification.BandwidthEventBus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
@@ -85,6 +87,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalStatus;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.SubscriptionRetrievalFulfilled;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * Implementation of {@link BandwidthManager} that isolates EDEX specific
@@ -116,7 +119,14 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
  * Jan 20, 2013 2398       dhladky      Fixed rescheduling beyond active period/expired window.                                 
  * Jan 24, 2013 2709       bgonzale     Changed parameter to shouldScheduleForTime to a Calendar.
- * 
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
+ * Feb 06, 2014 2636       bgonzale     Added initializeScheduling method that uses the in-memory
+ *                                      bandwidth manager to perform the scheduling initialization
+ *                                      because of efficiency.
+ * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
+ * Feb 10, 2014 2636       mpduff       Pass Network map to be scheduled.
+ * Feb 21, 2014, 2636      dhladky      Try catch to keep MaintTask from dying.
  * </pre>
  * 
  * @author djohnson
@@ -131,12 +141,14 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     private final IDataSetMetaDataHandler dataSetMetaDataHandler;
 
     private final ISubscriptionHandler subscriptionHandler;
-    
+
     private final IAdhocSubscriptionHandler adhocSubscriptionHandler;
 
     private final ScheduledExecutorService scheduler;
 
     private final ISubscriptionNotificationService subscriptionNotificationService;
+
+    private final IFindSubscriptionsForScheduling findSubscriptionsStrategy;
 
     @VisibleForTesting
     final Runnable watchForConfigFileChanges = new Runnable() {
@@ -167,28 +179,70 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
-            ISubscriptionNotificationService subscriptionNotificationService) {
+            ISubscriptionNotificationService subscriptionNotificationService,
+            IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
         super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil);
 
         this.dataSetMetaDataHandler = dataSetMetaDataHandler;
         this.subscriptionHandler = subscriptionHandler;
         this.subscriptionNotificationService = subscriptionNotificationService;
         this.adhocSubscriptionHandler = adhocSubscriptionHandler;
+        this.findSubscriptionsStrategy = findSubscriptionsStrategy;
 
         // schedule maintenance tasks
-        scheduler = Executors.newScheduledThreadPool(1);
-        // TODO: Uncomment the last line in this comment block when fully
-        // switched over to Java 1.7 and remove the finally block in shutdown,
-        // that is also marked as TODO
-        // This will allow the bandwidth manager to be garbage collected without
-        // waiting for all of the delayed tasks to expire, currently they are
-        // manually removed in the shutdown method by casting to the
-        // implementation and clearing the queue
-        // scheduler.setRemoveOnCancelPolicy(true);
-        scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
-                TimeUnit.MINUTES);
-        scheduler.scheduleAtFixedRate(new MaintanenceTask(), 1, 5,
-                TimeUnit.MINUTES);
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    @Override
+    public List<String> initializeScheduling(
+            Map<Network, List<Subscription>> subMap)
+            throws SerializationException {
+        List<String> unscheduledNames = new ArrayList<String>(0);
+
+        try {
+            for (Network key : subMap.keySet()) {
+                List<Subscription<T, C>> subscriptions = new ArrayList<Subscription<T, C>>();
+                // this loop is here only because of the generics mess
+                for (Subscription s : subMap.get(key)) {
+                    subscriptions.add(s);
+                }
+                ProposeScheduleResponse response = proposeScheduleSubscriptions(subscriptions);
+                Set<String> unscheduled = response
+                        .getUnscheduledSubscriptions();
+                if (!unscheduled.isEmpty()) {
+                    // if proposed was unable to schedule some subscriptions it
+                    // will schedule nothing. schedule any that can be scheduled
+                    // here.
+                    List<Subscription<T, C>> subsToSchedule = new ArrayList<Subscription<T, C>>();
+                    for (Subscription<T, C> s : subscriptions) {
+                        if (!unscheduled.contains(s.getName())) {
+                            subsToSchedule.add(s);
+                        }
+                    }
+
+                    unscheduled.addAll(scheduleSubscriptions(subsToSchedule));
+
+                    unscheduledNames.addAll(unscheduled);
+                }
+            }
+        } finally {
+            // TODO: Uncomment the last line in this comment block when fully
+            // switched over to Java 1.7 and remove the finally block in
+            // shutdown,
+            // that is also marked as TODO
+            // This will allow the bandwidth manager to be garbage collected
+            // without
+            // waiting for all of the delayed tasks to expire, currently they
+            // are
+            // manually removed in the shutdown method by casting to the
+            // implementation and clearing the queue
+            // scheduler.setRemoveOnCancelPolicy(true);
+            scheduler.scheduleAtFixedRate(watchForConfigFileChanges, 1, 1,
+                    TimeUnit.MINUTES);
+            scheduler.scheduleAtFixedRate(new MaintenanceTask(), 30, 30,
+                    TimeUnit.MINUTES);
+        }
+        return unscheduledNames;
     }
 
     /**
@@ -243,8 +297,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     public void subscriptionFulfilled(
             SubscriptionRetrievalFulfilled subscriptionRetrievalFulfilled) {
 
-        statusHandler.info("subscriptionFullfilled() :: "
-                + subscriptionRetrievalFulfilled);
+        statusHandler.info("subscriptionFulfilled() :: "
+                + subscriptionRetrievalFulfilled.getSubscriptionRetrieval());
 
         SubscriptionRetrieval sr = subscriptionRetrievalFulfilled
                 .getSubscriptionRetrieval();
@@ -252,93 +306,23 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         List<SubscriptionRetrieval> subscriptionRetrievals = bandwidthDao
                 .querySubscriptionRetrievals(sr.getBandwidthSubscription());
 
+        List<SubscriptionRetrieval> fulfilledList = new ArrayList<SubscriptionRetrieval>();
+
         // Look to see if all the SubscriptionRetrieval's for a subscription are
         // completed.
-        boolean complete = true;
         for (SubscriptionRetrieval subscription : subscriptionRetrievals) {
-            if (!RetrievalStatus.FULFILLED.equals(subscription.getStatus())) {
-                complete = false;
-                break;
+            if (RetrievalStatus.FULFILLED.equals(subscription.getStatus())) {
+                fulfilledList.add(subscription);
             }
         }
 
-        if (complete) {
-            // Remove the completed SubscriptionRetrieval Objects from the
-            // plan..
-            RetrievalPlan plan = retrievalManager.getPlan(sr.getNetwork());
-            plan.remove(sr);
-
-            // Schedule the next iteration of the subscription
-            BandwidthSubscription dao = sr.getBandwidthSubscription();
-            Subscription<T, C> subscription;
-
-            try {
-                // recurring site subscription
-                subscription = subscriptionHandler.getByName(dao.getName());
-
-                if (subscription == null) {
-                    // not recurring, try an adhoc subscription
-                    subscription = adhocSubscriptionHandler.getByName(dao
-                            .getName());
-                    // still doesn't work, punt!
-                    if (subscription == null) {
-
-                        StringBuilder sb = new StringBuilder("Subscription: ");
-                        sb.append(dao.getName());
-                        sb.append(" Not Found in Subscription Handler.");
-                        throw new RegistryHandlerException(sb.toString());
-                    }
-                }
-            } catch (RegistryHandlerException e1) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to retrieve the subscription by name!", e1);
-                return;
-            }
-
-            // AdhocSubscriptions are one and done, so don't reschedule.
-            if (subscription instanceof AdhocSubscription) {
-                statusHandler.info("Adhoc Subscription ["
-                        + subscription.getName() + "] complete.");
-                return;
-            }
-
-            Calendar next = TimeUtil.newCalendar(dao.getBaseReferenceTime());
-            // See how far into the future the plan goes..
-            int days = retrievalManager.getPlan(dao.getRoute()).getPlanDays();
-
-            for (int day = 1; day <= days; day++) {
-
-                next.add(Calendar.DAY_OF_YEAR, 1);
-
-                // TODO Check if we need to set sub to "OFF" state and save to
-                // registry
-                if (((RecurringSubscription<T, C>) subscription)
-                        .shouldScheduleForTime(next)) {
-
-                    // Since subscriptions are based on cycles in a day, add
-                    // one day to the completed BandwidthSubscription to get
-                    // the next days retrieval.
-
-                    // Now check if that BandwidthSubscription has already
-                    // been scheduled.
-                    BandwidthSubscription a = bandwidthDao
-                            .getBandwidthSubscription(dao.getRegistryId(), next);
-                    if (a == null) {
-                        // Create the new BandwidthSubscription record with
-                        // the next time..
-                        a = bandwidthDao.newBandwidthSubscription(subscription,
-                                next);
-
-                        schedule(subscription, a);
-                    } else {
-                        statusHandler
-                                .info("Subscription ["
-                                        + subscription.getName()
-                                        + "] has already been scheduled for baseReferenceTime ["
-                                        + BandwidthUtil.format(next) + "]");
-                    }
-                }
-            }
+        // Remove the completed SubscriptionRetrieval Objects from the
+        // plan..
+        for (SubscriptionRetrieval fsr : fulfilledList) {
+            RetrievalPlan plan = retrievalManager.getPlan(fsr.getNetwork());
+            plan.remove(fsr);
+            statusHandler.info("Removing fulfilled SubscriptionRetrieval: "
+                    + fsr.getId());
         }
     }
 
@@ -364,9 +348,8 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
 
                 try {
                     Subscription<T, C> sub = (Subscription<T, C>) RegistryEncoders
-                            .ofType(JAXB).decodeObject(
-                                    ((RemoveRegistryEvent) event)
-                                            .getRemovedObject());
+                            .ofType(JAXB)
+                            .decodeObject(event.getRemovedObject());
                     sendSubscriptionNotificationEvent(event, sub);
                 } catch (SerializationException e) {
                     statusHandler
@@ -417,7 +400,7 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         if (DataDeliveryRegistryObjectTypes.isRecurringSubscription(objectType)) {
             if (sub != null) {
                 boolean isApplicableForTheLocalSite = sub.getOfficeIDs()
-                        .contains(SiteUtil.getSite());
+                        .contains(DataDeliveryIdUtil.getId());
                 if (isApplicableForTheLocalSite) {
                     switch (event.getAction()) {
                     case UPDATE:
@@ -447,7 +430,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
     }
 
     private void publishDataSetMetaDataEvent(RegistryEvent re) {
-        
         final String id = re.getId();
         DataSetMetaData<T> dsmd = getDataSetMetaData(id);
 
@@ -737,8 +719,6 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                 }
             }
 
-            // Notify RetrievalAgentManager of updated RetrievalRequests.
-            retrievalManager.wakeAgents();
         } else {
             if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
                 statusHandler
@@ -828,26 +808,83 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.edex.datadelivery.bandwidth.BandwidthManager#
+     * getSubscriptionsToSchedule
+     * (com.raytheon.uf.common.datadelivery.registry.Network)
+     */
+    @Override
+    protected List<Subscription> getSubscriptionsToSchedule(Network network) {
+        List<Subscription> subList = new ArrayList<Subscription>(0);
+        try {
+            Map<Network, List<Subscription>> activeSubs = findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule();
+            if (activeSubs.get(network) != null) {
+                subList = activeSubs.get(network);
+            }
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error retrieving subscriptions.", e);
+        }
+
+        return subList;
+    }
+
     /**
      * Private inner work thread used to keep the RetrievalPlans up to date.
      */
-    private class MaintanenceTask implements Runnable {
-
+    private class MaintenanceTask implements Runnable {
         @Override
         public void run() {
-            for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
-                    .values()) {
-                plan.resize();
-                Calendar newEnd = plan.getPlanEnd();
 
-                // Find DEFERRED Allocations and load them into the plan...
-                List<BandwidthAllocation> deferred = bandwidthDao.getDeferred(
-                        plan.getNetwork(), newEnd);
-                if (!deferred.isEmpty()) {
-                    retrievalManager.schedule(deferred);
+            try {
+
+                IPerformanceTimer timer = TimeUtil.getPerformanceTimer();
+                timer.start();
+                statusHandler.info("MaintenanceTask starting...");
+
+                for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
+                        .values()) {
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler.info("MaintenanceTask: "
+                                + plan.getNetwork());
+                        statusHandler.info("MaintenanceTask: planStart: "
+                                + plan.getPlanStart().getTime());
+                        statusHandler.info("MaintenanceTask: planEnd: "
+                                + plan.getPlanEnd().getTime());
+                    }
+                    plan.resize();
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        statusHandler
+                                .info("MaintenanceTask: resized planStart: "
+                                        + plan.getPlanStart().getTime());
+                        statusHandler.info("MaintenanceTask: resized planEnd: "
+                                + plan.getPlanEnd().getTime());
+                        statusHandler.info("MaintenanceTask: Update schedule");
+                    }
+                    // Find DEFERRED Allocations and load them into the plan...
+                    List<BandwidthAllocation> deferred = bandwidthDao
+                            .getDeferred(plan.getNetwork(), plan.getPlanEnd());
+                    if (!deferred.isEmpty()) {
+                        retrievalManager.schedule(deferred);
+                    }
                 }
+
+                int numSubsProcessed = 0;
+                for (RetrievalPlan plan : retrievalManager.getRetrievalPlans()
+                        .values()) {
+                    numSubsProcessed += updateSchedule(plan.getNetwork());
+                }
+                timer.stop();
+                statusHandler.info("MaintenanceTask complete: "
+                        + timer.getElapsed() + " - " + numSubsProcessed
+                        + " Subscriptions processed.");
+
+            } catch (Throwable t) {
+                statusHandler.error("MaintenanceTask: Subscription update scheduling has failed", t);
             }
         }
     }
-
 }

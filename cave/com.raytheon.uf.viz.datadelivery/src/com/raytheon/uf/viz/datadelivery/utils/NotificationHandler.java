@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.datadelivery.notification.xml.MessageLoadXML;
  * Mar 12, 2012            jsanchez     Initial creation
  * Jan 22, 2013 1501       djohnson     Route requests to datadelivery.
  * Sep 05, 2013 2314       mpduff       support the load all messages option.
+ * Feb 07, 2014 2453       mpduff       Remove username query param.
  * 
  * </pre>
  * 
@@ -84,10 +85,9 @@ public class NotificationHandler implements INotificationObserver {
     public List<NotificationRecord> intialLoad(MessageLoadXML messageLoad,
             ArrayList<String> users) {
         int loadAmount;
-        String username = null;
         Integer hours = null;
         Integer maxResults = null;
-        Boolean loadAll = false;
+        boolean loadAll = false;
         // Retrieve the message load configuration
         if (messageLoad != null) {
             loadAll = messageLoad.isLoadAllMessages();
@@ -100,22 +100,11 @@ public class NotificationHandler implements INotificationObserver {
             }
         }
 
-        // Set usernames from filter
-        if (users != null && users.isEmpty() == false) {
-            StringBuffer sb = new StringBuffer();
-            for (String user : users) {
-                if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                sb.append(user);
-            }
-            username = sb.toString();
-        }
-
         // Request data from the notification table.
+        // Note: Removing username query parameter for front end label
+        // consistency
         try {
             GetNotificationRequest request = new GetNotificationRequest();
-            request.setUsername(username);
             request.setHours(hours);
             request.setMaxResults(maxResults);
             request.setLoadAll(loadAll);
