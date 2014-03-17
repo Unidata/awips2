@@ -144,6 +144,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Nov 07, 2013   2291     skorolev    Used showText() method for "Unable to Create Subscription" message.
  * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is updated and created.
  * Jan 14, 2014   2459     mpduff      Change Subscription status code
+ * Feb 11, 2014   2771     bgonzale    Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -471,8 +472,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
         btn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                String currentSite = LocalizationManager.getInstance()
-                        .getCurrentSite();
+                String currentSite = DataDeliveryUtils.getDataDeliveryId();
                 SiteSelectionDlg dlg = new SiteSelectionDlg(shell, currentSite,
                         sharedSites);
                 dlg.setCloseCallback(new ICloseCallback() {
@@ -1030,7 +1030,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
             subscription = sharedSub;
         } else {
             Set<String> officeList = Sets.newHashSet();
-            officeList.add(LocalizationManager.getInstance().getCurrentSite());
+            officeList.add(DataDeliveryUtils.getDataDeliveryId());
             subscription.setOfficeIDs(officeList);
         }
 
@@ -1540,8 +1540,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
      */
     private void setSubscriptionId(Subscription sub) {
         if (sub.getOriginatingSite() == null) {
-            LocalizationManager lm = LocalizationManager.getInstance();
-            sub.setOriginatingSite(lm.getCurrentSite());
+            sub.setOriginatingSite(DataDeliveryUtils.getDataDeliveryId());
         }
         String id = RegistryUtil.getRegistryObjectKey(sub);
         sub.setId(id);

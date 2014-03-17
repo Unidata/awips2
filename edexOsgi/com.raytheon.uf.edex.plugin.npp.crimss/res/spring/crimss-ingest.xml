@@ -9,7 +9,7 @@
     <bean id="crimssDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="crimssPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.crimss" />
+		<constructor-arg value="jms-durable:queue:Ingest.crimss" />
 	</bean>
 
 	<bean id="crimssCamelRegistered" factory-bean="contextManager"

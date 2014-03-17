@@ -4,15 +4,9 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="smartInitQueue" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitQueue" factory-method="createQueue"/>
-    <bean id="jms-smartinit" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsSmartInitConfig"/>
-        <property name="taskExecutor" ref="smartInitThreadPool"/>
-    </bean>
-    <bean id="jmsSmartInitConfig" class="org.apache.camel.component.jms.JmsConfiguration" factory-bean="jmsDurableConfig"
-        factory-method="copy"/>
     <bean id="smartInitThreadPool" class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-        <property name="corePoolSize" value="${smartinit.threadpoolsize}"/>
-        <property name="maxPoolSize" value="${smartinit.threadpoolsize}"/>
+        <property name="corePoolSize" value="${smartinit.threads}" />
+        <property name="maxPoolSize" value="${smartinit.threads}" />
     </bean>
     <bean id="smartInitSrvCfg" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrvConfig">
         <property name="executor" ref="smartInitThreadPool"/>
@@ -38,7 +32,7 @@
 
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="SPCWatch">
-            <from uri="vm:edex.spcWatch"/>
+            <from uri="vm:gfe.spcWatch"/>
             <doTry>
                 <bean ref="spcWatch" method="handleSpcWatch"/>
                 <doCatch>
@@ -50,7 +44,7 @@
         </route>
 
         <route id="TPCWatch">
-            <from uri="vm:edex.tpcWatch"/>
+            <from uri="vm:gfe.tpcWatch"/>
             <doTry>
                 <bean ref="tpcWatch" method="handleTpcWatch"/>
                 <doCatch>
@@ -63,7 +57,14 @@
 
         <route id="WCLWatch">
             <from uri="direct-vm:wclWatch"/>
-            <bean ref="wclWatch" method="handleWclWatch"/>
+            <doTry>
+                <bean ref="wclWatch" method="handleWclWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
         </route>
 
         <route id="smartInitTrigger">
@@ -107,7 +108,7 @@
         <!-- Smart Init Routes -->
         <!-- main route now handled through the gfeIngestNotification -->
         <route id="manualSmartInit">
-            <from uri="jms-smartinit:queue:manualSmartInit"/>
+            <from uri="jms-durable:queue:manualSmartInit?threadName=smartInitManual" />
             <doTry>
                 <bean ref="smartInitQueue" method="addManualInit"/>
                 <doCatch>
@@ -119,7 +120,7 @@
         </route>
 
         <route id="gfeVtecChangeNotification">
-            <from uri="jms-generic:topic:edex.alerts.vtec"/>
+            <from uri="jms-generic:topic:edex.alerts.vtec?threadName=gfe-edex.alerts.vtec"/>
             <doTry>
                 <bean ref="serializationUtil" method="transformFromThrift"/>
                 <bean ref="vtecChangeListener" method="handleNotification"/>
@@ -131,7 +132,6 @@
             </doTry>
         </route>
 
-        <!-- Convert the topic into a queue so only one consumer gets each message and we still have competing consumers. -->
     </camelContext>
 
     <bean factory-bean="clusteredCamelContextMgr" factory-method="register">

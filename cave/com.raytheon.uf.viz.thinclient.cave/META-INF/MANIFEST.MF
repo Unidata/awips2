@@ -13,7 +13,8 @@ Require-Bundle: com.raytheon.uf.viz.core,
  com.raytheon.viz.core;bundle-version="1.12.1174",
  com.raytheon.viz.ui;bundle-version="1.12.1174",
  com.raytheon.viz.alerts;bundle-version="1.12.1174",
- com.raytheon.uf.viz.thinclient;bundle-version="1.0.0"
+ com.raytheon.uf.viz.thinclient;bundle-version="1.0.0",
+ com.raytheon.viz.grid;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.viz.core.maps.rsc,
