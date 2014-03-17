@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 
 import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
+
 /**
  * Definition of a subscription.
  * 
@@ -47,6 +48,7 @@ import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
  * Jan 08, 2014 2615       bgonzale     Added calculate start and calculate end methods.
  * Jan 14, 2014 2459       mpduff       Change Subscription status code
  * Jan 24, 2013 2709       bgonzale     Added method inActivePeriodWindow.
+ * Feb 05, 2014 2677       mpduff       Add subscription state getter/setter.
  * 
  * </pre>
  * 
@@ -704,4 +706,19 @@ public interface Subscription<T extends Time, C extends Coverage> {
      * Deactivate the subscription
      */
     void deactivate();
+
+    /**
+     * Set the subscription's state
+     * 
+     * @param state
+     *            The state to set
+     */
+    void setSubscriptionState(SubscriptionState state);
+
+    /**
+     * Get the subscription's state
+     * 
+     * @return This subscrition's state
+     */
+    SubscriptionState getSubscriptionState();
 }

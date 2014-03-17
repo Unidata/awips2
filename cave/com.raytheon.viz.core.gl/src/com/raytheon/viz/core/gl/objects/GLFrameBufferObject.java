@@ -32,7 +32,8 @@ import javax.media.opengl.GL;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 17, 2012            bsteffen     Initial creation
+ * Feb 17, 2012            bsteffen    Initial creation
+ * Jan  9, 2014 2680       mschenke    Added default error message handling
  * 
  * </pre>
  * 
@@ -113,8 +114,11 @@ public class GLFrameBufferObject extends GLIdWrapper {
             errorMessage = "Error: Framebuffer not supported by hardware/drivers";
             break;
         }
+        default: {
+            errorMessage = "Framebuffer is not complete, unknown reason";
+            break;
+        }
         }
         return errorMessage;
     }
-
 }

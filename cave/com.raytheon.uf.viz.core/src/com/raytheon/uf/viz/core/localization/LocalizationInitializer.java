@@ -52,6 +52,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
  * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
  *                                     provided by EDEX.
+ * Feb 04, 2014 2704       njensen     Pass connectivity dialog title
  * 
  * </pre>
  * 
@@ -108,7 +109,7 @@ public class LocalizationInitializer {
     protected void setupServers() throws VizException {
         if (promptUI) {
             ConnectivityPreferenceDialog dlg = new ConnectivityPreferenceDialog(
-                    checkAlertviz);
+                    checkAlertviz, "Connectivity Preferences");
             if (dlg.open() == true) {
                 System.exit(0);
             }

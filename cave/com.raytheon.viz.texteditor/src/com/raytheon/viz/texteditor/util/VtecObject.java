@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009            bwoodle     Initial creation
  * May 08, 2013  #1842     dgilling    Add getPhensig() method.
+ * Feb 17, 2014  #2774     dgilling    Added toString() for debugging
  * 
  * </pre>
  * 
@@ -313,6 +314,11 @@ public class VtecObject {
                 this.office, this.phenomena, this.significance, this.sequence,
                 VtecUtil.formatVtecTime(this.startTime),
                 VtecUtil.formatVtecTime(this.endTime));
+    }
+
+    @Override
+    public String toString() {
+        return generateVtec();
     }
 
     /*
