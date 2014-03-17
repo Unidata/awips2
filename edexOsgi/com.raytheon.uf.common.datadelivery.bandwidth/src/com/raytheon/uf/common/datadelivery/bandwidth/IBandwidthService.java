@@ -159,4 +159,5 @@ public interface IBandwidthService<T extends Time, C extends Coverage> {
      */
     SubscriptionStatusSummary getSubscriptionStatusSummary(
             Subscription<T, C> subscription);
+
 }

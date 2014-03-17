@@ -8,6 +8,7 @@
 #    04/06/2012      10388         D. Friedman    Initial version
 #    10/09/12        DR 13901      D. Friedman    Limit execution time
 #    06/13/2013      DR 16242      D. Friedman    Add Qpid authentication info
+#    03/06/2014      DR 17907      D. Friedman    Workaround for issue QPID-5569
 ##############################################################################
 
 import getopt
@@ -53,7 +54,8 @@ def send_message(connection, notif):
     
     props = session.delivery_properties(routing_key=TOPIC_NAME)
     head = session.message_properties(application_headers={'sender':notif.sender,
-                                                                'response':notif.response})
+                                                                'response':notif.response},
+                                      user_id=QPID_USERNAME) # For issue QPID-5569.  Fixed in Qpid 0.27
     session.message_transfer(destination=DESTINATION, message=Message(props, head, notif.messageId))
     session.close(timeout=10)
     connection.close()

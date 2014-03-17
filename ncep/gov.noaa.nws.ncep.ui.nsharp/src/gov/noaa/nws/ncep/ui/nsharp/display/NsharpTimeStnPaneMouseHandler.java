@@ -20,7 +20,10 @@
 package gov.noaa.nws.ncep.ui.nsharp.display;
 
 
+import org.eclipse.swt.SWT;
+
 import gov.noaa.nws.ncep.ui.nsharp.display.map.NsharpMapResource;
+import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpSkewTPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.display.rsc.NsharpTimeStnPaneResource;
 import gov.noaa.nws.ncep.ui.nsharp.view.NsharpShowTextDialog;
 
@@ -76,7 +79,7 @@ public class NsharpTimeStnPaneMouseHandler extends NsharpAbstractMouseHandler{
     			Coordinate c = editor.translateClick(x, y);
     			 if(timeStnRsc.getTimeLineRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.TIMELINE_DOWN) {
     				//data time line has been touched, and may be changed
-    				timeStnRsc.getRscHandler().handleUserClickOnTimeLine(c);
+    				timeStnRsc.getRscHandler().handleUserClickOnTimeLine(c,shiftDown);// FixMark:clickOnTimeStnPane
     				handleMouseMove(x,y);
 
     				NsharpShowTextDialog textarea =  NsharpShowTextDialog.getAccess();
@@ -87,12 +90,12 @@ public class NsharpTimeStnPaneMouseHandler extends NsharpAbstractMouseHandler{
     			}
     			else if(timeStnRsc.getStnIdRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.STATIONID_DOWN) {
     				//stn id line has been touched, and may be changed
-    				timeStnRsc.getRscHandler().handleUserClickOnStationId(c);
+    				timeStnRsc.getRscHandler().handleUserClickOnStationId(c,shiftDown);// FixMark:clickOnTimeStnPane
     				handleMouseMove(x,y);
     			}
     			else if(timeStnRsc.getSndRectangle().contains((int) c.x, (int) c.y) == true && this.mode == Mode.SNDTYPE_DOWN) {
     				//stn id line has been touched, and may be changed
-    				timeStnRsc.getRscHandler().handleUserClickOnSndLine(c);
+    				timeStnRsc.getRscHandler().handleUserClickOnSndLine(c,shiftDown);// FixMark:clickOnTimeStnPane
     				handleMouseMove(x,y);
     			}
     			
@@ -106,6 +109,31 @@ public class NsharpTimeStnPaneMouseHandler extends NsharpAbstractMouseHandler{
     	}
         return false;
     }
+    // FixMark:clickOnTimeStnPane
+    @Override
+    public boolean handleKeyDown(int keyCode) {
+    	//System.out.println("key down="+(char)keyCode+ " code ="+keyCode);
+    	
+    	if ((keyCode & SWT.SHIFT) != 0)  {
+    		shiftDown = true;
+            
+            return true;
+        } 
+    	return false;
+    }
 
-    
+    @Override
+    public boolean handleKeyUp(int keyCode) {
+    	//String s = "key up="+(char)keyCode;
+    	//System.out.println(s+ " code ="+keyCode);
+    	if (getPaneDisplay() == null) {
+    		return false;
+    	}
+    	if (keyCode == SWT.SHIFT) {
+            shiftDown = false;
+            return true;
+        }
+        return false;
+    }
+ //End FixMark:clickOnTimeStnPane
 }

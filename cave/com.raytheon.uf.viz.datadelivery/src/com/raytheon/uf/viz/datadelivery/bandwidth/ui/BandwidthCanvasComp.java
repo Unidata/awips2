@@ -103,7 +103,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Nov 19, 2013   1531     mpduff      Made graph resizable.
  * Nov 25, 2013   2545     mpduff      Default to Opsnet if Network not available yet.
  * Dec 17, 2013   2633     mpduff      Fix redraw problems..
- * Jan 09, 2013   2633     mpduff      On resize keep graph at bottom so data are always visible.
+ * Jan 09, 2014   2633     mpduff      On resize keep graph at bottom so data are always visible.
+ * Jan 29, 2014   2722     mpduff      Changed how graph data are requested.
  * </pre>
  * 
  * @author lvenable
@@ -250,13 +251,13 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
      * @param graphDataUtil
      *            Bandwidth graph data object
      */
-    public BandwidthCanvasComp(Composite parentComp, GraphDataUtil graphDataUtil) {
+    public BandwidthCanvasComp(Composite parentComp) {
         super(parentComp, SWT.BORDER);
 
         this.parentComp = parentComp;
         this.display = this.parentComp.getDisplay();
-        this.graphDataUtil = graphDataUtil;
-        this.bgd = this.graphDataUtil.getGraphData(false);
+        this.graphDataUtil = new GraphDataUtil(this);
+        this.bgd = this.graphDataUtil.getGraphData();
 
         init();
     }
@@ -265,7 +266,6 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
      * Initialize method.
      */
     private void init() {
-        this.graphDataUtil.setDataUpdateCallback(this);
         NotificationManagerJob.addObserver("notify.msg", this);
 
         this.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
@@ -1409,7 +1409,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
      * @param graphData
      *            Bandwidth graph data.
      */
-    public void setGraphData(BandwidthGraphData graphData) {
+    private void setGraphData(BandwidthGraphData graphData) {
         this.bgd = graphData;
 
         generateCanvasSettings();
@@ -1527,14 +1527,15 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                 // Do a full update every 10 minutes
                 if (fullUpdateMinuteCount > 10) {
                     graphDataUtil.requestGraphDataUsingThread();
+                    fullUpdateMinuteCount = 0;
                 }
             }
         }
     }
 
     /**
-     * This method will update the subscription table with any updates,
-     * deletions, or new subscriptions.
+     * This method will update the graph with any updates, deletions, or new
+     * subscriptions.
      */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
@@ -1559,7 +1560,7 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                setGraphData(graphDataUtil.getGraphData(true));
+                setGraphData(graphDataUtil.getGraphData());
                 updateCanvasSettings();
                 updateCanvases();
                 layout();

@@ -59,6 +59,8 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
+ * 02/11/2014   #2788      randerso    Fixed infinite loop in computeIntervalAndPrecision 
+ *                                     when pmax < pmin
  * 
  * </pre>
  * 
@@ -186,10 +188,10 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
             dstring.font = colorbarResource.getColorbarScaleFont();
             dstring.textStyle = TextStyle.NORMAL;
-            for (int i = 0; (minParm + i * interval) <= maxParm; i++) {
+            for (int i = 0; (minParm + (i * interval)) <= maxParm; i++) {
                 // check to see whether this colorTable item needs to be
                 // rendered
-                float labelValue = minParm + i * interval;
+                float labelValue = minParm + (i * interval);
 
                 // Check to see if value is same as previous unless float....
                 if ((tmpValue != (int) labelValue) || (precision > 0)) {
@@ -197,7 +199,7 @@ public class ContinuousColorbar implements IColorBarDisplay {
                             labelValue, precision);
 
                     labelLoc = llx
-                            + ((labelValue - minParm) / (maxParm - minParm) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
 
                     if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                             pe.getMaxX(), labelLoc, 0)) {
@@ -219,10 +221,10 @@ public class ContinuousColorbar implements IColorBarDisplay {
                 labelValue = labelValueObj.floatValue();
                 if (precision == 0) {
                     labelLoc = llx
-                            + ((labelValue - minParm) / (maxParm - minParm) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
                 } else {
                     labelLoc = llx
-                            + ((labelValue - minParm) / (maxParm - minParm) * xExtent);
+                            + (((labelValue - minParm) / (maxParm - minParm)) * xExtent);
                 }
                 if (GFEColorbarResource.isLabelWithin(pe.getMinX(),
                         pe.getMaxX(), labelLoc, 0)) {
@@ -246,7 +248,7 @@ public class ContinuousColorbar implements IColorBarDisplay {
             float floatValue = ((ScalarWxValue) wxv).getValue();
             if ((floatValue >= minParm) && (floatValue <= maxParm)) {
                 labelLoc = llx
-                        + ((floatValue - minParm) / (maxParm - minParm) * xExtent);
+                        + (((floatValue - minParm) / (maxParm - minParm)) * xExtent);
 
                 String s = wxv.toString();
                 dstring.font = colorbarResource.getPickupValueFont();
@@ -261,12 +263,11 @@ public class ContinuousColorbar implements IColorBarDisplay {
                     dstring.shadowColor = new RGB(0, 0, 0);
                 }
 
-                double halfWidth = target.getStringsBounds(dstring).getWidth()
-                        * ratio / 2;
+                double halfWidth = (target.getStringsBounds(dstring).getWidth() * ratio) / 2;
 
-                if (labelLoc - halfWidth < pe.getMinX()) {
+                if ((labelLoc - halfWidth) < pe.getMinX()) {
                     labelLoc = pe.getMinX() + halfWidth;
-                } else if (labelLoc + halfWidth > pe.getMaxX()) {
+                } else if ((labelLoc + halfWidth) > pe.getMaxX()) {
                     labelLoc = pe.getMaxX() - halfWidth;
                 }
                 dstring.setCoordinates(labelLoc,
@@ -298,7 +299,8 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
         // initial values are good if decade < parmExtent
         // loop is infinite if parmExtent is NaN or 0, so avoid it
-        if (decade < parmExtent || Float.isNaN(parmExtent) || parmExtent == 0.0) {
+        if (Float.isNaN(parmExtent) || (parmExtent <= 0.0)
+                || (decade < parmExtent)) {
             return new float[] { finterval, precision, labelLength };
         }
 
@@ -438,7 +440,7 @@ public class ContinuousColorbar implements IColorBarDisplay {
 
         switch (parm.getGridInfo().getGridType()) {
         case SCALAR:
-            return new ScalarWxValue(min + (max - min) * fractionX, parm);
+            return new ScalarWxValue(min + ((max - min) * fractionX), parm);
         case VECTOR:
             WxValue previous = parm.getParmState().getPickUpValue();
             float mag = 0.0f;
@@ -448,7 +450,7 @@ public class ContinuousColorbar implements IColorBarDisplay {
                 dir = ((VectorWxValue) previous).getDir();
             }
             if (mouseButton == 1) {
-                mag = min + (max - min) * fractionX;
+                mag = min + ((max - min) * fractionX);
             } else if (mouseButton == 2) {
                 dir = 360 * fractionX;
             }

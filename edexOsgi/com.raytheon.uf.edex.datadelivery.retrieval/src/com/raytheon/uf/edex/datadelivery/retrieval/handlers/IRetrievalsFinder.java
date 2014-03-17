@@ -20,6 +20,7 @@
 package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
 
 
+
 /**
  * Responsible for finding the {@link RetrievalResponseXml} that should be
  * processed.
@@ -31,6 +32,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 01, 2013 1543       djohnson     Initial creation
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -39,11 +41,11 @@ package com.raytheon.uf.edex.datadelivery.retrieval.handlers;
  */
 public interface IRetrievalsFinder {
     /**
-     * Finds the {@link RetrievalResponseXml} that should be processed.
-     * 
+     * Process the requests{@link RetrievalResponseXml}
+     * @param RetrievalRequestWrapper
      * @return the {@link RetrievalResponseXml}
      * @throws Exception
      */
-    RetrievalResponseXml findRetrievals()
+    RetrievalResponseXml processRequest(RetrievalRequestWrapper rrw)
             throws Exception;
 }

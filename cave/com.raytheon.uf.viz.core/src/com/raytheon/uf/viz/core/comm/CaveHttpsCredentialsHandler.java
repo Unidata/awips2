@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.core.comm;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+
 import com.raytheon.uf.common.comm.IHttpsCredentialsHandler;
 import com.raytheon.uf.viz.core.auth.UserController;
 
@@ -34,6 +38,7 @@ import com.raytheon.uf.viz.core.auth.UserController;
  * ------------ ---------- ----------- --------------------------
  * Mar 04, 2013    1786    mpduff      Initial creation.
  * Jun 07, 2013    1981    mpduff      Save user's username in UserController.
+ * Feb 10, 2014    2704    njensen     Added credentialsFailed()
  * 
  * </pre>
  * 
@@ -58,5 +63,12 @@ public class CaveHttpsCredentialsHandler implements IHttpsCredentialsHandler {
         // Save off the user's username in the UserController
         UserController.updateUserData(credentials[0]);
         return credentials;
+    }
+
+    @Override
+    public void credentialsFailed() {
+        MessageDialog.openError(new Shell(Display.getDefault()),
+                "Login failed",
+                "Invalid username and/or password.  Please try again.");
     }
 }
