@@ -92,6 +92,15 @@ public class EnvelopeIntersection {
                 sourceREnvelope.getCoordinateReferenceSystem(),
                 targetREnvelope.getCoordinateReferenceSystem());
         if (sourceCRSToTargetCRS.isIdentity()) {
+            /*
+             * Referenced envelope will only perform an intersection if the CRSs
+             * are identical. However it is possible to get an identity math
+             * transform with slight variences in the object types of the CRSs.
+             * This is known to happen on Equidistant Cylindrical projections.
+             * To get around this force the source envelope into the target CRS.
+             */
+            sourceREnvelope = new ReferencedEnvelope(sourceREnvelope,
+                    targetREnvelope.getCoordinateReferenceSystem());
             com.vividsolutions.jts.geom.Envelope intersection = sourceREnvelope
                     .intersection(targetREnvelope);
             if (intersection == null) {

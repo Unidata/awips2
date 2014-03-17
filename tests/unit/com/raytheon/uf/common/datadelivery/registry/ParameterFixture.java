@@ -35,6 +35,7 @@ import com.raytheon.uf.common.util.AbstractFixture;
  * ------------ ---------- ----------- --------------------------
  * Dec 07, 2012 1104       djohnson     Initial creation
  * Feb 07, 2013 1543       djohnson     Missing value must be a numeric value.
+ * Feb 13, 2014 2386       bgonzale     Added provider name and units.
  * 
  * </pre>
  * 
@@ -67,7 +68,8 @@ public class ParameterFixture extends AbstractFixture<Parameter> {
                 .get(seedValue)));
         obj.setMissingValue("" + seedValue);
         obj.setName("name" + seedValue);
-
+        obj.setProviderName("ProviderName" + seedValue);
+        obj.setUnits("Units" + seedValue);
         return obj;
     }
 

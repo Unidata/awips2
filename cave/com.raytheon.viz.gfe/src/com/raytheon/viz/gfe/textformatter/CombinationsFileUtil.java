@@ -22,6 +22,7 @@ package com.raytheon.viz.gfe.textformatter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.internal.IFPClient;
@@ -68,6 +70,8 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
  * Sep 05, 2013     #2329  randerso    Moved genereateAutoCombinationsFile here
  *                                     Cleaned up error handling
  * Sep 30, 2013      2361  njensen     Use JAXBManager for XML
+ * Feb 05, 2014     #2591  randerso    Forced retrieval of combinations file
+ *                                     Implemented retry on error
  * 
  * </pre>
  * 
@@ -78,6 +82,8 @@ import com.raytheon.viz.gfe.textformatter.CombinationsFileUtil.ComboData.Entry;
 public class CombinationsFileUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CombinationsFileUtil.class);
+
+    private static final int MAX_TRIES = 2;
 
     public static String COMBO_DIR_PATH = FileUtil.join("gfe", "combinations");
 
@@ -215,12 +221,25 @@ public class CombinationsFileUtil {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
+        // retrieve combinations file if it's changed
+        LocalizationFile lf = pm.getStaticLocalizationFile(FileUtil.join(
+                COMBO_DIR_PATH, comboName + ".py"));
+        File pyFile = null;
+        if (lf != null) {
+            try {
+                pyFile = lf.getFile(true);
+            } catch (LocalizationException e) {
+                throw new GfeException("Error retrieving combinations file: "
+                        + comboName, e);
+            }
+        }
+
+        if (pyFile == null || !pyFile.exists()) {
+            return Collections.emptyList();
+        }
+
         LocalizationContext baseContext = pm.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.BASE);
-
-        // Strip any path components from comboName
-        File comboFile = new File(comboName);
-        comboName = comboFile.getName();
 
         String scriptPath = FileUtil.join(
                 GfePyIncludeUtil.getUtilitiesLF(baseContext).getFile()
@@ -230,20 +249,40 @@ public class CombinationsFileUtil {
         HashMap<String, Object> map = new HashMap<String, Object>();
         map.put("comboName", comboName);
         PythonScript python = null;
+        for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
         try {
-            python = new PythonScript(scriptPath, PyUtil.buildJepIncludePath(
+                python = new PythonScript(scriptPath,
+                        PyUtil.buildJepIncludePath(
                     GfePyIncludeUtil.getCombinationsIncludePath(),
                     GfePyIncludeUtil.getCommonPythonIncludePath()),
                     CombinationsFileUtil.class.getClassLoader());
+
             Object com = python.execute("getCombinations", map);
             combos = (List<List<String>>) com;
+
+                // if successfully retrieved break out of the loop
+                break;
         } catch (JepException e) {
+                // remove the .pyo file
+                new File(pyFile.getAbsolutePath() + "o").delete();
+
+                // if not last try, log and try again
+                if (retryCount < MAX_TRIES - 1) {
+                    // log but don't pop up
+                    statusHandler.handle(Priority.EVENTB,
+                            "Error loading combinations file: " + comboName
+                                    + ", retrying ", e);
+                }
+                // else throw exception
+                else {
             throw new GfeException("Error loading combinations file: "
                     + comboName, e);
+                }
         } finally {
             if (python != null) {
                 python.dispose();
             }
+        }
         }
         return combos;
     }
