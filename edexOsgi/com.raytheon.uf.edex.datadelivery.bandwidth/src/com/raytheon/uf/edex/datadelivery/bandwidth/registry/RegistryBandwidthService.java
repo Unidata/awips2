@@ -1,4 +1,5 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.registry;
+
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
@@ -28,6 +29,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
+
 /**
  * Registry Bandwidth Service.
  * 
@@ -38,6 +40,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2013  1736     dhladky      Initial creation
+ * Feb 14, 2014  2636     mpduff       Logging cleanup.
  * 
  * </pre>
  * 
@@ -45,60 +48,60 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * @version 1.0
  */
 public class RegistryBandwidthService {
-    
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryBandwidthService.class);
-   
+
     public static final int BYTES_PER_KILOBYTE = 1024;
-    
+
     private Network network;
-    
+
     private IBandwidthBucketDao bucketDao;
-    
+
     private int bucketSize;
-            
+
     public RegistryBandwidthService() {
-        
+
     }
-    
+
     /**
      * Construct an instance
+     * 
      * @param bucketDao
      * @param network
      */
-    public RegistryBandwidthService(IBandwidthBucketDao bucketDao, Network network, int bucketSize) {
+    public RegistryBandwidthService(IBandwidthBucketDao bucketDao,
+            Network network, int bucketSize) {
         this.bucketDao = bucketDao;
         this.network = network;
         this.bucketSize = bucketSize;
     }
-    
+
     /**
      * Gives a time averaged bandwidth for the current time.
+     * 
      * @return
      */
     public Integer getCurrentRegistryBandwidth() {
-        
+
         if (network == Network.OPSNET) {
-            
+
             RegistryBandwidthRecord rbr = getCurrentRegistryBandwidthRecord();
 
             if (rbr != null) {
                 // convert to kb per/second
                 return convertBytesToKilobytes(rbr.getBytes());
-            } else {
-                statusHandler
-                        .handle(Priority.WARN,
-                                "No active registry bandwidth information for current time.");
             }
-        } 
-        
+        }
+
         return 0;
-        
+
     }
-    
+
     /**
-     * Gives the current full record.  Which is the previous record time wise
+     * Gives the current full record. Which is the previous record time wise
      * because the query is back one full bucketSize in millis.
+     * 
      * @return
      */
     public RegistryBandwidthRecord getCurrentRegistryBandwidthRecord() {
@@ -126,7 +129,7 @@ public class RegistryBandwidthService {
 
         return rbr;
     }
-    
+
     /**
      * Gives a time averaged bandwidth utilization for the registry, time passed
      * in.
@@ -149,13 +152,14 @@ public class RegistryBandwidthService {
                 // try current
                 return getCurrentRegistryBandwidth();
             }
-        } 
-            
+        }
+
         return 0;
     }
-    
+
     /**
      * Retrieve a registry bandwidth record
+     * 
      * @param cal
      * @return
      */
@@ -167,20 +171,21 @@ public class RegistryBandwidthService {
 
         if (timePeriodKey != null) {
             try {
-                long startMillis = timePeriodKey - bucketSize/2;
-                long endMillis = timePeriodKey + bucketSize/2;
+                long startMillis = timePeriodKey - bucketSize / 2;
+                long endMillis = timePeriodKey + bucketSize / 2;
                 rbr = rbd.queryByTimeRange(startMillis, endMillis);
             } catch (DataAccessLayerException dale) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Could not lookup Registry Bandwidth Record! ", dale);
             }
         }
-        
+
         return rbr;
     }
-    
+
     /**
      * Retrieve a registry bandwidth record
+     * 
      * @param cal
      * @return
      */
@@ -188,17 +193,18 @@ public class RegistryBandwidthService {
 
         Calendar cal = TimeUtil.newGmtCalendar();
         cal.setTimeInMillis(millis);
-        
+
         return getRegistryBandwidthRecord(cal);
     }
-        
+
     /**
      * Get time period key for some other determined time
+     * 
      * @param cal
      * @return
      */
     public Long getTimePeriodKey(Calendar cal) {
-        
+
         long millis = cal.getTimeInMillis();
         BandwidthBucket bucket = bucketDao.getBucketContainingTime(millis,
                 network);
@@ -210,18 +216,20 @@ public class RegistryBandwidthService {
         // in the off chance a bucket doesn't exist anywhere near this time.
         return null;
     }
-    
+
     /**
      * conversion
+     * 
      * @param bytes
      * @return
      */
     public static int convertBytesToKilobytes(int bytes) {
         return bytes / BYTES_PER_KILOBYTE;
     }
-    
+
     /**
      * Add or update the record
+     * 
      * @param rbr
      */
     public void addorUpdateRecord(RegistryBandwidthRecord rbr) {
@@ -239,6 +247,7 @@ public class RegistryBandwidthService {
 
     /**
      * Records in the DB are kept by millis on a one day cycle
+     * 
      * @param current
      * @return
      */

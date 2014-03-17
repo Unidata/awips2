@@ -100,10 +100,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why they are so different from GP changes -->
+<!--  next two lines from 13.5.2 baseline - may need the more complex parseString for the GP changes above -->
 <!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
-<!-- end 14.1.1 lines -->  
   <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
@@ -151,10 +150,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why they are so different from GP changes -->
+<!--  next two lines from 13.5.2 baseline - may need the more complex parseString for the GP changes above -->
 <!--  <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;"/> -->
-<!--  end 14.1.1 lines -->
   <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>
@@ -198,10 +196,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why they are so different from GP changes -->
+<!--  next two lines from 13.5.2 baseline - may need the more complex parseString for the GP changes above -->
 <!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC&quot;,&quot;TORRENT&quot;"/> -->
-<!--  end 14.1.1 lines -->  
   <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
  <bullet bulletText="" bulletType="title"/>
@@ -288,10 +285,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="VOLCANIC INDUCED SNOWMELT" showString=".SM."/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 <!-- GP end -->
-<!--  next two lines from 14.1.1 baseline - MR not sure why they are so different from GP changes -->
+<!--  next two lines from 13.5.2 baseline - may need the more complex parseString for the GP changes above -->
 <!-- <bullet bulletName="volcano" bulletText="Volcano induced snowmelt" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;-MELTING OF SNOW AND ICE&quot;,&quot;-TORRENT&quot;" showString="&quot;VOLCANIC&quot;,&quot;-TORRENT&quot;"/>
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="&quot;VOLCANIC SNOWMELT&quot;,&quot;MELTING OF SNOW AND ICE&quot;,&quot;TORRENT&quot;" showString="&quot;VOLCANIC&quot;,&quot;TORRENT&quot;"/> -->
-<!-- end 14.1.1 lines -->  
   <bullet bulletName="siteimminent" bulletText="Dam break - site specific (pick below) - imminent failure" bulletGroup="damic" parseString="THE IMMINENT FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletName="sitefailed" bulletText="Dam break - site specific (pick below) - failure has occurred" bulletGroup="damic" parseString="THE FAILURE OF" showString="&quot;DAM&quot;,&quot;.DM.&quot;,&quot;-LEVEE&quot;"/>
   <bullet bulletText="" bulletType="title"/>

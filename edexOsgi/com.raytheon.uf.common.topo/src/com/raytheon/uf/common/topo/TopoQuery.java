@@ -88,6 +88,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 15, 2013 1638       mschenke    Moved from edex.topo project (not edex
  *                                     specific)
  * Aug 06, 2013 2235       bsteffen    Added Caching version of TopoQuery.
+ * Feb 10, 2014 2788       randerso    Removed override of CRS from Topo file.
+ *                                     Fixed handling of fill values (missing data)
  * 
  * </pre>
  * 
@@ -198,10 +200,6 @@ public class TopoQuery {
             CoordinateReferenceSystem crs = CRSCache.getInstance()
                     .getCoordinateReferenceSystem(crsString);
 
-            crs = MapUtil.constructEquidistantCylindrical(
-                    MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS, 0,
-                    0);
-
             double[] input = new double[] { ulLon, ulLat, lrLon, lrLat };
             double[] output = new double[4];
 
@@ -288,6 +286,7 @@ public class TopoQuery {
     public double[] getHeight(Coordinate[] coords) {
         final int size = coords.length;
         double[] topo = new double[size];
+        Arrays.fill(topo, Double.NaN);
 
         double[] input = new double[size * 2];
         double[] output = new double[input.length];
@@ -310,15 +309,18 @@ public class TopoQuery {
             Request request = Request.buildPointRequest(points);
             ShortDataRecord record = (ShortDataRecord) dataStore.retrieve("/",
                     "full", request);
+            short fillValue = record.getFillValue().shortValue();
             short[] data = record.getShortData();
             // bounds checking?
             for (int i = 0; i < size; i++) {
-                topo[i] = data[i];
+                short value = data[i];
+                if (value != fillValue) {
+                    topo[i] = value;
+                }
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error retriving topo value for lat/lons", e);
-            Arrays.fill(topo, Double.NaN);
         }
 
         return topo;
@@ -367,8 +369,9 @@ public class TopoQuery {
 
                 if (first) {
                     first = false;
-                } else if (Math.abs(p1.getOrdinate(0) - prev) > 180.0
-                        || (Math.abs(p1.getOrdinate(0)) > 180 && Math.abs(prev) < 180)) {
+                } else if ((Math.abs(p1.getOrdinate(0) - prev) > 180.0)
+                        || ((Math.abs(p1.getOrdinate(0)) > 180) && (Math
+                                .abs(prev) < 180))) {
                     crossedDLHoriz = true;
                 }
                 prev = p1.getOrdinate(0);
@@ -424,8 +427,9 @@ public class TopoQuery {
 
                 if (first) {
                     first = false;
-                } else if (Math.abs(p1.getOrdinate(0) - prev) > 180.0
-                        || (Math.abs(p1.getOrdinate(0)) > 180 && Math.abs(prev) < 180)) {
+                } else if ((Math.abs(p1.getOrdinate(0) - prev) > 180.0)
+                        || ((Math.abs(p1.getOrdinate(0)) > 180) && (Math
+                                .abs(prev) < 180))) {
                     crossedDLVert = true;
                 }
                 prev = p1.getOrdinate(0);
@@ -541,7 +545,7 @@ public class TopoQuery {
                     worldRect.getMaxY() };
             double[] crsCorners = new double[worldCorners.length];
             GeneralEnvelope env = new GeneralEnvelope(2);
-            if (worldCorners[2] > worldGeomPM.getGridRange().getHigh(0) + 1) {
+            if (worldCorners[2] > (worldGeomPM.getGridRange().getHigh(0) + 1)) {
                 worldGeomDL.getGridToCRS(PixelInCell.CELL_CORNER)
                         .transform(worldCorners, 0, crsCorners, 0,
                                 worldCorners.length / 2);
@@ -643,7 +647,7 @@ public class TopoQuery {
         }
 
         // if grid is too big to load into memory
-        if (width * height > TOPO_LIMIT) {
+        if ((width * height) > TOPO_LIMIT) {
             // try the next interpolation level if it exists
             int level = topoLevel + 1;
             if (level < numLevels) {
@@ -675,15 +679,18 @@ public class TopoQuery {
                                     y + intersection.height });
                     rec = (ShortDataRecord) dataStore.retrieve("", dataset,
                             request);
+                    short fillValue = rec.getFillValue().shortValue();
 
-                    int xOffset = intersection.x - worldRect.x + rectOffset;
+                    int xOffset = (intersection.x - worldRect.x) + rectOffset;
                     int yOffset = intersection.y - worldRect.y;
 
                     int recOffset = 0;
                     for (int j = 0; j < intersection.height; j++) {
                         for (int i = 0; i < intersection.width; i++) {
-                            topoValues[j + yOffset][i + xOffset] = rec
-                                    .getShortData()[i + recOffset];
+                            short value = rec.getShortData()[i + recOffset];
+                            if (value != fillValue) {
+                                topoValues[j + yOffset][i + xOffset] = value;
+                            }
                         }
                         recOffset += intersection.width;
                         // someData = true;
@@ -696,10 +703,6 @@ public class TopoQuery {
             }
             rectOffset += worldRect.width;
         }
-
-        // if (!someData) {
-        // throw new EdexException("No topo data available");
-        // }
 
         Envelope env = computeEnv(new Rectangle(rectangles[0].x,
                 rectangles[0].y, width, height));
@@ -789,8 +792,10 @@ public class TopoQuery {
 
                 int sx = (int) Math.round(coord[0]);
                 int sy = (int) Math.round(coord[1]);
-                if (sx >= 0 && sx < sourceWidth && sy >= 0 && sy < sourceHeight)
-                    output[y * targetWidth + x] = sourceData[sy][sx];
+                if ((sx >= 0) && (sx < sourceWidth) && (sy >= 0)
+                        && (sy < sourceHeight)) {
+                    output[(y * targetWidth) + x] = sourceData[sy][sx];
+                }
             }
         }
 
@@ -812,9 +817,9 @@ public class TopoQuery {
 
         MathTransform mt = null;
         for (MathTransform mti : transforms) {
-            if (mt == null)
+            if (mt == null) {
                 mt = mti;
-            else {
+            } else {
                 mt = mtFactory.createConcatenatedTransform(mt, mti);
             }
         }

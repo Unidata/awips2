@@ -56,7 +56,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
- * ------------- -------- ----------- --------------------------
+ * ------------- -------- ----------- -----------------------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * Jul 17, 2013  2185     bsteffen    Cache computed grid reprojections.
  * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by error
@@ -64,6 +64,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 09, 2013  2617     bsteffen    Added 180 degree rotation into reproject
  *                                    so wind direction is calculated as
  *                                    direction wind is coming from.
+ * Feb 03, 2013  2764     bsteffen    Ensure that internal buffers are array
+ *                                    backed heap buffers.
  * 
  * </pre>
  * 
@@ -152,15 +154,23 @@ public class GeneralGridData {
 
     private GeneralGridData(GeneralGridGeometry gridGeometry,
             FloatBuffer scalarData, Unit<?> dataUnit) {
-        this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
-        this.scalarData = scalarData;
-        this.dataUnit = dataUnit;
+        this(gridGeometry, scalarData, null, null, null, dataUnit);
     }
 
     private GeneralGridData(GeneralGridGeometry gridGeometry,
             FloatBuffer magnitude, FloatBuffer direction,
             FloatBuffer uComponent, FloatBuffer vComponent, Unit<?> dataUnit) {
         this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
+        if (magnitude != null && !magnitude.hasArray()) {
+            /*
+             * TODO refactor dispaly code so it doesn't need array instead of
+             * copying data.
+             */
+            FloatBuffer copy = FloatBuffer.allocate(magnitude.capacity());
+            magnitude.rewind();
+            copy.put(magnitude);
+            magnitude = copy;
+        }
         this.scalarData = magnitude;
         this.direction = direction;
         this.uComponent = uComponent;

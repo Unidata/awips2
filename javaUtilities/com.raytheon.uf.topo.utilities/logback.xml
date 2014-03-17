@@ -1,0 +1,68 @@
+<configuration debug="false" scan="false">
+   <appender name="console" class="ch.qos.logback.core.ConsoleAppender"> 
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+      <filter class="com.raytheon.uf.common.status.logback.InvertedThresholdFilter">
+         <level>INFO</level>         
+      </filter>
+   </appender>
+
+   <appender name="errConsole" class="ch.qos.logback.core.ConsoleAppender">
+      <target>System.err</target>
+      <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <level>WARN</level>
+      </filter>       
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
+   
+   <logger name="CaveLogger">
+      <level value="ALL"/>
+   </logger>
+   
+   <logger name="PerformanceLogger">
+          <level value="ALL"/>
+   </logger>
+
+   <logger name="com.raytheon">
+      <level value="INFO"/>
+   </logger>
+
+   <logger name="com.tc">
+      <level value="WARN"/>
+   </logger>
+   <logger name="mx4j">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="org.apache">
+      <level value="INFO"/>
+   </logger>
+   <logger name="org.apache.activemq.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.commons.beanutils">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.qpid">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.geotools">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.apache.xbean.spring">
+      <level value="WARN"/>
+   </logger>
+   <logger name="org.springframework">
+      <level value="ERROR"/>
+   </logger>
+   <logger name="uk.ltd.getahead">
+      <level value="WARN"/>
+   </logger>
+   <root> 
+      <level value="INFO"/> 
+      <appender-ref ref="console"/> 
+      <appender-ref ref="errConsole"/>
+    </root> 
+</configuration> 
