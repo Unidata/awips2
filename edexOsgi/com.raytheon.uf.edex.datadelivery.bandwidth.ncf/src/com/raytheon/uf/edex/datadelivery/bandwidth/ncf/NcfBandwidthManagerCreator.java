@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
@@ -63,19 +64,21 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Nov 19, 2013 2545       bgonzale     Added registryEventListener method for update events.
  *                                      Reschedule updated shared subscriptions.
  * Dec 04, 2013 2566       bgonzale     use bandwidthmanager method to retrieve spring files.
- * Jan 14, 2014 2692       dhladky      AdhocSubscription handler 
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> implements IEdexBandwidthManagerCreator<T, C> {
+public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage>
+        implements IEdexBandwidthManagerCreator<T, C> {
 
     /**
      * NCF {@link BandwidthManager} implementation.
      */
-    static class NcfBandwidthManager<T extends Time, C extends Coverage> extends EdexBandwidthManager<T, C> {
+    static class NcfBandwidthManager<T extends Time, C extends Coverage>
+            extends EdexBandwidthManager<T, C> {
 
         private static final String MODE_NAME = "centralRegistry";
 
@@ -89,16 +92,20 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
          * @param retrievalManager
          * @param bandwidthDaoUtil
          */
-        public NcfBandwidthManager(IBandwidthDbInit dbInit,
-                IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
+        public NcfBandwidthManager(
+                IBandwidthDbInit dbInit,
+                IBandwidthDao<T, C> bandwidthDao,
+                RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
                 IAdhocSubscriptionHandler adhocSubscriptionHandler,
-                ISubscriptionNotificationService subscriptionNotificationService) {
+                ISubscriptionNotificationService subscriptionNotificationService,
+                IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
             super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                    dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
-                    subscriptionNotificationService);
+                    dataSetMetaDataHandler, subscriptionHandler,
+                    adhocSubscriptionHandler, subscriptionNotificationService,
+                    findSubscriptionsStrategy);
         }
 
         /**
@@ -140,7 +147,8 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
          */
         @Override
         protected Set<String> scheduleSbnSubscriptions(
-                List<Subscription<T, C>> subscriptions) throws SerializationException {
+                List<Subscription<T, C>> subscriptions)
+                throws SerializationException {
             return scheduleSubscriptions(subscriptions);
         }
     }
@@ -155,10 +163,12 @@ public class NcfBandwidthManagerCreator<T extends Time, C extends Coverage> impl
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
-            ISubscriptionNotificationService subscriptionNotificationService) {
+            ISubscriptionNotificationService subscriptionNotificationService,
+            IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
         return new NcfBandwidthManager(dbInit, bandwidthDao, retrievalManager,
-                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
-                subscriptionNotificationService);
+                bandwidthDaoUtil, dataSetMetaDataHandler, subscriptionHandler,
+                adhocSubscriptionHandler, subscriptionNotificationService,
+                findSubscriptionsStrategy);
     }
 
 }

@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryAvailableRestService;
 import com.raytheon.uf.common.registry.constants.RegistryAvailability;
+import com.raytheon.uf.edex.datadelivery.registry.federation.RegistryFederationManager;
 import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 
 /**
@@ -64,7 +65,8 @@ public class RegistryAvailableRestService implements
     @GET
     @Produces("text/plain")
     public String isRegistryAvailable() {
-        if (DbInit.isDbInitialized()) {
+        if (DbInit.isDbInitialized()
+                && RegistryFederationManager.initialized.get()) {
             return RegistryAvailability.AVAILABLE;
         } else {
             return RegistryAvailability.DB_NOT_INITIALIZED;

@@ -19,9 +19,12 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Lists;
@@ -59,6 +62,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 31, 2013 1650       djohnson     Fix ability to get shared subscriptions by id.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * Jan 20, 2014 2538       mpduff       Added AdhocSubscriptionHandler.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -250,12 +254,32 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public List<Subscription> getActiveForRoutes(Network... routes)
-            throws RegistryHandlerException {
-        List<Subscription> subs = Lists.newArrayList();
-        subs.addAll(siteSubscriptionHandler.getActiveForRoutes(routes));
-        subs.addAll(sharedSubscriptionHandler.getActiveForRoutes(routes));
-        return subs;
+    public Map<Network, List<Subscription>> getActiveForRoutes(
+            Network... routes) throws RegistryHandlerException {
+        Map<Network, List<Subscription>> returnMap = new HashMap<Network, List<Subscription>>();
+        Map<Network, List<SiteSubscription>> subMap = siteSubscriptionHandler
+                .getActiveForRoutes(routes);
+        returnMap
+                .putAll((Map<? extends Network, ? extends List<Subscription>>) subMap);
+
+        Map<Network, List<SharedSubscription>> sharedSubMap = sharedSubscriptionHandler
+                .getActiveForRoutes(routes);
+        // Check for existing networks and add to them if they exist
+        for (Map.Entry<Network, List<SharedSubscription>> entry : sharedSubMap
+                .entrySet()) {
+            Network key = entry.getKey();
+            if (returnMap.containsKey(key)) {
+                returnMap.get(key).addAll(entry.getValue());
+            } else {
+                List<SharedSubscription> sharedList = entry.getValue();
+
+                returnMap.put(key,
+                        new ArrayList<Subscription>(sharedList.size()));
+                returnMap.get(key).addAll(sharedList);
+            }
+        }
+
+        return returnMap;
     }
 
     /**

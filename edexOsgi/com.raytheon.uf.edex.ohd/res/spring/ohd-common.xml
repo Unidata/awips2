@@ -1,45 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
-  
-  	<!--  IHFS Database Configuration-->
-  	<bean id="ihfsDbSessionConfig" class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
-  	    <property name="classFinder" ref="dbClassFinder" />
-        <property name="includes">
-           <list>
-                <value>com.raytheon.uf.common.dataplugin.shef</value>
-                <value>com.raytheon.edex.plugin.shef</value>
-           </list>
-        </property>
-    </bean>
-	<bean id="ihfsSessionFactory"
-		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-
-		<property name="configLocation">
-			<value>file:///${edex.home}/conf/db/hibernateConfig/ihfs/hibernate.cfg.xml</value>
-		</property>
-		<property name="databaseSessionConfiguration" ref="ihfsDbSessionConfig"/>
-	</bean>
-
-	<bean id="ihfsTxManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="ihfsSessionFactory" />
-	</bean>
-	
-	<!--  Dam Catalog Database Configuration-->
-	<bean id="damSessionFactory"
-		class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
-        <!-- No hibernate annotations should be loaded -->
-		<property name="configLocation">
-			<value>file:///${edex.home}/conf/db/hibernateConfig/damCatalog/hibernate.cfg.xml</value>
-		</property>
-	</bean>
-
-	<bean id="damTxManager"
-		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-		<property name="sessionFactory" ref="damSessionFactory" />
-	</bean>
-
 	<bean id="mpeFieldGenService" class="com.raytheon.uf.edex.ohd.pproc.MpeFieldGenSrv" />
 
     <bean factory-bean="manualProc"

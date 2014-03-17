@@ -77,9 +77,10 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  *                                     for merge logic.
  * May 14, 2013    1842    dgilling    Also delete cluster locks when purging
  *                                     PRACTICE active table.
- * Jun 11, 2013    2083    randerso   Log active table changes
+ * Jun 11, 2013    2083    randerso    Log active table changes
  * Aug 29, 2013    1843    dgilling    Move ETN related methods to 
  *                                     GetNextEtnUtil.
+ * Mar 06, 2014    2883    randerso    Pass siteId into python code
  * 
  * </pre>
  * 
@@ -241,8 +242,8 @@ public class ActiveTable {
                 mode = ActiveTableMode.OPERATIONAL;
             }
 
-            MergeResult result = filterTable(getActiveTable(siteId, mode),
-                    newRecords, mode, offsetSecs);
+            MergeResult result = filterTable(siteId,
+                    getActiveTable(siteId, mode), newRecords, mode, offsetSecs);
 
             updateTable(siteId, result, mode);
 
@@ -256,6 +257,8 @@ public class ActiveTable {
      * Runs the new VTEC products against the legacy logic to update the active
      * table
      * 
+     * @param siteId
+     *            the ID of the ingest site
      * @param activeTable
      *            the current active table
      * @param newRecords
@@ -263,10 +266,12 @@ public class ActiveTable {
      * @return a list of size 2, with the first inner list being the updated
      *         active table and the second being the purged records
      */
-    private MergeResult filterTable(List<ActiveTableRecord> activeTable,
+    private MergeResult filterTable(String siteId,
+            List<ActiveTableRecord> activeTable,
             List<ActiveTableRecord> newRecords, ActiveTableMode mode,
             float offsetSecs) {
         HashMap<String, Object> args = new HashMap<String, Object>(5, 1.0f);
+        args.put("siteId", siteId);
         args.put("activeTable", activeTable);
         args.put("newRecords", newRecords);
         args.put("logger", changeLog);
