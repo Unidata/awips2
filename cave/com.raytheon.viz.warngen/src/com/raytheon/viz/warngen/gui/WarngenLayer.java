@@ -202,6 +202,10 @@ import com.vividsolutions.jts.io.WKTReader;
  *                                     populateStrings() and paintText().
  * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
  *                                     when geometry file get updated to re-read them in.
+ * 03/17/2014  DR16309     Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
+ *                                     searchGeospatialDataAccessor() and updated it; changed getCountyGeospatialDataAcessor()
+ *                                     to getGeospatialDataAcessor(); changed getAllCountyUgcs() to getAllUgcs(); changed 
+ *                                     getUgcsForWatches() to getUgcsForCountyWatches().
  * </pre>
  * 
  * @author mschenke
@@ -1409,8 +1413,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     public Geometry getWarningAreaFromPolygon(Polygon polygon,
             AbstractWarningRecord record) {
-        Map<String, String[]> countyMap = FipsUtil.parseCountyHeader(record
-                .getCountyheader());
+        Map<String, String[]> countyMap = FipsUtil.parseHeader(record
+                .getCountyheader(), "County");
         try {
             return getArea(polygon, countyMap);
         } catch (Exception e) {
@@ -1423,35 +1427,53 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * Returns a set of UGCs for each area in the CWA that intersects the given
      * polygon.
      */
-    public Set<String> getUgcsForCountyWatches(Polygon polygon)
+    public Set<String> getUgcsForWatches(Polygon polygon)
             throws Exception {
-        GeospatialDataAccessor gda = getCountyGeospatialDataAcessor();
+        GeospatialDataAccessor gda = getGeospatialDataAcessor();
+        boolean isMarineZone = configuration.getGeospatialConfig()
+                .getAreaSource().equalsIgnoreCase(MARINE);
+        if (!isMarineZone) {
+            Set<String> ugcs = new HashSet<String>();
+            for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
+                ugcs.add(FipsUtil.getUgcFromFips(fips));
+            }
+            return ugcs;
+        } else {
+            Set<String> ids = new HashSet<String>();
+            Geometry g = gda.buildArea(polygon);
+            ids = getAllFipsInArea(g);
+            return ids;
+        }
+    }
+
+    public Set<String> getAllUgcs() throws Exception {
+        GeospatialDataAccessor gda;
         Set<String> ugcs = new HashSet<String>();
-        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon))) {
-            ugcs.add(FipsUtil.getUgcFromFips(fips));
+        gda = getGeospatialDataAcessor();
+        boolean isMarineZone = configuration.getGeospatialConfig()
+                .getAreaSource().equalsIgnoreCase(MARINE);
+        if (!isMarineZone) {
+            for (GeospatialData r : gda.geoData.features) {
+                ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
+            }
+        } else {
+            for (GeospatialData r : gda.geoData.features) {
+                ugcs.add(getFips(r));
+            }
         }
         return ugcs;
     }
 
-    public Set<String> getAllCountyUgcs() throws Exception {
-        GeospatialDataAccessor gda = getCountyGeospatialDataAcessor();
-        Set<String> ugcs = new HashSet<String>();
-        for (GeospatialData r : gda.geoData.features) {
-            ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
-        }
-        return ugcs;
-    }
-
-    private GeospatialDataAccessor getCountyGeospatialDataAcessor()
+    private GeospatialDataAccessor getGeospatialDataAcessor()
             throws Exception {
-        GeospatialDataList gdl = searchCountyGeospatialDataAccessor();
+        GeospatialDataList gdl = searchGeospatialDataAccessor();
         if (gdl == null) {
             // Cause county geospatial data to be loaded
             // TODO: Should not be referencing tornadoWarning.
             WarngenConfiguration torConfig = WarngenConfiguration.loadConfig(
                     "tornadoWarning", getLocalizedSite());
             loadGeodataForConfiguration(torConfig);
-            gdl = searchCountyGeospatialDataAccessor();
+            gdl = searchGeospatialDataAccessor();
         }
 
         // TODO: There should be some way to get the "county" configuration by
@@ -1463,13 +1485,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return new GeospatialDataAccessor(gdl, areaConfig);
     }
 
-    private GeospatialDataList searchCountyGeospatialDataAccessor() {
+    private GeospatialDataList searchGeospatialDataAccessor() {
         synchronized (siteMap) {
             for (Map.Entry<String, GeospatialDataList> entry : siteMap
                     .entrySet()) {
                 String[] keyParts = entry.getKey().split("\\.");
+                boolean isMarineZone = configuration.getGeospatialConfig()
+                        .getAreaSource().equalsIgnoreCase(MARINE);
+                String mapdataTable = null;
+                if (!isMarineZone) {
+                    mapdataTable = "county";
+                } else {
+                    mapdataTable = "marinezones";
+                }
                 if (keyParts.length == 2
-                        && "county".equalsIgnoreCase(keyParts[0])
+                        && mapdataTable.equalsIgnoreCase(keyParts[0])
                         && getLocalizedSite().equals(keyParts[1])) {
                     return entry.getValue();
                 }
