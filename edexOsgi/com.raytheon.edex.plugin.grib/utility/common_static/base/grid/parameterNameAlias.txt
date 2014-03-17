@@ -131,3 +131,10 @@ SREF243::SNOL12c2::Prob 12-hr SNOW > 2 in
 SREF243::SNOL12c5::Prob 12-hr SNOW > 7.5 in
 SREF243::SNOL12c4::Prob 12-hr SNOW > 6 in
 SREF243::SNOL12c1::Prob 12-hr SNOW > 1 in
+
+TPCWindProb::Prob34::Probability of Wind Speed > 34 knots
+TPCWindProb::Prob50::Probability of Wind Speed > 50 knots
+TPCWindProb::Prob64::Probability of Wind Speed > 64 knots
+TPCWindProb::PWS34::Incremental Prob WS 34 kts or greater
+TPCWindProb::PWS50::Incremental Prob WS 50 kts or greater
+TPCWindProb::PWS64::Incremental Prob WS 64 kts or greater

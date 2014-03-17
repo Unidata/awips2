@@ -37,6 +37,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
@@ -56,14 +57,16 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Oct 03, 2013 1797       dhladky      Some generics
  * Nov 07, 2013 2506       bgonzale     Added notification handler to bandwidth context.
- * Jan 14, 2014 2692       dhladky      AdhocSubscription handler 
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
+ * Jan 30, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> implements BandwidthContextFactory {
+public class EdexBandwidthContextFactory<T extends Time, C extends Coverage>
+        implements BandwidthContextFactory {
 
     /**
      * Pluggable strategy for how to create the {@link BandwidthManager}.
@@ -83,12 +86,14 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
          * @return the bandwidth manager
          */
         IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
-                IBandwidthDao<T, C> bandwidthDao, RetrievalManager retrievalManager,
+                IBandwidthDao<T, C> bandwidthDao,
+                RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
                 IAdhocSubscriptionHandler adhocSubscriptionHandler,
-                ISubscriptionNotificationService notificationService);
+                ISubscriptionNotificationService notificationService,
+                IFindSubscriptionsForScheduling findSubscriptionsStrategy);
     }
 
     private static EdexBandwidthManager instance;
@@ -106,10 +111,12 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
     private final IDataSetMetaDataHandler dataSetMetaDataHandler;
 
     private final ISubscriptionHandler subscriptionHandler;
-    
+
     private final IAdhocSubscriptionHandler adhocSubscriptionHandler;
 
     private final ISubscriptionNotificationService notificationService;
+
+    private final IFindSubscriptionsForScheduling findSubscriptionsStrategy;
 
     /**
      * Intentionally package-private constructor, as it is created from Spring
@@ -133,7 +140,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
-            ISubscriptionNotificationService notificationService) {
+            ISubscriptionNotificationService notificationService,
+            IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
         this.bandwidthDao = bandwidthDao;
         this.bandwidthBucketDao = bandwidthBucketDao;
         this.bandwidthInitializer = bandwidthInitializer;
@@ -143,6 +151,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
         this.subscriptionHandler = subscriptionHandler;
         this.adhocSubscriptionHandler = adhocSubscriptionHandler;
         this.notificationService = notificationService;
+        this.findSubscriptionsStrategy = findSubscriptionsStrategy;
 
     }
 
@@ -155,7 +164,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
      *            the {@link BandwidthManager} instance
      */
     EdexBandwidthContextFactory(EdexBandwidthManager<T, C> instance) {
-        this(null, null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null, null, null);
         EdexBandwidthContextFactory.instance = instance;
     }
 
@@ -247,7 +256,8 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage> imp
             BandwidthDaoUtil bandwidthDaoUtil) {
         return bandwidthManagerCreator.getBandwidthManager(dbInit,
                 bandwidthDao, retrievalManager, bandwidthDaoUtil,
-                dataSetMetaDataHandler, subscriptionHandler, adhocSubscriptionHandler,
-                notificationService);
+                dataSetMetaDataHandler, subscriptionHandler,
+                adhocSubscriptionHandler, notificationService,
+                findSubscriptionsStrategy);
     }
 }

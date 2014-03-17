@@ -24,6 +24,9 @@ import java.util.List;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AssociationType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RoleType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
 
@@ -39,6 +42,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip    Modified to use spring injection and transaction boundaries
  * 4/9/2013     1802       bphillip    Removed exception catching
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -65,6 +69,7 @@ public class RoleDao extends RegistryObjectTypeDao<RoleType> {
      * @throws EbxmlRegistryException
      *             If errors occur during interaction with the database
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public RoleType getUserRole(String user) throws EbxmlRegistryException {
         List<AssociationType> associations = associationDao.getBySourceAndType(
                 user, AssociationTypes.HAS_ROLE);

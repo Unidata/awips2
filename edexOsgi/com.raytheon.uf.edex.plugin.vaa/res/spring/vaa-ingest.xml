@@ -8,7 +8,7 @@
     <bean id="vaaDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="vaaPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.vaa"/>
+		<constructor-arg value="jms-durable:queue:Ingest.vaa"/>
 	</bean>
 
 	<bean id="vaaCamelRegistered" factory-bean="contextManager"

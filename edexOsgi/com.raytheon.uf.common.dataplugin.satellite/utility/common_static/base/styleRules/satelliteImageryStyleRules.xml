@@ -24,6 +24,15 @@
 <styleRule>
   <paramLevelMatches>
      <parameter>Imager 11 micron IR</parameter>
+     <parameter>Imager 12 micron IR</parameter>
+     <parameter>Imager 13 micron (IR)</parameter>
+     <parameter>Imager 3.9 micron IR</parameter>
+     <parameter>Sounder 11.03 micron imagery</parameter>
+     <parameter>Sounder 3.98 micron imagery</parameter>
+     <parameter>Sounder 4.45 micron imagery</parameter>
+     <parameter>Sounder 14.06 micron imagery</parameter>
+     <parameter>Polar IR</parameter>
+     <parameter>Polar 3.7u</parameter>
   </paramLevelMatches>
   <imageStyle>
      <displayUnits>C</displayUnits>
@@ -40,6 +49,9 @@
 <styleRule>
   <paramLevelMatches>
      <parameter>Imager 6.7-6.5 micron IR (WV)</parameter>
+     <parameter>Sounder 6.51 micron imagery</parameter>
+     <parameter>Sounder 7.02 micron imagery</parameter>
+     <parameter>Sounder 7.43 micron imagery</parameter>
   </paramLevelMatches>
   <imageStyle>
     <range scale="LINEAR">
@@ -72,6 +84,8 @@
 <styleRule>
   <paramLevelMatches>
      <parameter>Imager Visible</parameter>
+     <parameter>Sounder Visible imagery</parameter>
+     <parameter>Polar Vis</parameter>
   </paramLevelMatches>
   <imageStyle>
      <range scale="LINEAR">
@@ -84,6 +98,7 @@
 <styleRule>
   <paramLevelMatches>
      <parameter>satDif11u3_9uIR</parameter>
+     <parameter>poesDif11u3_7uIR</parameter>
   </paramLevelMatches>
   <imageStyle>
   	<displayUnits>bit</displayUnits>
@@ -127,166 +142,6 @@
       <colorbarLabeling> 
  	     <values>-20 0 20</values> 
  	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Imager 12 micron IR</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Imager 13 micron (IR)</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Imager 3.9 micron IR</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 11.03 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-       <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>      
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 6.51 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 7.02 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 7.43 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/WV/Gray Scale Water Vapor</defaultColormap>     
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder Visible imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 3.98 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-       <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>      
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 4.45 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-       <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>      
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Sounder 14.06 micron imagery</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-       <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>      
   </imageStyle>
 </styleRule>
 <styleRule>
@@ -467,67 +322,6 @@
 		<entry pixelValue="250" operator=">" label=">250%" />
 		<entry pixelValue="201" operator=">" label=">201%" />
      </dataMapping>
-  </imageStyle>
-</styleRule>
-<!-- Polar Satellite Rules -->
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Polar IR</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>      
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Polar Vis</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <range scale="LINEAR">
-        <minValue>0</minValue>
-        <maxValue>255</maxValue>
-     </range>
-      <defaultColormap>Sat/VIS/ZA (Vis Default)</defaultColormap>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>Polar 3.7u</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-     <displayUnits>C</displayUnits>
-     <range scale="LINEAR">
-        <minValue>55</minValue>
-        <maxValue>-109</maxValue>
-     </range>
-     <defaultColormap>Sat/IR/CIRA (IR Default)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>40 20 0 -20 -40 -60 -80</values> 
- 	  </colorbarLabeling>
-  </imageStyle>
-</styleRule>
-<styleRule>
-  <paramLevelMatches>
-     <parameter>poesDif11u3_7uIR</parameter>
-  </paramLevelMatches>
-  <imageStyle>
-  	<displayUnits>bit</displayUnits>
-     <range scale="LINEAR">
-        <minValue>-79</minValue>
-        <maxValue>177</maxValue>
-     </range>
-      <defaultColormap>Sat/VIS/CA (Low Light Vis)</defaultColormap>
-      <colorbarLabeling> 
- 	     <values>-50 0 50 100 150</values> 
- 	  </colorbarLabeling>
   </imageStyle>
 </styleRule>
 </styleRuleset>

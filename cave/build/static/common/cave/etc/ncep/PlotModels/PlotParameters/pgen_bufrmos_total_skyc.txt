@@ -1,5 +1,0 @@
-s2s
-default : SKY_COVER_00
-1 : SKY_COVER_00
-4 : SKY_COVER_08
-7 : SKY_COVER_06

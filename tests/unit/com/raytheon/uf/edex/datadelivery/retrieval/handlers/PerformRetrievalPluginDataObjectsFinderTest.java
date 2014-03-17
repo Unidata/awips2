@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Initial creation
  * Jan 15, 2014 2678       bgonzale     Added Queue.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -135,8 +136,8 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
     }
 
     private void processRetrieval(RetrievalRequestRecord retrieval) {
-        final PerformRetrievalsThenReturnFinder pluginDataObjectsFinder = new PerformRetrievalsThenReturnFinder(
-                retrievalQueue, MOCK_DAO);
-        pluginDataObjectsFinder.process(retrieval);
+        //final PerformRetrievalsThenReturnFinder pluginDataObjectsFinder = new PerformRetrievalsThenReturnFinder(
+        //        retrievalQueue, MOCK_DAO);
+        //pluginDataObjectsFinder.process(retrieval);
     }
 }
