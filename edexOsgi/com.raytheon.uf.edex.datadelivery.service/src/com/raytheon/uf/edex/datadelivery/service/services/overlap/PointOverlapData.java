@@ -39,6 +39,11 @@ import com.raytheon.uf.common.datadelivery.service.subscription.SubscriptionOver
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2013   2292     mpduff      Initial creation
+ * Feb 13, 2014   2386     bgonzale    Change pass comparisons to >= instead of only >.
+ *                                     Change halfNumAttrs comp to a double for comparisons
+ *                                     against half of uneven numbers of attributes.
+ *                                     Renamed sub1 and sub2 to otherSub and sub to make
+ *                                     it easier to see what is compared against.
  * 
  * </pre>
  * 
@@ -55,39 +60,39 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
     private int timeDuplication = -999;
 
     /** Time duplication pass flag */
-    private boolean timeDuplicationPass = false;
+    protected boolean timeDuplicationPass = false;
 
     /**
      * Constructor.
      * 
-     * @param sub1
-     * @param sub2
+     * @param sub
+     * @param otherSub
      * @param config
      */
-    public PointOverlapData(Subscription sub1, Subscription sub2,
+    public PointOverlapData(Subscription sub, Subscription otherSub,
             SubscriptionOverlapConfig config) {
-        super(sub1, sub2, config);
+        super(sub, otherSub, config);
     }
 
     /**
      * Calculates the percent, 0-100, of how similar the time is from sub2 to
      * sub1.
      * 
-     * @param sub1
-     * @param sub2
+     * @param otherSub
+     * @param sub
      */
     private void calculateTimeDuplicationPercent(
-            Subscription<PointTime, Coverage> sub1,
-            Subscription<PointTime, Coverage> sub2) {
-        PointTime ptime1 = sub1.getTime();
-        PointTime ptime2 = sub2.getTime();
+            Subscription<PointTime, Coverage> sub,
+            Subscription<PointTime, Coverage> otherSub) {
+        PointTime ptimeOther = otherSub.getTime();
+        PointTime ptime = sub.getTime();
 
-        List<Integer> intervalList1 = new ArrayList<Integer>();
-        intervalList1.add(ptime1.getInterval());
-        List<Integer> intervalList2 = new ArrayList<Integer>();
-        intervalList2.add(ptime2.getInterval());
+        List<Integer> intervalListOther = new ArrayList<Integer>();
+        intervalListOther.add(ptimeOther.getInterval());
+        List<Integer> intervalList = new ArrayList<Integer>();
+        intervalList.add(ptime.getInterval());
 
-        timeDuplication = getDuplicationPercent(intervalList1, intervalList2);
+        timeDuplication = getDuplicationPercent(intervalListOther, intervalList);
     }
 
     /**
@@ -97,8 +102,8 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
     protected void determineOverlapping() {
         super.determineOverlapping();
         PointSubscriptionOverlapConfig config = (PointSubscriptionOverlapConfig) this.config;
-        calculateTimeDuplicationPercent(sub1, sub2);
-        this.timeDuplicationPass = this.timeDuplication > config
+        calculateTimeDuplicationPercent(sub, otherSub);
+        this.timeDuplicationPass = this.timeDuplication >= config
                 .getMaxAllowedTimeDuplication();
     }
 
@@ -117,7 +122,7 @@ public class PointOverlapData<T extends PointTime, C extends Coverage> extends
             response = this.parameterPass || this.spatialPass
                     || this.timeDuplicationPass;
         } else if (matchStrategy == SubscriptionOverlapMatchStrategy.AT_LEAST_HALF) {
-            int halfNumAttrs = (numberOfPointAttributes + numberOfCommonAttributes) / 2;
+            double halfNumAttrs = (numberOfPointAttributes + numberOfCommonAttributes) / 2.0;
             List<Boolean> toCheck = new ArrayList<Boolean>(3);
             toCheck.add(timeDuplicationPass);
             toCheck.add(spatialPass);

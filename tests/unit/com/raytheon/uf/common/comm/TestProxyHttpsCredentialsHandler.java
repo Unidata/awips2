@@ -37,11 +37,18 @@ package com.raytheon.uf.common.comm;
  * @version 1.0
  */
 
-public class TestProxyHttpsCredentialsHandler implements IHttpsCredentialsHandler {
+public class TestProxyHttpsCredentialsHandler implements
+        IHttpsCredentialsHandler {
 
     @Override
     public String[] getCredentials(String message) {
         return new String[] { HttpTestConstants.USERNAME,
                 HttpTestConstants.PASSWD };
+    }
+
+    @Override
+    public void credentialsFailed() {
+        // TODO Auto-generated method stub
+
     }
 }

@@ -14,8 +14,9 @@
 ##           Phil Kurimski   02-05-2013 for OB13.2.1-3 Added rain so far section ##
 ##           Mike Dangelo    09-18-2013 added code for init pos & pathcasting    ##
 ##           Evan Bookbinder 09-18-2013 implemented config.vm                    ##
-##           Mike Rega       01-17-2104 added GP Alaska changes 14.2.1           ##
-##  Mike Dangelo  1/24/2014 made many changes for first bullet to match 10-922
+##           Mike Rega       01-17-2014 added GP Alaska changes 14.2.1           ##
+##  Mike Dangelo  1/24/2014 made many changes for first bullet to match 10-922   ##
+##           Mike Rega       02-27-2014 changed hycType IJ to match 10-922       ##
 ###################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")

@@ -50,5 +50,6 @@
         <constructor-arg ref="SubscriptionHandler" />
         <constructor-arg ref="AdhocSubscriptionHandler" />
         <constructor-arg ref="subscriptionNotificationService" />
+        <constructor-arg ref="findActiveSubscriptionsForRoute" />
     </bean>
 </beans>

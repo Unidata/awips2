@@ -21,7 +21,7 @@
 <styleRuleset>
 <styleRule>
   <paramLevelMatches>
-     <parameter>srtm30.hdf</parameter>
+     <parameter>defaultTopo.h5</parameter>
   </paramLevelMatches>
   <imageStyle>
      <displayUnits>kft</displayUnits>
