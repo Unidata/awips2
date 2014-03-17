@@ -120,10 +120,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ...THE FLASH FLOOD WARNING FOR ##
 ### modified by GP
 #if(${hycType} != "" && ${alaska} == "false")
-<L>  ${hycType}</L> IN ##
+<L>${hycType}</L> IN ##
 #end
 #if(${hycType} != "" && ${alaska} == "true")
-<L>  ${hycType}</L> ##
+<L>${hycType}</L> ##
 #end
 #if(${alaska}=="true")
 !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
