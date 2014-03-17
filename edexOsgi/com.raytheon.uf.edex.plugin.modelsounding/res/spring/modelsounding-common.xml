@@ -8,7 +8,7 @@
 
 	<bean id="modelsoundingProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="modelsoundingPluginName" />
-		<property name="pluginFQN" value="com.raytheon.uf.edex.plugin.modelsounding" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.modelsounding" />
 		<property name="dao" value="com.raytheon.uf.edex.plugin.modelsounding.dao.ModelSoundingDAO" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite" />
 	</bean>

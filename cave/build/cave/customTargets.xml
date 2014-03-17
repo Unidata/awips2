@@ -268,7 +268,7 @@
 			
 			<sequential>
 				<property name="___memorySettingsVersion___"
-					value="3.0"/>
+					value="4.0"/>
 				<if>
 					<not>
 						<equals
@@ -392,6 +392,37 @@
 							append="true" />
 					</actions>
 				</call>
+                <!-- site type specific overrides (wfo, ncep, etc) -->
+				<call path="//${cave.arch}/site-type-override">
+					<param name="site-type" 
+						path="site-type/text()" />
+
+					<param name="max-memory"
+						path="ini-substitutions/max-memory/value/text()" />
+					<param name="max-perm"
+						path="ini-substitutions/max-perm/value/text()" />
+
+					<actions>												
+						<!-- Create a site-type-specific ini file -->
+						<copy verbose="true" 
+							file="/tmp/cave/cave.ini"
+							tofile="/tmp/cave/@{site-type}.ini" 
+							overwrite="true" />
+
+						<!-- Update the ini file -->
+						<update.ini 
+							ini.file="@{site-type}.ini" 
+							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-memory.jvm-arg}" 
+							current.value="${cave-memory-settings.default-memory-setting.default-max-memory.value}"
+							new.value="@{max-memory}" />
+						
+						<update.ini 
+							ini.file="@{site-type}.ini" 
+							jvm.arg="${cave-memory-settings.default-memory-setting.default-max-perm.jvm-arg}" 
+							current.value="${cave-memory-settings.default-memory-setting.default-max-perm.value}"
+							new.value="@{max-perm}" />
+                    </actions>
+                </call>    
 			</xmltask>
 			
 			<!-- Finish the iniLookup.sh script -->

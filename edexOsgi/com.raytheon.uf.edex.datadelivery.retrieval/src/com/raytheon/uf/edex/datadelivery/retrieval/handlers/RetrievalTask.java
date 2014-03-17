@@ -26,7 +26,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 
 /**
- * Inner class to process individual retrievals.
+ * Process subscription retrievals.
  * 
  * <pre>
  * 
@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Mar 05, 2013 1647       djohnson     Change no retrievals found message to debug.
  * Aug 09, 2013 1822       bgonzale     Added parameters to processRetrievedPluginDataObjects.
  * Oct 01, 2013 2267       bgonzale     Removed request parameter and IRetrievalDao field.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -61,57 +62,66 @@ public class RetrievalTask implements Runnable {
     private final IRetrievalResponseCompleter retrievalCompleter;
 
     private final IRetrievalsFinder retrievalDataFinder;
-
+    
+    private final SubscriptionRetrievalRequestWrapper retrievalRequestWrapper;
 
     public RetrievalTask(Network network,
             IRetrievalsFinder retrievalDataFinder,
             IRetrievalPluginDataObjectsProcessor retrievedDataProcessor,
-            IRetrievalResponseCompleter retrievalCompleter) {
+            IRetrievalResponseCompleter retrievalCompleter,
+            SubscriptionRetrievalRequestWrapper retrievalRequestWrapper) {
+        
         this.network = network;
         this.retrievalDataFinder = retrievalDataFinder;
         this.retrievedDataProcessor = retrievedDataProcessor;
         this.retrievalCompleter = retrievalCompleter;
+        this.retrievalRequestWrapper = retrievalRequestWrapper;
     }
 
     @Override
     public void run() {
+        
         try {
-            while (true) {
+            
+            if (retrievalRequestWrapper.getRetrievalRequestWrappers() != null) {
+                
+                for (RetrievalRequestWrapper retrieval : retrievalRequestWrapper.getRetrievalRequestWrappers()) {
+                    // process individual requests for this subscription
+                    boolean success = false;
+                    RetrievalRequestRecord request = null;
 
-                // process request
-                boolean success = false;
-                RetrievalRequestRecord request = null;
-                try {
+                    try {
+                        // send this retrieval to be processed
+                        RetrievalResponseXml retrievalResponse = retrievalDataFinder
+                                .processRequest(retrieval);
 
-                    RetrievalResponseXml retrievalPluginDataObject = retrievalDataFinder
-                            .findRetrievals();
-                    // This forces the return from the while loop once there are
-                    // no more retrievals to process
-                    if (retrievalPluginDataObject == null) {
-                        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                            statusHandler.debug("No " + network
-                                    + " retrievals found.");
+                        if (retrievalResponse == null) {
+                            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                                statusHandler.debug("No " + network
+                                        + " retrievals found.");
+                            }
+                            continue;
                         }
-                        return;
+
+                        success = retrievalResponse.isSuccess();
+                        request = retrievedDataProcessor
+                                .processRetrievedPluginDataObjects(retrievalResponse);
+
+                    } catch (Exception e) {
+                        statusHandler.error(network
+                                + " retrieval processing error", e);
                     }
 
-                    success = retrievalPluginDataObject.isSuccess();
-                    request = retrievedDataProcessor
-                            .processRetrievedPluginDataObjects(retrievalPluginDataObject);
-                } catch (Exception e) {
-                    statusHandler.error(
-                            network + " retrieval processing error", e);
-                }
-
-                if (request != null) {
-                    retrievalCompleter.completeRetrieval(request,
-                            new RetrievalResponseStatus(success));
+                    if (request != null) {
+                        retrievalCompleter.completeRetrieval(request,
+                                new RetrievalResponseStatus(success));
+                    }
                 }
             }
         } catch (Throwable e) {
             // so thread can't die
             statusHandler.error("Error caught in " + network
                     + " retrieval thread", e);
-        }
+        } 
     }
 }

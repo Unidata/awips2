@@ -46,4 +46,10 @@ public class TestHttpsCredentialsHandler implements IHttpsCredentialsHandler {
         return new String[] { HttpTestConstants.USERNAME,
                 HttpTestConstants.PASSWD };
     }
+
+    @Override
+    public void credentialsFailed() {
+        // TODO Auto-generated method stub
+
+    }
 }
