@@ -25,6 +25,9 @@ import javax.xml.bind.JAXBException;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
@@ -40,6 +43,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * ------------ ---------- ----------- --------------------------
  * 3/13/2013    1082       bphillip    Initial creation
  * 9/5/2013     1538       bphillip    Added eagerLoadAll method
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -72,6 +76,7 @@ public class SubscriptionDao extends RegistryObjectTypeDao<SubscriptionType> {
      * @throws EbxmlRegistryException
      *             If errors occur while querying
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<SubscriptionType> eagerLoadAll() throws EbxmlRegistryException {
         List<SubscriptionType> subs = this.template
                 .loadAll(SubscriptionType.class);
@@ -103,6 +108,7 @@ public class SubscriptionDao extends RegistryObjectTypeDao<SubscriptionType> {
      *             If errors occur while eagerly fetching all attributes using
      *             jaxb
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public SubscriptionType eagerGetById(String subscriptionId)
             throws EbxmlRegistryException {
         List<SubscriptionType> result = this.query(EAGER_LOAD_QUERY, "id",

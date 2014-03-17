@@ -43,6 +43,8 @@ import net.sf.ehcache.management.ManagementService;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.ScrollMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
@@ -95,10 +97,9 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 5/14/08      1076        brockwoo    Fix for distinct with multiple properties
  * Oct 10, 2012 1261        djohnson    Incorporate changes to DaoConfig, add generic to {@link IPersistableDataObject}.
  * Apr 15, 2013 1868        bsteffen    Rewrite mergeAll in PluginDao.
- * 
  * Nov 08, 2013 2361        njensen     Changed method signature of saveOrUpdate to take Objects, not PersistableDataObjects
  * Dec 13, 2013 2555        rjpeter     Added processByCriteria and fixed Generics warnings.
- * 
+ * Jan 23, 2014 2555        rjpeter     Updated processByCriteriato be a row at a time using ScrollableResults.
  * </pre>
  * 
  * @author bphillip
@@ -460,8 +461,9 @@ public class CoreDao extends HibernateDaoSupport {
      * @throws DataAccessLayerException
      *             If the query fails
      */
-    public int processByCriteria(final DatabaseQuery query,
-            final IDatabaseProcessor processor) throws DataAccessLayerException {
+    public <T> int processByCriteria(final DatabaseQuery query,
+            final IDatabaseProcessor<T> processor)
+            throws DataAccessLayerException {
         int rowsProcessed = 0;
         try {
             // Get a session and create a new criteria instance
@@ -480,24 +482,29 @@ public class CoreDao extends HibernateDaoSupport {
                                         "Error populating query", e);
                             }
 
-                            if (processor.getBatchSize() > 0) {
-                                hibQuery.setMaxResults(processor.getBatchSize());
-                            } else if (query.getMaxResults() != null) {
-                                hibQuery.setMaxResults(query.getMaxResults());
+                            int batchSize = processor.getBatchSize();
+                            if (batchSize <= 0) {
+                                batchSize = 1000;
                             }
 
-                            List<?> results = null;
-                            boolean continueProcessing = false;
-                            int count = 0;
+                            hibQuery.setFetchSize(processor.getBatchSize());
 
-                            do {
-                                hibQuery.setFirstResult(count);
-                                results = hibQuery.list();
-                                continueProcessing = processor.process(results);
-                                count += results.size();
+                            int count = 0;
+                            ScrollableResults rs = hibQuery
+                                    .scroll(ScrollMode.FORWARD_ONLY);
+                            boolean continueProcessing = true;
+
+                            while (rs.next() && continueProcessing) {
+                                Object[] row = rs.get();
+                                if (row.length > 0) {
+                                    continueProcessing = processor
+                                            .process((T) row[0]);
+                                }
+                                count++;
+                                if ((count % batchSize) == 0) {
                                 getSession().clear();
-                            } while (continueProcessing && (results != null)
-                                    && (results.size() > 0));
+                                }
+                            }
                             processor.finish();
                             return count;
                         }
