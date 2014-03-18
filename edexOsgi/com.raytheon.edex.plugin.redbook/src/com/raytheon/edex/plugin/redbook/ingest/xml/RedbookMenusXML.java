@@ -24,12 +24,12 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Redbook hazard submenu object.
+ * NDM Redbook hazard menu xml object.
  * 
  * <pre>
  * 
@@ -37,76 +37,45 @@ import javax.xml.bind.annotation.XmlElements;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 07, 2014    2858    mpduff      Initial creation
+ * Mar 07, 2014    2858    mpduff      Initial creation.
+ * Mar 17, 2014    2855    mpduff      Renamed to RedbookMenusXML.java.
  * 
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
+
+@XmlRootElement(name = "redbookMenu")
 @XmlAccessorType(XmlAccessType.NONE)
-public class SubmenuXML {
-    /**
-     * Submenu text
-     */
-    @XmlAttribute(name = "name")
-    protected String name;
+public class RedbookMenusXML {
 
     /**
-     * Submenu unique id
+     * List of MenuEntry items
      */
-    @XmlAttribute(name = "id")
-    protected String id;
+    @XmlElements({ @XmlElement(name = "menuEntry", type = MenuEntry.class) })
+    protected List<MenuEntry> menuEntryList = new ArrayList<MenuEntry>();
 
     /**
-     * List of menu items (buttons) for the submenu
+     * Default constructor
      */
-    @XmlElements({ @XmlElement(name = "button", type = ButtonXML.class) })
-    protected List<ButtonXML> buttonList = new ArrayList<ButtonXML>();
+    public RedbookMenusXML() {
 
-    /**
-     * @return the name
-     */
-    public String getName() {
-        return name;
     }
 
     /**
-     * @param name
-     *            the name to set
+     * @return the menuEntryList
      */
-    public void setName(String name) {
-        this.name = name;
+    public List<MenuEntry> getMenuEntryList() {
+        return menuEntryList;
     }
 
     /**
-     * @return the buttonList
+     * @param menuEntryList
+     *            the menuEntryList to set
      */
-    public List<ButtonXML> getButtonList() {
-        return buttonList;
-    }
-
-    /**
-     * @param buttonList
-     *            the buttonList to set
-     */
-    public void setButtonList(List<ButtonXML> buttonList) {
-        this.buttonList = buttonList;
-    }
-
-    /**
-     * @return the id
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(String id) {
-        this.id = id;
+    public void setMenuEntryList(List<MenuEntry> menuEntryList) {
+        this.menuEntryList = menuEntryList;
     }
 
     /*
@@ -117,12 +86,10 @@ public class SubmenuXML {
     @Override
     public String toString() {
         final String nl = System.getProperty("line.separator");
-        StringBuilder sb = new StringBuilder();
-        sb.append("Submenu Name: ").append(this.name).append(nl);
-        for (ButtonXML xml : this.buttonList) {
-            sb.append(xml.toString());
+        StringBuilder sb = new StringBuilder("RedbookMenusXML").append(nl);
+        for (MenuEntry sub : menuEntryList) {
+            sb.append(sub.toString());
         }
-
         return sb.toString();
     }
 }
