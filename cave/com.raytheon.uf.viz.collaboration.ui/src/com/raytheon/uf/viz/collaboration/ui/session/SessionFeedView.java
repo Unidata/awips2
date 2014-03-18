@@ -71,6 +71,8 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Feb 19, 2014 2751       bclement    add change color icon, fix NPE when user cancels change color
  * Mar 05, 2014 2798       mpduff      Changed how messages are processed for the feed view.
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
+ * Mar 18, 2014 2798       mpduff      Fixed issue with user changing site and participant list not 
+ *                                         having the color update to reflect the change.
  * 
  * </pre>
  * 
@@ -407,8 +409,6 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantPresenceUpdated(VenueParticipant participant,
             Presence presence) {
-        usersTable.refresh();
-
         // Verify we have properties
         if (!presence.getPropertyNames().contains(
                 SiteConfigInformation.SITE_NAME)) {
@@ -431,11 +431,17 @@ public class SessionFeedView extends SessionView {
                 message.append(user);
                 message.append(" ").append(roleName).append(" ")
                         .append(siteName);
-                setColorForSite(participant, presence);
                 sendSystemMessage(message);
                 processJoinAlert();
             }
         }
+
+        /*
+         * Presence changed is triggered for participant's site being changed.
+         * Need to set the color to handle this situation.
+         */
+        setColorForSite(participant, presence);
+        refreshParticipantList();
     }
 
     /**
