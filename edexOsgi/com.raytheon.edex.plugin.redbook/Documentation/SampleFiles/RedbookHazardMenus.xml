@@ -9,80 +9,80 @@ RedbookHazardMenus.xml as written here will generate the base version
 of the SPC hazard menus.
  -->
 <redbookHazardMenu>
-  <subMenu name="SPC Convective Outlooks" id="ncepHydro.spc.convectiveOutlooks">
-    <button type="product" menuText="Day 1 Convective Outlook" id="day1ConvectiveOutlook">
+  <menuEntry type="submenu" text="SPC Convective Outlooks" id="ncepHydro.spc.convectiveOutlooks">
+    <menuEntry type="productButton" text="Day 1 Convective Outlook" id="day1ConvectiveOutlook">
       <!-- Redbook Key: 5069 -->
-      <substitute key="wmo" value="PGWE46"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 2 Convective Outlook" id="day2ConvectiveOutlook">
+      <menuEntry type="substitute" key="wmo" value="PGWE46"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 2 Convective Outlook" id="day2ConvectiveOutlook">
       <!-- Redbook Key: 5072 -->
-      <substitute key="wmo" value="PGWI47"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 3 Convective Outlook" id="day3ConvectiveOutlook">
+      <menuEntry type="substitute" key="wmo" value="PGWI47"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 3 Convective Outlook" id="day3ConvectiveOutlook">
       <!-- Redbook Key: 5385 -->
-      <substitute key="wmo" value="PGWK48"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Thunderstorm Prob" id="thunderstormProb">
+      <menuEntry type="substitute" key="wmo" value="PGWK48"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Thunderstorm Prob" id="thunderstormProb">
       <!-- Redbook Key: 5067 -->
-      <substitute key="wmo" value="PGWB44"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product"  menuText="Severe Thunderstorm Prob" id="severeThunderstormProb">
+      <menuEntry type="substitute" key="wmo" value="PGWB44"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Severe Thunderstorm Prob" id="severeThunderstormProb">
       <!-- Redbook Key: 5068 -->
-      <substitute key="wmo" value="PGWB45"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 1 Hail outlook" id="day1Hailoutlook">
+      <menuEntry type="substitute" key="wmo" value="PGWB45"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 1 Hail outlook" id="day1Hailoutlook">
       <!-- Redbook Key: 5376 -->
-      <substitute key="wmo" value="PENE00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 1 Convective Wind Outlook" id="day1ConvectiveWindOutlook">
+      <menuEntry type="substitute" key="wmo" value="PENE00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 1 Convective Wind Outlook" id="day1ConvectiveWindOutlook">
       <!-- Redbook Key: 5377 -->
-      <substitute key="wmo" value="PWNE00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 1 Tornado Outlook" id="day1TornadoOutlook">
+      <menuEntry type="substitute" key="wmo" value="PWNE00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 1 Tornado Outlook" id="day1TornadoOutlook">
       <!-- Redbook Key: 5378 -->
-      <substitute key="wmo" value="PGNE00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 2 Combined Severe Outlook" id="day2CombinedSevereOutlook">
+      <menuEntry type="substitute" key="wmo" value="PGNE00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 2 Combined Severe Outlook" id="day2CombinedSevereOutlook">
       <!-- Redbook Key: 5379 -->
-      <substitute key="wmo" value="PGNI00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 3 Combined Severe Outlook" id="day3CombinedSevereOutlook">
+      <menuEntry type="substitute" key="wmo" value="PGNI00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 3 Combined Severe Outlook" id="day3CombinedSevereOutlook">
       <!-- Redbook Key: 5384 -->
-      <substitute key="wmo" value="PZNK00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Day 4-8 Composite Severe Outlook" id="day4to8CompositeSevereOutlook">
+      <menuEntry type="substitute" key="wmo" value="PZNK00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Day 4-8 Composite Severe Outlook" id="day4to8CompositeSevereOutlook">
       <!-- Redbook Key: 5430 -->
-      <substitute key="wmo" value="PGNM98"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-    <button type="product" menuText="Active Mesoscale Disc Summary" id="activeMesoscaleDiscSummary">
+      <menuEntry type="substitute" key="wmo" value="PGNM98"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Active Mesoscale Disc Summary" id="activeMesoscaleDiscSummary">
       <!-- Redbook Key: 5390 -->
-      <substitute key="wmo" value="PGNA00"/>
-      <substitute key="posOff" value="0"/>
-    </button>
-  </subMenu>
-  <subMenu name="Fire Weather" id="ncepHydro.spc.fireWeather">
-    <button type="product" menuText="Fire Wx Outlook - Day 1" id="fireWxOutlookDay1">
+      <menuEntry type="substitute" key="wmo" value="PGNA00"/>
+      <menuEntry type="substitute" key="posOff" value="0"/>
+    </menuEntry>
+  </menuEntry>
+  <menuEntry type="submenu" text="Fire Weather" id="ncepHydro.spc.fireWeather">
+    <menuEntry type="productButton" text="Fire Wx Outlook - Day 1" id="fireWxOutlookDay1">
       <!-- Redbook Key: 5370 -->
-      <substitute key="wmo" value="PMWE98"/>
-    </button>
-    <button type="product" menuText="Fire Wx Outlook - Day 2" id="fireWxOutlookDay2">
+      <menuEntry type="substitute" key="wmo" value="PMWE98"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Fire Wx Outlook - Day 2" id="fireWxOutlookDay2">
       <!-- Redbook Key: 5371 -->
-      <substitute key="wmo" value="PMWI98"/>
-    </button>
-    <button type="product" A1Id="5431" menuText="Fire Wx Outlook - Day 3-8" id="fireWxOutlookDay3to82">
+      <menuEntry type="substitute" key="wmo" value="PMWI98"/>
+    </menuEntry>
+    <menuEntry type="productButton" text="Fire Wx Outlook - Day 3-8" id="fireWxOutlookDay3to82">
       <!-- Redbook Key: 5431 -->
-      <substitute key="wmo" value="PGNO98"/>
-    </button>
-  </subMenu>
+      <menuEntry type="substitute" key="wmo" value="PGNO98"/>
+    </menuEntry>
+  </menuEntry>
 </redbookHazardMenu>
