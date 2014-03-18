@@ -40,6 +40,10 @@ import com.raytheon.uf.viz.core.VizApp;
  * The container is also capable of listening for leader change events and if
  * the remote display is changed.
  * 
+ * This class primarily exists since due to the plugin hierarchy a
+ * SharedDisplaySession cannot have actual dependencies on code in the display
+ * plugin.
+ * 
  * <pre>
  * 
  * SOFTWARE HISTORY
@@ -49,6 +53,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Apr 16, 2012            njensen     Initial creation
  * Feb 11, 2014 2751       njensen     Added leaderChanged() and listeners
  * Mar 07, 2014 2848       bclement    made colorManager final, added modifyColors() listeners
+ * Mar 18, 2014 2895       njensen     Improved javadoc
  * 
  * </pre>
  * 
@@ -120,7 +125,6 @@ public class SessionContainer {
     public SessionColorManager getColorManager() {
         return colorManager;
     }
-
 
     @Subscribe
     public void leaderChanged(LeaderChangeEvent event) {
