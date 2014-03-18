@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+This file is the A2 NDM replacement for redbookHPCMenus.txt.  
+
+Dropping RedbookHPCMenus.xml into the /awips2/edex/data/ndm directory 
+will generate an override of the HPC menu.
+
+RedbookHPCMenus.xml as written here will generate the base version 
+of the HPC menus.
+ -->
+<redbookMenu>
+    <menuEntry type="submenu" text="Precipitation"
+        id="ncepHydro.hpc.precipitation">
+        <menuEntry type="productButton" 
+            text="Instantaneous Precip" id="instantaneousPrecip">
+            <menuEntry type="substitute" key="wmo" value="PEIC61, PEIE62, PEIG63, PEII64" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 1 Excessive Rainfall" id="day1ExcessiveRainfall">
+            <menuEntry type="substitute" key="wmo" value="PEI745" />
+        </menuEntry>
+        <menuEntry type="productButton"
+            file="bundles/ncepHydro/hpc/HPCqpfNDFD-PPFFG.xml" text="1-3 Day Excessive Rainfall (Grid)"
+            id="day1to3ExcessiveRainfall">
+        </menuEntry>
+        <menuEntry type="productButton" file="bundles/Redbook_customLegend.xml"
+            text="Precip Accum - 6 hr" id="precipAccum6hr">
+            <menuEntry type="substitute" key="wmo"
+                value="PEIB40, PEIC43, PEID44, PEIE40, PEIF40, PEBF98, PEBG98, PEBH98, PEBI88, PEBI98, PEBJ88, PEBJ98, PEBK98" />
+            <menuEntry type="substitute" key="customLegend" value="Precip Fcst - 6hr accum" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Precip Accum - 24 hr" id="precipAccum24hr">
+            <menuEntry type="substitute" key="wmo" value="PEIE41, PEII42, PEIK98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Sig River Flood Outlook" id="sigRiverFloodOutlook">
+            <menuEntry type="substitute" key="wmo" value="PENJ88" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Mesoscale Precip Discussion" id="mesoPrecipDisc">
+            <menuEntry type="substitute" key="wmo" value="PENA01" />
+        </menuEntry>
+        <menuEntry type="separator" id="separator1" />
+        <menuEntry type="submenu" text="Day 1-3 Prob 4+ Inches Snow">
+            <menuEntry type="productButton" 
+                text="Day 1 Prob 4+&quot; Snow" id="day1Prob4InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBB04" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 2 Prob 4+&quot; Snow" id="day2Prob4InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBC04" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 3 Prob 4+&quot; Snow" id="day3Prob4InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBD04" />
+            </menuEntry>
+        </menuEntry>
+        <menuEntry type="submenu" text="Day 1-3 Prob 8+ Inches Snow">
+            <menuEntry type="productButton" 
+                text="Day 1 Prob 8+&quot; Snow" id="day1Prob8InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBB08" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 2 Prob 8+&quot; Snow" id="day2Prob8InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBC08" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 3 Prob 8+&quot; Snow" id="day3Prob8InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBD08" />
+            </menuEntry>
+        </menuEntry>
+        <menuEntry type="submenu" text="Day 1-3 Prob 12+ Inches Snow">
+            <menuEntry type="productButton" 
+                text="Day 1 Prob 12+&quot; Snow" id="day1Prob12InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBB12" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 2 Prob 12+&quot; Snow" id="day2Prob12InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBC12" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 3 Prob 12+&quot; Snow" id="day3Prob12InchesSnow">
+                <menuEntry type="substitute" key="wmo" value="PSBD12" />
+            </menuEntry>
+        </menuEntry>
+        <menuEntry type="submenu" text="Day 1-3 Prob .25 Inches Ice">
+            <menuEntry type="productButton" 
+                text="Day 1 Prob .25+&quot; Ice" id="day1Prob025InchesIce">
+                <menuEntry type="substitute" key="wmo" value="PSBB25" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 2 Prob .25+&quot; Ice" id="day2Prob025InchesIce">
+                <menuEntry type="substitute" key="wmo" value="PSBC25" />
+            </menuEntry>
+            <menuEntry type="productButton" 
+                text="Day 3 Prob .25+&quot; Ice" id="day3Prob025InchesIce">
+                <menuEntry type="substitute" key="wmo" value="PSBD25" />
+            </menuEntry>
+        </menuEntry>
+        <menuEntry type="separator" id="separator2" />
+        <menuEntry type="productButton" 
+            text="1-5 Day Total Precip" id="oneToFiveDayTotalPrecip">
+            <menuEntry type="substitute" key="wmo" value="PEIO46" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="6-10, 8-14 Day Precip Anom" id="sixToTen8to14DayPrecipAnom">
+            <menuEntry type="substitute" key="wmo" value="PEIY47, PETT00" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="30 Day Precip Anom" id="thirtyDayPrecipAnom">
+            <menuEntry type="substitute" key="wmo" value="PEIV98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="90 Day Seasonal Precip Outlook" id="ninetyDaySeasonalPrecipOutlook">
+            <menuEntry type="substitute" key="wmo"
+                value="PEIW01,PEIW02,PEIW03,PEIW04,PEIW05,PEIW06,PEIW07,PEIW08,PEIW09,PEIW10,PEIW11,PEIW12,PEIW13" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="0.5 Mo (15-105 day) 50% POE Precip Outlook" id="fiftyPercentPOEPrecipOutlook2">
+            <menuEntry type="substitute" key="wmo"
+                value="PENV01,PENV02,PENV03,PENV04,PENV05,PENV06,PENV07,PENV08,PENV09,PENV10,PENV11,PENV12,PENV13" />
+        </menuEntry>
+
+        <menuEntry type="separator" id="separator3" />
+
+        <menuEntry type="productButton"
+            file="bundles/ncepHydro/hpc/HPCqpfNDFD6hr.xml" text="1-3 Day HPC QPF (6-Hourly Grid)"
+            id="oneTo3HPCQPF">
+        </menuEntry>
+        <menuEntry type="productButton"
+            file="bundles/ncepHydro/hpc/HPCqpfNDFD48hr.xml" text="4-5 Day HPC QPF (Grid)"
+            id="fourTo5DayHPCQPF">
+        </menuEntry>
+        <menuEntry type="productButton"
+            file="bundles/ncepHydro/hpc/HPCqpfNDFD120hr.xml" text="1-5 Day HPC QPF Total (Grid)"
+            id="oneTo5HPCQPF">
+        </menuEntry>
+    </menuEntry>
+
+    <menuEntry type="submenu" text="Temps &amp;&amp; Weather"
+        id="ncepHydro.hpc.tempsAndWeather">
+        <menuEntry type="productButton" 
+            text="1-5 Day Max Temp Anomaly" id="fiveDayMaxTempAnomaly">
+            <menuEntry type="substitute" key="wmo" value="PTIO52" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="1-5 Day Min Temp Anomaly" id="fiveDayMinTempAnomaly">
+            <menuEntry type="substitute" key="wmo" value="PTIO53" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 3-7 Max/Min/PoP" id="day3To7MaxMinPoP">
+            <menuEntry type="substitute" key="wmo" value="PYWK43, PYWM44, PYWO45, PYWQ46, PYWS98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 3 Heat Index Probabilities" id="day3HeatIndex">
+            <menuEntry type="substitute" key="wmo" value="PTNK98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 4 Heat Index Probabilities" id="day4HeatIndex">
+            <menuEntry type="substitute" key="wmo" value="PTNM98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 5 Heat Index Probabilities" id="day5HeatIndex">
+            <menuEntry type="substitute" key="wmo" value="PTNO98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 6 Heat Index Probabilities" id="day6HeatIndex">
+            <menuEntry type="substitute" key="wmo" value="PTNQ98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 7 Heat Index Probabilities" id="day7HeatIndex">
+            <menuEntry type="substitute" key="wmo" value="PTNS98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="6-10, 8-14 Day Temp Anomaly" id="TempAnomaly6to108to14">
+            <menuEntry type="substitute" key="wmo" value="PTTU98, PTIY51" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="30 Day Temp Anomaly" id="thirtyDayTempAnomaly">
+            <menuEntry type="substitute" key="wmo" value="PTIV98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="90 Day Seasonal Temp Outlook" id="ninetyDaySeasonalTempOutlook">
+            <menuEntry type="substitute" key="wmo"
+                value="PTIW01,PTIW02,PTIW03,PTIW04,PTIW05,PTIW06,PTIW07,PTIW08,PTIW09,PTIW10,PTIW11,PTIW12,PTIW13" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="0.5 Mo (15-105 day) 50% POE Temp Outlook" id="fiftyPercentPOEPrecipOutlook2">
+            <menuEntry type="substitute" key="wmo"
+                value="PTNV01,PTNV02,PTNV03,PTNV04,PTNV05,PTNV06,PTNV07,PTNV08,PTNV09,PTNV10,PTNV11,PTNV12,PTNV13" />
+        </menuEntry>
+        <menuEntry type="separator" id="separator4" />
+        <menuEntry type="productButton" 
+            text="MSL Pressure Analysis" id="MSLPressureAnalysis">
+            <menuEntry type="substitute" key="wmo" value="PPAA89" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Surface Fronts Analysis" id="surfaceFrontsAnalysis">
+            <menuEntry type="substitute" key="wmo" value="PYAA98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="12-48 hr Fronts/Press" id="frontsPress12to48">
+            <menuEntry type="substitute" key="wmo" value="PPIC01, PPIE01, PPIG01, PPII01" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="Day 3-7 Fronts/Press" id="day3to7FrontsPress">
+            <menuEntry type="substitute" key="wmo" value="PPHK01, PPHM01, PPHO01, PPTG98, PPTR98" />
+        </menuEntry>
+        <menuEntry type="productButton" 
+            text="3-Day Sig Winter Low Tracks" id="threeDaySigWinterLowTracks">
+            <menuEntry type="substitute" key="wmo" value="PSAO72" />
+        </menuEntry>
+    </menuEntry>
+</redbookMenu>
