@@ -98,7 +98,8 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Feb 19, 2014 2751       bclement    add change color and transfer leader icons
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * Mar 06, 2014 2848       bclement    moved colormanager update code to session container
- * Mar 11, 2014 #2865      lvenable    Added null checks in threads
+ * Mar 11, 2014 2865       lvenable    Added null checks in threads
+ * Mar 18, 2014 2895       njensen     Fix lockAction enable/disable logic
  * 
  * </pre>
  * 
@@ -424,7 +425,11 @@ public class CollaborationSessionView extends SessionView implements
         }
         if (layer != null && currentResource.isSessionLeader()) {
             lockAction.getAction().setEnabled(true);
+        } else {
+            lockAction.getAction().setEnabled(false);
         }
+
+        // enable/disable toolbar buttons based on locked
         if (layer != null
                 && (locked == false || currentResource.isSessionLeader())) {
             drawAction.getAction().setEnabled(true);
@@ -458,7 +463,6 @@ public class CollaborationSessionView extends SessionView implements
             redoAction.getAction().setEnabled(false);
             clearAction.getAction().setEnabled(false);
             eraseAction.getAction().setEnabled(false);
-            lockAction.getAction().setEnabled(false);
         }
         getViewSite().getActionBars().getToolBarManager().update(true);
     }
@@ -700,6 +704,9 @@ public class CollaborationSessionView extends SessionView implements
     @Override
     public void remoteDisplayChanged(RemoteDisplay remoteDisplay,
             RemoteDisplayChangeType changeType) {
+        // TODO this method has more to do with displays than the view,
+        // would be good to separate it out somehow
+
         if (remoteDisplay == null) {
             currentDisplay = null;
             VizApp.runAsync(actionUpdater);
@@ -848,7 +855,7 @@ public class CollaborationSessionView extends SessionView implements
                     refreshParticipantList();
                 }
                 sendParticipantSystemMessage(event.getNewLeader(),
-                        " is now leader.");
+                        "is now leader.");
                 updateToolItems();
             }
         });
