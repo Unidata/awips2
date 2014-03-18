@@ -23,14 +23,7 @@
  	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPC6hrQPF.xml" 
               menuText="HPC QPF 6hr (Grid)" id="HPCQPF6hr">
     </contribute>
-   
-	<contribute xsi:type="subMenu" menuText="Precipitation"
-	            id="ncepHydro.hpc.precipitation">
-		<contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/precipitation.xml"/>
-	</contribute>
-	
-	<contribute xsi:type="subMenu" menuText="Temps &amp;&amp; Weather"
-				id="ncepHydro.hpc.tempsAndWeather">
-		<contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/tempsAndWeather.xml"/>
-	</contribute>
+
+    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>
+
 </menuTemplate>
