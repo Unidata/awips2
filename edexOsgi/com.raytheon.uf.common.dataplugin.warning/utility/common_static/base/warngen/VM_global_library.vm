@@ -10,6 +10,7 @@
 #####                                  like the ~ and % characters in A1.
 #####    Evan Bookbinder    05-05-2013 handleClosesPoints and 3rd bullet changes (OVER & now) 
 #####    Evan Bookbinder    09-20-2013 Fixed rural area otherPoints in pathcast section, added rural phrase
+#####         Qinglu Lin    03-17-2014 DR 16309. Updated inserttorwatches and insertsvrwatches. 
 ####################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -201,12 +202,12 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
- FOR ##
+ FOR##
 #set($numPortions = ${list.size(${watch.getPortions()})})
 #set($count = 0)
 #foreach(${portion} in ${watch.getPortions()})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false false) ${portion.parentRegion}##
+#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -214,7 +215,7 @@ ${dateUtil.period(${watches.getLatestTorTime()},${timeFormat.plain}, 15, ${local
 #end
 #end
 #set($torWatchAlso = "ALSO ")
-.##
+. ##
 #end
 
 #end
@@ -235,12 +236,12 @@ ${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${local
 #if(${secondtimezone})
 /${dateUtil.format(${watch.getEndTime()}, ${timeFormat.plain}, 15, ${secondtimezone})}/##
 #end
- FOR ##
+ FOR##
 #set($numPortions = ${list.size(${watch.getPortions()})})
 #set($count = 0)
 #foreach(${portion} in ${watch.getPortions()})
 #set($count = $count + 1)
-#areaFormat(${portion.partOfParentRegion} true false) ${portion.parentRegion}##
+#areaFormat(${portion.partOfParentRegion} true false true)${portion.parentRegion}##
 #if($count == $numPortions - 1)
  AND ##
 #elseif($count < $numPortions)
@@ -248,7 +249,7 @@ ${dateUtil.period(${watches.getLatestSvrTime()},${timeFormat.plain}, 15, ${local
 #end
 #end
 #set($svrWatchAlso = "ALSO ")
-.##
+. ##
 #end
 
 #end
