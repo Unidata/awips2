@@ -60,9 +60,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * May 23, 2012            mschenke    Initial creation
  * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Mar 18, 2014 2895       njensen     Fix concurrent mod exception on dispose
  * 
  * </pre>
  * 
@@ -173,8 +174,8 @@ public class CollaborationDrawingResource extends
                     layer.setEraserWidth(16); // Configure?
                     layer.setLineStyle(outline.getLineStyle());
                     layer.setLineWidth(outline.getOutlineWidth());
-                    layer.setColor(container.getColorManager()
-                            .getColorForUser(user));
+                    layer.setColor(container.getColorManager().getColorForUser(
+                            user));
                     layer.paint(target, paintProps);
                 }
             }
@@ -190,15 +191,17 @@ public class CollaborationDrawingResource extends
     protected void disposeInternal() {
         container.getSession().unregisterEventHandler(this);
         disposeLayers();
-        layerMap.clear();
         layerMap = null;
 
         manager.dispose();
     }
 
     private void disposeLayers() {
-        for (DrawingToolLayer layer : layerMap.values()) {
-            layer.dispose();
+        synchronized (layerMap) {
+            for (DrawingToolLayer layer : layerMap.values()) {
+                layer.dispose();
+            }
+            layerMap.clear();
         }
     }
 
