@@ -21,6 +21,8 @@ package com.raytheon.edex.plugin.redbook.ingest;
 
 import java.io.File;
 
+import com.raytheon.edex.plugin.redbook.menu.RedbookHazardsMenuUtil;
+import com.raytheon.edex.plugin.redbook.menu.RedbookHpcMenuUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
@@ -36,6 +38,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2014    2858    mpduff      Initial creation.
+ * Mar 17, 2014    2855    mpduff      Implement HPC.
  * 
  * </pre>
  * 
@@ -51,6 +54,9 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
     /** Hazard menu file */
     private static final String HAZARD_MENU_FILE = "RedbookHazardMenus.xml";
 
+    /** HPC menu file */
+    private static final String HPC_MENU_FILE = "RedbookHPCMenus.xml";
+
     /**
      * {@inheritDoc}
      */
@@ -60,7 +66,10 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
         if (HAZARD_MENU_FILE.equals(fileName)) {
             // Convert input file to output menu format
             RedbookHazardsMenuUtil menuUtil = new RedbookHazardsMenuUtil();
-            menuUtil.createMenus(file.getAbsolutePath());
+            menuUtil.createMenusFromFile(file.getAbsolutePath());
+        } else if (HPC_MENU_FILE.equals(fileName)) {
+            RedbookHpcMenuUtil menuUtil = new RedbookHpcMenuUtil();
+            menuUtil.createMenusFromFile(file.getAbsolutePath());
         }
     }
 }
