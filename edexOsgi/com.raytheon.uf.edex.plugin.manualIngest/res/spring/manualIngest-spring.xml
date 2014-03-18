@@ -23,6 +23,11 @@
 		    <from ref="ndmFileEndpoint" />
 		    <bean ref="ndmProc" method="processEvent" />
 		</route>
+
+		<route id="textDBStaticSetDirty">
+		    <from uri="jms-generic:topic:textDBFilesChanged" />
+		    <bean ref="textDBStaticDataListener" method="setDirty" />
+		</route>
     </camelContext>
 
 	<bean factory-bean="clusteredCamelContextMgr"
@@ -38,7 +43,9 @@
 	<bean id="mtrListener" class="com.raytheon.uf.common.site.ingest.MTRSubscriber" />
 	<bean id="afosToAwipsListener" class="com.raytheon.edex.plugin.text.ingest.AfosToAwipsListener" />
 	<bean id="disseminationListener" class="com.raytheon.uf.edex.dissemination.ingest.DisseminationNationalDatasetSubscriber" />
-	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber" />
+	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber">
+	    <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
+	</bean>
 	<bean id="modelBufrListener" class="com.raytheon.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
 
 	<bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
