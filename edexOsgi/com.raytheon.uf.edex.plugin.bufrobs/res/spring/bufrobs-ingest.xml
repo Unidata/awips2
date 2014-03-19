@@ -14,10 +14,6 @@
         <constructor-arg ref="bufrobsSynopticLandDecoder" />
     </bean>
 
-    <bean id="bufrobsCamelRegistered" factory-bean="contextManager" factory-method="register" depends-on="persistCamelRegistered">
-        <constructor-arg ref="bufrobs-camel" />
-    </bean>
-
     <bean id="bufrobsDistRegistry" factory-bean="distributionSrv" factory-method="register">
         <constructor-arg value="bufrobs" />
         <constructor-arg value="jms-durable:queue:Ingest.bufrobs" />
@@ -25,8 +21,7 @@
 
     <bean id="bufrObsRecordPopulator" class="com.raytheon.uf.edex.plugin.bufrobs.util.RecordPopulator" />
 
-    <camelContext id="bufrobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler"
-        autoStartup="false">
+    <camelContext id="bufrobs-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="bufrobsInboxJmsEndpoint" uri="jms-durable:queue:Ingest.bufrobs" />
 

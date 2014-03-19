@@ -12,15 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.poessounding"/>
 	</bean>
     
-    <bean id="poessoundingCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="poessounding-camel"/>
-  	</bean>    
-    
     <camelContext id="poessounding-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
 	    <endpoint id="poessndgFileEndpoint" uri="file:${edex.home}/data/sbn/poessndg?noop=true&amp;idempotent=false"/>
         

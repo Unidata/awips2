@@ -20,18 +20,13 @@
 package com.raytheon.uf.common.message;
 
 import java.io.Serializable;
-import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.raytheon.uf.common.message.adapter.WsIdAdapter;
 import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdapter;
+import com.raytheon.uf.common.util.SystemUtil;
 
 /**
  * The WsId contains the work station identification for the user. *
@@ -41,12 +36,12 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 10, 2009            randerso     Initial creation
- * Apr 25, 2012       545  randerso     Repurposed the lockKey field as threadId
- * Sep 19, 2012     #1190  dgilling     Cache host names so toPrettyString() doesn't
- *                                      get delayed behind DNS requests.
- * Sep 20, 2012     #1190  dgilling     Create method getHostName().
- * 
+ * Jun 10, 2009            randerso    Initial creation
+ * Apr 25, 2012       545  randerso    Repurposed the lockKey field as threadId
+ * Sep 19, 2012     #1190  dgilling    Cache host names so toPrettyString() doesn't
+ *                                     get delayed behind DNS requests.
+ * Sep 20, 2012     #1190  dgilling    Create method getHostName().
+ * Mar 20, 2014      2726  rjpeter     Moved hostNameCache to SystemUtil.
  * </pre>
  * 
  * @author randerso
@@ -57,31 +52,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
 @DynamicSerializeTypeAdapter(factory = WsIdAdapter.class)
 public class WsId implements Serializable, ISerializableObject {
 
-    private static class BoundedMap<K, V> extends LinkedHashMap<K, V> {
-        private static final long serialVersionUID = 1L;
-
-        private final int maxSize;
-
-        public BoundedMap(int maxSize) {
-            super(16, 0.75f, true);
-            this.maxSize = maxSize;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
-         */
-        @Override
-        protected boolean removeEldestEntry(Entry<K, V> eldest) {
-            return size() > maxSize;
-        }
-    }
-
     private static final long serialVersionUID = 1L;
-
-    private static final Map<InetAddress, String> hostNameCache = Collections
-            .synchronizedMap(new BoundedMap<InetAddress, String>(100));
 
     private final InetAddress networkId;
 
@@ -169,25 +140,14 @@ public class WsId implements Serializable, ISerializableObject {
             this.progName = "unknown";
         }
 
-        this.pid = Integer.parseInt(ManagementFactory.getRuntimeMXBean()
-                .getName().split("@")[0]);
+        this.pid = SystemUtil.getPid();
 
         this.threadId = Thread.currentThread().getId();
 
         if (networkId != null) {
             this.networkId = networkId;
         } else {
-            InetAddress addr = null;
-            try {
-                addr = InetAddress.getLocalHost();
-            } catch (UnknownHostException e) {
-                try {
-                    addr = InetAddress.getByAddress(new byte[] { 0, 0, 0, 0 });
-                } catch (UnknownHostException e1) {
-                    // won't happen
-                }
-            }
-            this.networkId = addr;
+            this.networkId = SystemUtil.getLocalAddress();
         }
     }
 
@@ -203,7 +163,7 @@ public class WsId implements Serializable, ISerializableObject {
         long addr = 0;
         byte[] bytes = networkId.getAddress();
         for (int i = bytes.length - 1; i >= 0; i--) {
-            addr = addr << 8 | (0xff & bytes[i]);
+            addr = (addr << 8) | (0xff & bytes[i]);
         }
 
         o.append(addr).append(':').append(userName).append(':')
@@ -219,7 +179,7 @@ public class WsId implements Serializable, ISerializableObject {
      * @return WsId as pretty string
      */
     public String toPrettyString() {
-        String hostname = retrieveFromHostCache(networkId);
+        String hostname = SystemUtil.getHostName(networkId);
 
         StringBuilder o = new StringBuilder();
         o.append(userName).append('@').append(hostname).append(':')
@@ -227,16 +187,6 @@ public class WsId implements Serializable, ISerializableObject {
                 .append(threadId);
 
         return o.toString();
-    }
-
-    private String retrieveFromHostCache(InetAddress address) {
-        String hostName = hostNameCache.get(address);
-        if (hostName == null) {
-            hostName = address.getHostName();
-            hostNameCache.put(address, hostName);
-        }
-
-        return hostName;
     }
 
     /**
@@ -247,7 +197,7 @@ public class WsId implements Serializable, ISerializableObject {
     }
 
     public String getHostName() {
-        return retrieveFromHostCache(networkId);
+        return SystemUtil.getHostName(networkId);
     }
 
     /**
@@ -287,13 +237,13 @@ public class WsId implements Serializable, ISerializableObject {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (int) (threadId ^ (threadId >>> 32));
-        result = prime * result
+        result = (prime * result) + (int) (threadId ^ (threadId >>> 32));
+        result = (prime * result)
                 + ((networkId == null) ? 0 : networkId.hashCode());
-        result = prime * result + pid;
-        result = prime * result
+        result = (prime * result) + pid;
+        result = (prime * result)
                 + ((progName == null) ? 0 : progName.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((userName == null) ? 0 : userName.hashCode());
         return result;
     }

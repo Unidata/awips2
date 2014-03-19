@@ -23,14 +23,8 @@
 		<constructor-arg value="jms-durable:queue:Ingest.stormTrack" />
 	</bean>
 
-	<bean id="stormTrackCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="stormTrack-camel"/>
-  	</bean> 
-
 	<camelContext id="stormTrack-camel" xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="stormTrackFileEndpoint" uri="file:${edex.home}/data/sbn/stormtrack?noop=true&amp;idempotent=false"/>
 
 		<!-- Begin StormTrack routes -->
