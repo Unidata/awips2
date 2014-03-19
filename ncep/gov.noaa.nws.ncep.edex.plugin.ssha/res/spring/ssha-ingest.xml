@@ -22,15 +22,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ssha" />
 	</bean>
     
-	<bean id="sshaCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ssha-camel"/>
-  	</bean>   
-    
 	<camelContext id="ssha-camel" 
 	              xmlns="http://camel.apache.org/schema/spring" 
-	              errorHandlerRef="errorHandler"
-	              autoStartup="false">
+	              errorHandlerRef="errorHandler">
 		<endpoint id="sshaFileEndpoint" uri="file:${edex.home}/data/sbn/ssha?noop=true&amp;idempotent=false" />
 
 		<!-- Begin Ssha routes -->
