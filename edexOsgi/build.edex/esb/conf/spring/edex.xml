@@ -3,14 +3,14 @@
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:util="http://www.springframework.org/schema/util"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
   http://www.springframework.org/schema/util
   http://www.springframework.org/schema/util/spring-util-3.1.xsd">
-  
-  	<!-- Separated out database specific beans to seperate file so they can be loaded by themselves if necessary -->
-  	<import resource="file:///${edex.home}/conf/spring/edex-db.xml"/>
-  
+
+    <!-- Separated out database specific beans to separate file so they can be loaded by themselves if necessary -->
+    <import resource="file:///${edex.home}/conf/spring/edex-db.xml"/>
+
     <!-- specify the connection to the broker (qpid) -->
     <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
@@ -24,7 +24,7 @@
        <!-- After resource has been closed by thread keep it allocated for another 2 minutes in case thread needs it again -->
        <property name="resourceRetention" value="120000"/>
     </bean>
- 
+
     <bean id="genericThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="0" />
@@ -64,12 +64,14 @@
 	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
 		<property name="cacheLevelName" value="CACHE_NONE"/>
 		<property name="recoveryInterval" value="10000"/>
-		<property name="requestTimeout" value="5000"/>
+        <property name="requestTimeout" value="5000"/>
+        <!-- If this is false, while stopping we will reject messages that have already been pulled from qpid, essentially losing the message -->
+        <property name="acceptMessagesWhileStopping" value="true"/>
 
 		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
 		<!-- receiveTimeout also affects how fast a JMSConsumer will shut down, because the
                   thread may be stuck polling for the duration of receiveTimeout before shutting down -->
-		<property name="receiveTimeout" value="10000"/>   
+		<property name="receiveTimeout" value="5000"/>
 		<property name="transacted" value="false"/>
 
 		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.
@@ -80,7 +82,7 @@
 		<property name="destinationResolver" ref="qpidNoDurableResolver" />
 		<property name="disableReplyTo" value="true" />
 		<property name="deliveryPersistent" value="false"/>
-        
+
 		<!--
 		<property name="transacted" value="true" />
 		<property name="acknowledgementModeName" value="TRANSACTED"/>
@@ -98,28 +100,27 @@
 		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED"/>
 	</bean>
 	-->
-	
+
 	<bean id="httpClient" class="com.raytheon.uf.common.comm.HttpClient" factory-method="getInstance">
 		<property name="maxConnectionsPerHost" value="${PYPIES_MAX_CONN}"/>
 		<!-- value in milliseconds to allow socket to timeout, don't allow this to be zero, bad things could happen -->
-	   <property name="socketTimeout" value="180000"/>	   	   
-	   <property name="compressRequests" value="false"/>
-	   <property name="gzipResponseHandling" value="false"/>	   
+	    <property name="socketTimeout" value="180000"/>
+	    <property name="compressRequests" value="false"/>
+	    <property name="gzipResponseHandling" value="false"/>
 	</bean>
-	
+
 	<bean id="pypiesStoreProps" class="com.raytheon.uf.common.pypies.PypiesProperties">
-		<property name="address" value="${PYPIES_SERVER}" />		
+		<property name="address" value="${PYPIES_SERVER}" />
 	</bean>
-	<bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory">
+	<bean id="pypiesDataStoreFactory" class="com.raytheon.uf.common.pypies.PyPiesDataStoreFactory" depends-on="httpClient">
 		<constructor-arg ref="pypiesStoreProps" />
 	</bean>
-	
+
 	<bean id="dataStoreFactory" class="com.raytheon.uf.common.datastorage.DataStoreFactory" factory-method="getInstance">
 		<!-- Get instance of DataStoreFactory and set underlying factory to use -->
 		<property name="underlyingFactory" ref="pypiesDataStoreFactory"/>
 	</bean>
-    
-  
+
     <bean id="initialcorePropertyConfigurer"
       class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="systemPropertiesModeName">
@@ -136,53 +137,84 @@
     <bean id="processUtil" class="com.raytheon.uf.edex.esb.camel.ProcessUtil"/>
     <bean id="setIngestHeaderFields" class="com.raytheon.uf.edex.esb.camel.SetIngestHeaderFields"/>
     <bean id="uuidGenerator" class="com.raytheon.uf.edex.esb.camel.UUIDGenerator"/>
-    <bean id="messageUtil" class="com.raytheon.uf.edex.esb.camel.MessageProducer" />
+    <bean id="messageProducer" class="com.raytheon.uf.edex.esb.camel.MessageProducer" />
     <bean id="camelContextAdmin" class="com.raytheon.uf.edex.esb.camel.CamelContextAdmin" />
-    
-    <bean id="util" class="com.raytheon.uf.edex.core.EDEXUtil">
-    	<property name="messageProducer" ref="messageUtil" />
-    	<property name="contextAdmin" ref="camelContextAdmin" />
+
+    <!-- ContextManager to manage dependencies so routes startup in right order.
+         Clustered routes will start on a box if there has not been a lock for that route in the last 60 seconds.
+         Anyone using the clustered routes should ensure that timeToLive on jms messages are at least 1 minute-->
+    <bean id="contextManager"
+        class="com.raytheon.uf.edex.esb.camel.context.ContextManager"
+        factory-method="getInstance">
+        <property name="timeOutMillis" value="60000"/>
     </bean>
-    
-    <bean id="initSystem" class="com.raytheon.edex.plugin.InitializerBean" />
+
+    <bean id="util" class="com.raytheon.uf.edex.core.EDEXUtil">
+        <property name="messageProducer" ref="messageProducer" />
+        <property name="contextAdmin" ref="camelContextAdmin" />
+    </bean>
+
     <bean id="defaultPathProvider" class="com.raytheon.uf.common.dataplugin.persist.DefaultPathProvider"/>
-    
+
+    <bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
+        <property name="pluginFQN" value="com.raytheon.uf.edex.database" />
+        <property name="database" value="metadata" />
+        <property name="forceCheck" value="true" />
+    </bean>
+
+    <bean
+       id="dbPluginRegistry"
+       class="com.raytheon.uf.edex.database.DatabasePluginRegistry"
+       factory-method="getInstance"
+       init-method="init"
+       depends-on="metadataTxManager">
+        <property name="initialListeners">
+           <list>
+               <!--  This causes database tables to be initialized when a db plugin is registered -->
+               <bean class="com.raytheon.uf.edex.database.schema.SchemaManager" factory-method="getInstance"/>
+           </list>
+        </property>
+        <property name="initialProperties">
+           <list>
+               <!--  Creates the initial tables so other plugins can be loaded -->
+               <ref bean="commonDbPluginProperties"/>
+           </list>
+        </property>
+    </bean>
+
     <!-- The pluginDefaults are the values that a data plugin will use for
          some plugin properties if they are not specified in the individual
          plugin's Spring XML configuration -->
-    <bean id="pluginDefaults" class="com.raytheon.uf.common.dataplugin.defaults.PluginPropertyDefaults">
-		<property name="database" value="metadata" />
-		<property name="initializer" value="com.raytheon.edex.plugin.DefaultPluginInitializer" />
-		<property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
-		<property name="initialRetentionTime" value="24" />
-		<property name="pathProvider" ref="defaultPathProvider"/>
-	</bean>  		
+    <bean id="pluginDefaults" class="com.raytheon.uf.common.dataplugin.PluginProperties">
+        <property name="database" value="metadata" />
+        <property name="initializer" value="com.raytheon.edex.plugin.DefaultPluginInitializer" />
+        <property name="dao" value="com.raytheon.edex.db.dao.DefaultPluginDao" />
+        <property name="initialRetentionTime" value="24" />
+        <property name="pathProvider" ref="defaultPathProvider"/>
+    </bean>
 
-	<!--  This causes database tables to be initialized when a db plugin is registered -->
-    <bean id="schemaManager" class="com.raytheon.uf.edex.database.schema.SchemaManager"
-    	factory-method="getInstance" />
-    	
-    <bean factory-bean="dbPluginRegistry" factory-method="addListener">
-    	<constructor-arg><ref bean="schemaManager"/></constructor-arg>
+    <bean
+        id="pluginRegistry"
+        class="com.raytheon.uf.edex.core.dataplugin.PluginRegistry"
+        factory-method="getInstance"
+        depends-on="util, dataStoreFactory">
+        <property name="defaultPluginProperties" ref="pluginDefaults"/>
+        <property name="initialListeners">
+           <list>
+               <!-- This causes the data plugin's database tables to be created when a plugin is registered -->
+               <ref bean="dbPluginRegistry"/>
+               <!-- This causes the data plugin's initializer to get called when a plugin is registered -->
+               <bean class="com.raytheon.edex.plugin.PluginInitialSetup"/>
+           </list>
+        </property>
     </bean>
-    <!-- This causes the data plugin's database tables to be created when a plugin is registered -->
-    <bean id="dbPluginRegistryListenerAdded" factory-bean="pluginRegistry" factory-method="addListener">
-    	<constructor-arg><ref bean="dbPluginRegistry"/></constructor-arg>
-    </bean>
-    <!-- This causes the data plugin's initializer to get called when a plugin
-         is registered -->
-    <bean id="pluginSetup" class="com.raytheon.edex.plugin.PluginInitialSetup" />
-    <bean factory-bean="pluginRegistry" factory-method="addListener" depends-on="dbPluginRegistryListenerAdded">
-    	<constructor-arg><ref bean="pluginSetup"/></constructor-arg>
-    </bean>
-    
-    
+
     <bean id="stringToFile" class="com.raytheon.uf.edex.esb.camel.StringToFile"/>
     <bean id="extractWMOHeader" class="com.raytheon.uf.common.util.header.WMOHeaderRemover"/>
-	<bean id="dataUnzipper" class="com.raytheon.uf.common.util.DataUnzipper"/>       
-    
+    <bean id="dataUnzipper" class="com.raytheon.uf.common.util.DataUnzipper"/>
+
     <bean id="errorHandler" class="org.apache.camel.builder.LoggingErrorHandlerBuilder"/>
-    
+
     <!-- sets default settings of log component across all of edex -->
     <!-- if log component beans are created and the exchangeFormatter property is set, they can't process URI parameters -->
     <!-- this bean needs to be named 'logFormatter' for the log component to find it in the context -->
@@ -193,38 +225,10 @@
         <property name="showStackTrace" value="true" />
     </bean>
 
-    <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />    
+    <bean id="serializationUtil" class="com.raytheon.uf.common.serialization.SerializationUtil" />
 
-	<bean id="pluginRegistry" class="com.raytheon.uf.edex.core.dataplugin.PluginRegistry" factory-method="getInstance"/>	
-	<bean id="dbPluginRegistry" class="com.raytheon.uf.edex.database.DatabasePluginRegistry" factory-method="getInstance"/>
-	
-	<bean id="commonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
-		<property name="pluginFQN" value="com.raytheon.uf.edex.database" />
-		<property name="database" value="metadata" />
-		<property name="forceCheck" value="true" />
-	</bean>
-	<bean id="commonDbRegistered" factory-bean="dbPluginRegistry" factory-method="register"
-				depends-on="metadataTxManager">
-		<constructor-arg value="com.raytheon.uf.edex.database"/>
-		<constructor-arg ref="commonDbPluginProperties"/>
-	</bean>
-		
 	<bean id="CamelBeanParameterMappingStrategy"
-          class="com.raytheon.uf.edex.esb.camel.EDEXParameterMappingStrategy" />            
-
-    <!-- ContextManager to start camel context last. Ensures items such as distribution aren't started before all the listening routes are up -->
-	<bean id="contextManager"
-	    class="com.raytheon.uf.edex.esb.camel.context.ContextManager"
-		factory-method="getInstance">
-	</bean>
-
-	<!-- Clustered routes will start on a box if there has not been a lock for that route in the last 60 seconds.
-	     Anyone using the clustered routes should ensure that timeToLive on jms messages are at least 1 minute -->
-	<bean id="clusteredCamelContextMgr"
-	    class="com.raytheon.uf.edex.esb.camel.context.ClusteredContextManager"
-		factory-method="getInstance">
-		<property name="timeOutMillis" value="60000"/>
-	</bean>
+          class="com.raytheon.uf.edex.esb.camel.EDEXParameterMappingStrategy" />
 
     <!-- Serialization Pool -->
 	<bean id="baosPool" class="com.raytheon.uf.common.util.ByteArrayOutputStreamPool" factory-method="getInstance">
@@ -248,7 +252,7 @@
 			<from uri="jms-generic:topic:edex.alerts.utility" />
 			<bean ref="edexLocalizationObserver" method="fileUpdated"/>
 		</route>
-       
+
         <!-- Route to send alerts to alertviz -->
 		<route id="alertVizNotify">
 			<from uri="vm:edex.alertVizNotification" />
@@ -263,13 +267,6 @@
 			<to uri="jms-generic:topic:edex.alarms.msg" />
 		</route>
 		
-		<!-- Route to send geospatial data update notification -->
-        <route id="geospatialUpdateNotify">
-            <from uri="vm:edex.geospatialUpdateNotification" />
-            <bean ref="serializationUtil" method="transformToThrift" />
-            <to uri="jms-generic:topic:edex.geospatialUpdate.msg" />
-        </route>
-
         <!-- Route to periodically close any unused jms resources that have been pooled -->
         <route id="jmsPooledResourceChecker">
 		    <from uri="timer://jmsPooledResourceCheck?period=60s" />
@@ -281,16 +278,15 @@
 				</doCatch>
 			</doTry>
 		</route>
-    </camelContext>    
+    </camelContext>
     <camelContext
         id="clusteredCamel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">                                                                
+        errorHandlerRef="errorHandler">
         <route id="monitorClusteredContexts">
 			<from uri="timer://monitorClusterContexts?fixedRate=true&amp;period=20000"/>
 			<doTry>
-				<bean ref="clusteredCamelContextMgr" method="checkClusteredContexts" />
+				<bean ref="contextManager" method="checkClusteredContexts" />
 				<doCatch>
 					<exception>java.lang.Throwable</exception>
 					<to uri="log:monitorClusteredContexts?level=ERROR"/>
@@ -298,10 +294,6 @@
 			</doTry>
 		</route>
 	</camelContext>
-	<bean factory-bean="contextManager"
-		factory-method="register">
-		<constructor-arg ref="clusteredCamel"/>
-  	</bean>
 
    <!-- Redirect geotools log -->
    <bean class="com.raytheon.uf.common.geospatial.LogRedirector" factory-method="setGeotoolsLogFactory">
@@ -314,7 +306,6 @@
 	<property name="locations">
 		<list>
 			<value>file:${edex.home}/conf/spring/cron.properties</value>
-			<value>file:${edex.home}/conf/spring/${edex.arch}/architecture.properties</value>
 		</list>
 	</property>
    </bean>
@@ -322,11 +313,11 @@
     <!-- Holds the registry of request routers by server key -->
     <bean id="handlerRegistry" class="com.raytheon.uf.edex.auth.HandlerRegistry"
         factory-method="getInstance" />
-    
+
     <bean id="requestRouterRegistry"
         class="com.raytheon.uf.common.serialization.comm.RequestRouter"
         factory-method="getRouterRegistry" />
-    
+
     <!-- Server Request routers -->
     <bean id="serverPrivilegedRequestHandler"
         class="com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler">
@@ -341,7 +332,7 @@
 
     <util:constant id="requestServerKey"
         static-field="com.raytheon.uf.common.auth.RequestConstants.REQUEST_SERVER" />
-    
+
     <bean id="requestServiceRouter" class="com.raytheon.uf.edex.auth.ServerRequestRouter">
         <!-- This bean will cause all RequestRouter.route(request) calls 
             to be processed internally to EDEX -->
@@ -353,14 +344,10 @@
         <constructor-arg ref="requestServiceRouter" />
     </bean>
 
-	<!-- needed for camel quartz component workaround when JMX is disabled -->
-	<bean id="managementNameLifecycleStrategy"
-		class="com.raytheon.uf.edex.esb.camel.quartz.ManagementNameLifecycleStrategy" />
-
 	<!-- quartz component configuration.
-		Single scheduler used by all endpoints so there is only one threadpool. 
-		Thread pool configured in edex/config/resources/quartz.properties -->
-		
+        Single scheduler used by all endpoints so there is only one threadpool. 
+        Thread pool configured in edex/config/resources/quartz.properties.
+        Requires work around in ContextManager.postProcessBeanFactory when JMX is disabled -->
 	<bean id="quartzSchedulerFactory" class="org.quartz.impl.StdSchedulerFactory">
 		<constructor-arg value="quartz.properties" />
 	</bean>
@@ -376,5 +363,4 @@
 		class="com.raytheon.uf.edex.esb.camel.cluster.quartz.ClusteredQuartzComponent">
 		<property name="scheduler" ref="quartzScheduler" />
 	</bean>
-  
 </beans>

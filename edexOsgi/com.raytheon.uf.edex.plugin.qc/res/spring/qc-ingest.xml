@@ -9,15 +9,9 @@
         <property name="target" ref="qcScannerTarget" />
     </bean>
 
-	<bean id="qcIngestCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="qcIngest-camel"/>
-  	</bean> 
-
     <camelContext id="qcIngest-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
        <proxy id="qcScannerTarget"
                serviceInterface="com.raytheon.uf.edex.plugin.qc.IQCScannerTarget"
                serviceUrl="direct-vm:qcToIndexAlert"/>
