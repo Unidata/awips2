@@ -53,6 +53,7 @@ import com.raytheon.uf.edex.menus.AbstractMenuUtil;
  * ------------ ---------- ----------- --------------------------
  * Mar 07, 2014   2858     mpduff      Initial creation
  * Mar 14, 2014   2855     mpduff      Refactored common code.
+ * Mar 19, 2014   2860     mpduff      Implemented Redbook UpperAir.
  * 
  * </pre>
  * 
@@ -64,6 +65,10 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
     /** Status handler */
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookMenuUtil.class);
+
+    protected static final String NCEP_HYDRO = "ncepHydro";
+
+    protected static final String MENUS = "menus";
 
     /** Jaxb unmarshaller */
     protected Unmarshaller unmarshaller;
@@ -172,8 +177,26 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
                     subList.add(var);
                 }
 
+                List<String> dataUriList = new ArrayList<String>();
+
+                for (MenuEntry me : menuEntry.getMenuEntryList()) {
+                    if (MenuEntryType.Substitute == me.getType()) {
+                        VariableSubstitution var = new VariableSubstitution();
+                        var.key = me.getKey();
+                        var.value = me.getValue();
+                        statusHandler.info("Substitution: " + var.key + " <> "
+                                + var.value);
+                        subList.add(var);
+                    } else if (MenuEntryType.DataUri == me.getType()) {
+                        dataUriList.add(me.getDataUri());
+                    }
+
+                }
+
                 commonBundleMenuContribution.substitutions = subList
                         .toArray(new VariableSubstitution[subList.size()]);
+                commonBundleMenuContribution.dataURIs = dataUriList
+                        .toArray(new String[dataUriList.size()]);
             }
 
             return commonBundleMenuContribution;
