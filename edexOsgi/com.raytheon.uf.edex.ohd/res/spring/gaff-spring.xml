@@ -7,8 +7,7 @@
   </bean>
   
   <camelContext id="clustered-gaff-context" xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         
         <endpoint id="gaffCron" uri="clusteredquartz://hydro/gaffScheduled/?cron=${gaff.cron}"/>
         
@@ -28,10 +27,9 @@
                 </doCatch>
             </doTry>
         </route>
-        
   </camelContext>
-  <bean factory-bean="clusteredCamelContextMgr"
-        factory-method="register">
+
+  <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clustered-gaff-context" />
   </bean>
 </beans>
