@@ -37,7 +37,7 @@
   	<constructor-arg ref="streamSrv"/>
   </bean>
  
-     <camelContext id="utility-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">    
+     <camelContext id="utility-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
 		<route id="utilityNotify">
 	    	<from uri="vm://utilityNotify" />
