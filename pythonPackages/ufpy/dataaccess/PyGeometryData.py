@@ -27,8 +27,11 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    06/03/13                      dgilling      Initial Creation.
+#    06/03/13                      dgilling       Initial Creation.
 #    01/06/14         #2537        bsteffen       Share geometry WKT.
+#    03/19/14         #2882        dgilling       Raise an exception when getNumber()
+#                                                 is called for data that is not a 
+#                                                 numeric Type.
 #    
 #
 
@@ -67,7 +70,7 @@ class PyGeometryData(IGeometryData, PyData.PyData):
         elif t == 'DOUBLE':
             return float(value)
         else:
-            return value
+            raise TypeError("Data for parameter " + param + " is not a numeric type.")
     
     def getUnit(self, param):
         return self.__dataMap[param][2]
