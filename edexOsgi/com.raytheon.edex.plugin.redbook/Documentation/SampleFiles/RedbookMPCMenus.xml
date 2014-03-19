@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+This file is the A2 NDM replacement for redbookMPCMenus.txt.  
+
+Dropping RedbookMPCMenus.xml into the /awips2/edex/data/ndm directory 
+will generate an override of the MPC menu.
+
+RedbookMPCMenus.xml as written here will generate the base version 
+of the MPC menus.
+ -->
+<redbookMenu>
+	<menuEntry type="submenu" text="Marine Guidance"
+		id="ncepHydro.mpc.marineGuidance">
+		<menuEntry type="productButton" 
+			text="Tropical Sfc Analysis" id="tropicalSfcAnalysis">
+            <!-- Redbook Key: 5312 -->
+			<menuEntry type="substitute" key="wmo" value="PYNA98" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="24hr Dense Fog Fcst" id="denseFogFcst">
+            <!-- Redbook Key: 5336 -->
+			<menuEntry type="substitute" key="wmo" value="PGNE88" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="24hr Freezing Spray Fcst" id="freezingSprayFcst">
+            <!-- Redbook Key: 5337 -->
+			<menuEntry type="substitute" key="wmo" value="PGNE98" />
+		</menuEntry>
+		<menuEntry type="title" text="------ West Atlantic ------"
+			id="WestAtlanticLine" />
+		<menuEntry type="productButton" 
+			text="Atl 850MB Strmlines/Wind Analysis" id="atl850MBWindAnalysis">
+            <!-- Redbook Key: 5313 -->
+			<menuEntry type="substitute" key="wmo" value="PWAA85" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Atl 200MB Strmlines/Wind Anal" id="atl200MBWindAnal">
+            <!-- Redbook Key: 5314 -->
+			<menuEntry type="substitute" key="wmo" value="PWAA20" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Atl Deep Layer Mean Cir 1000-100mb" id="atlDeepLayerMeanCir">
+            <!-- Redbook Key: 5315 -->
+			<menuEntry type="substitute" key="wmo" value="PWAA00" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Atl 850-200mb Winds/Shear Analysis" id="atlWindsShearAnalysis">
+            <!-- Redbook Key: 5316 -->
+			<menuEntry type="substitute" key="wmo" value="PWAA65" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="WATL Wind/Wave" id="windWave">
+            <!-- Redbook Key: 5245 -->
+			<menuEntry type="substitute" key="wmo" value="PWIA98, PWIE98" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Fronts/Press Fcst" id="frontsPressFcst">
+            <!-- Redbook Key: 5327 -->
+			<menuEntry type="substitute" key="wmo" value="PPAE89" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Caribbean Wind/Seas Fcst" id="CaribbeanWindSeasFcstLine">
+            <!-- Redbook Key: 5320 -->
+			<menuEntry type="substitute" key="wmo" value="PWEA88, PWEC88, PWEE88, PWEG88" />
+		</menuEntry>
+
+		<menuEntry type="separator" id="separator1" />
+		<menuEntry type="title" text="------ North Atlantic ------"
+			id="NorthAtlanticLine" />
+		<menuEntry type="productButton" 
+			text="Surface Analysis" id="surfaceAnalysis">
+            <!-- Redbook Key: 5324 -->
+			<menuEntry type="substitute" key="wmo" value="PYAA89" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Fronts/Press/Winds Fcst" id="frontsPressWindsFcst">
+            <!-- Redbook Key: 5328 -->
+			<menuEntry type="substitute" key="wmo" value="PPAI89, PPAM89" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Sig Wave/Wind" id="sigWaveWind">
+            <!-- Redbook Key: 5325 -->
+			<menuEntry type="substitute" key="wmo" value="PJAI88,PJAA88" />
+		</menuEntry>
+		<menuEntry type="separator" id="separator2" />
+		<menuEntry type="title" text="------ East Pacific ------"
+			id="EastPacificLine" />
+		<menuEntry type="productButton" 
+			text="E. Pacific Wind/Seas Analysis" id="easternPacWindSeas">
+            <!-- Redbook Key: 5317 -->
+			<menuEntry type="substitute" key="wmo" value="PWBA88" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Pac Deep Layer Mean Cir 1000-100mb" id="pacDeepLayerMeanCir">
+            <!-- Redbook Key: 5318 -->
+			<menuEntry type="substitute" key="wmo" value="PWDA00" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Pac 850-200mb Winds/Shear Analysis" id="pacWindsShearAnalysis">
+            <!-- Redbook Key: 5248 -->
+			<menuEntry type="substitute" key="wmo" value="PWDA65" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="EPAC Wind/Wave" id="Wind/Wave">
+            <!-- Redbook Key: 5248 -->
+			<menuEntry type="substitute" key="wmo" value="PWIA97, PWIE97" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Fronts/Press Fcst" id="FrontsPressFcst">
+            <!-- Redbook Key: 5333 -->
+			<menuEntry type="substitute" key="wmo" value="PPBE89" />
+		</menuEntry>
+		<menuEntry type="separator" id="separator3" />
+		<menuEntry type="title" text="------ North Pacific ------"
+			id="EastPacificLine" />
+		<menuEntry type="productButton" 
+			text="Surface Analysis" id="pacSurfaceAnalysis">
+            <!-- Redbook Key: 5330 -->
+			<menuEntry type="substitute" key="wmo" value="PYBA89" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Fronts/Press/Winds Fcst" id="pacFrontsPressWindsFcst">
+            <!-- Redbook Key: 5334 -->
+			<menuEntry type="substitute" key="wmo" value="PPBI89, PPBM89" />
+		</menuEntry>
+		<menuEntry type="productButton" 
+			text="Sig Wave/Wind" id="pacSigWaveWind">
+            <!-- Redbook Key: 5331 -->
+			<menuEntry type="substitute" key="wmo" value="PJBI88,PJBA88" />
+		</menuEntry>
+	</menuEntry>
+</redbookMenu>
