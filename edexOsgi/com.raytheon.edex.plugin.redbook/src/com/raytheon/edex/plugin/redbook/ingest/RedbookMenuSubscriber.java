@@ -21,6 +21,7 @@ package com.raytheon.edex.plugin.redbook.ingest;
 
 import java.io.File;
 
+import com.raytheon.edex.plugin.redbook.menu.RedbookCpcMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookHazardsMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookHpcMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookMpcMenuUtil;
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2014    2858    mpduff      Initial creation.
  * Mar 17, 2014    2855    mpduff      Implement HPC.
+ * Mar 17, 2014    2856    mpduff      Implement CPC.
  * Mar 19, 2014    2859    mpduff      Implement MPC.
  * 
  * </pre>
@@ -59,6 +61,9 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
     /** HPC menu file */
     private static final String HPC_MENU_FILE = "RedbookHPCMenus.xml";
 
+    /** CPC menu file */
+    private static final String CPC_MENU_FILE = "RedbookCPCMenus.xml";
+
     /** MPC menu file */
     private static final String MPC_MENU_FILE = "RedbookMPCMenus.xml";
 
@@ -74,6 +79,9 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
             menuUtil.createMenusFromFile(file.getAbsolutePath());
         } else if (HPC_MENU_FILE.equals(fileName)) {
             RedbookHpcMenuUtil menuUtil = new RedbookHpcMenuUtil();
+            menuUtil.createMenusFromFile(file.getAbsolutePath());
+        } else if (CPC_MENU_FILE.equals(fileName)) {
+            RedbookCpcMenuUtil menuUtil = new RedbookCpcMenuUtil();
             menuUtil.createMenusFromFile(file.getAbsolutePath());
         } else if (MPC_MENU_FILE.equals(fileName)) {
             RedbookMpcMenuUtil menuUtil = new RedbookMpcMenuUtil();
