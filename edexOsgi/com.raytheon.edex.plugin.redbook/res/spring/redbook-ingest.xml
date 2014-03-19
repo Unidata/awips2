@@ -25,6 +25,11 @@
         <constructor-arg ref="spcMenuListener" />
     </bean>
     
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookMPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
 	<!-- 
     <bean id="redbookCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">
