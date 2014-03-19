@@ -17,10 +17,11 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.warning.gis;
+package com.raytheon.uf.edex.core;
 
 /**
- * TODO Add Description
+ * Methods to be called as part of the context life cycle for starting and
+ * stopping the context.
  * 
  * <pre>
  * 
@@ -28,31 +29,36 @@ package com.raytheon.edex.plugin.warning.gis;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 24, 2011            rjpeter     Initial creation
+ * Feb 26, 2014 2726       rjpeter     Initial creation
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
+public interface IContextStateProcessor {
 
-public class GeospatialDataGeneratorThread {
-    public GeospatialDataGeneratorThread() {
-        Thread t = new Thread("WarngenGeometryGenerator") {
-            public void run() {
-                // TODO: Move to camel timer, when camel upgraded to at least
-                // 2.8 and take advantage of single run timer
-                try {
-                    // delay to allow server to start
-                    Thread.sleep(120000);
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-                GeospatialDataGenerator
-                        .generateUniqueGeospatialMetadataGeometries();
-                // scan and clean old geometries
-            }
-        };
-        t.start();
-    }
+    /**
+     * Perform any work that needs to be done before the context is started,
+     * such as initialization.
+     */
+    public void preStart();
+
+    /**
+     * Perform any work that needs to be done after the context is started, such
+     * as sending notifications to clients.
+     */
+    public void postStart();
+
+    /**
+     * Perform any work that needs to be done before context is stopped, such as
+     * notifying async threads to stop.
+     */
+    public void preStop();
+
+    /**
+     * Perform any work that needs to be done after the context is stopped, such
+     * as sending in memory data.
+     */
+    public void postStop();
 }
