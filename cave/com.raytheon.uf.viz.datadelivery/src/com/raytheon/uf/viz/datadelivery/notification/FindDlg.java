@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 30, 2013   2314      mpduff     Fixed find, filter, and various other bugs.
  * Sep 26, 2013   2417      mpduff     Reset the highlight all indices on close.
  * Feb 07, 2014   2453      mpduff     Refactored dialog.
+ * Mar 18, 2014   2433      mpduff     Update javadoc.
  * 
  * </pre>
  * 
@@ -115,15 +116,10 @@ public class FindDlg extends CaveSWTDialog {
      *            The parent shell
      * @param filteredTableList
      *            Table data containing the text to be searched.
-     * @param sIndex
-     *            Start table index
-     * @param eIndex
-     *            End table index
      * @param selected
      *            Selected table index
      * @param callback
      *            ITableFind callback
-     * 
      */
     public FindDlg(Shell parent,
             TableDataManager<NotificationRowData> filteredTableList,
