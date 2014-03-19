@@ -8,7 +8,7 @@ will generate an override of the SPC hazards menu.
 RedbookHazardMenus.xml as written here will generate the base version 
 of the SPC hazard menus.
  -->
-<redbookHazardMenu>
+<redbookMenu>
   <menuEntry type="submenu" text="SPC Convective Outlooks" id="ncepHydro.spc.convectiveOutlooks">
     <menuEntry type="productButton" text="Day 1 Convective Outlook" id="day1ConvectiveOutlook">
       <!-- Redbook Key: 5069 -->
@@ -85,4 +85,4 @@ of the SPC hazard menus.
       <menuEntry type="substitute" key="wmo" value="PGNO98"/>
     </menuEntry>
   </menuEntry>
-</redbookHazardMenu>
+</redbookMenu>
