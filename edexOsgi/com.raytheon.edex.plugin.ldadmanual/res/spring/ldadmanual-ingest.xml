@@ -15,15 +15,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ldadmanual"/>
 	</bean>	
 
-    <bean id="ldadmanualCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ldadmanual-camel"/>
-  	</bean>
-
 	<camelContext id="ldadmanual-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<route id="ldadmanualIngestRoute">
 			<from uri="jms-durable:queue:Ingest.ldadmanual"/>

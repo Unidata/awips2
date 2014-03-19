@@ -10,8 +10,7 @@
 
     <camelContext id="distro"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         
         <endpoint id="refreshDistributionCron" uri="quartz://refreshDist/refreshDistRoute/?cron=${distribution.cron}"/>        
         
@@ -59,8 +58,4 @@
 			</doTry>
 		</route>
     </camelContext>
-	<bean factory-bean="contextManager"
-		factory-method="register">
-		<constructor-arg ref="distro"/>
-  	</bean>
 </beans>
