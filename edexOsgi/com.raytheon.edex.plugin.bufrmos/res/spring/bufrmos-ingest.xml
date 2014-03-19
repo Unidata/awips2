@@ -11,15 +11,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.bufrmos" />
 	</bean>
 
-    <bean id="bufrmosCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="bufrmos-camel"/>
-  	</bean>
-
 	<camelContext id="bufrmos-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!-- 
 		<endpoint id="bufrmosFileEndpoint"
 			uri="file:${edex.home}/data/sbn/bufrmos?noop=true&amp;idempotent=false" />

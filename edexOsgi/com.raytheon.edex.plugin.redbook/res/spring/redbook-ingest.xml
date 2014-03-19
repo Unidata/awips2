@@ -45,22 +45,13 @@
         <constructor-arg ref="spcMenuListener" />
     </bean>
     
-	<!-- 
-    <bean id="redbookCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="clusteredRedbook-camel"/>
-  	</bean>
-  	-->
-  	
-  	<bean id="redbookCamelRegistered" factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
-		<constructor-arg ref="clusteredRedbook-camel" />
-  	</bean>
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredRedbook-camel" />
+    </bean>
 
 	<camelContext id="clusteredRedbook-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="redbookFileEndpoint" uri="file:${edex.home}/data/sbn/redbook?noop=true&amp;idempotent=false" />
 

@@ -19,14 +19,9 @@
         <property name="sessionFactory" ref="hmdbSessionFactory" />
     </bean>
 
-    <bean id="metarToHMDBCamelRegistered" factory-bean="contextManager"
-		factory-method="register">
-		<constructor-arg ref="metarToHMDB-camel"/>
-  	</bean>
-
     <camelContext id="metarToHMDB-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler" autoStartup="false">
+        errorHandlerRef="errorHandler">
         <endpoint id="metarToHMDBEndpoint" />
 
         <route id="metarToHMDBRoute">
