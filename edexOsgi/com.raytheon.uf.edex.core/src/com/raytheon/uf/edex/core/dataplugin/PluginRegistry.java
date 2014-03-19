@@ -35,8 +35,8 @@ import com.raytheon.uf.common.util.registry.RegistryException;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 6, 2009            mschenke     Initial creation
- * 
+ * Aug 6, 2009             mschenke    Initial creation.
+ * Mar 19, 2014 2726       rjpeter     Updated for graceful shutdown and easier spring dependency management.
  * </pre>
  * 
  * @author mschenke
@@ -47,7 +47,15 @@ public class PluginRegistry extends GenericRegistry<String, PluginProperties> {
 
     private static PluginRegistry instance = new PluginRegistry();
 
-    private List<IPluginRegistryChanged> listeners = new ArrayList<IPluginRegistryChanged>();
+    /**
+     * Plugin registry listeners.
+     */
+    private final List<IPluginRegistryChanged> listeners = new ArrayList<IPluginRegistryChanged>();
+
+    /**
+     * Default values for plugins registered with the registry.
+     */
+    private PluginProperties defaultPluginProperties;
 
     private PluginRegistry() {
         super();
@@ -61,6 +69,8 @@ public class PluginRegistry extends GenericRegistry<String, PluginProperties> {
     public Object register(String pluginName, PluginProperties pluginProperties)
             throws RegistryException {
         if (!registry.containsKey(pluginName)) {
+            pluginProperties.setDefaults(defaultPluginProperties);
+
             super.register(pluginName, pluginProperties);
             for (IPluginRegistryChanged iprc : listeners) {
                 iprc.pluginAdded(pluginName);
@@ -77,4 +87,22 @@ public class PluginRegistry extends GenericRegistry<String, PluginProperties> {
         return this;
     }
 
+    public PluginProperties getDefaultPluginProperties() {
+        return defaultPluginProperties;
+    }
+
+    public void setDefaultPluginProperties(
+            PluginProperties defaultPluginProperties) {
+        this.defaultPluginProperties = defaultPluginProperties;
+    }
+
+    /**
+     * The initial listeners to the plugin registry to ensure minimum
+     * requirements are meant via spring launching.
+     * 
+     * @param listeners
+     */
+    public void setInitialListeners(List<IPluginRegistryChanged> listeners) {
+        this.listeners.addAll(listeners);
+    }
 }
