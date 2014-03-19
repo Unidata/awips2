@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Nov 09, 2012            njensen     Initial creation
  * Jun 03, 2013  #2023     dgilling    Implement getAttributes().
  * Jan 21, 2014  2667      bclement    attribute method comments
+ * Mar 19, 2014  2882      dgilling    Handle null values with a special Type.
  * 
  * </pre>
  * 
@@ -140,6 +141,9 @@ public class DefaultGeometryData implements IGeometryData {
                 break;
             case DOUBLE:
                 result = (Double) data.value;
+                break;
+            case NULL:
+                result = null;
                 break;
             default:
                 throw new UnsupportedOperationException(
@@ -273,6 +277,8 @@ public class DefaultGeometryData implements IGeometryData {
                 data.type = Type.LONG;
             } else if (data.value instanceof Float) {
                 data.type = Type.FLOAT;
+            } else if (data.value == null) {
+                data.type = Type.NULL;
             }
         }
         this.dataMap.put(parameter, data);
