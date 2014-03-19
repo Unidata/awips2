@@ -5,7 +5,6 @@
     <bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber">
         <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
     </bean>
-
     <bean id="siteMapListener" class="com.raytheon.edex.textdb.ingest.SiteMapNationalDatasetSubscriber" />
 
     <bean factory-bean="ndmProc" factory-method="registerListener">
