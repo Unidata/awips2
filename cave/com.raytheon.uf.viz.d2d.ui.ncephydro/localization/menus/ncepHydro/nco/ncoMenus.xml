@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Precip &amp;&amp; Stability" id="ncepHydro.nco.precipStability">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Daily Precipitation" timeQuery="true" id="ncepHydro.nco.dailyPrecipitation">
+            <substitute value="PEWA31" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Snow Cover Plot" timeQuery="true" id="ncepHydro.nco.snowCoverPlot">
+            <substitute value="PEWA32" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="subMenu" menuText="Snow Images" id="ncepHydro.nco.snowImages">
+            <contribute xsi:type="titleItem" titleText="------ NOHRSC ------" id="ncepHydro.nco.nohrsc.title"/>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Cover" timeQuery="true" id="ncepHydro.nco.snowCover">
+                <substitute value="MSTAV" key="param"/>
+                <substitute value="Snow Cover" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" timeQuery="true" id="ncepHydro.nco.snowCoverElev">
+                <substitute value="sce" key="param"/>
+                <substitute value="Snow Cover by elevation (kft)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Water equiv" timeQuery="true" id="ncepHydro.nco.snowWaterEquiv">
+                <substitute value="swe" key="param"/>
+                <substitute value="Snow Water Equivalent (in)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" timeQuery="true" id="ncepHydro.nco.snowWaterPercent">
+                <substitute value="SWEPN" key="param"/>
+                <substitute value="Snow Water Equivalent % of normal (%)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" timeQuery="true" id="ncepHydro.nco.radarSummary">
+            <substitute value="PAWO82" key="wmo"/>
+            <substitute value="3600" key="posOff"/>
+            <substitute value="-2100" key="virtOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" timeQuery="true" id="ncepHydro.nco.radarLegends">
+            <substitute value="PAWO83" key="wmo"/>
+            <substitute value="3600" key="posOff"/>
+            <substitute value="-2100" key="virtOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Precip H20 Plot" timeQuery="true" id="ncepHydro.nco.precipH20Plot">
+            <substitute value="PEWA33" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Precip H20 Analysis" timeQuery="true" id="ncepHydro.nco.precipH20Analysis">
+            <substitute value="PEWA34" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc-500 RH Plot" timeQuery="true" id="ncepHydro.nco.sfc500RHPlot">
+            <substitute value="PRWA51" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Lifted-K Index Plot" timeQuery="true" id="ncepHydro.nco.liftedKIndexPlot">
+            <substitute value="PXWA50" key="wmo"/>
+        </contribute>
+    </contribute>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Temps &amp;&amp; Weather" id="ncepHydro.nco.tempsWeather">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Observed Max/Min Temps" timeQuery="true" id="ncepHydro.nco.observedMaxMinTemps">
+            <substitute value="PTWA31, PTWA32" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Normal Max/Min Temps" timeQuery="true" id="ncepHydro.nco.normalMaxMinTemps">
+            <substitute value="PTWO33, PTWO34" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator1"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl Plot" timeQuery="true" id="ncepHydro.nco.frzgLvlPlot">
+            <substitute value="PTWA94" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl Analysis" timeQuery="true" id="ncepHydro.nco.frzgLvlAnalysis">
+            <substitute value="PTWA93" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl/Turbulence Fcst" timeQuery="true" id="ncepHydro.nco.frzgLvlTurbulenceFcst">
+            <substitute value="PTIC94, PTIE94" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator2"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Plot" timeQuery="true" id="ncepHydro.nco.wxDepictionPlot">
+            <substitute value="PGWA31" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Analysis" timeQuery="true" id="ncepHydro.nco.wxDepictionAnalysis">
+            <substitute value="PGWA32" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Fcst" timeQuery="true" id="ncepHydro.nco.wxDepictionFcst">
+            <substitute value="PGIC42, PGIE43" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator3"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc Geo Wind Plot" timeQuery="true" id="ncepHydro.nco.sfcGeoWindPlot">
+            <substitute value="PYWA31" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc Geo Relative Vort" timeQuery="true" id="ncepHydro.nco.sfcGeoRelativeVort">
+            <substitute value="PYWA32" key="wmo"/>
+        </contribute>
+    </contribute>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="National Centers model" id="ncepHydro.nco.nationalCentersModel">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="UKMO MSLP" timeQuery="true" id="ncepHydro.nco.UKMOMSLP">
+            <substitute value="PPZA50,PPZM50,PPZO50,PPZQ50" key="wmo"/>
+        </contribute>
+    </contribute>
+</menuTemplate>
