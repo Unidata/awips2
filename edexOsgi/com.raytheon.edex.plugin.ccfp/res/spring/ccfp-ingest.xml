@@ -12,14 +12,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ccfp" />
 	</bean>
 
-    <bean id="ccfpCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ccfp-camel"/>
-  	</bean>
-
 	<camelContext id="ccfp-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="ccfpFileEndpoint" uri="file:${edex.home}/data/sbn/ccfp?noop=true&amp;idempotent=false" />
 
