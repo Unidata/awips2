@@ -31,7 +31,6 @@ import com.raytheon.uf.common.dataplugin.IPluginClassMapper;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
-import com.raytheon.uf.common.dataplugin.defaults.PluginPropertyDefaults;
 import com.raytheon.uf.common.dataplugin.persist.IHDFFilePathProvider;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 
@@ -50,7 +49,7 @@ import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
  * Feb 06, 2009 1990       bphillip    Refactored to use spring container
  * Mar 20, 2009            njensen     Refactored to use PluginProperties
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
- * 
+ * Mar 19, 2014 2726       rjpeter     Added defaultPathProvider field.
  * </pre>
  * 
  * @author garmendariz
@@ -75,7 +74,9 @@ public class PluginFactory implements IPluginClassMapper {
 
     private Map<String, PluginDao> pluginDaoMap = new HashMap<String, PluginDao>();
 
-    private Object daoMapLock = new Object();
+    private final Object daoMapLock = new Object();
+
+    private IHDFFilePathProvider defaultPathProvider = null;
 
     /**
      * Private constructor
@@ -173,6 +174,7 @@ public class PluginFactory implements IPluginClassMapper {
      * @throws PluginException
      *             If the class cannot be determined
      */
+    @Override
     public Class<PluginDataObject> getPluginRecordClass(String pluginName)
             throws PluginException {
         PluginProperties props = PluginRegistry.getInstance()
@@ -233,7 +235,7 @@ public class PluginFactory implements IPluginClassMapper {
         if (props != null) {
             rval = props.getPathProvider();
         } else {
-            rval = PluginPropertyDefaults.getPathProvider();
+            rval = defaultPathProvider;
         }
         return rval;
     }
@@ -279,5 +281,14 @@ public class PluginFactory implements IPluginClassMapper {
             throw new PluginException("Plugin " + pluginName
                     + " is not registered with the PluginRegistry");
         }
+    }
+
+    /**
+     * Set the default path provider. Used by spring to configure the factory.
+     * 
+     * @param defaultPathProvider
+     */
+    public void setDefaultPathProvider(IHDFFilePathProvider defaultPathProvider) {
+        this.defaultPathProvider = defaultPathProvider;
     }
 }

@@ -11,15 +11,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.vaa"/>
 	</bean>
 
-	<bean id="vaaCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="vaa-camel"/>
-  	</bean> 
-
     <camelContext id="vaa-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="vaaFileEndpoint" uri="file:${edex.home}/data/sbn/vaa?noop=true&amp;idempotent=false" />
 

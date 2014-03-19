@@ -31,7 +31,9 @@ import java.util.concurrent.CountDownLatch;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.PropertiesUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.modes.EDEXModesUtil;
 import com.raytheon.uf.edex.esb.camel.context.ContextManager;
 
@@ -54,7 +56,7 @@ import com.raytheon.uf.edex.esb.camel.context.ContextManager;
  * Feb 14, 2013  1638      mschenke     Removing activemq reference in stop
  * Apr 22, 2013  #1932     djohnson     Use countdown latch for a shutdown hook.
  * Dec 04, 2013  2566      bgonzale     refactored mode methods to a utility in edex.core.
- * 
+ * Mar 19, 2014  2726      rjpeter      Added graceful shutdown.
  * </pre>
  * 
  * @author chammack
@@ -66,15 +68,36 @@ public class Executor {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
     public static void start() throws Exception {
+        final long t0 = System.currentTimeMillis();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
+                ContextManager ctxMgr = ContextManager.getInstance();
+
+                long t1 = System.currentTimeMillis();
+                System.out
+                        .println("**************************************************");
+                System.out
+                        .println("* EDEX ESB is shutting down                      *");
+                System.out
+                        .println("**************************************************");
+                ctxMgr.stopContexts();
+                long t2 = System.currentTimeMillis();
+                System.out
+                        .println("**************************************************");
+                System.out
+                        .println("* EDEX ESB is shut down                          *");
+                System.out.println("* Total time to shutdown: "
+                        + TimeUtil.prettyDuration(t2 - t1));
+                System.out.println("* EDEX ESB uptime: "
+                        + TimeUtil.prettyDuration(t2 - t0));
+                System.out
+                        .println("**************************************************");
                 shutdownLatch.countDown();
             }
         });
 
-        long t0 = System.currentTimeMillis();
         Thread.currentThread().setName("EDEXMain");
         System.setProperty("System.status", "Starting");
 
@@ -113,7 +136,7 @@ public class Executor {
 
         String modeName = System.getProperty("edex.run.mode");
 
-        if (modeName != null && modeName.length() > 0) {
+        if ((modeName != null) && (modeName.length() > 0)) {
             System.out.println("EDEX run configuration: " + modeName);
         } else {
             System.out
@@ -123,8 +146,7 @@ public class Executor {
                 + System.getProperty("aw.site.identifier"));
 
         List<String> discoveredPlugins = EDEXModesUtil.extractSpringXmlFiles(
-                xmlFiles,
-                modeName);
+                xmlFiles, modeName);
 
         System.out.println();
         System.out.println(" ");
@@ -141,8 +163,10 @@ public class Executor {
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 xmlFiles.toArray(new String[xmlFiles.size()]));
+
         ContextManager ctxMgr = (ContextManager) context
                 .getBean("contextManager");
+
         // start final routes
         ctxMgr.startContexts();
 
@@ -151,11 +175,12 @@ public class Executor {
                 .println("**************************************************");
         System.out
                 .println("* EDEX ESB is now operational                    *");
-        System.out.println("* Total startup time: " + ((t1 - t0) / 1000)
-                + " seconds");
+        System.out.println("* Total startup time: "
+                + TimeUtil.prettyDuration(t1 - t0));
         System.out
                 .println("**************************************************");
         System.setProperty("System.status", "Operational");
+        EDEXUtil.notifyIsRunning();
 
         shutdownLatch.await();
     }

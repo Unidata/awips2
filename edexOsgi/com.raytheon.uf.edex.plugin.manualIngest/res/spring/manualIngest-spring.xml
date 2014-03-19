@@ -6,7 +6,7 @@
 
 	<camelContext id="clusteredManualProc"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler" autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<endpoint id="manualFileEndpoint"
             uri="file:${edex.home}/data/manual?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#fileChangedStrategy&amp;recursive=true" />
 
@@ -18,8 +18,7 @@
 		</route>
     </camelContext>
 
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredManualProc" />
   	</bean>
 </beans>

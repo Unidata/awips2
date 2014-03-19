@@ -49,7 +49,9 @@
     <constructor-arg ref="saveOrUpdateHandler"/>
   </bean>    
   
-  <bean id="pluginFactory" class="com.raytheon.uf.edex.database.plugin.PluginFactory" factory-method="getInstance"/>
+  <bean id="pluginFactory" class="com.raytheon.uf.edex.database.plugin.PluginFactory" factory-method="getInstance">
+    <property name="defaultPathProvider" ref="defaultPathProvider"/>
+  </bean>
     
   <bean id="pluginFactoryRegisteredToDataURIUtil"
     class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">

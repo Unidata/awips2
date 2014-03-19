@@ -10,7 +10,7 @@
 		<constructor-arg ref="vilGenerator"/>
 	</bean>
 	
-	<camelContext id="vil-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="vil-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="VILGenerate">
         	<from uri="jms-durable:queue:vilGenerate"/>
             <doTry>
