@@ -22,6 +22,8 @@ package com.raytheon.uf.viz.datadelivery.notification;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -105,6 +107,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Sep 25, 2013  2408      mpduff     Added a restore hidden notifications menu.
  * Sep 25, 2013  2410      mpduff     Check type of localization file.
  * Feb 07, 2013  2453      mpduff     Support find dialog refactor..
+ * Mar 18, 2014  2433      mpduff     Implement view by priority check box menus.
  * 
  * </pre>
  * 
@@ -197,6 +200,10 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
     /** SaveAs config dialog */
     private LoadSaveConfigDlg saveAsDlg;
+
+    /** Priority -> Priority Menu Item map */
+    private final Map<Priority, MenuItem> priorityMenuMap = new HashMap<Priority, MenuItem>(
+            Priority.values().length);
 
     /**
      * Constructor.
@@ -374,22 +381,24 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
             }
         });
 
-        MenuItem hidePriorityMI = new MenuItem(editMenu, SWT.CASCADE);
-        lockableMenuItems.add(hidePriorityMI);
-        hidePriorityMI.setText("Hide by Priority");
-        hidePriorityMI.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
+        // Create view menu
+        MenuItem viewMenuItem = new MenuItem(menuBar, SWT.CASCADE);
+        viewMenuItem.setText("&View");
 
-            }
-        });
+        Menu viewMenu = new Menu(menuBar);
+        viewMenuItem.setMenu(viewMenu);
 
-        Menu subMenu = new Menu(menuBar);
-        hidePriorityMI.setMenu(subMenu);
+        MenuItem priorityMI = new MenuItem(viewMenu, SWT.CASCADE);
+        priorityMI.setText("By Priority");
 
-        createPriorityMenus(subMenu);
+        Menu priorityMenu = new Menu(viewMenu);
+        priorityMI.setMenu(priorityMenu);
 
-        MenuItem hideOlderMI = new MenuItem(editMenu, SWT.NONE);
+        createPriorityMenus(priorityMenu);
+
+        new MenuItem(viewMenu, SWT.SEPARATOR);
+
+        MenuItem hideOlderMI = new MenuItem(viewMenu, SWT.NONE);
         lockableMenuItems.add(hideOlderMI);
         hideOlderMI.setText("Hide Older Than Selected");
         hideOlderMI.addSelectionListener(new SelectionAdapter() {
@@ -400,7 +409,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
 
         });
 
-        MenuItem hideMI = new MenuItem(editMenu, SWT.NONE);
+        MenuItem hideMI = new MenuItem(viewMenu, SWT.NONE);
         lockableMenuItems.add(hideMI);
         hideMI.setText("Hide Notification(s)");
         hideMI.addSelectionListener(new SelectionAdapter() {
@@ -410,7 +419,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
             }
         });
 
-        MenuItem unhideMI = new MenuItem(editMenu, SWT.NONE);
+        MenuItem unhideMI = new MenuItem(viewMenu, SWT.NONE);
         lockableMenuItems.add(unhideMI);
         unhideMI.setText("Show Hidden Notifications");
         unhideMI.addSelectionListener(new SelectionAdapter() {
@@ -487,17 +496,31 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      *            Menu to hold these menu items
      */
     private void createPriorityMenus(Menu menu) {
+        NotificationFilterXML xml = NotificationConfigManager.getInstance()
+                .getFilterXml();
         for (Priority priority : PriorityImages.Priority.values()) {
-            MenuItem mi = new MenuItem(menu, SWT.NONE);
+            MenuItem mi = new MenuItem(menu, SWT.CHECK);
             mi.setText("Priority " + priority.getPriorityNum());
             mi.setData(priority.getPriorityNum());
+            if (priority == Priority.Priority1) {
+                mi.setEnabled(false);
+                mi.setSelection(true);
+                continue;
+            }
+            for (Priority p : xml.getPriorityList()) {
+                if (priority.equals(p)) {
+                    mi.setSelection(true);
+                    break;
+                }
+            }
+
             mi.addSelectionListener(new SelectionAdapter() {
                 @Override
                 public void widgetSelected(SelectionEvent e) {
-                    tableComp.handleHideByPriority((Integer) ((MenuItem) e
-                            .getSource()).getData());
+                    updatePriorityView(priorityMenuMap);
                 }
             });
+            priorityMenuMap.put(priority, mi);
         }
     }
 
@@ -904,6 +927,7 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
      */
     @Override
     public void tableChanged() {
+        updatePriorityViewMenus();
         tableComp.tableChangedAfterConfigLoad();
     }
 
@@ -927,4 +951,45 @@ public class NotificationDlg extends CaveSWTDialog implements ITableChange,
         }
     }
 
+    /**
+     * Update the priority menus to match the configuration.
+     */
+    public void updatePriorityViewMenus() {
+        NotificationConfigManager configMan = NotificationConfigManager
+                .getInstance();
+        configMan.getFilterXml();
+
+        for (Priority priority : priorityMenuMap.keySet()) {
+            priorityMenuMap.get(priority).setSelection(false);
+            for (Priority p : configMan.getFilterXml().getPriorityList()) {
+                if (p.equals(priority)) {
+                    priorityMenuMap.get(p).setSelection(true);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Update the priority view items
+     * 
+     * @param priorityMap
+     */
+    public void updatePriorityView(Map<Priority, MenuItem> priorityMap) {
+        NotificationConfigManager configManager = NotificationConfigManager
+                .getInstance();
+        NotificationFilterXML xml = configManager.getFilterXml();
+
+        xml.clearPriorityList();
+        for (Priority p : priorityMap.keySet()) {
+            if (priorityMap.get(p).getSelection()) {
+                xml.addPriority(p);
+            }
+        }
+
+        configManager.setFilterXml(xml);
+        configManager.saveXml();
+
+        tableComp.tableChangedAfterConfigLoad();
+    }
 }
