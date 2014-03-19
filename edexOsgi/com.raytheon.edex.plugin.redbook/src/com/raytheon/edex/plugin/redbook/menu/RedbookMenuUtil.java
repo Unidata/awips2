@@ -169,8 +169,6 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
                     VariableSubstitution var = new VariableSubstitution();
                     var.key = substitute.getKey();
                     var.value = substitute.getValue();
-                    statusHandler.info("Substitution: " + var.key + " <> "
-                            + var.value);
                     subList.add(var);
                 }
 
