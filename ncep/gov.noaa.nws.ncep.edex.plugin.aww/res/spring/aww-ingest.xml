@@ -27,15 +27,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.AlphaNumeric" />
 	</bean-->
     
-	<bean id="awwCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="aww-camel"/>
-  	</bean>     
-    
     <camelContext id="aww-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
 	     <endpoint id="awwFileEndpoint" uri="file:${edex.home}/data/sbn/aww?noop=true&amp;idempotent=false"/>
         
         <!-- Begin Aww routes -->

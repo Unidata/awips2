@@ -1,6 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<bean class="com.raytheon.uf.edex.ogc.common.util.AddonPropsPostProcessor">
@@ -14,12 +14,6 @@
 			</map>
 		</constructor-arg>
 	</bean>
-
-    <bean id="madisOgcCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered">
-		<constructor-arg ref="madis-ogc-camel"/>
-  	</bean>
 
 	<camelContext id="madis-ogc-camel"
 		xmlns="http://camel.apache.org/schema/spring"
