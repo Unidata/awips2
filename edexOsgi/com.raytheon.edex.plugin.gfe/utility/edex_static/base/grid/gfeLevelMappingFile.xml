@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Mar 31, 2014    #2934    dgilling    Added new FHAG0 level needed for pSurge2.0.
+ -->
 <LevelMappings>
     <Level key="BL030">
         <DatabaseLevel levelName="BL" levelOneValue="0.0" levelTwoValue="30.0" unit="hPa"/>
@@ -236,6 +239,9 @@
     </Level>
     <Level key="FH13716">
         <DatabaseLevel levelName="FH" levelOneValue="13716.0" unit="m"/>
+    </Level>
+    <Level key="FHAG0">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" unit="m"/>
     </Level>
     <Level key="FHAG2">
         <DatabaseLevel levelName="FHAG" levelOneValue="2.0" unit="m"/>
