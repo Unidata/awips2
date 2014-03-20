@@ -35,27 +35,9 @@
          unpack="true"/>
          
    <plugin
-         id="gov.noaa.nws.ncep.ui.nsharp.linux32"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-         
-   <plugin
          id="gov.noaa.nws.ncep.ui.nsharp.linux64"
          os="linux"
          arch="x86_64"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
-         
-   <plugin
-         id="gov.noaa.nws.ncep.ui.nsharp.win32"
-         os="win32"
-         arch="x86"
          download-size="0"
          install-size="0"
          version="0.0.0"
