@@ -24,12 +24,8 @@
 			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<descriptor xsi:type="mapDescriptor">
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="true" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -56,12 +52,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="true" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -88,12 +80,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -111,12 +99,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -143,12 +127,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -175,12 +155,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -207,12 +183,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
@@ -239,12 +211,8 @@
 					</resourceData>
 				</resource>
 				<resource>
-					<loadProperties>
-						<capabilities>
-							<capability xsi:type="displayTypeCapability"
-								displayType="CONTOUR" />
-						</capabilities>
-					</loadProperties>
+					<loadProperties xsi:type="gridLoadProperties"
+						displayType="CONTOUR" />
 					<properties isVisible="false" />
 					<resourceData xsi:type="gridResourceData">
 						<metadataMap>
