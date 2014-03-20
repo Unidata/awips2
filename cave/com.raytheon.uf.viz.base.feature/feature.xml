@@ -175,15 +175,6 @@
          version="1.1.1"/>
 
    <plugin
-         id="javax.media.opengl.linux32"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="1.1.1"
-         fragment="true"/>
-
-   <plugin
          id="javax.media.opengl.linux64"
          os="linux"
          arch="x86_64"
