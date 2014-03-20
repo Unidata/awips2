@@ -465,7 +465,7 @@ public abstract class ContourRenderable implements IRenderable {
             DataSource source = FillValueFilter.apply((DataSource) data,
                     Constants.LEGACY_NAN);
             source = new GeographicDataSource(source, gridGeometry);
-            return new DataSource[] { data };
+            return new DataSource[] { source };
         } else {
             return dataRecord;
         }
