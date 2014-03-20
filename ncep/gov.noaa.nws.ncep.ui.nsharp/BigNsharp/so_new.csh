@@ -74,7 +74,7 @@ echo " "
 if ( $check == "libbignsharp.so") then
 	echo "****** Shared library is created ******\n "
 	echo " "
-	cp libbignsharp.so $DEV_BASE/workspace/gov.noaa.nws.ncep.ui.nsharp.linux32
+	cp libbignsharp.so $DEV_BASE/workspace/gov.noaa.nws.ncep.ui.nsharp.linux64
 else
 	echo "****** Houston, we got problems ******\n "
 endif
