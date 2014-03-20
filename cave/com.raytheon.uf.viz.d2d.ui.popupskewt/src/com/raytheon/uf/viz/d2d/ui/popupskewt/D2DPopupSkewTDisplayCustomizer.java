@@ -26,14 +26,15 @@ import java.util.Set;
 
 import com.raytheon.uf.viz.cloudheight.rsc.CloudHeightResource;
 import com.raytheon.uf.viz.cloudheight.rsc.CloudHeightResourceData;
-import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.raytheon.uf.viz.core.rsc.IInitListener;
+import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
@@ -53,9 +54,10 @@ import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 31, 2013       2190 mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 31, 2013  2190     mschenke     Initial creation
+ * Mar 20, 2014  2932     bsteffen     Better support of blended resources.
  * 
  * </pre>
  * 
@@ -198,8 +200,22 @@ public class D2DPopupSkewTDisplayCustomizer implements
         }
 
         private boolean isCompatibleResource(ResourcePair rp) {
-            return COMPATIBLE_CLASSES.contains(rp.getResourceData().getClass())
-                    && CloudHeightResource.isValidContributor(rp.getResource());
+            AbstractResourceData resourceData = rp.getResourceData();
+            if (resourceData != null) {
+                if (COMPATIBLE_CLASSES
+                        .contains(rp.getResourceData().getClass())) {
+                    return CloudHeightResource.isValidContributor(rp
+                            .getResource());
+                } else if (resourceData instanceof IResourceGroup) {
+                    IResourceGroup group = (IResourceGroup) resourceData;
+                    for (ResourcePair internalPair : group.getResourceList()) {
+                        if (isCompatibleResource(internalPair)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private synchronized void addResources(IDescriptor descriptor) {
