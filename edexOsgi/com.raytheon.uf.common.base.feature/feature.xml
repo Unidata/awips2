@@ -308,15 +308,6 @@
          version="2.3.0"/>
 
    <plugin
-         id="org.jep.linux32"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="2.3.0"
-         fragment="true"/>
-
-   <plugin
          id="org.jep.linux64"
          os="linux"
          arch="x86_64"
