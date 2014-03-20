@@ -34,6 +34,9 @@
 #    02/12/13           #1608      randerso      Added support for explicitly deleting groups and datasets
 #    Nov 14, 2013       2393       bclement      removed interpolation
 #    Jan 17, 2014       2688       bclement      added file action and subprocess error logging  
+#    Mar 19, 2014       2688       bgonzale      added more subprocess logging.  Return value from
+#                                                subprocess.check_output is not return code, but is
+#                                                process output.  h5repack has no output without -v arg.
 #
 #
 
@@ -773,14 +776,24 @@ class H5pyDataStore(IDataStore.IDataStore):
         else:
             repackedFullPath = filepath.replace(basePath, outDir)
         cmd = ['h5repack', '-f', compression, filepath, repackedFullPath]
+        if logger.isEnabledFor(logging.DEBUG):
+            cmd.insert(1, '-v')
+        success = True
+        ret = None
         try:
             ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-            success = (ret == 0)
+            # if CalledProcessError is not raised then success
         except subprocess.CalledProcessError, e:
             logger.error("Subprocess call failed: " + str(e))
+            logger.error("Subprocess args: " + " ".join(cmd))
             logger.error("Subprocess output: " + e.output)
             success = False
-        
+        except:
+            logger.exception("Unexpected error from h5repack")
+            success = False
+        finally:
+            logger.debug("h5repack output: " + str(ret))
+
         if success:
             # repack was successful, replace the old file if we did it in the
             # same directory, otherwise leave it alone
