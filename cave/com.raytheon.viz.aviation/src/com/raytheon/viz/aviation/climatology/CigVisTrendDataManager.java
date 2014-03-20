@@ -47,9 +47,10 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 5, 2009            avarani     Initial creation
- * Mar 31,2011  8774      rferrel     killProcess when doing a disposed
- * Apr 4, 2011  8896      rferrel     Made timeout configurable
+ * Oct 5, 2009             avarani     Initial creation
+ * Mar 31,2011  8774       rferrel     killProcess when doing a disposed
+ * Apr 4, 2011  8896       rferrel     Made timeout configurable
+ * 19Mar2014    #2925      lvenable    Added dispose checks for runAsync.
  * 
  * </pre>
  * 
@@ -196,15 +197,16 @@ public class CigVisTrendDataManager implements PyProcessListener {
                             pythonScript = null;
                         }
                     }
-                    if (CigVisTrendDataManager.this.parent.isDisposed() == false) {
-                        VizApp.runAsync(new Runnable() {
-                            @Override
-                            public void run() {
+
+                    VizApp.runAsync(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (CigVisTrendDataManager.this.parent.isDisposed() == false) {
                                 CigVisTrendDataManager.this.parent
                                         .resetCursor();
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
         };
@@ -256,7 +258,9 @@ public class CigVisTrendDataManager implements PyProcessListener {
             VizApp.runAsync(new Runnable() {
                 @Override
                 public void run() {
-                    parent.dataReceived();
+                    if (parent.isDisposed() == false) {
+                        parent.dataReceived();
+                    }
                 }
             });
         }
