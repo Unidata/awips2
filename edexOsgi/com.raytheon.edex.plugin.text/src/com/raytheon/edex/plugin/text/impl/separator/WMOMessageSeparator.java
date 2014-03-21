@@ -20,8 +20,9 @@
 package com.raytheon.edex.plugin.text.impl.separator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
@@ -46,6 +47,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * 20090327     2151        jkorman     Modified separate to remove leading/trailing
  *                                      white space.
  * Jul 10, 2009 2191        rjpeter     Reimplemented.
+ * Mar 04, 2014 2652        skorolev    Corrected NNNXXX pattern.
+ * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
  * </pre>
  * 
  * @author
@@ -107,8 +110,9 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
 
     protected int numSkipped = 0;
 
-    // used for collective messages to show the skipped header
-    protected List<WMOHeader> subHeadersSkipped = new ArrayList<WMOHeader>();
+    // used for collective messages to show the skipped header and reason to
+    // skip.
+    protected Map<WMOHeader, String> subHeadersSkipped = new HashMap<WMOHeader, String>();
 
     /**
      * 
@@ -278,9 +282,6 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
         return numSkipped;
     }
 
-    public List<WMOHeader> getSubHeadersSkipped() {
-        return subHeadersSkipped;
-    }
 
     /*
      * private AFOSProductId createProductId() { AFOSProductId productId = null;
@@ -407,6 +408,10 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
         }
     }
 
+    public Map<WMOHeader, String> getSubHeadersSkipped() {
+        return subHeadersSkipped;
+    }
+
     public static final void main(String[] args) {
 
         StringBuilder sb = new StringBuilder(
@@ -426,5 +431,4 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
         // }
         // }
     }
-
 }
