@@ -42,8 +42,10 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Sep 3, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * Sep 22, 2010 6932       cjeanbap    Added METAR/SPECI to product.
- * Feb 18, 2014 2652       skorolev     Fixed error in the makeCollId.
- * 
+ * Feb 18, 2014 2652       skorolev    Fixed error in the makeCollId.
+ * Mar 06, 2014 2652       skorolev    Corrected rawMsg extraction.
+ * Mar 14, 2014 2652       skorolev    Changed logging for skipped headers.
+ *                                     Fixed calculation of message end.
  * </pre>
  * 
  * @author jkorman
@@ -133,12 +135,20 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         String productType = null;
         int startIndex = wmoHdr.getMessageDataStart();
         int endIndex = TextSeparatorFactory.findDataEnd(rawData);
+        if (endIndex <= startIndex) {
+            endIndex = rawData.length - 1;
+        }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
+        StringBuilder sb = null;
+        // This is a fake line "METXXX" to permit skipping of NNNXXX pattern
+        // line.
         if ((rawMsg.indexOf(METAR) == 0) || (rawMsg.indexOf(SPECI) == 0)) {
             productType = (rawMsg.indexOf(METAR) == 0 ? METAR : SPECI);
+            sb = new StringBuilder(rawMsg);
+            sb.insert(0, "METXXX\n");
+            rawMsg = sb.toString();
         }
 
-        StringBuilder sb = null;
         if ("TAF".equals(afos_id.getNnn())) {
             sb = new StringBuilder(rawMsg);
             Matcher m = P_TAF.matcher(sb);
@@ -238,14 +248,13 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                     // during the AFOS to AWIPS transition so that products can
                     // still be stored.
                     if (!makeCollId(product_id, XXX_id, afos_id,
-                            wmoHdr.getCccc())) {
+                            wmoHdr.getCccc(), newWmoHdr)) {
                         if (NOAFOSPIL.equals(afos_id)) {
                             logger.info("No AFOS ID found; use TTAAii CCCC to store: "
                                     + dataDes + wmoHdr.getCccc());
                             product_id = NOAFOSPIL;
                         } else {
                             numSkipped++;
-                            subHeadersSkipped.add(newWmoHdr);
 
                             /*
                              * if (moveBadTxt) { logger.error(
@@ -389,7 +398,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             }
             pirFlag = false;
         }
-
+        blank = buffer.toString();
         if (blank.startsWith("AMD") || blank.startsWith("COR")) {
             if (safeStrpbrk(buffer, CSPC)) {
                 buffer.deleteCharAt(0);
@@ -467,10 +476,11 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
      * @param XXX_id
      * @param afos_id
      * @param origin
+     * @param newWmoHdr
      * @return
      */
     private boolean makeCollId(AFOSProductId product_id, StringBuilder XXX_id,
-            AFOSProductId afos_id, String origin) {
+            AFOSProductId afos_id, String origin, WMOHeader newWmoHdr) {
         // /TextString CCC_id, newId;
         String CCC_id;
         String newId;
@@ -487,33 +497,58 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
             // If the XXX is 3 characters, and the origin starts with K, try
             // prepending K or P (the latter for AK, HI products)
-            if ((trimmedXXX.length() == 3)
-                    && (origin.startsWith("K") && !trimmedXXX.equals("RMK"))) {
+            if (trimmedXXX.length() == 3 && origin.startsWith("K")) {
                 newId = "K" + trimmedXXX;
                 if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
                     newId = "P" + trimmedXXX;
                     if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
                         // logger.error("NCF_FAIL to map XXX to CCC: " +
                         // XXX_id);
+                        subHeadersSkipped
+                                .put(newWmoHdr,
+                                        "Product "
+                                                + afos_id.toString()
+                                                + " is excluded from storage due to "
+                                                + newId
+                                                + " not present in national_category_table.template");
                         return false;
                     }
                 }
             }
             // Otherwise, if the XXX is 3 characters, try prepending the first
-            // character of the origin except "RMK" which is remark code.
-            else if (trimmedXXX.length() == 3 && !trimmedXXX.equals("RMK")) {
+            // character of the origin.
+            else if (trimmedXXX.length() == 3) {
                 newId = origin.charAt(0) + trimmedXXX;
                 if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
-                    // logger.error("NCF_FAIL to map XXX to CCC: " + XXX_id);
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to "
+                                            + newId
+                                            + " not present in national_category_table.template");
                     return false;
                 }
             } else {
-                // logger.error("NCF_FAIL to map XXX to CCC: " + XXX_id);
                 if (!checkCharNum(XXX_id.charAt(0))) {
-                    // logger.error("bad XXX id");
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to incorrect xxxid"
+                                            + XXX_id);
                     return false;
                 } else
-                    return true;
+                    // If trimmedXXX has 4 characters and not found in
+                    // national_category_table.template.
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to "
+                                            + trimmedXXX
+                                            + " not present in national_category_table.template");
+                return false;
             }
         }
 
@@ -528,7 +563,6 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             product_id.setXxx(trimmedXXX);
         else
             product_id.setXxx(XXX_id.substring(1, 4));
-
         return true;
     }
 }
