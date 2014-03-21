@@ -13,7 +13,7 @@
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=ofsGmex
+GDFILE=RTOFS-GulfMexico
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
