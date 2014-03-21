@@ -31,6 +31,7 @@ import java.util.TimeZone;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 8, 2008   1737      grichard    Initial creation.
+ * Mar 14, 2014  DR 17175  D. Friedman Fixed Atlantic and Samoa time zones
  * </pre>
  * 
  * @author grichard
@@ -82,8 +83,8 @@ public final class TextWarningConstants {
         timeZoneAbbreviationMap.put("M", TimeZone.getTimeZone("MST7MDT"));
         timeZoneAbbreviationMap.put("m", TimeZone.getTimeZone("MST"));
         timeZoneAbbreviationMap.put("P", TimeZone.getTimeZone("PST8PDT"));
-        timeZoneAbbreviationMap.put("S", TimeZone.getTimeZone("AST"));
-        timeZoneAbbreviationMap.put("V", TimeZone.getTimeZone("VST"));
+        timeZoneAbbreviationMap.put("S", TimeZone.getTimeZone("US/Samoa"));
+        timeZoneAbbreviationMap.put("V", TimeZone.getTimeZone("America/Puerto_Rico"));
     }
 
     /**
