@@ -21,11 +21,9 @@ package com.raytheon.viz.volumebrowser.vbui;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -40,7 +38,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -48,9 +45,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
+import com.raytheon.uf.common.menus.xml.CommonToolBarContribution;
+import com.raytheon.uf.common.menus.xml.VariableSubstitution;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.IToolChangedListener;
@@ -59,12 +60,8 @@ import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.widget.MenuContributionItem;
-import com.raytheon.viz.volumebrowser.widget.TitleImgContributionItem;
-import com.raytheon.viz.volumebrowser.widget.ToolBarContributionItem;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
-import com.raytheon.viz.volumebrowser.xml.TitleImgContribution;
 import com.raytheon.viz.volumebrowser.xml.ToolBarContribution;
-import com.raytheon.viz.volumebrowser.xml.VbSource;
 import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
@@ -86,6 +83,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  *                                    menu's are recreated correctly on a
  *                                    pointChange action.
  * Dec 11, 2013  2602     bsteffen    Remove dead catch block.
+ * Mar 18, 2014  2874     bsteffen    Move creation of Sources toolbar
+ *                                    contributions to VbSourceList
  * 
  * </pre>
  * 
@@ -94,6 +93,8 @@ import com.raytheon.viz.volumebrowser.xml.VbSourceList;
  */
 public class DataListsProdTableComp extends Composite implements
         IDataMenuAction {
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DataListsProdTableComp.class);
 
     /**
      * Listener to update planes current point menu.
@@ -231,17 +232,12 @@ public class DataListsProdTableComp extends Composite implements
 
             toolbar = new MultiToolbar(composite, SWT.NONE);
             toolbar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
-            toolbar.addToolItemSelectionListener(new SelectionListener() {
+            toolbar.addToolItemSelectionListener(new SelectionAdapter() {
 
                 @Override
                 public void widgetSelected(SelectionEvent e) {
                     activeList = list;
                     currentDataSelection = data;
-                }
-
-                @Override
-                public void widgetDefaultSelected(SelectionEvent e) {
-
                 }
             });
             initializeFind(labelText.toString());
@@ -663,87 +659,28 @@ public class DataListsProdTableComp extends Composite implements
         // Dispose of all the tool items.
         sourceControl.toolbar.disposeToolbars();
 
-        /*
-         * Read in the selected Sources menu xml and create the tool
-         * items/menus.
-         */
+        List<CommonToolBarContribution> contribs = VbSourceList
+                .getToolBarContributions(setting);
+        ToolBarContribution common = new ToolBarContribution();
+        VariableSubstitution[] subs = new VariableSubstitution[0];
+        Set<String> removals = Collections.emptySet();
+        try {
+            for (CommonToolBarContribution contrib : contribs) {
+                for (IContributionItem item : common.getContributionItems(
+                        contrib, subs, removals)) {
+                    sourceControl.toolbar.add(item);
 
-        // Linked HashMap used to preserve the ordering of categories
-        Map<String, List<IContributionItem>> catMap = new LinkedHashMap<String, List<IContributionItem>>();
-        Map<String, Map<String, List<IContributionItem>>> subCatMap = new LinkedHashMap<String, Map<String, List<IContributionItem>>>();
-        for (VbSource source : VbSourceList.getInstance().getEntries()) {
-            if (source.getViews() != null
-                    && !source.getViews().contains(setting)) {
-                continue;
-            }
-            List<IContributionItem> catList = null;
-            if (source.getSubCategory() != null) {
-                catList = catMap.get(source.getCategory());
-                if (catList == null) {
-                    catList = new ArrayList<IContributionItem>();
-                    catMap.put(source.getCategory(), catList);
-                }
-                Map<String, List<IContributionItem>> subMap = subCatMap
-                        .get(source.getCategory());
-                if (subMap == null) {
-                    subMap = new LinkedHashMap<String, List<IContributionItem>>();
-                    subCatMap.put(source.getCategory(), subMap);
-                }
-                catList = subMap.get(source.getSubCategory());
-                if (catList == null) {
-                    catList = new ArrayList<IContributionItem>();
-                    subMap.put(source.getSubCategory(), catList);
-                }
-            } else {
-                catList = catMap.get(source.getCategory());
-                if (catList == null) {
-                    catList = new ArrayList<IContributionItem>();
-                    catMap.put(source.getCategory(), catList);
                 }
             }
-            MenuContribution mContrib = new MenuContribution();
-            mContrib.xml.key = source.getKey();
-            if (source.getName() != null) {
-                mContrib.xml.menuText = source.getName();
-            } else {
-                // Attempt a lookup in the grib model table
-                DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                        source.getKey());
-                if (info != null) {
-                    mContrib.xml.menuText = info.getTitle();
-                } else {
-                    mContrib.xml.menuText = source.getKey();
-                }
-            }
-            catList.add(new MenuContributionItem(mContrib));
+        } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error creating Sources menus", e);
         }
-        for (Entry<String, List<IContributionItem>> entry : catMap.entrySet()) {
-            ToolBarContribution tbContrib = new ToolBarContribution();
-            tbContrib.xml.toolItemText = entry.getKey();
-            tbContrib.xml.id = setting.toString() + entry.getKey();
-            Map<String, List<IContributionItem>> subMap = subCatMap.get(entry
-                    .getKey());
-            if (subMap != null) {
-                for (Entry<String, List<IContributionItem>> subEntry : subMap
-                        .entrySet()) {
-                    TitleImgContribution tContrib = new TitleImgContribution();
-                    tContrib.xml.titleText = subEntry.getKey();
-                    tContrib.xml.displayDashes = true;
-                    tContrib.xml.displayImage = true;
-                    entry.getValue()
-                            .add(new TitleImgContributionItem(tContrib));
-                    entry.getValue().addAll(subEntry.getValue());
-                }
-            }
-            sourceControl.toolbar.add(new ToolBarContributionItem(tbContrib,
-                    entry.getValue().toArray(new IContributionItem[0])));
-
-        }
-
         try {
             sourceControl.toolbar.update();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error creating Sources menus", e);
         }
 
         /*
@@ -803,7 +740,9 @@ public class DataListsProdTableComp extends Composite implements
         try {
             fieldControl.toolbar.update();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error creating Fields menus", e);
+
         }
 
     }
@@ -853,9 +792,7 @@ public class DataListsProdTableComp extends Composite implements
             }
             break;
         case SOUNDING:
-            if (pointDisplayString == null) {
-                pointDisplayString = "Sounding";
-            }
+            pointDisplayString = "Sounding";
         case TIMEHEIGHT:
             if (pointDisplayString == null) {
                 pointDisplayString = "Tsect";
@@ -899,7 +836,9 @@ public class DataListsProdTableComp extends Composite implements
         try {
             planeControl.toolbar.update();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error creating Planes menus", e);
+
         }
     }
 
