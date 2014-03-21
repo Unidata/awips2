@@ -1059,6 +1059,11 @@ if SID in ALASKA_SITES:
                  ('HiResW-NMM-AK', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Alaska',
+                 'RTOFS-Arctic',
+                 'RTOFS-Bering',
+                 'RTOFS-GulfAlaska',
+                 'RTOFS-HudsonBaffin'
                ]
 
 # Hawaii OCONUS
@@ -1076,6 +1081,7 @@ elif SID == "HFO":
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Honolulu',
                ]
 
 # San Juan OCONUS
@@ -1098,6 +1104,7 @@ elif SID == "SJU":
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Atlantic',
                ]
 
 # Guam OCONUS
@@ -1107,6 +1114,7 @@ elif SID == "GUM":
                  'GWW233',
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Guam'
                ]
 
 #CONUS sites
