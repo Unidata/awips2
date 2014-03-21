@@ -103,6 +103,8 @@
 #       	Title:             AvnFPS: TUG code does not handle transition from warm to cold seasons
 #       
 #
+#   21Mar2014    #2925       lvenable    Fixed global name not defined error in run() method.
+#
 import itertools, logging, math, os, sets, time
 import ConfigParser
 import numpy, pupynere
@@ -492,7 +494,7 @@ def run(tafs, siteinfo, items, dataDir):
     d = {}
     path = os.path.join(ConfigDir, 'gui', 'TafMonitorCfg.xml')
     if not os.path.isfile(path):
-        raise Avn.AvnError('File %s does not exist' % fname)
+        raise Avn.AvnError('File %s does not exist' % path)
         return None    
     tafMonCfg = TafMonitorCfg.unmarshal(path)
     jMonCfgs = tafMonCfg.getMonitorCfgs()
