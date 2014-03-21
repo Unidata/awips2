@@ -140,13 +140,8 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
         StringBuilder sb = null;
-        // This is a fake line "METXXX" to permit skipping of NNNXXX pattern
-        // line.
         if ((rawMsg.indexOf(METAR) == 0) || (rawMsg.indexOf(SPECI) == 0)) {
             productType = (rawMsg.indexOf(METAR) == 0 ? METAR : SPECI);
-            sb = new StringBuilder(rawMsg);
-            sb.insert(0, "METXXX\n");
-            rawMsg = sb.toString();
         }
 
         if ("TAF".equals(afos_id.getNnn())) {
@@ -161,7 +156,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             rawMsg = sb.toString();
         }
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
-        if (nnnxxxMatcher.find()) {
+        if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
             rawMsg = rawMsg.substring(nnnxxxMatcher.end());
         }
         StringBuilder buffer = new StringBuilder(rawMsg);
