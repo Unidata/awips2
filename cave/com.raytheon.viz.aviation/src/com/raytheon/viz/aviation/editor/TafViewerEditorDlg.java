@@ -231,6 +231,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
  * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
+ * 21Mar2014    #2925       lvenable    Fixed NPE error found during testing.
  * 
  * </pre>
  * 
@@ -777,19 +778,18 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         }
     }
 
+    /**
+     * Mark the tabs as not current so they get refreshed.
+     */
+    private void markTabsAsNotCurrent() {
+        for (TabItem tbi : guidanceViewerFolder.getItems()) {
+            if (tbi.getControl() instanceof ViewerTab) {
+                ((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
+            }
+        }
+    }
 
-	/**
-	 * Mark the tabs as not current so they get refreshed.
-	 */
-	private void markTabsAsNotCurrent() {
-		for (TabItem tbi : guidanceViewerFolder.getItems()) {
-			if (tbi.getControl() instanceof ViewerTab) {
-				((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
-			}
-		}
-	}
-
-	@Override
+    @Override
     public void clearAll() {
         if (shell == null) {
             return;
@@ -1095,7 +1095,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         fileMenuItem.setMenu(fileMenu);
         fileMenu.addListener(SWT.Show, new Listener() {
             public void handleEvent(Event event) {
-            	setAltFlagForEditorTafTabComp();
+                setAltFlagForEditorTafTabComp();
             }
         });
 
@@ -1206,7 +1206,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         optionsMenuItem.setMenu(optionsMenu);
         optionsMenu.addListener(SWT.Show, new Listener() {
             public void handleEvent(Event event) {
-            	setAltFlagForEditorTafTabComp();
+                setAltFlagForEditorTafTabComp();
             }
         });
 
@@ -1285,10 +1285,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         editMenuItem.setMenu(editMenu);
         editMenu.addListener(SWT.Show, new Listener() {
             public void handleEvent(Event event) {
-            	setAltFlagForEditorTafTabComp();
+                setAltFlagForEditorTafTabComp();
             }
         });
-        
+
         // -------------------------------------------------
         // Create all the items in the Edit dropdown menu
         // -------------------------------------------------
@@ -1362,19 +1362,18 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         });
     }
-    
+
     /**
-     * When respectively using alt+'f', alt+'e', alt+'o' and alt+'h' 
-     * to open/display menus 'File', 'Edit', 'Options' and 'Help', 
-     * the alt flag of the editorTafTabComp object is set to true; 
-     * it needs to be re-set to false
-     * (DR16980)
+     * When respectively using alt+'f', alt+'e', alt+'o' and alt+'h' to
+     * open/display menus 'File', 'Edit', 'Options' and 'Help', the alt flag of
+     * the editorTafTabComp object is set to true; it needs to be re-set to
+     * false (DR16980)
      */
-	private void setAltFlagForEditorTafTabComp() {
-		if ( editorTafTabComp.getAlt() ) {
-			editorTafTabComp.setAlt(false);
-		}
-    }        	
+    private void setAltFlagForEditorTafTabComp() {
+        if (editorTafTabComp.getAlt()) {
+            editorTafTabComp.setAlt(false);
+        }
+    }
 
     /**
      * Create the Help menu.
@@ -1394,7 +1393,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         helpMenuItem.setMenu(helpMenu);
         helpMenu.addListener(SWT.Show, new Listener() {
             public void handleEvent(Event event) {
-            	setAltFlagForEditorTafTabComp();
+                setAltFlagForEditorTafTabComp();
             }
         });
 
@@ -2018,7 +2017,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         configMgr.setDefaultFontAndColors(applyBtn);
         applyBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent event) {           	            	
+            public void widgetSelected(SelectionEvent event) {
                 if (editorTafTabComp.getTextEditorControl().getText() != null
                         && !editorTafTabComp.getTextEditorControl().getText()
                                 .isEmpty()) {
@@ -2031,12 +2030,12 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     String toolName = toolsCbo.getItem(toolsCbo
                             .getSelectionIndex());
                     String bbb = editorTafTabComp.getBBB();
-                    
+
                     // DR166478
-                    if ( toolName.equals("UseMetarForPrevailing") ) {
-                    	if ( checkBasicSyntaxError(true) ) {
-                    		return;
-                    	}
+                    if (toolName.equals("UseMetarForPrevailing")) {
+                        if (checkBasicSyntaxError(true)) {
+                            return;
+                        }
                     }
 
                     // Setup for python request
@@ -2106,18 +2105,18 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
     /**
      * 
      * @param doLogMessage
-     * @return true if error found, otherwise false 
+     * @return true if error found, otherwise false
      */
     private boolean checkBasicSyntaxError(boolean doLogMessage) {
 
-    	String in = editorTafTabComp.getTextEditorControl().getText();
+        String in = editorTafTabComp.getTextEditorControl().getText();
 
         clearSyntaxErrorLevel();
 
         st = editorTafTabComp.getTextEditorControl();
 
         final Map<StyleRange, String> syntaxMap = new HashMap<StyleRange, String>();
- 
+
         st.addMouseTrackListener(new MouseTrackAdapter() {
             @Override
             public void mouseHover(MouseEvent e) {
@@ -2147,62 +2146,69 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         });
 
-        int tafIndex = in.indexOf("TAF"); 
+        int tafIndex = in.indexOf("TAF");
         int equalSignIndex = in.indexOf("=");
         int lastEqualSignIndex = equalSignIndex;
-        
-        if ( tafIndex < 0 && equalSignIndex < 0 ) { // empty TAF
-        	return false;
+
+        if (tafIndex < 0 && equalSignIndex < 0) { // empty TAF
+            return false;
         }
-        
+
         while (tafIndex > -1 || equalSignIndex > -1) {
 
-        	if ( tafIndex == -1 || tafIndex > equalSignIndex ) {
-        		
-        		int lineIndexOfFirstEqualSign = st.getLineAtOffset(lastEqualSignIndex);
-        		int lineIndexOfSecondEqualSign = st.getLineAtOffset(equalSignIndex);
-        		if ( lineIndexOfFirstEqualSign == lineIndexOfSecondEqualSign ) {
-            		StyleRange sr = new StyleRange(lastEqualSignIndex,1,null,qcColors[3]);
-            		String msg = "Syntax error: there is an extra '=' sign in this line";
-            		syntaxMap.put(sr, msg);
-            		st.setStyleRange(null);
-            		st.setStyleRange(sr);
+            if (tafIndex == -1 || tafIndex > equalSignIndex) {
+
+                int lineIndexOfFirstEqualSign = st
+                        .getLineAtOffset(lastEqualSignIndex);
+                int lineIndexOfSecondEqualSign = st
+                        .getLineAtOffset(equalSignIndex);
+                if (lineIndexOfFirstEqualSign == lineIndexOfSecondEqualSign) {
+                    StyleRange sr = new StyleRange(lastEqualSignIndex, 1, null,
+                            qcColors[3]);
+                    String msg = "Syntax error: there is an extra '=' sign in this line";
+                    syntaxMap.put(sr, msg);
+                    st.setStyleRange(null);
+                    st.setStyleRange(sr);
                     if (doLogMessage) {
                         msgStatComp.setMessageText(msg, qcColors[3].getRGB());
                     }
                     return true;
-        		}
-        		
-        		int startIndex = lastEqualSignIndex; 
-        		
-        		while ( !in.substring(startIndex,startIndex+1).matches("[A-Z]") && !in.substring(startIndex,startIndex+1).matches("[0-9]") ) {
-        			startIndex++;
-        		}
-        		int length = 6; 
-        		if ( (equalSignIndex-startIndex) < 6 ) {
-        			length = equalSignIndex-startIndex;
-        		}
-        		StyleRange sr = new StyleRange(startIndex,length,null,qcColors[3]);
-        		String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of TAF";
-        		syntaxMap.put(sr, msg);
-        		st.setStyleRange(null);
-        		st.setStyleRange(sr);
+                }
+
+                int startIndex = lastEqualSignIndex;
+
+                while (!in.substring(startIndex, startIndex + 1).matches(
+                        "[A-Z]")
+                        && !in.substring(startIndex, startIndex + 1).matches(
+                                "[0-9]")) {
+                    startIndex++;
+                }
+                int length = 6;
+                if ((equalSignIndex - startIndex) < 6) {
+                    length = equalSignIndex - startIndex;
+                }
+                StyleRange sr = new StyleRange(startIndex, length, null,
+                        qcColors[3]);
+                String msg = "Syntax error: There is an extra '=' sign before this point, or 'TAF' is missing at beginning of TAF";
+                syntaxMap.put(sr, msg);
+                st.setStyleRange(null);
+                st.setStyleRange(sr);
                 if (doLogMessage) {
                     msgStatComp.setMessageText(msg, qcColors[3].getRGB());
                 }
-        		
-        		return true;
-        	}
-        	
-        	tafIndex = in.indexOf("TAF", tafIndex+1);
-        	lastEqualSignIndex = equalSignIndex;
-        	equalSignIndex = in.indexOf("=", equalSignIndex+1);
-        }
-        	
-		return false;
-	}
 
-	private void syntaxCheck() {
+                return true;
+            }
+
+            tafIndex = in.indexOf("TAF", tafIndex + 1);
+            lastEqualSignIndex = equalSignIndex;
+            equalSignIndex = in.indexOf("=", equalSignIndex + 1);
+        }
+
+        return false;
+    }
+
+    private void syntaxCheck() {
         // Assume editorTafTabComp is for the active tab.
         st = editorTafTabComp.getTextEditorControl();
         st.setText(st.getText().toUpperCase());
@@ -3672,6 +3678,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 Map<List<String>, Object> results = runPythonQC(tafs, sites,
                         qcItems, bbb);
 
+                if (results == null) {
+                    setMessageStatusError("An Error occured while performing the QC check.");
+                    return;
+                }
+
                 // Display the QC results
                 int beginIndex = 0;
                 int endIndex = in.indexOf('\n');
@@ -3867,6 +3878,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             Map<List<String>, Object> resultMap = (HashMap<List<String>, Object>) map;
             return resultMap;
         } catch (JepException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Python error occurred while executing QC - see message details.",
+                            e);
             e.printStackTrace();
             return null;
         } finally {
