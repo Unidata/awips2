@@ -180,4 +180,19 @@
     <alias base="ECMF-MODEL0">ecmfNH</alias>
     <alias base="LAPS">laps</alias>
     <alias base="PHISH">PHISH</alias>
+    <alias base="RTOFS-Atlantic">rtofsAtlantic</alias>
+    <alias base="RTOFS-GulfMexico">rtofsAtlantic</alias>
+    <alias base="RTOFS-GulfStream">rtofsAtlantic</alias>
+    <alias base="RTOFS-GulfMaine">rtofsAtlantic</alias>
+    <alias base="RTOFS-Alaska">rtofsGlobal</alias>
+    <alias base="RTOFS-Arctic">rtofsGlobal</alias>
+    <alias base="RTOFS-Bering">rtofsGlobal</alias>
+    <alias base="RTOFS-Guam">rtofsGlobal</alias>
+    <alias base="RTOFS-GulfAlaska">rtofsGlobal</alias>
+    <alias base="RTOFS-Honolulu">rtofsGlobal</alias>
+    <alias base="RTOFS-HudsonBaffin">rtofsGlobal</alias>
+    <alias base="RTOFS-Samoa">rtofsGlobal</alias>
+    <alias base="RTOFS-TropPaciLowres">rtofsGlobal</alias>
+    <alias base="RTOFS-WestAtl">rtofsGlobal</alias>
+    <alias base="RTOFS-WestConus">rtofsGlobal</alias>
 </aliasList>
