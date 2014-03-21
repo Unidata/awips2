@@ -1348,4 +1348,7 @@
 	<Level displayName="Surface" key="1HYB">
 		<DatabaseLevel levelName="HYB" levelOneValue="1" />
 	</Level>
+	<Level displayName="Sea Surface" key="0BSS">
+		<DatabaseLevel levelName="BSS" levelOneValue="0" />
+	</Level>
 </LevelMappings>
