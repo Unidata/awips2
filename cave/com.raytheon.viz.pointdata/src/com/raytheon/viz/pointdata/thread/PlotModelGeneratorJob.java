@@ -17,29 +17,28 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata;
+package com.raytheon.viz.pointdata.thread;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.collections.map.LRUMap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.ext.ISingleColorImageExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
+import com.raytheon.viz.pointdata.PlotInfo;
+import com.raytheon.viz.pointdata.PlotModelFactory2;
 
 /**
- * Job separated from PlotModelGenerator2 that creates the plot images.
+ * Job that generates plot images using a PlotModelFactory2.
  * 
  * <pre>
  * 
@@ -48,6 +47,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2011            njensen     Initial creation
+ * Mar 21, 2014 2868       njensen     Major refactor
  * 
  * </pre>
  * 
@@ -55,27 +55,20 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * @version 1.0
  */
 
-public class PlotModelGeneratorJob extends Job {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PlotModelDataRequestJob.class);
-
-    private ConcurrentLinkedQueue<PlotInfo[]> taskQueue = new ConcurrentLinkedQueue<PlotInfo[]>();
+public class PlotModelGeneratorJob extends AbstractPlotCreationJob {
 
     private PlotModelFactory2 plotCreator;
-
-    private IPlotModelGeneratorCaller caller;
 
     private IGraphicsTarget target;
 
     @SuppressWarnings("unchecked")
     private Map<BufferedImage, IImage> imageCache = new LRUMap(1000);
 
-    protected PlotModelGeneratorJob(PlotModelFactory2 plotCreator,
-            IPlotModelGeneratorCaller caller, IGraphicsTarget target) {
-        super("Creating plots");
+    protected PlotModelGeneratorJob(PlotThreadOverseer parent,
+            IPlotModelGeneratorCaller caller, PlotModelFactory2 plotCreator,
+            IGraphicsTarget target) {
+        super("Creating plots", parent, caller);
         this.plotCreator = plotCreator;
-        this.caller = caller;
         this.target = target;
     }
 
@@ -88,9 +81,14 @@ public class PlotModelGeneratorJob extends Job {
     @Override
     protected IStatus run(IProgressMonitor monitor) {
         long t0 = System.currentTimeMillis();
-        while (!taskQueue.isEmpty()) {
+        long count = 0;
+        while (!overseer.imageCreationQueue.isEmpty()) {
             try {
-                PlotInfo[] infos = taskQueue.poll();
+                PlotInfo[] infos = overseer.imageCreationQueue.poll();
+                if (infos == null) {
+                    // possibility another thread got it first
+                    continue;
+                }
                 final BufferedImage bImage = plotCreator.getStationPlot(
                         infos[0].pdv, infos[0].latitude, infos[0].longitude);
                 IImage image = null;
@@ -120,46 +118,40 @@ public class PlotModelGeneratorJob extends Job {
                 }
                 synchronized (this) {
                     if (monitor.isCanceled()) {
-                        if(image != null){
+                        if (image != null) {
                             image.dispose();
                         }
                         break;
                     }
-                    caller.modelGenerated(infos, image);
+                    count++;
+                    listener.modelGenerated(infos, image);
                 }
             } catch (Exception e) {
-                statusHandler.error("Error creating plot", e);
+                statusHandler.error("Error creating plot with plotModel "
+                        + plotCreator.getPlotModelFilename(), e);
             }
         }
 
-        plotCreator.disposeScript();
-        System.out.println("Time spent creating plots: "
-                + (System.currentTimeMillis() - t0));
-        return Status.OK_STATUS;
-    }
-
-    protected void enqueue(PlotInfo[] task) {
-        this.taskQueue.add(task);
-        if (this.getState() != Job.RUNNING) {
-            this.schedule();
+        if (count > 0) {
+            /*
+             * if count is zero it means by the time this job was scheduled and
+             * run, a different job took care of everything on the queue
+             */
+            System.out.println("Time spent creating " + count + " plots: "
+                    + (System.currentTimeMillis() - t0));
         }
-    }
-
-    protected int getQueueSize() {
-        return taskQueue.size();
+        return Status.OK_STATUS;
     }
 
     protected void clearImageCache() {
         imageCache.clear();
     }
 
-    public boolean isDone() {
-        return getState() != Job.RUNNING && getState() != Job.WAITING;
-    }
-
-    protected synchronized void shutdown() {
-        cancel();
-        taskQueue.clear();
+    @Override
+    public boolean shutdown() {
+        boolean result = super.shutdown();
         clearImageCache();
+        plotCreator.dispose();
+        return result;
     }
 }
