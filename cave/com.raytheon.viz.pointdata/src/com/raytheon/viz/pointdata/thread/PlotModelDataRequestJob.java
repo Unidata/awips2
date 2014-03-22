@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.viz.pointdata;
+package com.raytheon.viz.pointdata.thread;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,30 +27,25 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
+import com.raytheon.viz.pointdata.PlotData;
+import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
+import com.raytheon.viz.pointdata.PointDataRequest;
 import com.raytheon.viz.pointdata.rsc.PlotResourceData;
-import com.raytheon.viz.pointdata.thread.GetDataTask;
-import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
 
 /**
- * Job separated from PlotModelGenerator2 that requests plot data and passes it
- * on to the PlotModelGeneratorJob.
+ * Job that requests plot data based on a constraintMap and the parameters
+ * specified inside the plot model SVG file.
  * 
  * <pre>
  * 
@@ -60,6 +55,7 @@ import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
  * ------------ ---------- ----------- --------------------------
  * Apr 22, 2011            njensen     Initial creation
  * May 14, 2013 1869       bsteffen    Get plots working without dataURI
+ * Mar 21, 2014 2868       njensen     Major refactor
  * 
  * </pre>
  * 
@@ -67,53 +63,42 @@ import com.raytheon.viz.pointdata.thread.PlotSampleGeneratorJob;
  * @version 1.0
  */
 
-public class PlotModelDataRequestJob extends Job {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PlotModelDataRequestJob.class);
-
-    private PlotModelFactory2 plotCreator;
+public class PlotModelDataRequestJob extends AbstractPlotCreationJob {
 
     private Map<String, RequestConstraint> constraintMap;
 
-    private String plugin;
+    private final String plugin;
 
-    private String levelKey;
+    private final String levelKey;
 
-    private PlotModelGeneratorJob generatorJob;
+    private final List<PlotModelElement> plotFields;
 
-    private PlotSampleGeneratorJob sampleJob;
+    private final List<PlotModelElement> sampleFields;
 
-    private PlotDataThreadPool parent;
-
-    public PlotModelDataRequestJob(IGraphicsTarget aTarget,
-            IMapDescriptor mapDescriptor, String plotModelFile,
-            String levelKey, String plugin,
-            Map<String, RequestConstraint> constraintMap,
-            IPlotModelGeneratorCaller caller, PlotDataThreadPool parent)
+    public PlotModelDataRequestJob(PlotThreadOverseer parent,
+            IPlotModelGeneratorCaller caller,
+            List<PlotModelElement> plotFields,
+            List<PlotModelElement> sampleFields, String levelKey,
+            String plugin, Map<String, RequestConstraint> constraintMap)
             throws VizException {
-        super("Requesting Plot Data...");
-        plotCreator = new PlotModelFactory2(mapDescriptor, plotModelFile);
+        super("Requesting Plot Data...", parent, caller);
+        this.plotFields = plotFields;
+        this.sampleFields = sampleFields;
         this.plugin = plugin;
         this.levelKey = levelKey;
         this.constraintMap = constraintMap;
-        this.generatorJob = new PlotModelGeneratorJob(plotCreator, caller,
-                aTarget);
-        this.generatorJob.setSystem(false);
-        this.sampleJob = new PlotSampleGeneratorJob(plotCreator, caller);
-        this.sampleJob.setSystem(false);
-        this.parent = parent;
     }
 
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        while (parent.stationQueue.size() > 0) {
+        while (overseer.dataRetrievalQueue.size() > 0) {
             List<PlotInfo[]> stationQuery = new ArrayList<PlotInfo[]>();
 
             GetDataTask task = null;
             synchronized (this) {
-                task = parent.stationQueue.poll();
+                task = overseer.dataRetrievalQueue.poll();
                 if (task == null) {
+                    // possibility another thread got it first
                     continue;
                 }
                 List<PlotInfo[]> batch = task.getStations();
@@ -125,15 +110,15 @@ public class PlotModelDataRequestJob extends Job {
             List<PlotModelElement> pme = null;
             switch (task.getRequestType()) {
             case PLOT_ONLY:
-                pme = this.plotCreator.getPlotFields();
+                pme = plotFields;
                 break;
             case SAMPLE_ONLY:
-                pme = this.plotCreator.getSampleFields();
+                pme = sampleFields;
                 break;
             case PLOT_AND_SAMPLE:
                 pme = new ArrayList<PlotModelElement>();
-                pme.addAll(this.plotCreator.getPlotFields());
-                pme.addAll(this.plotCreator.getSampleFields());
+                pme.addAll(plotFields);
+                pme.addAll(sampleFields);
             default:
                 break;
             }
@@ -161,14 +146,14 @@ public class PlotModelDataRequestJob extends Job {
                     if (infos[0].pdv != null) {
                         switch (task.getRequestType()) {
                         case PLOT_ONLY:
-                            this.generatorJob.enqueue(infos);
+                            overseer.enqueueImageGeneration(infos);
                             break;
                         case SAMPLE_ONLY:
-                            this.sampleJob.enqueue(infos);
+                            overseer.enqueueSamplePlot(infos);
                             break;
                         case PLOT_AND_SAMPLE:
-                            this.generatorJob.enqueue(infos);
-                            this.sampleJob.enqueue(infos);
+                            overseer.enqueueImageGeneration(infos);
+                            overseer.enqueueSamplePlot(infos);
                             break;
                         }
                     }
@@ -186,12 +171,13 @@ public class PlotModelDataRequestJob extends Job {
         List<String> params = new ArrayList<String>();
 
         for (PlotModelElement p : pme) {
-            if (!p.parameter.equals("") && !p.parameter.contains(",")) {
-                params.add(p.parameter);
-            } else if (p.parameter.contains(",")) {
-                String[] individualParams = p.parameter.split(",");
-                for (String param : individualParams) {
-                    params.add(param);
+            String param = p.getParameter();
+            if (!param.equals("") && !param.contains(",")) {
+                params.add(param);
+            } else if (param.contains(",")) {
+                String[] individualParams = param.split(",");
+                for (String paramToRequest : individualParams) {
+                    params.add(paramToRequest);
                 }
             }
         }
@@ -200,7 +186,7 @@ public class PlotModelDataRequestJob extends Job {
                 .getPluginProperties(plugin).hasDistinctStationId;
         String uniquePointDataKey = "stationId";
         String uniqueQueryKey = "location.stationId";
-        if(!hasDistinctStationId){
+        if (!hasDistinctStationId) {
             uniquePointDataKey = "dataURI";
             uniqueQueryKey = uniquePointDataKey;
 
@@ -208,7 +194,7 @@ public class PlotModelDataRequestJob extends Job {
         if (!params.contains(uniquePointDataKey)) {
             params.add(uniquePointDataKey);
         }
-        
+
         Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
         map.putAll(this.constraintMap);
         RequestConstraint rc = new RequestConstraint();
@@ -221,7 +207,7 @@ public class PlotModelDataRequestJob extends Job {
                 String key = null;
                 if (hasDistinctStationId) {
                     key = info.stationId;
-                }else{
+                } else {
                     key = info.dataURI;
                 }
                 str.add(key);
@@ -345,52 +331,6 @@ public class PlotModelDataRequestJob extends Job {
                 }
             }
         }
-    }
-
-    public void setUpperLimit(double upperLimit) {
-        this.plotCreator.setUpperLimit(upperLimit);
-    }
-
-    public void setLowerLimit(double lowerLimit) {
-        this.plotCreator.setLowerLimit(lowerLimit);
-    }
-
-    public int getPlotModelWidth() {
-        return this.plotCreator.getDefinedPlotModelWidth();
-    }
-
-    public void setPlotModelSize(long width) {
-        this.plotCreator.setPlotDimensions(width, width);
-        this.generatorJob.clearImageCache();
-    }
-
-    public void setPlotModelColor(RGB color) {
-        this.plotCreator.setColor(color);
-        // this.generatorJob.cleanImages();
-    }
-
-    public void setPlotModelLineWidth(int width) {
-        this.plotCreator.setLineWidth(width);
-        this.generatorJob.clearImageCache();
-    }
-
-    public void setPlotModelLineStyle(LineStyle style) {
-        this.plotCreator.setLineStyle(style);
-        this.generatorJob.clearImageCache();
-    }
-
-    public void setPlotMissingData(boolean b) {
-        this.plotCreator.setPlotMissingData(b);
-    }
-
-    public boolean isDone() {
-        return getState() != Job.RUNNING && getState() != Job.WAITING
-                && generatorJob.isDone();
-    }
-
-    public synchronized void shutdown() {
-        this.cancel();
-        this.generatorJob.shutdown();
     }
 
 }
