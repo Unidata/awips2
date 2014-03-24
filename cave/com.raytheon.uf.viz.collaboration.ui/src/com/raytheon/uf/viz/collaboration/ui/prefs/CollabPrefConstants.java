@@ -33,6 +33,7 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Jan 27, 2014 2700       bclement    added auto accept subscribe
  * Feb  3, 2014 2699       bclement    added handle preferences
  * Feb 18, 2014 2631       mpduff      Add constants for room change events.
+ * Mar 24, 2014 2936       mpduff      Remove INCLUDE_NWS_FEED_FIELD_EDITOR_ID.
  * 
  * </pre>
  * 
@@ -68,9 +69,6 @@ public class CollabPrefConstants {
 
     /** Join file field editor id */
     public static final String JOIN_FILE_FIELD_EDITOR_ID = "roomJoinSoundFile";
-
-    /** Include nws feed field editor id */
-    public static final String INCLUDE_NWS_FEED_FIELD_EDITOR_ID = "includeNwsFeed";
 
     public class HttpCollaborationConfiguration {
         public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
