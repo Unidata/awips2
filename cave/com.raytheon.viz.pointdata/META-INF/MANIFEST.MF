@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pointdata Plug-in
 Bundle-SymbolicName: com.raytheon.viz.pointdata;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.pointdata.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
@@ -20,7 +20,8 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.wxmath
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.python.concurrent
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.drawables,
