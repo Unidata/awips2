@@ -155,6 +155,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 04, 2014   2722     mpduff     Add auto-refresh task.
  * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
  * Feb 11, 2014   2771     bgonzale   Use Data Delivery ID instead of Site.
+ * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
  * 
  * </pre>
  * 
@@ -1050,6 +1051,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                             VizApp.runAsync(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (isDisposed()) {
+                                        return;
+                                    }
                                     handleRefresh();
                                 }
                             });
@@ -1549,6 +1553,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
+                        if (isDisposed()) {
+                            return;
+                        }
                         handleRefresh();
                     }
                 });
