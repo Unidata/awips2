@@ -29,6 +29,7 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -39,8 +40,6 @@ import java.util.TimeZone;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
-
-import jep.JepException;
 
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.GVTBuilder;
@@ -57,10 +56,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.python.PythonScript;
+import com.raytheon.uf.common.python.concurrent.PythonJobCoordinator;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -69,12 +66,16 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.viz.pointdata.lookup.IAbstractLookupTable;
 import com.raytheon.viz.pointdata.lookup.LookupUtils;
+import com.raytheon.viz.pointdata.python.CheckPlotValidityExecutor;
+import com.raytheon.viz.pointdata.python.PlotPythonScript;
+import com.raytheon.viz.pointdata.python.PlotPythonScriptFactory;
+import com.raytheon.viz.pointdata.python.SampleTextExecutor;
 import com.raytheon.viz.pointdata.rsc.PlotResource2;
 import com.raytheon.viz.pointdata.rsc.PlotResourceData;
 
 /**
- * A singleton that will create a plot model texture based on a passed in
- * MetarRecord object.
+ * A factory for generating plot images and sample messages by parsing the
+ * associated plotModel SVG file.
  * 
  * <pre>
  * 
@@ -89,6 +90,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResourceData;
  * Sep 05, 2013  2316     bsteffen    Unify pirep and ncpirep.
  * Sep 05, 2013  2307     dgilling    Use better PythonScript constructor.
  * Nov 20, 2013  2033     njensen     Fix detecting plotModels dirs from multiple plugins
+ * Mar 21, 2014  2868     njensen     Refactored python usage to PythonJobCoordinator
  * 
  * </pre>
  * 
@@ -99,7 +101,7 @@ public class PlotModelFactory2 {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotModelFactory2.class);
 
-    private static final String PLOT_MODEL_DIR = "plotModels";
+    public static final String PLOT_MODEL_DIR = "plotModels";
 
     private static final String DM_ATTRIBUTE = "plotMode";
 
@@ -121,8 +123,6 @@ public class PlotModelFactory2 {
 
     private static final String REQUIRED = "required";
 
-    private static String cachedIncludePath;
-
     private final SimpleDateFormat SAMPLE_DATE = new SimpleDateFormat("HHmm");
 
     // Need to include attribute and code to allow for String2String lookups and
@@ -136,8 +136,6 @@ public class PlotModelFactory2 {
     private String currentStyleStr;
 
     private Document document;
-
-    private GraphicsNode theGraphicsNode;
 
     private final GVTBuilder builder;
 
@@ -171,9 +169,9 @@ public class PlotModelFactory2 {
 
     private Map<String, BufferedImage> imageCache = null;
 
-    private ScriptInfo scriptInfo;
+    protected final String plotModelFile;
 
-    private ScriptInfo sampleScriptInfo;
+    protected PythonJobCoordinator<PlotPythonScript> python;
 
     public static enum DisplayMode {
         TEXT, BARB, TABLE, AVAIL, RANGE, NULL, SAMPLE, ARROW
@@ -211,6 +209,10 @@ public class PlotModelFactory2 {
         public Node getPlotNode() {
             return plotNode;
         }
+
+        public String getParameter() {
+            return parameter;
+        }
     }
 
     public class PlotWindElement {
@@ -238,6 +240,7 @@ public class PlotModelFactory2 {
         byte[] blue = { 0, full };
         byte[] green = { 0, zero };
         regenerateStyle();
+        this.plotModelFile = plotModelFile;
         this.plotFields = new ArrayList<PlotModelElement>();
         this.sampleFields = new ArrayList<PlotModelElement>();
 
@@ -452,12 +455,16 @@ public class PlotModelFactory2 {
             imageCache = new HashMap<String, BufferedImage>();
         }
         NodeList scriptNodes = document.getElementsByTagName("script");
+
         // Only one script node supported
-        if (scriptNodes.getLength() > 0) {
+        int nScriptNodes = scriptNodes.getLength();
+        if (nScriptNodes > 1) {
+            throw new UnsupportedOperationException(
+                    "Only one script node allowed in plotModel SVG file.  Please check and fix "
+                            + plotModelFile);
+        } else if (nScriptNodes == 1) {
             Element scriptNode = (Element) scriptNodes.item(0);
-            scriptInfo = new ScriptInfo();
-            scriptInfo.plotDelegateName = scriptNode
-                    .getAttribute("plotDelegate");
+            String plotDelegateName = scriptNode.getAttribute("plotDelegate");
             NodeList childNodes = scriptNode.getChildNodes();
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < childNodes.getLength(); i++) {
@@ -466,13 +473,12 @@ public class PlotModelFactory2 {
                     sb.append(((Text) child).getData());
                 }
             }
-            if (sb.length() > 0) {
-                scriptInfo.scriptText = sb.toString();
+            String scriptText = sb.toString().trim();
+            if (scriptText.length() > 0) {
+                PlotPythonScriptFactory pythonFactory = new PlotPythonScriptFactory(
+                        plotModelFile, scriptText, plotDelegateName);
+                python = PythonJobCoordinator.newInstance(pythonFactory);
             }
-
-            sampleScriptInfo = new ScriptInfo();
-            sampleScriptInfo.plotDelegateName = scriptInfo.plotDelegateName;
-            sampleScriptInfo.scriptText = scriptInfo.scriptText;
 
             // remove the scriptNode in memory so time isn't wasted
             // later attempting to render it
@@ -491,8 +497,8 @@ public class PlotModelFactory2 {
         byte fullr = (byte) color.red;
         byte fullg = (byte) color.green;
         byte fullb = (byte) color.blue;
-        String style = "stroke: rgb(" + color.red + "," + color.green + ","
-                + color.blue + ");";
+        // String style = "stroke: rgb(" + color.red + "," + color.green + ","
+        // + color.blue + ");";
         // this.svgRoot.setAttribute("style", style);
         // System.out.println(style);
         byte[] red = { 0, fullr };
@@ -567,8 +573,7 @@ public class PlotModelFactory2 {
     }
 
     /**
-     * Takes the station name and its MetarRecord object and produces a buffered
-     * image.
+     * Takes the station data object and produces a buffered image.
      * 
      * @param station
      *            The station name
@@ -591,26 +596,27 @@ public class PlotModelFactory2 {
             this.gc.setDestinationGeographicPoint(newWorldLocation[0],
                     newWorldLocation[1]);
         }
-        StringBuffer imageId = new StringBuffer();
-        PlotPythonScript script = null;
+
         try {
             boolean discard = false;
-
-            if (scriptInfo != null) {
-                script = scriptInfo.getScript();
-
+            if (python != null) {
+                Boolean result = false;
+                CheckPlotValidityExecutor task = new CheckPlotValidityExecutor(
+                        stationData);
                 try {
-                    Object result = script.executePlotDelegateMethod("isValid",
-                            "rec", stationData);
-                    if (result instanceof Boolean
-                            && !((Boolean) result).booleanValue()) {
+                    result = python.submitSyncJob(task);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error checking if plot is valid for plot model "
+                                    + getPlotModelFilename(), e);
+                } finally {
+                    if (result.booleanValue() == false) {
                         return null;
                     }
-                } catch (JepException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
                 }
             }
+
+            StringBuilder imageId = new StringBuilder();
 
             for (PlotModelElement element : this.plotFields) {
                 boolean valid = true;
@@ -680,13 +686,13 @@ public class PlotModelFactory2 {
                     this.plotModelWidth, this.plotModelHeight,
                     BufferedImage.TYPE_BYTE_INDEXED, tm);
 
-            long t0 = System.currentTimeMillis();
-            this.theGraphicsNode = builder.build(this.bridgeContext,
+            // long t0 = System.currentTimeMillis();
+            GraphicsNode graphicsNode = builder.build(this.bridgeContext,
                     this.document);
             Graphics2D g2d = null;
             try {
                 g2d = bufferedImage.createGraphics();
-                this.theGraphicsNode.primitivePaint(g2d);
+                graphicsNode.primitivePaint(g2d);
             } finally {
                 if (g2d != null) {
                     g2d.dispose();
@@ -702,9 +708,6 @@ public class PlotModelFactory2 {
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error:" + e.getLocalizedMessage(), e);
-        } catch (JepException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error:" + e.getLocalizedMessage(), e);
         }
 
         return null;
@@ -712,20 +715,20 @@ public class PlotModelFactory2 {
 
     public synchronized String getStationMessage(PlotData stationData,
             String dataURI) {
-        PlotPythonScript script = null;
         StringBuilder sampleMessage = new StringBuilder();
         try {
-            if (sampleScriptInfo != null) {
-                script = sampleScriptInfo.getScript();
-
-                Object result = script.executePlotDelegateMethod("isValid",
-                        "rec", stationData);
-                if (result instanceof Boolean
-                        && ((Boolean) result).booleanValue()) {
-                    result = script.executePlotDelegateMethod("getSampleText",
-                            "rec", stationData);
-                    if (result instanceof String) {
-                        sampleMessage.append((String) result);
+            if (python != null) {
+                String result = null;
+                SampleTextExecutor task = new SampleTextExecutor(stationData);
+                try {
+                    result = python.submitSyncJob(task);
+                } catch (Exception e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error getting sample text for plot model "
+                                    + getPlotModelFilename(), e);
+                } finally {
+                    if (result != null) {
+                        sampleMessage.append(result);
                     }
                 }
             } else {
@@ -736,11 +739,8 @@ public class PlotModelFactory2 {
             }
 
         } catch (Exception e) {
-            // TODO
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (JepException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error generating sample text with " + plotModelFile, e);
         }
 
         String message = sampleMessage.toString();
@@ -752,7 +752,7 @@ public class PlotModelFactory2 {
     }
 
     private void addToImageId(PlotData stationData, String parameters,
-            StringBuffer imageId) {
+            StringBuilder imageId) {
         for (String parameter : parameters.split(",")) {
             switch (stationData.getType(parameter)) {
             case STRING:
@@ -809,6 +809,7 @@ public class PlotModelFactory2 {
                     Formatter testing = new Formatter(sb);
                     testing.format(element.format, displayValue);
                     sValue = sb.toString();
+                    testing.close();
                 } else {
                     sValue = Double.toString(displayValue);
                 }
@@ -1073,6 +1074,7 @@ public class PlotModelFactory2 {
                         Formatter testing = new Formatter(sb);
                         testing.format(element.format, displayValue);
                         sValue = sb.toString();
+                        testing.close();
                     }
                 } else {
                     sValue = Double.toString(displayValue);
@@ -1138,6 +1140,7 @@ public class PlotModelFactory2 {
                         Formatter testing = new Formatter(sb);
                         testing.format(element.format, displayValue);
                         sValue = sb.toString();
+                        testing.close();
                     } else {
                         sValue = Double.toString(displayValue);
                     }
@@ -1197,8 +1200,8 @@ public class PlotModelFactory2 {
         return major * 5;
     }
 
-    public synchronized List<PlotModelElement> getPlotFields() {
-        return this.plotFields;
+    public List<PlotModelElement> getPlotFields() {
+        return Collections.unmodifiableList(this.plotFields);
     }
 
     /**
@@ -1244,140 +1247,6 @@ public class PlotModelFactory2 {
         this.plotMissingData = b;
     }
 
-    public void disposeScript() {
-        if (scriptInfo != null) {
-            try {
-                scriptInfo.disposeScript();
-            } catch (JepException e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error disposing plot model script", e);
-            }
-        }
-    }
-
-    public void disposeSampleScript() {
-        if (sampleScriptInfo != null) {
-            try {
-                sampleScriptInfo.disposeScript();
-            } catch (JepException e) {
-                statusHandler.handle(Priority.ERROR,
-                        "Error disposing plot model sample script", e);
-            }
-        }
-    }
-
-    private class ScriptInfo {
-        public String plotDelegateName;
-
-        public String scriptText;
-
-        private PlotPythonScript script;
-
-        private Thread scriptThread;
-
-        public PlotPythonScript getScript() throws JepException {
-            if (script != null) {
-                if (Thread.currentThread() == scriptThread) {
-                    return script;
-                } else {
-                    statusHandler.handle(Priority.ERROR,
-                            "Plot model scripting was not properly disposed.");
-                    script = null;
-                    scriptThread = null;
-                }
-            }
-
-            script = createScript();
-            scriptThread = Thread.currentThread();
-            return script;
-        }
-
-        public void disposeScript() throws JepException {
-            if (script != null) {
-                try {
-                    if (Thread.currentThread() == scriptThread) {
-                        script.dispose();
-                    }
-                } finally {
-                    script = null;
-                    scriptThread = null;
-                }
-            }
-        }
-
-        private PlotPythonScript createScript() throws JepException {
-            synchronized (PlotModelFactory2.class) {
-                if (cachedIncludePath == null) {
-                    IPathManager pm = PathManagerFactory.getPathManager();
-                    LocalizationFile[] files = pm
-                            .listFiles(
-                                    pm.getLocalSearchHierarchy(LocalizationType.CAVE_STATIC),
-                                    PLOT_MODEL_DIR, null, false, false);
-                    StringBuilder includePath = new StringBuilder();
-                    for (LocalizationFile lf : files) {
-                        if (lf.exists() && lf.isDirectory()) {
-                            if (includePath.length() > 0) {
-                                includePath.append(File.pathSeparator);
-                            }
-                            includePath.append(lf.getFile().getAbsolutePath());
-                        }
-                    }
-                    cachedIncludePath = includePath.toString();
-                }
-            }
-
-            File baseFile = PathManagerFactory.getPathManager().getStaticFile(
-                    PLOT_MODEL_DIR + IPathManager.SEPARATOR
-                            + "PlotModelInterface.py");
-            PlotPythonScript localScript = new PlotPythonScript(
-                    baseFile.getAbsolutePath(), cachedIncludePath,
-                    plotDelegateName);
-
-            if (scriptText != null) {
-                localScript.evaluate(scriptText);
-            }
-            localScript.executePlotDelegateMethod("init", "plotModelFactory",
-                    PlotModelFactory2.this);
-            return localScript;
-        }
-    }
-
-    private static class PlotPythonScript extends PythonScript {
-
-        private static String CHEAT_RUN = "_cheat_run";
-
-        private String plotDelegateName;
-
-        public PlotPythonScript(String filePath, String anIncludePath,
-                String plotDelegateName) throws JepException {
-            super(filePath, anIncludePath, PlotPythonScript.class
-                    .getClassLoader());
-            jep.eval("def "
-                    + CHEAT_RUN
-                    + "(text):\n return eval(compile(text,'string','exec'),globals(),globals())");
-            this.plotDelegateName = plotDelegateName;
-        }
-
-        public Object evaluate(String script) throws JepException {
-            Object result = jep.invoke(CHEAT_RUN, script);
-            return result;
-        }
-
-        public Object executePlotDelegateMethod(String methodName,
-                String argName, Object argValue) throws JepException {
-            if (plotDelegateName != null) {
-                HashMap<String, Object> map = null;
-                if (argName != null) {
-                    map = new HashMap<String, Object>();
-                    map.put(argName, argValue);
-                }
-                return execute(methodName, plotDelegateName, map);
-            } else {
-                return null;
-            }
-        }
-    }
-
     private File getTableFile(String fileName) {
         File rval = PathManagerFactory.getPathManager().getStaticFile(
                 PLOT_MODEL_DIR + IPathManager.SEPARATOR + fileName);
@@ -1385,10 +1254,24 @@ public class PlotModelFactory2 {
     }
 
     public List<PlotModelElement> getSampleFields() {
-        return this.sampleFields;
+        return Collections.unmodifiableList(this.sampleFields);
     }
 
     public boolean isCachingImages() {
         return imageCache != null;
     }
+
+    public String getPlotModelFilename() {
+        return this.plotModelFile;
+    }
+
+    /**
+     * Disposes of the plot model
+     */
+    public void dispose() {
+        if (python != null) {
+            python.shutdown();
+        }
+    }
+
 }
