@@ -19,13 +19,14 @@
  **/
 package com.raytheon.viz.pointdata.thread;
 
-import java.util.List;
+import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.viz.pointdata.PlotInfo;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 
 /**
- * A task to retrieve plot data for a set of stations, possibly requesting the
- * parameters necessary for the plot image or the sample text or both.
+ * Abstract job associated with one of the many details of plot creation.
  * 
  * <pre>
  * 
@@ -33,8 +34,7 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 18, 2011            njensen     Initial creation
- * Mar 21, 2014 2868       njensen     Improved javadoc
+ * Mar 21, 2014 2868       njensen     Initial creation
  * 
  * </pre>
  * 
@@ -42,35 +42,29 @@ import com.raytheon.viz.pointdata.PlotInfo;
  * @version 1.0
  */
 
-public class GetDataTask {
+public abstract class AbstractPlotCreationJob extends Job {
 
-    public enum Params {
-        PLOT_ONLY, SAMPLE_ONLY, PLOT_AND_SAMPLE
-    };
+    protected static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PlotModelDataRequestJob.class);
 
-    private List<PlotInfo[]> stations;
+    protected PlotThreadOverseer overseer;
 
-    private Params requestType;
+    protected IPlotModelGeneratorCaller listener;
 
-    public GetDataTask(List<PlotInfo[]> stations, Params params) {
-        this.stations = stations;
-        this.requestType = params;
+    public AbstractPlotCreationJob(String name, PlotThreadOverseer parent,
+            IPlotModelGeneratorCaller caller) {
+        super(name);
+        this.overseer = parent;
+        this.listener = caller;
+        this.setSystem(false);
     }
 
-    public Params getRequestType() {
-        return requestType;
+    public boolean isDone() {
+        return getState() != Job.RUNNING && getState() != Job.WAITING;
     }
 
-    public void setRequestType(Params requestType) {
-        this.requestType = requestType;
-    }
-
-    public List<PlotInfo[]> getStations() {
-        return stations;
-    }
-
-    public void setStations(List<PlotInfo[]> stations) {
-        this.stations = stations;
+    public boolean shutdown() {
+        return super.cancel();
     }
 
 }
