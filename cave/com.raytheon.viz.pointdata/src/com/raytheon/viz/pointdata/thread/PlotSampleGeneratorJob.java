@@ -19,22 +19,17 @@
  **/
 package com.raytheon.viz.pointdata.thread;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.PlotModelFactory2;
 
 /**
- * Job that uses the provided factory to generate a sampling message for a
- * particular plot.
+ * Job that uses the provided plot model factory to generate a sampling message
+ * for a particular plot.
  * 
  * <pre>
  * 
@@ -44,6 +39,7 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * ------------ ---------- ----------- --------------------------
  * Jul 13, 2011            njensen     Initial creation
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
+ * Mar 21, 2014 2868       njensen     Major refactor
  * 
  * </pre>
  * 
@@ -51,22 +47,14 @@ import com.raytheon.viz.pointdata.PlotModelFactory2;
  * @version 1.0
  */
 
-public class PlotSampleGeneratorJob extends Job {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PlotSampleGeneratorJob.class);
+public class PlotSampleGeneratorJob extends AbstractPlotCreationJob {
 
     private PlotModelFactory2 plotFactory;
 
-    private ConcurrentLinkedQueue<PlotInfo[]> queue = new ConcurrentLinkedQueue<PlotInfo[]>();
-
-    private IPlotModelGeneratorCaller caller;
-
-    public PlotSampleGeneratorJob(PlotModelFactory2 factory,
-            IPlotModelGeneratorCaller caller) {
-        super("Generating samples");
+    public PlotSampleGeneratorJob(PlotThreadOverseer parent,
+            IPlotModelGeneratorCaller caller, PlotModelFactory2 factory) {
+        super("Generating samples", parent, caller);
         this.plotFactory = factory;
-        this.caller = caller;
     }
 
     /*
@@ -77,27 +65,29 @@ public class PlotSampleGeneratorJob extends Job {
      */
     @Override
     protected IStatus run(IProgressMonitor monitor) {
-        while (!queue.isEmpty()) {
+        while (!overseer.sampleTextQueue.isEmpty()) {
             try {
-                PlotInfo[] infos = queue.poll();
+                PlotInfo[] infos = overseer.sampleTextQueue.poll();
+                if (infos == null) {
+                    // possibility another thread got it first
+                    continue;
+                }
                 String message = plotFactory.getStationMessage(infos[0].pdv,
                         infos[0].dataURI);
-
-                caller.messageGenerated(infos, message);
+                listener.messageGenerated(infos, message);
             } catch (Exception e) {
-                statusHandler.error("Error creating plot", e);
+                statusHandler.error("Error creating sample with plotModel "
+                        + plotFactory.getPlotModelFilename(), e);
             }
         }
 
-        plotFactory.disposeSampleScript();
         return Status.OK_STATUS;
     }
 
-    public void enqueue(PlotInfo[] task) {
-        this.queue.add(task);
-        if (this.getState() != Job.RUNNING) {
-            this.schedule();
-        }
+    @Override
+    public boolean shutdown() {
+        boolean result = super.shutdown();
+        plotFactory.dispose();
+        return result;
     }
-
 }
