@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -47,7 +48,8 @@ import com.raytheon.viz.ui.widgets.TimeEntry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 9, 2012            mpduff     Initial creation
+ * Jan 9, 2012            mpduff       Initial creation
+ * Mar 24, 2014 #1426     lvenable     Removed unnecessary code, cleaned up code.
  * 
  * </pre>
  * 
@@ -133,6 +135,16 @@ public class AwipsCalendar extends CaveSWTDialogBase {
         this.timeZone = timeZone;
     }
 
+    @Override
+    protected Layout constructShellLayout() {
+        return new GridLayout(2, false);
+    }
+
+    @Override
+    protected Object constructShellLayoutData() {
+        return new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -148,14 +160,12 @@ public class AwipsCalendar extends CaveSWTDialogBase {
             cal.setTime(date);
         }
 
-        GridLayout layout = new GridLayout(2, false);
-        shell.setLayout(layout);
-
         if (timeFieldCount > 0) {
             Label lbl = new Label(shell, SWT.NONE);
             GridData layoutData = new GridData(SWT.LEFT, SWT.CENTER, true,
                     false);
             lbl.setLayoutData(layoutData);
+
             TimeZone tz = cal.getTimeZone();
             String tzId = "Z";
             if (tz.getRawOffset() != 0) {
@@ -173,15 +183,12 @@ public class AwipsCalendar extends CaveSWTDialogBase {
             }
 
             timeEntry = new TimeEntry(shell, timeFieldCount);
-            layoutData = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-            timeEntry.setLayoutData(layoutData);
             timeEntry.setTime(cal.get(Calendar.HOUR_OF_DAY),
                     cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
         }
 
         calendar = new DateTime(shell, SWT.CALENDAR | SWT.BORDER);
-        GridData layoutData = new GridData(SWT.DEFAULT, SWT.DEFAULT, false,
-                false);
+        GridData layoutData = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         layoutData.horizontalSpan = 2;
         calendar.setLayoutData(layoutData);
         calendar.setDate(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
@@ -199,7 +206,7 @@ public class AwipsCalendar extends CaveSWTDialogBase {
 
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(2, false);
         Composite btnComp = new Composite(shell, SWT.NONE);
         btnComp.setLayout(gl);
         btnComp.setLayoutData(gd);
