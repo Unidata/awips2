@@ -24,9 +24,11 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
-import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
@@ -44,6 +46,7 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2012            randerso     Initial creation
+ * Mar 24, 2014  #1426     lvenable     Fixed arrow buttons so the arrows show up, cleaned up code.
  * 
  * </pre>
  * 
@@ -61,9 +64,6 @@ public class TimeEntry extends Composite {
 
     private static String[] formatStrings = new String[] { "%02d", "%02d:%02d",
             "%02d:%02d:%02d" };
-
-    private static String[] computeSizeStrings = new String[] { "99", "99:99",
-            "99:99:99" };
 
     private Text text;
 
@@ -96,6 +96,16 @@ public class TimeEntry extends Composite {
         }
         this.fieldCount = fieldCount;
         calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+        initializeControls();
+    }
+
+    private void initializeControls() {
+        GridLayout gl = new GridLayout(2, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        this.setLayout(gl);
+        this.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         text = new Text(this, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
         Listener listener = new Listener() {
@@ -130,71 +140,50 @@ public class TimeEntry extends Composite {
         text.addListener(SWT.MouseDown, listener);
         text.addListener(SWT.MouseUp, listener);
         text.addListener(SWT.Verify, listener);
-        up = new Button(this, SWT.ARROW | SWT.UP);
-        down = new Button(this, SWT.ARROW | SWT.DOWN);
-        up.addListener(SWT.Selection, new Listener() {
+
+        /*
+         * Create the up/down buttons and put them in their own composite.
+         */
+        Composite buttonComp = new Composite(this, SWT.NONE);
+        gl = new GridLayout(1, false);
+        gl.marginWidth = 0;
+        gl.marginHeight = 0;
+        gl.verticalSpacing = 0;
+        buttonComp.setLayout(gl);
+
+        int buttonWidth = 22;
+        int buttonHeight = 20;
+
+        GridData gd = new GridData(buttonWidth, buttonHeight);
+        up = new Button(buttonComp, SWT.ARROW | SWT.UP);
+        up.setLayoutData(gd);
+        up.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void handleEvent(Event event) {
+            public void widgetSelected(SelectionEvent e) {
                 incrementField(+1);
                 text.setFocus();
             }
         });
-        down.addListener(SWT.Selection, new Listener() {
+
+        gd = new GridData(buttonWidth, buttonHeight);
+        down = new Button(buttonComp, SWT.ARROW | SWT.DOWN);
+        down.setLayoutData(gd);
+        down.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void handleEvent(Event event) {
+            public void widgetSelected(SelectionEvent e) {
                 incrementField(-1);
                 text.setFocus();
             }
         });
-        addListener(SWT.Resize, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                onResize(event);
-            }
-        });
     }
 
-    @Override
-    public Point computeSize(int wHint, int hHint, boolean changed) {
-        checkWidget();
-        int width = 0, height = 0;
-        if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
-            /* SWT.DATE and SWT.TIME */
-            GC gc = new GC(text);
-            Point textSize = gc
-                    .stringExtent(computeSizeStrings[fieldCount - 1]);
-            gc.dispose();
-            Rectangle trim = text.computeTrim(0, 0, textSize.x, textSize.y);
-            Point buttonSize = up
-                    .computeSize(SWT.DEFAULT, SWT.DEFAULT, changed);
-            width = trim.width + buttonSize.x;
-            height = Math.max(trim.height, buttonSize.y);
-        }
-        if (width == 0) {
-            width = SWT.DEFAULT;
-        }
-        if (height == 0) {
-            height = SWT.DEFAULT;
-        }
-        if (wHint != SWT.DEFAULT) {
-            width = wHint;
-        }
-        if (hHint != SWT.DEFAULT) {
-            height = hHint;
-        }
-        int border = getBorderWidth();
-        width += border * 2;
-        height += border * 2;
-        return new Point(width, height);
-    }
-
-    protected void incrementField(int amount) {
+    private void incrementField(int amount) {
         int fieldName = fieldNames[currentField];
         int value = calendar.get(fieldName);
         setTextField(fieldName, value + amount, true);
     }
 
-    void setTextField(int fieldName, int value, boolean commit) {
+    private void setTextField(int fieldName, int value, boolean commit) {
         if (commit) {
             int max = calendar.getActualMaximum(fieldName);
             int min = calendar.getActualMinimum(fieldName);
@@ -218,7 +207,7 @@ public class TimeEntry extends Composite {
         }
     }
 
-    void selectField(int index) {
+    private void selectField(int index) {
         if (index != currentField) {
             commitCurrentField();
         }
@@ -246,16 +235,14 @@ public class TimeEntry extends Composite {
         });
     }
 
-    void setField(int fieldName, int value) {
+    private void setField(int fieldName, int value) {
         if (calendar.get(fieldName) == value) {
             return;
         }
         calendar.set(fieldName, value);
-        // TODO
-        // sendSelectionEvent(SWT.Selection);
     }
 
-    void commitCurrentField() {
+    private void commitCurrentField() {
         if (characterCount > 0) {
             characterCount = 0;
             int fieldName = fieldNames[currentField];
@@ -274,7 +261,7 @@ public class TimeEntry extends Composite {
         }
     }
 
-    int unformattedIntValue(int fieldName, String newText, int max) {
+    private int unformattedIntValue(int fieldName, String newText, int max) {
         int newValue;
         try {
             newValue = Integer.parseInt(newText);
@@ -284,19 +271,7 @@ public class TimeEntry extends Composite {
         return newValue;
     }
 
-    protected void onResize(Event event) {
-        Rectangle rect = getClientArea();
-        int width = rect.width;
-        int height = rect.height;
-        Point buttonSize = up.computeSize(SWT.DEFAULT, height);
-        int buttonHeight = buttonSize.y / 2;
-        text.setBounds(0, 0, width - buttonSize.x, height);
-        up.setBounds(width - buttonSize.x, 0, buttonSize.x, buttonHeight);
-        down.setBounds(width - buttonSize.x, buttonHeight, buttonSize.x,
-                buttonHeight);
-    }
-
-    protected void onKeyDown(Event event) {
+    private void onKeyDown(Event event) {
         int fieldName;
         switch (event.keyCode) {
         case SWT.ARROW_RIGHT:
@@ -349,15 +324,15 @@ public class TimeEntry extends Composite {
         }
     }
 
-    protected void onFocusIn(Event event) {
+    private void onFocusIn(Event event) {
         selectField(currentField);
     }
 
-    protected void onFocusOut(Event event) {
+    private void onFocusOut(Event event) {
         commitCurrentField();
     }
 
-    protected void onMouseClick(Event event) {
+    private void onMouseClick(Event event) {
         if (event.button != 1) {
             return;
         }
@@ -370,7 +345,7 @@ public class TimeEntry extends Composite {
         }
     }
 
-    protected void onVerify(Event event) {
+    private void onVerify(Event event) {
         if (ignoreVerify) {
             return;
         }
@@ -427,7 +402,7 @@ public class TimeEntry extends Composite {
         return value >= min && value <= max;
     }
 
-    String getFormattedString() {
+    public String getFormattedString() {
         int h = calendar.get(Calendar.HOUR_OF_DAY);
         int m = calendar.get(Calendar.MINUTE);
         int s = calendar.get(Calendar.SECOND);
