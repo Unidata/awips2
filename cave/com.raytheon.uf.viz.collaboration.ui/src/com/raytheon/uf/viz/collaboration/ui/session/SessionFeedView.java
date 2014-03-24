@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * Mar 18, 2014 2798       mpduff      Fixed issue with user changing site and participant list not 
  *                                         having the color update to reflect the change.
+ * Mar 24, 2014 2936       mpduff      Remove join alerts from feed view.
  * 
  * </pre>
  * 
@@ -432,7 +433,6 @@ public class SessionFeedView extends SessionView {
                 message.append(" ").append(roleName).append(" ")
                         .append(siteName);
                 sendSystemMessage(message);
-                processJoinAlert();
             }
         }
 
@@ -461,25 +461,6 @@ public class SessionFeedView extends SessionView {
             String description) {
         if (enabledUsers.remove(participant.getName())) {
             super.participantDeparted(participant, description);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#processJoinAlert
-     * ()
-     */
-    @Override
-    protected void processJoinAlert() {
-        boolean includeFeed = Activator
-                .getDefault()
-                .getPreferenceStore()
-                .getBoolean(
-                        CollabPrefConstants.INCLUDE_NWS_FEED_FIELD_EDITOR_ID);
-        if (includeFeed) {
-            super.processJoinAlert();
         }
     }
 
