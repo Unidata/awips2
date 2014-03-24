@@ -46,6 +46,7 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2014   2631     mpduff      Initial creation.
+ * Mar 24, 2014   2936     mpduff      Remove join alerts from feed view.
  * 
  * </pre>
  * 
@@ -55,8 +56,6 @@ import com.raytheon.uf.viz.collaboration.ui.Activator;
 
 public class CollaborationRoomChangePreferencePage extends
         FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-    /** Include nws-collaboration feed controls */
-    private BooleanFieldEditor includeFeed;
 
     /** Join event controls */
     private FileFieldEditor joinFileEditor;
@@ -99,17 +98,9 @@ public class CollaborationRoomChangePreferencePage extends
         joinFileEditor.setFilterPath(file.getFile());
         this.addField(joinFileEditor);
 
-        // Apply to nws collaboration feed if checked
-        includeFeed = new BooleanFieldEditor(
-                CollabPrefConstants.INCLUDE_NWS_FEED_FIELD_EDITOR_ID,
-                "Apply to NWS-collaboration feed", BooleanFieldEditor.DEFAULT,
-                getFieldEditorParent());
-        this.addField(includeFeed);
-
         boolean enabled = this.getPreferenceStore().getBoolean(
                 CollabPrefConstants.ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID);
         joinFileEditor.setEnabled(enabled, getFieldEditorParent());
-        includeFeed.setEnabled(enabled, getFieldEditorParent());
 
         if (!joinFileEditor.isValid()) {
             joinFileEditor.setStringValue("");
@@ -129,7 +120,6 @@ public class CollaborationRoomChangePreferencePage extends
         if (event.getSource().equals(this.enableJoinAlerts)) {
             boolean enabled = (Boolean) event.getNewValue();
             joinFileEditor.setEnabled(enabled, getFieldEditorParent());
-            includeFeed.setEnabled(enabled, getFieldEditorParent());
         } else if (event.getSource().equals(this.joinFileEditor)) {
             if (enableJoinAlerts.getBooleanValue()) {
                 super.propertyChange(event);
