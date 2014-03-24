@@ -112,6 +112,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
  * Feb 04, 2014  2722      mpduff       Add last update time.
  * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
+ * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
+ * 
  * @version 1.0
  */
 
@@ -413,6 +415,10 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
+
                             updateTable(subList);
                             subActionCallback.updateControls();
                         }
@@ -885,6 +891,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                     VizApp.runAsync(new Runnable() {
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             populateTable();
                         }
                     });
