@@ -105,6 +105,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Dec 17, 2013   2633     mpduff      Fix redraw problems..
  * Jan 09, 2014   2633     mpduff      On resize keep graph at bottom so data are always visible.
  * Jan 29, 2014   2722     mpduff      Changed how graph data are requested.
+ * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
  * </pre>
  * 
  * @author lvenable
@@ -1512,6 +1513,9 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
                 VizApp.runAsync(new Runnable() {
                     @Override
                     public void run() {
+                        if (isDisposed()) {
+                            return;
+                        }
                         imageMgr.setCurrentTimeMillis(currentTime
                                 .getTimeInMillis());
                         redrawImage(CanvasImages.GRAPH);
@@ -1560,6 +1564,9 @@ public class BandwidthCanvasComp extends Composite implements IDialogClosed,
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
+                if (isDisposed()) {
+                    return;
+                }
                 setGraphData(graphDataUtil.getGraphData());
                 updateCanvasSettings();
                 updateCanvases();
