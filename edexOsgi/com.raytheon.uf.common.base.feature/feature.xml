@@ -324,6 +324,15 @@
          install-size="0"
          version="2.3.0"
          fragment="true"/>
+         
+   <plugin
+         id="org.jep.win64"
+         os="win32"
+         arch="x86_64"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         fragment="true"/>
 
    <plugin
          id="org.postgres"
