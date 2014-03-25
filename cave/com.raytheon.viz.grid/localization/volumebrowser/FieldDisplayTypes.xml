@@ -138,4 +138,6 @@
 	<field key="NetIO" volumePlaneType="K"/>
 	<field key="PAdv" volumePlaneType="K"/>
 	<field key="DpDt" volumePlaneType="K"/>
+	<field key="OGRD" displayTypes="ARROW,STREAMLINE"/>
+	<field key="SPBARO" displayTypes="ARROW,STREAMLINE"/>
 </fieldDisplayTypesFile>
