@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Windows 64-bit Jep Library
+Bundle-SymbolicName: org.jep.win64
+Bundle-Version: 1.14.0
+Fragment-Host: org.jep;bundle-version="2.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (& (osgi.os=win32) (osgi.arch=x86_64))
