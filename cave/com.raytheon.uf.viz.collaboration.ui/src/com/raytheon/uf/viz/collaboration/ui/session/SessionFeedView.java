@@ -20,9 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jface.action.Action;
@@ -74,6 +72,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Mar 18, 2014 2798       mpduff      Fixed issue with user changing site and participant list not 
  *                                         having the color update to reflect the change.
  * Mar 24, 2014 2936       mpduff      Remove join alerts from feed view.
+ * Mar 25, 2014 2938       mpduff      Show status message for site and role changes.
  * 
  * </pre>
  * 
@@ -102,8 +101,7 @@ public class SessionFeedView extends SessionView {
     /**
      * Set of users logged in.
      */
-    private final Set<String> enabledUsers = Collections
-            .newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+    private final ConcurrentHashMap<String, Presence> enabledUsers = new ConcurrentHashMap<String, Presence>();
 
     /**
      * 
@@ -425,14 +423,25 @@ public class SessionFeedView extends SessionView {
         // only show sites you care about
         if (enabledSites.contains(siteName)
                 || userEnabledSites.contains(siteName)) {
-            if (!enabledUsers.contains(user) && presence.isAvailable()) {
-                // New user
-                enabledUsers.add(user);
-                StringBuilder message = new StringBuilder();
-                message.append(user);
-                message.append(" ").append(roleName).append(" ")
-                        .append(siteName);
-                sendSystemMessage(message);
+            if (!enabledUsers.containsKey(user)) {
+                // Add user
+                enabledUsers.put(user, presence);
+                if (!presence.isAway()) {
+                    // Send message
+                    StringBuilder message = getMessage(roleName, siteName, user);
+                    sendSystemMessage(message);
+                }
+            } else if (!presence.isAway()) {
+                Presence prev = enabledUsers.get(user);
+                if (!prev.getProperty(SiteConfigInformation.ROLE_NAME)
+                        .toString().equals(roleName)
+                        || !prev.getProperty(SiteConfigInformation.SITE_NAME)
+                                .toString().equals(siteName)) {
+                    // Send message
+                    StringBuilder message = getMessage(roleName, siteName, user);
+                    sendSystemMessage(message);
+                    enabledUsers.put(user, presence);
+                }
             }
         }
 
@@ -442,6 +451,23 @@ public class SessionFeedView extends SessionView {
          */
         setColorForSite(participant, presence);
         refreshParticipantList();
+    }
+
+    /**
+     * Get the status message.
+     * 
+     * @param roleName
+     * @param siteName
+     * @param user
+     * 
+     * @return The StringBuilder instance holding the message
+     */
+    private StringBuilder getMessage(String roleName, String siteName,
+            String user) {
+        StringBuilder message = new StringBuilder();
+        message.append(user);
+        message.append(" ").append(roleName).append(" ").append(siteName);
+        return message;
     }
 
     /**
@@ -459,7 +485,7 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void participantDeparted(VenueParticipant participant,
             String description) {
-        if (enabledUsers.remove(participant.getName())) {
+        if (enabledUsers.remove(participant.getName()) != null) {
             super.participantDeparted(participant, description);
         }
     }
