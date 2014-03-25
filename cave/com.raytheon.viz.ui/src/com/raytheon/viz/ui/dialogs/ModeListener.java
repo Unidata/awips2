@@ -49,6 +49,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Date       	Ticket#		Engineer	Description
  * ----------	----------	-----------	--------------------------
  * 12/20/07     561         Dan Fitch    Initial Creation.
+ * 03/24/14     DR 17186    D. Friedman Do not change colors of most buttons.
  * </pre>
  * 
  * @author Dan Fitch
@@ -87,7 +88,7 @@ public class ModeListener implements PaintListener {
                         .getStyle() & SWT.READ_ONLY) == 0))
                 && !(control instanceof Table)
                 && !((control instanceof Button) && ((((Button) control)
-                        .getStyle() & SWT.PUSH) != 0))) {
+                        .getStyle() & (SWT.PUSH|SWT.TOGGLE|SWT.CHECK|SWT.RADIO)) != 0))) {
 
             Color back = control.getBackground();
             Color fore = control.getForeground();
