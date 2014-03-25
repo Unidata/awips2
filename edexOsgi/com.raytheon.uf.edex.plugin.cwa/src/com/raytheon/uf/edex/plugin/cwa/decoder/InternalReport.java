@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * 
@@ -37,9 +37,10 @@ import org.apache.commons.logging.LogFactory;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 1, 2010            jsanchez     Initial creation
+ * Date    Ticket#         Engineer    Description
+ * ------- ----------      ----------- --------------------------
+ * Feb 01, 2010            jsanchez     Initial creation
+ * Mar 26, 2014            skorolev    Updated logger.
  * 
  * </pre>
  * 
@@ -47,7 +48,8 @@ import org.apache.commons.logging.LogFactory;
  * @version 1.0
  */
 public class InternalReport {
-    private static Log logger = LogFactory.getLog(InternalReport.class);
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(InternalReport.class);
 
     private static final String ISSUANCE = "^([A-Z]{3})([0-9]) +U?CWA +([0-9]{6}) *";
 
@@ -174,9 +176,7 @@ public class InternalReport {
                 } else {
                     m = p3.matcher(s);
                     if (m.matches()) {
-                        reports
-                                .add(new InternalReport(InternalType.VICINITY,
-                                        s));
+                        reports.add(new InternalReport(InternalType.VICINITY, s));
                     } else if (issuanceFound && validtoFound
                             && !coordinateFound) {
                         reports.add(new InternalReport(InternalType.COORDS, s));
