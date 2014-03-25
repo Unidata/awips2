@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<gribModelSet>
+	<model>
+		<name>RTOFS-Alaska</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Alaska</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-Arctic</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Arctic</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-Bering</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Bering</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-Guam</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Guam</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-GulfAlaska</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-GulfAlaska</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-Honolulu</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Honolulu</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-HudsonBaffin</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-HudsonBaffin</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-Samoa</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Samoa</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-TropPaciLowres</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-TropPaciLowres</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-WestAtl</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-WestAtl</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+
+	<model>
+		<name>RTOFS-WestConus</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-WestConus</id>
+		</grids>
+		<process>
+			<id>0</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>RTOFS-Atlantic</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-Atlantic</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>RTOFS-Atlantic-HiRes</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-Atlantic-HiRes</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>RTOFS-GulfMaine</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfMaine</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>RTOFS-GulfMexico</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfMexico</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+	
+	<model>
+		<name>RTOFS-GulfStream</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfStream</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+</gribModelSet>
