@@ -13,7 +13,7 @@
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
     <resourceParameters>
 pluginName=grid
-GDFILE=ofsWatl
+GDFILE=RTOFS-Atlantic
 
 </resourceParameters>
     <inventoryEnabled>true</inventoryEnabled>
