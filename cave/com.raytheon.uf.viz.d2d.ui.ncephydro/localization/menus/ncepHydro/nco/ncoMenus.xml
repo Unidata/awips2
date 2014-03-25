@@ -14,7 +14,7 @@
                 <substitute value="Snow Cover" key="customLegend"/>
                 <substitute value="0.00" key="sampleFormat"/>
             </contribute>
-            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" timeQuery="true" id="ncepHydro.nco.snowCoverElev">
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Cover Elev" timeQuery="true" id="ncepHydro.nco.snowCoverElev">
                 <substitute value="sce" key="param"/>
                 <substitute value="Snow Cover by elevation (kft)" key="customLegend"/>
                 <substitute value="0.00" key="sampleFormat"/>
@@ -24,18 +24,18 @@
                 <substitute value="Snow Water Equivalent (in)" key="customLegend"/>
                 <substitute value="0.00" key="sampleFormat"/>
             </contribute>
-            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" timeQuery="true" id="ncepHydro.nco.snowWaterPercent">
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Water % nrml" timeQuery="true" id="ncepHydro.nco.snowWaterPercent">
                 <substitute value="SWEPN" key="param"/>
                 <substitute value="Snow Water Equivalent % of normal (%)" key="customLegend"/>
                 <substitute value="0.00" key="sampleFormat"/>
             </contribute>
         </contribute>
-        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" timeQuery="true" id="ncepHydro.nco.radarSummary">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Radar Summary" timeQuery="true" id="ncepHydro.nco.radarSummary">
             <substitute value="PAWO82" key="wmo"/>
             <substitute value="3600" key="posOff"/>
             <substitute value="-2100" key="virtOff"/>
         </contribute>
-        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" timeQuery="true" id="ncepHydro.nco.radarLegends">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Radar Legends" timeQuery="true" id="ncepHydro.nco.radarLegends">
             <substitute value="PAWO83" key="wmo"/>
             <substitute value="3600" key="posOff"/>
             <substitute value="-2100" key="virtOff"/>
