@@ -97,6 +97,21 @@
 	<vbSource key="RTGSST" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="RTGSSTHR" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="RTMA" category="SfcGrid" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfMexico" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfStream" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfMaine" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Atlantic" category="SfcGrid/RTOFS" subCategory="Atlantic" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Alaska" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Arctic" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Bering" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Guam" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-GulfAlaska" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Honolulu" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-HudsonBaffin" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-Samoa" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-TropPaciLowres" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-WestAtl" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
+	<vbSource key="RTOFS-WestConus" category="SfcGrid/RTOFS" subCategory="Global" views="PLANVIEW TIMESERIES" />
 	<vbSource key="SeaIce" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="SPCGuide" category="SfcGrid" views="PLANVIEW TIMESERIES" />
 	<vbSource key="HurWind226" category="SfcGrid" views="PLANVIEW TIMESERIES" />
