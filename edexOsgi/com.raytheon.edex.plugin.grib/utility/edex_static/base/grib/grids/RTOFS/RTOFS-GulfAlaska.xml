@@ -19,16 +19,14 @@
         further_licensing_information.
     -->
 <latLonGridCoverage>
-    <name>500400001</name>
-    <description>200000-point (500x400) global Lon/Lat grid</description>
-    <la1>-26.5</la1>
-    <lo1>254.97</lo1>
+    <name>RTOFS-GulfAlaska</name>
+    <description>Gulf of Alaska Real Time Ocean Forecast System</description>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>
-    <nx>500</nx>
-    <ny>400</ny>
-    <dx>0.255</dx>
-    <dy>0.255</dy>
     <spacingUnit>degree</spacingUnit>
-    <la2>26.5</la2>
-    <lo2>-22.47</lo2>
+    <la1>40.0</la1>
+    <lo1>195.0</lo1>
+    <nx>84</nx>
+    <ny>45</ny>
+    <dx>0.5</dx>
+    <dy>0.5</dy>
 </latLonGridCoverage>
