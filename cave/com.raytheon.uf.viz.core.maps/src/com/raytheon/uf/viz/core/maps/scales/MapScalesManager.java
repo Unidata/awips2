@@ -61,6 +61,7 @@ import com.raytheon.viz.ui.actions.LoadSerializedXml;
  * Oct 08, 2013           mschenke    Initial creation
  * Oct 22, 2013  2491     bsteffen    Change from SerializationUtil to
  *                                    ProcedureXmlManager
+ * Mar 24, 2014  2954     mpduff      Check for missing map scale files and handle the situation.
  * 
  * </pre>
  * 
@@ -99,16 +100,22 @@ public class MapScalesManager {
 
         private String bundleXml;
 
-        private boolean isCustom;
+        private final boolean isCustom;
 
         private ManagedMapScale(String baseDir, MapScale scale)
                 throws SerializationException {
             this.isCustom = false;
-            this.scaleFile = new AutoUpdatingLocalizationFile(
-                    PathManagerFactory.getPathManager()
-                            .getStaticLocalizationFile(
-                                    baseDir + IPathManager.SEPARATOR
-                                            + scale.getFileName()));
+            LocalizationFile file = PathManagerFactory.getPathManager()
+                    .getStaticLocalizationFile(
+                            baseDir + IPathManager.SEPARATOR
+                                    + scale.getFileName());
+
+            if (file == null || !file.exists()) {
+                throw new IllegalStateException(
+                        "scalesInfo.xml references missing file "
+                                + scale.getFileName());
+            }
+            this.scaleFile = new AutoUpdatingLocalizationFile(file);
             this.scaleFile.addListener(listener);
             this.partIds = scale.getPartIds();
             this.displayName = scale.getDisplayName();
@@ -200,7 +207,7 @@ public class MapScalesManager {
 
     // TODO: Need to figure out best way to create custom scales (depends on
     // maps loaded so it can't be at the projection dialog level)
-    private Collection<ManagedMapScale> customScales = new ArrayList<ManagedMapScale>();
+    private final Collection<ManagedMapScale> customScales = new ArrayList<ManagedMapScale>();
 
     /**
      * Construct a MapScalesManager for the given scales file. File must be
