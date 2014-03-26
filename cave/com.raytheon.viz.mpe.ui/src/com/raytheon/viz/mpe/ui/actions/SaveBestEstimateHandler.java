@@ -29,7 +29,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -40,6 +40,7 @@ import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * Handler class for saving the current best estimate
@@ -51,6 +52,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 2, 2013            mschenke     Initial creation
+ * Feb 26, 2014    2842    mpduff      Use PlatformUI rather than HandlerUtil.
  * 
  * </pre>
  * 
@@ -69,14 +71,15 @@ public class SaveBestEstimateHandler extends AbstractHandler {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart part = HandlerUtil.getActiveEditor(event);
+        IEditorPart part = EditorUtil.getActiveEditor();
         if (part instanceof IDisplayPaneContainer) {
             IDisplayPaneContainer container = (IDisplayPaneContainer) part;
             IDisplayPane toSave = getPaneToSave(container);
             if (toSave != null) {
                 MPEDisplayManager.stopLooping(container);
-                IWorkbenchWindow activeWindow = HandlerUtil
-                        .getActiveWorkbenchWindow(event);
+
+                IWorkbenchWindow activeWindow = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow();
                 Shell shell = activeWindow.getShell();
                 try {
                     shell.setCursor(shell.getDisplay().getSystemCursor(
