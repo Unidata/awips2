@@ -41,6 +41,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * ------------ ---------- ----------- --------------------------
  *                                     Initial creation
  * Aug 25, 2011 10719      rferrel     ugcPtrn now local to file.
+ * Mar 14, 2014  DR 17175  D. Friedman Get correct time zone from times.
  * </pre>
  * 
  * @version 1.0
@@ -90,8 +91,12 @@ public class TimeConsistentCheck implements IQCCheck {
             // Event ending time (second bullet) vs Expiration
             m = secondBulletPtrn.matcher(body);
             if (m.find()) {
-                TimeZone timeZone = TextWarningConstants.timeZoneAbbreviationMap
-                        .get(m.group(4).substring(0, 1));
+                TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
+                        .get(m.group(4));
+                if (timeZone == null) {
+                    errorMsg += "Could not determine time zone in second bullet";
+                    return errorMsg;
+                }
                 int am_pm = m.group(3).equals("AM") ? Calendar.AM : Calendar.PM;
                 int minute = Integer.parseInt(m.group(2));
                 int hour = Integer.parseInt(m.group(1)) == 12 ? 0 : Integer
@@ -134,8 +139,12 @@ public class TimeConsistentCheck implements IQCCheck {
 
         m = thirdBulletPtrn.matcher(body);
         if (m.find()) {
-            TimeZone timeZone = TextWarningConstants.timeZoneAbbreviationMap
-                    .get(m.group(4).substring(0, 1));
+            TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
+                    .get(m.group(4));
+            if (timeZone == null) {
+                errorMsg += "Could not determine time zone in third bullet";
+                return errorMsg;
+            }
             int am_pm = m.group(3).equals("AM") ? Calendar.AM : Calendar.PM;
             int minute = Integer.parseInt(m.group(2));
             int hour = Integer.parseInt(m.group(1));
