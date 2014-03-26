@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cwa Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.cwa
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.dataplugin.cwa;bundle-version="1.0.0",
@@ -17,8 +17,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.cwa;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.edex.esb,
  com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.exception,
  com.raytheon.uf.common.datastorage.records,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
- com.raytheon.uf.edex.core,
- org.apache.commons.logging
+ com.raytheon.uf.edex.core
