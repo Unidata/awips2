@@ -7,7 +7,8 @@ Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: ucar.nc2,
  ucar.nc2.bufrsplitter,
- com.raytheon.uf.common.status
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.numeric
 Export-Package: com.raytheon.uf.common.nc.bufr,
  com.raytheon.uf.common.nc.bufr.tables,
  com.raytheon.uf.common.nc.bufr.util
