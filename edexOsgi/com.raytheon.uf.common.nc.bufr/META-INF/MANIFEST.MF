@@ -2,10 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: NetCDF Bufr
 Bundle-SymbolicName: com.raytheon.uf.common.nc.bufr
-Bundle-Version: 14.3
+Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: ucar.nc2,
  ucar.nc2.bufrsplitter,
  com.raytheon.uf.common.status
-Export-Package: com.raytheon.uf.common.nc.bufr
+Export-Package: com.raytheon.uf.common.nc.bufr,
+ com.raytheon.uf.common.nc.bufr.tables,
+ com.raytheon.uf.common.nc.bufr.util
+Bundle-ClassPath: .,
+ res/
