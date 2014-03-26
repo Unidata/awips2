@@ -22,11 +22,11 @@ package com.raytheon.viz.mpe.ui.actions;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
+import com.raytheon.viz.ui.EditorUtil;
 
 /**
  * MPE Users guide specifies this command should clear all MPE data from screen
@@ -39,6 +39,7 @@ import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 3, 2012            mschenke     Initial creation
+ * Feb 26, 2014    2842    mpduff      Use PlatformUI rather than HandlerUtil.
  * 
  * </pre>
  * 
@@ -57,7 +58,8 @@ public class ClearMPEData extends FullScreen {
      */
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart editor = HandlerUtil.getActiveEditor(event);
+        IEditorPart editor = EditorUtil.getActiveEditor();
+
         if (editor instanceof IDisplayPaneContainer) {
             IDisplayPaneContainer container = (IDisplayPaneContainer) editor;
             for (IDisplayPane pane : container.getDisplayPanes()) {
