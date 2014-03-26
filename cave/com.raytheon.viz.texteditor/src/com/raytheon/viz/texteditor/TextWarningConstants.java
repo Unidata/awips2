@@ -31,6 +31,8 @@ import java.util.TimeZone;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 8, 2008   1737      grichard    Initial creation.
+ * Mar 14, 2014  DR 17175  D. Friedman Fixed Atlantic and Samoa time zones.
+ *                                     Add short name map.
  * </pre>
  * 
  * @author grichard
@@ -71,6 +73,8 @@ public final class TextWarningConstants {
 
     public static HashMap<String, TimeZone> timeZoneAbbreviationMap = null;
 
+    public static HashMap<String, TimeZone> timeZoneShortNameMap = null;
+
     static {
         // build the abbreviation map
         timeZoneAbbreviationMap = new HashMap<String, TimeZone>();
@@ -82,8 +86,26 @@ public final class TextWarningConstants {
         timeZoneAbbreviationMap.put("M", TimeZone.getTimeZone("MST7MDT"));
         timeZoneAbbreviationMap.put("m", TimeZone.getTimeZone("MST"));
         timeZoneAbbreviationMap.put("P", TimeZone.getTimeZone("PST8PDT"));
-        timeZoneAbbreviationMap.put("S", TimeZone.getTimeZone("AST"));
-        timeZoneAbbreviationMap.put("V", TimeZone.getTimeZone("VST"));
+        timeZoneAbbreviationMap.put("S", TimeZone.getTimeZone("US/Samoa"));
+        timeZoneAbbreviationMap.put("V", TimeZone.getTimeZone("America/Puerto_Rico"));
+
+        HashMap<String, TimeZone> t = timeZoneAbbreviationMap;
+        timeZoneShortNameMap = new HashMap<String, TimeZone>();
+        timeZoneShortNameMap.put("AKST", t.get("A"));
+        timeZoneShortNameMap.put("AKDT", t.get("A"));
+        timeZoneShortNameMap.put("CST", t.get("C"));
+        timeZoneShortNameMap.put("CDT", t.get("C"));
+        timeZoneShortNameMap.put("EST", t.get("E"));
+        timeZoneShortNameMap.put("EDT", t.get("E"));
+        timeZoneShortNameMap.put("CHST", t.get("G"));
+        timeZoneShortNameMap.put("ChST", t.get("G"));
+        timeZoneShortNameMap.put("HST", t.get("H"));
+        timeZoneShortNameMap.put("MST", t.get("m"));
+        timeZoneShortNameMap.put("MDT", t.get("M"));
+        timeZoneShortNameMap.put("PST", t.get("P"));
+        timeZoneShortNameMap.put("PDT", t.get("P"));
+        timeZoneShortNameMap.put("SST", t.get("S"));
+        timeZoneShortNameMap.put("AST", t.get("V"));
     }
 
     /**
