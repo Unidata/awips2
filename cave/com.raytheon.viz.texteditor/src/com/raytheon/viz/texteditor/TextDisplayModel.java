@@ -22,6 +22,7 @@ package com.raytheon.viz.texteditor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,6 +63,7 @@ import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
  * Apr 14, 2010 4734       mhuang      Corrected StdTextProduct import 
  *                                      dependency
  * 05/28/2010   2187        cjeanbap    Added StdTextProductFactory functionality.
+ * 03/18/2014   DR 17174    D. Friedman Return correct 3-letter site IDs in getNnnXxx.
  * </pre>
  * 
  * @author grichard
@@ -78,7 +80,7 @@ public final class TextDisplayModel {
     private static final Map<String, String> vtecPpToNnn = new HashMap<String, String>();
 
     private static final Pattern warningPattern = Pattern
-            .compile("/[A-Z]\\.([A-Z]{3})\\.\\p{Alnum}{1}(\\p{Alnum}{3})\\.([A-Z]{2}\\.[A-Z]{1})");
+            .compile("/[A-Z]\\.([A-Z]{3})\\.(\\p{Alnum}{4})\\.([A-Z]{2}\\.[A-Z]{1})");
 
     private static final Pattern nnnxxxPattern = Pattern
             .compile("[\\r\\n]+([A-Z]{3})([A-Z]{3})(| WRKWG[0-9])[\\r\\n]+");
@@ -514,29 +516,20 @@ public final class TextDisplayModel {
      * @return the product category and product designator strings
      */
     public static String[] getNnnXxx(String warning) {
-        String[] rval = { "nnn", "xxx" };
         if (warning != null) {
             Matcher m = warningPattern.matcher(warning);
-            if (m.find()) {
-                if (m.group(1).equals("NEW")
-                        && vtecPpToNnn.containsKey(m.group(3))) {
-                    rval[0] = vtecPpToNnn.get(m.group(3));
-                    rval[1] = m.group(2);
-                } else {
-                    m = nnnxxxPattern.matcher(warning);
-                    if (m.find()) {
-                        rval[0] = m.group(1);
-                        rval[1] = m.group(2);
-                    }
-                }
-            } else {
-                m = nnnxxxPattern.matcher(warning);
-                if (m.find()) {
-                    rval[0] = m.group(1);
-                    rval[1] = m.group(2);
+            if (m.find() && m.group(1).equals("NEW")) {
+                String nnn = vtecPpToNnn.get(m.group(3));
+                Set<String> siteSet = SiteMap.getInstance().getSite3LetterIds(m.group(2));
+                if (nnn != null && siteSet.size() == 1) {
+                    return new String[] { nnn, siteSet.iterator().next() };
                 }
             }
+            m = nnnxxxPattern.matcher(warning);
+            if (m.find()) {
+                return new String[] { m.group(1), m.group(2) };
+            }
         }
-        return rval;
+        return new String[] { "nnn", "xxx" };
     }
 }
