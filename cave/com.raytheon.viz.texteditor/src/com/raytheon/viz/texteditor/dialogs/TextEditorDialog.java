@@ -334,6 +334,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
  * 10Dec2013   2601         mpduff      Fix NullPointerException.
+ * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
  * </pre>
  * 
  * @author lvenable
@@ -5813,11 +5814,15 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         if (m.find()) {
             SimpleDateFormat headerFormat = new SimpleDateFormat(
                     "hmm a z EEE MMM d yyyy");
-            headerFormat
-                    .setTimeZone(TextWarningConstants.timeZoneAbbreviationMap
-                            .get(m.group(5).substring(0, 1)));
-            product = product.replace(m.group(1), headerFormat.format(now)
-                    .toUpperCase());
+            TimeZone tz = TextWarningConstants.timeZoneShortNameMap
+                    .get(m.group(5));
+            if (tz != null) {
+                headerFormat.setTimeZone(tz);
+                product = product.replace(m.group(1), headerFormat.format(now)
+                        .toUpperCase());
+            } else {
+                statusHandler.warn("Could not sync MND header time because the time zone could not be determined.  Will proceed with save/send.");
+            }
         }
         return product;
     }
