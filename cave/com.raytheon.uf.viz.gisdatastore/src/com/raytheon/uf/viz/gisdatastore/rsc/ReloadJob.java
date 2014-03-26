@@ -22,11 +22,11 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
+import org.geotools.geometry.jts.JTS;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -58,6 +58,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 24, 2014      #1908 randerso     Removed debug sysouts
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
+ * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
  * 
  * </pre>
  * 
@@ -246,11 +247,7 @@ class ReloadJob extends Job {
                             req.rsc.getDescriptor().getGridGeometry(), true);
                 }
 
-                // TODO: pass the crs on to JTSCompiler to indicate
-                // projection of shapefile data.
                 SimpleFeatureType schema = req.rsc.getSchema();
-                CoordinateReferenceSystem crs = schema.getGeometryDescriptor()
-                        .getCoordinateReferenceSystem();
 
                 JTSCompiler jtsCompiler = new JTSCompiler(newShadedShape,
                         newOutlineShape, req.rsc.getDescriptor(),
@@ -314,7 +311,9 @@ class ReloadJob extends Job {
                         continue;
                     }
 
-                    Geometry g = (Geometry) f.getAttribute(req.geomField);
+                    Geometry g = JTS.transform(
+                            (Geometry) f.getAttribute(req.geomField),
+                            req.rsc.getIncomingToLatLon());
                     if (da.isHighlighted()) {
                         highlightGeoms.add(g);
                     }
