@@ -25,12 +25,12 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEPolygonResource;
+import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.input.EditableManager;
 
 /**
@@ -41,7 +41,8 @@ import com.raytheon.viz.ui.input.EditableManager;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 1, 2009            mpduff     Initial creation.
+ * Jul 01, 2009            mpduff      Initial creation.
+ * Feb 26, 2014    2842    mpduff      Use EditorUtil rather than HandlerUtil.
  * 
  * </pre>
  * 
@@ -52,7 +53,7 @@ public class DrawPolygonAction extends AbstractHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
-        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+        IEditorPart activeEditor = EditorUtil.getActiveEditor();
         if (activeEditor instanceof IDisplayPaneContainer) {
             IDisplayPaneContainer container = (IDisplayPaneContainer) activeEditor;
             MPEDisplayManager.stopLooping(container);
