@@ -33,12 +33,14 @@ import ucar.ma2.DataType;
 import ucar.ma2.StructureData;
 import ucar.ma2.StructureMembers;
 import ucar.ma2.StructureMembers.Member;
+import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
 import ucar.nc2.iosp.bufr.writer.BufrSplitter;
 import ucar.nc2.iosp.bufr.writer.BufrSplitter.Options;
 
+import com.raytheon.uf.common.numeric.UnsignedNumbers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
@@ -54,7 +56,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 18, 2014 2905       bclement     Initial creation
+ * Mar 18, 2014 2905       bclement    Initial creation
+ * Mar 26, 2014 2905       bclement    fixed types, added scale/offset
  * 
  * </pre>
  * 
@@ -63,27 +66,34 @@ import com.raytheon.uf.common.status.UFStatus;
  */
 public class BufrParser {
 
+    public static final String MISSING_VAL_ATTRIB = "missing_value";
+
+    public static final String SCALE_FACTOR_ATTRIB = "scale_factor";
+
+    public static final String OFFSET_ATTRIB = "add_offset";
+
     public static enum Event {
         START_FILE, START_STRUCTURE, FIELD, END_STRUCTURE, END_FILE
     }
 
     private static final IUFStatusHandler log = UFStatus
             .getHandler(BufrParser.class);
-    
+
     private final static File DEFAULT_TMP_DIR;
-    
+
     static {
         final String edexHomeProp = "edex.home";
         String baseDir = System.getProperty(edexHomeProp);
-        if (baseDir == null || baseDir.trim().isEmpty()){
-            log.warn("Property '" + edexHomeProp + "' not set, defaulting to system tmp directory");
+        if (baseDir == null || baseDir.trim().isEmpty()) {
+            log.warn("Property '" + edexHomeProp
+                    + "' not set, defaulting to system tmp directory");
             DEFAULT_TMP_DIR = new File(System.getProperty("java.io.tmpdir"));
         } else {
             DEFAULT_TMP_DIR = new File(baseDir + File.separator + "data",
                     "processing");
         }
     }
-    
+
     private final Options options;
 
     private final File[] splitFiles;
@@ -98,34 +108,16 @@ public class BufrParser {
 
     private StructIterator structIter;
 
-    private static class StructureLevel {
-        public final StructureData structure;
-
-        public final Iterator<Member> memberIter;
-
-        public Member currentMember;
-
-        public StructureLevel(StructureData structure) {
-            this(structure, structure.getStructureMembers());
-        }
-
-        public StructureLevel(StructureData structure, StructureMembers members) {
-            this.structure = structure;
-            this.memberIter = members.getMembers().iterator();
-        }
-    }
-
-    private final Stack<StructureLevel> structStack = new Stack<BufrParser.StructureLevel>();
+    private final Stack<StructureLevel> structStack = new Stack<StructureLevel>();
 
     private Event lastEvent = null;
-    
+
     /**
      * @param bufrFile
      *            BUFR file, may contain mixed message types
      * @throws IOException
      */
-    public BufrParser(final File bufrFile)
-            throws IOException {
+    public BufrParser(final File bufrFile) throws IOException {
         this(bufrFile, DEFAULT_TMP_DIR);
     }
 
@@ -188,7 +180,7 @@ public class BufrParser {
     public boolean hasNext() throws IOException {
         if (!structStack.isEmpty()) {
             StructureLevel level = structStack.peek();
-            if (level.memberIter != null && level.memberIter.hasNext()) {
+            if (level.hasNext()) {
                 return true;
             }
         }
@@ -221,7 +213,7 @@ public class BufrParser {
             rval = nextMember();
         } else if (structIter != null && structIter.hasNext()) {
             /* in a variable with a sequence of structures, get the next one */
-            rval = startStructure(structIter.next());
+            rval = startStructure((Structure) currentVar, structIter.next());
         } else if (structIter != null && !structIter.hasNext()) {
             /*
              * this happens if the variable had an empty structure iterator.
@@ -263,21 +255,19 @@ public class BufrParser {
     private Event nextMember() throws IOException {
         Event rval;
         StructureLevel level = structStack.peek();
-        if (level.memberIter.hasNext()) {
+        if (level.hasNext()) {
             /* in a level of a structure, get the next member */
-            Member m = level.memberIter.next();
-            level.currentMember = m;
+            level.next();
+            Member m = level.getCurrentMember();
             DataType type = m.getDataType();
             if (type.equals(DataType.STRUCTURE)) {
                 /* current member is a nested structure, start a new level */
-                StructureData struct = (StructureData) level.structure
-                        .getScalarObject(m);
-                rval = startStructure(struct);
+                StructureData structData = level.getSubStructure();
+                rval = startSubStructure(level, structData);
             } else if (type.equals(DataType.SEQUENCE)) {
                 /* current member is a sequence of members, start a new level */
-                ArraySequence arr = level.structure.getArraySequence(m);
-                return startStructure(new StructureLevel(level.structure,
-                        arr.getStructureMembers()));
+                ArraySequence arr = level.getSubSequence();
+                rval = startSubStructure(level, arr.getStructureMembers());
             } else {
                 /* current member is a field */
                 rval = Event.FIELD;
@@ -290,14 +280,68 @@ public class BufrParser {
     }
 
     /**
-     * Start processing the next structure
+     * Start a nested structure
      * 
-     * @param structure
+     * @param parent
+     * @param childData
      * @return
      * @throws IOException
      */
-    private Event startStructure(StructureData structure) throws IOException {
-        StructureLevel level = new StructureLevel(structure);
+    private Event startSubStructure(StructureLevel parent,
+            StructureData childData) throws IOException {
+        return startSubStructure(parent, childData,
+                childData.getStructureMembers());
+    }
+
+    /**
+     * Start a nested structure
+     * 
+     * @param parent
+     * @param childMembers
+     * @return
+     * @throws IOException
+     */
+    private Event startSubStructure(StructureLevel parent,
+            StructureMembers childMembers) throws IOException {
+        return startSubStructure(parent, parent.getStructData(), childMembers);
+    }
+
+    /**
+     * Start a nested structure
+     * 
+     * @param parent
+     * @param childData
+     * @param childMembers
+     * @return
+     * @throws IOException
+     */
+    private Event startSubStructure(StructureLevel parent,
+            StructureData childData, StructureMembers childMembers)
+            throws IOException {
+        Variable parentVar = parent.getCurrentMemberVar();
+        if (!(parentVar instanceof Structure)) {
+            log.error("Structure variable members out of sync");
+            throw new IllegalStateException("Structure variable members out of sync");
+        }
+        Iterator<Variable> memberVarIter = ((Structure) parentVar)
+                .getVariables().iterator();
+        return startStructure(new StructureLevel(childData, childMembers,
+                memberVarIter));
+    }
+
+    /**
+     * Start processing the next structure
+     * 
+     * @param s
+     * 
+     * @param structData
+     * @return
+     * @throws IOException
+     */
+    private Event startStructure(Structure s, StructureData structData)
+            throws IOException {
+        StructureLevel level = new StructureLevel(structData, s.getVariables()
+                .iterator());
         return startStructure(level);
     }
 
@@ -341,7 +385,7 @@ public class BufrParser {
             structIter = new StructIterator(s.getStructureIterator(),
                     s.getNumberOfMemberVariables());
             if (structIter.hasNext()) {
-                rval = startStructure(structIter.next());
+                rval = startStructure(s, structIter.next());
             } else {
                 /*
                  * start an event for an empty structure, next event will be an
@@ -402,13 +446,6 @@ public class BufrParser {
     }
 
     /**
-     * @return null if no variable is currently being processed
-     */
-    public Variable getCurrentVar() {
-        return currentVar;
-    }
-
-    /**
      * @return null if no events have happened
      */
     public Event getLastEvent() {
@@ -431,7 +468,7 @@ public class BufrParser {
         boolean rval = false;
         if (fieldIsStructMember()) {
             StructureLevel level = structStack.peek();
-            Member m = level.currentMember;
+            Member m = level.getCurrentMember();
             rval = m.isScalar();
         } else if (currentVar != null) {
             rval = currentVar.isScalar();
@@ -447,7 +484,7 @@ public class BufrParser {
         String rval = null;
         if (fieldIsStructMember()) {
             StructureLevel level = structStack.peek();
-            rval = level.currentMember.getUnitsString();
+            rval = level.getCurrentMember().getUnitsString();
         } else if (currentVar != null) {
             rval = currentVar.getUnitsString();
         }
@@ -461,7 +498,7 @@ public class BufrParser {
         String rval = null;
         if (fieldIsStructMember()) {
             StructureLevel level = structStack.peek();
-            rval = level.currentMember.getName();
+            rval = level.getCurrentMember().getName();
         } else if (currentVar != null) {
             rval = currentVar.getFullName();
         }
@@ -469,76 +506,86 @@ public class BufrParser {
     }
 
     /**
-     * @return type of current field
-     */
-    public Class<?> getFieldType() {
-        DataType dtype = null;
-        if (fieldIsStructMember()) {
-            StructureLevel level = structStack.peek();
-            dtype = level.currentMember.getDataType();
-        } else if (currentVar != null) {
-            dtype = currentVar.getDataType();
-        }
-        /*
-         * not using DataType.getClassType() because it returns primitive types,
-         * we want to only work with objects
-         */
-        switch (dtype) {
-        case BOOLEAN:
-            return Boolean.class;
-        case BYTE:
-            return Byte.class;
-        case CHAR:
-            return Character.class;
-        case SHORT:
-            return Short.class;
-        case INT:
-            return Integer.class;
-        case LONG:
-            return Long.class;
-        case FLOAT:
-            return Float.class;
-        case DOUBLE:
-            return Double.class;
-        case STRING:
-            return String.class;
-        default:
-            return dtype.getClassType();
-        }
-    }
-
-    /**
-     * Get scalar value of field.
+     * Note: this is the data type after processing, not the datatype stored in
+     * the file
      * 
-     * @param fieldType
-     *            type retrieved from {@link BufrParser#getFieldType()}
-     * @return
-     * @throws IOException
-     */
-    public <T> T getFieldScalarValue(Class<T> fieldType) throws IOException {
-        return getFieldScalarValue(fieldType, false);
-    }
-
-    /**
-     * Get scalar value of field.
-     * 
-     * @param fieldType
-     *            type retrieved from {@link BufrParser#getFieldType()}
      * @param charArrayAsString
-     *            if true, character array fields are converted to Strings
+     *            true if character arrays should be treated as strings
+     * @return data type of field
+     */
+    public DataType getFieldType(boolean charArrayAsString) {
+        Variable var = getFieldVariable();
+        DataType rval;
+        if (charArrayAsString && !var.isScalar()
+                && var.getDataType().equals(DataType.CHAR)) {
+            rval = DataType.STRING;
+        } else if (isScaledOrOffset(var)) {
+            /* variables that need scale or offset will be returned as doubles */
+            rval = DataType.DOUBLE;
+        } else {
+            rval = getUnscaledDataType(var);
+        }
+        return rval;
+    }
+
+    /**
+     * Get type accounting for unsigned type promotion
+     * 
+     * @param var
      * @return
+     */
+    private DataType getUnscaledDataType(Variable var) {
+        DataType rval;
+        /*
+         * We will promote unsigned values to the next largest signed type
+         */
+        boolean isUnsigned = var.isUnsigned();
+        switch (var.getDataType()) {
+        case BYTE:
+            rval = (isUnsigned ? DataType.SHORT : DataType.BYTE);
+            break;
+        case SHORT:
+            rval = (isUnsigned ? DataType.INT : DataType.SHORT);
+            break;
+        case INT:
+            rval = (isUnsigned ? DataType.LONG : DataType.INT);
+            break;
+        case LONG:
+            /*
+             * no support for unsigned longs, we would have to use BigInteger
+             */
+            rval = DataType.LONG;
+            break;
+        default:
+            rval = var.getDataType();
+        }
+        return rval;
+    }
+
+    /**
+     * @param var
+     * @return true if the field has a scale factor or addition offset
+     */
+    private boolean isScaledOrOffset(Variable var) {
+        return var.findAttribute(OFFSET_ATTRIB) != null
+                || var.findAttribute(SCALE_FACTOR_ATTRIB) != null;
+    }
+
+    /**
+     * @param charArrayAsString
+     *            true if character arrays should be treated as strings
+     * @return null if value is a missing value
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
-    public <T> T getFieldScalarValue(Class<T> fieldType,
-            boolean charArrayAsString) throws IOException {
+    public Object getFieldScalarValue(boolean charArrayAsString)
+            throws IOException {
         TypedArray typedArray = readFieldAsArray();
         if (typedArray == null) {
             return null;
         }
         Array array = typedArray.array;
         DataType type = typedArray.type;
-        T rval;
+        Object value;
         if (charArrayAsString && array.getSize() > 1
                 && type.equals(DataType.CHAR)) {
             int len = (int) array.getSize();
@@ -546,24 +593,95 @@ public class BufrParser {
             for (int i = 0; i < len; ++i) {
                 builder.append(array.getChar(i));
             }
-            rval = (T) builder.toString();
+            value = builder.toString();
         } else {
-            rval = (T) array.getObject(0);
+            value = array.getObject(0);
         }
 
+        return processValue(value);
+    }
+
+    /**
+     * Perform any promotion, scaling or missing value operations
+     * 
+     * @param value
+     * @return
+     */
+    private Object processValue(Object value) {
+        Variable var = getFieldVariable();
+        Object rval = promoteValueType(var, value);
+        if (isMissingValue(var, rval)) {
+            rval = null;
+        } else if (isScaledOrOffset(var)) {
+            if (value instanceof Number) {
+                rval = scaleAndOffset((Number) rval);
+            } else {
+                log.warn("Scale or offset attribute on non-numerical field: "
+                        + var.getFullName());
+            }
+        }
         return rval;
     }
 
     /**
-     * Get field values as collection.
+     * Promote unsigned numbers to next largest data type if needed
      * 
-     * @param fieldType
-     *            type retrieved from {@link BufrParser#getFieldType()}
+     * @param var
+     * @param value
      * @return
+     */
+    private Object promoteValueType(Variable var, Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (var.isUnsigned() && value instanceof Number) {
+            /* promote unsigned values to the next largest signed type */
+            switch (var.getDataType()) {
+            case BYTE:
+                value = (Short) (UnsignedNumbers.ubyteToShort((Byte) value));
+                break;
+            case SHORT:
+                value = (Integer) (UnsignedNumbers.ushortToInt((Short) value));
+                break;
+            case INT:
+                value = (Long) (UnsignedNumbers.uintToLong((Integer) value));
+            case LONG:
+                log.warn("Unsigned long not supported, value may be incorrectly interpreted: "
+                        + var.getFullName());
+                break;
+            default:
+                // no action
+            }
+        }
+        return value;
+    }
+
+    /**
+     * Apply scale factor or addition offset if present
+     * 
+     * @param value
+     * @return
+     */
+    public Number scaleAndOffset(Number value) {
+        Number scaleFactor = getScaleFactor();
+        if (scaleFactor != null) {
+            value = value.doubleValue() * scaleFactor.doubleValue();
+        }
+        Number offset = getOffset();
+        if (offset != null) {
+            value = value.doubleValue() + offset.doubleValue();
+        }
+        return value;
+     }
+
+    /**
+     * Get field values as collection. Missing values will be represented by
+     * NULL elements in collection.
+     * 
+     * @return null if not processing variable
      * @throws IOException
      */
-    @SuppressWarnings("unchecked")
-    public <T> Collection<T> getFieldCollection(Class<T> fieldType)
+    public Collection<Object> getFieldCollection()
             throws IOException {
         TypedArray typedArray = readFieldAsArray();
         if (typedArray == null) {
@@ -571,9 +689,9 @@ public class BufrParser {
         }
         Array array = typedArray.array;
         int len = (int) array.getSize();
-        Collection<T> rval = new ArrayList<T>(len);
+        Collection<Object> rval = new ArrayList<Object>(len);
         for (int i = 0; i < len; ++i) {
-            rval.add((T) array.getObject(i));
+            rval.add(processValue(array.getObject(i)));
         }
         return rval;
     }
@@ -595,15 +713,15 @@ public class BufrParser {
     /**
      * Get field values as an array with the associated field datatype
      * 
-     * @return
+     * @return null if not processing variable
      * @throws IOException
      */
     private TypedArray readFieldAsArray() throws IOException {
         TypedArray rval = null;
         if (fieldIsStructMember()) {
             StructureLevel level = structStack.peek();
-            StructureData s = level.structure;
-            Member m = level.currentMember;
+            StructureData s = level.getStructData();
+            Member m = level.getCurrentMember();
             rval = new TypedArray(s.getArray(m), m.getDataType());
         } else if (currentVar != null) {
             rval = new TypedArray(currentVar.read(), currentVar.getDataType());
@@ -612,12 +730,134 @@ public class BufrParser {
     }
 
     /**
+     * Get scale factor attribute value
+     * 
+     * @return null if not present
+     */
+    public Number getScaleFactor() {
+        return getFieldAttributeAsNum(SCALE_FACTOR_ATTRIB);
+    }
+
+    /**
+     * Get addition offset attribute value
+     * 
+     * @return null if not present
+     */
+    public Number getOffset() {
+        return getFieldAttributeAsNum(OFFSET_ATTRIB);
+    }
+
+    /**
+     * Get attribute object for field
+     * 
+     * @param name
+     * @return null if not found
+     */
+    public Attribute getFieldAttribute(String name) {
+        Attribute rval = null;
+        Variable var = getFieldVariable();
+        if (var != null) {
+            rval = var.findAttributeIgnoreCase(name);
+        }
+        return rval;
+    }
+
+    /**
+     * Get attribute value for field
+     * 
+     * @param name
+     * @return null if not found
+     */
+    public Number getFieldAttributeAsNum(String name) {
+        Number rval = null;
+        Attribute attr = getFieldAttribute(name);
+        if (attr != null) {
+            rval = attr.getNumericValue();
+        }
+        return rval;
+    }
+
+    /**
+     * Get variable object for current field
+     * 
+     * @return
+     */
+    public Variable getFieldVariable() {
+        Variable var = null;
+        if (fieldIsStructMember()) {
+            StructureLevel level = structStack.peek();
+            var = level.getCurrentMemberVar();
+        } else {
+            var = currentVar;
+        }
+        return var;
+    }
+
+    /**
+     * @param var
+     * @param unscaledValue
+     *            field value before any scaling or offset is applied
+     * @return true if value matches the missing value for field
+     */
+    private boolean isMissingValue(Variable var, Object unscaledValue) {
+        if (unscaledValue == null) {
+            return true;
+        }
+        boolean rval;
+        Attribute missingAttrib = getFieldAttribute(MISSING_VAL_ATTRIB);
+        if (missingAttrib == null) {
+            /* if there is no special missing value, all values are valid */
+            rval = false;
+        } else {
+            Number numMissing = missingAttrib.getNumericValue();
+            switch (getUnscaledDataType(var)) {
+            case BYTE:
+                rval = ((Byte) unscaledValue).byteValue() == numMissing
+                        .byteValue();
+                break;
+            case CHAR:
+                rval = ((Character) unscaledValue).charValue() == numMissing
+                        .intValue();
+                break;
+            case SHORT:
+                rval = ((Short) unscaledValue).shortValue() == numMissing
+                        .shortValue();
+                break;
+            case INT:
+                rval = ((Integer) unscaledValue).intValue() == numMissing
+                        .intValue();
+                break;
+            case LONG:
+                rval = ((Long) unscaledValue).longValue() == numMissing
+                        .longValue();
+                break;
+            case FLOAT:
+                rval = ((Float) unscaledValue).floatValue() == numMissing
+                        .floatValue();
+                break;
+            case DOUBLE:
+                rval = ((Double) unscaledValue).doubleValue() == numMissing
+                        .doubleValue();
+                break;
+            case STRING:
+                rval = unscaledValue.toString().equals(
+                        missingAttrib.getStringValue());
+                break;
+            default:
+                rval = unscaledValue.equals(missingAttrib.getValue(0));
+            }
+        }
+        return rval;
+    }
+
+    /**
      * clean up temporary files
      */
-    public void clean(){
-        for ( File f : splitFiles){
-            if (!f.delete()){
-                log.error("Unable to delete temporary file: " + f.getAbsolutePath());
+    public void clean() {
+        for (File f : splitFiles) {
+            if (!f.delete()) {
+                log.error("Unable to delete temporary file: "
+                        + f.getAbsolutePath());
             }
         }
         File outdir = new File(options.getDirOut());
