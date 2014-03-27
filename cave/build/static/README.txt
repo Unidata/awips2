@@ -15,4 +15,5 @@ designation.
 	linux.x86 - these files will only be installed on a 32-bit Linux Operating System.
 	linux.x86_64 - these files will only be installed on a 64-bit Linux Operating System.
 	win32.x86 - these files will only be installed on a 32-bit MS Windows Operating System.
+	win32.amd64 - these files will only be installed on a 64-bit Windows Operating System.
 	macosx.x86 - these files will only be installed on a 32-bit Apple OS X Operating System.
