@@ -25,8 +25,8 @@ import java.util.Set;
 
 import org.geotools.geometry.jts.ReferencedEnvelope;
 
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.DataSetWithFiltersQuery;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 

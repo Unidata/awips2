@@ -8,7 +8,7 @@
  SHOULD BE MODIFIED.
  
  EXAMPLE FOR INTERSTATE 435 in the Kansas City Metro follows:
-
+ 
  The point source variables i435mm & i435mmid are used in the mileMarkers.vm 
  file. The pointSource attribute must match whatever database table you created
  with the importMarkersInfo.sh script. In this case our database table for 
@@ -24,6 +24,7 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>1000</maxResults>
  	<distanceThreshold>100</distanceThreshold>
+ 	<allowDuplicates>true</allowDuplicates>
  	<sortBy>
  		<sort>gid</sort>
   	</sortBy>
@@ -35,29 +36,7 @@
  	<withinPolygon>true</withinPolygon>
  	<maxResults>1000</maxResults>
  	<distanceThreshold>100</distanceThreshold>
- 	<sortBy>
- 		<sort>gid</sort>
-  	</sortBy>
- </pointSource>
- 
-  <pointSource variable="i35momm">
-    <pointSource>i35mo</pointSource>
- 	<pointField>NAME</pointField>
- 	<searchMethod>POINTS</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>1000</maxResults>
- 	<distanceThreshold>100</distanceThreshold>
- 	<sortBy>
- 		<sort>gid</sort>
-  	</sortBy>
- </pointSource>
-  <pointSource variable="i35mommid">
-    <pointSource>i35mo</pointSource>
- 	<pointField>GID</pointField>
- 	<searchMethod>POINTS</searchMethod>
- 	<withinPolygon>true</withinPolygon>
- 	<maxResults>1000</maxResults>
- 	<distanceThreshold>100</distanceThreshold>
+ 	<allowDuplicates>true</allowDuplicates>
  	<sortBy>
  		<sort>gid</sort>
   	</sortBy>

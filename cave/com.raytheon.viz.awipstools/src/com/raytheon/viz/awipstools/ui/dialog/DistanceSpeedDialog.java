@@ -45,7 +45,6 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 	Nov 28, 2007					Eric Babin Initial Creation
- * 2013-12-20   ss#114      D. Friedman Change 2 of 3
  * 
  * </pre>
  * 

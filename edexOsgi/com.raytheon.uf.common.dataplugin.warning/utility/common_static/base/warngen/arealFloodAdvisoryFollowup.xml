@@ -9,8 +9,10 @@
                  Evan Bookbinder 09-12-2012 Added settings for locations shapefile 
                                             Added new areaSource object      
                  Phil Kurimski   02-05-2013 Added rain so far section          
-                 Mike Dangelo    09-18-2013 to optionally allow <trackEnabled>=true for pathcasting, and add pointMarker.xml 'include'
+                 Mike Dangelo    09-18-2013 to optionally allow <trackEnabled>true for pathcasting, and add pointMarker.xml 'include'
                  Phil Kurimski   09-19-2013 added geospatialConfig.xml
+                 Mike Rega       01-18-2014 added Alaska GP changes for 14.2.1
+                 Mike Dangelo 1/23/2014 added IC and advType group to bottom of bullets (for info only, they are locked anyway, no need to have it at the top)
 -->
 <warngenConfig>
 
@@ -72,7 +74,7 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <duration>30</duration>
  </durations>
  
-<lockedGroupsOnFollowup>ic,advType</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>ic,advType,optType</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>
@@ -83,40 +85,52 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
  <bullets>
   <bullet bulletName="recedingWater" bulletText="Receding water" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
-  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
+  <bullet bulletText="*********** HYDROLOGIC CONDITION (If applicable)  *********** " bulletType="title"/>
+  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="hyCond" parseString="FOR RAPID RIVER RISES" showString="RAPID RIVER RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="hyCond" parseString="MINOR FLOODING OF POOR DRAINAGE AREAS" showString="MINOR FLOODING OF POOR DRAINAGE AREAS"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="***** PRIMARY CAUSE ***** (locked) " bulletType="title"/>
+  <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="SM" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="DR" bulletText="Dam Gate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+<!-- similarly, advType is locked, this is for display only -->
+  <bullet bulletText="****  TYPE OF ADVISORY  (locked)  ****" bulletType="title"/>
   <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-HYDROLOGIC&quot;,&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
   <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
   <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
-  <bullet bulletText="*********** HYDROLOGIC CONDITION (If applicable)  *********** " bulletType="title"/>
-  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="hyCond" parseString="FOR RAPID RIVER RISES" showString="RAPID RIVER RISES"/>
-  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="hyCond" parseString="MINOR FLOODING OF POOR DRAINAGE AREAS" showString="MINOR FLOODING OF POOR DRAINAGE AREAS"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="EXP" phen="FA" sig="Y">
  <bullets>
   <bullet bulletName="recedingWater" bulletText="Water receding" />
   <bullet bulletName="rainEnded" bulletText="Heavy rain ended" />
-  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
+  <bullet bulletText="*********** OPTIONAL SPECIFIC TYPE (locked) *********** " bulletType="title"/>
+  <bullet bulletName="rapidRises" bulletText="Rapid river rises" bulletGroup="optType" parseString="FOR RAPID RISES" showString="FOR RAPID RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="optType" parseString="MINOR FLOODING IN POOR DRAINAGE AREAS" showString="MINOR FLOODING IN POOR DRAINAGE AREAS"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="***** PRIMARY CAUSE ***** (locked) " bulletType="title"/>
+  <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="SM" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="DR" bulletText="Dam Gate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+<!-- similarly, advType is locked, this is for display only -->
+  <bullet bulletText="****  TYPE OF ADVISORY  (locked)  ****" bulletType="title"/>
   <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-HYDROLOGIC&quot;,&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
   <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
   <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
-  <bullet bulletText="*********** HYDROLOGIC CONDITION (If applicable)  *********** " bulletType="title"/>
-  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="group10" parseString="RAPID RIVER RISES" showString="RAPID RIVER RISES"/>
-  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="group10" parseString="MINOR FLOODING OF POOR DRAINAGE AREAS" showString="MINOR FLOODING OF POOR DRAINAGE AREAS"/>
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="CON" phen="FA" sig="Y">
  <bullets>
-  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-HYDROLOGIC&quot;,&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
-  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
-  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
-  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
   <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advSource" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="advSource"  parseString="AUTOMATED "/>
@@ -124,12 +138,13 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="advSource" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="advSource" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="advSource" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="advEvent" parseString="&quot;THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="advEvent" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
   <bullet bulletName="actual" bulletText="Minor flooding occurring" bulletGroup="advEvent" parseString="&quot;CAUSING&quot;,&quot;FLOODING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
-  <bullet bulletName="rapidRiver" bulletText="Rapid river rises" bulletGroup="advEvent" parseString="RAPID RIVER RISES"/>
-  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="advEvent" parseString="MINOR FLOODING OF POOR DRAINAGE AREAS"/>
 <!-- <bullet bulletName="stormPosition" bulletText="* Thunderstorm(s): use dot to specify initial position *" bulletGroup="advEvent" parseString="LOCATED"/> --> 
   <bullet bulletText="*********** RAIN SO FAR (OPTIONAL) **********" bulletType="title"/>
   <bullet bulletName="rain1" bulletText="One inch so far" bulletGroup="rainAmt" parseString="ONE INCH OF RAIN HAS ALREADY FALLEN"/>
@@ -146,22 +161,34 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
   <bullet bulletName="advisoryMeansCTA" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
- </bullets>
-</bulletActionGroup>
-<bulletActionGroup action="COR" phen="FA" sig="Y">
- <bullets>
-  <bullet bulletText="*************     TYPE OF ADVISORY    ***********" bulletType="title"/>
-  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="***** PRIMARY CAUSE ***** (locked) " bulletType="title"/>
+  <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="SM" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="DR" bulletText="Dam Gate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+<!-- similarly, advType is locked, this is for display only -->
+  <bullet bulletText="****  TYPE OF ADVISORY  (locked)  ****" bulletType="title"/>
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-HYDROLOGIC&quot;,&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
   <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
   <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
   <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
   <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletText="*********** OPTIONAL SPECIFIC TYPE (locked) *********** " bulletType="title"/>
+  <bullet bulletName="rapidRises" bulletText="Rapid river rises" bulletGroup="optType" parseString="FOR RAPID RISES" showString="FOR RAPID RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="optType" parseString="MINOR FLOODING IN POOR DRAINAGE AREAS" showString="MINOR FLOODING IN POOR DRAINAGE AREAS"/>
+ </bullets>
+</bulletActionGroup>
+<bulletActionGroup action="COR" phen="FA" sig="Y">
+ <bullets>
   <bullet bulletText="*********** SOURCE (choose 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="advSource" parseString="DOPPLER RADAR"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="advSource"  parseString="AUTOMATED "/>
@@ -169,6 +196,9 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="advSource" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="advSource" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="advSource" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (choose one) *********** " bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="advEvent" parseString="&quot;THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="advEvent" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;,&quot;-CAUSING&quot;,&quot;-RAPID RIVER RISES&quot;,&quot;-MINOR FLOODING OF POOR DRAINAGE&quot;"/>
@@ -191,12 +221,30 @@ Must be paired with proper vm code (also commented out in arealFloodAdvisoryFoll
   <bullet bulletText="****** CALL TO ACTIONS (choose 1 or more) ******" bulletType="title"/>
   <bullet bulletName="dontdrownCTA" bulletText="Turn around...dont drown" parseString="MOST FLOOD DEATHS OCCUR IN AUTOMOBILES"/>
   <bullet bulletName="urbanCTA" bulletText="Urban flooding" parseString="&quot;URBAN AREAS&quot;,&quot;HIGHWAYS&quot;,&quot;STREETS AND UNDERPASSES&quot;"/>
-  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="&quot;SMALL CREEKS AND STREAMS&quot;,&quot;FARM AND COUNTRY ROADS&quot;"/>
+  <bullet bulletName="ruralCTA" bulletText="Rural flooding/small streams" parseString="FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS"/>
   <bullet bulletName="donotdriveCTA" bulletText="Do not drive into water" parseString="DO NOT DRIVE YOUR VEHICLE INTO AREAS WHERE THE WATER COVERS THE ROADWAY"/>
   <bullet bulletName="lowspotsCTA" bulletText="Low spots in hilly terrain" parseString="IN HILLY TERRAIN THERE ARE HUNDREDS OF LOW WATER CROSSINGS"/>
   <bullet bulletName="powerCTA" bulletText="Power of flood waters/vehicles" parseString="DO NOT UNDERESTIMATE THE POWER OF FLOOD WATERS"/>
   <bullet bulletName="reportFloodingCTA" bulletText="Report flooding to local law enforcement" parseString="HAVE THE NEAREST LAW ENFORCEMENT AGENCY RELAY YOUR REPORT"/>
   <bullet bulletName="advisoryMeansCTA" bulletText="A flood advisory means" parseString="A FLOOD ADVISORY MEANS RIVER OR STREAM FLOWS"/>
+<!-- This next section really serves no purpose but to display the Primary Cause (IC in HVTEC). The IC items are locked and cannot be changed.  -->  
+  <bullet bulletText="***** PRIMARY CAUSE ***** (locked) " bulletType="title"/>
+  <bullet bulletName="ER" bulletText="Excessive rain" bulletGroup="ic" parseString=".ER." showString=".ER."/>
+  <bullet bulletName="SM" bulletText="Snowmelt" bulletGroup="ic" parseString=".SM." showString=".SM."/>
+  <bullet bulletName="RS" bulletText="Excessive rain and snowmelt" bulletGroup="ic" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="IJ" bulletText="Ice jam" bulletGroup="ic" parseString=".IJ." showString=".IJ."/>
+  <bullet bulletName="IC" bulletText="Ice jam and rain" bulletGroup="ic" parseString=".IC." showString=".IC."/>
+  <bullet bulletName="DR" bulletText="Dam Gate Release" bulletGroup="ic" parseString=".DR." showString=".DR."/>
+<!-- similarly, advType is locked, this is for display only -->
+  <bullet bulletText="****  TYPE OF ADVISORY  (locked)  ****" bulletType="title"/>
+  <bullet bulletName="general" bulletText="General (minor flooding)" bulletGroup="advType" parseString="&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;" showString="&quot;-HYDROLOGIC&quot;,&quot;-ARROYO&quot;,&quot;-SMALL STREAM FLOOD ADVISORY&quot;,&quot;FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="small" bulletText="Small stream" bulletGroup="advType" parseString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;" showString="&quot;-URBAN AND&quot;,&quot;-ARROYO&quot;,&quot;SMALL STREAM FLOOD ADVISORY&quot;"/>
+  <bullet bulletName="uss" bulletText="Urban and small stream" bulletGroup="advType" parseString="URBAN AND SMALL STREAM FLOOD ADVISORY" showString="URBAN AND SMALL STREAM FLOOD ADVISORY"/>
+  <bullet bulletName="arroyo" bulletText="Arroyo and small stream" bulletGroup="advType" parseString="ARROYO" showString="ARROYO"/>
+  <bullet bulletName="hydrologic" bulletText="Hydrologic" bulletGroup="advType" parseString="HYDROLOGIC ADVISORY" showString="HYDROLOGIC ADVISORY"/> 
+  <bullet bulletText="*********** OPTIONAL SPECIFIC TYPE (locked) *********** " bulletType="title"/>
+  <bullet bulletName="rapidRises" bulletText="Rapid river rises" bulletGroup="optType" parseString="FOR RAPID RISES" showString="FOR RAPID RISES"/>
+  <bullet bulletName="poorDrainage" bulletText="Minor flooding for poor drainage" bulletGroup="optType" parseString="MINOR FLOODING IN POOR DRAINAGE AREAS" showString="MINOR FLOODING IN POOR DRAINAGE AREAS"/>
  </bullets>
 </bulletActionGroup>
 </bulletActionGroups>

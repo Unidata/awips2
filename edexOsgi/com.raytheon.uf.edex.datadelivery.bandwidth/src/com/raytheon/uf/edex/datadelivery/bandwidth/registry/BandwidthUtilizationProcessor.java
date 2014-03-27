@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 27, 2013 1736       dhladky     Initial creation
+ * Jan 08, 2014 2615       bgonzale    Change calculation of bytesPerSec to make a divide by zero error less likely.
  * 
  * </pre>
  * 
@@ -95,8 +96,9 @@ public class BandwidthUtilizationProcessor implements Job {
     private int getBytesPerSecondAndReset() {
         
         long now = TimeUtil.currentTimeMillis();
-        int diffSeconds = (int) (now - lastRun)/1000;
-        int bytesPerSec = totalBytes.getAndSet(0)/diffSeconds;
+        int diffMilliSeconds = (int) (now - lastRun);
+        int bytesPerMillSec = totalBytes.getAndSet(0) / diffMilliSeconds;
+        int bytesPerSec = bytesPerMillSec / 1000;
         // reset time
         map.put("lastRun", now);
       

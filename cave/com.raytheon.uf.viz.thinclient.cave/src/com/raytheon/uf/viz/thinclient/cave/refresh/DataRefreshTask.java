@@ -19,12 +19,17 @@
  **/
 package com.raytheon.uf.viz.thinclient.cave.refresh;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.thinclient.Activator;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 import com.raytheon.uf.viz.thinclient.refresh.TimedRefresher.RefreshTimerTask;
 import com.raytheon.viz.alerts.jobs.AutoUpdater;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 
 /**
  * Timer task responsible for refreshing IEditorParts that implement
@@ -38,6 +43,7 @@ import com.raytheon.viz.alerts.jobs.AutoUpdater;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2011            mschenke     Initial creation
+ * Feb 21, 2014 DR 16744   D. Friedman  Update all alert observers
  * 
  * </pre>
  * 
@@ -56,8 +62,17 @@ public class DataRefreshTask implements RefreshTimerTask {
     public void run() {
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         if (store.getBoolean(ThinClientPreferenceConstants.P_DISABLE_JMS)) {
-            new AutoUpdater().alertArrived(ThinClientDataUpdateTree
-                    .getInstance().updateAllData());
+            Collection<AlertMessage> alerts = ThinClientDataUpdateTree
+                    .getInstance().updateAllData();
+
+            // Make sure it gets to GridUpdater
+            ArrayList<String> s = new ArrayList<String>(alerts.size());
+            for (AlertMessage am : alerts) {
+                s.add(am.dataURI);
+            }
+            ProductAlertObserver.processDataURIAlerts(s);
+
+            new AutoUpdater().alertArrived(alerts);
         }
     }
 

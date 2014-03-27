@@ -6,6 +6,8 @@ import java.util.Date;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthDataSetUpdate;
@@ -28,7 +30,9 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthSubscription;
  * Jun 13, 2013 2095       djohnson    Point subscriptions don't check for dataset updates on aggregation.
  * Jun 25, 2013 2106       djohnson    CheapClone was cheap in ease, not performance.
  * Jul 11, 2013 2106       djohnson    Use SubscriptionPriority enum.
- * Oct 30, 2013  2448      dhladky     Moved methods to TimeUtil.
+ * Oct 30, 2013 2448       dhladky     Moved methods to TimeUtil.
+ * Dec 20, 2013  2636      mpduff      Changed dataset delay to offset.
+ * Jan 08, 2014 2615       bgonzale    Moved Calendar min and max methods to TimeUtil.
  * 
  * </pre>
  * 
@@ -49,51 +53,19 @@ public class BandwidthUtil {
     // algorithms can be injected with Spring..
     private static final BandwidthUtil instance = new BandwidthUtil();
 
-    // An implementation of the data set availability delay calculator
-    // injected with Spring.
-    private IDataSetAvailablityCalculator dataSetAvailabilityCalculator;
+    private final AveragingAvailablityCalculator dataSetAvailabilityCalculator;
 
     private ISubscriptionLatencyCalculator subscriptionLatencyCalculator;
 
     private ISubscriptionRescheduleStrategy subscriptionRescheduleStrategy;
 
     private BandwidthUtil() {
+        dataSetAvailabilityCalculator = new AveragingAvailablityCalculator(
+                DataDeliveryHandlers.getDataSetMetaDataHandler());
     };
 
     public static int getSubscriptionLatency(Subscription<?, ?> subscription) {
         return instance.subscriptionLatencyCalculator.getLatency(subscription);
-    }
-
-    public static Calendar min(Date lhs, Calendar rhs) {
-        return min(TimeUtil.newCalendar(lhs), rhs);
-    }
-
-    public static Calendar max(Date lhs, Calendar rhs) {
-        return max(TimeUtil.newCalendar(lhs), rhs);
-    }
-               
-    public static Calendar max(Calendar lhs, Calendar rhs) {
-        Calendar calendar = null;
-        if (lhs != null && rhs != null) {
-            if (lhs.equals(rhs)) {
-                return lhs;
-            } else {
-                return lhs.after(rhs) ? lhs : rhs;
-            }
-        }
-        return calendar;
-    }
-
-    public static Calendar min(Calendar lhs, Calendar rhs) {
-        Calendar calendar = null;
-        if (lhs != null && rhs != null) {
-            if (lhs.equals(rhs)) {
-                return lhs;
-            } else {
-                return lhs.before(rhs) ? lhs : rhs;
-            }
-        }
-        return calendar;
     }
 
     /**
@@ -112,22 +84,21 @@ public class BandwidthUtil {
     }
 
     /**
-     * Calculate the number of minutes of delay between a Subscriptions base
+     * Calculate the number of minutes of offset between a Subscriptions base
      * reference time and the time the data should be available.
      * 
      * @param subscription
      *            The Subscription Object to obtain the availability for.
-     * 
-     * @return The delay in minutes.
+     * @param referenceTime
+     *            Data reference time
+     * @return The offset in minutes.
+     * @throws RegistryHandlerException
      */
-    public static int getDataSetAvailablityDelay(Subscription<?, ?> subscription) {
+    public static int getDataSetAvailablityOffset(
+            Subscription<?, ?> subscription, Calendar referenceTime)
+            throws RegistryHandlerException {
         return instance.dataSetAvailabilityCalculator
-                .getDataSetAvailablityDelay(subscription);
-    }
-
-    public void setDataSetAvailabilityCalculator(
-            IDataSetAvailablityCalculator dataSetAvailabilityCalculator) {
-        this.dataSetAvailabilityCalculator = dataSetAvailabilityCalculator;
+                .getDataSetAvailablityOffset(subscription, referenceTime);
     }
 
     /**
@@ -268,16 +239,16 @@ public class BandwidthUtil {
                 .subscriptionRequiresReschedule(subscription, old);
     }
 
-    
     /**
      * Sets up the activePeriod Start/End to plan Start/End calendar
      */
-    public static Calendar planToPeriodCompareCalendar(Calendar planCalendar, Calendar activePeriod) {
-        
+    public static Calendar planToPeriodCompareCalendar(Calendar planCalendar,
+            Calendar activePeriod) {
+
         Calendar cal = TimeUtil.newCalendar(planCalendar);
         cal.set(Calendar.MONTH, activePeriod.get(Calendar.MONTH));
         cal.set(Calendar.DAY_OF_MONTH, activePeriod.get(Calendar.DAY_OF_MONTH));
-        
+
         return cal;
     }
 }

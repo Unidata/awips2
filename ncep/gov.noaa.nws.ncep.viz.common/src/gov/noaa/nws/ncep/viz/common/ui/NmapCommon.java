@@ -2,6 +2,8 @@ package gov.noaa.nws.ncep.viz.common.ui;
 
 import gov.noaa.nws.ncep.viz.common.Activator;
 import gov.noaa.nws.ncep.viz.common.preferences.NcepGeneralPreferencesPage;
+import gov.noaa.nws.ncep.viz.common.preferences.NcepPreferences;
+import gov.noaa.nws.ncep.viz.localization.NcPathManager;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -17,11 +19,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IWorkbenchPart;
 
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.viz.ui.editor.AbstractEditor;
+import com.raytheon.uf.viz.application.ProgramArguments;
 
 /**
  * Common class for constants, utility methods ...
@@ -78,6 +78,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/09/11       #450      G. Hull         get/set for pgen working directory.
  * 07/31/12       #631      G. Hull         getNcepPreferenceStore()
  * 11/10/12                 G. Hull         onlyShowResourcesWithData
+ * 11/14/13       #1051     G. Hull         add pref for desk, set from command line. now gets triggered
+ *                                          from spring bean.
  * 
  * </pre>
  * 
@@ -86,6 +88,32 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  */
 
 public class NmapCommon {
+	
+	// The desk is stored as a preference but is actually set from the 
+	// command line.
+	//
+	public static final String DESK_ARG = "-desk"; 
+	
+	private static IPreferenceStore ncPrefStore = Activator.getDefault().getPreferenceStore();
+	{
+		ncPrefStore.setDefault( NcepGeneralPreferencesPage.PromptOnDisplayClose, false );
+		ncPrefStore.setDefault( NcepGeneralPreferencesPage.ShowLatestResourceTimes, true );
+		ncPrefStore.setDefault( NcepGeneralPreferencesPage.OnlyShowResourcesWithData, true );
+
+		String desk = ProgramArguments.getInstance().getString( DESK_ARG ); 
+
+		if( desk != null && !desk.trim().isEmpty() ) {
+			desk = desk.trim().toUpperCase();
+			System.out.println("Setting Desk to "+ desk+" from Program Arguement.");
+		}
+		else {
+			desk = "NONE";
+		}
+
+		ncPrefStore.setDefault( NcepPreferences.DeskNamePref, desk );
+		
+		NcPathManager.getInstance().createDeskLevelLocalization(  desk );
+	}
 		    
     private final static String BaseOverlay = "GeoPolitical";
 //    private final static String DefaultMap = "BasicWX_US";
@@ -97,8 +125,6 @@ public class NmapCommon {
     	"com.raytheon.viz.ui.tools.looping.loop"
     	// ? frameTool, looping
     };
-
-	private static IPreferenceStore ncPrefStore = null;
 
     public final static String NatlCntrsPerspectiveID = "gov.noaa.nws.ncep.viz.ui.NCPerspective";
 
@@ -120,44 +146,10 @@ public class NmapCommon {
     // all Ncep preferences
     // 
     public static IPreferenceStore getNcepPreferenceStore() {
-    	/*
-    	 * First time, set defaults for the Ncgrid preference store
-    	 */
-    	if ( ncPrefStore == null ) {
-    		ncPrefStore =  Activator.getDefault().getPreferenceStore();
-    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.PromptOnDisplayClose, false );
-    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.ShowLatestResourceTimes, true );
-    		ncPrefStore.setDefault( NcepGeneralPreferencesPage.OnlyShowResourcesWithData, true );
-
-    		/*
-    			myprefs.setDefault( NcgridPreferences.LLLAT, "");
-    			myprefs.setDefault( NcgridPreferences.LLLON, "");
-    			myprefs.setDefault( NcgridPreferences.URLAT, "");
-    			myprefs.setDefault( NcgridPreferences.URLON, "");
-    			/*
-    			myprefs.setDefault( NcgridPreferences.CLIP_AREA_COM,  NcgridPreferences.CLIP_AREA_US);
-    			myprefs.setDefault( NcgridPreferences.GAREA, NcgridPreferences.CLIP_AREA_US);
-    			myprefs.setDefault( NcgridPreferences.PROJ, "STR/90;-97;0");
-    			myprefs.setDefault( NcgridPreferences.CUSTOM_AREA, false );
-    		 */
-    	}
-
+    	// 
     	return ncPrefStore;
     }
-    
-    /*
-     * This helper method to fix a bug caused the logic of checking environmental "ISCONVERTER"
-     */
-    private static boolean isEnvironmentalVariableSetToTrueValue(String environmentalVariableNameValue) {
-    	boolean isVariableThere = false; 
-    	String variableValue = System.getenv(environmentalVariableNameValue); 
-    	if(variableValue != null) {
-    		if(variableValue.equalsIgnoreCase("true"))
-    			isVariableThere = true; 
-    	}
-    	return isVariableThere; 
-    }
-    
+        
     // Only non-svn directories.
 	public static FileFilter createDirFilter() {
 		return new FileFilter() {

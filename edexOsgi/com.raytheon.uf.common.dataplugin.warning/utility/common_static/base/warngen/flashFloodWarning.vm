@@ -8,6 +8,8 @@
 ##           Mike Dangelo 09-17-2013 added code for init pos & pathcasting, and added pointMarkers parse line
 ##           Evan Bookbinder 9-18-2013 Implemented config.vm
 ##           Gene Petrescu 09-19-2013 Added Alaska Modifications (GP comments)
+##           Mike Rega     01-18-2014 added Alaska GP changes for 14.2.1
+##           Mike Rega     03-05-2014 added 3rd bullet text ACROSS THE WARNED AREA
 #################################### SET SOME VARIABLES ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -24,8 +26,8 @@
 #set($snowMelt = "")
 #if(${list.contains(${bullets}, "icrs")})
 	#set($ic = "RS")
-    #set($hycType = "RAIN AND SNOW MELT IN...")
-    #set($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING. ")
+    #set($hycType = "EXTREMELY RAPID SNOWMELT IN...")
+    #set($snowMelt = "RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING. ")
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
@@ -51,9 +53,9 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #end
 
-#############################################################################
-## Flash Flood Emergency Headline -- Coming soon to a warning near you!     #
-#############################################################################
+####################################
+## Flash Flood Emergency Headline ##
+####################################
 #if(${list.contains(${bullets}, "ffwEmergency")} )
 #set($ctaSelected = "YES")
 ...FLASH FLOOD EMERGENCY FOR !** LOCATION **!...
@@ -72,14 +74,15 @@ FLASH FLOOD WARNING FOR...
 #if(${hycType} != "")
 <L>  ${hycType}</L>
 #end
-###REMMED OUT FOR ALASKA
-#firstBullet(${areas})
-###UNCOMMENT NEXT LINE for AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!
-###UNCOMMENT BELOW FOR A ZONE BASED PRODUCT USING COUNTY HEADLINES
-###firstBullet(${affectedCounties})
-############# GP end
-
+############# added by GP
+#if(${alaska}=="true")
+  !**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!
+#elseif(${wrZoneCounty}=="true")
+  #firstBullet(${affectedCounties})
+#else
+  #firstBullet(${areas})
+#end
+### GP end
 #################################
 ####### SECOND BULLET ###########
 #################################
@@ -329,6 +332,7 @@ THIS IS A TEST MESSAGE. ##
   #set($nearPhrase = "NEAR")
   #set($overPhrase = "OVER")
 #end
+### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set($s1 = "GAUGE REPORTS ")
   #set($s2 = "INDICATED ")
@@ -353,6 +357,7 @@ THIS IS A TEST MESSAGE. ##
   #set($nearPhrase = "NEAR")
   #set($overPhrase = "OVER")
 #end
+### GP end
 
 * ##
 #if(${productClass}=="T")
@@ -387,7 +392,8 @@ THE RAIN IS MOVING ##
 #end
 #end
 #else
-!** LOCATION **! ##
+ACROSS THE WARNED AREA. ##
+##  !** LOCATION **! ##
 #end
 ${rainAmount}${isExpected}${snowMelt}${burnScar}
 
@@ -396,7 +402,7 @@ ${rainAmount}${isExpected}${snowMelt}${burnScar}
 ##########################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")} )
 #set($ctaSelected = "YES")
-#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR !** LOCATION **!. SEEK HIGHER GROUND NOW! THIS IS A POTENTIALLY LIFE THREATENING SITUATION!" 2 2)
+#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR !** LOCATION **!." 2 2)
 #end
 
 

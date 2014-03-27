@@ -13,7 +13,10 @@
 ##           Phil Kurimski   09-13-2012 for OB 12.9.1-12                         ##
 ##           Phil Kurimski   02-05-2013 for OB13.2.1-3 Added rain so far section ##
 ##           Mike Dangelo    09-18-2013 added code for init pos & pathcasting    ##
-##           Evan Bookbinder 09-18-2013 implemented config.vm
+##           Evan Bookbinder 09-18-2013 implemented config.vm                    ##
+##           Mike Rega       01-17-2014 added GP Alaska changes 14.2.1           ##
+##  Mike Dangelo  1/24/2014 made many changes for first bullet to match 10-922   ##
+##           Mike Rega       02-27-2014 changed hycType IJ to match 10-922       ##
 ###################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
@@ -24,24 +27,24 @@
 	#set($extend = false)
 #end
 ##
-#set($advType = "FLOOD ADVISORY")
+#set($advType = "FLOOD ADVISORY FOR...")
 #set($advTypeShort = "MINOR FLOODING")
 #if(${list.contains(${bullets}, "general")})
-	#set($advType = "FLOOD ADVISORY")
+	#set($advType = "FLOOD ADVISORY FOR...")
 	#set($advTypeShort = "MINOR FLOODING")
 #elseif(${list.contains(${bullets}, "small")})
-	#set($advType = "SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "SMALL STREAM FLOOD ADVISORY FOR...")
 	#set($advTypeShort = "SMALL STREAM FLOODING")
 #elseif(${list.contains(${bullets}, "uss")})
-	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY FOR...")
 	#set($advTypeShort = "URBAN AND SMALL STREAM FLOODING")
 	#set($extend = false)
 #elseif(${list.contains(${bullets}, "arroyo")})
-	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY")
+	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY FOR...")
 	#set($advTypeShort = "ARROYO AND SMALL STREAM FLOODING")
 	#set($extend = false)
 #elseif(${list.contains(${bullets}, "hydrologic")})
-	#set($advType = "HYDROLOGIC ADVISORY")
+	#set($advType = "HYDROLOGIC ADVISORY FOR...")
 	#set($advTypeShort = "MINOR FLOODING")
 	#set($extend = false)
 #end
@@ -53,15 +56,16 @@
 	#set($hycType = "")
 #elseif(${list.contains(${bullets}, "SM")})
 	#set($ic = "SM")
-	#set($hycType = "MELTING SNOW")
+	#set($hycType = "SNOWMELT")
 #elseif(${list.contains(${bullets}, "RS")})
 	#set($ic = "RS")
-	#set($hycType = "RAIN AND MELTING SNOW")
+	#set($hycType = "RAIN AND SNOWMELT")
 #elseif(${list.contains(${bullets}, "IJ")})
 	#set($ic = "IJ")
-	#set($hycType = "ICE JAM FLOODING")
+	#set($hycType = "AN ICE JAM")
 #elseif(${list.contains(${bullets}, "IC")})
 	#set($ic = "IC")
+	#set($hycType = "")
 #elseif(${list.contains(${bullets}, "DR")})
     #set($ic = "DR")
     #set($hycType = "A DAM FLOODGATE RELEASE")
@@ -71,10 +75,35 @@
 #elseif(${list.contains(${bullets}, "OT")})
     #set($ic = "OT")
     #set($hycType = "GROUND WATER FLOODING")
-#elseif(${list.contains(${bullets}, "rapidRiver")})
-	#set($hycType = "RAPID RIVER RISES")
+#end 
+#if(${list.contains(${bullets}, "rapidRises")})
+    #set($advType = "FLOOD ADVISORY FOR RAPID RISES FOR...")
+#if(${list.contains(${bullets}, "small")})
+	#set($advType = "SMALL STREAM FLOOD ADVISORY FOR RAPID RISES FOR...")
+#end
+#if(${list.contains(${bullets}, "uss")})
+	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY FOR RAPID RISES FOR...")
+#end
+#if(${list.contains(${bullets}, "arroyo")})
+	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY FOR RAPID RISES FOR...")
+#end	
+#if(${list.contains(${bullets}, "hydrologic")})
+	#set($advType = "HYDROLOGIC ADVISORY FOR RAPID RISES FOR...")
+#end	
 #elseif(${list.contains(${bullets}, "poorDrainage")})
-	#set($hycType = "MINOR FLOODING OF POOR DRAINAGE AREAS")
+	#set($advType = "FLOOD ADVISORY FOR MINOR FLOODING FOR POOR DRAINAGE AREAS FOR...")
+#if(${list.contains(${bullets}, "small")})
+	#set($advType = "SMALL STREAM FLOOD ADVISORY FOR POOR DRAINAGE AREAS FOR...")
+#end
+#if(${list.contains(${bullets}, "uss")})
+	#set($advType = "URBAN AND SMALL STREAM FLOOD ADVISORY FOR POOR DRAINAGE AREAS FOR...")
+#end
+#if(${list.contains(${bullets}, "arroyo")})
+	#set($advType = "ARROYO AND SMALL STREAM FLOOD ADVISORY FOR POOR DRAINAGE AREAS FOR...")
+#end	
+#if(${list.contains(${bullets}, "hydrologic")})
+	#set($advType = "HYDROLOGIC ADVISORY FOR POOR DRAINAGE AREAS FOR...")
+#end	
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
@@ -112,20 +141,31 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-${advType} FOR...
-#if(${hycType} != "")
-<L>  ${hycType} IN...</L>
+${advType}
+#### modified by GP
+#if(${hycType} != "" && ${alaska} != "true")
+<L>${hycType} IN...</L> 
 #end
+#if(${hycType} != "" && ${alaska} == "true")
+<L>${hycType}</L> ##
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#firstBullet(${affectedCounties})
+#else
 #firstBullet(${areas})
+#end
+### GP end
 
 #set($report = "!** warning basis **!")
 #set($report2 = "")
 #set($cause = "HEAVY RAIN")
 #if(${list.contains(${bullets}, "SM")})
-  #set($cause = "SNOW MELT")   
+  #set($cause = "SNOWMELT")   
 #end
 #if(${list.contains(${bullets}, "RS")})
-  #set($cause = "HEAVY RAIN AND SNOW MELT")   
+  #set($cause = "HEAVY RAIN AND SNOWMELT")   
 #end
 #if(${list.contains(${bullets}, "IJ")})
   #set($cause = "AN ICE JAM")   
@@ -227,6 +267,11 @@ ${advType} FOR...
 #if(${list.contains(${bullets}, "satelliteEstimates")} && ${list.contains(${bullets}, "thunder")})
   #set($report = "SATELLITE ESTIMATES INDICATE ${cause} FROM THUNDERSTORMS OVER !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}.")
 #end     
+#### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
+#end
+### GP end
 * ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##

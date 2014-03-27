@@ -3,18 +3,17 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <!-- A RetrievalTask takes three constructor arguments:
+     <!-- A RetrievalTask takes three constructor arguments:
         1) How to find retrievals, in this case perform the actual retrieval and return it
         2) What to do with found retrievals, in this case process it and send a notification event 
         3) How to complete retrievals, in this case update the database and send a notification event 
      -->
-    <bean id="opsnetRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+    <bean id="opsnetRetrievalTaskFactory"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
         <constructor-arg value="OPSNET" />
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.PerformRetrievalsThenReturnFinder">
-                <constructor-arg value="OPSNET" />
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
@@ -35,14 +34,12 @@
     </bean>
 
     <!-- Pick up SBN retrievals from the drop-off point -->
-    <bean id="sbnRetrievalQueue" class="java.util.concurrent.ConcurrentLinkedQueue" />
-    <bean id="sbnRetrievalTask"
-        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask">
+    <bean id="sbnRetrievalTaskFactory"
+        class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
         <constructor-arg value="SBN" />
         <constructor-arg>
             <bean
                 class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.DeserializeRetrievedDataFromIngest">
-                <constructor-arg ref="sbnRetrievalQueue" />
             </bean>
         </constructor-arg>
         <constructor-arg>
@@ -52,16 +49,18 @@
                 <constructor-arg ref="retrievalDao" />
             </bean>
         </constructor-arg>
-        <constructor-arg>
-            <util:constant
-                static-field="com.raytheon.uf.edex.datadelivery.retrieval.handlers.IRetrievalResponseCompleter.NULL" />
+        <constructor-arg> 
+            <bean
+                class="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalResponseCompleter" >
+                <constructor-arg ref="subNotifyTask" />
+                <constructor-arg ref="retrievalDao" />
+            </bean>
         </constructor-arg>
     </bean>
-
-    <util:list id="retrievalTaskList"
-        value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTask.RetrievalTask">
-        <ref bean="opsnetRetrievalTask" />
-        <ref bean="sbnRetrievalTask" />
-    </util:list>
+    
+    <util:map id="retrievalTaskFactoryMap" value-type="com.raytheon.uf.edex.datadelivery.retrieval.handlers.RetrievalTaskFactory">
+        <entry key="SBN" value-ref="sbnRetrievalTaskFactory"/>
+        <entry key="OPSNET" value-ref="opsnetRetrievalTaskFactory"/>
+    </util:map>
 
 </beans>

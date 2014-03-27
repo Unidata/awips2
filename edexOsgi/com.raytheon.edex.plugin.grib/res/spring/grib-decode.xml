@@ -5,20 +5,6 @@
 
 	<bean id="gribDecoder" class="com.raytheon.edex.plugin.grib.GribDecoder" />
 
-	<bean id="ingest-grib" class="org.apache.camel.component.jms.JmsComponent">
-		<constructor-arg ref="jmsGribConfig" />
-		<property name="taskExecutor" ref="gribThreadPool" />
-	</bean>
-
-    <bean id="jmsGribConfig" class="org.apache.camel.component.jms.JmsConfiguration"
-            factory-bean="jmsDurableConfig" factory-method="copy"/>
-
-	<bean id="gribThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${grib-decode.count.threads}" />
-		<property name="maxPoolSize" value="${grib-decode.count.threads}" />
-	</bean>
-
 	<bean id="gribGridPointLock" class="com.raytheon.edex.plugin.grib.GribGridPointLock">
 		<constructor-arg value="${grib-decode.count.gridpoints}"/>
 		<constructor-arg value="${grib-decode.count.threads}"/>
@@ -53,7 +39,7 @@
 		autoStartup="false">
 		
 		<endpoint id="gribSplitJmsEndpoint" uri="jms-durable:queue:Ingest.GribSplit?concurrentConsumers=${grib-split.count.threads}"/>
-		<endpoint id="gribDecodeJmsEndpoint" uri="ingest-grib:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
+		<endpoint id="gribDecodeJmsEndpoint" uri="jms-durable:queue:Ingest.GribDecode?concurrentConsumers=${grib-decode.count.threads}"/>
 	
 		<!-- Begin Grib Decode Route -->
 		<route id="gribSplitIngestRoute">
@@ -66,7 +52,7 @@
 					<bean ref="stringToFile" />
 					<!--  strategyRef is needed because of camel bug https://issues.apache.org/activemq/browse/CAMEL-3333,
 					 without the strategy it uses the original message in the multicast and it loses the largeFileLock header -->
-					<split strategyRef="useLatestAggregationStrategy">
+					<split strategyRef="useLatestAggregationStrategy" streaming="true">
 						<method bean="gribSplitter" method="split" />
 						<to uri="jms-durable:queue:Ingest.GribDecode" />
 					</split>
@@ -97,6 +83,5 @@
 				</doFinally>
 			</doTry>
 		</route>
-
 	</camelContext>
 </beans>
