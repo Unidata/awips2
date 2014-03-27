@@ -83,7 +83,11 @@
 
 	  <xsl:value-of select="$newline"/>
 	  <xsl:value-of select="$newline"/>
-          <xsl:text>TORNADOES...HAIL TO </xsl:text>
+	  <xsl:if test="@watchType = 'TORNADO'">
+                <xsl:text>TORNADOES...</xsl:text>
+      </xsl:if>
+		
+          <xsl:text>HAIL TO </xsl:text>
         <xsl:value-of select="@hailSize"/>
           <xsl:text> INCHES IN DIAMETER...THUNDERSTORM WIND</xsl:text>
 
@@ -102,7 +106,9 @@
                 <xsl:text>TEST </xsl:text>
           </xsl:if>
 
-	<xsl:text>TORNADO WATCH AREA IS APPROXIMATELY ALONG AND </xsl:text>
+    <xsl:value-of select="@watchType"/>
+      
+	<xsl:text>WATCH AREA IS APPROXIMATELY ALONG AND </xsl:text>
         <xsl:value-of select="@halfWidthSm"/>
         <xsl:text> STATUTE</xsl:text>
 	<xsl:value-of select="$newline"/>
@@ -197,7 +203,9 @@
 
 	<xsl:value-of select="$newline"/>
 	<xsl:value-of select="$newline"/>
-        <xsl:text>REMEMBER...A TORNADO WATCH MEANS CONDITIONS ARE FAVORABLE FOR</xsl:text>
+        <xsl:text>REMEMBER...A </xsl:text>
+        <xsl:value-of select="@watchType"/>
+         <xsl:text> WATCH MEANS CONDITIONS ARE FAVORABLE FOR</xsl:text>
 	<xsl:value-of select="$newline"/>
         <xsl:text>TORNADOES AND SEVERE THUNDERSTORMS IN AND CLOSE TO THE WATCH</xsl:text>
 	<xsl:value-of select="$newline"/>
@@ -228,7 +236,11 @@
 
 	<xsl:value-of select="$newline"/>
 	<xsl:value-of select="$newline"/>
-        <xsl:text>AVIATION...TORNADOES AND A FEW SEVERE THUNDERSTORMS WITH HAIL</xsl:text>
+        <xsl:text>AVIATION...</xsl:text>
+          <xsl:if test="@watchType = 'TORNADO'">
+                <xsl:text>TORNADOES AND </xsl:text>
+      </xsl:if>
+        <xsl:text>A FEW SEVERE THUNDERSTORMS WITH HAIL</xsl:text>
 	<xsl:value-of select="$newline"/>
         <xsl:text>SURFACE AND ALOFT TO </xsl:text>
         <xsl:value-of select="@hailSize"/>

@@ -9,6 +9,7 @@ Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.defaults,
+ com.raytheon.uf.common.dataplugin.exception,
  com.raytheon.uf.common.dataplugin.message,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataplugin.request

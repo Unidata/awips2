@@ -20,21 +20,18 @@
 package com.raytheon.uf.viz.datadelivery.notification;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -59,6 +56,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Dec 12. 2012   1418      mpduff     Change label.
  * Aug 30, 2013   2314      mpduff     Fixed find, filter, and various other bugs.
  * Sep 26, 2013   2417      mpduff     Reset the highlight all indices on close.
+ * Feb 07, 2014   2453      mpduff     Refactored dialog.
  * 
  * </pre>
  * 
@@ -95,41 +93,20 @@ public class FindDlg extends CaveSWTDialog {
     /** ITableFind callback */
     private final ITableFind callback;
 
-    /** Table row Index */
-    int tableIndex = -1;
-
-    /** Table row start Index */
-    int startIndex = 0;
-
-    /** Table row end Index */
-    int endIndex = 0;
-
     /** Table row selected Index */
-    int selectedIndex = 0;
+    private int selectedIndex = 0;
 
     /** Message Checkbox flag */
-    boolean msgFlag = false;
+    private boolean msgFlag = false;
 
     /** Category Checkbox flag */
-    boolean categoryFlag = false;
+    private boolean categoryFlag = false;
 
     /** Case Sensitive flag */
-    boolean caseFlag = false;
-
-    /** Yes continue search flag */
-    boolean yesFlag = false;
-
-    /** Found Item flag */
-    boolean exists = false;
+    private boolean caseFlag = false;
 
     /** Exclude search flag */
-    boolean excludeFlag = false;
-
-    /** Message string */
-    String msg = null;
-
-    /** Subscription string */
-    String sub = null;
+    private boolean excludeFlag = false;
 
     /**
      * Constructor.
@@ -150,13 +127,11 @@ public class FindDlg extends CaveSWTDialog {
      */
     public FindDlg(Shell parent,
             TableDataManager<NotificationRowData> filteredTableList,
-            int sIndex, int eIndex, int selected, ITableFind callback) {
+            int selected, ITableFind callback) {
         super(parent, SWT.DIALOG_TRIM, CAVE.NONE | CAVE.DO_NOT_BLOCK);
         this.setText("Find");
 
         this.filteredTableList = filteredTableList;
-        sIndex = startIndex;
-        eIndex = endIndex;
         selectedIndex = selected;
         this.callback = callback;
     }
@@ -185,12 +160,6 @@ public class FindDlg extends CaveSWTDialog {
      */
     @Override
     protected void initializeComponents(Shell shell) {
-        shell.addListener(SWT.Close, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                callback.selectIndices(null);
-            }
-        });
         createFindLayout();
         createBottomButtons();
     }
@@ -219,12 +188,6 @@ public class FindDlg extends CaveSWTDialog {
         findTxt.setLayoutData(gd);
         findTxt.selectAll();
         findTxt.setLayoutData(gd);
-        findTxt.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                findText();
-            }
-        });
 
         gl = new GridLayout(2, false);
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
@@ -314,89 +277,16 @@ public class FindDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                callback.selectIndices(null);
                 close();
             }
         });
     }
 
     /**
-     * Find text on key release. Check all pages of filtered list. Stop when
-     * match is found and don't move to the next.
-     */
-    private void findText() {
-
-        // Text in the find text box
-        String text = findTxt.getText();
-
-        // Get button selections
-        msgFlag = msgBtn.getSelection();
-        categoryFlag = categoryBtn.getSelection();
-        caseFlag = caseBtn.getSelection();
-        excludeFlag = exclusionBtn.getSelection();
-
-        int itemCount = filteredTableList.getDataArray().size();
-        tableIndex = 0;
-
-        if (filteredTableList != null) {
-
-            // Check rows in the entire filtered list - all pages
-            for (NotificationRowData row : filteredTableList.getDataArray()) {
-
-                // Column data
-                msg = row.getMessage();
-                sub = row.getCategory();
-
-                if (tableIndex <= itemCount) {
-                    tableIndex++;
-
-                    if (caseFlag) {
-                        if (excludeFlag) {
-                            // Select index if does not match message or
-                            // subscription
-                            if ((!msg.contains(text) && msgFlag)
-                                    || (!sub.contains(text) && categoryFlag)) {
-                                exists = true;
-                                callback.selectIndex(tableIndex);
-                                break;
-                            }
-                            // Select index if matches message or subscription
-                        } else if ((msg.contains(text) && msgFlag)
-                                || (sub.contains(text) && categoryFlag)) {
-                            exists = true;
-                            callback.selectIndex(tableIndex);
-                            break;
-                        }
-                    } else {
-                        if (excludeFlag) {
-                            // Select index if matches non case sensitive
-                            // message or subscription
-                            if ((!msg.toUpperCase()
-                                    .contains(text.toUpperCase()) && msgFlag)
-                                    || (!sub.toLowerCase().contains(
-                                            text.toLowerCase()) && categoryFlag)) {
-                                exists = true;
-                                callback.selectIndex(tableIndex);
-                                break;
-                            }
-                        } else if ((msg.toUpperCase().contains(
-                                text.toUpperCase()) && msgFlag)
-                                || (sub.toLowerCase().contains(
-                                        text.toLowerCase()) && categoryFlag)) {
-                            exists = true;
-                            callback.selectIndex(tableIndex);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Find Button action handler. Find the next matching row upon button click.
      */
     private void handleFindBtn() {
+        int prevSelectedIndex = selectedIndex;
 
         // Text in the find text box
         String text = findTxt.getText();
@@ -420,56 +310,20 @@ public class FindDlg extends CaveSWTDialog {
         boolean continueSearch = true;
         boolean exists = false;
         boolean hitEnd = false;
-        selectedIndex = selectedIndex + 1;
+        selectedIndex = callback.getCurrentSelectionIndex() + 1;
 
         while (continueSearch) {
-            if (tableIndex < itemCount) {
-                // Get the row data starting at the currently highlighted row
+            if (selectedIndex < itemCount) {
                 NotificationRowData row = filteredTableList.getDataArray().get(
-                        tableIndex);
+                        selectedIndex);
 
-                // Column data
-                msg = row.getMessage();
-                sub = row.getCategory();
-
-                tableIndex++;
-
-                if (caseFlag) {
-                    if (excludeFlag) {
-                        // Select index if does not match message or
-                        // subscription
-                        if ((!msg.contains(text) && msgFlag)
-                                || (!sub.contains(text) && categoryFlag)) {
-                            continueSearch = false;
-                            callback.selectIndex(tableIndex);
-                        }
-                    } else if ((msg.contains(text) && msgFlag)
-                            || (sub.contains(text) && categoryFlag)) {
-                        // Select index if matches message or subscription
-                        continueSearch = false;
-                        callback.selectIndex(tableIndex);
-                    }
-                } else {
-                    if (excludeFlag) {
-                        // Select index if matches non case sensitive message or
-                        // subscription
-                        if ((!msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                || (!sub.toLowerCase().contains(
-                                        text.toLowerCase()) && categoryFlag)) {
-                            continueSearch = false;
-                            callback.selectIndex(tableIndex);
-                        }
-                    } else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                            || (sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
-                        continueSearch = false;
-                        callback.selectIndex(tableIndex);
-                    }
-                }
-
-                // If the item was found set exists to true
-                if (!continueSearch) {
+                boolean matchFound = checkForMatch(text, row);
+                if (matchFound) {
+                    continueSearch = false;
                     exists = true;
+                    callback.selectRow(row);
                 }
+                selectedIndex++;
             } else {
                 if (!hitEnd) {
                     int answer = DataDeliveryUtils
@@ -480,10 +334,11 @@ public class FindDlg extends CaveSWTDialog {
                                     "The end of the table has been reached.  Would you like to search from the beginning of the table?");
                     if (answer == SWT.NO) {
                         exists = true;
+                        selectedIndex = prevSelectedIndex;
                         break;
-                        // Start search over at beginning of table
                     } else if (answer == SWT.YES) {
-                        tableIndex = 0;
+                        // Start search over at beginning of table
+                        selectedIndex = 0;
                         continueSearch = true;
                     }
                     hitEnd = true;
@@ -499,7 +354,7 @@ public class FindDlg extends CaveSWTDialog {
             mb.setText("Find Warning");
             mb.setMessage("No item matching your search was found.");
             mb.open();
-            tableIndex = 0;
+            selectedIndex = prevSelectedIndex;
             callback.clearSelections();
         }
     }
@@ -509,7 +364,6 @@ public class FindDlg extends CaveSWTDialog {
      * text.
      */
     private void handleHighlightBtn() {
-
         // Text in the find text box
         String text = findTxt.getText();
 
@@ -519,61 +373,54 @@ public class FindDlg extends CaveSWTDialog {
         caseFlag = caseBtn.getSelection();
         excludeFlag = exclusionBtn.getSelection();
 
-        ArrayList<Integer> items = new ArrayList<Integer>();
-        int[] indices = new int[0];
-
-        // Start search at beginning of table
-        tableIndex = 0;
+        List<NotificationRowData> items = new ArrayList<NotificationRowData>();
 
         if (filteredTableList != null) {
-            for (int i = 0; i < filteredTableList.getDataArray().size(); i++) {
+            for (int i = 0; i < filteredTableList.getSize(); i++) {
                 NotificationRowData row = filteredTableList.getDataArray().get(
                         i);
-                // Message Column
-                msg = row.getMessage();
-                // Subscription Name column
-                sub = row.getCategory();
 
-                if (caseFlag) {
-                    if (excludeFlag) {
-                        // Select index if does not match message or
-                        // subscription
-                        if ((!msg.contains(text) && msgFlag)
-                                || (!sub.contains(text) && categoryFlag)) {
-                            items.add(i);
-                        }
-                    } else if ((msg.contains(text) && msgFlag)
-                            || (sub.contains(text) && categoryFlag)) {
-                        // Select index if matches message or subscription
-                        items.add(i);
-                    }
-
-                } else {
-                    if (excludeFlag) {
-                        // Select index if matches non case sensitive message or
-                        // subscription
-                        if ((!msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                                || (!sub.toLowerCase().contains(
-                                        text.toLowerCase()) && categoryFlag)) {
-                            items.add(i);
-                        }
-                    } else if ((msg.toUpperCase().contains(text.toUpperCase()) && msgFlag)
-                            || (sub.toLowerCase().contains(text.toLowerCase()) && categoryFlag)) {
-                        items.add(i);
-                    }
+                boolean matchFound = checkForMatch(text, row);
+                if (matchFound) {
+                    items.add(row);
                 }
-
-                tableIndex++;
             }
 
-            indices = new int[items.size()];
-
-            // Create an int array of the rows to highlight
-            for (int i = 0; i < items.size(); i++) {
-                indices[i] = items.get(i);
-            }
-
-            callback.selectIndices(indices);
+            callback.selectRows(items);
         }
+    }
+
+    /**
+     * Check if the matchText matches the row.
+     * 
+     * @param matchText
+     *            The text to match
+     * @param row
+     *            The row to check
+     * @return true if matches
+     */
+    private boolean checkForMatch(String matchText, NotificationRowData row) {
+        boolean matchFound = false;
+        String msg = row.getMessage();
+        String sub = row.getCategory();
+
+        if (!caseFlag) {
+            msg = msg.toUpperCase();
+            sub = sub.toUpperCase();
+            matchText = matchText.toUpperCase();
+        }
+
+        if (excludeFlag) {
+            if ((!msg.contains(matchText) && msgFlag)
+                    || (!sub.contains(matchText) && categoryFlag)) {
+                matchFound = true;
+            }
+        } else {
+            if ((msg.contains(matchText) && msgFlag)
+                    || (sub.contains(matchText) && categoryFlag)) {
+                matchFound = true;
+            }
+        }
+        return matchFound;
     }
 }

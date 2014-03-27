@@ -1,21 +1,19 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.hibernate;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import com.raytheon.edex.site.SiteUtil;
+import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.IBandwidthManager;
-import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * 
@@ -37,7 +35,10 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
  * Nov 04, 2013 2506       bgonzale     added site field.  facilitates testing.
  * Nov 19, 2013 2545       bgonzale     Removed programmatic customization for central, client, and dev(monolithic) 
  *                                      registries since the injected FindSubscription handler will be configured now.
- * 
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Feb 06, 2014 2636       bgonzale     Use scheduling initialization method after registry init.
+ * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
+ * Feb 14, 2014 2636       mpduff       Clean up logging
  * </pre>
  * 
  * @author djohnson
@@ -59,7 +60,7 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     public HibernateBandwidthInitializer(
             IFindSubscriptionsForScheduling findSubscriptionsStrategy) {
-        this(findSubscriptionsStrategy, SiteUtil.getSite());
+        this(findSubscriptionsStrategy, DataDeliveryIdUtil.getId());
     }
 
     /**
@@ -100,33 +101,23 @@ public class HibernateBandwidthInitializer implements BandwidthInitializer {
      */
     @Override
     public void executeAfterRegistryInit() {
-        Set<Subscription> activeSubscriptions = new HashSet<Subscription>();
         try {
-            // Load active subscriptions
-            for (Subscription sub : findSubscriptionsStrategy
-                    .findSubscriptionsToSchedule()) {
-                    activeSubscriptions.add(sub);
-                    statusHandler.info("Scheduling Subscription: " + sub);
+            Map<Network, List<Subscription>> subMap = findSubscriptionsStrategy
+                    .findSubscriptionsToSchedule();
+
+            List<String> unscheduled = instance.initializeScheduling(subMap);
+
+            if (!unscheduled.isEmpty()) {
+                StringBuilder sb = new StringBuilder("The following subscriptions could not be scheduled at startup: ");
+                sb.append(StringUtil.NEWLINE);
+                for (String subscription : unscheduled) {
+                    sb.append(subscription).append(" ");
+                }
+                statusHandler.handle(Priority.INFO, sb.toString());
             }
         } catch (Exception e) {
             statusHandler.error(
                     "Failed to query for subscriptions to schedule", e);
-        }
-
-        List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
-
-        for (Subscription subscription : activeSubscriptions) {
-            // Make sure the Id is set properly..
-            subscription.setId(RegistryUtil.getRegistryObjectKey(subscription));
-            statusHandler.info("init() - Loading subscription ["
-                    + subscription.getName() + "]");
-            unscheduled.addAll(instance.schedule(subscription));
-
-            for (BandwidthAllocation allocation : unscheduled) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "The following bandwidth allocation is in an unscheduled state:\n   "
-                                + allocation);
-            }
         }
     }
 }

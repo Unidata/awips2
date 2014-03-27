@@ -56,7 +56,9 @@ public class GLSLStructFactory {
             int texBinding, AbstractGLColormappedImage image) {
         ColorMapParameters parameters = image.getColorMapParameters();
         AbstractGLColorMapDataFormat dataFormat = image.getDataFormat();
-        setFieldUniform(program, name, "rawTex", texBinding);
+        // Set the texture outside the struct
+        setFieldUniform(program, name + "Tex", texBinding);
+        // Set struct fields
         setFieldUniform(program, name, "noDataValue",
                 parameters.getNoDataValue());
         setFieldUniform(program, name, "isScaled", dataFormat.isScaled());
@@ -82,11 +84,9 @@ public class GLSLStructFactory {
     public static void createDataMapping(GLShaderProgram program, String name,
             int dataMappingTexBinding, int colorMappingTexBinding,
             int numMappingValues) {
-        setFieldUniform(program, name, "dataMappingValues",
-                dataMappingTexBinding);
-        setFieldUniform(program, name, "colorMappingValues",
-                colorMappingTexBinding);
-        setFieldUniform(program, name, "numMappingValues", numMappingValues);
+        setFieldUniform(program, name + "DataValues", dataMappingTexBinding);
+        setFieldUniform(program, name + "ColorValues", colorMappingTexBinding);
+        setFieldUniform(program, name + "Values", numMappingValues);
     }
 
     /**
@@ -101,12 +101,12 @@ public class GLSLStructFactory {
     public static void createColorMapping(GLShaderProgram program, String name,
             int colorMapTexBinding, int alphaMaskTexBinding,
             ColorMapParameters parameters) {
-        setFieldUniform(program, name, "colorMap", colorMapTexBinding);
+        setFieldUniform(program, name + "ColorMap", colorMapTexBinding);
         setFieldUniform(program, name, "cmapMin", parameters.getColorMapMin());
         setFieldUniform(program, name, "cmapMax", parameters.getColorMapMax());
 
         setFieldUniform(program, name, "applyMask", parameters.isUseMask());
-        setFieldUniform(program, name, "alphaMask", alphaMaskTexBinding);
+        setFieldUniform(program, name + "AlphaMask", alphaMaskTexBinding);
 
         setFieldUniform(program, name, "isMirrored", parameters.isMirror());
         setFieldUniform(program, name, "isLogarithmic",
@@ -132,6 +132,13 @@ public class GLSLStructFactory {
 
     private static void setFieldUniform(GLShaderProgram program,
             String structName, String fieldName, Object fieldValue) {
-        program.setUniform(structName + FIELD_SEPERATOR + fieldName, fieldValue);
+        setFieldUniform(program, structName + FIELD_SEPERATOR + fieldName,
+                fieldValue);
     }
+
+    private static void setFieldUniform(GLShaderProgram program,
+            String fieldName, Object fieldValue) {
+        program.setUniform(fieldName, fieldValue);
+    }
+
 }

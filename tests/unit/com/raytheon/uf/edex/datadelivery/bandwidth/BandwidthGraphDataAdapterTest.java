@@ -34,7 +34,6 @@ import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthBucket;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
-import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
 
 /**
  * Test class for {@link BandwidthGraphdataAdapter}.
@@ -45,7 +44,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalPlan;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 25, 2013            mpduff     Initial creation
+ * Nov 25, 2013            mpduff      Initial creation.
+ * Jan 25, 2014   2636     mpduff      Removed test that has since become invalid.
  * 
  * </pre>
  * 
@@ -58,8 +58,6 @@ public class BandwidthGraphDataAdapterTest {
     private static final int BUCKET_SIZE = 100;
 
     private static final RetrievalManager retrievalManagerMock = mock(RetrievalManager.class);
-
-    private static final RetrievalPlan retrievalPlan = new RetrievalPlan();
 
     private static final SortedSet<BandwidthBucket> bucketSet = new TreeSet<BandwidthBucket>();
 
@@ -135,35 +133,6 @@ public class BandwidthGraphDataAdapterTest {
             if (idx == 0 || idx == 1) {
                 assertTrue("First two buckets should be full",
                         bbd.getUsedBytes() == bucket.getBucketSize());
-                idx++;
-            } else {
-                assertTrue("Bucket should be empty", bbd.getUsedBytes() == 0);
-            }
-        }
-    }
-
-    @Test
-    public void testOverfilledBucketsOverflowToLaterBuckets() {
-        Iterator<BandwidthBucket> iter = bucketSet.iterator();
-
-        // Get the first bucket and fill it 4.5 buckets worth
-        BandwidthBucket bucket = iter.next();
-        bucket.setCurrentSize((BUCKET_SIZE * 4) + (BUCKET_SIZE / 2));
-
-        int idx = 0;
-        SortedSet<BandwidthBucketDescription> descriptions = adapter
-                .toDescriptions(bucketSet);
-
-        Iterator<BandwidthBucketDescription> it = descriptions.iterator();
-        while (it.hasNext()) {
-            BandwidthBucketDescription bbd = it.next();
-            if (idx <= 3) {
-                assertTrue("First four buckets should be full",
-                        bbd.getUsedBytes() == bucket.getBucketSize());
-                idx++;
-            } else if (idx == 4) {
-                assertTrue("Bucket should be half full",
-                        bbd.getUsedBytes() == bucket.getBucketSize() / 2);
                 idx++;
             } else {
                 assertTrue("Bucket should be empty", bbd.getUsedBytes() == 0);

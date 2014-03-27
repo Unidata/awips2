@@ -12,8 +12,8 @@ color= {155, 155, 155}
     <rscTypeGenerator></rscTypeGenerator>
     <timeMatchMethod>CLOSEST_BEFORE_OR_AFTER</timeMatchMethod>
     <frameSpan>360</frameSpan>
-    <timelineGenMethod>USE_MANUAL_TIMELINE</timelineGenMethod>
+    <timelineGenMethod>USE_FRAME_INTERVAL</timelineGenMethod>
     <dfltFrameCount>10</dfltFrameCount>
-    <dfltTimeRange>24</dfltTimeRange>
+    <dfltTimeRange>48</dfltTimeRange>
     <dfltGeogArea>BasicWX_US</dfltGeogArea>
 </ResourceDefinition>

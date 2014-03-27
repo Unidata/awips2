@@ -41,6 +41,7 @@ import org.apache.commons.beanutils.Converter;
  *                         bphillip    Initial Creation
  * Mar 13, 2013 1789       bsteffen    Move Calendar and Date parsing out of
  *                                     ConvertUtil and also fix date parsing.
+ * jan 22, 2014 2731       dhladky     Calendar converter now returns a calendar.
  * </pre>
  * 
  * @author bphillip
@@ -62,7 +63,7 @@ public class CalendarConverter implements Converter {
             String date = (String) value;
             try {
                 // see if string is in ISO 8601
-                return DatatypeConverter.parseDateTime(date).getTime();
+                return DatatypeConverter.parseDateTime(date);
             } catch (Exception e) {
                 // try to match the pattern.
             }

@@ -69,6 +69,7 @@ import gov.noaa.nws.ncep.viz.common.ui.color.ColorButtonSelector;
  *                                      button correctly.
  * 04/11		#?			B. Yin		Re-factor IAttribute
  * 05/12		TTR 526		B. Yin		Allow to change watch shape
+ * 12/13		TTR 800		B. Yin		Added original county list
  * </pre>
  * 
  * @author	B. Yin
@@ -546,7 +547,7 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 
 			@Override
 			public void handleEvent(Event event) {
-				openSpecDlg();
+				openSpecDlg( false );
 			} 
 
 		});
@@ -555,7 +556,7 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 	/**
 	 * Open the watch specification dialog
 	 */
-	public void openSpecDlg(){
+	public void openSpecDlg(final boolean addCountyMode ){
 		if (dispBtn.getText().equalsIgnoreCase("Show Display")){
 			final Shell shell = this.getShell();
 			//make sure the spec dialog is on top
@@ -573,6 +574,10 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 						infoDlg.clearCwaPane();
 						infoDlg.createCWAs(wb.getWFOs());
 						infoDlg.setStatesWFOs();
+						
+						if ( addCountyMode ){
+							infoDlg.setAddDelCountyMode();
+						}
 					}
 				}
 			});
@@ -800,7 +805,12 @@ public class WatchBoxAttrDlg extends AttrDlg implements IWatchBox{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	@Override
+	public List<SPCCounty> getOriginalCountyList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	@Override
 	public int getWatchNumber() {
 		// TODO Auto-generated method stub

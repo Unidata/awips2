@@ -33,6 +33,7 @@ import java.util.Collections;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2012  1102      djohnson     Initial creation
+ * Dec 4, 2013  2584      dhladky      Only a JAXB encoder for registry
  * 
  * </pre>
  * 
@@ -45,14 +46,7 @@ public final class RegistryEncoders {
      * An enumeration of valid {@link IRegistryEncoder} types.
      */
     public static enum Type {
-        /**
-         * An encoder that uses dynamic serialization.
-         */
-        DYNAMIC_SERIALIZE(new DynamicSerializeEncoder()),
 
-        /**
-         * An encoder that uses JAXB marshalling.
-         */
         JAXB(new JaxbEncoder());
 
         private final IRegistryEncoder encoder;

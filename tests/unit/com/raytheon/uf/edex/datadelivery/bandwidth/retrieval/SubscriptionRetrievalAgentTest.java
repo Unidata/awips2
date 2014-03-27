@@ -28,6 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttr
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 
 /**
  * Test {@link SubscriptionRetrievalAgent}.
@@ -68,6 +70,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.Sta
  * ------------ ---------- ----------- --------------------------
  * Jan 30, 2013 1543       djohnson     Initial creation
  * Jul 10, 2013 2106       djohnson     Inject providerHandler.
+ * Jan 15, 2014 2678       bgonzale     Added Queue.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -83,6 +87,8 @@ public class SubscriptionRetrievalAgentTest {
     @Autowired
     @Qualifier(value = "retrievalDao")
     private IRetrievalDao retrievalDao;
+
+    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue = new ConcurrentLinkedQueue<RetrievalRequestRecordPK>();
 
     @Before
     public void setUp() throws RegistryHandlerException {
@@ -129,10 +135,7 @@ public class SubscriptionRetrievalAgentTest {
         SubscriptionRetrievalAgent agent = new SubscriptionRetrievalAgent(
                 route, "someUri", new Object(), 1, null, bandwidthDao,
                 retrievalDao, DataDeliveryHandlers.getProviderHandler()) {
-            @Override
-            void wakeRetrievalTasks() throws EdexException {
-                // Do nothing
-            }
+            
         };
         agent.processAllocation(subscriptionRetrieval);
 

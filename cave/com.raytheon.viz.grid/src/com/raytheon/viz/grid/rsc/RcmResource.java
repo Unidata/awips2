@@ -39,9 +39,10 @@ import com.raytheon.viz.grid.rsc.general.GeneralGridData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 16, 2009            mnash     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 16, 2009           mnash       Initial creation
+ * Feb 07, 2014  2211     bsteffen    Fix sampling
  * 
  * </pre>
  * 
@@ -71,7 +72,7 @@ public class RcmResource extends D2DGridResource {
         if (map == null) {
             return "NO DATA";
         }
-        float val = (Float) map.get(INTERROGATE_VALUE);
+        float val = ((Number) map.get(INTERROGATE_VALUE)).floatValue();
         String sampleVal = "";
         if (val < 1f) {
             sampleVal = "No Data";

@@ -26,7 +26,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.viz.datadelivery.bandwidth.ui.BandwidthUtilizationDlg;
-import com.raytheon.uf.viz.datadelivery.bandwidth.ui.GraphDataUtil;
 
 /**
  * Action handler for the bandwidth scheduling graph.
@@ -40,6 +39,7 @@ import com.raytheon.uf.viz.datadelivery.bandwidth.ui.GraphDataUtil;
  * Nov 25, 2012   1269     mpduff      Initial creation.
  * Dec 13, 2012   1269     lvenable    Updated to use a graph utility for the graph data.
  * Oct 28, 2013   2430     mpduff      Removed redraw if already open.
+ * Jan 29, 2014   2722     mpduff      Don't get graph data up front.
  * 
  * </pre>
  * 
@@ -58,11 +58,9 @@ public class BandwidthScheduleGraphAction extends AbstractHandler {
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
         if (dlg == null || dlg.isDisposed()) {
-            GraphDataUtil gdu = new GraphDataUtil(null);
-            gdu.retrieveData();
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
-            dlg = new BandwidthUtilizationDlg(shell, gdu);
+            dlg = new BandwidthUtilizationDlg(shell);
             dlg.open();
         } else {
             dlg.open();

@@ -45,7 +45,9 @@ import com.raytheon.uf.common.datadelivery.registry.GriddedTime;
 import com.raytheon.uf.common.datadelivery.registry.InitialPendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PendingSubscription;
 import com.raytheon.uf.common.datadelivery.registry.PointTime;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionState;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IPendingSubscriptionHandler;
@@ -94,6 +96,8 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Oct 12, 2013 2460       dhladky      restored adhoc subscriptions to registry storage.
  * Oct 22, 2013  2292      mpduff       Removed subscriptionOverlapService.
  * Nov 07, 2013  2291      skorolev     Used showText() method for "Shared Subscription" message.
+ * Jan 26, 2014  2259      mpduff       Turn off subs to be deactivated.
+ * Feb 04, 2014  2677      mpduff       Don't do overlap checks when deactivating subs.
  * 
  * </pre>
  * 
@@ -539,28 +543,42 @@ public class SubscriptionService implements ISubscriptionService {
             final IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException {
 
-        SubscriptionOverlapRequest request = new SubscriptionOverlapRequest(
-                subscriptions);
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            return new SubscriptionServiceResult(false,
+                    "No subscriptions submitted.");
+        }
 
-        SubscriptionOverlapResponse response = null;
-        try {
-            response = (SubscriptionOverlapResponse) RequestRouter.route(
-                    request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
-            if (response.isDuplicate()) {
-                return new SubscriptionServiceResult(true,
-                        StringUtil.createMessage(DUPLICATE_SUBSCRIPTIONS,
-                                response.getSubscriptionNameList()));
-            }
+        /*
+         * If activating the subscriptions check for overlaps.
+         * 
+         * Only need to check one because all are being updated the same way.
+         */
+        if (subscriptions.get(0).getSubscriptionState() == SubscriptionState.ON) {
+            SubscriptionOverlapRequest request = new SubscriptionOverlapRequest(
+                    subscriptions);
 
-            if (response.isOverlap()) {
-                List<String> subNames = response.getSubscriptionNameList();
-                Collections.sort(subNames);
-                forceApplyPrompt.displayMessage(displayTextStrategy, StringUtil
-                        .createMessage(OVERLAPPING_SUBSCRIPTIONS, subNames));
+            SubscriptionOverlapResponse response = null;
+            try {
+                response = (SubscriptionOverlapResponse) RequestRouter.route(
+                        request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+                if (response.isDuplicate()) {
+                    return new SubscriptionServiceResult(true,
+                            StringUtil.createMessage(DUPLICATE_SUBSCRIPTIONS,
+                                    response.getSubscriptionNameList()));
+                }
+
+                if (response.isOverlap()) {
+                    List<String> subNames = response.getSubscriptionNameList();
+                    Collections.sort(subNames);
+                    forceApplyPrompt.displayMessage(displayTextStrategy,
+                            StringUtil.createMessage(OVERLAPPING_SUBSCRIPTIONS,
+                                    subNames));
+                }
+            } catch (Exception e) {
+                statusHandler.error("Error checking subscription overlapping",
+                        e);
+                return new SubscriptionServiceResult(false);
             }
-        } catch (Exception e) {
-            statusHandler.error("Error checking subscription overlapping", e);
-            return new SubscriptionServiceResult(false);
         }
 
         try {
@@ -768,6 +786,10 @@ public class SubscriptionService implements ISubscriptionService {
                 continue;
             }
             unscheduledSub.setUnscheduled(true);
+            if (unscheduledSub instanceof RecurringSubscription) {
+                ((RecurringSubscription) unscheduledSub)
+                        .setSubscriptionState(SubscriptionState.OFF);
+            }
             subscriptionHandler.update(unscheduledSub);
         }
     }

@@ -2879,6 +2879,7 @@
 		<name>HPCGuide</name>
 		<center>7</center>
 		<subcenter>5</subcenter>
+		<grid>197</grid>
 		<process>
 			<id>183</id>
 		</process>
@@ -3132,6 +3133,16 @@
 	</model>
 
 	<model>
+		<name>AK-RTMA-HR</name>
+		<center>7</center>
+		<subcenter>4</subcenter>
+		<grid>1023</grid>
+		<process>
+			<id>109</id>
+		</process>
+	</model>
+
+	<model>
 		<name>GFSLAMPTstorm</name>
 		<center>7</center>
 		<subcenter>14</subcenter>
@@ -3183,5 +3194,91 @@
 	</model>
 
 	<!-- END SUBCENTER 14: NWS METEOROLOGICAL DEVELOPMENT LABORATORY -->
+
+    <!-- SUBCENTER 16: SPACE WEATHER PREDICTION CENTER -->
+       
+    <model>
+        <name>Conductivity</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>2090001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>SXI</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>360180001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>DRAP20</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>9090001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>ENLIL</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>18060001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>EPFlux</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>3636001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>SolarFlux</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>18090001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>IonTemperature</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>2091001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>IRGF</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>115001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>    
+    <model>
+        <name>Ovation</name>
+        <center>7</center>
+        <subcenter>16</subcenter>
+        <grid>9050001</grid>
+        <process>
+            <id>255</id>
+        </process>
+    </model>
+    
+    <!-- END SUBCENTER 16: SPACE WEATHER PREDICTION CENTER -->
 
 </gribModelSet>
