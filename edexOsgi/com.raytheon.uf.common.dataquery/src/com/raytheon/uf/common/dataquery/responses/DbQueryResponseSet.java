@@ -19,28 +19,32 @@
  **/
 package com.raytheon.uf.common.dataquery.responses;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Response to a {@link DbQueryResponseSet}, contains a response to every
+ * request in the same order.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 1, 2011            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2011           rjpeter     Initial creation
+ * Dec 18, 2013  2579     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
+ * @see DbQueryResponse
+ * @see DbQueryRequestSet
  */
 @DynamicSerialize
-public class DbQueryResponseSet implements ISerializableObject {
+public class DbQueryResponseSet {
     @DynamicSerializeElement
     private DbQueryResponse[] results;
 

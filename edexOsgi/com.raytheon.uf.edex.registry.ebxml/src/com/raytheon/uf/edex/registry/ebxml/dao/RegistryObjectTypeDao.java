@@ -27,6 +27,8 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Property;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
@@ -44,6 +46,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
  * 4/9/2013     1802       bphillip    Removed exception catching.  Added merge method.
  * 8/1/2013     1693       bphillip    Moved the merge method down to RegistryObjectDao
  * 10/8/2013    1682       bphillip    Added like lid method, changed to use criteria queries for simple operations
+ * 2/13/2014    2769       bphillip    Added read only flags to query methods
  * 
  * </pre>
  * 
@@ -70,6 +73,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @return The list of registry objects;
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByLid(List<String> lids) {
         return createCriteria().add(
                 Property.forName(QueryConstants.LID).in(lids)).list();
@@ -84,6 +88,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of lids to query for
      * @return The list of registry objects;
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByLid(String... lids) {
         return getByLid(Arrays.asList(lids));
     }
@@ -96,6 +101,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @return All IdentifiableType objects matching the given lid
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByLidUsingLike(String lid) {
         return createCriteria().add(
                 Property.forName(QueryConstants.LID).like(lid)).list();
@@ -111,6 +117,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @return The list of registry objects;
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByObjectType(List<String> objTypes) {
         return createCriteria().add(
                 Property.forName(QueryConstants.OBJECT_TYPE).in(objTypes))
@@ -127,6 +134,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @return The list of registry objects;
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByStatus(List<String> status) {
         return createCriteria().add(
                 Property.forName(QueryConstants.STATUS).in(status)).list();
@@ -142,6 +150,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      * @return The list of registry objects;
      */
     @SuppressWarnings("unchecked")
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByOwner(List<String> owner) {
         return createCriteria().add(
                 Property.forName(QueryConstants.OWNER).in(owner)).list();
@@ -156,6 +165,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of owners to query for
      * @return The list of registry objects;
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByOwner(String... owner) {
         return getByOwner(Arrays.asList(owner));
     }
@@ -169,6 +179,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of names to query for
      * @return The list of registry objects;
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByName(List<String> names) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.name.localizedString as Strings where Strings.value in ");
@@ -185,6 +196,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of descriptions to query for
      * @return The list of registry objects;
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByDescription(List<String> descriptions) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.description.localizedString as Strings where Strings.value in ");
@@ -201,6 +213,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
      *            The list of classificationNodes to query for
      * @return The list of registry objects;
      */
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getByClassification(List<String> classifications) {
         StringBuilder str = new StringBuilder(
                 "select obj from RegistryObjectType obj inner join obj.classification as Classifications where ");
@@ -236,6 +249,7 @@ public abstract class RegistryObjectTypeDao<ENTITY extends RegistryObjectType>
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public ENTITY getById(String id) {
         return super.getById(id);
     }

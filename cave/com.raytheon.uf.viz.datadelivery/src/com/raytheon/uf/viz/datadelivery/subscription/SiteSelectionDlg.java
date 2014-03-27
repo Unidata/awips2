@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2013   1040     mpduff      Initial creation
+ * Feb 11, 2014   2771     bgonzale    Show all SiteDataTypes in site list.
  * 
  * </pre>
  * 
@@ -153,9 +154,7 @@ public class SiteSelectionDlg extends CaveSWTDialog {
 
         for (Entry<String, SiteData> entry : siteDataMap.entrySet()) {
             SiteDataType type = entry.getValue().getType();
-            if (type == SiteDataType.WFO || type == SiteDataType.RFC) {
-                siteList.add(entry.getKey());
-            }
+            siteList.add(entry.getKey());
         }
 
         // Remove the current site

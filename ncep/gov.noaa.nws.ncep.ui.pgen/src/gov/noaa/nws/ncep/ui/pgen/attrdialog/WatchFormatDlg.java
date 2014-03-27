@@ -57,6 +57,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 05/12		#776, 769	B. Yin		Added UTC time. Carry ove info from WCC/WCL dialogs.
  * 08/12        #770        Q. Zhou     added continuing Watch.
  * 08/13		TTR 796		B. Yin		Added drop down list for expiration time.
+ * 12/13		TTR 800		B. Yin		USe UTC time class.
  * </pre>
  * 
  * @author	B. Yin
@@ -107,7 +108,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	public static String HOURS[] =  { "0000", "0100", "0200", "0300", "0400", "0500", "0600", "0700", "0800",
 									  "0900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700",
 									  "1800", "1900", "2000", "2100", "2200", "2300"};
-	
+
 	//hail size
     private Combo hailCombo;
 	public static String HAILSIZE[] =  { "0.5", "1.0", "1.5", "2.0", "2.5", "3.0", "3.5", "4.0" };
@@ -131,8 +132,10 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	public static final String TORNADO = "TORNADO";
 	
 	private static final Color STORM_COLOR = Color.CYAN;
-	private static final Color TORNADO_COLOR = Color.RED;
+	private static final Color STORM_FILL_COLOR = new Color(255,191,201);
 
+	private static final Color TORNADO_COLOR = Color.RED;
+	private static final Color TORNADO_FILL_COLOR = new Color(255,215,0);
 
 	//replace watch number
 	private Text rText;
@@ -486,35 +489,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		return expiration;
 	}
 	
-	/**
- 	 * Get the expiration hour from the validTime text widget
-     */
-	private int getExpHour(){
-		int ret =0;
-		try {
-			String hm = validTime.getText();
-			ret = Integer.parseInt(hm.substring(0, hm.length()== 4 ? 2:1 ));
-		}
-		catch (Exception e ){
-			
-		}
-		return ret;
-	}
-	
-	/**
- 	 * Get the expiration minute from the validTime text widget
-     */
-	private int getExpMinute(){
-		int ret =0;
-		try {
-			String hm = validTime.getText();
-			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
-		}
-		catch (Exception e ){
-			
-		}
-		return ret;
-	}
+
 	/*
 	 * 
 	 * (non-Javadoc)
@@ -794,10 +769,10 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		wb.setCntyInfo(wb.formatCountyInfo(wb.getCountyList()));
 		
 		if ( wb.getWatchType().equalsIgnoreCase(S_STORM)){
-			wb.setColors(new Color[]{STORM_COLOR, STORM_COLOR});
+			wb.setColors(new Color[]{STORM_COLOR, STORM_FILL_COLOR});
 		}
 		else if ( wb.getWatchType().equalsIgnoreCase(TORNADO)){
-			wb.setColors(new Color[]{TORNADO_COLOR, TORNADO_COLOR});
+			wb.setColors(new Color[]{TORNADO_COLOR, TORNADO_FILL_COLOR});
 		}
 		
 		wb.setContWatch( this.getContNumber());
@@ -837,7 +812,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		Calendar exp = wb.getExpTime();
 		if ( exp != null ){
 			validDate.setDate(exp.get(Calendar.YEAR), exp.get(Calendar.MONTH), exp.get(Calendar.DAY_OF_MONTH));
-			validTime.setText(PgenUtil.getInitialTime( exp ));
+			validTime.setText(getInitialTime( exp ));
 
 		}
 
@@ -901,7 +876,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 	/**
 	 *		Sets the UTC time text widget
 	 */
-	static public void setUTCTimeTextField( Composite parent, final Combo validTime, Calendar cal,  Control topWidget, int offset ){
+	public static void setUTCTimeTextField( Composite parent, final Combo validTime, Calendar cal,  Control topWidget, int offset ){
 		
 		validTime.setTextLimit(4);
 		validTime.setText( String.format("%02d00", cal.get(Calendar.HOUR_OF_DAY)));
@@ -925,7 +900,7 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 			@Override
 			public void modifyText(ModifyEvent e) {
 				if ( !validTime.getText().isEmpty() ){
-					if ( PgenUtil.isTimeValid( validTime.getText() ) )
+					if ( isTimeValid( validTime.getText() ) )
 						validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_WHITE));
 					else
 						validTime.setBackground( Display.getCurrent().getSystemColor( SWT.COLOR_RED));
@@ -935,7 +910,61 @@ public class WatchFormatDlg  extends CaveJFACEDialog  {
 		});
 		
 	}
+	/**
+ 	 *  check if the input string is a valid time
+     */
+	private static boolean isTimeValid( String text) {
+		int time = Integer.parseInt(text);
+		int hour = time / 100;
+		int minute = time % 100;
+		
+		if ( hour >= 0 && hour <= 23 &&
+				minute >= 00 && minute <=59 ) return true;
+		
+		return false;
+	}
 	
+	/**
+     *	Get the time string in the format HH00 from the input calendar time.
+	 */
+	private String getInitialTime(Calendar now ) {
+		
+		int minute = now.get(Calendar.MINUTE);
+		if ( minute >= 15 ) now.add(Calendar.HOUR_OF_DAY, 1);
+		int hour = now.get(Calendar.HOUR_OF_DAY);
+
+		return String.format("%02d00", hour);
+	}
+	
+	/**
+ 	 * Get the expiration hour from the validTime text widget
+     */
+	private int getExpHour( ){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(0, hm.length()== 4 ? 2:1 ));
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
+	
+	/**
+ 	 * Get the expiration minute from the validTime text widget
+     */
+	private int getExpMinute(){
+		int ret =0;
+		try {
+			String hm = validTime.getText();
+			ret = Integer.parseInt(hm.substring(hm.length()== 4 ? 2:1 ), hm.length()-1);
+		}
+		catch (Exception e ){
+			
+		}
+		return ret;
+	}
 }
 
 

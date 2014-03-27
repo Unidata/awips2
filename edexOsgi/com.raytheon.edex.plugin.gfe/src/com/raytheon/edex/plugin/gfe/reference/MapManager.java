@@ -37,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import jep.JepException;
 
@@ -103,6 +104,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                      from localMaps.py could not be found,
  *                                      warnings clean up.
  * Sep 30, 2013     #2361   njensen     Use JAXBManager for XML
+ * Jan 21, 2014     #2720   randerso    Improve efficiency of merging polygons in edit area generation
  * 
  * </pre>
  * 
@@ -436,7 +438,7 @@ public class MapManager {
             List<Coordinate> values = new ArrayList<Coordinate>();
             for (int j = 0; j < iscMarkersID.size(); j++) {
                 int index = _config.allSites().indexOf(iscMarkersID.get(j));
-                if (index != -1
+                if ((index != -1)
                         && _config.officeTypes().get(index)
                                 .equals(foundOfficeTypes.get(i))) {
                     values.add(iscMarkers.get(j));
@@ -512,7 +514,7 @@ public class MapManager {
                 String thisSite = _config.getSiteID().get(0);
                 for (int i = 0; i < data.size(); i++) {
                     String n = data.get(i).getId().getName();
-                    if (n.length() == 7 && n.startsWith("ISC_")) {
+                    if ((n.length() == 7) && n.startsWith("ISC_")) {
                         String cwa = n.substring(4, 7);
                         if (cwa.equals(thisSite)) {
                             statusHandler
@@ -597,8 +599,8 @@ public class MapManager {
                 } else {
                     // Write the new edit area file.
                     try {
-                        ReferenceData.getJAXBManager().marshalToXmlFile(
-                                ref, path.getAbsolutePath());
+                        ReferenceData.getJAXBManager().marshalToXmlFile(ref,
+                                path.getAbsolutePath());
                     } catch (Exception e) {
                         statusHandler.error("Error writing edit area to file "
                                 + path.getAbsolutePath(), e);
@@ -827,7 +829,7 @@ public class MapManager {
             PreparedGeometry boundingGeometry = PreparedGeometryFactory
                     .prepare(p);
 
-            Map<String, ReferenceData> tempData = new HashMap<String, ReferenceData>();
+            Map<String, Geometry> tempData = new HashMap<String, Geometry>();
             while (shapeSource.hasNext()) {
                 SimpleFeature f = shapeSource.next();
                 Map<String, Object> info = shapeSource.getAttributes(f);
@@ -838,7 +840,7 @@ public class MapManager {
                 }
 
                 String editAreaName = runNamer(mapDef.getInstanceName(), info);
-                ReferenceData tmp;
+                Geometry tmp;
 
                 // validate edit area name, add edit area to the dictionary
                 String ean = validateEAN(editAreaName);
@@ -859,14 +861,25 @@ public class MapManager {
                 // handle append case
                 tmp = tempData.get(ean);
                 if (tmp != null) {
-                    mp = mp.union(tmp.getPolygons(CoordinateType.LATLON));
-                    mp = mp.buffer(0.0);
+                    // Combine multiple geometries into a geometry collection
+                    mp = gf.buildGeometry(Arrays.asList(mp, tmp));
                 }
                 // handle new case
                 else {
                     created.add(ean);
                     editAreaAttrs.put(ean, info);
                 }
+
+                tempData.put(ean, mp);
+            }
+
+            for (Entry<String, Geometry> entry : tempData.entrySet()) {
+                String ean = entry.getKey();
+                Geometry mp = entry.getValue();
+
+                // Compute buffer(0.0) to clean up geometry issues
+                mp = mp.buffer(0.0);
+
                 MultiPolygon polygons;
                 if (mp instanceof MultiPolygon) {
                     polygons = (MultiPolygon) mp;
@@ -874,13 +887,21 @@ public class MapManager {
                     polygons = gf
                             .createMultiPolygon(new Polygon[] { (Polygon) mp });
                 } else {
-                    statusHandler.info("Creating empty polygon");
+                    String error = "Table: " + shapeSource.getTableName()
+                            + " edit area:" + ean
+                            + " contains geometry of type "
+                            + mp.getClass().getSimpleName()
+                            + " Creating empty polygon";
+                    statusHandler.error(error);
                     polygons = gf.createMultiPolygon(new Polygon[] {});
                 }
 
                 if (!polygons.isValid()) {
-                    String error = shapeSource.getTableName()
-                            + " contains invalid polygons.";
+                    String error = "Table: "
+                            + shapeSource.getTableName()
+                            + " edit area:"
+                            + ean
+                            + " contains invalid polygons. This edit area will be skipped.";
                     for (int i = 0; i < polygons.getNumGeometries(); i++) {
                         Geometry g = polygons.getGeometryN(i);
                         if (!g.isValid()) {
@@ -888,14 +909,14 @@ public class MapManager {
                         }
                     }
                     statusHandler.error(error);
+                    continue;
                 }
 
-                tempData.put(ean, new ReferenceData(_config.dbDomain(),
-                        new ReferenceID(ean), polygons, CoordinateType.LATLON));
+                // transfer dictionary values to Seq values
+                data.add(new ReferenceData(_config.dbDomain(), new ReferenceID(
+                        ean), polygons, CoordinateType.LATLON));
             }
 
-            // transfer dictionary values to Seq values
-            data.addAll(tempData.values());
             tempData.clear();
         } catch (Exception e) {
             String error = "********* EDIT AREA GENERATION ERROR - Create Reference Data *********\n"
@@ -954,13 +975,13 @@ public class MapManager {
 
         // strip out white space and punctuation (except _)
         for (int i = s.length() - 1; i >= 0; i--) {
-            if (!Character.isLetterOrDigit(s.charAt(i)) && s.charAt(i) != '_') {
+            if (!Character.isLetterOrDigit(s.charAt(i)) && (s.charAt(i) != '_')) {
                 s = s.substring(0, i) + s.substring(i + 1);
             }
         }
 
         // ensure 1st character is not a number. If a number, preprend.
-        if (s.length() > 0 && Character.isDigit(s.charAt(0))) {
+        if ((s.length() > 0) && Character.isDigit(s.charAt(0))) {
             s = "ea" + s;
         }
 

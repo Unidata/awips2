@@ -161,6 +161,8 @@
     				minOccurs="1">
     			</xsd:element>
     		</xsd:sequence>
+    		<xsd:attribute name="kinkPosition" type="xsd:double"></xsd:attribute>
+            <xsd:attribute name="arrowHeadType" type="xsd:string"></xsd:attribute>
             <xsd:attribute name="flipSide" type="xsd:boolean"></xsd:attribute>
             <xsd:attribute name="fillPattern" type="xsd:string"></xsd:attribute>
             <xsd:attribute name="filled" type="xsd:boolean"></xsd:attribute>

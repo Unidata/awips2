@@ -5,7 +5,10 @@
 	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
 	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
 	________________________Omaha,_NE_68106 ________________________402.291.0100 
-	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. 
+History:
+F.Achorn/OPC	10/15/13	Added Ukmet HR tiles 1-8
+-->
 
 
 <gribModelSet>
@@ -182,6 +185,100 @@
 		</process>
 	</model>
 
-	<!-- END SUBCENTER 0 -->
+	<!-- UKMET HiRes Tiles -->
+	<model>
+		<name>UkmetHR-1</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162001</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
 
+	<model>
+		<name>UkmetHR-2</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162002</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-3</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162003</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-4</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162004</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-5</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162005</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-6</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162006</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-7</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162007</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
+
+	<model>
+		<name>UkmetHR-8</name>
+		<center>74</center>
+		<subcenter>0</subcenter>
+		<grid>108162008</grid>
+		<process>
+			<id>15</id>
+			<id>44</id>
+			<id>45</id>
+		</process>
+	</model>
 </gribModelSet>

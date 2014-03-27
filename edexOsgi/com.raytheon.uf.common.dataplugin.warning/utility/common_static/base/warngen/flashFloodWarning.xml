@@ -8,6 +8,7 @@
                  Mike Dangelo  09-19-2013 more flexibility on third bullet and fourth bullet wording
                  Phil Kurimski   09-19-2013 added geospatialConfig.xml
                  Gene Petrescu 09-20-2013 added gauge only option for event
+                 Mike Rega     01-18-2014 added Alaska GP changes for 14.2.1
 -->
 
 <warngenConfig>
@@ -62,7 +63,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <!-- if trackEnabled is set to 'true' = makes third bullet initial position and movement 
 as well as fourth bullet pathcast (which are optional info) available to forecaster.   
 Must be paired with proper vm code (also commented out in flashFloodWarning.vm)! -->
- <trackEnabled>false</trackEnabled> 
+  <trackEnabled>false</trackEnabled> 
+  <!-- <trackEnabled>true</trackEnabled> -->  
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
  	included with the warning product include torWatches and/or svrWatches, 
@@ -92,12 +94,12 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <duration>480</duration>
  </durations>
 
-<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup>
+<lockedGroupsOnFollowup>ic,ffwEMER</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -105,14 +107,16 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
   <bullet bulletName="flash" bulletText="Flash flooding occurring" bulletGroup="event" parseString="FLASH FLOODING IS ALREADY OCCURRING."/>
-<!--   <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
+<!-- <bullet bulletName="stormPosition" bulletText="* USE DOT to specify initial position *" parseString="MOVING"/> 
 -->
   <bullet bulletText="*********** (OPTIONAL) DEBRIS FLOW INFO **********" bulletType="title"/>
   <bullet bulletName="burnScar" bulletText="Burn scar area with debris flow" bulletGroup="addevent" parseString="BURN SCAR"/>
@@ -124,15 +128,15 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="listofcities" bulletDefault="true" bulletText="Select for a list of cities" bulletGroup="pcast" parseSting="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-<!--   <bullet bulletName="pathcast" bulletText="Generate Pathcast " bulletGroup="pcast" parseString="THE FOLLOWING LOCATIONS..."/>
+<!--  <bullet bulletName="pathcast" bulletText="Generate Pathcast " bulletGroup="pcast" parseString="THE FOLLOWING LOCATIONS..."/>
 -->
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
   <bullet bulletName="particularStream" bulletText="Flooding is occurring in a particular stream/river" parseString="FLOOD WATERS ARE MOVING DOWN"/>
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
-  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
+  <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" bulletGroup="cta1" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" bulletGroup="cta1" parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
@@ -146,7 +150,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -154,9 +158,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>  
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND "/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->  
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
@@ -182,7 +188,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
   <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>
@@ -195,8 +201,8 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -204,9 +210,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>  
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" bulletDefault="true" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
@@ -233,7 +241,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarning.vm)!
   <bullet bulletText="**** CALL TO ACTIONS (CHOOSE 1 OR MORE) ****" bulletType="title"/>
 <!-- end all call to action bullets with "CTA" ex: "obviousNameCTA" -->
   <bullet bulletName="ffwEmergencyCTA" bulletText="**FLASH FLOOD EMERGENCY CTA**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." bulletDefault="true" parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
+  <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly..." parseString="HIGHER GROUND NOW. ACT QUICKLY TO PROTECT YOUR LIFE."/>
   <bullet bulletName="childSafetyCTA" bulletText="Child Safety..." parseString="KEEP CHILDREN AWAY FROM STORM DRAINS"/>
   <bullet bulletName="nighttimeCTA" bulletText="Nighttime flooding..." parseString="BE ESPECIALLY CAUTIOUS AT NIGHT WHEN"/>
   <bullet bulletName="safetyCTA" bulletText="Safety...by foot or motorist" parseString="DO NOT ENTER OR CROSS FLOWING WATER"/>

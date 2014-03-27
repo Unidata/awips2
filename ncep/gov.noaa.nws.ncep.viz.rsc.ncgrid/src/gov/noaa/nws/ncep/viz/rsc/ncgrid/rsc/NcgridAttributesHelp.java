@@ -10,6 +10,8 @@ package gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc;
  * Nov,22 2010  			 X. Guo     Initial creation for both Ensemble/Grid
  * 12/06/2012   #538         Q. Zhou    Added skip and filter areas and implements. 
  * 09/11/2012    #743    Archana        Added tooltip text for CLRBAR
+ * 09/11/2013   #1036        S. Gurung  Added tooltip text for TEXT
+ * 
  * @author xguo
  * @version 1
  */
@@ -21,20 +23,19 @@ public class NcgridAttributesHelp {
     	return toolTipText;	
 	}
     public static String ClrbarToolTipText() {
-    	String toolTipText="\nCLRBAR specifies the characteristics of a color bar associated with "+
-     "contour fill.  The attributes are separated by slashes:\n:"+
-
-           "color / orientation / anchor / x;y / length;width\n"+
-
+    	String toolTipText="CLRBAR specifies the characteristics of a color bar associated with "+
+     "contour fill.  The attributes are separated by slashes:\n"+
+     "        color / orientation / anchor / x;y / length;width\n"+
+     
      "Color is the color of the labels and the bounding box around the"+
      "color bar.  If color is negative, the bounding box will not be drawn,"+
      "and labels will be drawn in colors corresponding to the color bar."+
      "If the color is 0 or missing, no color bar is drawn.\n"+
-
+     
      "Orientation specifies a vertical or horizontal orientation of the"+
      "color bar where 'V' is a vertical bar and 'H' is a horizontal bar."+
      "The default is 'V'.\n"+
-
+     
     " Anchor describes the location on the color bar corresponding to"+
      "the location given in the next parameter. \n Valid inputs are:\n"+
      "LL, LC, LR, CL, CC, CR, UL, UC, and UR for lower-left, lower-center,"+
@@ -44,30 +45,27 @@ public class NcgridAttributesHelp {
      "of the color bar at view coordinates .1, .1.  The default anchor"+
      "point is 'LL'.\n"+
      " x;y is the position for the anchor point of the color bar in view"+
-     "coordinates.  The default is .005, .05."+
+     "coordinates.  The default is .005, .05.\n"+
 
      "Length;width are the length and width of the color bar, normalized to"+
      "the view coordinates.  The defaults are .5 for the length, and .01 for"+
      "the width.\n"+
      "To disable the color bar, set CLRBAR = 0 or leave it blank.  If only"+
-     "contour lines are drawn (CTYPE = C), the CLRBAR variable is not used.\n"+
+     "contour lines are drawn (CTYPE = C), the CLRBAR variable is not used.\n\n"+
 
      "Examples:\n"+
-
-         "CLRBAR = 1\n text and bounding box in color 1;\n"+
-                                        "defaults for the rest of the input;\n"+
-
-         "CLRBAR = 5/V/ /.25;.1/1\ntext and bounding box in color 5;\n"+
-                                        "color bar plotted vertically;\n"+
-                                        "length and width .25 and .1 of the"+
-                                        "view window;\n"+
-                                        "all intervals labeled along left side of the color bar;\n"+
-                                        " color bar anchor point at lower-left;"+
-
-         "CLRBAR = 1//CL/.1;.5/.75;.1\ntext and bounding box in color 1;\n"+
-                                        "length and width .75 and .1 of the view window;\n"+
-                                        "center-left of the color bar positioned at .1;.5 in viewcoordinates;";
-     
+     "CLRBAR = 1     \n"+
+     "--- text and bounding box in color 1;\n"+
+     "defaults for the rest of the input;\n"+
+     "CLRBAR = 5/V/ /.25;.1/1 \n "+
+     "--- text and bounding box in color 5;\n"+
+     "color bar plotted vertically; length and width .25 and .1\n"+
+     "of the view window; all intervals labeled along left side of\n"+
+     "the color bar;color bar anchor point at lower-left;\n"+
+     "CLRBAR = 1//CL/.1;.5/.75;.1 \n"+
+     "-- text and bounding box in color 1; ength and width .75 and .1 \n"+
+     "lof the view window; center-left of the color bar \n"+
+     "positioned at .1;.5 in viewcoordinates;";
 		
     	return toolTipText;	
 	}
@@ -426,4 +424,65 @@ public class NcgridAttributesHelp {
     	
         return text;
     }
+    
+    public static String TextToolTipText() {
+		String toolTipText="TEXT is the size, font, text width, border, rotation, justification\n"+
+	 " and hardware/software flag for graphics text separated with slashes: \n"+
+	 "     text size/font/width/border/rotation/justification/hw flag\n"+
+	 "	The size may be a real number multiplier for the default\n"+
+	 "text size. If the size is zero or unspecified, the current\n"+
+	 "size will be used.\n"+
+	 "	The size may also be a name, or the first character of a\n"+
+	 "name. The name is converted to a real number multiplier. For\n"+
+	 "hardware text, the named sizes correspond to discrete point\n"+
+	 "sizes. Sizes other than the named sizes will be rounded to the\n"+
+	 "nearest point size. Below are the standard names and size values:\n"+
+	 "         Name            Size    HW Point\n"+
+	 "         ----            ----    --------\n"+
+	 "         Tiny            0.714      10\n"+
+	 "         Small           0.857      12\n"+
+	 "         Medium         1.000      14\n"+
+	 "         Large           1.286      18\n"+
+	 "         Huge            1.714      24\n"+
+	 "         Giant           2.429      34\n"+
+	 "	The text width is the integer line width to be used in \n"+
+	 "generating software text. If the text size, font or width \n"+
+	 "is not specified, the current value is used.\n"+
+	 "	The text border is a border/blank fill flag. Border is a three\n"+
+	 "digit number, ABC, where:\n"+
+	 "   A - Border      B - Blank Fill          C - Border Type \n"+
+	 "   ----------       --------------          ---------------\n"+
+	 "   1 = No          1 = No                   1 = Regular Box\n"+
+	 "   2 = Yes         2 = Yes                 \n"+
+	 "                      3 = Reverse video \n"+
+	 "	If reverse video is selected, the text color and background\n"+
+     "color are switched. \n"+
+	 "	The text rotation is a character input that specifies whether\n"+
+	 "the text is aligned with the screen (S) or with north (N) on a\n"+
+	 "given image. If the choice is invalid or not specified, the\n"+
+	 "default value 'S' is used.\n"+
+	 "	The text justification is a character input that specifies\n"+
+	 "whether the text is justified to the center (C), right (R), \n"+
+	 "or left (L). If the choice is invalid or not specified, the \n"+
+	 "default value 'C' is used.\n"+
+	 "	The hardware/software selector must be HW or SW to \n"+
+	 "change to hardware- or software-generated text. \n"+
+	 "	The font number must be specified by using the HW \n"+
+	 "selector and choosing a font number from the list below.\n"+
+	 "                   REGULAR    ITALIC    BOLD     ITALIC-BOLD\n"+
+	 "      Courier        1         11       21         31\n"+
+	 "      Helvetica      2         12       22         32\n"+
+	 "      Times          3         13       23         33\n"+
+	 "	If a font does not support a particular style, the next \n"+
+	 "lower style is used instead. \n"+
+	 "Examples:\n"+
+	 "   TEXT = 1/21            --  text size = 1; bold software font 1\n"+
+	 "   TEXT = 2.5/2/HW        --  text size = 2.5; hardware text font 2\n"+
+	 "   TEXT = 1.24///221/s/c  --  text size = 1.24; current text font;\n"+
+	 "                                 current text width; Border = yes,\n"+
+	 "                                 Blank fill = yes, Border type = box;\n"+
+	 "                                 screen relative; center justified.";
+
+		return toolTipText;	
+	}
 }

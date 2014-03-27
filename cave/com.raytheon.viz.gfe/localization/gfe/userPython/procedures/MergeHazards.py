@@ -29,6 +29,15 @@
 # This procedure reads all of the temporary hazard grids and selectively
 # loads them in the the "Hazards" grid.
 # ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    Dec 23, 2013    16893         ryu            Check in njensen's change to removeTempHazards()
+#                                                  to call SmartScript.unloadWEs().
+#
+########################################################################
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -227,10 +236,12 @@ class Procedure(SmartScript.SmartScript):
     def removeTempHazards(self):
         parms = self.loadedParms()
         
+        toRemovePairs = []
         for weName, level, dbID in parms:
             if string.find(weName, "haz") == 0:
-                self.unloadWE(MODEL, weName, level)
-   
+                toRemovePairs.append((weName, level))
+        self.unloadWEs(MODEL, toRemovePairs)
+
         return
 
     ##

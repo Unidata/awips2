@@ -1,0 +1,5 @@
+#Code Table 0.0: Discipline of processed data in the GRIB message, number of GRIB Master table
+3:3:Satellite remote sensing products
+4:4:Space Weather Products 
+# 192-254 Reserved for local use
+255:255:Missing
