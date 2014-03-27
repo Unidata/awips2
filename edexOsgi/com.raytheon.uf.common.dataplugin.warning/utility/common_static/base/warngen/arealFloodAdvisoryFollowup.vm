@@ -7,7 +7,8 @@
 ##           Mike Dangelo    9-13-2012 minor tweaks to ${variables}             ##
 ##           Phil Kurimski   2-05-2013 for OB13.2.1-3 Added rain so far section ##
 ##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
-##           Evan Bookbinder 9-18-2013 implemented config.vm
+##           Evan Bookbinder 9-18-2013 implemented config.vm                    ##
+##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1       ##
 ##################################################################################
 #parse("config.vm")
 #if(${action} == "EXT")
@@ -38,25 +39,17 @@
 #set ($report = "!** warning basis **!")
 #set ($report2 = "")
 #set ($cause = "HEAVY RAIN")
-#if(${list.contains(${bullets}, "rapidRiver")})
-  #set ($report2 = ". RAPID RIVER RISES WILL RESULT IN MINOR FLOODING") 
-  #set ($hycType = "FOR RAPID RIVER RISES ")  
-#end
-#if(${list.contains(${bullets}, "poorDrainage")})
-  #set ($report2 = ". OVERFLOWING POOR DRAINAGE AREAS WILL RESULT IN MINOR FLOODING")   
-  #set ($hycType = "FOR MINOR FLOODING OF POOR DRAINAGE AREAS ")
-#end
 #if(${ic} == "SM")
-  #set ($cause = "SNOW MELT")   
-  #set ($hycType = "FOR MELTING SNOW ")
+  #set ($cause = "SNOWMELT")   
+  #set ($hycType = "FOR SNOWMELT ")
 #end
 #if(${ic} == "RS")
-  #set ($cause = "HEAVY RAIN AND SNOW MELT") 
-  #set ($hycType = "FOR RAIN AND MELTING SNOW ")  
+  #set ($cause = "RAIN AND SNOWMELT") 
+  #set ($hycType = "FOR RAIN AND SNOWMELT ")  
 #end
 #if(${ic} == "IJ")
   #set ($cause = "AN ICE JAM") 
-  #set ($hycType = "FOR ICE JAM FLOODING ")  
+  #set ($hycType = "FOR AN ICE JAM ")  
 #end
 #if(${ic} == "DR")
   #set ($cause = "A DAM FLOODGATE RELEASE") 
@@ -64,6 +57,14 @@
 #end
 #if(${ic} == "IC")
   #set ($cause = "AN ICE JAM AND HEAVY RAIN")   
+#end
+#if(${list.contains(${bullets}, "rapidRises")})
+  #set ($report2 = ". RAPID RISES WILL RESULT IN MINOR FLOODING") 
+  #set ($hycType = "${hycType}FOR RAPID RISES ")  
+#end
+#if(${list.contains(${bullets}, "poorDrainage")})
+  #set ($report2 = ". OVERFLOWING POOR DRAINAGE AREAS WILL RESULT IN MINOR FLOODING")   
+  #set ($hycType = "${hycType}FOR MINOR FLOODING IN POOR DRAINAGE AREAS ")
 #end
 #set($rainAmount = "") 
 #if(${list.contains(${bullets}, "rain1")} )
@@ -144,6 +145,11 @@
 #if(${list.contains(${bullets}, "public")} && ${list.contains(${bullets}, "plainRain")})
   #set ($report = "THE PUBLIC REPORTED ${cause} IN !** LOCATION **! THAT WILL CAUSE ${advTypeShort}${report2}")   
 #end
+#### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set ($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
+#end
+### GP end
 ##########################################
 ## FLOOD ADVISORY FOLLOW-UP HEADER INFO ##
 ##########################################
@@ -196,7 +202,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+#### GP End
 
 #if(${list.contains(${bullets}, "recedingWater")})
 THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
@@ -220,7 +234,15 @@ EXPIRED AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone
 #else
 WILL EXPIRE AT ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
 #end
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+#### GP End
 
 #if(${list.contains(${bullets}, "recedingWater")})
 THE HIGH WATER IS RECEDING...AND IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ANY ROAD CLOSURES.
@@ -240,7 +262,15 @@ THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT.
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${afectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+### GP end
 ########### END HEADLINE CODE ####################
 
 #if(${productClass}=="T")
@@ -302,6 +332,11 @@ THIS IS A TEST MESSAGE. ##
 #locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
 
 #end
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
+
 #if(${list.contains(${bullets}, "addRainfall")})
 ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
 
@@ -338,7 +373,7 @@ EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE ELEVATED LEVELS ON SMALL CREEKS 
 
 #end
 #if(${list.contains(${bullets}, "ruralCTA")})
-EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...HIGHWAYS AND UNDERPASSES.  ADDITIONALLY...COUNTRY ROADS AND FARMLANDS ALONG THE BANKS OF CREEKS...STREAMS AND OTHER LOW LYING AREAS ARE SUBJECT TO FLOODING.
+EXCESSIVE RUNOFF FROM HEAVY RAINFALL WILL CAUSE FLOODING OF SMALL CREEKS AND STREAMS...AS WELL AS FARM AND COUNTRY ROADS. DO NOT ATTEMPT TO TRAVEL ACROSS FLOODED ROADS. FIND ALTERNATE ROUTES.
 
 #end
 #if(${list.contains(${bullets}, "donotdriveCTA")})
@@ -409,7 +444,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false)...
+#else
 #headlineLocList(${cancelareas} true true true false)...
+#end
+#### GP End
 ###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
 ###headlineLocList(${cancelaffectedCounties} true true true false)...
 ########### END NEW HEADLINE CODE ####################
@@ -446,27 +489,80 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+#### GP End
 ########### END NEW HEADLINE CODE ####################
 
 #if(${productClass}=="T")
 
 THIS IS A TEST MESSAGE. ##
+#end
+############# IF TRACK IS ENABLED AND stormPosition SELECTED ###############################################
+#if(${list.contains(${bullets},"stormPosition")})
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-...!** warning basis **!
+#if(${stormType} == "line")
+...A LINE OF THUNDERSTORMS PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
 #else
+...A THUNDERSTORM PRODUCING HEAVY RAIN WAS LOCATED ##
+#handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceCell})
+#end
+#if(${movementSpeed} < ${landStationary} || ${stationary})
+...AND IS STATIONARY. ##
+#else
+#if(${stormType} == "line")
+...AND MOVING ## 
+#else
+...MOVING ##
+#end
+#direction(${movementDirectionRounded}) AT ${mathUtil.roundTo5(${movementSpeed})} MPH. ##
+#end
+${rainAmount}
 
+#else
+###############IF TRACK IS NOT ENABLED OR stormPosition IS NOT SELECTED  #######################################
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
 ...${report}. ${rainAmount}
+
 #end
-
-#set ($phenomena = "FLASH FLOOD") 
-#set ($warningType = "ADVISORY") 
-
+############################################
+######## (CITY LIST) #########
+############################################
+############# IF TRACK IS ENABLED AND pathcast AND stormPosition BOTH SELECTED ###############################################
+#if(${list.contains(${bullets},"pathcast")} && ${list.contains(${bullets}, "stormPosition")})
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE MINOR FLOODING INCLUDE" "THE FLOODING IS EXPECTED TO IMPACT MAINLY RURAL AREAS OF" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+#if($movementSpeed < 3 )
+#pathCast("HEAVY RAIN WILL CONTINUE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#else
+#pathCast("HEAVY RAIN WILL MOVE OVER THE FOLLOWING LOCATIONS..." "HEAVY RAIN" ${pathCast} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+#end
+#if(${list.contains(${bullets}, "listofcities")})
+#if(${productClass}=="T")
+THIS IS A TEST MESSAGE. ##
+#end
+#### THE THIRD ARGUMENT IS A NUMBER SPECIFYING THE NUMBER OF COLUMNS TO OUTPUT THE CITIES LIST IN
+#### 0 IS A ... SEPARATED LIST, 1 IS ONE PER LINE, >1 IS A COLUMN FORMAT
+#### IF YOU USE SOMETHING OTHER THAN "LOCATIONS IMPACTED INCLUDE" LEAD IN BELOW, MAKE SURE THE
+#### ACCOMPANYING XML FILE PARSE STRING IS CHANGED TO MATCH!
+#locationsList("SOME LOCATIONS THAT WILL EXPERIENCE FLOODING INCLUDE..." "THIS FLOODING" 0 ${cityList} ${otherPoints} ${areas} ${dateUtil} ${timeFormat} 0)
+
+#end
+## parse file command here is to pull in mile marker info
+## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
 
 #if(${list.contains(${bullets}, "addRainfall")})
 ADDITIONAL RAINFALL OF !** Edit Amount **! INCHES IS EXPECTED OVER THE AREA.  THIS ADDITIONAL RAIN WILL MAKE MINOR FLOODING.
@@ -480,12 +576,6 @@ MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!.
 #drainages(${riverdrainages})
 
 #end
-
-## parse file command here is to pull in mile marker info
-## #parse("mileMarkers.vm")
-## Uncomment below pull in point marker info
-## #parse("pointMarkers.vm")
-
 #####################
 ## CALL TO ACTIONS ##
 #####################
@@ -574,7 +664,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} ${hycType}HAS BEEN CANCELLED FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+#### GP End
 ########### END NEW HEADLINE CODE ####################
 
 !** THE HEAVY RAIN HAS ENDED (AND/OR) FLOOD WATER IS RECEDING. THEREFORE...THE FLOODING THREAT HAS ENDED. **!
@@ -609,7 +707,15 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE ${advType} REMAINS IN EFFECT UNTIL ${dateUtil.format(${expire}, ${timeFormat.clock}, 15, ${localtimezone})} FOR ##
+#### modified by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+#### GP End
 ########### END NEW HEADLINE CODE ####################
 
 #if(${productClass}=="T")
@@ -646,6 +752,8 @@ MINOR FLOODING IS OCCURRING NEAR !** Enter Location **!.
 
 ## parse file command here is to pull in mile marker info
 ## #parse("mileMarkers.vm")
+## Uncomment below to pull in point marker info
+## #parse("pointMarkers.vm")
 
 #####################
 ## CALL TO ACTIONS ##

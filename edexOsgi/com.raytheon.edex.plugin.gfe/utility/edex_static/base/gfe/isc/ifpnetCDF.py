@@ -843,7 +843,7 @@ def storeVectorWE(we, trList, file, timeRange,
     for i in xrange(len(overlappingTimes) -1, -1, -1):
         ot = overlappingTimes[i]
         if not ot in histDict:
-            del overlappingTime[i]
+            del overlappingTimes[i]
             del timeList[i]
         elif we.getGpi().isRateParm():
             durRatio = (float(timeList[i][1]-timeList[i][0]))/float((ot[1]-ot[0]))
@@ -996,7 +996,7 @@ def storeWeatherWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     for i in xrange(len(overlappingTimes) -1, -1, -1):
         ot = overlappingTimes[i]
         if not ot in histDict:
-            del overlappingTime[i]
+            del overlappingTimes[i]
             del timeList[i]
 
     # make the variable name
@@ -1081,7 +1081,7 @@ def storeDiscreteWE(we, trList, file, timeRange, databaseID, invMask, clipArea):
     for i in xrange(len(overlappingTimes) -1, -1, -1):
         ot = overlappingTimes[i]
         if not ot in histDict:
-            del overlappingTime[i]
+            del overlappingTimes[i]
             del timeList[i]
 
     # make the variable name

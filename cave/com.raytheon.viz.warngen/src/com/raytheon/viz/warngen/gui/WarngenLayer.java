@@ -200,6 +200,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * 10/29/2013  DR 16734    D. Friedman If redraw-from-hatched-area fails, don't allow the pollygon the be used.
  * 12/17/2013  DR 16567    Qinglu Lin  Added findLargestGeometry() and findLargestQuadrant(), and updated
  *                                     populateStrings() and paintText().
+ * 01/09/2014  DR 16974    D. Friedman Improve followup redraw-from-hatched-area polygons.
  * 02/07/2014  DR16090 m.gamazaychikov Added GeomMetaDataUpdateNotificationObserver class to get notification 
  *                                     when geometry file get updated to re-read them in.
  * 03/17/2014  DR16309     Qinglu Lin  Updated getWarningAreaFromPolygon(); changed searchCountyGeospatialDataAccessor) to  
@@ -3034,39 +3035,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         state.snappedToArea = false;
         if (areaHatcher != null) {
             Polygon polygon = state.getWarningPolygon();
-            polygon = tryToIntersectWithOriginalPolygon(polygon);
             areaHatcher.hatchArea(polygon, state.getWarningArea(),
                     state.getOldWarningPolygon());
         }
-    }
-
-    /**
-     * Try to determine the intersection of the given polygon with the original
-     * warning polygon. If there is no original polygon, if the result of the
-     * intersection is not a single polygon, or if a problem occurs, just return
-     * the original polygon. The purpose of this is to pass the polygon that
-     * best represents the user's intent to the polygon redrawing algorithm.
-     */
-    private Polygon tryToIntersectWithOriginalPolygon(Polygon polygon) {
-        if (state.getOldWarningPolygon() != null) {
-            try {
-                Geometry g = polygon.intersection(state.getOldWarningPolygon());
-                Polygon newPolygon = null;
-                if (g instanceof Polygon) {
-                    newPolygon = (Polygon) g;
-                } else if (g instanceof GeometryCollection
-                        && g.getNumGeometries() == 1
-                        && g.getGeometryN(0) instanceof Polygon) {
-                    newPolygon = (Polygon) g.getGeometryN(0);
-                }
-                if (newPolygon != null && newPolygon.isValid()) {
-                    polygon = newPolygon;
-                }
-            } catch (TopologyException e) {
-                // ignore
-            }
-        }
-        return polygon;
     }
 
     private Collection<GeospatialData> getDataWithFips(String fips) {
@@ -3393,6 +3364,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 uniqueFip = iter.next();
             }
         }
+    }
+
+    /**
+     * Like buildArea, but does not take inclusion filters into account.  Also
+     * returns a Geometry in lat/lon space.
+     * @param inputArea
+     * @return
+     */
+    public Geometry buildIdealArea(Geometry inputArea) {
+        Geometry localHatchedArea = latLonToLocal(inputArea);
+        Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
+        Geometry newHatchedArea = null;
+
+        for (GeospatialData f : geoData.features) {
+            // get the geometry of the county and make sure it intersects
+            // with our hatched area
+            PreparedGeometry prepGeom = (PreparedGeometry) f.attributes
+                    .get(GeospatialDataList.LOCAL_PREP_GEOM);
+            Geometry intersection = null;
+            try {
+                // Get intersection between county and hatched boundary
+                intersection = GeometryUtil.intersection(localHatchedArea, prepGeom);
+                if (oldWarningArea != null) {
+                    intersection = GeometryUtil.intersection(intersection,
+                            oldWarningArea);
+                }
+            } catch (RuntimeException e) {
+                continue;
+                // This is a workaround for JTS 1.7.1
+            }
+
+            newHatchedArea = union(newHatchedArea, intersection);
+        }
+        Geometry result = newHatchedArea != null ? newHatchedArea : new GeometryFactory()
+            .createGeometryCollection(new Geometry[0]);
+        return localToLatLon(result);
     }
 
     /** 

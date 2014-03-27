@@ -19,11 +19,11 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth.handler;
 
-import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SiteSubscriptionQuery;
 import com.raytheon.uf.common.datadelivery.registry.handlers.SiteSubscriptionHandler;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * {@link IRegistryObjectHandler} implementation for {@link SiteSubscription}.
@@ -37,6 +37,7 @@ import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2013 2545       bgonzale    Initial creation.
+ * Feb 11, 2014 2771       bgonzale    Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -51,7 +52,7 @@ public class LocalSiteSubscriptionHandler extends SiteSubscriptionHandler {
      * Default Constructor.
      */
     public LocalSiteSubscriptionHandler() {
-        this(SiteUtil.getSite());
+        this(DataDeliveryIdUtil.getId());
     }
 
     /**

@@ -18,6 +18,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObjectAssociation;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.MapValuesResolver;
@@ -40,6 +41,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 22, 2012 0743       djohnson     Store data type as an enum.
  * Sep 07, 2012 1102       djohnson     Remove invalid {@code @XmlRootElement}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
+ * Dec 18, 2013 2636       mpduff       Add a data availability delay for the dataset.
+ * jan 23, 2013   2584     dhladky     Versions.
  * 
  * </pre>
  * 
@@ -49,7 +52,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "providerName", "collectionName", "dataSetName" })
-public abstract class DataSet<T extends Time, C extends Coverage>{
+@RegistryObjectVersion(value = 1.0f)
+public abstract class DataSet<T extends Time, C extends Coverage> {
 
     @RegistryObjectOwner
     @XmlAttribute
@@ -93,6 +97,11 @@ public abstract class DataSet<T extends Time, C extends Coverage>{
     @SlotAttribute
     @SlotAttributeConverter(TimeSlotConverter.class)
     protected T time;
+
+    @XmlElement
+    @DynamicSerializeElement
+    @SlotAttribute
+    protected int availabilityOffset;
 
     public Map<String, Parameter> getParameters() {
         return parameters;
@@ -156,6 +165,21 @@ public abstract class DataSet<T extends Time, C extends Coverage>{
      * @return the serviceType
      */
     public abstract ServiceType getServiceType();
+
+    /**
+     * @return the availabilityOffset
+     */
+    public int getAvailabilityOffset() {
+        return availabilityOffset;
+    }
+
+    /**
+     * @param availabilityOffset
+     *            the availabilityOffset to set
+     */
+    public void setAvailabilityOffset(int availabilityOffset) {
+        this.availabilityOffset = availabilityOffset;
+    }
 
     @Override
     public boolean equals(Object obj) {

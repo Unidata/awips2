@@ -28,7 +28,9 @@ package com.raytheon.uf.common.comm;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 4, 2013    1786     mpduff      Initial creation
+ * Mar 04, 2013    1786     mpduff      Initial creation
+ * Feb 10, 2014    2704     njensen     Added credentialsFailed()
+ * 
  * 
  * </pre>
  * 
@@ -48,4 +50,6 @@ public interface IHttpsCredentialsHandler {
      * @return String Array, username and password
      */
     String[] getCredentials(String authValue);
+
+    void credentialsFailed();
 }

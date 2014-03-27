@@ -13,8 +13,8 @@
  -->
  
 <CcfpTimes>
-	<Time issue="1500" valid1="1700" valid2="1900" valid3="2100" />
-	<Time issue="1900" valid1="2100" valid2="2300" valid3="0100" />
-	<Time issue="2300" valid1="0100" valid2="0300" valid3="0500" />
-	<Time issue="0300" valid1="0500" valid2="0700" />
+	<Time issue="1500" valid1="1900" valid2="2100" valid3="2300" />
+	<Time issue="1900" valid1="2300" valid2="0100" valid3="0300" />
+	<Time issue="2300" valid1="0300" valid2="0500" valid3="0700" />
+	<Time issue="0300" valid1="0700" valid2="0900" />
 </CcfpTimes>

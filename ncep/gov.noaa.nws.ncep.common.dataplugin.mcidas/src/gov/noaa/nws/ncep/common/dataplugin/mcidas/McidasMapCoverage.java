@@ -14,8 +14,8 @@
  * 12/2009		144			T. Lee		Migrated to TO11D6
  * 01/2010	    201		    M. Li		Split into dataplugin project
  * 05/2010		144			L. Lin		Migration to TO11DR11.
+ * 11/2013      1066        G. Hull     call constructCRSfromWKT
  * Nov 14, 2013 2393        bclement    added getGridGeometry()
- *    
  * </pre>
  */
 
@@ -24,8 +24,6 @@ package gov.noaa.nws.ncep.common.dataplugin.mcidas;
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
 
 import java.awt.geom.Rectangle2D;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -69,16 +67,18 @@ import com.vividsolutions.jts.geom.Polygon;
 @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class McidasMapCoverage extends PersistableDataObject implements ISpatialObject {
+public class McidasMapCoverage extends PersistableDataObject implements
+        ISpatialObject {
 
     private static final long serialVersionUID = 1;
+
     @Id
     private int pid;
 
     /**
-     * The projection of the map coverage 1 = Mercator, 3 = Lambert Conformal or TANC
-     * 5 = Polar Stereographic
-     * 7585 = native satellite navigation e.g. GVAR, ...
+     * The projection of the map coverage 1 = Mercator, 3 = Lambert Conformal or
+     * TANC 5 = Polar Stereographic 7585 = native satellite navigation e.g.
+     * GVAR, ...
      */
     @Column
     @XmlAttribute
@@ -96,7 +96,7 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     @XmlAttribute
     @DynamicSerializeElement
     private Integer ny;
-       
+
     /** The pixel resolution of the image */
     @Column
     @XmlAttribute
@@ -116,10 +116,11 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     private Float clon;
 
     /**
-     * The standard latitude 1.  For the Lambert Conformal projection this is the latitude
-     * of the proection cone intersects the earth. For the Polar Stereographic this is the 
-     * latitude at which projection plan intersects the earth. For Mercator this is the 
-     * latitude at which the Mercator projection cylinder intersects the earth.
+     * The standard latitude 1. For the Lambert Conformal projection this is the
+     * latitude of the proection cone intersects the earth. For the Polar
+     * Stereographic this is the latitude at which projection plan intersects
+     * the earth. For Mercator this is the latitude at which the Mercator
+     * projection cylinder intersects the earth.
      */
     @Column
     @XmlAttribute
@@ -127,14 +128,14 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     private Float stdlat1;
 
     /**
-     * The standard latitude 2 is the second latitude of a secant cone which intersects the
-     * earth for the Lambert Conformal projection. 
+     * The standard latitude 2 is the second latitude of a secant cone which
+     * intersects the earth for the Lambert Conformal projection.
      */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private Float stdlat2;
-    
+
     /** The latitude of the lower-left corner */
     @Column
     @XmlAttribute
@@ -158,31 +159,31 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     @XmlAttribute
     @DynamicSerializeElement
     private Float urlon;
-    
+
     /** image element coordinate of area line 0, element 0 */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int upperLeftElement;
-    
+
     /** image line coordinate of area line 0, element 0 */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int upperLeftLine;
-    
+
     /** element resolution */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int elementRes;
-    
+
     /** line resolution */
     @Column
     @XmlAttribute
     @DynamicSerializeElement
     private int lineRes;
-    
+
     @Column(length = 5120)
     @XmlAttribute
     @DynamicSerializeElement
@@ -245,9 +246,10 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
      * @param geometry
      *            The geometry
      */
-    public McidasMapCoverage(Integer projection, Integer nx, Integer ny, Float dx,
-            Float dy, Float clon, Float stdlat1, Float stdlat2, Float lllat, Float lllon, 
-            Float urlat,Float urlon, CoordinateReferenceSystem crs, Geometry geometry) {
+    public McidasMapCoverage(Integer projection, Integer nx, Integer ny,
+            Float dx, Float dy, Float clon, Float stdlat1, Float stdlat2,
+            Float lllat, Float lllon, Float urlat, Float urlon,
+            CoordinateReferenceSystem crs, Geometry geometry) {
         this.projection = projection;
         this.nx = nx;
         this.ny = ny;
@@ -274,19 +276,27 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
      * Constructs a new SatMapCoverage Object for native satellite navigation
      * 
      * @param mapProjection
-     * @param nx The number of horizontal scan lines
-     * @param ny The number vertical scan lines
-     * @param reflon Reference Longitude
-     * @param upperLeftElement image element coordinate of area line 0, element 0
-     * @param upperLeftLine image line coordinate of area line 0, element 0
-     * @param xres Element resolution
-     * @param yres Line resolution
-     * @param crs The coordinate reference system
+     * @param nx
+     *            The number of horizontal scan lines
+     * @param ny
+     *            The number vertical scan lines
+     * @param reflon
+     *            Reference Longitude
+     * @param upperLeftElement
+     *            image element coordinate of area line 0, element 0
+     * @param upperLeftLine
+     *            image line coordinate of area line 0, element 0
+     * @param xres
+     *            Element resolution
+     * @param yres
+     *            Line resolution
+     * @param crs
+     *            The coordinate reference system
      * @param geometry
      */
     public McidasMapCoverage(Integer projection, Integer nx, Integer ny,
-			Float reflon, int upperLeftElement, int upperLeftLine, int xres,
-			int yres, ProjectedCRS crs, Geometry geometry) {
+            Float reflon, int upperLeftElement, int upperLeftLine, int xres,
+            int yres, ProjectedCRS crs, Geometry geometry) {
         this.projection = projection;
         this.nx = nx;
         this.ny = ny;
@@ -307,10 +317,10 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
         this.crsWKT = crsObject.toWKT();
         this.location = (Polygon) geometry;
         pid = this.hashCode();
-	}
+    }
 
     @Override
-	public int hashCode() {
+    public int hashCode() {
         HashCodeBuilder hashBuilder = new HashCodeBuilder();
         hashBuilder.append(projection);
         hashBuilder.append(nx);
@@ -342,39 +352,9 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
         if (crsObject == null) {
             try {
                 crsObject = CRS.parseWKT(crsWKT);
-                // ReferencingFactoryFinder.getCRSFactory(null).createFromWKT(crsWKT); 
             } catch (Exception e) {
-            	/*
-            	 * parseWKT() doesn't recognize PROJCS PARAMETERS whose value is a "String" (it
-            	 * assumes all PARAMETER values are doubles.)
-            	 * If this crsWKT is a MCIDAS NAV, use McidasSpatialFactory instead.
-            	 */
-            	//e.printStackTrace();
-                Pattern p = Pattern.compile("PROJCS\\[\"MCIDAS\\sAREA\\s(.*)\"");
-                Matcher m = p.matcher(crsWKT);
-                m.find();
-
-                if ( m.groupCount() == 1 ) {
-                	String type = m.group(1);
-                	//System.out.println("FOUND PROJCS:"+m.group(0)+":"+type);
-                	p = Pattern.compile("\\[\"NAV_BLOCK_BASE64\",\\s\"(.*)\"\\]");
-                	m = p.matcher(crsWKT);
-                	boolean found = m.find();
-
-                	//System.out.println(m.group());
-                	//System.out.println(m.groupCount()+m.group(1));
-                	if ( found ) {
-                		String navBlock = m.group(1);
-                		crsObject = McidasSpatialFactory.getInstance().constructCRS(type, navBlock);
-                	}
-                	else {
-                		crsObject = null;
-                	}
-                }
-                else {
-                	crsObject = null;
-                }
-                
+                crsObject = McidasSpatialFactory.getInstance()
+                        .constructCRSfromWKT(crsWKT);
             }
         }
         return crsObject;
@@ -466,7 +446,7 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
     public void setStdlat1(Float stdlat1) {
         this.stdlat1 = stdlat1;
     }
-    
+
     public Float getStdlat2() {
         return stdlat2;
     }
@@ -541,73 +521,78 @@ public class McidasMapCoverage extends PersistableDataObject implements ISpatial
         this.ny = ny;
     }
 
-    
     /**
-	 * @return the upperLeftElement
-	 */
-	public int getUpperLeftElement() {
-		return upperLeftElement;
-	}
+     * @return the upperLeftElement
+     */
+    public int getUpperLeftElement() {
+        return upperLeftElement;
+    }
 
-	/**
-	 * @param upperLeftElement the upperLeftElement to set
-	 */
-	public void setUpperLeftElement(int upperLeftElement) {
-		this.upperLeftElement = upperLeftElement;
-	}
+    /**
+     * @param upperLeftElement
+     *            the upperLeftElement to set
+     */
+    public void setUpperLeftElement(int upperLeftElement) {
+        this.upperLeftElement = upperLeftElement;
+    }
 
-	/**
-	 * @return the upperLeftLine
-	 */
-	public int getUpperLeftLine() {
-		return upperLeftLine;
-	}
+    /**
+     * @return the upperLeftLine
+     */
+    public int getUpperLeftLine() {
+        return upperLeftLine;
+    }
 
-	/**
-	 * @param upperLeftLine the upperLeftLine to set
-	 */
-	public void setUpperLeftLine(int upperLeftLine) {
-		this.upperLeftLine = upperLeftLine;
-	}
+    /**
+     * @param upperLeftLine
+     *            the upperLeftLine to set
+     */
+    public void setUpperLeftLine(int upperLeftLine) {
+        this.upperLeftLine = upperLeftLine;
+    }
 
-	/**
-	 * @return the elementRes
-	 */
-	public int getElementRes() {
-		return elementRes;
-	}
+    /**
+     * @return the elementRes
+     */
+    public int getElementRes() {
+        return elementRes;
+    }
 
-	/**
-	 * @param elementRes the elementRes to set
-	 */
-	public void setElementRes(int elementRes) {
-		this.elementRes = elementRes;
-	}
+    /**
+     * @param elementRes
+     *            the elementRes to set
+     */
+    public void setElementRes(int elementRes) {
+        this.elementRes = elementRes;
+    }
 
-	/**
-	 * @return the lineRes
-	 */
-	public int getLineRes() {
-		return lineRes;
-	}
+    /**
+     * @return the lineRes
+     */
+    public int getLineRes() {
+        return lineRes;
+    }
 
-	/**
-	 * @param lineRes the lineRes to set
-	 */
-	public void setLineRes(int lineRes) {
-		this.lineRes = lineRes;
-	}
+    /**
+     * @param lineRes
+     *            the lineRes to set
+     */
+    public void setLineRes(int lineRes) {
+        this.lineRes = lineRes;
+    }
 
-	public String getCrsWKT() {
+    public String getCrsWKT() {
         return crsWKT;
     }
 
     public void setCrsWKT(String crsWKT) {
-    	//TODO new 2.6 version of geotools adds \r\n to long String parameters in WKT format
-    	// this temp hack removes the extraneous characters, but we may want to investigate
-    	// using a specific formatter to keep this consistent and in our control
+        // TODO new 2.6 version of geotools adds \r\n to long String parameters
+        // in WKT format
+        // this temp hack removes the extraneous characters, but we may want to
+        // investigate
+        // using a specific formatter to keep this consistent and in our control
         this.crsWKT = crsWKT.replaceAll("\r\n", "");
-        //this.crsWKT = crsWKT;
+        // this.crsWKT = crsWKT;
     }
 
     public Polygon getLocation() {

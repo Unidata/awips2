@@ -1,0 +1,26 @@
+!
+! Restore File : 0_btot
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=0
+GVCORD=hght
+SKIP=
+FILTER=y
+SCALE=7     
+GDPFUN=btot
+TYPE=f  
+CINT=1/6/1000
+LINE=31/1/1/1
+FINT=5/520/560
+FLINE=1;2;3;4;5;6;7;8;9;10;11;12;13;14
+HILO=
+HLSYM=     
+CLRBAR=1
+WIND=
+TITLE=5/-1/~  
+TEXT=1/21/1/hw
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

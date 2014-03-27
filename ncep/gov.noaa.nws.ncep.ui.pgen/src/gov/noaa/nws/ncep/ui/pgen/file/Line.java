@@ -5,11 +5,11 @@
 // Generated on: 2009.05.07 at 03:21:18 PM EDT 
 //
 
-
 package gov.noaa.nws.ncep.ui.pgen.file;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -17,11 +17,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
+ * <p>
+ * Java class for anonymous complex type.
  * 
- * <p>The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ * The following schema fragment specifies the expected content contained within
+ * this class.
  * 
  * <pre>
  * &lt;complexType>
@@ -47,55 +49,68 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "color",
-    "point"
-})
+@XmlType(name = "", propOrder = { "color", "point" })
 @XmlRootElement(name = "Line")
 public class Line {
 
     @XmlElement(name = "Color", required = true)
     protected List<Color> color;
+
     @XmlElement(name = "Point", required = true)
     protected List<Point> point;
+
+    @XmlAttribute
+    protected Double kinkPosition;
+
+    @XmlAttribute
+    protected String arrowHeadType;
+
     @XmlAttribute
     protected boolean flipSide = false;
+
     @XmlAttribute
     protected String fillPattern;
+
     @XmlAttribute
     protected Boolean filled;
+
     @XmlAttribute
     protected Boolean closed;
+
     @XmlAttribute
     protected Integer smoothFactor;
+
     @XmlAttribute
     protected Double sizeScale;
+
     @XmlAttribute
     protected Float lineWidth;
+
     @XmlAttribute
     protected String pgenCategory;
+
     @XmlAttribute
     protected String pgenType;
-    
+
     /**
      * Gets the value of the color property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the color property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the color property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getColor().add(newItem);
+     * getColor().add(newItem);
      * </pre>
      * 
      * 
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Color }
+     * Objects of the following type(s) are allowed in the list {@link Color }
      * 
      * 
      */
@@ -110,21 +125,21 @@ public class Line {
      * Gets the value of the point property.
      * 
      * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the point property.
+     * This accessor method returns a reference to the live list, not a
+     * snapshot. Therefore any modification you make to the returned list will
+     * be present inside the JAXB object. This is why there is not a
+     * <CODE>set</CODE> method for the point property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
+     * 
      * <pre>
-     *    getPoint().add(newItem);
+     * getPoint().add(newItem);
      * </pre>
      * 
      * 
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Point }
+     * Objects of the following type(s) are allowed in the list {@link Point }
      * 
      * 
      */
@@ -138,10 +153,8 @@ public class Line {
     /**
      * Gets the value of the pgenType property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getPgenType() {
         return pgenType;
@@ -151,9 +164,8 @@ public class Line {
      * Sets the value of the pgenType property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setPgenType(String value) {
         this.pgenType = value;
@@ -162,10 +174,8 @@ public class Line {
     /**
      * Gets the value of the fillPattern property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getFillPattern() {
         return fillPattern;
@@ -175,9 +185,8 @@ public class Line {
      * Sets the value of the fillPattern property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setFillPattern(String value) {
         this.fillPattern = value;
@@ -186,10 +195,8 @@ public class Line {
     /**
      * Gets the value of the filled property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     * @return possible object is {@link Boolean }
+     * 
      */
     public Boolean isFilled() {
         return filled;
@@ -199,9 +206,8 @@ public class Line {
      * Sets the value of the filled property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *            allowed object is {@link Boolean }
+     * 
      */
     public void setFilled(Boolean value) {
         this.filled = value;
@@ -210,10 +216,8 @@ public class Line {
     /**
      * Gets the value of the closed property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Boolean }
-     *     
+     * @return possible object is {@link Boolean }
+     * 
      */
     public Boolean isClosed() {
         return closed;
@@ -223,9 +227,8 @@ public class Line {
      * Sets the value of the closed property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Boolean }
-     *     
+     *            allowed object is {@link Boolean }
+     * 
      */
     public void setClosed(Boolean value) {
         this.closed = value;
@@ -234,10 +237,8 @@ public class Line {
     /**
      * Gets the value of the smoothFactor property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
+     * @return possible object is {@link Integer }
+     * 
      */
     public Integer getSmoothFactor() {
         return smoothFactor;
@@ -247,9 +248,8 @@ public class Line {
      * Sets the value of the smoothFactor property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
+     *            allowed object is {@link Integer }
+     * 
      */
     public void setSmoothFactor(Integer value) {
         this.smoothFactor = value;
@@ -258,10 +258,8 @@ public class Line {
     /**
      * Gets the value of the sizeScale property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Double }
-     *     
+     * @return possible object is {@link Double }
+     * 
      */
     public Double getSizeScale() {
         return sizeScale;
@@ -271,9 +269,8 @@ public class Line {
      * Sets the value of the sizeScale property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Double }
-     *     
+     *            allowed object is {@link Double }
+     * 
      */
     public void setSizeScale(Double value) {
         this.sizeScale = value;
@@ -282,10 +279,8 @@ public class Line {
     /**
      * Gets the value of the lineWidth property.
      * 
-     * @return
-     *     possible object is
-     *     {@link Float }
-     *     
+     * @return possible object is {@link Float }
+     * 
      */
     public Float getLineWidth() {
         return lineWidth;
@@ -295,9 +290,8 @@ public class Line {
      * Sets the value of the lineWidth property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link Float }
-     *     
+     *            allowed object is {@link Float }
+     * 
      */
     public void setLineWidth(Float value) {
         this.lineWidth = value;
@@ -306,10 +300,8 @@ public class Line {
     /**
      * Gets the value of the pgenCategory property.
      * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return possible object is {@link String }
+     * 
      */
     public String getPgenCategory() {
         return pgenCategory;
@@ -319,26 +311,66 @@ public class Line {
      * Sets the value of the pgenCategory property.
      * 
      * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *            allowed object is {@link String }
+     * 
      */
     public void setPgenCategory(String value) {
         this.pgenCategory = value;
     }
 
-	/**
-	 * @return the flipSide
-	 */
-	public boolean isFlipSide() {
-		return flipSide;
-	}
+    /**
+     * @return the flipSide
+     */
+    public boolean isFlipSide() {
+        return flipSide;
+    }
 
-	/**
-	 * @param flipSide the flipSide to set
-	 */
-	public void setFlipSide(boolean flipSide) {
-		this.flipSide = flipSide;
-	}
+    /**
+     * @param flipSide
+     *            the flipSide to set
+     */
+    public void setFlipSide(boolean flipSide) {
+        this.flipSide = flipSide;
+    }
+
+    /**
+     * Gets the value of the arrowHeadType property.
+     * 
+     * @return possible object is {@link String }
+     * 
+     */
+    public String getArrowHeadType() {
+        return arrowHeadType;
+    }
+
+    /**
+     * Sets the value of the arrowHeadTYpe property.
+     * 
+     * @param value
+     *            allowed object is {@link String }
+     * 
+     */
+    public void setArrowHeadType(String value) {
+        this.arrowHeadType = value;
+    }
+
+    /**
+     * Gets the value of the kinkPosition property.
+     * 
+     * @return possible object is {@link Double }
+     * 
+     */
+    public Double getKinkPosition() {
+        return kinkPosition;
+    }
+
+    /*
+     * y Sets the value of the kinkPosition property.
+     * 
+     * @param value allowed object is {@link Double }
+     */
+    public void setKinkPosition(Double value) {
+        this.kinkPosition = value;
+    }
 
 }

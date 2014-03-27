@@ -1,6 +1,6 @@
 # Product Discipline 10: Oceanographic products, Parameter Category 3: Surface Properties
 #192-254 Reserved for local use
-192:192:Surge 10% Exceedance Ht:m:Surge
+192:192:Surge Height:m:Surge
 193:193:Extra Tropical Storm Surge:m:ETSRG
 194:194:Ocean Surface Elevation Relative to Geoid:m:ELEV
 195:195:Sea Surface Height Relative to Geoid:m:SSHG
@@ -11,13 +11,13 @@
 200:200:Surface Salinity Trend:psu per day:SSST
 201:201:Kinetic Energy:J/kg:KENG
 202:202:Salt Flux:mm*s:SLTFL
-242:242:Surge 20% Exceedance Ht:m:Surge
-243:243:Surge 30% Exceedance Ht:m:Surge
-244:244:Surge 40% Exceedance Ht:m:Surge
-245:245:Surge 50% Exceedance Ht:m:Surge
-246:246:Surge 60% Exceedance Ht:m:Surge
-247:247:Surge 70% Exceedance Ht:m:Surge
-248:248:Surge 80% Exceedance Ht:m:Surge
-249:249:Surge 90% Exceedance Ht:m:Surge
+242:242:Surge Height:m:Surge
+243:243:Surge Height:m:Surge
+244:244:Surge Height:m:Surge
+245:245:Surge Height:m:Surge
+246:246:Surge Height:m:Surge
+247:247:Surge Height:m:Surge
+248:248:Surge Height:m:Surge
+249:249:Surge Height:m:Surge
 250:250:Extra Tropical Storm Surge Combined Surge and Tide:m:ETCWL
 255:255:Missing

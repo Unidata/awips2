@@ -313,6 +313,16 @@
                     <Point Lat="19.282701554968984" Lon="-112.48852999239747"/>
                     <Point Lat="19.853243101176776" Lon="-108.33312442667157"/>
                 </Line>
+                <Line pgenType="KINK_LINE_1" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false" arrowHeadType="OPEN" kinkPosition="0.5">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="42.216395906820196" Lon="-110.94870254887984"/>
+                    <Point Lat="40.16867459395568" Lon="-100.55653112449869"/>
+                </Line>
+                <Line pgenType="KINK_LINE_2" pgenCategory="Lines" lineWidth="2.0" sizeScale="1.0" smoothFactor="0" closed="false" filled="false" fillPattern="SOLID" flipSide="false" arrowHeadType="FILLED" kinkPosition="0.5">
+                    <Color red="255" green="0" blue="0" alpha="255"/>
+                    <Point Lat="37.577991351665105" Lon="-111.39813436950983"/>
+                    <Point Lat="36.413201252941406" Lon="-99.82243392673534"/>
+                </Line>                
                 <Symbol pgenCategory="Symbol" pgenType="PRESENT_WX_088" lineWidth="2.0" sizeScale="1.0" clear="true">
                     <Color red="0" green="255" blue="0" alpha="255"/>
                     <Color red="0" green="255" blue="0" alpha="255"/>

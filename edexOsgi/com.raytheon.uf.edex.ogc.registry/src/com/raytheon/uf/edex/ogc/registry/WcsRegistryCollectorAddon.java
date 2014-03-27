@@ -28,6 +28,8 @@ import java.util.Set;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSetMetaData;
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.retrieval.util.LookupManager;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
@@ -52,6 +55,7 @@ import com.raytheon.uf.edex.ogc.common.interfaces.IWCSMetaData;
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2013            bclement     Initial creation
  * Aug 18, 2013  #2097     dhladky      Adapted to AWIPS
+ * Jan 13, 2014  #2679     dhladky      Multiple layers
  * 
  * </pre>
  * 
@@ -69,16 +73,14 @@ public class WcsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
     protected GriddedDataSetMetaData gdsmd = null;
 
     protected Time time = null;
+    
+    public WcsRegistryCollectorAddon() {
+        super();
+    }
 
     @Override
     protected void setCoverage(L layer) {
         // TODO: NOt yet implemented
-    }
-
-    @Override
-    protected Coverage getCoverage() {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override
@@ -94,16 +96,6 @@ public class WcsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
     @Override
     public DataType getDataType() {
         return DataType.GRID;
-    }
-
-    @Override
-    public GriddedDataSet getDataSet() {
-        return gds;
-    }
-
-    @Override
-    public GriddedDataSetMetaData getDataSetMetaData() {
-        return gdsmd;
     }
 
     // TODO implement this when we do WCS
@@ -136,8 +128,7 @@ public class WcsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
             levels.setDz(dz);
 
         } catch (Exception e) {
-            statusHandler.error("Level info" + collectionName + " url: "
-                    + getDataSetMetaData().getUrl(), e);
+            statusHandler.error("Level info" + collectionName + ":", e);
         }
 
         return levels;
@@ -203,6 +194,36 @@ public class WcsRegistryCollectorAddon<D extends SimpleDimension, L extends Simp
     public void sendMetaData(Map<String, L> layermap, Collection<R> coll) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    protected Coverage getCoverage(String layerName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected DataSet<?, ?> getDataSet(String layerName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    protected DataSetMetaData<?> getDataSetMetaData(String layerName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String isWithinLayer(R record) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public ISpatialObject getSpatial(R record) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

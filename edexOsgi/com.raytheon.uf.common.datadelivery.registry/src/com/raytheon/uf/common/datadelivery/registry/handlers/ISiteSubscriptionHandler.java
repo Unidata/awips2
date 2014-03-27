@@ -19,8 +19,8 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
-import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.registry.handler.IRegistryObjectHandler;
 
 /**
