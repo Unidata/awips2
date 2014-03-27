@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.bandwidth;
 
 import java.io.File;
 
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
@@ -28,6 +29,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthContextFactory;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthBucketDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 
 /**
  * The {@link BandwidthContextFactory} implementation for integration tests.
@@ -43,6 +45,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
  * Jun 25, 2013 2106       djohnson     Add {@link IBandwidthBucketDao}.
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Nov 07, 2013 2506       bgonzale     Added notification handler to bandwidth context.
+ * Jan 30, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -71,11 +74,14 @@ public class IntegrationTestBandwidthContextFactory extends
             IBandwidthDbInit dbInit,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
-            ISubscriptionNotificationService notificationService) {
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
+            ISubscriptionNotificationService notificationService,
+            IFindSubscriptionsForScheduling findSubscriptionStrategy) {
         super(bandwidthDao, bandwidthBucketsDao,
                 new IntegrationTestBandwidthInitializer(),
                 bandwidthManagerCreator, dbInit, dataSetMetaDataHandler,
-                subscriptionHandler, notificationService);
+                subscriptionHandler, adhocSubscriptionHandler,
+                notificationService, findSubscriptionStrategy);
     }
 
     /**
@@ -93,6 +99,6 @@ public class IntegrationTestBandwidthContextFactory extends
      */
     public static File getIntegrationTestBandwidthMapConfigFile() {
         return new IntegrationTestBandwidthContextFactory(null, null, null,
-                null, null, null, null).getBandwidthMapConfigFile();
+                null, null, null, null, null, null).getBandwidthMapConfigFile();
     }
 }

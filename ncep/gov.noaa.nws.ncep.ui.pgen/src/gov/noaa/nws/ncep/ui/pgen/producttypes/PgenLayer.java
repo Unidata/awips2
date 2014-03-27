@@ -62,8 +62,18 @@ public class PgenLayer {
     protected Boolean onOff;
     @XmlAttribute(name = "Name")
     protected String name;
+    @XmlAttribute(name = "MetaInfo")
+    protected String metaInfo;
+    
+    public String getMetaInfo() {
+		return metaInfo;
+	}
 
-    /**
+	public void setMetaInfo(String metaInfo) {
+		this.metaInfo = metaInfo;
+	}
+
+	/**
      * Gets the value of the color property.
      * 
      * @return

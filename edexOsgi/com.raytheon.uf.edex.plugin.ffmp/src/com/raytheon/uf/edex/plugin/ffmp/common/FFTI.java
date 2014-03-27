@@ -53,8 +53,9 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2011            dhladky      Initial creation
  * July 13, 2012           dhladky      Revamped to help memory
- * 02/01/13  1569          D. Hladky   Added constants
+ * 02/01/13  1569          D. Hladky    Added constants
  * 02/25/13  1660          D. Hladky    Moved FFTI processing to help with mosaic memory usage
+ * 01/10/14     2359       njensen      Fix exception logging
  * 
  * </pre>
  * 
@@ -235,8 +236,8 @@ public class FFTI implements Runnable {
 
                     for (int j = 0; j < sites.size(); j++) {
 
-                        FFTIAccum faccum = ffmpgen.getAccumulationForSite(displayName,
-                                sites.get(j), dataKey, duration,
+                        FFTIAccum faccum = ffmpgen.getAccumulationForSite(
+                                displayName, sites.get(j), dataKey, duration,
                                 source.getUnit());
 
                         if (faccum != null) {
@@ -278,8 +279,8 @@ public class FFTI implements Runnable {
                 source = ffmpgen.getSourceConfig().getSourceByDisplayName(
                         fftiSourceKey);
 
-                accum = ffmpgen.getAccumulationForSite(fftiSourceKey, fftiSiteKey,
-                        fftiSiteKey, duration, source.getUnit());
+                accum = ffmpgen.getAccumulationForSite(fftiSourceKey,
+                        fftiSiteKey, fftiSiteKey, duration, source.getUnit());
 
                 if (accum != null) {
                     accum.setUnit(source.getUnit());
@@ -430,11 +431,11 @@ public class FFTI implements Runnable {
                 }
             }
         } catch (Exception e) {
-            statusHandler.handle(
-                    Priority.ERROR,
-                    "Failed to evaluate Ratio/Diff. "
-                            + attribute.getAttributeName() + ": " + displayName
-                            + "\n" + e);
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Failed to evaluate Ratio/Diff. "
+                                    + attribute.getAttributeName() + ": "
+                                    + displayName, e);
         }
     }
 
@@ -521,8 +522,10 @@ public class FFTI implements Runnable {
             }
         } catch (Exception e) {
             statusHandler
-                    .handle(Priority.ERROR, "failed to transmit FFTI alert. "
-                            + attribute.getAttributeName() + " Value: " + value);
+                    .handle(Priority.ERROR,
+                            "failed to transmit FFTI alert. "
+                                    + attribute.getAttributeName() + " Value: "
+                                    + value, e);
         }
     }
 
@@ -576,8 +579,10 @@ public class FFTI implements Runnable {
             }
         } catch (Exception e) {
             statusHandler
-                    .handle(Priority.ERROR, "failed to transmit FFTI alert. "
-                            + attribute.getAttributeName() + " Value: " + value);
+                    .handle(Priority.ERROR,
+                            "failed to transmit FFTI alert. "
+                                    + attribute.getAttributeName() + " Value: "
+                                    + value, e);
         }
     }
 
@@ -649,8 +654,8 @@ public class FFTI implements Runnable {
                 ffmpgen.logger.debug("FFTI: finsihed evaluating sources");
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "failed to evaluate FFTI. "
-                    + e);
+            statusHandler
+                    .handle(Priority.ERROR, "failed to evaluate FFTI. ", e);
         } finally {
             ffmpgen.fftiSources.clear();
             ffmpgen.fftiDone = true;
@@ -787,7 +792,8 @@ public class FFTI implements Runnable {
      * @return
      */
     public static Double getGap(FFMPDataContainer qpeContainer,
-            SourceXML ffmpQSource, Date curdate, double duration, String qSiteKey) {
+            SourceXML ffmpQSource, Date curdate, double duration,
+            String qSiteKey) {
 
         long timeBack = (long) (duration * TimeUtil.MILLIS_PER_HOUR);
         Date backDate = new Date(curdate.getTime() - timeBack);

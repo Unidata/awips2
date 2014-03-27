@@ -35,10 +35,12 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.Levels;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -48,7 +50,7 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleDimension;
 import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
 
 /**
- * TODO Add Description
+ * Collector Used to gather data with DPA, used for AWIPS registry data feeds from providers.
  * 
  * <pre>
  * 
@@ -58,6 +60,7 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
  * ------------ ---------- ----------- --------------------------
  * Jul 23, 2013            bclement     Initial creation
  * Aug 08, 2013            dhladky      Made operational
+ * Jan 13, 2014  #2679     dhladky      multiple layers
  * 
  * </pre>
  * 
@@ -108,7 +111,7 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
      * @param metaDatas
      * @param dataSet
      */
-    public void storeMetaData(final DataSetMetaData metaData) {
+    public void storeMetaData(final DataSetMetaData<?> metaData) {
 
         IDataSetMetaDataHandler handler = DataDeliveryHandlers
                 .getDataSetMetaDataHandler();
@@ -132,7 +135,7 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
      * 
      * @param dataSetToStore
      */
-    protected void storeDataSetName(DataSet dataSetToStore) {
+    protected void storeDataSetName(DataSet<?, ?> dataSetToStore) {
 
         DataSetName dsn = new DataSetName();
         // Set the RegistryObject Id keys for this Object
@@ -158,9 +161,9 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
     /**
      * @param dataSet
      */
-    protected void storeDataSet(final DataSet dataSet) {
+    protected void storeDataSet(final DataSet<?, ?> dataSet) {
 
-        DataSet dataSetToStore = getDataSetToStore(dataSet);
+        DataSet<?, ?> dataSetToStore = getDataSetToStore(dataSet);
         final String dataSetName = dataSetToStore.getDataSetName();
         IDataSetHandler handler = DataDeliveryHandlers.getDataSetHandler();
 
@@ -200,9 +203,11 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
      *            the dataSet
      * @return the dataSet instance that should be stored to the registry
      */
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected DataSet getDataSetToStore(DataSet dataSet) {
         try {
-            DataSet result = DataDeliveryHandlers.getDataSetHandler()
+            DataSet<Time, Coverage> result = DataDeliveryHandlers.getDataSetHandler()
                     .getByNameAndProvider(dataSet.getDataSetName(),
                             dataSet.getProviderName());
             if (result != null) {
@@ -244,7 +249,7 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
 
     protected abstract void setCoverage(L layer);
 
-    protected abstract Coverage getCoverage();
+    protected abstract Coverage getCoverage(String layerName);
 
     public void setParameters(L layer) {
         synchronized (layer) {
@@ -266,11 +271,11 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
 
     protected abstract void setDataSet(L layer);
 
-    protected abstract DataSet getDataSet();
+    protected abstract DataSet<?, ?> getDataSet(String layerName);
 
     protected abstract void setDataSetMetaData(L layer);
 
-    protected abstract DataSetMetaData getDataSetMetaData();
+    protected abstract DataSetMetaData<?> getDataSetMetaData(String layerName);
 
     protected abstract DataType getDataType();
 
@@ -283,5 +288,9 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
     public void setAgent(OGCAgent agent) {
         this.agent = agent;
     }
+    
+    public abstract String isWithinLayer(R record);
+    
+    public abstract ISpatialObject getSpatial(R record);
 
 }

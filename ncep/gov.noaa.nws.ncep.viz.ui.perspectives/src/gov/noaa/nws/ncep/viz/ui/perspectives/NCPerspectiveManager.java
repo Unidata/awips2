@@ -41,6 +41,7 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.commands.ICommandService;
 
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
+import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -52,6 +53,7 @@ import com.raytheon.uf.viz.core.IVizEditorChangedListener;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
@@ -109,7 +111,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 04/15/2013   #864        G. Hull     display warnings from RD loading.
  * 04/17/2013   #863        G. Hull     Initialize Predefined Areas
  * 11/14/2013   #2361       N. Jensen   Initialize SerializationUtil when activated
- * 
+ * 11/13/2013   #1051       G. Hull     override getTitle() to include the desk.
  * </pre>
  * 
  * @author
@@ -127,6 +129,22 @@ public class NCPerspectiveManager extends AbstractCAVEPerspectiveManager {
             .getHandler(NCPerspectiveManager.class);
 
     private IVizEditorChangedListener displayChangeListener = null;
+
+    @Override
+    protected String getTitle(String title) {
+
+        String desk = LocalizationManager.getContextName(LocalizationLevel
+                .valueOf("DESK"));
+
+        if (desk == null || desk.isEmpty() || desk.equalsIgnoreCase("none")) {
+            desk = "NONE";
+        }
+        return title + ": "
+                + LocalizationManager.getContextName(LocalizationLevel.SITE)
+                + "/" + desk + " - " + getLabel(); // is
+                                                   // page.getPerspective().getLabel()
+                                                   // which is "NCP"
+    }
 
     // Issue the newDisplay command the same as if called from the main menu
     // new Display

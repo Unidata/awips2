@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry exported="true" kind="lib" path="camel-core-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="camel-http-2.11.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="camel-http4-2.11.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="camel-jetty-2.11.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="camel-http-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="camel-http4-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="camel-jetty-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
 	<classpathentry exported="true" kind="lib" path="camel-jms-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
-	<classpathentry exported="true" kind="lib" path="camel-quartz-2.11.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="camel-spring-2.11.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="camel-quartz-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
+	<classpathentry exported="true" kind="lib" path="camel-spring-2.11.2.jar" sourcepath="apache-camel-2.11.2-src.zip"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>

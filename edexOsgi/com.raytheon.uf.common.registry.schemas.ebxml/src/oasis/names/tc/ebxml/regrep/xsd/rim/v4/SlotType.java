@@ -84,6 +84,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/2/2013     1829       bphillip    Made ExtensibleObjectType persistable, 
  *                                      modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * 1/15/2014     2613       bphillip    Removed automatically created index
  * </pre>
  * 
  * @author bphillip
@@ -96,9 +97,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL, include = "all")
 @Table(schema = RegrepUtil.EBXML_SCHEMA, name = "Slot")
-@org.hibernate.annotations.Table(appliesTo = "Slot", indexes = {
-        @Index(name = "slot_idx", columnNames = { "parent_id" }),
-        @Index(name = "value_idx", columnNames = { "value_id" }) })
+@org.hibernate.annotations.Table(appliesTo = "Slot", indexes = { @Index(name = "value_idx", columnNames = { "value_id" }) })
 public class SlotType extends ExtensibleObjectType implements
         IPersistableDataObject<String> {
 

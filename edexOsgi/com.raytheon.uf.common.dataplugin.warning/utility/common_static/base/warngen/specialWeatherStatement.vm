@@ -5,6 +5,7 @@
 ## Phil Kurimski WFO DTX  2.05.2013 (BUILD 13.2.1-5)      ##
 ## Phil Kurimski WFO DTX  9.16.2013 (BUILD 13.5.2-4)      ##
 ## Evan Bookbinder        9.18.2013 Implemented config.vm ##
+## Mike Dangelo 1/23/2014 Added blankStatement logic - default is still near-severe storm w/list of cities
 ############################################################
 ##
 ## SET SOME INITIAL VARIABLES
@@ -193,6 +194,10 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
+#if(${list.contains(${bullets}, "blankStatement")})
+... !** headline **! ...
+
+#else
 ...${describeEvent} WILL AFFECT ##
 #set($full = '')
 #foreach (${area} in ${areas})
@@ -203,6 +208,7 @@ THIS IS A TEST MESSAGE. ##
 #else
 ${full}
 #end
+#end
 
 ######################################################
 ###### Storm current location description   ##########
@@ -210,6 +216,10 @@ ${full}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
+#if(${list.contains(${bullets}, "blankStatement")})
+
+
+#else
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})...##
 ${describeMovement} WAS ##
 ##Many of the variables passed below are controlled by config.vm
@@ -231,15 +241,17 @@ ${describeMovement} WAS ##
 
 #if(${windSpeed} > 0 && ${hailSize} > 0 && ${SvsR} == "RAIN")
 ${windThreat} AND ${hailThreat}${hailTrail} ARE POSSIBLE WITH ${thisEvent}.
+
 #else
 #if(${windSpeed} > 0)
 ${windThreat} ARE POSSIBLE WITH ${thisEvent}.
+
 #end
 #if(${hailSize} > 0 && ${SvsR} == "RAIN")
 ${hailThreat}${hailTrail} IS POSSIBLE WITH ${thisEvent}.
-#end
-#end
 
+#end
+#end
 ###################################################
 ######## GENERATE PATHCAST OR CITIES LIST #########
 ###################################################
@@ -352,7 +364,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
 
-
+#end
 $$
 
 

@@ -52,6 +52,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Nov 19, 2013   2545     bgonzale    Added 'add' method stub.  Still work to do.
  * Nov 25, 2013   2545     mpduff      Finished implementing 2545.
  * Dec 11, 2013   2625     mpduff      Add error handling for no data conditions.
+ * Jan 17, 2014   2678     bgonzale    Changed merge to not check for existing network
+ *                                     mapping since SBN will be in the OPSNET mapping
  * 
  * </pre>
  * 
@@ -345,7 +347,7 @@ public class BandwidthGraphData {
     }
 
     /**
-     * Merge another Bandwidth graph data into this object.
+     * Merge another Bandwidth graph data over the data in this object.
      * 
      * @param data2
      *            The other data set to merge
@@ -355,18 +357,14 @@ public class BandwidthGraphData {
                 .getNetworkBucketMap();
 
         for (Network network : nbm.keySet()) {
-            if (!networkBucketMap.containsKey(network)) {
-                networkBucketMap.put(network, nbm.get(network));
-            }
+            networkBucketMap.put(network, nbm.get(network));
         }
 
         Map<Network, List<SubscriptionWindowData>> ndm = data2
                 .getNetworkDataMap();
 
         for (Network network : ndm.keySet()) {
-            if (!networkDataMap.containsKey(network)) {
-                networkDataMap.put(network, ndm.get(network));
-            }
+            networkDataMap.put(network, ndm.get(network));
         }
     }
 }
