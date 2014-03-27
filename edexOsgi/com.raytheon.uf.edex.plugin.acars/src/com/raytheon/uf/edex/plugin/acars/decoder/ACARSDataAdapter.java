@@ -30,13 +30,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.descriptors.BUFRDescriptor;
@@ -55,6 +54,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jan 22, 2009 1939       jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 18, 2013 2339       njensen     Index safety check in getTailNumber()
+ * Mar 27, 2014 2811       skorolev    Added check for empty message.
  * 
  * </pre>
  * 
@@ -63,6 +63,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  */
 
 public class ACARSDataAdapter {
+
+    private IUFStatusHandler logger = UFStatus
+            .getHandler(ACARSDataAdapter.class);
 
     private static final int MONTH_OFFSET = 1;
 
@@ -73,8 +76,6 @@ public class ACARSDataAdapter {
     private static final int MINUTE_OFFSET = 4;
 
     private static final int SECOND_OFFSET = 5;
-
-    private final Log logger = LogFactory.getLog(getClass());
 
     // Map detailed flight phase [0-08-009] to flight phase [0-08-004]
     private static final int[] DETAIL_PHASE_MAP = { 3, 4, 2, 3, 4, 5, 6, 5, 5,
@@ -93,8 +94,9 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
      * @param rawData
+     * @param traceId
+     * @param headers
      * @return
      */
     public PluginDataObject[] getACARSData(byte[] rawData, String traceId,
@@ -158,179 +160,180 @@ public class ACARSDataAdapter {
             Calendar timeObs = null;
             AircraftObsLocation loc = null;
             String tailNumber = null;
+            if (!subList.isEmpty()) {
+                IBUFRDataPacket packet = subList.get(0);
+                int d = packet.getReferencingDescriptor().getDescriptor();
+                if (d == BUFRDescriptor.createDescriptor(0, 1, 6)) {
+                    packet = subList.get(1);
+                    d = packet.getReferencingDescriptor().getDescriptor();
+                    if (d == BUFRDescriptor.createDescriptor(0, 2, 61)) {
+                        timeObs = getTimeObs(subList, 2, false);
+                        if (timeObs != null) {
+                            loc = getObsLocationFine(subList, 7);
+                            tailNumber = getTailNumber(subList, 21);
+                            if (loc != null) {
+                                if (tailNumber != null) {
 
-            IBUFRDataPacket packet = subList.get(0);
-            int d = packet.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 1, 6)) {
-                packet = subList.get(1);
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 2, 61)) {
-                    timeObs = getTimeObs(subList, 2, false);
-                    if (timeObs != null) {
-                        loc = getObsLocationFine(subList, 7);
-                        tailNumber = getTailNumber(subList, 21);
-                        if (loc != null) {
-                            if (tailNumber != null) {
+                                    rpt = new ACARSRecord();
 
-                                rpt = new ACARSRecord();
+                                    rpt.setTailNumber(tailNumber.trim());
+                                    rpt.setLocation(loc);
 
-                                rpt.setTailNumber(tailNumber.trim());
-                                rpt.setLocation(loc);
+                                    rpt.setTimeObs(timeObs);
+                                    DataTime t = new DataTime(
+                                            TimeTools.copy(timeObs));
+                                    rpt.setDataTime(t);
 
-                                rpt.setTimeObs(timeObs);
-                                DataTime t = new DataTime(
-                                        TimeTools.copy(timeObs));
-                                rpt.setDataTime(t);
+                                    getFlightPhase(subList, rpt, 9);
+                                    getWxDataA(subList, rpt);
 
-                                getFlightPhase(subList, rpt, 9);
-                                getWxDataA(subList, rpt);
-
-                                logger.debug(traceId + " -Observation time = "
-                                        + timeObs);
-                            } else {
-                                logger.error(traceId
-                                        + " -No Aircraft tail number was found");
-                            }
-
-                        } else {
-                            logger.error(traceId
-                                    + " -No Aircraft location was found");
-                        }
-                    } else {
-                        logger.error(traceId
-                                + " -No Observation time was found");
-                    }
-                } else if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
-                    timeObs = getTimeObs(subList, 8, true);
-                    if (timeObs != null) {
-                        loc = getObsLocationCoarse(subList, 14);
-                        tailNumber = getTailNumber(subList, 1);
-                        if (loc != null) {
-                            if (tailNumber != null) {
-                                rpt = new ACARSRecord();
-
-                                rpt.setTailNumber(tailNumber.trim());
-                                rpt.setLocation(loc);
-
-                                getReceiver(subList, rpt, 7);
-
-                                rpt.setTimeObs(timeObs);
-                                DataTime t = new DataTime(
-                                        TimeTools.copy(timeObs));
-                                rpt.setDataTime(t);
-
-                                getFlightPhase(subList, rpt, 18);
-                                getWxDataC(subList, rpt, loc);
-                                getPressure(subList, rpt, 16);
-
-                                logger.debug(traceId + " -Observation time = "
-                                        + timeObs);
-                            } else {
-                                logger.error(traceId
-                                        + " -No Aircraft tail number was found");
-                            }
-
-                        } else {
-                            logger.error(traceId
-                                    + " -No Aircraft location was found");
-                        }
-                    } else {
-                        logger.error(traceId
-                                + " -No Observation time was found");
-                    }
-                } else {
-                    logger.error(traceId
-                            + " - Unknown observation data following [0-01-006]");
-                }
-            } else if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
-
-                packet = subList.get(1);
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 4, 1)) {
-                    timeObs = getTimeObs(subList, 1, true);
-                    if (timeObs != null) {
-
-                        loc = getObsLocationFine(subList, 7);
-                        tailNumber = getTailNumber(subList, 0);
-
-                        if (loc != null) {
-                            if (tailNumber != null) {
-                                rpt = new ACARSRecord();
-
-                                rpt.setTailNumber(tailNumber.trim());
-                                rpt.setLocation(loc);
-
-                                rpt.setTimeObs(timeObs);
-                                DataTime t = new DataTime(
-                                        TimeTools.copy(timeObs));
-                                rpt.setDataTime(t);
-
-                                getFlightPhase(subList, rpt, 9);
-
-                                IBUFRDataPacket wxData = subList.get(10);
-                                if (RepSubList.getPacketType().equals(
-                                        wxData.getUnits())) {
-                                    List<IBUFRDataPacket> dataList = (List<IBUFRDataPacket>) wxData
-                                            .getValue();
-
-                                    getWxDataB(dataList, rpt, loc);
+                                    logger.debug(traceId
+                                            + " -Observation time = " + timeObs);
+                                } else {
+                                    logger.error(traceId
+                                            + " -No Aircraft tail number was found");
                                 }
 
-                                logger.debug(traceId + " -Observation time = "
-                                        + timeObs);
                             } else {
                                 logger.error(traceId
-                                        + " -No Aircraft tail number was found");
+                                        + " -No Aircraft location was found");
                             }
                         } else {
                             logger.error(traceId
-                                    + " -No Aircraft location was found");
+                                    + " -No Observation time was found");
                         }
-                    } else {
-                        logger.error(traceId
-                                + " -No Observation time was found");
-                    }
-                } else if (d == BUFRDescriptor.createDescriptor(0, 1, 23)) {
+                    } else if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
+                        timeObs = getTimeObs(subList, 8, true);
+                        if (timeObs != null) {
+                            loc = getObsLocationCoarse(subList, 14);
+                            tailNumber = getTailNumber(subList, 1);
+                            if (loc != null) {
+                                if (tailNumber != null) {
+                                    rpt = new ACARSRecord();
 
-                    timeObs = getTimeObs(subList, 4, true);
-                    if (timeObs != null) {
+                                    rpt.setTailNumber(tailNumber.trim());
+                                    rpt.setLocation(loc);
 
-                        loc = getObsLocationFine(subList, 2);
-                        tailNumber = getTailNumber(subList, 0);
+                                    getReceiver(subList, rpt, 7);
 
-                        if (loc != null) {
-                            if (tailNumber != null) {
-                                rpt = new ACARSRecord();
+                                    rpt.setTimeObs(timeObs);
+                                    DataTime t = new DataTime(
+                                            TimeTools.copy(timeObs));
+                                    rpt.setDataTime(t);
 
-                                rpt.setTailNumber(tailNumber.trim());
-                                rpt.setLocation(loc);
+                                    getFlightPhase(subList, rpt, 18);
+                                    getWxDataC(subList, rpt, loc);
+                                    getPressure(subList, rpt, 16);
 
-                                rpt.setTimeObs(timeObs);
-                                DataTime t = new DataTime(
-                                        TimeTools.copy(timeObs));
-                                rpt.setDataTime(t);
+                                    logger.debug(traceId
+                                            + " -Observation time = " + timeObs);
+                                } else {
+                                    logger.error(traceId
+                                            + " -No Aircraft tail number was found");
+                                }
 
-                                getFlightPhaseD(subList, rpt, 11);
-
-                                getWxDataD(subList, rpt, loc, 12);
-
-                                logger.debug(traceId + " -Observation time = "
-                                        + timeObs);
                             } else {
                                 logger.error(traceId
-                                        + " -No Aircraft tail number was found");
+                                        + " -No Aircraft location was found");
                             }
                         } else {
                             logger.error(traceId
-                                    + " -No Aircraft location was found");
+                                    + " -No Observation time was found");
                         }
                     } else {
                         logger.error(traceId
-                                + " -No Observation time was found");
+                                + " - Unknown observation data following [0-01-006]");
                     }
-                } else {
-                    logger.error(traceId
-                            + " - Unknown observation data following [0-01-008]");
+                } else if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
+
+                    packet = subList.get(1);
+                    d = packet.getReferencingDescriptor().getDescriptor();
+                    if (d == BUFRDescriptor.createDescriptor(0, 4, 1)) {
+                        timeObs = getTimeObs(subList, 1, true);
+                        if (timeObs != null) {
+
+                            loc = getObsLocationFine(subList, 7);
+                            tailNumber = getTailNumber(subList, 0);
+
+                            if (loc != null) {
+                                if (tailNumber != null) {
+                                    rpt = new ACARSRecord();
+
+                                    rpt.setTailNumber(tailNumber.trim());
+                                    rpt.setLocation(loc);
+
+                                    rpt.setTimeObs(timeObs);
+                                    DataTime t = new DataTime(
+                                            TimeTools.copy(timeObs));
+                                    rpt.setDataTime(t);
+
+                                    getFlightPhase(subList, rpt, 9);
+
+                                    IBUFRDataPacket wxData = subList.get(10);
+                                    if (RepSubList.getPacketType().equals(
+                                            wxData.getUnits())) {
+                                        List<IBUFRDataPacket> dataList = (List<IBUFRDataPacket>) wxData
+                                                .getValue();
+
+                                        getWxDataB(dataList, rpt, loc);
+                                    }
+
+                                    logger.debug(traceId
+                                            + " -Observation time = " + timeObs);
+                                } else {
+                                    logger.error(traceId
+                                            + " -No Aircraft tail number was found");
+                                }
+                            } else {
+                                logger.error(traceId
+                                        + " -No Aircraft location was found");
+                            }
+                        } else {
+                            logger.error(traceId
+                                    + " -No Observation time was found");
+                        }
+                    } else if (d == BUFRDescriptor.createDescriptor(0, 1, 23)) {
+
+                        timeObs = getTimeObs(subList, 4, true);
+                        if (timeObs != null) {
+
+                            loc = getObsLocationFine(subList, 2);
+                            tailNumber = getTailNumber(subList, 0);
+
+                            if (loc != null) {
+                                if (tailNumber != null) {
+                                    rpt = new ACARSRecord();
+
+                                    rpt.setTailNumber(tailNumber.trim());
+                                    rpt.setLocation(loc);
+
+                                    rpt.setTimeObs(timeObs);
+                                    DataTime t = new DataTime(
+                                            TimeTools.copy(timeObs));
+                                    rpt.setDataTime(t);
+
+                                    getFlightPhaseD(subList, rpt, 11);
+
+                                    getWxDataD(subList, rpt, loc, 12);
+
+                                    logger.debug(traceId
+                                            + " -Observation time = " + timeObs);
+                                } else {
+                                    logger.error(traceId
+                                            + " -No Aircraft tail number was found");
+                                }
+                            } else {
+                                logger.error(traceId
+                                        + " -No Aircraft location was found");
+                            }
+                        } else {
+                            logger.error(traceId
+                                    + " -No Observation time was found");
+                        }
+                    } else {
+                        logger.error(traceId
+                                + " - Unknown observation data following [0-01-008]");
+                    }
                 }
             }
         }
@@ -345,9 +348,9 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
      * @param packets
      * @param yearPos
+     * @param getSeconds
      * @return
      */
     private Calendar getTimeObs(List<IBUFRDataPacket> packets, int yearPos,
@@ -637,10 +640,10 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
      * @param dataList
      * @param record
-     * @return
+     * @param loc
+     * @return ACARS Record
      */
     @SuppressWarnings("unchecked")
     private ACARSRecord getWxDataB(List<IBUFRDataPacket> dataList,
@@ -709,9 +712,9 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
      * @param dataList
      * @param record
+     * @param loc
      * @return
      */
     private ACARSRecord getWxDataC(List<IBUFRDataPacket> dataList,
@@ -781,9 +784,10 @@ public class ACARSDataAdapter {
     }
 
     /**
-     * 
      * @param dataList
      * @param record
+     * @param loc
+     * @param pos
      * @return
      */
     private ACARSRecord getWxDataD(List<IBUFRDataPacket> dataList,
@@ -852,6 +856,12 @@ public class ACARSDataAdapter {
         return record;
     }
 
+    /**
+     * @param dataList
+     * @param record
+     * @param pos
+     * @return
+     */
     private ACARSRecord getFlightPhaseD(List<IBUFRDataPacket> dataList,
             ACARSRecord record, int pos) {
 
@@ -892,6 +902,12 @@ public class ACARSDataAdapter {
         return tailNumber;
     }
 
+    /**
+     * @param dataList
+     * @param record
+     * @param pos
+     * @return
+     */
     private ACARSRecord getFlightPhase(List<IBUFRDataPacket> dataList,
             ACARSRecord record, int pos) {
 
@@ -906,6 +922,11 @@ public class ACARSDataAdapter {
         return record;
     }
 
+    /**
+     * @param dataList
+     * @param record
+     * @param pos
+     */
     private void getReceiver(List<IBUFRDataPacket> dataList,
             ACARSRecord record, int pos) {
 
@@ -921,6 +942,11 @@ public class ACARSDataAdapter {
         }
     }
 
+    /**
+     * @param dataList
+     * @param record
+     * @param pos
+     */
     private void getPressure(List<IBUFRDataPacket> dataList,
             ACARSRecord record, int pos) {
 
@@ -933,6 +959,10 @@ public class ACARSDataAdapter {
         }
     }
 
+    /**
+     * @param data
+     * @return
+     */
     private static final String cleanString(String data) {
         String retValue = null;
         if (data != null) {
