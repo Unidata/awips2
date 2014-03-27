@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.LineSegment;
  *                                      algorithm to use great circle intersections for
  *                                      more accurate results
  * Aug 27, 2013  #2190     mschenke     Sped up transform functions
+ * Mar 27, 2014  #2015     njensen      Overrode getParameterValues()
  * 
  * </pre>
  * 
@@ -146,6 +147,24 @@ public class VIIRSMapProjection extends MapProjection {
     @Override
     public ParameterDescriptorGroup getParameterDescriptors() {
         return Provider.PARAMETERS;
+    }
+
+    @Override
+    public ParameterValueGroup getParameterValues() {
+        final ParameterDescriptorGroup descriptor = getParameterDescriptors();
+        final ParameterValueGroup values = descriptor.createValue();
+        values.parameter(CENTER_LATITUDES).setValue(centerLats);
+        values.parameter(CENTER_LONGITUDES).setValue(centerLons);
+        values.parameter(DIRECTIONS).setValue(directions);
+        values.parameter(CENTER_LENGTH).setValue(actualHeight);
+        values.parameter(RESOLUTION).setValue(resolution);
+        values.parameter(SEMI_MAJOR).setValue(
+                VIIRSMapProjectionFactory.SEMI_MINOR_MAJOR_VALUE);
+        values.parameter(SEMI_MINOR).setValue(
+                VIIRSMapProjectionFactory.SEMI_MINOR_MAJOR_VALUE);
+        values.parameter(Provider.CENTRAL_MERIDIAN.getName().getCode())
+                .setValue(Provider.CENTRAL_MERIDIAN.getDefaultValue());
+        return values;
     }
 
     /*
