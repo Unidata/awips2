@@ -89,6 +89,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns the number of files purged.
  * Dec 04, 2013 2603       rferrel     Changes to improve archive purging.
  * Dec 17, 2013 2603       rjpeter     Fix directory purging.
+ * Mar 27, 2014 2790       rferrel     Detect problems when several purges running at the same time.
  * </pre>
  * 
  * @author rferrel
@@ -111,6 +112,9 @@ public class ArchiveConfigManager {
 
     /** Mapping of archive configuration data keyed to the name. */
     private final Map<String, ArchiveConfig> archiveMap = new HashMap<String, ArchiveConfig>();
+
+    /** Limit number of times message is sent. */
+    private boolean sentPurgeMessage = false;
 
     /** Get the singleton. */
     public final static ArchiveConfigManager getInstance() {
@@ -313,6 +317,7 @@ public class ArchiveConfigManager {
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
         int purgeCount = 0;
+        sentPurgeMessage = false;
 
         if (!archiveRootDir.isDirectory()) {
             statusHandler.error(archiveRootDir.getAbsolutePath()
@@ -428,6 +433,19 @@ public class ArchiveConfigManager {
     }
 
     /**
+     * Send race condition message out only one time per purge request.
+     */
+    private void sendPurgeMessage() {
+        if (!sentPurgeMessage) {
+            sentPurgeMessage = true;
+            if (statusHandler.isPriorityEnabled(Priority.PROBLEM)) {
+                String message = "Archive purge finding missing directory. Purge may be running on more then one EDEX server";
+                statusHandler.handle(Priority.PROBLEM, message);
+            }
+        }
+    }
+
+    /**
      * Purge the contents of a directory of expired data leaving a possibly
      * empty directory.
      * 
@@ -443,7 +461,13 @@ public class ArchiveConfigManager {
             CategoryFileDateHelper helper, CategoryConfig category) {
         int purgeCount = 0;
 
-        for (File file : dir.listFiles()) {
+        File[] dirFiles = dir.listFiles();
+        if (dirFiles == null) {
+            sendPurgeMessage();
+            return purgeCount;
+        }
+
+        for (File file : dirFiles) {
             if (!file.isHidden()) {
                 DataSetStatus status = helper.getFileDate(file);
                 if (status.isInDataSet()) {
@@ -510,15 +534,20 @@ public class ArchiveConfigManager {
      */
     private int purgeDir(File dir, IOFileFilter fileDataFilter) {
         int purgeCount = 0;
-        for (File file : dir.listFiles()) {
-            if (!file.isHidden()) {
-                if (file.isDirectory()) {
-                    purgeCount += purgeDir(file, fileDataFilter);
-                    if (file.list().length == 0) {
+        File[] dirFiles = dir.listFiles();
+        if (dirFiles == null) {
+            sendPurgeMessage();
+        } else {
+            for (File file : dirFiles) {
+                if (!file.isHidden()) {
+                    if (file.isDirectory()) {
+                        purgeCount += purgeDir(file, fileDataFilter);
+                        if (file.list().length == 0) {
+                            purgeCount += deleteFile(file);
+                        }
+                    } else if (fileDataFilter.accept(file)) {
                         purgeCount += deleteFile(file);
                     }
-                } else if (fileDataFilter.accept(file)) {
-                    purgeCount += deleteFile(file);
                 }
             }
         }
