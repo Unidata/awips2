@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 										so that Watch can also use them.
  * 03/13        #928        B. Yin      Made the button bar smaller.
  * 04/29        #977        S. Gilbert  PGEN Database support
+ * 12/13		TTR800		B. Yin		USe UTC time class
  * </pre>
  * 
  * @author S. Gilbert
@@ -133,7 +134,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
 
     private Combo breakpointTypes = null;
 
-    private Text validTime = null;
+    private UTCTimeText validTime = null;
 
     private DateTime validDate = null;
 
@@ -446,15 +447,14 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
          * valid Time text field ---- REPLACED WITH DateTime WIDGETS ABOVE
          */
 
-        validTime = new Text(g1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
+        validTime = new UTCTimeText(g1, SWT.SINGLE | SWT.BORDER | SWT.CENTER);
         fd = new FormData();
         fd.top = new FormAttachment(stormNameField, 10, SWT.BOTTOM);
         fd.left = new FormAttachment(validDate, 10, SWT.RIGHT);
         // fd.right = new FormAttachment(stormTypes, 0, SWT.RIGHT);
         validTime.setLayoutData(fd);
-        PgenUtil.setUTCTimeTextField(g1, validTime,
-                Calendar.getInstance(TimeZone.getTimeZone("GMT")),
-                stormNameField, 15);
+        validTime.setUTCTimeTextField(g1, Calendar.getInstance(TimeZone.getTimeZone("GMT")),
+                stormNameField, 15, true);
 
         /*
          * Advisory number label
@@ -567,7 +567,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
         Label timeZoneLabel = new Label(g1, SWT.NONE);
         timeZoneLabel.setText("Time Zone for TCV product:");
         fd = new FormData();
-        fd.top = new FormAttachment(validTime, 15, SWT.BOTTOM);
+        fd.top = new FormAttachment(validTime.getTextWidget(), 15, SWT.BOTTOM);
         fd.left = new FormAttachment(stormTypes, 0, SWT.LEFT);
         timeZoneLabel.setLayoutData(fd);
 
@@ -580,7 +580,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
         }
         timeZoneTypes.setText(timeZoneTypes.getItem(0));
         fd = new FormData();
-        fd.top = new FormAttachment(validTime, 10, SWT.BOTTOM);
+        fd.top = new FormAttachment(validTime.getTextWidget(), 10, SWT.BOTTOM);
         fd.left = new FormAttachment(timeZoneLabel, 10, SWT.RIGHT);
         fd.right = new FormAttachment(stormTypes, 0, SWT.RIGHT);
         timeZoneTypes.setLayoutData(fd);
@@ -897,7 +897,7 @@ public class TcaAttrDlg extends AttrDlg implements ITca, SelectionListener {
                         "Warning", null, msg, MessageDialog.ERROR,
                         new String[] { "OK" }, 0);
                 messageDlg.open();
-            } else if (!PgenUtil.isTimeValid(validTime.getText())) {
+            } else if (!validTime.isTimeValid()) {
                 StringBuilder msg = new StringBuilder("The Product Time ");
                 msg.append('"');
                 msg.append(validTime.getText());

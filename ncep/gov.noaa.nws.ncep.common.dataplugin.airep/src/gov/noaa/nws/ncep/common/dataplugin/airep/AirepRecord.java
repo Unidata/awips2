@@ -75,6 +75,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Sep 05, 2013 2316       bsteffen    Unify airep and ncairep.
  * Dec 03, 2013 2551       rjpeter     Extend PersistablePluginDataObject
+ * Jan 21, 2013 2724       rjpeter     Update getter/setter to use same Object as
+ *                                     internal variable to prevent auto unboxing
+ *                                     NPE on serialization.
  * </pre>
  * 
  * @author jkorman
@@ -454,7 +457,7 @@ public class AirepRecord extends PersistablePluginDataObject implements
     /**
      * @return the temp
      */
-    public float getTemp() {
+    public Float getTemp() {
         return temp;
     }
 
@@ -462,14 +465,14 @@ public class AirepRecord extends PersistablePluginDataObject implements
      * @param temp
      *            the temp to set
      */
-    public void setTemp(float temp) {
+    public void setTemp(Float temp) {
         this.temp = temp;
     }
 
     /**
      * @return the windDirection
      */
-    public float getWindDirection() {
+    public Float getWindDirection() {
         return windDirection;
     }
 
@@ -477,14 +480,14 @@ public class AirepRecord extends PersistablePluginDataObject implements
      * @param windDirection
      *            the windDirection to set
      */
-    public void setWindDirection(float windDirection) {
+    public void setWindDirection(Float windDirection) {
         this.windDirection = windDirection;
     }
 
     /**
      * @return the windspeed
      */
-    public float getWindSpeed() {
+    public Float getWindSpeed() {
         return windSpeed;
     }
 
@@ -492,7 +495,7 @@ public class AirepRecord extends PersistablePluginDataObject implements
      * @param windspeed
      *            the windspeed to set
      */
-    public void setWindSpeed(float windSpeed) {
+    public void setWindSpeed(Float windSpeed) {
         this.windSpeed = windSpeed;
     }
 

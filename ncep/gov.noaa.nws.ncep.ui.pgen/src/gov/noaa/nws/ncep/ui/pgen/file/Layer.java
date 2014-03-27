@@ -66,7 +66,9 @@ public class Layer {
     protected Boolean onOff;
     @XmlAttribute
     protected String name;
-
+    @XmlAttribute
+    protected String metaInfo;
+    
     /**
      * Gets the value of the color property.
      * 
@@ -258,5 +260,13 @@ public class Layer {
     public void setName(String value) {
         this.name = value;
     }
+
+	public String getMetaInfo() {
+		return metaInfo;
+	}
+
+	public void setMetaInfo(String metaInfo) {
+		this.metaInfo = metaInfo;
+	}
 
 }

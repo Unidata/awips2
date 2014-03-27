@@ -125,15 +125,19 @@ public class CategoryFileDateHelper implements IFileDateHelper {
 
     private final List<CategoryDateInfo> dateInfoList;
 
+    private final String archiveRootDirPath;
+
     /**
      * Initialization constructor.
      * 
+     * @param archiveRootDirPath
+     *            - Assumes path ends with file separator.
      * @param config
-     * @param rootDirPattern
-     *            categoryTopLevelDirPattern
      */
-    public CategoryFileDateHelper(CategoryConfig config) {
+    public CategoryFileDateHelper(String archiveRootDirPath,
+            CategoryConfig config) {
         List<CategoryDataSet> categoryDataSetList = config.getDataSetList();
+        this.archiveRootDirPath = archiveRootDirPath;
         int size = 0;
         for (CategoryDataSet dataSet : categoryDataSetList) {
             size += dataSet.getDirPatterns().size();
@@ -176,6 +180,9 @@ public class CategoryFileDateHelper implements IFileDateHelper {
     @Override
     public DataSetStatus getFileDate(File file) {
         String filenamePath = file.getAbsolutePath();
+        if (filenamePath.indexOf(archiveRootDirPath) == 0) {
+            filenamePath = filenamePath.substring(archiveRootDirPath.length());
+        }
         Long timestamp = null;
         DataSetStatus result = new DataSetStatus(file);
 

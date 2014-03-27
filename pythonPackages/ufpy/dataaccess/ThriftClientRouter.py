@@ -28,10 +28,12 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/21/13         #2023        dgilling       Initial Creation.
+#    01/06/14         #2537        bsteffen       Share geometry WKT.
 #
 
 
 import numpy
+import shapely.wkt
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.impl import DefaultDataRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import GetAvailableLocationNamesRequest
@@ -42,6 +44,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.dataaccess.request import G
 from ufpy import ThriftClient 
 from ufpy.dataaccess import PyGeometryData
 from ufpy.dataaccess import PyGridData
+
 
 class ThriftClientRouter(object):
     
@@ -97,10 +100,14 @@ class ThriftClientRouter(object):
         except TypeError:
             geoDataRequest.setRequestedPeriod(times)
         response = self._client.sendRequest(geoDataRequest)
-        
+        geometries = []
+        for wkt in response.getGeometryWKTs():
+            geometries.append(shapely.wkt.loads(wkt))
+                
         retVal = []
         for geoDataRecord in response.getGeoData():
-            retVal.append(PyGeometryData.PyGeometryData(geoDataRecord))
+            geom = geometries[geoDataRecord.getGeometryWKTindex()]
+            retVal.append(PyGeometryData.PyGeometryData(geoDataRecord, geom))
         return retVal
 
     def getAvailableLocationNames(self, request):

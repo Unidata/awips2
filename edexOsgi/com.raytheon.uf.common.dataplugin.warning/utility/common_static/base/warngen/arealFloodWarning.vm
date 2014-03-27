@@ -7,6 +7,8 @@
 ## Mike Dangelo 9-16-2013 fixed name of bullet for specific stream and removed redundant CTA
 ## Mike Dangelo 09-18-2013 added code for init pos & pathcasting
 ## Evan Bookbinder 9-18-2013 implemented config.vm
+## Mike Rega 01-18-2014 added Alaska GP changes for 14.2.1
+## Mike Rega 02-26-2014 changed MND to IMMEDIATE BROADCAST
 #################################### SET SOME VARIABLES ###################################
 #parse("config.vm")
 ##
@@ -19,11 +21,11 @@
 #end
 ##
 #if(${list.contains(${bullets}, "smallstreams")})
-	#set($advType = "SMALL STREAM FLOOD WARNING")
+	#set($advType = "FLOOD WARNING FOR SMALL STREAMS IN...")
 #elseif(${list.contains(${bullets}, "urbansmallstreams")})
-	#set($advType = "URBAN AND SMALL STREAM FLOOD WARNING")
+	#set($advType = "FLOOD WARNING FOR URBAN AREAS AND SMALL STREAMS IN...")
 #else
-	#set($advType = "FLOOD WARNING")
+	#set($advType = "FLOOD WARNING FOR...")
 #end
 #set($ic = "ER")
 #set($hycType = "")
@@ -32,29 +34,28 @@
 	#set($hycType = "")
 #elseif(${list.contains(${bullets}, "sm")})
 	#set($ic = "SM")
-	#set($hycType = "SNOW MELT")
+	#set($hycType = "SNOWMELT")
 #elseif(${list.contains(${bullets}, "dm")})
 	#set($ic = "DM")
 	#set($hycType = "A LEVEE FAILURE")
 #elseif(${list.contains(${bullets}, "dr")})
 	#set($ic = "DR")
-	#set($hycType = "A DAM GATE RELEASE")
+	#set($hycType = "A DAM FLOODGATE RELEASE")
 #elseif(${list.contains(${bullets}, "rs")})
 	#set($ic = "RS")
-	#set($hycType = "RAIN AND SNOW MELT")
+	#set($hycType = "RAIN AND SNOWMELT")
 #elseif(${list.contains(${bullets}, "ij")})
 	#set($ic = "IJ")
 	#set($hycType = "AN ICE JAM")
 #elseif(${list.contains(${bullets}, "ic")})
 	#set($ic = "IC")
-	#set($hycType = "AN ICE JAM WITH RAIN AND SNOW MELT")
+	#set($hycType = "")
 #elseif(${list.contains(${bullets}, "go")})
 	#set($ic = "GO")
-	#set($hycType = "A GLACIAL LAKE OUTBURST")
+	#set($hycType = "A GLACIER-DAMMED LAKE OUTBURST")
 #elseif(${list.contains(${bullets}, "mc")})
 	#set($ic = "MC")
     #set($hycType = "")
-##	#set($hycType = "FOR MULTIPLE CAUSES")
 #elseif(${list.contains(${bullets}, "uu")})
 	#set($ic = "UU")
     #set($hycType = "")
@@ -63,7 +64,7 @@
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FLW${siteId}
 
-BULLETIN - EAS ACTIVATION REQUESTED
+BULLETIN - IMMEDIATE BROADCAST REQUESTED
 #if(${productClass}=="T")
 TEST...FLOOD WARNING...TEST
 #else
@@ -99,11 +100,22 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-${advType} FOR...
-#if(${hycType} != "")
+${advType}
+### modified by GP
+#if(${hycType} != "" && ${alaska} != "true")
 <L>  ${hycType} IN...</L>
 #end
+#if(${hycType} != "" && ${alaska} == "true")
+<L>  ${hycType}...</L>
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!
+#elseif(${wrZoneCounty}=="true")
+#firstBullet(${affectedCounties})
+#else
 #firstBullet(${areas})
+#end
+### GP end
 
 #################################
 ######## SECOND BULLET ##########
@@ -169,6 +181,9 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${list.contains(${bullets}, "satelliteGauge")})
   #set($report = "SATELLITE ESTIMATES AND RAIN GAUGE DATA INDICATE HEAVY RAINFALL THAT WILL CAUSE FLOODING IN THE WARNING AREA.")   
+#end
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "REPORTING GAUGES INDICATE !**EVENT TYPE**!." )   
 #end
 #if(${list.contains(${bullets}, "genericFlood")})
   #set($report = "!** ENTER REASON AND FORECAST FOR FLOOD **!")

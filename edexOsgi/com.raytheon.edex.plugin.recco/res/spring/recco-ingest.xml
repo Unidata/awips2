@@ -12,7 +12,7 @@
 	<bean id="reccoDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="reccoPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.recco" />
+		<constructor-arg value="jms-durable:queue:Ingest.recco" />
 	</bean>
 
     <bean id="reccoCamelRegistered" factory-bean="contextManager"

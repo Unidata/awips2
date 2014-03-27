@@ -76,6 +76,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/12         #803       Q. Zhou     Fixed Front text of 2 lines. Modified handleMouseDownMove. 
  * 11/12		 #911		J. Wu   	TTR 652 - prevent invalid GFA polygon when dragging GFA points.
  * 03/13		 #927		B. Yin		Moved out the handler class.
+ * 11/13		 #1063		B. Yin		Modified getMouseHandler to handle non-PgenSelectingMouseHandler
+ * 11/13		 #1081		B. Yin		Removed prevDe and added getSelectedDE method.  
  * </pre>
  * 
  * @author	B. Yin
@@ -97,8 +99,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     
     private boolean selectInContours;
     
-    private DrawableElement prevDe = null; 
-    
     public PgenSelectingTool(){
     	
     	super();
@@ -112,8 +112,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
      */
     @Override
     protected void activateTool( ) {
-    	
-    	prevDe = null;
     	
     	if ( PgenSession.getInstance().getPgenPalette() == null ) return;
     	
@@ -161,8 +159,6 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     @Override
     public void deactivateTool() {
 
-    	prevDe = drawingLayer.getSelectedDE();
-    	
     	super.deactivateTool();
     	if ( mouseHandler != null && mouseHandler instanceof PgenSelectHandler) {
     		((PgenSelectHandler)mouseHandler).closeDlg();
@@ -175,7 +171,9 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
      */   
     public IInputHandler getMouseHandler() {	
     
-        if ( this.mouseHandler == null || this.mapEditor != ((PgenSelectHandler)mouseHandler).getMapEditor() 
+        if ( this.mouseHandler == null || 
+        		!(this.mouseHandler instanceof PgenSelectHandler) ||                  //e.g. deleting barb when a jet is selected (TTR 902)
+        		this.mapEditor != ((PgenSelectHandler)mouseHandler).getMapEditor() 
         		|| this.drawingLayer != ((PgenSelectHandler)mouseHandler).getPgenrsc() ) {
   //  	 if ( this.mouseHandler == null ) {	
         	this.mouseHandler = new PgenSelectHandler( this, mapEditor, drawingLayer, attrDlg);
@@ -312,13 +310,15 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
 		Change the line type of the selected element.
 	 */
     public void changeSelectedLineType(String type){
-    	if ( prevDe != null && ( prevDe.getPgenCategory().equalsIgnoreCase("Lines") || 
-    			prevDe.getPgenCategory().equalsIgnoreCase("Front") ) ){
+    	
+    	DrawableElement currentDe = getSelectedDE();
+    	if ( currentDe != null && ( currentDe.getPgenCategory().equalsIgnoreCase("Lines") || 
+    			currentDe.getPgenCategory().equalsIgnoreCase("Front") ) ){
 
-        	AttrDlg dlg = AttrDlgFactory.createAttrDlg( prevDe.getPgenCategory(), type,
+        	AttrDlg dlg = AttrDlgFactory.createAttrDlg( currentDe.getPgenCategory(), type,
         			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell() );
         	
-        	DrawableElement de = prevDe;
+        	DrawableElement de = currentDe;
     		//DrawableElement de = drawingLayer.getSelectedDE();
     		activateTool();
 
@@ -343,8 +343,17 @@ public class PgenSelectingTool extends AbstractPgenDrawingTool
     	}
     }
     
-    public DrawableElement getPreviousSelectedDE(){
-    	return prevDe;
+    /**
+     * Returns the selected drawable element.
+     * @return
+     */
+    public DrawableElement getSelectedDE(){
+    	DrawableElement de = null;
+    	
+    	if ( drawingLayer != null ){
+    		de = drawingLayer.getSelectedDE();
+    	}
+    	
+    	return de;
     }
-    
 }

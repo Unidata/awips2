@@ -34,8 +34,8 @@
 #set($snowMelt = "")
 #if(${list.contains(${bullets}, "icrs")})
 	#set($ic = "RS")
-    #set($hycType = "RAIN AND SNOW MELT IN...")
-    #set($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING.")
+    #set($hycType = "RAIN AND SNOWMELT IN...")
+    #set($snowMelt = "RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE FLOODING.")
 #end
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}

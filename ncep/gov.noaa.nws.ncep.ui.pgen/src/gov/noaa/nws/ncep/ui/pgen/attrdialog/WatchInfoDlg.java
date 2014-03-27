@@ -51,7 +51,10 @@ import com.vividsolutions.jts.geom.Polygon;
  * 11/09		#159		B. Yin		Added all widgets
  * 12/09		#159		B. Yin		Added functions for specifications and county list.
  * 03/10		#159		B. Yin		Added FormatWatch, WatchStatus and WatchCancel
- * 02/11		?			B. Yin		Removed WatchCancel			
+ * 02/11		?			B. Yin		Removed WatchCancel	
+ * 11/13		?			B. Yin		Disable fmtBtn and status buttons when del/adding cnty.
+ * 12/13		TTR800		B. Yin		Disable two status buttons before watch is issued		
+ * 12/13		TTR904		B. Yin		Set the list title font and made the font smaller			
  *
  * </pre>
  * 
@@ -62,7 +65,8 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	
 	//instance of watch info dialog
 	static private WatchInfoDlg INSTANCE = null;
-	static String specLbl = "LAT              LON              Anchor Relative          Vor Relative       ";
+	static String specLbl = "LAT       LON      Anchor Relative   Vor Relative     ";
+	static String cntyLbl = " UGC  State   County Name       Lat/Lon     FIPS  WFO ";
 	static String inactLbl = "=====Inactive counties INSIDE the watch area=====\n";
 	static String actLbl = "=====Active counties OUTSIDE the watch area=====\n";
 	
@@ -111,6 +115,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	private Button clusteringOnBtn;
 	private Button clusteringOffBtn;
 	private Button wccBtn;
+	private Button fmtBtn;
+	private Button statusLineBtn;
+	private Button statusBtn;
 	
 	//county lock On radio button
 	private Button lockOnBtn;
@@ -212,16 +219,17 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
         AttrDlg.addSeparator(top);
         
         //create text area and labels.
+        if ( txtFt == null ) this.createFonts();
+		
         textLabel = new Label(top, SWT.NONE);
+        textLabel.setFont(txtFt);
 		textLabel.setText(specLbl);
 
 		text = new Text( top,  SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);                        
-		text.setLayoutData( new GridData( 500, 100) );
+		text.setLayoutData( new GridData( 503, 100) );
 		text.setEditable( false );
-		
-		if ( txtFt == null ) this.createFonts();
 		text.setFont( txtFt );
-		
+
         AttrDlg.addSeparator(top);
 
         // create "Create" "Add/DEl", and other buttons for counties 
@@ -243,7 +251,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
     	wfoLabel.setText("WFOs:");
     	wfo = new Text(wfoGrp, SWT.MULTI);
     	wfo.setEditable(false);
-		wfo.setFont( txtFt );
+		wfo.setFont( cwaFt );
 
 		//create list of states with check boxes
     	stGrp = new Composite(top, SWT.NONE);
@@ -328,7 +336,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
      	//fmtPane.setLayout(fmtGl);
      	
      	//Create 'WatchFormat' button
-     	Button fmtBtn = new Button(wccGrp, SWT.PUSH);
+     	fmtBtn = new Button(wccGrp, SWT.PUSH);
         fmtBtn.setText("Watch Format");
     	fmtBtn.addSelectionListener(new SelectionListener(){
 
@@ -369,8 +377,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 
     	});
 		
-		Button statusLineBtn = new Button(wccGrp, SWT.PUSH);
+		statusLineBtn = new Button(wccGrp, SWT.PUSH);
         statusLineBtn.setText("Add Status Line");
+        statusLineBtn.setEnabled(false);
        	statusLineBtn.addSelectionListener(new SelectionListener(){
 
 			@Override
@@ -397,8 +406,9 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		});
 				
 		//create 'WatchStatus' button
-        Button statusBtn = new Button(wccGrp, SWT.PUSH);
+        statusBtn = new Button(wccGrp, SWT.PUSH);
         statusBtn.setText("Watch Status"); 
+        statusBtn.setEnabled(false);
     	statusBtn.addSelectionListener(new SelectionListener(){
 
 			@Override
@@ -499,7 +509,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-		    	textLabel.setText(" UGC    State   County Name            Lat/Lon              FIPS      WFO ");
+		    	textLabel.setText(cntyLbl);
 		   
 		    	text.setText(inactLbl + wbDlg.getWatchBox().formatCountyInfo(wbDlg.getWatchBox().getInactiveCountiesInWB())+ "\n" 
 						 + actLbl + wbDlg.getWatchBox().formatCountyInfo(wbDlg.getWatchBox().getActiveCountiesOutsideWB()));
@@ -520,7 +530,7 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-		    	textLabel.setText(" UGC    State   County Name            Lat/Lon              FIPS      WFO ");
+		    	textLabel.setText(cntyLbl);
 		    	text.setText(wbDlg.getWatchBox().formatCountyInfo(wbDlg.getWatchBox().getCountyList()));
 
 			}
@@ -683,6 +693,13 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		if ( this.getShell() == null ){
 			this.create();
 		}
+		
+		if ( wbDlg != null && wbDlg.getWatchBox() != null && wbDlg.getWatchBox().getIssueFlag() != 0 ){
+			this.statusBtn.setEnabled(true);
+			this.statusLineBtn.setEnabled(true);
+			this.createBtn.setEnabled(false);
+		}
+		
 		
    	    this.getShell().setLocation(this.getShell().getParent().getLocation());
    	    return super.open();
@@ -1089,7 +1106,19 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 	 */
 	public void enableAllButtons( boolean flag ){
 		
-		createBtn.setEnabled(flag);
+		if ( wbDlg != null && wbDlg.getWatchBox() != null && wbDlg.getWatchBox().getIssueFlag() != 0 ){
+			//for issued watch, disable "create" button
+			this.statusBtn.setEnabled(flag);
+			this.statusLineBtn.setEnabled(flag);
+			this.createBtn.setEnabled(false);
+		}
+		else {
+			//for not issued watch, disable 'add status line' button and 'watch status' button.
+			createBtn.setEnabled(flag);
+			statusBtn.setEnabled(false);
+			statusLineBtn.setEnabled(false);
+		}
+		
 		addBtn.setEnabled(flag);
 		clearBtn.setEnabled(flag);
 		clusteringOnBtn.setEnabled(flag);
@@ -1101,6 +1130,8 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
 		countyListBtn.setEnabled(flag);
 //		toggleAnchorsBtn.setEnabled(flag);
 		wccBtn.setEnabled(flag);
+		fmtBtn.setEnabled(flag);
+	
 		
 		if (stBtns != null ){
 			for ( Button btn : stBtns ){
@@ -1167,8 +1198,17 @@ public class WatchInfoDlg  extends CaveJFACEDialog  {
      * Create static fonts used in the dialog
      */
     private void createFonts(){
-		txtFt = new Font(this.getShell().getDisplay(), "Courier New", 12, SWT.NORMAL);
+		txtFt = new Font(this.getShell().getDisplay(), "Courier New", 11, SWT.NORMAL);
 		cwaBtnFt = new Font(this.getShell().getDisplay(), "Courier New", 9, SWT.NORMAL);
 		cwaFt = new Font(this.getShell().getDisplay(), "Courier New", 12, SWT.NORMAL);
+    }
+    
+    public void setAddDelCountyMode(){
+		enableAllButtons(false);
+		wbDlg.enableDspBtn(false);
+		wbDlg.buttonBar.setEnabled(false);
+		if ( wbDlg.getWbTool() != null ) {
+			wbDlg.getWbTool().setAddDelCntyHandler();
+		}
     }
 }

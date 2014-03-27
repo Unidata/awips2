@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
  * ------------ ---------- ----------- --------------------------
  * Feb 16, 2012            dhladky     Initial creation
  * jun 11, 2013 2101       dhladky     Updated for username/password DPA exchanges
+ * Dec 08, 2013 2584       dhladky     Version update
  * 
  * </pre>
  * 
@@ -42,6 +44,7 @@ import com.raytheon.uf.common.time.domain.api.IDuration;
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 @RegistryObject({ "name" })
+@RegistryObjectVersion(value = 1.0f)
 public class Provider {
 
     /**
@@ -105,7 +108,7 @@ public class Provider {
             return (long) (latSpan * lonSpan * (timeSpan/5) * requestOverheadInBytes);
         }
     }
-
+    
     private static final Integer BYTES_IN_FLOAT = Float.SIZE / Byte.SIZE;
 
     /** a one degree by one degree box **/

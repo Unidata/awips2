@@ -43,6 +43,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
  * Nov 25, 2012  1268      dhladky      Added additional fields to process subscription tracking
  * Feb 05, 2013 1580       mpduff       EventBus refactor.
  * Mar 05, 2013 1647       djohnson     Debug log running message.
+ * Jan 08, 2013 2645       bgonzale     Catch all exceptions in run to prevent the recurring timer from failing.
  * 
  * </pre>
  * 
@@ -325,6 +326,11 @@ public class SubscriptionNotifyTask implements Runnable {
         } catch (DataAccessLayerException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable to contact the database", e);
+        } catch (Exception e) {
+            statusHandler
+                    .handle(Priority.ERROR,
+                            "Unexpected error during Subscription Notify Task processing...",
+                            e);
         }
     }
 }
