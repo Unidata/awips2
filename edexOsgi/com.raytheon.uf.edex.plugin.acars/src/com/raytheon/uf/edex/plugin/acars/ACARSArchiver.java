@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.edex.plugin.acars;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,14 +26,29 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.StandardMBean;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
+/**
+ * ACARS Archiver.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date          Ticket#    Engineer    Description
+ * ------------  ---------- ----------- --------------------------
+ * Mar 27, 2014  2811       skorolev    Updated logger.
+ * 
+ * </pre>
+ * 
+ * @author
+ * @version 1.0
+ */
 public class ACARSArchiver implements ACARSArchiverMBean {
 
-    protected transient Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(ACARSDecoder.class);
 
     private static AtomicInteger serviceInstanceId = new AtomicInteger();
 
@@ -56,8 +70,7 @@ public class ACARSArchiver implements ACARSArchiverMBean {
     }
 
     /**
-     * 
-     * @param path
+     * @param headers
      */
     public void checkForArchive(Headers headers) {
         String traceId = serviceName;
@@ -67,8 +80,12 @@ public class ACARSArchiver implements ACARSArchiverMBean {
         logger.info(traceId);
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.edex.plugin.acars.ACARSArchiverMBean#execute(java.lang
+     * .String)
      */
     public void execute(String command) {
 
@@ -76,8 +93,11 @@ public class ACARSArchiver implements ACARSArchiverMBean {
 
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * com.raytheon.uf.edex.plugin.acars.ACARSArchiverMBean#getServiceName()
      */
     @Override
     public String getServiceName() {
@@ -86,6 +106,8 @@ public class ACARSArchiver implements ACARSArchiverMBean {
 
     /**
      * Register this service with the JMX management.
+     * 
+     * @param name
      */
     protected void register(String name) {
         if (serviceRegistered) {
@@ -111,6 +133,8 @@ public class ACARSArchiver implements ACARSArchiverMBean {
     /**
      * Unregister this service from the JMX server. This should be called prior
      * to shutting down the service.
+     * 
+     * @param name
      */
     protected void unRegister(String name) {
         if (!serviceRegistered) {
