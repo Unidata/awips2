@@ -1,20 +1,3 @@
-/**
- * NcscatRecord
- * 
- * This java class performs the mapping to the database table for ASCAT,Quikscat
- * 
- * HISTORY
- *
- * Date     	Author		Description
- * ------------	----------	-----------	--------------------------
- * 11/2009		Uma Josyula	Initial creation	
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
- * 
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.ncscat;
 
 import java.util.Calendar;
@@ -42,6 +25,26 @@ import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * NcscatRecord
+ * 
+ * This java class performs the mapping to the database table for ASCAT,Quikscat
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket Author      Description
+ * ------------ ------ ----------  ----------- --------------------------
+ * 11/2009      Uma Josyula Initial creation    
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013  1857       bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 bsteffen    Remove dataURI column from PluginDataObject.
+ * Feb 11, 2014 2784   rferrel     Remove override of setIdentifier.
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "ncscatseq")
@@ -145,11 +148,6 @@ public class NcscatRecord extends PersistablePluginDataObject {
         return serialVersionUID;
     }
 
-    @Override
-    public void setIdentifier(Object dataURI) {
-        this.identifier = dataURI;
-    }
-
     public int getRecordLength() {
         return recordLength;
     }
@@ -167,6 +165,6 @@ public class NcscatRecord extends PersistablePluginDataObject {
 
     @Override
     public String getPluginName() {
-        return "ncsat";
+        return "ncscat";
     }
 }

@@ -38,12 +38,13 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  org.quartz;bundle-version="1.8.6"
 Export-Package: com.raytheon.uf.edex.datadelivery.bandwidth,
  com.raytheon.uf.edex.datadelivery.bandwidth.dao,
+ com.raytheon.uf.edex.datadelivery.bandwidth.hibernate,
  com.raytheon.uf.edex.datadelivery.bandwidth.interfaces,
  com.raytheon.uf.edex.datadelivery.bandwidth.processing,
  com.raytheon.uf.edex.datadelivery.bandwidth.registry,
  com.raytheon.uf.edex.datadelivery.bandwidth.retrieval,
- com.raytheon.uf.edex.datadelivery.bandwidth.registry,
  com.raytheon.uf.edex.datadelivery.bandwidth.util
 Import-Package: com.raytheon.uf.common.datadelivery.event.retrieval,
  com.raytheon.uf.common.datadelivery.registry,
- com.raytheon.uf.common.stats
+ com.raytheon.uf.common.stats,
+ com.raytheon.uf.edex.datadelivery.util

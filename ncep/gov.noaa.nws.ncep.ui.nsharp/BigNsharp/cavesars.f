@@ -1,10 +1,10 @@
        subroutine cavesars(mumr, mucape, temp, lr, shr, 
      +                 km9, shr3, ship, srh, tier1, 
      +                 matches, p1, avsize, matches2,
-     +                 sndglist, haillist, fname, cnt)
+     +                 sndglist, haillist, fname, totalSnd)
  
 c Jan 27, 2010, REJ.
-       integer maob,saob
+
        parameter (maob=15000) ! Max number of raobs allowed.
        parameter (saob=15)    ! Number of raobs to return to NSHARP.
        
@@ -21,9 +21,9 @@ c Jan 27, 2010, REJ.
        character datestn*15,dummy*25,matdatestn(maob)*15
        character sndglist(saob)*15, fname*(256), fname1*(256)
        
-       integer j,cnt,mrmat(maob),capemat(maob),tempmat(maob),
-     & lrmat(maob),shrmat(maob),km9mat(maob),shr3mat(maob),golf,
-     & sigm(maob),tier1,tier1cnt,srhmat(maob)
+       integer  cnt, maob,j,mrmat(maob),capemat(maob),tempmat(maob),
+     &lrmat(maob),shrmat(maob),km9mat(maob),shr3mat(maob),golf,
+     & sigm(maob),tier1,tier1cnt,srhmat(maob),totalSnd
 
 c        print *, "****************************************************"
 c	print *, "        Entering SARS fortran subroutine"
@@ -32,7 +32,7 @@ c        print *, "****************************************************"
 1     format(a)
 
 	fname1 = fname(1:len_trim(fname))
-c	print *, "Sars Opening input file:  ", fname1(1:len_trim(fname1))
+c	print *, "Opening input file:  ", fname1(1:len_trim(fname1))
 	open(unit=10,status='old',file=fname1,err=999,iostat=IERR)
        
 *************  Read file list.txt into array ********************
@@ -70,48 +70,48 @@ c Calculate difference in shear magnitude between sounding and match
 c count number of soundings      
       cnt = j - 1
 c mixing ratio ranges (g/kg) - k1
-        ranmr= 2.0
-	ranmrt1= 2.0
-
+c        ranmr= 2.0
+c	ranmrt1= 2.0
+c
 c determine cape ranges based on cape magnitude (j/kg) - k2
-    
-        rancape = mucape*.30
-	
-        if(mucape.lt.500.) then
-         rancapet1= mucape*.50
-        elseif(mucape.ge.500.0.and.mucape.lt.2000.) then
-        rancapet1= mucape*.25
-        else
-        rancapet1= mucape*.20
-       endif	
-
+c    
+c       rancape = mucape*.30
+c	
+c        if(mucape.lt.500.) then
+c         rancapet1= mucape*.50
+c        elseif(mucape.ge.500.0.and.mucape.lt.2000.) then
+c        rancapet1= mucape*.25
+c        else
+c        rancapet1= mucape*.20
+c       endif	
+c
 c 700-500 mb lapse rate ranges (c/km)- k3
-        ranlr= 2.0
-        ranlrt1= 0.4
-       
+c        ranlr= 2.0
+c        ranlrt1= 0.4
+c       
 c 500 mb temperature ranges (c) - k4
-        rantemp= 9
-        rantempt1= 1.5
-     
+c        rantemp= 9
+c        rantempt1= 1.5
+c     
 c 0-6 km shear ranges (m/s) - k6
-        ranshr= 12 
-        ranshrt1= 6 
-
+c        ranshr= 12 
+c        ranshrt1= 6 
+c
 c 0-9 shear ranges - k7
-        rankm9= 22	
-        rankm9t1= 15	
-
+c        rankm9= 22	
+c        rankm9t1= 15	
+c
 c 0-3 km shear ranges (m/s) - k8
-        ranshr3= 10    
-        ranshr3t1= 8    
-
+c        ranshr3= 10    
+c        ranshr3t1= 8    
+c
 c SRH shear ranges (m/s) - k9
 c        ransrh = 100    
-        if(srh.lt.50) then
-	ransrht1 = 25
-	else
-        ransrht1= srh*0.5    
-	endif
+c        if(srh.lt.50) then
+c	ransrht1 = 25
+c	else
+c        ransrht1= srh*0.5    
+c	endif
 *************************************************************	
 c using passed sounding, check against all soundings j .
       
@@ -124,9 +124,53 @@ c using passed sounding, check against all soundings j .
        golf = 0
        tier1 = 0
        jh = 0
-
+		totalSnd = cnt
       DO 99 j=1,cnt
       
+c mixing ratio ranges (g/kg) - k1
+        ranmr= 2.0
+        ranmrt1= 2.0
+
+c determine cape ranges based on cape magnitude (j/kg) - k2
+
+        rancape = mucape*.30
+        
+        if(mucape.lt.500.) then
+         rancapet1= mucape*.50
+        elseif(mucape.ge.500.0.and.mucape.lt.2000.) then
+        rancapet1= mucape*.25
+        else
+        rancapet1= mucape*.20
+       endif    
+
+c 700-500 mb lapse rate ranges (c/km)- k3
+        ranlr= 2.0
+        ranlrt1= 0.4
+
+c 500 mb temperature ranges (c) - k4
+        rantemp= 9
+        rantempt1= 1.5
+
+c 0-6 km shear ranges (m/s) - k6
+        ranshr= 12
+        ranshrt1= 6
+
+c 0-9 shear ranges - k7
+        rankm9= 22      
+        rankm9t1= 15    
+
+c 0-3 km shear ranges (m/s) - k8
+        ranshr3= 10
+        ranshr3t1= 8
+
+c SRH shear ranges (m/s) - k9
+c        ransrh = 100
+        if(srh.lt.50) then
+        ransrht1 = 25
+        else
+        ransrht1= srh*0.5
+        endif
+
           
         mrmat(j) = 0
 	capemat(j) = 0
@@ -293,8 +337,8 @@ c       endif
        
 c        matches = sigcnt + nulcnt
 
-c	print *, 'SARS Searching',cnt,' soundings, found',matches
-
+C	print *, 'SARS Searching',cnt,' soundings, found',matches
+      
         if(matches2.gt.0) then
 c Calculate average hail size from matches...
          avsize = avsize/matches2

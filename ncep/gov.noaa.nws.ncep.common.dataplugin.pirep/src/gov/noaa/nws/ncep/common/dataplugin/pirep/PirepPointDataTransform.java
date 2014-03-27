@@ -54,6 +54,7 @@ import com.raytheon.uf.common.time.DataTime;
  * 09/27/2011    286        qzhou       Make TB, IC, SK records all start from 0 in the arrays. 
  * 										Fixed visibility  .
  * Sep 05, 2013 2316        bsteffen    Unify pirep and ncpirep.
+ * Jan 20, 2014             njensen     Fix storage of turbulence top height
  * </pre>
  * 
  * @author qzhou
@@ -277,7 +278,7 @@ public class PirepPointDataTransform {
                         pdv.setInt(TURB_BASE_HEIGHT, pld.getTurbBaseHeight(), iTb);
                     }
                     if (pld.getTurbTopHeight() != null) {
-                        pdv.setInt(TURB_TOP_HEIGHT, pld.getTurbBaseHeight(), iTb);
+                        pdv.setInt(TURB_TOP_HEIGHT, pld.getTurbTopHeight(), iTb);
                     }
                     if (pld.getIceBaseHeight() != null) {
                         pdv.setInt(ICE_BASE_HEIGHT, pld.getIceBaseHeight(), iIc);

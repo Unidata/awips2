@@ -14,7 +14,7 @@
 	<bean id="geomagDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="geomagPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.GeoMag"/>
+		<constructor-arg value="jms-durable:queue:Ingest.GeoMag"/>
 	</bean>
 
     <bean id="geomagCamelRegistered" factory-bean="contextManager"
@@ -60,7 +60,7 @@
 		</route>
 		
 		<route id="geomagCalcRoute">
-	        <from uri="jms-generic:topic:edex.alerts"/>
+	        <from uri="jms-generic:topic:edex.alerts?threadName=geomagCalc-edex.alerts"/>
 	        <doTry>
 		          <pipeline>
                             <bean ref="serializationUtil" method="transformFromThrift" />

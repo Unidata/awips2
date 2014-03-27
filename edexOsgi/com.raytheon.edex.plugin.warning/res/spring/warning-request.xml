@@ -1,6 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
   	<bean id="generateGeospatialDataRequestHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialDataRequestHandler" />
@@ -10,7 +11,7 @@
   	</bean>
 
     <!-- Instantiating class causes a thread to be run that will generate the warngen geometries -->
-	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread"/>
+	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread" depends-on="spatialQueryRegistered" />
 	
     <!--Instantiating class will update the warngen geometries-->
 	<bean id="geospatialDataUpdater" class="com.raytheon.edex.plugin.warning.gis.GeospatialDataUpdater" />

@@ -4,18 +4,28 @@
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
   
     <bean id="FederatedRegistryMonitor" class="com.raytheon.uf.edex.datadelivery.registry.availability.FederatedRegistryMonitor">
-  		<constructor-arg ref="metadataTxTemplate"/>
   		<constructor-arg ref="registryObjectDao"/>
   	</bean>
   	
+  	<bean id="replicationEventDao"
+		class="com.raytheon.uf.edex.datadelivery.registry.dao.ReplicationEventDao">
+		<property name="sessionFactory" ref="metadataSessionFactory" />
+	</bean>
+	
+	<bean id="FederationDbInit" class="com.raytheon.uf.edex.datadelivery.registry.federation.FederationDbInit">
+		<property name="dao" ref="registryObjectDao" />
+	</bean>
+  	
   	<bean id="RegistryFederationManager" class="com.raytheon.uf.edex.datadelivery.registry.federation.RegistryFederationManager">
-  		<constructor-arg ref="lcmServiceImpl"/>
-  		<constructor-arg ref="FederatedRegistryMonitor"/>
-  		<constructor-arg ref="metadataTxTemplate"/>
-  		<property name="registryObjectDao" ref="registryObjectDao"/>
+  		<property name="replicationEventDao" ref="replicationEventDao"/>
   		<property name="registryDao" ref="registryDao"/>
-  		<property name="registrySoapServices" ref="registryWebServiceClient"/>
+  		<property name="txTemplate" ref="metadataTxTemplate"/>
+  		<property name="soapService" ref="registryWebServiceClient"/>
+  		<property name="localLifecycleManager" ref="lcmServiceImpl"/>
   		<property name="dataDeliveryRestClient" ref="dataDeliveryRestClient"/>
+  		<property name="registryObjectDao" ref="registryObjectDao"/>
+  		<property name="federatedRegistryMonitor" ref="FederatedRegistryMonitor"/>
+  		<property name="federationDbInit" ref="FederationDbInit"/>
   		
   	</bean>
 
@@ -24,7 +34,6 @@
 			value="com.raytheon.uf.edex.datadelivery.registry.federation.RegistryFederationManager.addObjectTypesToSubscribeTo" />
 		<property name="arguments">
 			<list>
-				<value>Test Object Type</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Federation</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Registry</value>
 				<value>urn:oasis:names:tc:ebxml-regrep:ObjectType:RegistryObject:Association</value>

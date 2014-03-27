@@ -32,6 +32,7 @@
 #    01/25/13        1447          dgilling       Initial Creation.
 #    03/19/13        1447          dgilling       Merge A1 DR 21434.
 #    06/11/13        #2083         randerso       Move backups to edex_static
+#    01/24/14        #2504         randerso       change to use iscUtil.getLogger for consistency 
 # 
 #
 
@@ -39,11 +40,10 @@
 import copy
 import cPickle
 import gzip
-import logging
 import os
-import sys
 import time
 
+import iscUtil
 import ActiveTableRecord
 import siteConfig
 import VTECPartners
@@ -404,20 +404,8 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         return SiteMap.getInstance().getSite4LetterId(id)
 
     def __initLogging(self):
-        logPath = os.path.join(siteConfig.GFESUITE_LOGDIR, 
-                               time.strftime("%Y%m%d", time.gmtime()), 'MergeVTEC.log')
-        try:
-            os.makedirs(os.path.dirname(logPath))
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                sys.stderr.write("Could not create log directory " + os.path.dirname(logPath))
-                sys.exit(-1)
-        
-        logging.basicConfig(filename=logPath, 
-                        format="%(levelname)s  %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s", 
-                        datefmt="%H:%M:%S", 
-                        level=logging.INFO)
-        return logging.getLogger("MergeVTEC")
+        import logging
+        return iscUtil.getLogger("MergeVTEC", logLevel=logging.INFO)
 
 def merge(activeTable, activeTableMode, newRecords, drt=0.0, makeBackups=True,
       logger=None):

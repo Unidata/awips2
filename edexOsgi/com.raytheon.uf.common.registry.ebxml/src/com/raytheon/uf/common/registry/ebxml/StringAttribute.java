@@ -17,6 +17,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jspinks     Initial creation
  * Jun 21, 2012 736        djohnson    Add thrift serialization annotations.
+ * Jan 20, 2014 2538       mpduff      Override toString
  * 
  * </pre>
  * 
@@ -36,7 +37,7 @@ public class StringAttribute extends QueryableAttribute<String> {
      * Create an StringAttribute with an 'in list' relation.
      * 
      * @param values
-     *        The values to query for.
+     *            The values to query for.
      */
     public StringAttribute(List<String> values) {
         super(values);
@@ -46,53 +47,53 @@ public class StringAttribute extends QueryableAttribute<String> {
      * Create a StringAttribute with an equals relation.
      * 
      * @param value
-     *        The value to query for.
+     *            The value to query for.
      */
     public StringAttribute(String value) {
         super(value);
     }
-    
+
     /**
      * Create a StringAttribute with a 'like' relation.
      * 
      * @param value
-     *        The value to query for.
-     *        
+     *            The value to query for.
+     * 
      * @param isLike
-     *        Specify whether or not comparison should be like. 
+     *            Specify whether or not comparison should be like.
      */
     public StringAttribute(String value, boolean isLike) {
         super(value, isLike);
     }
 
     /**
-     * Return the formatted text of this StringAttribute including 
-     * the processing of a List and like values.
+     * Return the formatted text of this StringAttribute including the
+     * processing of a List and like values.
      * 
      * @return The formatted value for this StringAttribute.
      */
     @Override
     public String getQueryValue() {
         if (this.like) {
-           return "'%"+this.value+"%'";
-        }
-        else if (this.values != null) {
-           StringBuilder sb = new StringBuilder();
-           for (String t : this.values) {
-                sb.append("'"+t+"',");
+            return "'%" + this.value + "%'";
+        } else if (this.values != null) {
+            StringBuilder sb = new StringBuilder();
+            for (String t : this.values) {
+                sb.append("'" + t + "',");
             }
             String items = sb.toString();
-            return items.substring(0,items.length()-1);
+            return items.substring(0, items.length() - 1);
         } else {
-           return "'"+this.value+"'";
+            return "'" + this.value + "'";
         }
-   }
+    }
 
     /**
-     * Return the type of slot used to contain the value.  For
-     * StringAttribute that is "stringValue".
+     * Return the type of slot used to contain the value. For StringAttribute
+     * that is "stringValue".
      * 
-     * @return The type of value attribute the slot for this StringAttribute contains.
+     * @return The type of value attribute the slot for this StringAttribute
+     *         contains.
      * 
      * @see StringValueType
      */
@@ -101,4 +102,13 @@ public class StringAttribute extends QueryableAttribute<String> {
         return "stringValue";
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return this.value;
+    }
 }

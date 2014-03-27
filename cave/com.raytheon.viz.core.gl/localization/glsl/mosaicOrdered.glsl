@@ -3,14 +3,20 @@
 
 #include <mapping>
 
-uniform DataTexture imageData;
-uniform DataMapping imageToMosaic;
-uniform DataTexture mosaicData;
+uniform sampler2D imageDataTex;
+uniform DataTextureInfo imageData;
+
+uniform sampler1D imageToMosaicDataValues;
+uniform sampler1D imageToMosaicColorValues;
+uniform int imageToMosaicValues;
+
+uniform sampler2D mosaicDataTex;
+uniform DataTextureInfo mosaicData;
 
 void main(void) {
-	float imageValue = textureToDataValue(imageData, gl_TexCoord[0].st);
+	float imageValue = textureToDataValue(imageDataTex, imageData, gl_TexCoord[0].st);
 	vec2 frag_xy = gl_FragCoord.xy;
-	float mosaicValue = textureToDataValue(mosaicData,
+	float mosaicValue = textureToDataValue(mosaicDataTex, mosaicData,
 			vec2(frag_xy.x / mosaicData.width, frag_xy.y / mosaicData.height));
 
 	float newValue;
@@ -19,7 +25,7 @@ void main(void) {
 		// Use existing value
 		newValue = mosaicValue;
 	} else {
-		newValue = dataToColorMapValue(imageValue, imageToMosaic);
+		newValue = dataToColorMapValue(imageValue, imageToMosaicDataValues, imageToMosaicColorValues, imageToMosaicValues);
 	}
 	gl_FragColor = vec4(dataToTextureValue(mosaicData, newValue), 0.0, 0.0,
 			1.0);

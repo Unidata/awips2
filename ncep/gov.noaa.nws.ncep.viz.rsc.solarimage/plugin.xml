@@ -56,7 +56,13 @@
             defaultValue="1.0"
             ncResourceName="SolarImage">
       </nc-resourceParameter>
-     
+      <nc-resourceParameter
+            paramClass="String"
+            paramName="imageFunction"
+            paramType="EDITABLE_ATTRIBUTE"
+            defaultValue=""
+            ncResourceName="SolarImage">
+      </nc-resourceParameter>
       <nc-resourceParameter
             paramName="satellite"
             ncResourceName="SolarImage"

@@ -2,22 +2,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="viirsThreadPool"
-		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="1" />
-		<property name="maxPoolSize" value="1" />
-	</bean>
-
-	<bean id="jms-viirs" class="org.apache.camel.component.jms.JmsComponent">
-        <constructor-arg ref="jmsViirsConfig" />
-		<property name="taskExecutor" ref="viirsThreadPool" />		
-	</bean>
     <bean id="jmsViirsConfig" class="org.apache.camel.component.jms.JmsConfiguration"
             factory-bean="jmsDurableConfig" factory-method="copy"/>
 	<bean id="viirsDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg ref="viirsPluginName" />
-		<constructor-arg value="jms-dist:queue:Ingest.VIIRS" />
+		<constructor-arg value="jms-durable:queue:Ingest.VIIRS" />
 	</bean>
 
     <bean id="viirsCamelRegistered" factory-bean="contextManager"
@@ -40,7 +30,7 @@
 
 		<!-- Begin VIIRS routes -->
 		<route id="viirsIngestRoute">
-			<from uri="jms-viirs:queue:Ingest.VIIRS"/>
+			<from uri="jms-durable:queue:Ingest.VIIRS"/>
 			<doTry>
 				<pipeline>
 					<bean ref="stringToFile" />
