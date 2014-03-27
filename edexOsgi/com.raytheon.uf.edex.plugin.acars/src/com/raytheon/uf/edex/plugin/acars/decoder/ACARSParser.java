@@ -23,10 +23,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDataDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRDocument;
 import com.raytheon.uf.edex.decodertools.bufr.BUFRFile;
@@ -38,15 +37,16 @@ import com.raytheon.uf.edex.decodertools.bufr.packets.IBUFRDataPacket;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * ACARS Parser.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009  1939       jkorman     Initial creation
+ * Mar 27, 2014  2811       skorolev    Updated logger.
  * 
  * </pre>
  * 
@@ -57,7 +57,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class ACARSParser implements Iterator<BUFRDataDocument>,
         Iterable<BUFRDataDocument>, IDescriptorFactorySelector {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(ACARSParser.class);
 
     // WMO header of the message containing the BUFR data.
     private WMOHeader wmoHeader = null;
