@@ -120,12 +120,6 @@ public class SizeJob extends Job {
     private DisplayData currentDisplayData;
 
     /**
-     * Method to call when loading a new selection for retention/case creation
-     * to update times.
-     */
-    private IRetentionHour iRetentionHour;
-
-    /**
      * Current start time.
      */
     private Calendar startCal;
@@ -496,7 +490,6 @@ public class SizeJob extends Job {
     public String initData(ArchiveConstants.Type type, String selectName,
             String displayArchive, String displayCategory,
             IRetentionHour iRetentionHour) {
-        this.iRetentionHour = iRetentionHour;
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         String fileName = ArchiveConstants.selectFileName(type, selectName);
         SelectConfig selections = manager.loadSelection(fileName);
