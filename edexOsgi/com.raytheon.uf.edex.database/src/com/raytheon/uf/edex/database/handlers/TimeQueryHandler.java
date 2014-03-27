@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.database.handlers;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 5, 2011            njensen     Initial creation
+ * Apr 05, 2011            njensen     Initial creation
+ * Mar 24, 2014    2941    mpduff      Sort data before returning it.
  * 
  * </pre>
  * 
@@ -180,6 +182,8 @@ public class TimeQueryHandler implements IRequestHandler<TimeQueryRequest> {
                 }
             }
         }
+
+        Collections.sort(times);
         return times;
     }
 
