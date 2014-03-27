@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.common.dataplugin.npp.viirs.projection;
 
-import org.geotools.referencing.crs.DefaultProjectedCRS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
@@ -38,6 +37,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 16, 2012            mschenke     Initial creation
+ * Mar 27, 2014 2015       njensen      Made semi minor/major a constant
  * 
  * </pre>
  * 
@@ -49,6 +49,12 @@ public class VIIRSMapProjectionFactory {
 
     /** Using single factory is faster due to internal caching */
     private static DefaultMathTransformFactory dmtFactory = new DefaultMathTransformFactory();
+
+    /**
+     * MapProjection requires semi_major/minor but our projection does not use
+     * them
+     */
+    protected static final double SEMI_MINOR_MAJOR_VALUE = 1.0;
 
     public static ProjectedCRS construct(VIIRSSpatialCoverage record)
             throws FactoryException {
@@ -65,10 +71,10 @@ public class VIIRSMapProjectionFactory {
                     record.getDirections());
             group.parameter(VIIRSMapProjection.RESOLUTION).setValue(
                     record.getDy().doubleValue());
-            // MapProjection requires semi_major/minor but our projection does
-            // not use them
-            group.parameter(VIIRSMapProjection.SEMI_MAJOR).setValue(1.0);
-            group.parameter(VIIRSMapProjection.SEMI_MINOR).setValue(1.0);
+            group.parameter(VIIRSMapProjection.SEMI_MAJOR).setValue(
+                    SEMI_MINOR_MAJOR_VALUE);
+            group.parameter(VIIRSMapProjection.SEMI_MINOR).setValue(
+                    SEMI_MINOR_MAJOR_VALUE);
             return MapUtil.constructProjection(
                     VIIRSMapProjection.PROJECTION_NAME, group);
         } catch (Exception e) {
