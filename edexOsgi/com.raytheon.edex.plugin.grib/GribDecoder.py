@@ -105,8 +105,8 @@ THINNED_GRID_VALUES = THINNED_GRID_PT_MAP.values()
 logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "EDEX")
 
 #
-#  Python implementation of the grib decoder.  This decoder uses the python ctypes
-#  library to access the NCEP grib decoder for extracting data
+#  Python implementation of the grib decoder.  This decoder uses the grib2 module
+# to access the NCEP grib decoder for extracting data
 #
 #    
 # SOFTWARE HISTORY
@@ -121,6 +121,8 @@ logHandler = UFStatusHandler.UFStatusHandler("com.raytheon.edex.plugin.grib", "E
 #                                    UFStatusHandler.
 # Sep 06, 2013  2402     bsteffen    Switch to use file extents for multipart
 #                                    grib files.
+# Feb 11, 2014  2765     bsteffen    Better handling of probability parameters.
+#
 class GribDecoder():
 
     ##
@@ -513,7 +515,6 @@ class GribDecoder():
                     #statisticalProcess = pdsTemplate[25]
                 
             elif pdsTemplateNumber == 5 or pdsTemplateNumber == 9:
-                gribDict['parameterUnit'] = "%"
                 probabilityNumber = pdsTemplate[15]
                 forecastProbabilities = pdsTemplate[16]
                 probabilityType = pdsTemplate[17]
@@ -533,10 +534,13 @@ class GribDecoder():
                 scaledValue = None 
                 if(probabilityType == 1 or probabilityType ==2):
                     scaledValue = self._convertScaledValue(scaledValueUL, scaleFactorUL)
+                    gribDict['parameterName'] = "Prob of " + gribDict['parameterName'] + " > " + str(scaledValue) + gribDict['parameterUnit']
                 else:
                     scaledValue = self._convertScaledValue(scaledValueLL, scaleFactorLL)
-                parameterAbbreviation = parameterAbbreviation + str(scaledValue) + "m"
+                    gribDict['parameterName'] = "Prob of " + gribDict['parameterName'] + " < " + str(scaledValue) + gribDict['parameterUnit']
+                parameterAbbreviation = parameterAbbreviation + str(scaledValue) + gribDict['parameterUnit']
 
+                gribDict['parameterUnit'] = "%"
                 
             elif pdsTemplateNumber == 8:
                 gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 15)
@@ -547,6 +551,7 @@ class GribDecoder():
 
             elif pdsTemplateNumber == 10:
                 parameterAbbreviation = parameterAbbreviation + str(pdsTemplate[15]) + "pct"
+                gribDict['parameterName'] = str(pdsTemplate[15]) +"th percentile " + gribDict['parameterName']
                 gribDict['endTime'] = self._convertToCalendar(pdsTemplate, 16)
 
                 #numTimeRanges = pdsTemplate[22]

@@ -41,10 +41,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.GroupSelectComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.IGroupAction;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
 import com.raytheon.viz.ui.presenter.components.WidgetConf;
@@ -67,7 +67,8 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Apr 08, 2013  1826      djohnson    Remove delivery options.
  * May 14, 2013  1040      mpduff      Changed to add office Id rather than setting it.
  * May 21, 2013  2020      mpduff      Rename UserSubscription to SiteSubscription.
- * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is created.
+ * Nov 08, 2013  2506      bgonzale    Removed send notification when a subscription is created.
+ * Feb 11, 2014  2771      bgonzale    Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -263,8 +264,7 @@ public class GroupAddDlg extends CaveSWTDialog {
 
         System.out.println("Fix Me:  Need to calculate data set size");
         subscription.setDataSetSize(999);
-        subscription.addOfficeID(LocalizationManager.getInstance()
-                .getCurrentSite());
+        subscription.addOfficeID(DataDeliveryUtils.getDataDeliveryId());
 
         // TODO: How to do this better? Will shared subscriptions participate in
         // groups?

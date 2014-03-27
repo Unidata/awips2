@@ -12,14 +12,24 @@ import gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CarrLatLonCapability;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.actions.CylindricalCedCapability;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.actions.StonyLatLonCapability;
 import gov.noaa.nws.ncep.viz.rsc.solarimage.display.SolarImageMatchCriteria;
+import gov.noaa.nws.ncep.viz.rsc.solarimage.util.ImageFunctionParser;
 import gov.noaa.nws.ncep.viz.ui.display.ColorBarFromColormap;
 import gov.noaa.nws.ncep.viz.ui.display.NCNonMapDescriptor;
 
 import java.io.File;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.TreeMap;
+
+import javax.xml.bind.JAXBException;
 
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.FactoryException;
@@ -31,8 +41,10 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.serialization.jaxb.JAXBClassLocator;
+import com.raytheon.uf.common.serialization.jaxb.JaxbDummyObject;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -46,12 +58,14 @@ import com.raytheon.uf.common.style.image.DataScale;
 import com.raytheon.uf.common.style.image.DataScale.Type;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.style.image.SamplePreferences;
+import com.raytheon.uf.common.style.level.Level;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.reflect.SubClassLocator;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.core.rsc.IInputHandler.InputPriority;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
@@ -76,8 +90,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                          NCNonMapDescriptor
  * 03/19/2013    958       qzhou, sgurung   implemented colormap and colorbar
  * 04/03/2013    958       qzhou            Added cylindrical display to updateFrameData, paintFrame, 
- *                                          inspect, dispose and construct.
+ *                                              inspect, dispose and construct.
+ * 11/04/2013    958       qzhou            Combined CylindricalDisplay with SolarImageDisplay
+ * 11/12/2013    958       qzhou            Add latlonOverlay dispose
+ * 11/27/2013    958       sgurung          Add method setAllFramesColorMapChanged()
+ * 12/16/2013    #958      sgurung          Set virtual cursor to point to lat/lon instead of pixel coordinates (in multipnaes)
+ * 12/27/2013    #1046     qzhou            Added getFunctioningRecords method
  * Sep 5,2013    2051       mnash           Fixed a deprecated method.
+ * 02/27/2014              qzhou            Changed SerializaitionUtil to JAXBManager. Added getJaxbManager function
  * </pre>
  * 
  * @author qzhou, sgurung
@@ -101,7 +121,9 @@ public class SolarImageResource extends
 
     private DataScale scale = null;
 
-    SolarImageDisplay imageDisplay;
+    protected IRscDataObject rscDataObj;
+
+    protected int interval;
 
     // sampling
     boolean sampling = false;
@@ -111,6 +133,18 @@ public class SolarImageResource extends
     private final IInputHandler inputAdapter = getSolarImageInputHandler();
 
     protected ReferencedCoordinate sampleCoord;
+
+    private boolean isColorMapChanged;
+
+    protected Coordinate virtualCursor;// virtual cursor location
+
+    protected TreeMap<Long, SolarImageRecord> functioningRecordMap = new TreeMap<Long, SolarImageRecord>();
+
+    private RGB rgbW;
+
+    private RGB rgbB;
+
+    private static JAXBManager jaxb;
 
     protected static class SampleResult {
 
@@ -122,31 +156,28 @@ public class SolarImageResource extends
         public RGB[] colors;
     }
 
-    // latlon overlay
     public boolean isCarrington = false;
 
     protected boolean displayLatLonOverlay = false;
 
-    private LatLonOverlay latLonOverlay;
-
-    private LatLonCylindOverlay latLonCylindOverlay;
-
-    // Cylindric projection
+    // Cylindrical projection
     private int cylindrical = 0; // 0--no cylindrical, 1--stony, 2--carrington
 
-    private CylindCedDisplay cylindCedDisplay;
+    // image differencing
+    private int difference = 1; // 0--no compare, 1--rundiff+frame,
+                                // 2--runratio+frame,
+                                // 3--rundiff+time, 4--runratio+time,
+                                // 5----runbase+frame, 6--runbase+time,
 
-    private int latLonInterval = 0;
+    private String imageFunction;
 
     protected class FrameData extends AbstractFrameData {
 
         // save only the image which best time matches to this frame.
         // if this is the dominant resource then this will be an exact match
         // since this record's time was used to generate the timeline.
-        //
-        private SolarImageDisplay imageDisplay = null;
 
-        private CylindCedDisplay cylindCedDisplay = null;
+        private SolarImageDisplay imageDisplay = null;
 
         private long timeMatch = -1;
 
@@ -158,6 +189,7 @@ public class SolarImageResource extends
         protected FrameData(DataTime time, int interval) {
             super(time, interval);
             dateFmt.setTimeZone(TimeZone.getTimeZone("GMT"));
+
         }
 
         // use the dfltRecordRscDataObj which just stores the one
@@ -176,79 +208,53 @@ public class SolarImageResource extends
             SolarImageRecord imgRec = (SolarImageRecord) pdo;
 
             long newTimeMatch = timeMatch(pdo.getDataTime());
-
+            long currTime = 0;
             if (newTimeMatch < 0) { // sanity check.
                 return false;
             }
 
-            /* Add CylindCedDisplay with imageDisplay */
             if (imageDisplay == null) {
                 try {
                     // setColorMapParametersAndColorBar();
-                    imageDisplay = new SolarImageDisplay(imgRec,
-                            colorMapParams, descriptor.getGridGeometry(),
-                            log10scale, scale);
+                    currTime = pdo.getDataTime().getValidTime().getTime()
+                            .getTime();
+                    imageDisplay = new SolarImageDisplay(imgRec, currTime,
+                            descriptor.getGridGeometry(), log10scale,
+                            cylindrical, imageFunction, functioningRecordMap);
                     setLegendForFrame(imgRec);
 
                 } catch (VizException e) {
-                    System.out.println("Error creating SolarImageDisplay:"
-                            + e.getMessage());
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Error creating SolarImageDisplay"
+                                    + e.getLocalizedMessage(), e);
+                    return false;
+                } catch (Exception e) {
+                    statusHandler.handle(
+                            Priority.PROBLEM,
+                            "Error creating SolarImageDisplay"
+                                    + e.getLocalizedMessage(), e);
+
                     return false;
                 }
-
                 timeMatch = newTimeMatch;
-                if ((imageDisplay != null) && (cylindCedDisplay != null)) {
+                if (imageDisplay != null) {
                     return true;
                 }
             }
 
-            if (cylindCedDisplay == null) {
-                try {
-                    // setColorMapParametersAndColorBar();
-                    cylindCedDisplay = new CylindCedDisplay(imgRec,
-                            colorMapParams, descriptor.getGridGeometry(),
-                            log10scale, scale, cylindrical, latLonInterval);
-                    setLegendForFrame(imgRec);
-
-                } catch (VizException e) {
-                    System.out.println("Error creating cylindCedDisplay:"
-                            + e.getMessage());
-                    // return false;
-                }
-
-                timeMatch = newTimeMatch;
-                if ((imageDisplay != null) && (cylindCedDisplay != null)) {
-                    return true;
-                }
-            }
-
-            // determine if this image is a better time match than the current
-            // one.
+            // determine if this image is a better time match than current one
             if (newTimeMatch < timeMatch) {
-                imageDisplay.dispose();
                 try {
                     // setColorMapParametersAndColorBar();
-                    imageDisplay = new SolarImageDisplay(imgRec,
-                            colorMapParams, descriptor.getGridGeometry(),
-                            log10scale, scale);
+                    currTime = pdo.getDataTime().getValidTime().getTime()
+                            .getTime();
+                    imageDisplay = new SolarImageDisplay(imgRec, currTime,
+                            descriptor.getGridGeometry(), log10scale,
+                            cylindrical, imageFunction, functioningRecordMap);
                     setLegendForFrame(imgRec);
                 } catch (VizException e) {
                     System.out.println("Error creating SolarImageDisplay:"
-                            + e.getMessage());
-                    return false;
-                }
-
-                // timeMatch = newTimeMatch;
-
-                cylindCedDisplay.dispose();
-                try {
-                    // setColorMapParametersAndColorBar();
-                    cylindCedDisplay = new CylindCedDisplay(imgRec,
-                            colorMapParams, descriptor.getGridGeometry(),
-                            log10scale, scale, cylindrical, latLonInterval);
-                    setLegendForFrame(imgRec);
-                } catch (VizException e) {
-                    System.out.println("Error creating cylindCedDisplay:"
                             + e.getMessage());
                     return false;
                 }
@@ -256,43 +262,7 @@ public class SolarImageResource extends
                 timeMatch = newTimeMatch;
                 return true;
             }
-
-            // if( imageDisplay == null ) {
-            // try {
-            // //setColorMapParametersAndColorBar();
-            // imageDisplay = new SolarImageDisplay( imgRec, colorMapParams,
-            // descriptor.getGridGeometry(), log10scale, scale);
-            // setLegendForFrame( imgRec );
-            //
-            // } catch (VizException e) {
-            // System.out.println("Error creating SolarImageDisplay:"+e.getMessage()
-            // );
-            // return false;
-            // }
-            //
-            // timeMatch = newTimeMatch;
-            // return true;
-            // }
-
-            // determine if this image is a better time match than the current
-            // one.
-            // if( newTimeMatch < timeMatch ) {
-            // imageDisplay.dispose();
-            // try {
-            // //setColorMapParametersAndColorBar();
-            // imageDisplay = new SolarImageDisplay( imgRec, colorMapParams,
-            // descriptor.getGridGeometry(), log10scale, scale, cylindrical);
-            // setLegendForFrame( imgRec );
-            // } catch (VizException e) {
-            // System.out.println("Error creating SolarImageDisplay:"+e.getMessage()
-            // );
-            // return false;
-            // }
-            //
-            // timeMatch = newTimeMatch;
-            // return true;
-            // }
-
+            imgRec.setRawData(null);
             return false;
         }
 
@@ -300,8 +270,6 @@ public class SolarImageResource extends
             return legendStr;
         }
 
-        // TODO : probably not correct : fix this as it needs to be.
-        //
         public void setLegendForFrame(SolarImageRecord rec) {
 
             String timeStr = dateFmt.format(rec.getDataTime().getRefTime());
@@ -337,11 +305,9 @@ public class SolarImageResource extends
 
         @Override
         public void dispose() {
+
             if (imageDisplay != null) {
                 imageDisplay.dispose();
-            }
-            if (cylindCedDisplay != null) {
-                cylindCedDisplay.dispose();
             }
             super.dispose();
         }
@@ -353,6 +319,8 @@ public class SolarImageResource extends
         solarImgRscData = resourceData;
         resourceData.addChangeListener(this);
         samplingRsc = new Sampling();
+        this.rgbW = new RGB(255, 255, 255);
+        this.rgbB = new RGB(0, 0, 0);
 
         getCapabilities().addCapability(CarrLatLonCapability.class);
         getCapabilities().addCapability(StonyLatLonCapability.class);
@@ -361,21 +329,28 @@ public class SolarImageResource extends
         getCapability(ColorMapCapability.class).setSuppressingMenuItems(true);
         getCapability(ImagingCapability.class).setSuppressingMenuItems(true);
         getCapability(ColorableCapability.class).setSuppressingMenuItems(true);
+
+        imageFunction = solarImgRscData.getImageFunction();
     }
 
     @Override
     protected void disposeInternal() {
+
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
             container.unregisterMouseHandler(inputAdapter);
         }
 
         // don't we want to remove this as a change listener?
-
         getDescriptor().getResourceList().remove(cbarRscPair);
-        if (cbarResource.getResourceData().getColorbar() != null) {
+        if (cbarResource != null
+                && cbarResource.getResourceData().getColorbar() != null) {
             cbarResource.getResourceData().getColorbar().dispose();
             cbarResource.getResourceData().setColorBar(null);
+        }
+
+        if (samplingRsc != null) {
+            samplingRsc.dispose();
         }
 
         super.disposeInternal();
@@ -392,121 +367,105 @@ public class SolarImageResource extends
         // could always just save the record when the frame is updated and
         // create/save the imageDisplay when on the first paint of this frame.
 
-        if (cylindrical != 0) {
-
-            cylindCedDisplay = currFrame.cylindCedDisplay;
-            cylindCedDisplay.setCylindrical(cylindrical);
-
-            if (cylindCedDisplay != null) {
-
-                if (hasCapability(ImagingCapability.class)) {
-                    ImagingCapability imaging = getCapability(ImagingCapability.class);
-                    cylindCedDisplay.setBrightness(imaging.getBrightness());
-                    cylindCedDisplay.setContrast(imaging.getContrast());
-                    cylindCedDisplay.setInterpolationState(imaging
-                            .isInterpolationState());
-                }
-
-                if (hasCapability(ColorMapCapability.class)) {
-                    ColorMapCapability cMap = getCapability(ColorMapCapability.class);
-                    cylindCedDisplay.setColorMapParameters(cMap
-                            .getColorMapParameters());
-                }
-
-                cylindCedDisplay.paint(target, paintProps);
-
-                if (isSampling()) {
-                    samplingRsc.paintResult(target, descriptor, paintProps,
-                            sampleCoord);
-                }
-
-                // TODO : draw the lat lon lines even if there is no image?
-                if (isLatLonOverlayOn()) {
-                    // int latLonInterval = 0;
-
-                    try {
-                        if (isCarrington) {
-                            latLonInterval = Integer.parseInt(getCapabilities()
-                                    .getCapability(resourceData,
-                                            CarrLatLonCapability.class)
-                                    .getInterval());
-                        } else {
-                            latLonInterval = Integer.parseInt(getCapabilities()
-                                    .getCapability(resourceData,
-                                            StonyLatLonCapability.class)
-                                    .getInterval());
-                        }
-                    } catch (NumberFormatException e) {
-
-                    }
-
-                    latLonCylindOverlay = new LatLonCylindOverlay(
-                            cylindCedDisplay, descriptor, latLonInterval,
-                            paintProps);
-
-                    try {
-                        latLonCylindOverlay.drawLatLines(target);
-                        latLonCylindOverlay.drawLonLines(target);
-                    } catch (TransformException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
-                }
+        SolarImageDisplay imageDisplay = currFrame.imageDisplay;
+        if (imageDisplay != null) {
+            if (hasCapability(ImagingCapability.class)) {
+                ImagingCapability imaging = getCapability(ImagingCapability.class);
+                imageDisplay.setBrightness(imaging.getBrightness());
+                imageDisplay.setContrast(imaging.getContrast());
+                imageDisplay.setInterpolationState(imaging
+                        .isInterpolationState());
             }
-        } else {
-            imageDisplay = currFrame.imageDisplay;
 
-            if (imageDisplay != null) {
+            if (hasCapability(ColorMapCapability.class)) {
+                ColorMapCapability cMap = getCapability(ColorMapCapability.class);
+                colorMapParams = cMap.getColorMapParameters();
+            }
 
-                if (hasCapability(ImagingCapability.class)) {
-                    ImagingCapability imaging = getCapability(ImagingCapability.class);
-                    imageDisplay.setBrightness(imaging.getBrightness());
-                    imageDisplay.setContrast(imaging.getContrast());
-                    imageDisplay.setInterpolationState(imaging
-                            .isInterpolationState());
-                }
+            if (isColorMapChanged) {
+                updateColorMap();
+                imageDisplay.setColorMapChanged(isColorMapChanged);
+            }
 
-                if (hasCapability(ColorMapCapability.class)) {
-                    ColorMapCapability cMap = getCapability(ColorMapCapability.class);
-                    imageDisplay.setColorMapParameters(cMap
-                            .getColorMapParameters());
-                }
+            imageDisplay.setCylindrical(cylindrical);
+            imageDisplay.setColorMapParameters(colorMapParams);
 
-                imageDisplay.paint(target, paintProps);
+            imageDisplay.paint(target, paintProps);
 
-                if (isSampling()) {
-                    samplingRsc.paintResult(target, descriptor, paintProps,
-                            sampleCoord);
-                }
+            isColorMapChanged = false;
 
-                // TODO : draw the lat lon lines even if there is no image?
-                if (isLatLonOverlayOn()) {
-                    try {
-                        if (isCarrington) {
-                            latLonInterval = Integer.parseInt(getCapabilities()
-                                    .getCapability(resourceData,
-                                            CarrLatLonCapability.class)
-                                    .getInterval());
-                        } else {
-                            latLonInterval = Integer.parseInt(getCapabilities()
-                                    .getCapability(resourceData,
-                                            StonyLatLonCapability.class)
-                                    .getInterval());
-                        }
-                    } catch (NumberFormatException e) {
+            // draw the VirtualCursor and sampling
+            drawVirtualCursor(paintProps, target);
+            if (isSampling()) {
 
+                samplingRsc.paintResult(target, descriptor, paintProps,
+                        sampleCoord);
+            }
+
+            if (isLatLonOverlayOn()) {
+                try {
+                    if (isCarrington) {
+                        imageDisplay.setLatLonInterval(Integer
+                                .parseInt(getCapabilities().getCapability(
+                                        resourceData,
+                                        CarrLatLonCapability.class)
+                                        .getInterval()));
+                    } else {
+                        imageDisplay.setLatLonInterval(Integer
+                                .parseInt(getCapabilities().getCapability(
+                                        resourceData,
+                                        StonyLatLonCapability.class)
+                                        .getInterval()));
                     }
+                } catch (NumberFormatException e) {
 
-                    latLonOverlay = new LatLonOverlay(imageDisplay, descriptor,
-                            latLonInterval, paintProps, isCarrington);
+                }
+                imageDisplay.drawOverlay(target, descriptor, paintProps,
+                        isCarrington);
 
-                    try {
-                        latLonOverlay.drawLatLines(target);
-                        latLonOverlay.drawLonLines(target);
-                    } catch (TransformException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                e.getLocalizedMessage(), e);
-                    }
+            }
+        }
+    }
+
+    private void updateColorMap() {
+        float scaleMin = scale.getMinValue().floatValue();
+        float scaleMax = scale.getMaxValue().floatValue();
+        float range = scaleMax - scaleMin;
+
+        float cMapMax = (float) (range / 255.0)
+                * colorMapParams.getColorMapMax();
+        float cMapMin = (float) (range / 255.0)
+                * colorMapParams.getColorMapMin();
+
+        if (range <= 255.0) {
+            if ((colorMapParams.getColorMapMax() > range)) {
+                colorMapParams.setColorMapMax(cMapMax);
+            }
+            if ((colorMapParams.getColorMapMin() > range)) {
+                colorMapParams.setColorMapMin(cMapMin);
+            }
+        }
+
+        else {
+            if (scaleMin >= 0) {
+                if ((colorMapParams.getColorMapMax() >= 0)
+                        && (cMapMax <= range)) {
+                    colorMapParams.setColorMapMax(cMapMax);
+                }
+
+                if ((colorMapParams.getColorMapMin() >= 0)
+                        && (cMapMin <= range)) {
+                    colorMapParams.setColorMapMin(cMapMin);
+                }
+            } else {
+                if ((colorMapParams.getColorMapMax() >= 0)
+                        && (cMapMax <= range)) {
+                    colorMapParams.setColorMapMax(cMapMax - scaleMax);
+                }
+
+                if ((colorMapParams.getColorMapMin() >= 0)
+                        && (cMapMin <= range)) {
+                    colorMapParams.setColorMapMin(cMapMin - scaleMax);
                 }
             }
         }
@@ -528,6 +487,14 @@ public class SolarImageResource extends
         this.cylindrical = cylind;
     }
 
+    public int getDifference() {
+        return difference;
+    }
+
+    public void setDifference(int difference) {
+        this.difference = difference;
+    }
+
     @Override
     public void initResource(IGraphicsTarget target) throws VizException {
 
@@ -543,7 +510,9 @@ public class SolarImageResource extends
 
         cbarResource = (ColorBarResource) cbarRscPair.getResource();
 
-        setColorMapParametersAndColorBar();
+        if (cbarResource != null) {
+            setColorMapParametersAndColorBar();
+        }
 
         if (descriptor.getRenderableDisplay().getContainer().getDisplayPanes().length > 1) {
             descriptor.getTimeMatcher().redoTimeMatching(descriptor);
@@ -556,9 +525,125 @@ public class SolarImageResource extends
         }
 
         // use the default which just gets all the images in the db regardless
-        // of
-        // the number of frames selected.
+        // of the number of frames selected.
         queryRecords();
+
+        getFunctioningRecords();
+    }
+
+    public Map getFunctioningRecords() {
+        /*
+         * A imageFunction includes function name and parameters. The
+         * imageDifferencing is one of imageFunctions. The first parameter in
+         * imagedifferencing is time. For runDiffTime, the time is minutes; for
+         * basediffTime, the time is a date with yyMMdd/hhmm format.
+         */
+        String[] elements = ImageFunctionParser.parse(imageFunction);
+
+        long funcTimeDiff = 0;
+
+        if (elements != null && elements[0].startsWith("run")) {// runDiffTime
+            if (elements[1] != null) {
+                funcTimeDiff = Integer.parseInt(elements[1]) * 60 * 1000;
+            }
+        }
+
+        else if (elements != null && elements[0].startsWith("base")) { // baseDiff
+            if (elements[1] != null) { // 131127/1300
+                SimpleDateFormat sdf = new SimpleDateFormat("yyMMdd/HHmm");
+                sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+                try {
+                    Date date = sdf.parse(elements[1]);
+                    funcTimeDiff = date.getTime();
+
+                } catch (ParseException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error parsing date. Use yyMMdd/HHmm format for the date."
+                                    + e.getLocalizedMessage(), e);
+
+                }
+            }
+        }
+
+        // frameDataMap to frameDataTimeList
+        List<Calendar> frameDataTimeList = new ArrayList<Calendar>();
+        Iterator iterator = frameDataMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            @SuppressWarnings("unchecked")
+            Map.Entry<Long, AbstractFrameData> entry = (Map.Entry<Long, AbstractFrameData>) iterator
+                    .next();
+            AbstractFrameData obj = (AbstractFrameData) entry.getValue();
+            DataTime time = obj.getFrameTime();
+
+            frameDataTimeList.add((Calendar) time.getRefTimeAsCalendar());
+        }
+
+        // construct functioningRecordMap
+        SolarImageRecord record = null;
+        long functioningRecordTime = 0;
+
+        if (elements != null && elements[0].startsWith("base")) {
+            functioningRecordTime = funcTimeDiff;
+
+            for (IRscDataObject obj : newRscDataObjsQueue) {
+                Calendar calendar = obj.getDataTime().getValidTime();
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+
+                long timeOnQueue = calendar.getTimeInMillis();// trunk time
+
+                if (timeOnQueue == functioningRecordTime) {
+                    DfltRecordRscDataObj DfltObj = (DfltRecordRscDataObj) obj;
+                    record = (SolarImageRecord) DfltObj.getPDO();
+
+                    break;
+                }
+            }
+
+            if (record != null) {
+                for (int i = 0; i < frameDataTimeList.size(); i++)
+                    functioningRecordMap.put(frameDataTimeList.get(i)
+                            .getTimeInMillis(), record);// orig time
+            }
+        }
+
+        else {
+            for (int i = 0; i < frameDataTimeList.size(); i++) {
+                Calendar cal = frameDataTimeList.get(i);
+                Calendar calen = (Calendar) cal.clone();
+                calen.set(Calendar.SECOND, 0);
+                calen.set(Calendar.MILLISECOND, 0);
+
+                functioningRecordTime = calen.getTimeInMillis() - funcTimeDiff;
+
+                for (IRscDataObject obj : newRscDataObjsQueue) {
+
+                    Calendar calendar = obj.getDataTime().getValidTime();
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+
+                    long timeOnQueue = calendar.getTimeInMillis();
+
+                    if (timeOnQueue == functioningRecordTime) {
+                        // System.out.println("***n " + obj.getDataTime() + " "
+                        // + frameDataTimeList.get(i).getTime());
+                        DfltRecordRscDataObj DfltObj = (DfltRecordRscDataObj) obj;
+                        record = (SolarImageRecord) DfltObj.getPDO();
+
+                        // put frameDataMap time here
+                        functioningRecordMap.put(frameDataTimeList.get(i)
+                                .getTimeInMillis(), record);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // System.out.println("*** " + functioningRecordMap.size() + " "
+        // + frameDataTimeList.size());
+
+        return functioningRecordMap;
     }
 
     public String getLegendStr() {
@@ -576,14 +661,12 @@ public class SolarImageResource extends
      */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        if (coord == null) {
-            return "No Data";
-        }
-        if (!sampling) {
-            return "";
-        }
 
-        StringBuilder sb = new StringBuilder();
+        if (coord == null)
+            return "No Data";
+
+        if (!sampling)
+            return "";
 
         if (cylindrical != 0) {
             if (cylindrical == 1) {
@@ -593,83 +676,57 @@ public class SolarImageResource extends
             }
 
             try {
-                FrameData currFrame = (FrameData) getCurrentFrame();
-
-                cylindCedDisplay = currFrame.cylindCedDisplay;
-
-                if (cylindCedDisplay == null) {
+                if (coord.asLatLon().y > 750.0 || coord.asLatLon().y < 250.0) {
                     return "";
                 }
-
-                sb.append("Pixel: ");
-
-                double[] coordDbl = new double[2];
-                coordDbl[0] = cylindCedDisplay.formatValue(coord.asLatLon().x);
-                coordDbl[1] = cylindCedDisplay.formatValue(coord.asLatLon().y);
-                // sb.append(coord.asLatLon().toString());
-                sb.append((new Coordinate(coordDbl[0], coordDbl[1])).toString());
-                sb.append('\n');
-
-                Map<String, Object> map = cylindCedDisplay.interrogate(coord);
-
-                for (Map.Entry<String, Object> item : map.entrySet()) {
-                    sb.append(item.getKey() + ": ");
-                    sb.append(item.getValue().toString());
-                    sb.append('\n');
-                }
-
-                return sb.toString();
-            } catch (TransformException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (FactoryException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
-        } else {
-            try {
-                FrameData currFrame = (FrameData) getCurrentFrame();
-
-                imageDisplay = currFrame.imageDisplay;
-
-                if (imageDisplay == null) {
-                    return "";
-                }
-
-                sb.append("Pixel: ");
-
-                double[] coordDbl = new double[2];
-                coordDbl[0] = imageDisplay.formatValue(coord.asLatLon().x);
-                coordDbl[1] = imageDisplay.formatValue(coord.asLatLon().y);
-                // sb.append(coord.asLatLon().toString());
-                sb.append((new Coordinate(coordDbl[0], coordDbl[1])).toString());
-                sb.append('\n');
-
-                Map<String, Object> map = imageDisplay.interrogate(coord);
-
-                for (Map.Entry<String, Object> item : map.entrySet()) {
-                    sb.append(item.getKey() + ": ");
-                    sb.append(item.getValue().toString());
-                    sb.append('\n');
-                }
-
-                return sb.toString();
-            } catch (TransformException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (FactoryException e) {
-                // TODO Auto-generated catch block. Please revise as
-                // appropriate.
+            } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
         }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("** " + this.getLegendStr() + " **\n");
+
+        try {
+            FrameData currFrame = (FrameData) getCurrentFrame();
+
+            SolarImageDisplay imageDisplay = currFrame.imageDisplay;
+
+            if (imageDisplay == null) {
+                return "";
+            }
+
+            sb.append("Pixel: ");
+
+            double[] coordDbl = new double[2];
+            coordDbl[0] = imageDisplay.formatValue(coord.asLatLon().x);
+            coordDbl[1] = imageDisplay.formatValue(coord.asLatLon().y);
+
+            sb.append((new Coordinate(coordDbl[0], coordDbl[1])).toString());
+            sb.append('\n');
+
+            Map<String, Object> map = imageDisplay.interrogate(coord);
+
+            if (map != null) {
+                for (Map.Entry<String, Object> item : map.entrySet()) {
+                    sb.append(item.getKey() + ": ");
+                    sb.append(item.getValue().toString());
+                    sb.append('\n');
+                }
+            } else {
+                return "";
+            }
+
+            return sb.toString();
+        } catch (TransformException e) {
+
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } catch (FactoryException e) {
+
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+
         return "No Data";
     }
 
@@ -710,6 +767,9 @@ public class SolarImageResource extends
                 cmapParams);
         cbarResource.setColorBar(colorBar);
 
+        isColorMapChanged = true;
+        setAllFramesColorMapChanged(isColorMapChanged);
+
     }
 
     @Override
@@ -732,6 +792,7 @@ public class SolarImageResource extends
                 solarImgRscData.setAlpha(imgCap.getAlpha());
                 solarImgRscData.setBrightness(imgCap.getBrightness());
                 solarImgRscData.setContrast(imgCap.getContrast());
+                solarImgRscData.setImageFunction(imageFunction);
                 issueRefresh();
 
             } else if (object instanceof ColorMapCapability) {
@@ -750,6 +811,7 @@ public class SolarImageResource extends
 
                 ColorBarFromColormap cBar = solarImgRscData.getColorBar();
                 cBar.setColorMap(theColorMap);
+
                 ColorBarFromColormap colorBar = (ColorBarFromColormap) this.cbarResource
                         .getResourceData().getColorbar();
                 if (colorBar != null) {
@@ -765,6 +827,7 @@ public class SolarImageResource extends
                 }
                 solarImgRscData.getRscAttrSet().setAttrValue("colorBar", cBar);
                 solarImgRscData.setIsEdited(true);
+                isColorMapChanged = true;
                 issueRefresh();
 
             }
@@ -781,6 +844,31 @@ public class SolarImageResource extends
 
     private String getLocFilePathForImageryStyleRule() {
         return NcPathConstants.SOLAR_IMG_STYLE_RULES;
+    }
+
+    public static synchronized JAXBManager getJaxbManager()
+            throws JAXBException {
+        if (jaxb == null) {
+            SubClassLocator locator = new SubClassLocator();
+            Collection<Class<?>> classes = JAXBClassLocator.getJAXBClasses(
+                    locator, StyleRuleset.class, StyleRule.class, Level.class,
+                    AbstractStylePreferences.class, MatchCriteria.class);
+
+            locator.save();
+
+            Class<?>[] jaxbClasses = new Class<?>[classes.size() + 1];
+            classes.toArray(jaxbClasses);
+
+            /*
+             * Add JaxbDummyObject at the beginning so properties are loaded
+             * correctly
+             */
+            jaxbClasses[jaxbClasses.length - 1] = jaxbClasses[0];
+            jaxbClasses[0] = JaxbDummyObject.class;
+
+            jaxb = new JAXBManager(jaxbClasses);
+        }
+        return jaxb;
     }
 
     private void setColorMapParametersAndColorBar() throws VizException {
@@ -816,7 +904,6 @@ public class SolarImageResource extends
                     ColorMapCapability.class).getColorMapParameters()
                     .getColorMap());
         }
-
         MatchCriteria matchCriteria = SolarImageMatchCriteria
                 .constructFromResourceData(solarImgRscData);
 
@@ -827,8 +914,10 @@ public class SolarImageResource extends
         File file = NcPathManager.getInstance().getStaticFile(locFileName);
         StyleRule sRule = null;
         try {
-            StyleRuleset styleSet = (StyleRuleset) SerializationUtil
-                    .jaxbUnmarshalFromXmlFile(StyleRuleset.class, file);
+            StyleRuleset styleSet = (StyleRuleset) getJaxbManager()
+                    .unmarshalFromXmlFile(file);
+
+            // .jaxbUnmarshalFromXmlFile(StyleRuleset.class, file);
 
             if (styleSet != null) {
                 List<StyleRule> styleRuleList = styleSet.getStyleRules();
@@ -878,6 +967,9 @@ public class SolarImageResource extends
                 }
 
             }
+        } catch (JAXBException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+
         } catch (SerializationException e1) {
 
             e1.printStackTrace();
@@ -888,6 +980,16 @@ public class SolarImageResource extends
 
             e1.printStackTrace();
         }
+
+        if (sRule == null)
+            throw new VizException(
+                    "Style Rule does not exist for this resource type (instrument: "
+                            + solarImgRscData.getInstrument()
+                            + ", wavelength: "
+                            + solarImgRscData.getWavelength()
+                            + " and intTime: "
+                            + solarImgRscData.getIntTime()
+                            + "). Please add it to solarImageryStyleRules.xml file located under Localization perspective -> NCEP -> Style Rules.  ");
 
         scale = ((ImagePreferences) sRule.getPreferences()).getDataScale();
         dataMap = ((ImagePreferences) sRule.getPreferences()).getDataMapping();
@@ -1015,4 +1117,78 @@ public class SolarImageResource extends
         }
     }
 
+    protected void setAllFramesColorMapChanged(boolean cMapChanged) {
+        for (AbstractFrameData frameData : frameDataMap.values()) {
+            FrameData frame = (FrameData) frameData;
+            if (frame.imageDisplay != null) {
+                frame.imageDisplay.setColorMapChanged(cMapChanged);
+                if (cMapChanged)
+                    frame.imageDisplay.setColorMapParameters(colorMapParams);
+            }
+        }
+    }
+
+    public Coordinate getLatLonFromPixel(Coordinate pixelCoord) {
+        FrameData currentFrame = (FrameData) getCurrentFrame();
+
+        if (currentFrame != null) {
+            SolarImageDisplay currentDisplay = ((FrameData) getCurrentFrame()).imageDisplay;
+
+            if (currentDisplay != null) {
+                return currentDisplay.getLatLonFromPixel(pixelCoord);
+            }
+        }
+        return null;
+    }
+
+    public void setVirtualCursor(Coordinate virtualCursorLatLon) {
+
+        FrameData currentFrame = (FrameData) getCurrentFrame();
+
+        if (currentFrame != null) {
+            SolarImageDisplay currentDisplay = ((FrameData) getCurrentFrame()).imageDisplay;
+
+            if (currentDisplay != null) {
+                virtualCursor = currentDisplay
+                        .getPixelCoordFromLatLon(virtualCursorLatLon);
+                if (virtualCursor != null) {
+
+                    this.sampleCoord = new ReferencedCoordinate(
+                            this.virtualCursor);
+
+                    // }
+                    // keep '+' with sampling
+                    double[] out = this.getDescriptor().worldToPixel(
+                            new double[] { virtualCursor.x, virtualCursor.y });
+                    this.virtualCursor = new Coordinate(out[0], out[1]);
+
+                }
+            }
+        }
+    }
+
+    protected void drawVirtualCursor(PaintProperties paintProps,
+            IGraphicsTarget target) throws VizException {
+        // Calculate scale for image
+        double screenToWorldRatio = paintProps.getCanvasBounds().width
+                / paintProps.getView().getExtent().getWidth();
+        double outsideValue = 6 / screenToWorldRatio;
+
+        if (virtualCursor != null) {
+
+            target.drawLine(virtualCursor.x + outsideValue,
+                    virtualCursor.y + 1, 0.0, virtualCursor.x - outsideValue,
+                    virtualCursor.y + 1, 0.0, rgbB, 1.0f);
+            target.drawLine(virtualCursor.x + 1,
+                    virtualCursor.y + outsideValue, 0.0, virtualCursor.x + 1,
+                    virtualCursor.y - outsideValue, 0.0, rgbB, 1.0f);
+
+            target.drawLine(virtualCursor.x + outsideValue, virtualCursor.y,
+                    0.0, virtualCursor.x - outsideValue, virtualCursor.y, 0.0,
+                    rgbW, 1.0f);
+            target.drawLine(virtualCursor.x, virtualCursor.y + outsideValue,
+                    0.0, virtualCursor.x, virtualCursor.y - outsideValue, 0.0,
+                    rgbW, 1.0f);
+        }
+    }
 }

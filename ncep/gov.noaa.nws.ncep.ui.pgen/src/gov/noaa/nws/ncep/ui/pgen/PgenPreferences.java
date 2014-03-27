@@ -36,8 +36,10 @@ import org.eclipse.ui.IWorkbenchPreferencePage;
  *     02/10/11		?			B. Yin		Add maximum distance to be selected
  *     02/11	    #405        J. Wu    	Added P_WORKING_DIR.
  *     05/11	    ?        	J. Wu    	Added P_COMP_COORD
- *     08/11	    #335        	J. Wu    	Added P_BASE_DIR
- *     04/29        #977        S. Gilbert  PGEN Database support
+ *     08/11	    #335        J. Wu    	Added P_BASE_DIR
+ *     04/12        #977        S. Gilbert  PGEN Database support
+ *     11/13        TTR752      J. Wu       Added P_AUTOPLACE_TEXT
+ *     12/13        TTR776      J. Wu       Added P_LAYER_MERGE
  * 
  * </pre>
  * 
@@ -76,6 +78,13 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
 
     // public final static String CED_COMP_COORD = "ced/0;0;0|KS+";
     public final static String STR_COMP_COORD = "str/90;-97;0|19.00;-119.00;47.00;-56.00";
+
+    // Preference to place text box automatically (CCFP);
+    public final static String P_AUTOPLACE_TEXT = "PGEN_AUTOPLACE_TEXT";
+
+    private BooleanFieldEditor autoPlaceText;
+
+    public final static String P_LAYER_MERGE = "P_LAYER_MERGE";
 
     private BooleanFieldEditor layerLink;
 
@@ -132,6 +141,21 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
                 getFieldEditorParent());
         this.addField(projCombo);
 
+        autoPlaceText = new BooleanFieldEditor(P_AUTOPLACE_TEXT,
+                "&Text Auto Placement (where applicable)",
+                BooleanFieldEditor.DEFAULT, getFieldEditorParent());
+        this.addField(autoPlaceText);
+
+        ComboFieldEditor layerMerge = new ComboFieldEditor(P_LAYER_MERGE,
+                "&Default Action for PGEN Layer Merge:", new String[][] {
+                        { "Take no action", "0" },
+                        { "Add all as new layers", "2" },
+                        { "Replace all like name layers", "3" },
+                        { "Merge all like name layers", "4" },
+                        { "Merge all into active layer", "5" }, },
+                getFieldEditorParent());
+        this.addField(layerMerge);
+
     }
 
     /*
@@ -170,7 +194,15 @@ public class PgenPreferences extends FieldEditorPreferencePage implements
                 }
             }
         } else if (event.getSource() instanceof ComboFieldEditor) {
-            GfaClip.getInstance().updateGfaBoundsInGrid();
+            String prefname = ((ComboFieldEditor) event.getSource())
+                    .getPreferenceName();
+            if (prefname.equals(P_COMP_COORD)) {
+                GfaClip.getInstance().updateGfaBoundsInGrid();
+            } else if (prefname.equals(P_LAYER_MERGE)) {
+                String nvalue = event.getNewValue().toString();
+                Activator.getDefault().getPreferenceStore()
+                        .setValue(prefname, Integer.parseInt(nvalue));
+            }
         } else if (event.getSource() instanceof IntegerFieldEditor) {
             IntegerFieldEditor iField = (IntegerFieldEditor) event.getSource();
             if (iField.getPreferenceName().equals(P_AUTO_FREQ)) {

@@ -24,20 +24,25 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
 
 /**
- * TODO Add Description
+ * Send multiple {@link TimeQueryRequest}s at once. This can be more efficient
+ * than sending multiple requests individually because it reduces the network
+ * overhead. The response will be a List<List<DataTime>> where the list contains
+ * one entry for each request, in the same order as the requests.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 1, 2011            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul0 1, 2011           rjpeter     Initial creation
+ * Dec 18, 2013  2579     bsteffen    Class javadoc
  * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
+ * @see TimeQueryRequest
  */
 @DynamicSerialize
 public class TimeQueryRequestSet implements IServerRequest {

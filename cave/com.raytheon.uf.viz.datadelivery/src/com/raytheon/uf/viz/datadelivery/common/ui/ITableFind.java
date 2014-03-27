@@ -19,6 +19,10 @@
  **/
 package com.raytheon.uf.viz.datadelivery.common.ui;
 
+import java.util.List;
+
+import com.raytheon.uf.viz.datadelivery.notification.NotificationRowData;
+
 /**
  * Table find interface.
  * 
@@ -30,6 +34,7 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
  * ------------ ---------- ----------- --------------------------
  * May  7, 2012            jpiatt      Initial creation.
  * Sep 26, 2013   2417     mpduff      Add clearSelection method.
+ * Feb 07, 2014   2453     mpduff      Added getCurrentSelectionIndex method.
  * </pre>
  * 
  * @author jpiatt
@@ -38,26 +43,34 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
 
 public interface ITableFind {
     /**
-     * handleFind call
+     * handle page selection
      */
     void handlePageSelection();
 
     /**
-     * handleFind call
+     * select a row
      * 
      * @param index
      */
-    void selectIndex(int index);
+    void selectRow(NotificationRowData row);
 
     /**
-     * handleFind call
+     * handle multiple rows
      * 
      * @param indices
      */
-    void selectIndices(int[] indices);
+    void selectRows(List<NotificationRowData> rows);
 
     /**
      * Clear any table selections.
      */
     void clearSelections();
+
+    /**
+     * Get the currently selected index within the data array, not the visible
+     * table.
+     * 
+     * @return
+     */
+    int getCurrentSelectionIndex();
 }

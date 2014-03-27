@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 /**
  * Point Meta Data object
@@ -42,11 +43,17 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
+@RegistryObjectVersion(value = 1.0f)
 @DynamicSerialize
 public class PointDataSetMetaData extends DataSetMetaData<PointTime> {
 
+    public PointDataSetMetaData() {
+        
+    }
+    
     @Override
     public void accept(IDataSetMetaDataVisitor visitor) {
         // TODO: not sure what this does?
     }
+
 }

@@ -123,8 +123,10 @@ public class AlertVizApplication implements IStandaloneComponent {
 
         AlertvizJob as = new AlertvizJob(port);
         if (as.isAlreadyStarted()) {
-            Container.logInternal(Priority.ERROR,
-                    "Alertviz already started on port: " + port + ", exiting");
+            String exitMsg = "Alertviz already started on port: " + port
+                    + ", exiting";
+            System.out.println(exitMsg);
+            Container.logInternal(Priority.ERROR, exitMsg);
             return IApplication.EXIT_OK;
         }
 

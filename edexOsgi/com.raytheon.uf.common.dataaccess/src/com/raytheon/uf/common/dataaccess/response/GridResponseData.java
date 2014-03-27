@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.common.dataaccess.response;
 
+import javax.measure.unit.UnitFormat;
+
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -31,9 +33,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 4, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 04, 2013           dgilling    Initial creation
+ * Feb 24, 2014  2762     bsteffen    Format units with UCUM
+ * 
  * 
  * </pre>
  * 
@@ -62,7 +66,7 @@ public class GridResponseData extends AbstractResponseData {
 
         parameter = data.getParameter();
         if (data.getUnit() != null) {
-            unit = data.getUnit().toString();
+            unit = UnitFormat.getUCUMInstance().format(data.getUnit());
         }
         FloatArrayWrapper dataGrid = new FloatArrayWrapper(
                 data.getGridGeometry());

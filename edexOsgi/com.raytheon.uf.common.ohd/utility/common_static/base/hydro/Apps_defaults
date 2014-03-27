@@ -126,6 +126,7 @@
 #10/01/09    - Added 5 tokens for arcnav application.                          //only for arcnav for raxum application
 #10/03/12    - Added token section for script execution
 #02/12/2014  - Added token for default display to replace field in rwprefs table
+#02/18/14    - Added section for run_report_alarm service configuration.
 
 
 # ==============================================================================
@@ -180,6 +181,42 @@ MpeRUCFreezingLevel                            : ON
 MpeLightningSrv                                : ON
 #====================================================================================
 
+#===================== run_report_alarm Configuration ===============================
+# These settings modify behavior of the EDEX RunReportAlarmSrv service, which 
+# replaced the original run_report_alarm script ported from A1 hydro.
+#
+## Mandatory Arguments:
+##   alarm_product_id  :  The product id that will be used to write the alarm
+##                        report product into the textdb. 
+##
+## Optional Arguments:
+##   alarm_file_suffix :  A Java date/time format string that will be used as
+##                        the alarm report's file extension when the product is
+##                        written to disk. Product file path is 
+##                        ${whfs_product_dir}/PRODUCT_ID.FILE_SUFFIX.
+##
+##   alarm_report_mode :  Report mode. Valid values are one of the following:
+##                        ALL, FRESH, RECENT, UNREPORTED, NEAREST, NEAR_NOW, 
+##                        LATEST_MAXFCST, or NEW_OR_INCREASED.
+##
+##   alarm_filter      :  Additional filtering options for the product.
+##                        Valid values can one or many of the following:
+##                        'O', 'F', 'T', 'M', 'R', 'L', 'U', 'D'.
+##
+##   alarm_pe_filter   :  Physical element filter.
+##
+##   alarm_minutes     :  For certain report modes, creates a window going back
+##                        or forward the specified number of minutes.
+##                        Valid values are 1 - 999999.
+##
+##   alarm_verbose     :  Whether or not to create a "verbose mode" report.
+##                        Valid values are TRUE or FALSE.
+##
+
+alarm_product_id       : CCCACRXXX
+alarm_file_suffix      : MMdd.HHmm
+alarm_report_mode      : NEAREST
+
 # ==============================================================================
 
 #  Executable directory tokens.
@@ -205,7 +242,7 @@ server_name        : ONLINE      # Informix database server name
 db_name            : hd_ob92lwx # IHFS database name
 damcat_db_name     : dc_ob5xxx   # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
-pghost             : localhost         # The machine PostGres is running on
+pghost             : dx1f         # The machine PostGres is running on
 pguser             : awips      # The user allowed to access PostGres
 pgport             : 5432        # The PostGres Server port
 adb_name           : adb_ob7xxx  # RFC archive database name
@@ -1845,7 +1882,11 @@ dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 # ================== end of SSHP Directory Structure tokens ========================
-
+# nrldb tokens
+nrldb_log     :  $(whfs_log_dir)/nrldb
+nrldb_data    :  $(whfs_local_data_dir)/nrldb
+nrldb_config  :  $(whfs_config_dir)/nrldb
+nrldb_tmp     :  /awips/hydroapps/whfs/local/data/output
 
 # The syntax needed in the file is:
 #

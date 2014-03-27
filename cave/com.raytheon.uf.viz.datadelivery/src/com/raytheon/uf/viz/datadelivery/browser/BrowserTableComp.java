@@ -48,7 +48,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.notification.NotificationMessage;
 import com.raytheon.uf.viz.datadelivery.common.ui.IDialogClosed;
 import com.raytheon.uf.viz.datadelivery.common.ui.SortImages.SortDirection;
@@ -57,6 +56,7 @@ import com.raytheon.uf.viz.datadelivery.common.ui.TableComp;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableCompConfig;
 import com.raytheon.uf.viz.datadelivery.common.ui.TableDataManager;
 import com.raytheon.uf.viz.datadelivery.common.ui.ViewDetailsDlg;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.BrowserColumnNames;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
 
@@ -85,6 +85,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Feb 15, 2013   1638     mschenke     Moved Util.EOL into FileUtil
  * Apr 10, 2013   1891     djohnson     Declare variable as List.
  * Sep 11, 2013   2352     mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
  * 
  * </pre>
  * 
@@ -627,7 +628,7 @@ public class BrowserTableComp extends TableComp implements IDialogClosed {
         try {
             datasetNames = DataDeliveryHandlers.getSubscriptionHandler()
                     .getSubscribedToDataSetNames(
-                            LocalizationManager.getInstance().getCurrentSite());
+                            DataDeliveryUtils.getDataDeliveryId());
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to retrieve subscription dataset names!", e);

@@ -37,6 +37,8 @@
 										<property name="contextPath" value="/" />
 										<property name="war"
 											value="file:///${edex.home}/webapps/registryEbxml" />
+										<property name="systemClasses"
+                                            value="java., javax., org., com., gov., ch., net., edu."/>
 									</bean>
 								</list>
 							</property>
@@ -48,5 +50,4 @@
 			</bean>
 		</property>
 	</bean>
-
 </beans>  

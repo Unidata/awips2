@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <AttributeSetGroup xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <resource>SDO-AIA</resource>
-    <attrSetGroupName>ALL</attrSetGroupName>
-    <attrSetNames>AIA131,AIA335,AIA211,AIA193,AIA171,AIA1600,AIA1700,AIA4500,AIA94,AIA304,THEMATIC</attrSetNames>
+    <attrSetGroupName>AIA-ALL</attrSetGroupName>
+    <attrSetNames>AIA131,AIA335,AIA211,AIA193,AIA193-runDiff,AIA171,AIA1600,AIA1700,AIA4500,AIA94,AIA304,THEMATIC</attrSetNames>
 </AttributeSetGroup>
