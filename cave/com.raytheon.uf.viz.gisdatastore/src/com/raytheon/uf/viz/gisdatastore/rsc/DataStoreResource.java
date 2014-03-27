@@ -50,8 +50,11 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -115,6 +118,7 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 24, 2013      #1908 randerso     Update attributes when cropped
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
+ * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
  * 
  * </pre>
  * 
@@ -130,7 +134,14 @@ public class DataStoreResource extends
 
     static final String ID_ATTRIBUTE_NAME = "Feature.ID";
 
-    private static final int CLICK_TOLERANCE = 3;
+    /**
+     * Non-polygonal geometry within CLICK_TOLERANCE screen pixels of the cursor
+     * will be selected when double clicking in the map.
+     * 
+     * 10 pixels was selected as it felt about right when trying to select
+     * individual points in a point based shape file
+     */
+    private static final int CLICK_TOLERANCE = 10;
 
     private static final RGB RUBBER_BAND_COLOR = new RGB(0, 255, 0);
 
@@ -430,6 +441,10 @@ public class DataStoreResource extends
 
     private SimpleFeatureType schema;
 
+    private MathTransform incomingToLatLon;
+
+    private MathTransform latLonToIncoming;
+
     /**
      * The valid time range for this resource. If null resource is time
      * agnostic.
@@ -594,6 +609,11 @@ public class DataStoreResource extends
             timer.start();
 
             schema = dataStore.getSchema(typeName);
+            CoordinateReferenceSystem incomingCrs = schema
+                    .getGeometryDescriptor().getCoordinateReferenceSystem();
+            incomingToLatLon = MapUtil.getTransformToLatLon(incomingCrs);
+            latLonToIncoming = MapUtil.getTransformFromLatLon(incomingCrs);
+
             List<AttributeDescriptor> attrDesc = schema
                     .getAttributeDescriptors();
 
@@ -624,7 +644,8 @@ public class DataStoreResource extends
         }
     }
 
-    private void loadAttributes() {
+    private void loadAttributes() throws FactoryException,
+            MismatchedDimensionException, TransformException {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
         Query query = new Query();
@@ -643,8 +664,9 @@ public class DataStoreResource extends
 
         List<Geometry> geomList = new ArrayList<Geometry>();
         PixelExtent extent = clipToProjExtent(projExtent);
-        Geometry boundingGeom = buildBoundingGeometry(extent,
-                worldToScreenRatio);
+        Geometry boundingGeom = JTS.transform(
+                buildBoundingGeometry(extent, worldToScreenRatio),
+                latLonToIncoming);
         flattenGeometry(boundingGeom, geomList);
 
         List<Filter> filterList = new ArrayList<Filter>(geomList.size());
@@ -674,7 +696,8 @@ public class DataStoreResource extends
                 String id = f.getID();
                 DisplayAttributes da = getDisplayAttributes(id);
                 Geometry g = (Geometry) f.getAttribute(geomField);
-                da.setCentroid(g.getCentroid());
+                da.setCentroid((Point) JTS.transform(g.getCentroid(),
+                        incomingToLatLon));
 
                 attributes[index][0] = id;
                 for (int j = 1; j < attributeNames.length; j++) {
@@ -854,8 +877,13 @@ public class DataStoreResource extends
         if (updateHighlights || updateLabels || updateShading || updateExtent) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                boundingGeom = buildBoundingGeometry(expandedExtent,
-                        worldToScreenRatio);
+                try {
+                    boundingGeom = JTS.transform(
+                            buildBoundingGeometry(expandedExtent,
+                                    worldToScreenRatio), latLonToIncoming);
+                } catch (Exception e) {
+                    throw new VizException(e.getLocalizedMessage(), e);
+                }
 
                 String geomField = schema.getGeometryDescriptor()
                         .getLocalName();
@@ -1238,7 +1266,12 @@ public class DataStoreResource extends
      */
     public Object[][] getAttributes() {
         if (attributes == null) {
-            loadAttributes();
+            try {
+                loadAttributes();
+            } catch (Exception e) {
+                statusHandler.error("Error loading attributes: ", e);
+                attributes = new Object[0][0];
+            }
         }
         return attributes;
     }
@@ -1253,6 +1286,20 @@ public class DataStoreResource extends
 
     SimpleFeatureType getSchema() {
         return schema;
+    }
+
+    /**
+     * @return the incomingToLatLon
+     */
+    public MathTransform getIncomingToLatLon() {
+        return incomingToLatLon;
+    }
+
+    /**
+     * @return the latLonToIncoming
+     */
+    public MathTransform getLatLonToIncoming() {
+        return latLonToIncoming;
     }
 
     /**
@@ -1278,7 +1325,8 @@ public class DataStoreResource extends
         try {
             if (polygonal) {
                 GeometryFactory gf = new GeometryFactory();
-                Point clickPoint = gf.createPoint(coord.asLatLon());
+                Point clickPoint = gf.createPoint(JTS.transform(
+                        coord.asLatLon(), null, latLonToIncoming));
                 clickFilter = ff.contains(ff.property(geomField),
                         ff.literal(clickPoint));
             } else {
@@ -1294,9 +1342,10 @@ public class DataStoreResource extends
 
                 double delta = CLICK_TOLERANCE * worldToScreenRatio;
                 PixelExtent bboxExtent = new PixelExtent(pix.x - delta, pix.x
-                        + delta, pix.y - delta, pix.y + delta);
-                Geometry clickBox = buildBoundingGeometry(bboxExtent,
-                        worldToScreenRatio);
+                        + delta, pix.y + delta, pix.y - delta);
+                Geometry clickBox = JTS.transform(
+                        buildBoundingGeometry(bboxExtent, worldToScreenRatio),
+                        latLonToIncoming);
                 List<Geometry> clickGeomList = new ArrayList<Geometry>();
                 flattenGeometry(clickBox, clickGeomList);
                 List<Filter> clickFilterList = new ArrayList<Filter>(
@@ -1313,7 +1362,6 @@ public class DataStoreResource extends
                     "Error transforming sample point to lat/lon ", e);
         }
 
-        // query.setFilter(ff.and(clickFilter, boundingFilter));
         query.setFilter(clickFilter);
 
         SimpleFeatureCollection featureCollection = null;
@@ -1397,7 +1445,7 @@ public class DataStoreResource extends
         DisplayAttributes da = getDisplayAttributes(id);
         da.setHighlighted(highlighted);
         updateHighlights = true;
-        ;
+
         issueRefresh();
     }
 
