@@ -13,7 +13,7 @@
     <bean id="convsigmetDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
 		<constructor-arg value="convsigmet" />
-		<constructor-arg value="jms-dist:queue:Ingest.convsigmet" />
+		<constructor-arg value="jms-durable:queue:Ingest.convsigmet" />
 	</bean>
     
 	<bean id="convsigmetCamelRegistered" factory-bean="contextManager"

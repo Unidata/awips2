@@ -41,8 +41,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 3, 2013    1655     mpduff     Initial creation.
- * 
+ * Jul 3, 2013    1655     mpduff      Initial creation.
+ * Jan 17, 2014 2125       rjpeter     EmbeddedId classes need hashCode/equals.
  * </pre>
  * 
  * @author mpduff
@@ -54,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlAccessorType(XmlAccessType.NONE)
 public class DataDeliverySystemStatusId implements Serializable,
         ISerializableObject {
+
     private static final long serialVersionUID = -6970802086185781078L;
 
     @XmlElement
@@ -94,5 +95,44 @@ public class DataDeliverySystemStatusId implements Serializable,
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + ((name == null) ? 0 : name.hashCode());
+        result = (prime * result)
+                + ((systemType == null) ? 0 : systemType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DataDeliverySystemStatusId other = (DataDeliverySystemStatusId) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (systemType == null) {
+            if (other.systemType != null) {
+                return false;
+            }
+        } else if (!systemType.equals(other.systemType)) {
+            return false;
+        }
+        return true;
     }
 }

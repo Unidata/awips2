@@ -82,12 +82,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 11/12		#890		B. Yin		Allow lower cases and numbers in the correction text field.
  * 03/13        #928        B. Yin      Made the button bar smaller.
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 11/13		#1067		B. Yin		Check PGEN resource in the close method.
  * </pre>
  * 
  * @author G. Zhang
  */
 
 public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet {
+
+    public static int ctrlBtnWidth = 90;
 
     /**
      * singleton instance of this class
@@ -1265,7 +1268,7 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet {
             // Allow a-z and numbers for TTR632
             if (((myChar >= 65 && myChar <= 90)
                     || (myChar >= 97 && myChar <= 122) || Character
-                    .isDigit(myChar)) && text.length() == 0) {
+                        .isDigit(myChar)) && text.length() == 0) {
                 event.doit = true;
                 setTxtChange(txtAdNo, false);
             }
@@ -1596,7 +1599,9 @@ public class VolcanoVaaAttrDlg extends AttrDlg implements ISigmet {
 
     @Override
     public boolean close() {
-        drawingLayer.removeSelected();
+        if ( drawingLayer != null ) {
+        	drawingLayer.removeSelected();
+        }
         SaveMsgDlg.getInstance(this.getParentShell()).close();
         return super.close();
     }

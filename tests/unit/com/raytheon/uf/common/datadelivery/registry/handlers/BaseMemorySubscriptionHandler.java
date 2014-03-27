@@ -21,8 +21,10 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -167,20 +169,25 @@ public class BaseMemorySubscriptionHandler<T extends Subscription> extends
     @Override
     public List<T> getActiveForRoute(Network route)
             throws RegistryHandlerException {
-        return getActiveForRoutes(new Network[] { route });
+        Map<Network, List<T>> subMap = getActiveForRoutes(new Network[] { route });
+        return subMap.get(route);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<T> getActiveForRoutes(Network... routes)
+    public Map<Network, List<T>> getActiveForRoutes(Network... routes)
             throws RegistryHandlerException {
-        List<T> retVal = new ArrayList<T>();
+        Map<Network, List<T>> retVal = new HashMap<Network, List<T>>();
         for (T obj : getActive()) {
             for (Network route : routes) {
                 if (route == obj.getRoute()) {
-                    retVal.add(obj);
+                    if (retVal.get(route) == null) {
+                        retVal.put(route, new ArrayList<T>());
+                    }
+                    retVal.get(route).add(obj);
+                    break;
                 }
             }
         }

@@ -28,7 +28,6 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -80,6 +79,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 12/2/2013     1829       bphillip    Removed generic methods, 
  *                                      modified persistence annotations, added 
  *                                      constructors, hashCode, toString and equals
+ * Jan 17, 2014  2125       rjpeter     Removed invalid @Table annotation.
  * </pre>
  * 
  * @author bphillip
@@ -91,7 +91,6 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @Entity
 @Cache(region = RegrepUtil.DB_CACHE_REGION, usage = CacheConcurrencyStrategy.TRANSACTIONAL)
-@Table(schema = RegrepUtil.EBXML_SCHEMA, name = "CollectionValue")
 public class CollectionValueType extends ValueType {
 
     @XmlElement(name = "Element")
@@ -192,32 +191,39 @@ public class CollectionValueType extends ValueType {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime * result
+        result = (prime * result)
                 + ((collectionType == null) ? 0 : collectionType.hashCode());
-        result = prime * result
+        result = (prime * result)
                 + ((collectionValue == null) ? 0 : collectionValue.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         CollectionValueType other = (CollectionValueType) obj;
         if (collectionType == null) {
-            if (other.collectionType != null)
+            if (other.collectionType != null) {
                 return false;
-        } else if (!collectionType.equals(other.collectionType))
+            }
+        } else if (!collectionType.equals(other.collectionType)) {
             return false;
+        }
         if (collectionValue == null) {
-            if (other.collectionValue != null)
+            if (other.collectionValue != null) {
                 return false;
-        } else if (!collectionValue.equals(other.collectionValue))
+            }
+        } else if (!collectionValue.equals(other.collectionValue)) {
             return false;
+        }
         return true;
     }
 

@@ -27,40 +27,25 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/13/13        1447          dgilling       Initial Creation.
-# 
+#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
 #
 
 
-import errno
-import logging
 import os
-import sys
 import time
 import xml.etree.ElementTree as ET
 
 import IrtAccess
 import MergeVTEC
 import siteConfig
+import iscUtil
 
-
-log = None
+logger = None
 
 def init_logging():
-    logPath = os.path.join(siteConfig.GFESUITE_LOGDIR, 
-                           time.strftime("%Y%m%d", time.gmtime()), 'ingestAT.log')
-    try:
-        os.makedirs(os.path.dirname(logPath))
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            sys.stderr.write("Could not create log directory " + os.path.dirname(logPath))
-            sys.exit(-1)
-    
-    logging.basicConfig(filename=logPath, 
-                        format="%(levelname)s  %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s", 
-                        datefmt="%H:%M:%S", 
-                        level=logging.INFO)
-    global log
-    log = logging.getLogger("ingestAT")
+    import logging
+    global logger
+    logger = iscUtil.getLogger("ingestAT", logLevel=logging.INFO)
 
 
 def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, xmlIncoming):
@@ -73,21 +58,21 @@ def execute_ingest_at(incomingRecords, activeTable, atName, ztime, makeBackups, 
             sourceServer = irt.decodeXMLAddress(addressE)
             if sourceServer is None:
                 continue
-            log.info("Source Server: " + irt.printServerInfo(sourceServer))
+            logger.info("Source Server: " + irt.printServerInfo(sourceServer))
     
     results = None        
     try:
         results = MergeVTEC.merge(activeTable, atName, incomingRecords, ztime, makeBackups,
-          logging.getLogger('MergeVTEC'))
+          logger)
     except:
-        log.exception("MergeVTEC fail:")
+        logger.exception("MergeVTEC fail:")
     return results
 
 def runFromJava(activeTable, activeTableMode, newRecords, drt, makeBackups,
                 xmlIncoming):
     init_logging()
     
-    log.info('************* ingestAT ************************')
+    logger.info('************* ingestAT ************************')
     startT = time.time()
     
     results = execute_ingest_at(newRecords, activeTable, activeTableMode, drt,
@@ -97,7 +82,7 @@ def runFromJava(activeTable, activeTableMode, newRecords, drt, makeBackups,
     # Finish
     #--------------------------------------------------------------------
     endT = time.time()
-    log.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock()))
+    logger.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock()))
     
     return results
 

@@ -9,6 +9,8 @@
 ##      Mike Rega      -- MAY 03 2012 DR 14885 MND ##
 ##      Phil Kurimski  -- FEB 08 2013 CTA stmnts   ##
 ##      Phil Kurimski  -- SEP 17 2013 FFW Emerg    ##
+##      Mike Rega      -- JAN 18 2014 14.2.1       ##
+##                        added Alaska GP changes  ##
 #####################################################
 ##
 #parse("config.vm")
@@ -37,28 +39,37 @@
 	#set($reportType1 = "THE FLOODGATES ON THE !** **! DAM WERE OPENED CAUSING FLASH FLOODING DOWNSTREAM ON THE !** **! RIVER")
 #elseif(${list.contains(${bullets}, "glacier")})
 	#set($ic = "GO")
-	#set($hycType = "A GLACIAL-DAMMED LAKE OUTBURST FLOODING")
-        #set($headline = "FOR A GLACIAL-DAMMED LAKE OUTBURST FLOODING ")
-	#set($reportType1 = "A GLACIER AT !** **! HAS MELTED...RELEASING LARGE QUANTITIES OF IMPOUNDED WATER AND CAUSING FLASH FLOODING !** **!")
+### modified by GP
+	#set($hycType = "A GLACIAL DAMMED LAKE OUTBURST")
+        #set($headline = "FOR A GLACIAL DAMMED LAKE OUTBURST ")
+	#set($reportType1 = "A GLACIER DAMMED LAKE AT !** **! IS RAPIDLY RELEASING LARGE QUANTITIES OF IMPOUNDED WATER RESULTING IN FLASH FLOODING !** **!")
+### GP end
+###	#set($reportType1 = "A GLACIER AT !** **! HAS MELTED...RELEASING LARGE QUANTITIES OF IMPOUNDED WATER AND CAUSING FLASH FLOODING !** **!")
 #elseif(${list.contains(${bullets}, "icejam")})
 	#set($ic = "IJ")
 	#set($hycType = "ICE JAM FLOODING")
-        #set($headline = "FOR ICE JAM FLOODING ")
+	    #set($headline = "FOR AN ICE JAM ")
 	#set($reportType1 = "AN ICE JAM ON THE !** **! RIVER AT !** **! BROKE CAUSING FLASH FLOODING DOWNSTREAM")
 #elseif(${list.contains(${bullets}, "rain")})
 	#set($ic = "RS")
-	#set($hycType = "EXTREMELY RAPID RAIN SNOW MELT")
-        #set($headline = "FOR EXTREMELY RAPID RAIN SNOW MELT ")
+	#set($hycType = "EXTREMELY RAPID RAIN SNOWMELT")
+        #set($headline = "FOR EXTREMELY RAPID SNOWMELT ")
 	#set($reportType1 = "RAIN FALLING ON EXISTING SNOWPACK WAS GENERATING FLASH FLOODING FROM EXCESSIVE RUNOFF")
 #elseif(${list.contains(${bullets}, "volcano")})
 	#set($ic = "SM")
-	#set($hycType = "VOLCANIC SNOW MELT")
-        #set($headline = "FOR VOLCANIC SNOW MELT ")
+### modified by GP
+	#set($hycType = "VOLCANIC INDUCED SNOWMELT")
+        #set($headline = "FOR VOLCANIC INDUCED SNOWMELT ")
+	#set($ctaSelected = "YES")
 	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID SNOWMELT ON ITS SLOPES AND GENERATING FLASH FLOODING")
+	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY.")
+### GP end
 #elseif(${list.contains(${bullets}, "volcanoLahar")})
 	#set($ic = "SM")
-	#set($hycType = "VOLCANIC SNOW MELT")
-		#set($headline = "FOR VOLCANIC SNOW MELT ")
+### modified by GP
+	#set($hycType = "VOLCANIC INDUCED DEBRIS FLOW")
+		#set($headline = "FOR VOLCANIC INDUCED DEBRIS FLOW ")
+### GP end
 	#set($ctaSelected = "YES")
 	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID MELTING OF SNOW AND ICE ON THE MOUNTAIN. THIS WILL RESULT IN A TORRENT OF MUD...ASH...ROCK AND HOT WATER TO FLOW DOWN THE MOUNTAIN THROUGH !** DRAINAGE **! AND GENERATE FLASH FLOODING")
 	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY.")
@@ -104,7 +115,7 @@
 ## Parse command to include a damInfo.vm file with site specific dam
 ## information. Sites can include their information in this file.
 #########################################################################
-##parse ("damInfo.vm")
+#parse ("damInfo.vm")
 ####################################
 ## DAM BREAK FFW FOLLOW-UP HEADER ##
 ####################################
@@ -148,8 +159,17 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${areas} true true true false)
-...##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
+
 ########### END NEW HEADLINE CODE ####################
 
 
@@ -173,9 +193,16 @@ THIS IS A TEST MESSAGE.##
 
 #end
 ...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
-...##
-
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
 
 ########### END NEW HEADLINE CODE ####################
 
@@ -201,6 +228,20 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "alaskaVoc")})
+  #set($report = "THE ALASKA VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "cascadeVoc")})
+  #set($report = "THE CASCADES VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+### GP end
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
@@ -327,6 +368,12 @@ REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAM
 MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
 PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
 
@@ -369,8 +416,17 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 THIS IS A TEST MESSAGE.##
 #end
 ...THE FLASH FLOOD WARNING ${headline}HAS BEEN CANCELLED FOR ##
-#headlineLocList(${cancelareas} true true true false)
-...##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false)...
+#else
+#headlineLocList(${cancelareas} true true true false)...
+#end
+##
+### GP end
+##
 ########### END NEW HEADLINE CODE ####################
 
 
@@ -407,8 +463,16 @@ THIS IS A TEST MESSAGE.##
 
 #end
 ...A FLASH FLOOD WARNING ${headline}REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-#headlineLocList(${areas} true true true false)
-...##
+#### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
+#headlineLocList(${areas} true true true false)...
+#end
+##
+### GP end
 ########### END NEW HEADLINE CODE ####################
 
 #####################################################
@@ -433,6 +497,14 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+### GP end
 
 ## Storm current location description
 #if(${productClass}=="T")
@@ -551,6 +623,20 @@ REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAM
 MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "volcanicFloodCTA")})
+STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. FLOODS DUE TO VOLCANO INDUCED SNOWMELT CAN OCCUR VERY RAPIDLY AND IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "volcanicLaharCTA")})
+VOLCANIC DEBRIS FLOWS ARE EXTREMELY DANGEROUS. STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. LAHARS CAN FLOOD AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
 PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
 
@@ -654,6 +740,14 @@ THIS IS A TEST MESSAGE.##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+### GP end
 
 ## Storm current location description
 #if(${productClass}=="T")
@@ -772,6 +866,20 @@ REMAIN ALERT FOR FLOODING EVEN IN LOCATIONS NOT RECEIVING RAIN. ARROYOS...STREAM
 MOVE AWAY FROM RECENTLY BURNED AREAS. LIFE THREATENING FLOODING OF CREEKS...ROADS AND NORMALLY DRY ARROYOS IS LIKELY. THE HEAVY RAINS WILL LIKELY TRIGGER ROCKSLIDES...MUDSLIDES AND DEBRIS FLOWS IN STEEP TERRAIN...ESPECIALLY IN AND AROUND THESE AREAS.
 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "volcanicFloodCTA")})
+STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. FLOODS DUE TO VOLCANO INDUCED SNOWMELT CAN OCCUR VERY RAPIDLY AND IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "volcanicLaharCTA")})
+VOLCANIC DEBRIS FLOWS ARE EXTREMELY DANGEROUS. STAY WELL AWAY FROM IMPACTED WATERWAYS AND GET TO HIGHER GROUND IMMEDIATELY. LAHARS CAN FLOOD AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.
+
+#end
+#if(${list.contains(${bullets}, "glacierOutburstCTA")})
+STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.
+
+#end
+### GP end
 #if(${list.contains(${bullets}, "reportFloodingCTA")})
 PLEASE REPORT TO YOUR LOCAL LAW ENFORCEMENT AGENCY WHEN YOU CAN DO SO SAFELY. 
 

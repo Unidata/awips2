@@ -86,7 +86,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="NEW" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <!-- 
@@ -145,7 +145,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -199,7 +199,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
   <!-- 

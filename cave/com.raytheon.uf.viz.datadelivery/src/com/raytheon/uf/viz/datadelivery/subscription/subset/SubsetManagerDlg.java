@@ -51,6 +51,7 @@ import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.registry.GriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.PointDataSet;
+import com.raytheon.uf.common.datadelivery.registry.SharedSubscription;
 import com.raytheon.uf.common.datadelivery.registry.SiteSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription.SubscriptionType;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.VizAppTaskExecutor;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.datadelivery.common.xml.AreaXML;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
+import com.raytheon.uf.viz.datadelivery.handlers.VizSubscriptionHandler;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.CreateSubscriptionDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.ISubscriptionService;
@@ -138,6 +140,12 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Oct 25, 2013   2292     mpduff       Move overlap processing to edex.
  * Nov 14, 2013   2538     mpduff       Added check for duplicate subscription.
  * Nov 14, 2013   2548     mpduff       Set the subscription type (QUERY OR RECURRING)
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code
+ * Jan 20, 2014   2538     mpduff       Call doesNameExist method to check for dupes
+ * Feb 11, 2014   2771     bgonzale     Use Data Delivery ID instead of Site.
+ * Feb 26, 2014   #2833    lvenable     Added code to prevent the Subset (this) dialog from
+ *                                      disappearing when the Subscription button is double clicked.
+ *                                      Added dispose check for subscription button.
  * </pre>
  * 
  * @author mpduff
@@ -412,7 +420,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         int buttonWidth = 87;
         GridData btnData = new GridData(buttonWidth, SWT.DEFAULT);
 
-        Button subscribeBtn = new Button(bottomComp, SWT.PUSH);
+        final Button subscribeBtn = new Button(bottomComp, SWT.PUSH);
         if (!create) {
             subscribeBtn.setText("Continue...");
             subscribeBtn.setToolTipText("Click to continue editing");
@@ -425,6 +433,14 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         subscribeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+
+                /*
+                 * Need to disable the Subscription button as it takes time to
+                 * do all of the validation. Once the subscription dialog
+                 * returns the button will enable.
+                 */
+                subscribeBtn.setEnabled(false);
+
                 if (subscription == null) {
                     launchCreateSubscriptionGui(createSubscription(
                             new SiteSubscription(), Network.OPSNET));
@@ -432,6 +448,11 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
                     setupCommonSubscriptionAttributes(subscription,
                             subscription.getRoute());
                     launchCreateSubscriptionGui(subscription);
+                }
+
+                // Enable the subscription button if it is not disposed.
+                if (subscribeBtn.isDisposed() == false) {
+                    subscribeBtn.setEnabled(true);
                 }
             }
         });
@@ -504,10 +525,13 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         if (valid) {
             // Check for existing subscription
-            ISubscriptionHandler handler = RegistryObjectHandlers
+            VizSubscriptionHandler handler = (VizSubscriptionHandler) RegistryObjectHandlers
                     .get(ISubscriptionHandler.class);
+            String name = nameText.getText();
+
             try {
-                if (handler.getByName(nameText.getText()) != null) {
+                if (handler.doesNameExist(name, SiteSubscription.class,
+                        SharedSubscription.class, AdhocSubscription.class)) {
                     String message = "A query with this name already exists.\n\nPlease enter a different query name.";
                     DataDeliveryUtils.showMessage(getShell(), SWT.ERROR,
                             "Duplicate Query Name", message);
@@ -563,8 +587,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
 
         sub.setOwner((create) ? LocalizationManager.getInstance()
                 .getCurrentUser() : this.subscription.getOwner());
-        sub.setOriginatingSite(LocalizationManager.getInstance()
-                .getCurrentSite());
+        sub.setOriginatingSite(DataDeliveryUtils.getDataDeliveryId());
         sub.setSubscriptionType(SubscriptionType.RECURRING);
 
         return setupCommonSubscriptionAttributes(sub, defaultRoute);
@@ -592,7 +615,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         sub.setRoute(defaultRoute);
         sub.setName(nameText.getText());
         if (subscription == null || subscription.getOfficeIDs() == null) {
-            sub.addOfficeID(LocalizationManager.getInstance().getCurrentSite());
+            sub.addOfficeID(DataDeliveryUtils.getDataDeliveryId());
         } else {
             sub.setOfficeIDs(subscription.getOfficeIDs());
         }
@@ -603,7 +626,6 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
             sub.setSubscriptionStart(this.subscription.getSubscriptionStart());
             sub.setActivePeriodEnd(this.subscription.getActivePeriodEnd());
             sub.setActivePeriodStart(this.subscription.getActivePeriodStart());
-            sub.setActive(this.subscription.isActive());
             sub.setPriority(this.subscription.getPriority());
         }
 

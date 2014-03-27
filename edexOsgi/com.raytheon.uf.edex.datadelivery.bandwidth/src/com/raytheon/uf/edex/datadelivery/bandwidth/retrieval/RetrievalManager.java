@@ -39,6 +39,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Jun 25, 2013 2106       djohnson     Copy state from another instance, add ability to check for proposed bandwidth throughput changes.
  * Jul 09, 2013 2106       djohnson     Only needs to unregister from the EventBus when used in an EDEX instance, so handled in EdexBandwidthManager.
  * Oct 03, 2013 2267       bgonzale     Added check for no retrieval plan matching in the proposed retrieval plans.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
+ * Feb 10, 2014  2678      dhladky      Prevent duplicate allocations.
  * 
  * </pre>
  * 
@@ -52,7 +54,7 @@ public class RetrievalManager {
 
     // Package-private on purpose so agents have visibility
     static final BandwidthAllocation POISON_PILL = new BandwidthAllocation();
-
+   
     private final IBandwidthDao bandwidthDao;
 
     // A Map of the Paths to retrievalPlans
@@ -192,6 +194,32 @@ public class RetrievalManager {
         }
         return null;
     }
+    
+    /***
+     * Method used in practice because we need to search for expired allocations.
+     * @param network
+     * @param agentType
+     * @return
+     */
+    public List<BandwidthAllocation> getRecentAllocations(Network network, String agentType) {
+        
+        List<BandwidthAllocation> allocations = null;
+        
+        if (shutdown) {
+            allocations = new ArrayList<BandwidthAllocation>(1);
+            allocations.add(POISON_PILL);
+            return allocations;
+        }
+
+        RetrievalPlan plan = getRetrievalPlans().get(network);
+        if (plan != null) {
+            synchronized (plan) {
+                return plan.getRecentAllocations(agentType);
+            }
+        }
+        
+        return allocations;
+    }
 
     public final RetrievalPlan getPlan(Network network) {
         return getRetrievalPlans().get(network);
@@ -223,19 +251,6 @@ public class RetrievalManager {
         // manager, which will cause threads attempting to receive bandwidth
         // allocations to die
         this.shutdown = true;
-    }
-
-    /**
-     * Wake up the AgentManager for the RetrievalManager.
-     */
-    public void wakeAgents() {
-        // This is currently a duplication of wake() in RetrievalAgentManager,
-        // because there was a circular dependency in the Spring config files...
-        // Can the object graph be made a little cleaner?
-        synchronized (notifier) {
-            statusHandler.info("Waking up retrieval threads");
-            notifier.notifyAll();
-        }
     }
 
     /**

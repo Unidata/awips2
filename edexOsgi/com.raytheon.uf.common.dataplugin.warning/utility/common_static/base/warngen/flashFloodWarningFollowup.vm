@@ -14,6 +14,7 @@
 ##             Mike Dangelo 09-18-2013 added code for init pos & pathcasting, and added pointMarkers parse line
 ##             Mike Dangelo 09-19-2013 implemented config.vm
 ##             Gene Petrescu 09-20-2013 added AK modifications (GP comments)
+##             Mike Rega     01-18-2014 added Alaska GP changes for 14.2.1
 #################################### SET SOME VARs ###################################
 #parse("config.vm")
 #set($hycType = "")
@@ -23,8 +24,8 @@
 #set($burnCTA = "")
 ###OVERRIDE DEFAULT EXECESSIVE RAINFALL IF NECESSARY
 #if(${ic} == "RS")
-	#set($hycType = "RAIN AND SNOW MELT")
-    #set($snowMelt = "RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
+	#set($hycType = "EXTREMELY RAPID SNOWMELT")
+    #set($snowMelt = "RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
 #end
 ##
 #set($endwarning = "THE HEAVY RAIN HAS ENDED...AND FLOODING IS NO LONGER EXPECTED TO POSE A THREAT. PLEASE CONTINUE TO HEED ALL ROAD CLOSURES.")
@@ -95,11 +96,11 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ...THIS MESSAGE IS FOR TEST PURPOSES ONLY...
 
 #end
-#################################################################
-#################################################################
-## LETS START WITH EXPIRATION AND CANCELLATION SEGMENTS     #####
-#################################################################
-#################################################################
+#############################################
+#############################################
+## EXPIRATION AND CANCELLATION SEGMENTS  ####
+#############################################
+#############################################
 ### CREATE PHRASING DEPENDING ON WHETHER WE ISSUE EXP PRIOR TO EXPIRATION TIME OR NOT
 #if(${now.compareTo(${expire})} >= 0 && ${action}=="EXP" )
   #set($expcanHLTag = "HAS EXPIRED")
@@ -117,27 +118,39 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 ##
 #if(${action}=="EXP" || ${action}=="CAN")
 ...THE FLASH FLOOD WARNING FOR ##
-#if(${hycType} != "")
+### modified by GP
+#if(${hycType} != "" && ${alaska} == "false")
 <L>${hycType}</L> IN ##
 #end
-###REMMED OUT FOR Alaska. This would output the headline in zone format
+#if(${hycType} != "" && ${alaska} == "true")
+<L>${hycType}</L> ##
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false) ${expcanHLTag}...
+#else
 #headlineLocList(${areas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${affectedCounties} true true true false) ${expcanHLTag}...
-###UNCOMMENT LINE BELOW FOR AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!  ${expcanHLTag}...
+#end
+### GP end
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE FLASH FLOOD WARNING FOR ##
-#if(${hycType} != "")
+### added by GP
+#if(${hycType} != "" && ${alaska} == "false")
 <L>${hycType}</L> IN ##
 #end
-###REMMED OUT FOR Alaska. This would output the headline in zone format
+#if(${hycType} != "" && ${alaska} == "true")
+<L>${hycType}</L> ##
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
+#else
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
-###UNCOMMENT LINE BELOW FOR AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!  ${expcanHLTag}...
+#end
+### GP end
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -221,12 +234,16 @@ THIS IS A TEST MESSAGE.##
 FOR <L>${hycType}</L> ##
 #end
 REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
-###REMMED OUT FOR Alaska. This would output the headline in zone format
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
-###REPLACE LINE ABOVE WITH THE FOLLOWING IF YOU USE COUNTY HEADLINE INSTEAD OF ZONES
-###headlineLocList(${affectedCounties} true true true false)...
-###UNCOMMENT LINE BELOW for AK - Temp fix until hydro shapefiles can be created
-###!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#end
+
+### GP end
 
 ################################################
 #################################
@@ -336,6 +353,7 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${list.contains(${bullets}, "satelliteGauge")} && ${list.contains(${bullets}, "thunder")})
   #set($report = "SATELLITE ESTIMATES AND AUTOMATED RAIN GAUGES INDICATED THAT THUNDERSTORMS WERE PRODUCING HEAVY RAIN OVER THE WARNED AREA.")   
 #end
+### added by GP
 #if(${list.contains(${bullets}, "onlyGauge")})
   #set($report = "GAUGE REPORTS INDICATED THAT HEAVY RAIN WAS FALLING OVER THE WARNED AREA.")   
 #end
@@ -345,6 +363,7 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #if(${list.contains(${bullets}, "onlyGauge")} && ${list.contains(${bullets}, "plainRain")})
   #set($report = "GAUGE REPORTS INDICATED HEAVY RAIN WAS FALLING OVER THE WARNED AREA.")   
 #end
+### GP end
 
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##

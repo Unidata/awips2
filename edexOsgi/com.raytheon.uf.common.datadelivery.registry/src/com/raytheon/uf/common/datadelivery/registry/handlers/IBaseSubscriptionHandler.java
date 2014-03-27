@@ -21,6 +21,7 @@ package com.raytheon.uf.common.datadelivery.registry.handlers;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Feb 20, 2013 1543       djohnson     Add ability to filter on routes.
  * May 28, 2013 1650       djohnson     Add getByNames.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -151,6 +153,6 @@ public interface IBaseSubscriptionHandler<T extends Subscription> extends
      * @throws RegistryHandlerException
      *             on error
      */
-    List<T> getActiveForRoutes(Network... routes)
+    Map<Network, List<T>> getActiveForRoutes(Network... routes)
             throws RegistryHandlerException;
 }

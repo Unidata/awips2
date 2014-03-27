@@ -27,14 +27,13 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/08/13        1447          dgilling       Initial Creation.
+#    01/24/14        2504          randerso       change to use iscUtil.getLogger for consistency 
 # 
 #
 
 
 import cPickle
-import errno
 import gzip
-import logging
 import os
 import sys
 import time
@@ -47,46 +46,35 @@ import JUtil
 import siteConfig
 import VTECPartners
 import VTECTableSqueeze
+import iscUtil
 
 # Configuration Item for Test Purposes
 FORCE_SEND = False   #Set to True to always send even if no updates required.
 
-log = None
+logger = None
 
 def init_logging():
-    logPath = os.path.join(siteConfig.GFESUITE_LOGDIR, 
-                           time.strftime("%Y%m%d", time.gmtime()), 'sendAT.log')
-    try:
-        os.makedirs(os.path.dirname(logPath))
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            sys.stderr.write("Could not create log directory " + os.path.dirname(logPath))
-            sys.exit(-1)
-    
-    logging.basicConfig(filename=logPath, 
-                        format="%(levelname)s  %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s", 
-                        datefmt="%H:%M:%S", 
-                        level=logging.INFO)
-    global log
-    log = logging.getLogger("sendAT")
+    import logging
+    global logger
+    logger = iscUtil.getLogger("sendAT", logLevel=logging.INFO)
     
 def execute_send_at(myServerHost, myServerPort, myServerProtocol, 
                     myServerMHSID, myServerSite, sites, filterSites, mhsSites, 
                     issueTime, countDict, fname, xmlIncoming, xmtScript):
-    log.info('reqSite= ' + repr(sites))
-    log.info('filterSites= ' + repr(filterSites))
-    log.info('mhsSite= ' + repr(mhsSites))
-    log.info('reqCountDict= ' + repr(countDict))
+    logger.info('reqSite= ' + repr(sites))
+    logger.info('filterSites= ' + repr(filterSites))
+    logger.info('mhsSite= ' + repr(mhsSites))
+    logger.info('reqCountDict= ' + repr(countDict))
     if issueTime is None:
-        log.info('reqIssueTime= None')
+        logger.info('reqIssueTime= None')
     else:
-        log.info('reqIssueTime= ' + str(issueTime) + ' ' +
+        logger.info('reqIssueTime= ' + str(issueTime) + ' ' +
                   time.asctime(time.gmtime(issueTime)))
 
     irt = IrtAccess.IrtAccess("")
     myServer = {'mhsid': myServerMHSID, 'host': myServerHost, 'port': myServerPort,
                 'protocol': myServerProtocol, 'site': myServerSite}
-    log.info('MyServer: ' + irt.printServerInfo(myServer))
+    logger.info('MyServer: ' + irt.printServerInfo(myServer))
     
     #--------------------------------------------------------------------
     # Prepare the file for sending
@@ -95,7 +83,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         buf = fd.read()
     os.remove(fname)
     table = cPickle.loads(buf)   #unpickle it
-    log.info("Local Table Length= " +  str(len(table)))
+    logger.info("Local Table Length= " +  str(len(table)))
     
     filtTable = []
     # filter by sites listing
@@ -107,7 +95,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
                 filtTable.append(t)
     else:
         filtTable = table   #no filtering
-    log.info("Site Filtered Table Length= " + str(len(filtTable)))
+    logger.info("Site Filtered Table Length= " + str(len(filtTable)))
     
     # eliminate obsolete records
     ctime = time.time()  #now time
@@ -115,7 +103,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
     filtTable = rename_fields_for_A2(filtTable)
     actTable, tossRecords = vts.squeeze(filtTable)
     actTable = rename_fields_for_A1(actTable)
-    log.info("Squeezed Table Length= " + str(len(actTable)))
+    logger.info("Squeezed Table Length= " + str(len(actTable)))
     
     # check issuance time - any times newer in remote table (this table) than
     # the local table (requesting site)?
@@ -128,9 +116,9 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         if issueTime < newestRec:
             newerRec = True
             
-        log.info("NewestFound= " + str(newestRec) + ' ' + 
+        logger.info("NewestFound= " + str(newestRec) + ' ' + 
                  time.asctime(time.gmtime(newestRec)))
-        log.info("IssueTime check.  Newer record found=  " + str(newerRec))
+        logger.info("IssueTime check.  Newer record found=  " + str(newerRec))
     else:
         newerRec = True   #just assume there are newer records
     
@@ -149,9 +137,9 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
             if reqCount != localCountDict[site]:  #records different in request site
                 missingRec = True
                 break
-        log.info("MissingRec check. Missing record found= " + str(missingRec))
-        log.info("lclCountBySite= " + repr(localCountDict))
-        log.info("reqCountBySite= " + repr(countDict))
+        logger.info("MissingRec check. Missing record found= " + str(missingRec))
+        logger.info("lclCountBySite= " + repr(localCountDict))
+        logger.info("reqCountBySite= " + repr(countDict))
     else:
         missingRec = True   #just assume there are
     
@@ -171,7 +159,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
             fd.write(actTablePickled)
 
         gzipSize = os.stat(fname)[stat.ST_SIZE]
-        log.info('#dataSize: ' + str(rawSize) + ', #gzipSize: ' + str(gzipSize))
+        logger.info('#dataSize: ' + str(rawSize) + ', #gzipSize: ' + str(gzipSize))
 
         #--------------------------------------------------------------------
         # Create the destination XML file
@@ -214,7 +202,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         s = "Destinations:"
         for destServer in destServers:
             s += "\n" + irt.printServerInfo(destServer)
-        log.info(s)
+        logger.info(s)
 
         # create XML file
         tempdir = os.path.join(siteConfig.GFESUITE_HOME, "products", "ATBL")
@@ -229,7 +217,7 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
           [fname, fnameXML], xmtScript)
     
     else:
-        log.info("Send has been skipped")
+        logger.info("Send has been skipped")
     
 def rename_fields_for_A1(table):
     newTable = []
@@ -276,7 +264,7 @@ def runFromJava(myServerHost, myServerPort, myServerProtocol, myServerMHSID,
                 countDict, fname, xmlIncoming, xmtScript):
     init_logging()
     
-    log.info('*********** sendAT ****************')
+    logger.info('*********** sendAT ****************')
     startT = time.time()
     
     try:
@@ -290,11 +278,11 @@ def runFromJava(myServerHost, myServerPort, myServerProtocol, myServerMHSID,
                         mhsSites, issueTime, countDict, fname, xmlIncoming, 
                         xmtScript)
     except:
-        log.exception('Error in sendAT:')
+        logger.exception('Error in sendAT:')
         sys.exit(1)
     
     #--------------------------------------------------------------------
     # Finish
     #--------------------------------------------------------------------
     endT = time.time()
-    log.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock())) 
+    logger.info("Final: wctime: {0:-6.2f}, cputime: {1:-6.2f}".format(endT - startT, time.clock())) 

@@ -46,7 +46,7 @@
 	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber">
 	    <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
 	</bean>
-	<bean id="modelBufrListener" class="com.raytheon.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
+	<bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
 
 	<bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
 	<bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>

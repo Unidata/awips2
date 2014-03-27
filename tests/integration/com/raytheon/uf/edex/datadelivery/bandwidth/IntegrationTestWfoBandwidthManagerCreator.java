@@ -19,12 +19,14 @@
  **/
 package com.raytheon.uf.edex.datadelivery.bandwidth;
 
+import com.raytheon.uf.common.datadelivery.registry.handlers.IAdhocSubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.ISubscriptionHandler;
 import com.raytheon.uf.common.datadelivery.service.ISubscriptionNotificationService;
 import com.raytheon.uf.edex.datadelivery.bandwidth.EdexBandwidthContextFactory.IEdexBandwidthManagerCreator;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDao;
 import com.raytheon.uf.edex.datadelivery.bandwidth.dao.IBandwidthDbInit;
+import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsForScheduling;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
 
@@ -40,6 +42,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Feb 20, 2013 1543       djohnson     Initial creation
  * Jul 10, 2013 2106       djohnson     Dependency inject registry handlers.
  * Nov 08, 2013 2506       bgonzale     Added notification service to bandwidth manager.
+ * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
+ * Jan 30, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -58,9 +62,12 @@ public class IntegrationTestWfoBandwidthManagerCreator implements
             BandwidthDaoUtil bandwidthDaoUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
-            ISubscriptionNotificationService subscriptionNotificationService) {
+            IAdhocSubscriptionHandler adhocSubscriptionHandler,
+            ISubscriptionNotificationService subscriptionNotificationService,
+            IFindSubscriptionsForScheduling findSubscriptionStrategy) {
         return new IntegrationTestWfoBandwidthManager(dbInit, bandwidthDao,
                 retrievalManager, bandwidthDaoUtil, dataSetMetaDataHandler,
-                subscriptionHandler, subscriptionNotificationService);
+                subscriptionHandler, adhocSubscriptionHandler,
+                subscriptionNotificationService, findSubscriptionStrategy);
     }
 }

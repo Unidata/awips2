@@ -12,6 +12,8 @@
         Change Log:
 
         B. Yin/Chugach  03/10   Initial Coding
+        B. Yin/SGT		12/13	TTR 904 change county list string
+        
 -->
 
 <xsl:variable name="newline"><xsl:text>
@@ -33,8 +35,9 @@
           <xsl:if test="@issueStatus = 'Test'">
                 <xsl:text> TEST </xsl:text>
           </xsl:if>
-
-	  <xsl:text>TORNADO WATCH #</xsl:text>
+          
+      <xsl:value-of select="@watchType"/>
+	  <xsl:text> WATCH #</xsl:text>
           <xsl:value-of select="@watchNumber"/>
           <xsl:text> HAS BEEN ISSUED BY THE NWS STORM PREDICTION CENTER</xsl:text>
 
@@ -63,8 +66,14 @@
                 	<xsl:value-of select="$newline"/>
                 	<xsl:text>. </xsl:text>
                 	<xsl:value-of select="$stName"/>
-                	<xsl:text> COUNTIES INCLUDED ARE </xsl:text>
-                	<xsl:value-of select="$newline"/>
+			<xsl:choose>
+		  	   <xsl:when test="$stName='LOUISIANA'">
+				<xsl:text> PARISHES INCLUDED ARE </xsl:text>
+		  	   </xsl:when>
+		  	   <xsl:otherwise>
+				<xsl:text> COUNTIES INCLUDED ARE </xsl:text>
+		  	   </xsl:otherwise>
+			</xsl:choose>                	<xsl:value-of select="$newline"/>
                 	<xsl:value-of select="$newline"/>
                         <xsl:call-template name="getCountiesInState">
                                	<xsl:with-param name="state" select="."/>
