@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2014    2632    mpduff      Initial creation
  * Mar 05, 2014    2632    mpduff      Changed task set to map of user->task.
+ * Mar 27, 2014    2632    mpduff      Sorted users in combo box, changed how Add action works.
  * 
  * </pre>
  * 
@@ -395,6 +397,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
             usernames[i] = userIds[i];
         }
 
+        Arrays.sort(usernames);
         return usernames;
     }
 
@@ -414,17 +417,23 @@ public class AddNotifierDlg extends CaveSWTDialog {
         task.setRecurring(recurringRdo.getSelection());
         this.taskMap.put(task.getUserName(), task);
 
-        if (NotifierTools.saveNotifiers(Lists.newArrayList(taskMap.values()))) {
-            MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
-            messageDialog.setText("Notifier Saved");
-            messageDialog
-                    .setMessage("The contact notifier was successfully saved.");
-            messageDialog.open();
+        updatePreferences();
+
+        MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
+        messageDialog.setText("Notifier Saved");
+        messageDialog
+                .setMessage("The contact notifier was successfully saved.");
+        messageDialog.open();
+    }
+
+    /**
+     * Update the preferences.
+     */
+    private void updatePreferences() {
+        if (this.callback == null) {
+            NotifierTools.saveNotifiers(Lists.newArrayList(taskMap.values()));
         } else {
-            MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
-            messageDialog.setText("Save Failed");
-            messageDialog.setMessage("The contact notifier failed to save.");
-            messageDialog.open();
+            callback.dialogClosed(taskMap);
         }
     }
 
@@ -436,7 +445,7 @@ public class AddNotifierDlg extends CaveSWTDialog {
     @Override
     protected void disposed() {
         if (this.callback != null) {
-            callback.dialogClosed(returnValue);
+            callback.dialogClosed(taskMap);
         }
     }
 }
