@@ -1151,6 +1151,11 @@ public class ContourSupport {
             maxspc = 0.25f;
         }
 
+        if (minX != 0 || minY != 0) {
+            uW = new OffsetDataSource(uW, minX, minY);
+            vW = new OffsetDataSource(vW, minX, minY);
+        }
+
         StrmPakConfig config = new StrmPakConfig(arrowSize, minspc, maxspc,
                 -1000000f, -999998f);
         StreamLineContainer container = StrmPak.strmpak(uW, vW,
@@ -1169,9 +1174,10 @@ public class ContourSupport {
                     StreamLinePoint point = points.get(i);
                     try {
                         long tZ0 = System.currentTimeMillis();
-                        rastPosToWorldGrid.transform(new double[] {
-                                maxX - point.getX(), point.getY() + minY }, 0,
-                                valsArr[i], 0, 1);
+                        rastPosToWorldGrid.transform(
+                                new double[] { point.getX() + minX,
+                                        point.getY() + minY }, 0, valsArr[i],
+                                0, 1);
                         long tZ1 = System.currentTimeMillis();
                         tAccum += (tZ1 - tZ0);
                     } catch (TransformException e) {
