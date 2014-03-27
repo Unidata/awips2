@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -23,6 +24,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 14, 2012 #455       jspinks     Initial creation
  * 8/3/2012     724        bphillip    Added Registry annotations
  * Nov 19, 2012 1166       djohnson    Clean up JAXB representation of registry objects.
+ * Mar 09, 2013 2789       dhladky     Versions
  * 
  * </pre>
  * 
@@ -35,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @RegistryObject({ "levelId", "levelValue" })
+@RegistryObjectVersion(value = 1.0f)
 public class ParameterLevel {
 
     @RegistryObjectName
