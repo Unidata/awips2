@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Dec 13, 2012   1269     lvenable    Fixes and updates.
  * Oct 28, 2013   2430     mpduff      Add % of bandwidth utilized graph.
  * Nov 19, 2013   1531     mpduff      Made resizable.
+ * Jan 29, 2014   2722     mpduff      GraphDataUtil not in this class.
  * 
  * </pre>
  * 
@@ -77,9 +78,6 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
     /** Graph composite */
     private BandwidthCanvasComp canvasComp;
 
-    /** Graph data utility class */
-    private final GraphDataUtil graphDataUtil;
-
     private MenuItem displayOpsNetMI;
 
     private MenuItem displaySbnMI;
@@ -92,12 +90,10 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
      * @param graphDataUtil
      *            Graph data utility object
      */
-    public BandwidthUtilizationDlg(Shell parent, GraphDataUtil graphDataUtil) {
+    public BandwidthUtilizationDlg(Shell parent) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE, CAVE.DO_NOT_BLOCK
                 | CAVE.INDEPENDENT_SHELL);
         setText("Bandwidth Utilization");
-
-        this.graphDataUtil = graphDataUtil;
     }
 
     /**
@@ -133,7 +129,7 @@ public class BandwidthUtilizationDlg extends CaveSWTDialog {
         mainComp.setLayout(gl);
         mainComp.setLayoutData(gd);
 
-        canvasComp = new BandwidthCanvasComp(mainComp, graphDataUtil);
+        canvasComp = new BandwidthCanvasComp(mainComp);
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(1, false);

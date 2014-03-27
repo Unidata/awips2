@@ -401,7 +401,7 @@
      <station>
           <stid>CSN</stid>
           <stnnum>000299</stnnum>
-          <stnname>CASSANOVA</stnname>
+          <stnname>CASANOVA</stnname>
           <state>VA</state>
           <country>US</country>
           <latitude>38.64</latitude>
@@ -615,9 +615,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>VRB</stid>
+          <stid>TRV</stid>
           <stnnum>000276</stnnum>
-          <stnname>VERO_BEACH</stnname>
+          <stnname>TREASURE</stnname>
           <state>FL</state>
           <country>US</country>
           <latitude>27.68</latitude>
@@ -747,6 +747,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>RSW</stid>
+          <stnnum>0</stnnum>
+          <stnname>LEE_COUNTY</stnname>
+          <state>FL</state>
+          <country>US</country>
+          <latitude>26.53</latitude>
+          <longitude>-81.78</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>
           <stid>EYW</stid>
           <stnnum>000096</stnnum>
           <stnname>KEY_WEST</stnname>
@@ -754,18 +766,6 @@
           <country>US</country>
           <latitude>24.59</latitude>
           <longitude>-81.80</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>FMY</stid>
-          <stnnum>000104</stnnum>
-          <stnname>FT_MEYERS</stnname>
-          <state>FL</state>
-          <country>US</country>
-          <latitude>26.58</latitude>
-          <longitude>-81.87</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -1011,13 +1011,13 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>ABY</stid>
-          <stnnum>000004</stnnum>
-          <stnname>ALBANY</stnname>
+          <stid>PZD</stid>
+          <stnnum>0</stnnum>
+          <stnname>PECAN</stnname>
           <state>GA</state>
           <country>US</country>
-          <latitude>31.65</latitude>
-          <longitude>-84.30</longitude>
+          <latitude>31.66</latitude>
+          <longitude>-84.29</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -1131,8 +1131,8 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>LOU</stid>
-          <stnnum>000159</stnnum>
+          <stid>IIU</stid>
+          <stnnum>0</stnnum>
           <stnname>LOUISVILLE</stnname>
           <state>KY</state>
           <country>US</country>
@@ -1292,8 +1292,8 @@
           <stnname>SAWYER</stnname>
           <state>MI</state>
           <country>US</country>
-          <latitude>46.35</latitude>
-          <longitude>-87.38</longitude>
+          <latitude>46.36</latitude>
+          <longitude>-87.40</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -1395,9 +1395,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>DEC</stid>
+          <stid>AXC</stid>
           <stnnum>000070</stnnum>
-          <stnname>DECATUR</stnname>
+          <stnname>ADDERS</stnname>
           <state>IL</state>
           <country>US</country>
           <latitude>39.74</latitude>
@@ -1479,6 +1479,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>HRV</stid>
+          <stnnum>0</stnnum>
+          <stnname>HARVEY</stnname>
+          <state>LA</state>
+          <country>US</country>
+          <latitude>29.85</latitude>
+          <longitude>-90.00</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>
           <stid>LEV</stid>
           <stnnum>000349</stnnum>
           <stnname>GRAND_ISLE</stnname>
@@ -1491,25 +1503,13 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>JAN</stid>
+          <stid>MHZ</stid>
           <stnnum>000142</stnnum>
-          <stnname>JACKSON</stnname>
+          <stnname>MAGNOLIA</stnname>
           <state>MS</state>
           <country>US</country>
-          <latitude>32.51</latitude>
-          <longitude>-90.17</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>MSY</stid>
-          <stnnum>000195</stnnum>
-          <stnname>NEW_ORLEANS</stnname>
-          <state>LA</state>
-          <country>US</country>
-          <latitude>30.00</latitude>
-          <longitude>-90.27</longitude>
+          <latitude>32.43</latitude>
+          <longitude>-90.10</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -1887,18 +1887,6 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>MKC</stid>
-          <stnnum>000177</stnnum>
-          <stnname>KANSAS_CITY</stnname>
-          <state>MO</state>
-          <country>US</country>
-          <latitude>39.28</latitude>
-          <longitude>-94.59</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
           <stid>LFK</stid>
           <stnnum>000155</stnnum>
           <stnname>LUFKIN</stnname>
@@ -1906,6 +1894,18 @@
           <country>US</country>
           <latitude>31.16</latitude>
           <longitude>-94.72</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>
+          <stid>MCI</stid>
+          <stnnum>0</stnnum>
+          <stnname>KANSAS_CITY</stnname>
+          <state>MO</state>
+          <country>US</country>
+          <latitude>39.29</latitude>
+          <longitude>-94.74</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -2055,13 +2055,13 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>DFW</stid>
-          <stnnum>000072</stnnum>
-          <stnname>DALLAS-FT_WORTH</stnname>
+          <stid>TTT</stid>
+          <stnnum>0</stnnum>
+          <stnname>MAVERICK</stnname>
           <state>TX</state>
           <country>US</country>
           <latitude>32.87</latitude>
-          <longitude>-97.03</longitude>
+          <longitude>-97.04</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -2139,6 +2139,18 @@
           <wfo></wfo>
      </station>
      <station>
+          <stid>CWK</stid>
+          <stnnum>0</stnnum>
+          <stnname>CENTEX</stnname>
+          <state>TX</state>
+          <country>US</country>
+          <latitude>30.38</latitude>
+          <longitude>-97.53</longitude>
+          <elevation>0</elevation>
+          <priority>0</priority>
+          <wfo></wfo>
+     </station>
+     <station>
           <stid>ICT</stid>
           <stnnum>000132</stnnum>
           <stnname>WICHITA</stnname>
@@ -2170,18 +2182,6 @@
           <country>US</country>
           <latitude>38.93</latitude>
           <longitude>-97.62</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>AUS</stid>
-          <stnnum>000020</stnnum>
-          <stnname>AUSTIN</stnname>
-          <state>TX</state>
-          <country>US</country>
-          <latitude>30.30</latitude>
-          <longitude>-97.70</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>
@@ -2295,9 +2295,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>GAG</stid>
+          <stid>MMB</stid>
           <stnnum>000110</stnnum>
-          <stnname>GAGE</stnname>
+          <stnname>MITBEE</stnname>
           <state>OK</state>
           <country>US</country>
           <latitude>36.34</latitude>
@@ -2679,9 +2679,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>ROW</stid>
-          <stnnum>000233</stnnum>
-          <stnname>ROSWELL</stnname>
+          <stid>CME</stid>
+          <stnnum>0</stnnum>
+          <stnname>CHISUM</stnname>
           <state>NM</state>
           <country>US</country>
           <latitude>33.34</latitude>
@@ -2727,9 +2727,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>LVS</stid>
-          <stnnum>000163</stnnum>
-          <stnname>LAS_VEGAS</stnname>
+          <stid>FTI</stid>
+          <stnnum>0</stnnum>
+          <stnname>FT_UNION</stnname>
           <state>NM</state>
           <country>US</country>
           <latitude>35.66</latitude>
@@ -2919,9 +2919,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>FMN</stid>
-          <stnnum>000103</stnnum>
-          <stnname>FARMINGTON</stnname>
+          <stid>RSK</stid>
+          <stnnum>0</stnnum>
+          <stnname>RATTLESNAKE</stnname>
           <state>NM</state>
           <country>US</country>
           <latitude>36.75</latitude>
@@ -3759,9 +3759,9 @@
           <wfo></wfo>
      </station>
      <station>
-          <stid>BLI</stid>
-          <stnnum>000035</stnnum>
-          <stnname>BELLINGHAM</stnname>
+          <stid>HUH</stid>
+          <stnnum>0</stnnum>
+          <stnname>WHATCOM</stnname>
           <state>WA</state>
           <country>US</country>
           <latitude>48.95</latitude>
@@ -4654,138 +4654,6 @@
           <country>US</country>
           <latitude>21.90</latitude>
           <longitude>-159.53</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>RSW</stid>
-          <stnnum>0</stnnum>
-          <stnname>LEE_COUNTY</stnname>
-          <state>FL</state>
-          <country>US</country>
-          <latitude>26.53</latitude>
-          <longitude>-81.78</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>PZD</stid>
-          <stnnum>0</stnnum>
-          <stnname>PECAN</stnname>
-          <state>GA</state>
-          <country>US</country>
-          <latitude>31.66</latitude>
-          <longitude>-84.29</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>IIU</stid>
-          <stnnum>0</stnnum>
-          <stnname>LOUISVILLE</stnname>
-          <state>KY</state>
-          <country>US</country>
-          <latitude>38.10</latitude>
-          <longitude>-85.58</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>HRV</stid>
-          <stnnum>0</stnnum>
-          <stnname>HARVEY</stnname>
-          <state>LA</state>
-          <country>US</country>
-          <latitude>29.85</latitude>
-          <longitude>-90.00</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>MCI</stid>
-          <stnnum>0</stnnum>
-          <stnname>KANSAS_CITY</stnname>
-          <state>MO</state>
-          <country>US</country>
-          <latitude>39.29</latitude>
-          <longitude>-94.74</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>TTT</stid>
-          <stnnum>0</stnnum>
-          <stnname>MAVERICK</stnname>
-          <state>TX</state>
-          <country>US</country>
-          <latitude>32.87</latitude>
-          <longitude>-97.04</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>CWK</stid>
-          <stnnum>0</stnnum>
-          <stnname>CENTEX</stnname>
-          <state>TX</state>
-          <country>US</country>
-          <latitude>30.38</latitude>
-          <longitude>-97.53</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>CME</stid>
-          <stnnum>0</stnnum>
-          <stnname>CHISUM</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>33.34</latitude>
-          <longitude>-104.62</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>FTI</stid>
-          <stnnum>0</stnnum>
-          <stnname>FT_UNION</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>35.66</latitude>
-          <longitude>-105.14</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>RSK</stid>
-          <stnnum>0</stnnum>
-          <stnname>RATTLESNAKE</stnname>
-          <state>NM</state>
-          <country>US</country>
-          <latitude>36.75</latitude>
-          <longitude>-108.10</longitude>
-          <elevation>0</elevation>
-          <priority>0</priority>
-          <wfo></wfo>
-     </station>
-     <station>
-          <stid>HUH</stid>
-          <stnnum>0</stnnum>
-          <stnname>WHATCOM</stnname>
-          <state>WA</state>
-          <country>US</country>
-          <latitude>48.95</latitude>
-          <longitude>-122.58</longitude>
           <elevation>0</elevation>
           <priority>0</priority>
           <wfo></wfo>

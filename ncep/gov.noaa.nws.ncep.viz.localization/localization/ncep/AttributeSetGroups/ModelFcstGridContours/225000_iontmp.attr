@@ -1,0 +1,25 @@
+!
+! Restore File : 225000_iontmp
+!
+! Log:
+! S. Gurung 	9/2013	Initial creation
+!
+GLEVEL=225000
+GVCORD=hght
+SKIP=
+FILTER=y
+SCALE=0     
+GDPFUN=iontmp
+TYPE=c/f   
+CINT=20
+LINE=32/1/2
+FINT=750;800;850;900;960;1000;1050;1100
+FLINE=0;4;25;26;21;5;16;17;2
+HILO=
+HLSYM=
+CLRBAR=1
+WIND=
+TITLE=5/-1/~ !
+COLORS=2                                                                       
+MARKER=2                                                                       
+GRDLBL=5                                                                       

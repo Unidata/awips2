@@ -5,7 +5,7 @@
 
     <bean id="dataDeliveryRetrievalDecoder"
         class="com.raytheon.uf.edex.plugin.datadelivery.retrieval.SbnDataDeliveryRetrievalDecoder">
-        <constructor-arg ref="sbnRetrievalQueue" />
+        <constructor-arg value="notifyRetrieval" />
     </bean>
 
     <camelContext id="dataDeliveryRetrieval-camel"

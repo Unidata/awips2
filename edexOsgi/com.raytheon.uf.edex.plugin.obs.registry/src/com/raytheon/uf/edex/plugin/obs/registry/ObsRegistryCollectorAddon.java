@@ -9,21 +9,18 @@
  */
 package com.raytheon.uf.edex.plugin.obs.registry;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.datadelivery.harvester.ConfigLayer;
+import com.raytheon.uf.common.datadelivery.harvester.OGCAgent;
 import com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.edex.ogc.common.db.DefaultPointDataDimension;
 import com.raytheon.uf.edex.ogc.common.db.LayerCollector;
 import com.raytheon.uf.edex.ogc.common.util.PluginIngestFilter;
 import com.raytheon.uf.edex.ogc.registry.WfsRegistryCollectorAddon;
 import com.raytheon.uf.edex.plugin.obs.ogc.metar.MetarLayer;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Registry Collector for Observations
@@ -35,6 +32,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 26, 2013            bclement     Initial creation
+ * Jan 13, 2014  #2679     dhladky      multiple layers
  * 
  * </pre>
  * 
@@ -46,11 +44,16 @@ public class ObsRegistryCollectorAddon
         WfsRegistryCollectorAddon<DefaultPointDataDimension, MetarLayer, MetarRecord>
         implements PluginIngestFilter {
 
-    /**
-     * @param layerName
-     */
-    public ObsRegistryCollectorAddon(String layerName) {
-        super(layerName);
+    public ObsRegistryCollectorAddon() {
+
+        super();
+        OGCAgent agent = getAgent();
+        
+        for (ConfigLayer clayer: agent.getLayers()) {
+            MetarLayer layer = new MetarLayer();
+            layers.put(clayer.getName(), layer);
+            initializeLayer(layer);
+        }
     }
 
     /*
@@ -78,49 +81,13 @@ public class ObsRegistryCollectorAddon
         return new MetarLayer(layer);
     }
 
-    /**
-     * Filter geographically
-     */
-    public PluginDataObject[] filter(PluginDataObject[] pdos) {
-
-        Collection<MetarRecord> withInGeoConstraint = new ArrayList<MetarRecord>();
-        PluginDataObject[] pdor = null;
-
-        for (PluginDataObject record : pdos) {
-
-            MetarRecord rec = (MetarRecord) record;
-
-            if (rec != null) {
-
-                Envelope e = getCoverage().getEnvelope();
-
-                if (rec.getLocation() != null) {
-
-                    Coordinate c = rec.getLocation().getLocation()
-                            .getCoordinate();
-
-                    if (c != null) {
-
-                        if (e.contains(c)) {
-                            withInGeoConstraint.add(rec);
-                        } else {
-                            statusHandler.handle(
-                                    Priority.DEBUG,
-                                    "Obs record discarded:  outside of range: "
-                                            + rec.getLatitude() + " "
-                                            + rec.getLongitude());
-                        }
-                    }
-                }
-            }
+    @Override
+    public SurfaceObsLocation getSpatial(MetarRecord record) {
+        
+        if (record.getLocation() != null) {
+            return record.getLocation();
         }
-
-        if (!withInGeoConstraint.isEmpty()) {
-            int size = withInGeoConstraint.size();
-            pdor = withInGeoConstraint.toArray(new PluginDataObject[size]);
-        }
-
-        return pdor;
+        return null;
     }
 
 }

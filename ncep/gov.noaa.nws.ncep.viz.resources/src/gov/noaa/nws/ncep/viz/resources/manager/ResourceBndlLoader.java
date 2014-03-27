@@ -9,7 +9,7 @@ import gov.noaa.nws.ncep.viz.common.display.INcPaneLayout;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayName;
 import gov.noaa.nws.ncep.viz.common.display.NcDisplayType;
 import gov.noaa.nws.ncep.viz.resources.time_match.NCTimeMatcher;
-import gov.noaa.nws.ncep.viz.ui.display.AbstractNcEditor;
+import org.eclipse.swt.graphics.Rectangle;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapDescriptor;
 import gov.noaa.nws.ncep.viz.ui.display.NCMapRenderableDisplay;
 import gov.noaa.nws.ncep.viz.ui.display.NcEditorUtil;
@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 11/25/12     #630        Greg Hull     Resource defined areas.
  * 02/01/13     #972        Greg Hull     RbdBundleEditorWrapper doesn't need to be a generic
  * 02/12/13     #972        Greg Hull     NcDisplayType and NatlCntrsEditor
+ * 11/26/13     #1078       Greg Hull     Size Of Image fix (PixelExtent constructor)
  *
  * </pre>
  * 
@@ -340,21 +341,24 @@ public class ResourceBndlLoader implements Runnable {  // extends Job {
     	// if the area is to be set from a resource-defined area, we need
     	//    	
     	pane.setRenderableDisplay( mapDisplay );
-    	
+    	    	
 		PredefinedArea initArea = mapDisplay.getInitialArea();
-    	
+
 		if( initArea.getSource() != AreaSource.PREDEFINED_AREA ) {
 
-    			if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
+			if( initArea.getZoomLevel().equals( ZoomLevelStrings.SizeOfImage.toString() ) ) {
+				Rectangle rect = pane.getBounds();
+//				mapDisplay.setExtent( new PixelExtent( rect )  );
+				mapDisplay.setExtent( new PixelExtent( 
+						rect.x, rect.x + rect.width, 
+						rect.y, rect.y + rect.height ) );
+				((NCMapDescriptor)descr).setSuspendZoom( true );
+//				    	        ZoomUtil.suspendZoom( mapDisplay.getContainer() ) ;    		
+			}
+			else if( initArea.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
 
-    				mapDisplay.setExtent( new PixelExtent( pane.getBounds() ) );
-    				((NCMapDescriptor)descr).setSuspendZoom( true );
-    				//    	        ZoomUtil.suspendZoom( mapDisplay.getContainer() ) ;    		
-    			}
-    			else if( initArea.getZoomLevel().equals( ZoomLevelStrings.FitToScreen.toString() ) ) {
-
-    			}
-    		}
+			}
+		}
     	
     	pane.setZoomLevel( mapDisplay.getZoomLevel() );
     	pane.refresh();
