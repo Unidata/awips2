@@ -36,6 +36,7 @@ import org.jivesoftware.smack.RosterGroup;
  * ------------ ---------- ----------- --------------------------
  * Jan 23, 2014 2701       bclement    Initial creation
  * Feb 17, 2014 2800       bclement    added equals/hashcode
+ * Mar 27, 2014 2632       mpduff      Changed to call a convenience method.
  * 
  * </pre>
  * 
@@ -101,7 +102,7 @@ public class SharedGroup {
             return false;
         }
         SharedGroup other = (SharedGroup) obj;
-        return this.delegate.getName().equals(other.getName());
+        return this.getName().equals(other.getName());
     }
 
 }
