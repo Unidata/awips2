@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Feb 11, 2014 2699       bclement    require non-blank handle
  * Feb 13, 2014 2751       bclement    better types for roomid and inviter
  * Mar 06, 2014 2848       bclement    moved join logic to separate method
+ * Mar 27, 2014 2632       mpduff      Set the OK button as the default button.
  * 
  * </pre>
  * 
@@ -77,15 +78,15 @@ public class InviteDialog extends CaveSWTDialogBase {
     /** Main composite. */
     private Composite mainComp;
 
-    private String inviter;
+    private final String inviter;
 
-    private String subject;
+    private final String subject;
 
-    private String room;
+    private final String room;
 
-    private String inviteText;
+    private final String inviteText;
 
-    private String message;
+    private final String message;
 
     private Font font;
 
@@ -93,9 +94,9 @@ public class InviteDialog extends CaveSWTDialogBase {
 
     private VenueSession session;
 
-    private boolean sharedDisplay;
+    private final boolean sharedDisplay;
 
-    private IVenueInvitationEvent event;
+    private final IVenueInvitationEvent event;
 
     private Text errorMessage;
 
@@ -292,6 +293,8 @@ public class InviteDialog extends CaveSWTDialogBase {
                 close();
             }
         });
+
+        this.getShell().setDefaultButton(okBtn);
     }
 
     /**
@@ -302,7 +305,7 @@ public class InviteDialog extends CaveSWTDialogBase {
      * @throws CollaborationException
      */
     public void join(IVenueInvitationEvent invitation, String handle)
-            throws CollaborationException {                  
+            throws CollaborationException {
         String venueName = invitation.getRoomId().getName();
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
