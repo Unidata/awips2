@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Acars Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acars
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common,
@@ -16,4 +16,4 @@ Export-Package: com.raytheon.uf.edex.plugin.acars,
  com.raytheon.uf.edex.plugin.acars.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.acars,
- org.apache.commons.logging
+ com.raytheon.uf.common.status

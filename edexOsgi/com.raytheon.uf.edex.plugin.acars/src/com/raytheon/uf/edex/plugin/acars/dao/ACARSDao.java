@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Oct 10, 2012 1261       djohnson    Add some generics wildcarding.
  * Nov 02, 2012 1302       djohnson    Add Javadoc.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Mar 27, 2014 2811       skorolev    Updated logger.
  * 
  * </pre>
  * 
@@ -155,9 +156,9 @@ public class ACARSDao extends DefaultPluginDao {
 
         String query = String.format(queryTemplate, tailNumber, startTime);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(query);
-        }
+        // if (logger.isDebugEnabled()) {
+        // logger.debug(query);
+        // }
 
         List<?> result = executeACARSQuery(query);
 
@@ -177,6 +178,7 @@ public class ACARSDao extends DefaultPluginDao {
      * 
      * @param tailNumber
      * @param startTime
+     * @param stopTime
      * @return
      */
     public List<ACARSRecord> getReports(String tailNumber, Calendar startTime,
@@ -192,9 +194,9 @@ public class ACARSDao extends DefaultPluginDao {
         String query = String.format(queryTemplate, tailNumber, startTime,
                 stopTime);
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(query);
-        }
+        // if (logger.isDebugEnabled()) {
+        // logger.debug(query);
+        // }
 
         List<?> result = executeACARSQuery(query);
 
