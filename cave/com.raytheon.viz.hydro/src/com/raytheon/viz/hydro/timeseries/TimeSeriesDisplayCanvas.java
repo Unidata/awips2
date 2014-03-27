@@ -138,8 +138,9 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  * 16 Jan   2013 15695   wkwock       Fix popup menu      
  * 24 Apr   2013  1921   mpduff       Fix zoom reset to only reset the "active" graph
  * 06 May   2013  1976   mpduff       Refactored Hydro time series data access.        
- * 29 May   2013  2016   mpduff       Fix TS Toggle Traces.   
+ * 29 May   2013  2016   mpduff       Fix TS Toggle Traces.           
  * 05 Sep   2013 #2332   lvenable     Fixed memory leaks.       
+ * 24 Jan   2013  15959  lbousaidi    Swap the corner points of the bounding box when zooming.      
  * @author lvenable
  * @version 1.0
  * 
@@ -1241,7 +1242,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 }
                 Date xMin = pixel2x(gd, rubberBandX1 - GRAPHBORDER_LEFT);
                 Date xMax = pixel2x(gd, rubberBandX2 - GRAPHBORDER_LEFT);
-
+                //Swap the corner points of the bounding box when zooming
+                if (xMin.after(xMax)) {
+                	Date xtmp;
+                	xtmp= xMin;
+                	xMin=xMax;
+                	xMax=xtmp;                	
+                }
                 gd.setXMin(xMin);
                 gd.setXMax(xMax);
                 gd.setX(gd.getXMax().getTime() - gd.getXMin().getTime());
@@ -1256,7 +1263,13 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas implements
                 if (ymin < gd.getYmin()) {
                     ymin = gd.getYmin();
                 }
-
+                //Swap the corner points of the bounding box when zooming
+                if (ymin > ymax) {
+                	double ytmp;
+                	ytmp= ymin;
+                	ymin=ymax;
+                	ymax=ytmp;
+                }
                 gd.setYmin(ymin);
                 gd.setYmax(ymax);
                 gd.setY2(gd.getYmax2() - gd.getYmin2());

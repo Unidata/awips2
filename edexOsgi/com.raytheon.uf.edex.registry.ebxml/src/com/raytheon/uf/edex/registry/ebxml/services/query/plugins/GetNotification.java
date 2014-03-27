@@ -36,6 +36,9 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.ObjectRefType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.QueryType;
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SubscriptionType;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.raytheon.uf.common.registry.EbxmlNamespaces;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
 import com.raytheon.uf.edex.registry.ebxml.dao.SubscriptionDao;
@@ -64,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * Jun 24, 2013 2106       djohnson    Requires a transaction to be open, will not create one.
  * 10/8/2013    1682       bphillip    Refactored querying
  * 11/20/2013   2534       bphillip    Changed call to getNotificationDestinations which is not in a utility class
+ * 01/21/2014   2613       bphillip    Modifications to account for changed method signatures in RegistryNotificationManager
  * 
  * </pre>
  * 
@@ -84,6 +88,7 @@ public class GetNotification extends RegistryQueryPlugin {
     @Override
     @WebMethod(action = EXECUTE_QUERY_ACTION)
     @WebResult(name = "QueryResponse", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryResponse")
+    @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
     public QueryResponse executeQuery(
             @WebParam(name = "QueryRequest", targetNamespace = EbxmlNamespaces.QUERY_URI, partName = "partQueryRequest") QueryRequest queryRequest)
             throws MsgRegistryException {
@@ -135,8 +140,15 @@ public class GetNotification extends RegistryQueryPlugin {
 
         List<ObjectRefType> objectsOfInterest = notificationManager
                 .getObjectsOfInterest(subscription);
-        List<AuditableEventType> eventsOfInterest = notificationManager
-                .getEventsOfInterest(startTime, null, objectsOfInterest);
+        List<AuditableEventType> eventsOfInterest = null;
+        try {
+            eventsOfInterest = notificationManager.getEventsOfInterest(
+                    subscription, destinations.get(0).getDestination(),
+                    startTime, null, objectsOfInterest);
+        } catch (EbxmlRegistryException e1) {
+            throw EbxmlExceptionUtil.createMsgRegistryException(
+                    "Error getting events!", e1);
+        }
         try {
             return createResponse(Arrays.asList(notificationManager
                     .getNotification(subscription, "Test Address",

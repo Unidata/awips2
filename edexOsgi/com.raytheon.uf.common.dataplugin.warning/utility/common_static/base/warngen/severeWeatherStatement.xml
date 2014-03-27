@@ -9,6 +9,8 @@
      Evan Bookbinder 09-11-2012 Added settings for locations shapefile
      Mike Dangelo 2-5-2013 NWS Mets Detected options (commented by default)
      Phil Kurimski 09-19-2013 added geospatialConfig.xml
+     Richard Barnhill        10-28-2013 Changed/added torEMER bulletGroup to keep it locked on followups 
+     Mike Dangelo            1-21-2014 Tweaked parseStrings for default safety rules, changed law enf CTA to match wording from both TOR and SVR  
 -->
 <!--
 	Velocity Variables:
@@ -82,7 +84,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <durations>
   <duration>30</duration>
  </durations>
- 
+ <lockedGroupsOnFollowup>torEMER</lockedGroupsOnFollowup>
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>
@@ -238,13 +240,14 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="MOBILE HOME OR OUTDOORS" bulletGroup="cta1"/>
-  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
   <bullet bulletName="largeTORCTA" bulletText="Large/Violent tornado" parseString="A LARGE AND EXTREMELY DANGEROUS TORNADO IS ON THE GROUND"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LOCAL AUTHORITY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="**** SPECIAL CASE CALLS TO ACTION *****" bulletType="title"/>
   <bullet bulletName="squallCTA" bulletText="Thunderstorm line tornadoes" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
@@ -303,7 +306,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="historyHailCTA" bulletText="History of Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
   <bullet bulletName="historyWindCTA" bulletText="History of Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LOCAL AUTHORITY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="squallLineCTA" bulletText="Thunderstorm lines can produce tornadoes (no TOR watch)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>
@@ -317,7 +320,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="TO" sig="W">
  <bullets>
-  <bullet bulletName="torEmergency" bulletText="** SELECT FOR TORNADO EMERGENCY **" parseString="TORNADO EMERGENCY"/>	  
+  <bullet bulletName="torEmergency" bulletText="** SELECT FOR TORNADO EMERGENCY **" bulletGroup="torEMER" parseString="TORNADO EMERGENCY"/>	  
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
 <!--  
   <bullet bulletName="meteorologistsTOR" bulletText="NWS Meteorologists detected" bulletGroup="radioset1" parseString="&quot;METEOROLOGISTS DETECTED&quot;,&quot;-SQUALL&quot;,&quot;-LARGE AND EXTREMELY DANGEROUS&quot;"/> 
@@ -363,10 +366,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>  
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA**" parseString="TORNADO EMERGENCY"/>
   <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the .="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="MOBILE HOME OR OUTDOORS" bulletGroup="cta1"/>
-  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules -- includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban -- no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY OBSCURE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
@@ -429,7 +432,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="historyHailCTA" bulletText="History of Large Hail" parseString="HISTORY OF PRODUCING LARGE HAIL"/>
   <bullet bulletName="historyWindCTA" bulletText="History of Wind Damage" parseString="HISTORY OF PRODUCING WIND DAMAGE"/>
   <bullet bulletName="historyWindHailCTA" bulletText="History of Dmgg Winds and Large Hail" parseString="HISTORY OF PRODUCING DESTRUCTIVE WINDS AND LARGE HAIL"/>
-  <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
+  <bullet bulletName="lawEnforcementCTA" bulletText="Report to NWS or Law Enforcement" parseString="LOCAL AUTHORITY"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** SPECIAL CASE CALLS TO ACTION **********" bulletType="title"/>
   <bullet bulletName="squallLineCTA" bulletText="Thunderstorm lines can produce tornadoes (no TOR watch)" parseString="TORNADOES AND WIDESPREAD SIGNIFICANT WIND DAMAGE"/>

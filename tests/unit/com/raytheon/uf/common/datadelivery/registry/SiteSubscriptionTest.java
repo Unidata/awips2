@@ -25,8 +25,10 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.xml.bind.JAXBException;
 
@@ -54,7 +56,9 @@ import com.raytheon.uf.common.time.util.TimeUtilTest;
  * Jan 11, 2013 1453       djohnson     Add test for active period crossing year boundary.
  * Mar 28, 2013 1841       djohnson     Subscription is now UserSubscription.
  * May 15, 2013 1040       mpduff       Office Id now a set.
- * Oct 21, 2013   2292     mpduff       Implement multiple data types
+ * Oct 21, 2013   2292     mpduff       Implement multiple data types.
+ * Jan 14, 2014   2459     mpduff       Change Subscription status code.
+ * Jan 28, 2014   2636     mpduff       Added testInWindow test method.
  * 
  * </pre>
  * 
@@ -134,7 +138,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(fiveDaysFromNow).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
     }
 
     @Test
@@ -149,7 +153,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(yesterday).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.INACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.INACTIVE)));
     }
 
     @Test
@@ -166,7 +170,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(fiveDaysFromNow1970).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
     }
 
     @Test
@@ -184,7 +188,7 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(yesterday1970).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.INACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.INACTIVE)));
     }
 
     @Test
@@ -203,7 +207,61 @@ public class SiteSubscriptionTest {
                 .withActivePeriodEnd(januaryFirst).build();
 
         assertThat(subscription.getStatus(),
-                is(equalTo(SubscriptionStatus.ACTIVE.toString())));
+                is(equalTo(SubscriptionStatus.ACTIVE)));
+    }
+
+    @Test
+    public void testActivatedSubOutsideActivePeriodReturnsInactive() {
+        final Date fiveDaysAgo = new Date(TimeUtil.currentTimeMillis()
+                - (TimeUtil.MILLIS_PER_DAY * 5));
+        final Date yesterday = new Date(TimeUtil.currentTimeMillis()
+                - TimeUtil.MILLIS_PER_DAY);
+
+        Subscription sub = new SubscriptionBuilder()
+                .withActivePeriodStart(fiveDaysAgo)
+                .withActivePeriodEnd(yesterday).build();
+
+        sub.deactivate();
+        sub.activate();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.INACTIVE)));
+    }
+
+    @Test
+    public void testGetStatusOfDeactivatedSubReturnsDeactivatedStatus() {
+        Subscription sub = new SubscriptionBuilder().build();
+        sub.deactivate();
+        sub.getStatus();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.DEACTIVATED)));
+    }
+
+    @Test
+    public void testGetStatusOfReactivatedSubReturnsActive() {
+        Subscription sub = new SubscriptionBuilder().build();
+        sub.deactivate();
+        sub.activate();
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.ACTIVE)));
+    }
+
+    @Test
+    public void testActivatingAnExpiredSubIsStillExpired() {
+        Subscription sub = new SubscriptionBuilder().build();
+        Calendar endTime = TimeUtil.newGmtCalendar();
+        endTime.add(Calendar.DAY_OF_MONTH, -30);
+        sub.setSubscriptionEnd(endTime.getTime());
+
+        // activate it
+        sub.activate();
+
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.EXPIRED)));
+    }
+
+    @Test
+    public void testInvalidSubCannotBeActivated() {
+        SiteSubscription sub = new SubscriptionBuilder().build();
+        sub.setValid(false);
+        sub.activate();
+
+        assertThat(sub.getStatus(), is(equalTo(SubscriptionStatus.INVALID)));
     }
 
     @Test
@@ -212,5 +270,150 @@ public class SiteSubscriptionTest {
                 "OAX").build();
         System.out.println(new JAXBManager(SiteSubscription.class)
                 .marshalToXml(subscription));
+    }
+
+    @Test
+    public void testGetStatusForOneDayWindow() {
+        final Date tomorrow = new Date(TimeUtil.currentTimeMillis()
+                + (TimeUtil.MILLIS_PER_DAY));
+        final Date today = new Date(TimeUtil.currentTimeMillis());
+
+        Subscription subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(today).withActivePeriodEnd(tomorrow)
+                .build();
+
+        assertThat(subscription.getStatus(),
+                is(equalTo(SubscriptionStatus.ACTIVE)));
+
+    }
+
+    @Test
+    public void testInWindowMethod() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        Calendar startCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar endCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar checkCal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+
+        startCal.set(Calendar.MONTH, Calendar.DECEMBER);
+        startCal.set(Calendar.DAY_OF_MONTH, 20);
+        endCal.set(Calendar.MONTH, Calendar.JANUARY);
+        endCal.set(Calendar.DAY_OF_MONTH, 10);
+
+        // Active window crosses year boundary
+        // First check Jan 1
+        checkCal.set(Calendar.MONTH, Calendar.JANUARY);
+        checkCal.set(Calendar.DAY_OF_MONTH, 1);
+        startCal = TimeUtil.minCalendarFields(startCal, Calendar.HOUR_OF_DAY,
+                Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+        endCal = TimeUtil.minCalendarFields(endCal, Calendar.HOUR_OF_DAY,
+                Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+        checkCal = TimeUtil.minCalendarFields(checkCal, Calendar.HOUR_OF_DAY,
+                Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+
+        Subscription subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(startCal.getTime())
+                .withActivePeriodEnd(endCal.getTime()).build();
+
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.TRUE)));
+
+        // Next check Starting Day
+        checkCal.set(Calendar.MONTH, Calendar.DECEMBER);
+        checkCal.set(Calendar.DAY_OF_MONTH, 20);
+
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.TRUE)));
+
+        // Next check Ending Day - Should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.JANUARY);
+        checkCal.set(Calendar.DAY_OF_MONTH, 10);
+
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
+
+        // Next check before starting Day - Should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.OCTOBER);
+        checkCal.set(Calendar.DAY_OF_MONTH, 10);
+
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
+
+        // Next check after ending Day - Should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.MARCH);
+        checkCal.set(Calendar.DAY_OF_MONTH, 10);
+
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
+
+        // Change window to not be over year boundary
+        startCal.set(Calendar.MONTH, Calendar.MARCH);
+        startCal.set(Calendar.DAY_OF_MONTH, 1);
+        endCal.set(Calendar.MONTH, Calendar.OCTOBER);
+        endCal.set(Calendar.DAY_OF_MONTH, 1);
+
+        subscription = new SubscriptionBuilder()
+                .withActivePeriodStart(startCal.getTime())
+                .withActivePeriodEnd(endCal.getTime()).build();
+
+        // First check day in the window
+        checkCal.set(Calendar.MONTH, Calendar.JUNE);
+        checkCal.set(Calendar.DAY_OF_MONTH, 10);
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.TRUE)));
+
+        // Check start day
+        checkCal.set(Calendar.MONTH, Calendar.MARCH);
+        checkCal.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.TRUE)));
+
+        // Check end day - should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.OCTOBER);
+        checkCal.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
+
+        // Check before start day - should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.FEBRUARY);
+        checkCal.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
+
+        // Check after end day - should be outside window
+        checkCal.set(Calendar.MONTH, Calendar.NOVEMBER);
+        checkCal.set(Calendar.DAY_OF_MONTH, 1);
+        System.out.println("\nStartCal: " + sdf.format(startCal.getTime()));
+        System.out.println("EndCal:   " + sdf.format(endCal.getTime()));
+        System.out.println("CheckCal: " + sdf.format(checkCal.getTime()));
+        assertThat(subscription.inActivePeriodWindow(checkCal),
+                is(equalTo(Boolean.FALSE)));
     }
 }

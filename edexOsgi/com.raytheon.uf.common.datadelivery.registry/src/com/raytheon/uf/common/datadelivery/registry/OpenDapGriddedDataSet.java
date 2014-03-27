@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.serialization.XmlGenericMapAdapter;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
@@ -55,9 +56,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
+@RegistryObjectVersion(value = 1.0f)
 @DynamicSerialize
 public class OpenDapGriddedDataSet extends GriddedDataSet {
 
+    public OpenDapGriddedDataSet() {
+        
+    }
+    
     @DynamicSerializeElement
     @XmlJavaTypeAdapter(type = Map.class, value = XmlGenericMapAdapter.class)
     private Map<Integer, String> cyclesToUrls = new HashMap<Integer, String>();
@@ -162,4 +168,5 @@ public class OpenDapGriddedDataSet extends GriddedDataSet {
     public ServiceType getServiceType() {
         return ServiceType.OPENDAP;
     }
+
 }

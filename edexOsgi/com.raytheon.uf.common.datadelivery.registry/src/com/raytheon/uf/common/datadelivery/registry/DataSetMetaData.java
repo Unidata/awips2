@@ -17,6 +17,7 @@ import com.raytheon.uf.common.registry.annotations.RegistryObject;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectDescription;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectName;
 import com.raytheon.uf.common.registry.annotations.RegistryObjectOwner;
+import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
 import com.raytheon.uf.common.registry.annotations.SlotAttribute;
 import com.raytheon.uf.common.registry.annotations.SlotAttributeConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.DateSlotConverter;
@@ -41,27 +42,30 @@ import com.raytheon.uf.common.time.util.ImmutableDate;
  * Oct 16, 2012 0726       djohnson     Override {@link #toString()}.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Sept, 30 2013 1797      dhladky      Made generic based on Time
+ * Dec 20, 2013 2636       mpduff       Add a dataset availability offset
+ * jan 23, 2013   2584     dhladky     Versions.
  * </pre>
  * 
  * @author dhladky
  * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-@XmlSeeAlso({ GriddedDataSetMetaData.class, OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
+@XmlSeeAlso({ GriddedDataSetMetaData.class,
+        OpenDapGriddedDataSetMetaData.class, PointDataSetMetaData.class })
 @RegistryObject({ "url" })
+@RegistryObjectVersion(value = 1.0f)
 public abstract class DataSetMetaData<T extends Time> {
     public static final String DATE_SLOT = "date";
 
     public static final String DATA_SET_NAME_SLOT = "dataSetName";
 
     public static final String PROVIDER_NAME_SLOT = "providerName";
-    
+
     /**
      * Compares the two instances of {@link DataSetMetaData} by their applicable
      * date fields.
      */
-    public static Comparator<? super DataSetMetaData<?>> DATE_COMPARATOR = new Comparator<DataSetMetaData<?>>()
-    {
+    public static Comparator<? super DataSetMetaData<?>> DATE_COMPARATOR = new Comparator<DataSetMetaData<?>>() {
         @Override
         public int compare(DataSetMetaData<?> o1, DataSetMetaData<?> o2) {
 
@@ -108,6 +112,11 @@ public abstract class DataSetMetaData<T extends Time> {
     @SlotAttributeConverter(DateSlotConverter.class)
     @DynamicSerializeElement
     private ImmutableDate date;
+
+    @XmlElement
+    @DynamicSerializeElement
+    @SlotAttribute
+    protected int availabilityOffset;
 
     public DataSetMetaData() {
 
@@ -159,7 +168,6 @@ public abstract class DataSetMetaData<T extends Time> {
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
-    
 
     /**
      * Get the date this object starts on. In the gridded world, this would
@@ -180,6 +188,21 @@ public abstract class DataSetMetaData<T extends Time> {
      */
     public void setDate(ImmutableDate date) {
         this.date = date;
+    }
+
+    /**
+     * @return the availabilityOffset
+     */
+    public int getAvailabilityOffset() {
+        return availabilityOffset;
+    }
+
+    /**
+     * @param availabilityOffset
+     *            the availabilityOffset to set
+     */
+    public void setAvailabilityOffset(int availabilityOffset) {
+        this.availabilityOffset = availabilityOffset;
     }
 
     @Override

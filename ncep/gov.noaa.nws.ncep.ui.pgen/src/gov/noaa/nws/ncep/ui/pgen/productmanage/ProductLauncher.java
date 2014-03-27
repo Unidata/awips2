@@ -47,6 +47,7 @@ import java.util.List;
  * 										PGEN activities.
  * 09/2011		#335      	J. Wu 		made cascading menu for activity type/subtype. 
  * 08/2012  	#?    	    J. Wu		Add the activity to the existing ones instead of "Replace"
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * 
  * </pre>
  * 
@@ -173,6 +174,7 @@ public class ProductLauncher extends ContributionItem {
 	                                   plyr.getColor().getBlue(),
 	                                   plyr.getColor().getAlpha() );
 			    lyr.setColor( clr );
+			    lyr.setMetaInfo( plyr.getMetaInfo() );
 	
 		        prd.addLayer( lyr );	 	    	        	
 	        }

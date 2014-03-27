@@ -21,7 +21,6 @@ package com.raytheon.uf.edex.plugin.madis.ogc;
  **/
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.madis.MadisRecord;
 import com.raytheon.uf.edex.ogc.common.db.ILayerStore;
@@ -36,6 +35,7 @@ import com.raytheon.uf.edex.ogc.common.db.SingleLayerCollector;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/01/2013   1746       dhladky      Initial creation
+ * jan 22, 2014 2713       dhladky     Calendar conversion.
  * </pre>
  * 
  * @author dhladky
@@ -60,9 +60,7 @@ public class MadisLayerCollector extends
      */
     @Override
     protected Calendar getTime(MadisRecord record) {
-        Calendar rval = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        rval.setTime(record.getTimeObs());
-        return rval;
+        return record.getTimeObs();
     }
 
 }

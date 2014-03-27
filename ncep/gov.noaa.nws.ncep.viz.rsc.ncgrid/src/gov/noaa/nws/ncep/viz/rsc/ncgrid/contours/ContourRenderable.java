@@ -48,7 +48,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Mar,01, 2012             X. Guo      Handle five zoom levels
  * Mar,13, 2012             X. Guo      Added createContours()
  * Mar,15, 2012             X. Guo      Set synchronized block in ContoutSupport
- * Aug 19, 2019  #743       S. Gurung   Added code to display the colorbar for gridded fills (from Archana's branch) 
+ * Aug 19, 2013  #743       S. Gurung   Added code to display the colorbar for gridded fills (from Archana's branch) 
+ * Sep 11, 2013  #1036      S. Gurung   Added TEXT attribute related code changes (for contour labels) 
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ public class ContourRenderable implements IRenderable {
 
     private double lastMagnification = 1.0;
 
-    private IFont font;
+    //private IFont font;
     
     private String name;
     
@@ -145,9 +146,9 @@ public class ContourRenderable implements IRenderable {
      */
     @Override
     public void paint (IGraphicsTarget target, PaintProperties paintProps) throws VizException {
-
+    	
     	initContourGroup ( paintProps );
-    		
+    	
     		double density = 1.0;//paintProps.getDensity();
     		double magnification = 1.0; //paintProps.getMagnification();
 
@@ -156,16 +157,16 @@ public class ContourRenderable implements IRenderable {
     		}
 
     		if (contourGroup != null) {
-    			if (this.lastMagnification != magnification || font == null) {
+    			if (this.lastMagnification != magnification) { // || font == null) {
     				this.lastMagnification = magnification;
-    				if (this.font != null) {
+    				/*if (this.font != null) {
     					font.dispose();
     				}
     				font = target.getDefaultFont();
 
     				font = target.initializeFont(font.getFontName(),
     						(float) (font.getFontSize() / 1.4 * magnification),
-    						null);
+    						null);*/
     			}
 
     			int i = contourGroup.length - 1;
@@ -246,6 +247,8 @@ public class ContourRenderable implements IRenderable {
     							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
     							contourGroup[i].grid = cg.grid;
     							contourGroup[i].clrbar = cg.clrbar;
+    							contourGroup[i].labelParms = cg.labelParms;
+    							contourGroup[i].labels= cg.labels;
     							if ( contourGroup[i].posValueShape != null )
     								contourGroup[i].posValueShape.compile();
     							if ( contourGroup[i].negValueShape != null )
@@ -300,12 +303,16 @@ public class ContourRenderable implements IRenderable {
                         	if ( contourGroup[i].posValueShape != null )
                         		target.drawWireframeShape(
                                     contourGroup[i].posValueShape, this.color,
-                                    this.outlineWidth, posLineStyle, font);
+                                    this.outlineWidth, posLineStyle, contourGroup[i].labelParms.font);
                         	if ( contourGroup[i].negValueShape != null )
                         		target.drawWireframeShape(
                                     contourGroup[i].negValueShape, this.color,
-                                    this.outlineWidth, negLineStyle, font);
-                            
+                                    this.outlineWidth, negLineStyle, contourGroup[i].labelParms.font);
+                           
+                        	
+           				 if( contourGroup[i].labels != null ) {           	                	
+           	    				target.drawStrings( contourGroup[i].labels );
+           	    			}
 
                         } else {
                             // see if we can display a higher level
@@ -323,14 +330,19 @@ public class ContourRenderable implements IRenderable {
                                                             contourGroup[j].posValueShape,
                                                             this.color,
                                                             this.outlineWidth,
-                                                            posLineStyle, font);
+                                                            posLineStyle, contourGroup[i].labelParms.font);
                                         	if ( contourGroup[j].negValueShape != null )
                                         		target.drawWireframeShape(
                                                             contourGroup[j].negValueShape,
                                                             this.color,
                                                             this.outlineWidth,
-                                                            negLineStyle, font);
+                                                            negLineStyle, contourGroup[i].labelParms.font);
                                         }
+                                        
+                                    	
+                       				 if( contourGroup[j].labels != null ) {
+                       	    				target.drawStrings( contourGroup[j].labels );
+                       	    			}
                                     }
                                 }
                             }
@@ -340,6 +352,7 @@ public class ContourRenderable implements IRenderable {
                         break;
     				}
     				i--;
+    			
     			}
     		}
     		
@@ -381,20 +394,27 @@ public class ContourRenderable implements IRenderable {
                         	if ( contourGroup[i].posValueShape != null )
                         		target.drawWireframeShape(
                                     contourGroup[i].posValueShape, this.color,
-                                    this.outlineWidth, posLineStyle, font);
+                                    this.outlineWidth, posLineStyle, contourGroup[i].labelParms.font);
                         	if ( contourGroup[i].negValueShape != null )
                         		target.drawWireframeShape(
                                     contourGroup[i].negValueShape, this.color,
-                                    this.outlineWidth, negLineStyle, font);                            
+                                    this.outlineWidth, negLineStyle, contourGroup[i].labelParms.font);   
+                        	
+
+                            if( contourGroup[i].labels != null ) {
+                				target.drawStrings( contourGroup[i].labels );
+                			}
+                            
                         } 
                     i--;
                 }
+                
             }
         }
     }
 
     public void createContours (IGraphicsTarget target, PaintProperties paintProps) throws VizException {
-
+    	
     	initContourGroup ( paintProps );
 
     		double density = 1.0;//paintProps.getDensity();
@@ -405,16 +425,18 @@ public class ContourRenderable implements IRenderable {
     		}
 
     		if (contourGroup != null) {
-    			if (this.lastMagnification != magnification || font == null) {
+    			if (this.lastMagnification != magnification) { // || font == null) {
     				this.lastMagnification = magnification;
-    				if (this.font != null) {
+    				/*if (this.font != null) {
     					font.dispose();
     				}
+    				
     				font = target.getDefaultFont();
 
     				font = target.initializeFont(font.getFontName(),
     						(float) (font.getFontSize() / 1.4 * magnification),
-    						null);
+    						null);*/
+    				
     			}
 
     			int i = contourGroup.length - 1;
@@ -492,6 +514,9 @@ public class ContourRenderable implements IRenderable {
     							contourGroup[i].fvalues = new ArrayList<Double>(cg.fvalues);
     							contourGroup[i].data = new HashMap< String, Geometry>(cg.data);
     							contourGroup[i].grid = cg.grid;
+    							contourGroup[i].clrbar = cg.clrbar;
+    							contourGroup[i].labelParms = cg.labelParms;
+    							contourGroup[i].labels= cg.labels;
     							if ( contourGroup[i].posValueShape != null )
     								contourGroup[i].posValueShape.compile();
     							if ( contourGroup[i].negValueShape != null )
@@ -517,8 +542,8 @@ public class ContourRenderable implements IRenderable {
      	    						     	               cBarResource.setColorBar(contourGroup[i].colorBarForGriddedFill);
      	    						     	               cBarResource.init(target);
      	    						     	
-    						} 
-    					}
+     	    						               }  
+                                               }
                                            }
                                            else {
                                         	   cBarResource = null;
@@ -529,8 +554,11 @@ public class ContourRenderable implements IRenderable {
     						
     					}
                         break;
-    				}
+    				}    				
+
     				i--;
+    				
+
     			}
     		}
     }   
@@ -587,11 +615,14 @@ public class ContourRenderable implements IRenderable {
                 if (c.fillShapes != null) {
                 	c.fillShapes.dispose();
                 }
+            	if (c.labelParms != null && c.labelParms.font != null) { 
+            		c.labelParms.font.dispose();
+            	}
             }
         }
-        if (font != null) {
+        /*if (font != null) {
             font.dispose();
-        }
+        }*/
 
     }
 
@@ -611,6 +642,9 @@ public class ContourRenderable implements IRenderable {
                 if (c.fillShapes != null) {
                 	c.fillShapes.dispose();
                 }
+            	if (c.labelParms != null && c.labelParms.font != null) { 
+            		c.labelParms.font.dispose();
+            	}
             }
         }
     }
@@ -634,6 +668,10 @@ public class ContourRenderable implements IRenderable {
         		contourGp.fvalues.clear();
         	if ( contourGp.data != null )
         		contourGp.data.clear();
+        	if (contourGp.labels != null)
+        		contourGp.labels.clear();
+        	if (contourGp.labelParms != null && contourGp.labelParms.font != null) 
+        		contourGp.labelParms.font.dispose();
         }
     }
     
@@ -732,4 +770,5 @@ public class ContourRenderable implements IRenderable {
 		}
 		return match;
 	}
+	
 }

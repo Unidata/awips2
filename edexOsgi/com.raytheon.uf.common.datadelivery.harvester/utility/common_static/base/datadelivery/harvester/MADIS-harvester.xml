@@ -21,14 +21,827 @@
 	</provider>
 	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<dateFormat>HHddMMMyyyy</dateFormat>
-		<layer name="madis" namespace="http://madis.edex.uf.raytheon.com">
+		<layer name="madis-conus" namespace="http://madis.edex.uf.raytheon.com">
 			<!-- Geographic constraint of madis layer data -->
-			<minx>-120.0</minx>
-			<maxx>-70.0</maxx>
+			<minx>-130.0</minx>
+			<maxx>-65.0</maxx>
 			<miny>20.0</miny>
 			<maxy>50.0</maxy>
 			<crs>crs:84</crs>
-			<!-- Registry Parameters in madis layer -->
+			<!-- Registry Parameters in madis conus layer -->
+			<parameter name="timeObs" providerName="OBSTIME"
+				definition="Time of observation" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="provider" providerName="PVDR"
+				definition="Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="sub_provider" providerName="SUBPVDR"
+				definition="Sub Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="restriction" providerName="RES"
+				definition="Restriction Level" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dataset" providerName="DS"
+				definition="Dataset" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="obsLocation" providerName="obsLocation"
+				definition="Location of Observation" dataType="POINT" units="Degrees"
+				missingValue="-9999" fillValue="-9999" baseType="ObsLocation">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint" providerName="TD"
+				definition="Dewpoint Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcd" providerName="TD_QCD"
+				definition="Dewpoint QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qca" providerName="TD_QCA"
+				definition="Dewpoint QCD" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcr" providerName="TD_QCR"
+				definition="Dewpoint QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh" providerName="RH"
+				definition="Relative Humidity" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="%">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcd" providerName="RH_QCD"
+				definition="Relative Humidity QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qca" providerName="RH_QCA"
+				definition="Relative Humidity QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcr" providerName="RH_QCR"
+				definition="Relative Humidity QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter" providerName="ALTSE"
+				definition="Altimeter Setting" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcd" providerName="ALTSE_QCD"
+				definition="Altimeter Setting QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qca" providerName="ALTSE_QCA"
+				definition="Altimeter Setting QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcr" providerName="ALTSE_QCR"
+				definition="Altimeter Setting QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature" providerName="T"
+				definition="Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcd" providerName="T_QCD"
+				definition="Temperature QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qca" providerName="T_QCA"
+				definition="Temperature QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcr" providerName="T_QCR"
+				definition="Temperature QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection" providerName="DD"
+				definition="Wind Direction" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcd" providerName="DD_QCD"
+				definition="Wind Direction QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qca" providerName="DD_QCA"
+				definition="Wind Direction QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcr" providerName="DD_QCR"
+				definition="Wind Direction QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed" providerName="FF"
+				definition="Wind Speed" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcd" providerName="FF_QCD"
+				definition="Wind Speed QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qca" providerName="FF_QCA"
+				definition="Wind Speed QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcr" providerName="FF_QCR"
+				definition="Wind Speed QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation" providerName="ELEV"
+				definition="Elevation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcd" providerName="ELEV_QCD"
+				definition="Elevation QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qca" providerName="ELEV_QCA"
+				definition="Elevation QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcr" providerName="ELEV_QCR"
+				definition="Elevation QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcd" providerName="LON_QCD"
+				definition="longitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qca" providerName="LON_QCA"
+				definition="Longitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcr" providerName="LON_QCR"
+				definition="Longitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcd" providerName="LAT_QCD"
+				definition="Latitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qca" providerName="LAT_QCA"
+				definition="Latitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcr" providerName="LAT_QCR"
+				definition="Latitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate" providerName="PCPRATE"
+				definition="Precipitation Rate" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="in/hr">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcd" providerName="PCPRATE_QCD"
+				definition="Precipitation Rate QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qca" providerName="PCPRATE_QCA"
+				definition="Precipitation Rate QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcr" providerName="PCPRATE_QCR"
+				definition="Precipitation Rate QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust" providerName="FFGUST"
+				definition="Wind Gust" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="kts">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcd" providerName="FFGUST_QCD"
+				definition="Wind Gust QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qca" providerName="FFGUST_QCA"
+				definition="Wind Gust QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcr" providerName="FFGUST_QCR"
+				definition="Wind Gust QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater" providerName="PWV"
+				definition="Precipital Water Vapor" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="in">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcd" providerName="PWV_QCD"
+				definition="Precipital Water Vapor QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qca" providerName="PWV_QCA"
+				definition="Precipital Water Vapor QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcr" providerName="PWV_QCR"
+				definition="Precipital Water Vapor QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure" providerName="P"
+				definition="Pressure" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcd" providerName="P_QCD"
+				definition="Pressure QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qca" providerName="P_QCA"
+				definition="Pressure QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcr" providerName="P_QCR"
+				definition="Pressure QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+		</layer>
+            <layer name="madis-alaska" namespace="http://madis.edex.uf.raytheon.com">
+			<!-- Geographic constraint of madis alaska layer data -->
+			<minx>-180.0</minx>
+			<maxx>-114.0</maxx>
+			<miny>55.0</miny>
+			<maxy>85.0</maxy>
+			<crs>crs:84</crs>
+			<!-- Registry Parameters in madis alaska layer -->
+			<parameter name="timeObs" providerName="OBSTIME"
+				definition="Time of observation" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="provider" providerName="PVDR"
+				definition="Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="sub_provider" providerName="SUBPVDR"
+				definition="Sub Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="restriction" providerName="RES"
+				definition="Restriction Level" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dataset" providerName="DS"
+				definition="Dataset" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="obsLocation" providerName="obsLocation"
+				definition="Location of Observation" dataType="POINT" units="Degrees"
+				missingValue="-9999" fillValue="-9999" baseType="ObsLocation">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint" providerName="TD"
+				definition="Dewpoint Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcd" providerName="TD_QCD"
+				definition="Dewpoint QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qca" providerName="TD_QCA"
+				definition="Dewpoint QCD" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcr" providerName="TD_QCR"
+				definition="Dewpoint QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh" providerName="RH"
+				definition="Relative Humidity" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="%">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcd" providerName="RH_QCD"
+				definition="Relative Humidity QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qca" providerName="RH_QCA"
+				definition="Relative Humidity QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcr" providerName="RH_QCR"
+				definition="Relative Humidity QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter" providerName="ALTSE"
+				definition="Altimeter Setting" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcd" providerName="ALTSE_QCD"
+				definition="Altimeter Setting QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qca" providerName="ALTSE_QCA"
+				definition="Altimeter Setting QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcr" providerName="ALTSE_QCR"
+				definition="Altimeter Setting QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature" providerName="T"
+				definition="Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcd" providerName="T_QCD"
+				definition="Temperature QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qca" providerName="T_QCA"
+				definition="Temperature QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcr" providerName="T_QCR"
+				definition="Temperature QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection" providerName="DD"
+				definition="Wind Direction" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcd" providerName="DD_QCD"
+				definition="Wind Direction QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qca" providerName="DD_QCA"
+				definition="Wind Direction QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcr" providerName="DD_QCR"
+				definition="Wind Direction QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed" providerName="FF"
+				definition="Wind Speed" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcd" providerName="FF_QCD"
+				definition="Wind Speed QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qca" providerName="FF_QCA"
+				definition="Wind Speed QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcr" providerName="FF_QCR"
+				definition="Wind Speed QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation" providerName="ELEV"
+				definition="Elevation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcd" providerName="ELEV_QCD"
+				definition="Elevation QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qca" providerName="ELEV_QCA"
+				definition="Elevation QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcr" providerName="ELEV_QCR"
+				definition="Elevation QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcd" providerName="LON_QCD"
+				definition="longitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qca" providerName="LON_QCA"
+				definition="Longitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcr" providerName="LON_QCR"
+				definition="Longitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcd" providerName="LAT_QCD"
+				definition="Latitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qca" providerName="LAT_QCA"
+				definition="Latitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcr" providerName="LAT_QCR"
+				definition="Latitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate" providerName="PCPRATE"
+				definition="Precipitation Rate" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="in/hr">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcd" providerName="PCPRATE_QCD"
+				definition="Precipitation Rate QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qca" providerName="PCPRATE_QCA"
+				definition="Precipitation Rate QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcr" providerName="PCPRATE_QCR"
+				definition="Precipitation Rate QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust" providerName="FFGUST"
+				definition="Wind Gust" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="kts">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcd" providerName="FFGUST_QCD"
+				definition="Wind Gust QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qca" providerName="FFGUST_QCA"
+				definition="Wind Gust QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcr" providerName="FFGUST_QCR"
+				definition="Wind Gust QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater" providerName="PWV"
+				definition="Precipital Water Vapor" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="in">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcd" providerName="PWV_QCD"
+				definition="Precipital Water Vapor QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qca" providerName="PWV_QCA"
+				definition="Precipital Water Vapor QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcr" providerName="PWV_QCR"
+				definition="Precipital Water Vapor QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure" providerName="P"
+				definition="Pressure" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcd" providerName="P_QCD"
+				definition="Pressure QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qca" providerName="P_QCA"
+				definition="Pressure QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcr" providerName="P_QCR"
+				definition="Pressure QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+		</layer> 
+            <layer name="madis-hawaii" namespace="http://madis.edex.uf.raytheon.com">
+			<!-- Geographic constraint of madis hawaii layer data -->
+			<minx>-162.0</minx>
+			<maxx>-152.0</maxx>
+			<miny>16.0</miny>
+			<maxy>24.0</maxy>
+			<crs>crs:84</crs>
+			<!-- Registry Parameters in madis hawaii layer -->
+			<parameter name="timeObs" providerName="OBSTIME"
+				definition="Time of observation" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="provider" providerName="PVDR"
+				definition="Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="sub_provider" providerName="SUBPVDR"
+				definition="Sub Provider Network" dataType="POINT" baseType="String">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="restriction" providerName="RES"
+				definition="Restriction Level" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dataset" providerName="DS"
+				definition="Dataset" dataType="POINT" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="obsLocation" providerName="obsLocation"
+				definition="Location of Observation" dataType="POINT" units="Degrees"
+				missingValue="-9999" fillValue="-9999" baseType="ObsLocation">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint" providerName="TD"
+				definition="Dewpoint Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcd" providerName="TD_QCD"
+				definition="Dewpoint QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qca" providerName="TD_QCA"
+				definition="Dewpoint QCD" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="dewpoint_qcr" providerName="TD_QCR"
+				definition="Dewpoint QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh" providerName="RH"
+				definition="Relative Humidity" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="%">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcd" providerName="RH_QCD"
+				definition="Relative Humidity QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qca" providerName="RH_QCA"
+				definition="Relative Humidity QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="rh_qcr" providerName="RH_QCR"
+				definition="Relative Humidity QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter" providerName="ALTSE"
+				definition="Altimeter Setting" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcd" providerName="ALTSE_QCD"
+				definition="Altimeter Setting QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qca" providerName="ALTSE_QCA"
+				definition="Altimeter Setting QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="altimeter_qcr" providerName="ALTSE_QCR"
+				definition="Altimeter Setting QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature" providerName="T"
+				definition="Temperature" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="K">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcd" providerName="T_QCD"
+				definition="Temperature QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qca" providerName="T_QCA"
+				definition="Temperature QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="temperature_qcr" providerName="T_QCR"
+				definition="Temperature QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection" providerName="DD"
+				definition="Wind Direction" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Integer" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcd" providerName="DD_QCD"
+				definition="Wind Direction QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qca" providerName="DD_QCA"
+				definition="Wind Direction QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windDirection_qcr" providerName="DD_QCR"
+				definition="Wind Direction QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed" providerName="FF"
+				definition="Wind Speed" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcd" providerName="FF_QCD"
+				definition="Wind Speed QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qca" providerName="FF_QCA"
+				definition="Wind Speed QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windSpeed_qcr" providerName="FF_QCR"
+				definition="Wind Speed QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation" providerName="ELEV"
+				definition="Elevation" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="degrees">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcd" providerName="ELEV_QCD"
+				definition="Elevation QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qca" providerName="ELEV_QCA"
+				definition="Elevation QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="elevation_qcr" providerName="ELEV_QCR"
+				definition="Elevation QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcd" providerName="LON_QCD"
+				definition="longitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qca" providerName="LON_QCA"
+				definition="Longitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lon_qcr" providerName="LON_QCR"
+				definition="Longitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcd" providerName="LAT_QCD"
+				definition="Latitude QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qca" providerName="LAT_QCA"
+				definition="Latitude QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="lat_qcr" providerName="LAT_QCR"
+				definition="Latitude QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate" providerName="PCPRATE"
+				definition="Precipitation Rate" dataType="POINT" missingValue="-9999"
+				fillValue="-9999" baseType="Float" units="in/hr">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcd" providerName="PCPRATE_QCD"
+				definition="Precipitation Rate QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qca" providerName="PCPRATE_QCA"
+				definition="Precipitation Rate QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipRate_qcr" providerName="PCPRATE_QCR"
+				definition="Precipitation Rate QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust" providerName="FFGUST"
+				definition="Wind Gust" dataType="POINT"
+				missingValue="-9999" fillValue="-9999" baseType="Float" units="kts">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcd" providerName="FFGUST_QCD"
+				definition="Wind Gust QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qca" providerName="FFGUST_QCA"
+				definition="Wind Gust QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="windGust_qcr" providerName="FFGUST_QCR"
+				definition="Wind Gust QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater" providerName="PWV"
+				definition="Precipital Water Vapor" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="in">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcd" providerName="PWV_QCD"
+				definition="Precipital Water Vapor QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qca" providerName="PWV_QCA"
+				definition="Precipital Water Vapor QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="precipitalWater_qcr" providerName="PWV_QCR"
+				definition="Precipital Water Vapor QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure" providerName="P"
+				definition="Pressure" dataType="POINT" missingValue="-9999" 
+				fillValue="-9999" baseType="Float" units="Pa">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcd" providerName="P_QCD"
+				definition="Pressure QCD" dataType="POINT" baseType="QCD">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qca" providerName="P_QCA"
+				definition="Pressure QCA" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+			<parameter name="pressure_qcr" providerName="P_QCR"
+				definition="Pressure QCR" dataType="POINT" missingValue="0"
+				fillValue="0" baseType="Integer">
+				<levelType levelType="SFC" />
+			</parameter>
+		</layer>
+        <layer name="madis-puertorico" namespace="http://madis.edex.uf.raytheon.com">
+			<!-- Geographic constraint of madis puerto rico layer data -->
+			<minx>-63.8</minx>
+			<maxx>-68.5</maxx>
+			<miny>16.5</miny>
+			<maxy>19.8</maxy>
+			<crs>crs:84</crs>
+			<!-- Registry Parameters in madis puerto rico layer -->
 			<parameter name="timeObs" providerName="OBSTIME"
 				definition="Time of observation" dataType="POINT" baseType="String">
 				<levelType levelType="SFC" />

@@ -54,29 +54,35 @@ public class BinLigntningDecoderUtil {
 	/**
 	 * Message type for keep alive data records. 
 	 */
-	final static short KEEP_ALIVE_TYPE = 0x0000;
+	static final short KEEP_ALIVE_TYPE = 0x0000;
 
 	/**
 	 * Message type for lightning data records. 
 	 */
-	final static short LIGHTNING_TYPE = 0x00ff;
+	static final short LIGHTNING_TYPE = 0x00ff;
 
 	/**
 	 * If there are more elements within the data record, this terminator is used.
 	 */
-	final static byte[] MORE_TERM_BYTES = {0x0d, 0x0d, 0x0a, 0x00};
+	static final byte[] MORE_TERM_BYTES = {0x0d, 0x0d, 0x0a, 0x00};
 	/**
 	 * Last element within data records should be terminated by these 4 bytes.
 	 */
-	final static byte[] LAST_TERM_BYTES = {0x0d, 0x0d, 0x0a, 0x03};
+	static final byte[] LAST_TERM_BYTES = {0x0d, 0x0d, 0x0a, 0x03};
 
 	/**
 	 * WMO header start bytes, optional (it is known that TG will strip this away)
 	 */
-	final static byte[] WMO_HEADER_START_BYTES = {0x01, 0x0d, 0x0d, 0x0a};
+	static final byte[] WMO_HEADER_START_BYTES = {0x01, 0x0d, 0x0d, 0x0a};
 
 	/* Size of binary NWS lightning data record. */
 	static final int BINLIGHTNING_RECORD_SIZE = 32;
+
+	/** legacy lightning data types */
+    static final byte FLASH_RPT = (byte)0x96;
+    static final byte RT_FLASH_RPT = (byte)0x97;
+    static final byte OTHER_RPT = (byte)0xD0;
+    static final byte COMM_RPT = (byte)0xD1;
 
     private static Log logger = LogFactory.getLog(BinLigntningDecoderUtil.class);
 
@@ -85,9 +91,10 @@ public class BinLigntningDecoderUtil {
 	 * com.raytheon.edex.plugin.binlightning.BinLightningDecoder class
 	 * 
 	 * @param pdata
+	 * @param wmoHdr - WMOHeader, added 12/24/2013 to help distinguish bit-shifted NLDN and GLD360 data (GLD data will have header starts like SFPA)
 	 * @return
 	 */
-	public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(byte[] pdata) {
+	public static List<LightningStrikePoint> decodeBitShiftedBinLightningData(byte[] pdata, WMOHeader wmoHdr) {
 		List<LightningStrikePoint> strikes = new ArrayList<LightningStrikePoint>();
 
 		IBinDataSource msgData = new LightningDataSource(pdata);
@@ -99,6 +106,14 @@ public class BinLigntningDecoderUtil {
 			switch (decoder.getError()) {
 			case IBinLightningDecoder.NO_ERROR: {
 				for (LightningStrikePoint strike : decoder) {
+					// use WMO Header to distinguish NLDN or GLD360 data because no bit-shifted data spec available for GLD360. 12/24/2013, WZ
+					// The WMO header start string is defined in BinLightningAESKey.properties file (normally, GLD360 data will have WMO header 
+					//  starts with SFPA41, or SFPA99 for test data.) 
+					String gld360WMOHeaderString = BinLightningAESKey.getProps().getProperty("binlightning.gld360WMOHeaderStartString", "");
+					if (gld360WMOHeaderString.trim().equals("") == false && wmoHdr.getWmoHeader().startsWith(gld360WMOHeaderString)) { 
+						// GLD360 data based on the setup
+						strike.setLightSource("GLD");
+					}
 					strikes.add(strike);
 				}
 				break;
@@ -229,10 +244,11 @@ public class BinLigntningDecoderUtil {
 	 * @param data - data content from file, including WMO header section
 	 * @param pdata - data with WMO header stripped, optional, if null, will strip WMO header internally from passed in data parameter 
 	 * @param traceId - the file name of the data to be deoced
+	 * @param wmoHdr - WMOHeader, added 12/24/2013 to help distinguish bit-shifted NLDN and GLD360 data (GLD data will have header starts like SFPA)
 	 * @param dataDate - date of the data, optional, used as a hint to find appropriate encryption key faster
 	 * @return null if keep-alive record, otherwise a list (could be empty) of LightningStrikePoint
 	 */
-	public static List<LightningStrikePoint> decodeBinLightningData(byte[] data, byte[] pdata, String traceId, Date dataDate) {
+	public static List<LightningStrikePoint> decodeBinLightningData(byte[] data, byte[] pdata, String traceId, WMOHeader wmoHdr, Date dataDate) {
 		if (pdata == null) { // if data without header not passed, we'll strip the WMO header here
 			WMOHeader header = new WMOHeader(data);
 			if (header.isValid() && header.getMessageDataStart() > 0) {
@@ -257,6 +273,25 @@ public class BinLigntningDecoderUtil {
 		//          or the ASCII sequence # for legacy bit-shifted data 
 		// However, the starting line is optional and AWIPS decode may not see it at all because TG will strip that starting line away
 		// We'll try to use this hint first, if is is not found, then trial and error way to decrypt and decode
+		//
+		// As of 11/05/2013, There is change in data spec. that the 3-bytes will not be encoded as encrypted block size anymore (it will always be transmission sequence # if present)
+		//     So there should have some minor changes in the logic below for decoding the data.
+		// However, as reading into the com.raytheon.edex.plugin.binlightning.impl.BinLightningFactory.getDecoder() and follow-on code, we see the following data patterns
+		//     for legacy bit-shifted data, which could be used to reduce guess-work in data decryption:
+		// The bit-shifted data will have multiple groups of the following patterns:
+		//     1-byte (unsigned byte): for size count
+		//     1-byte (unsigned byte): for flash type:  
+		//                                 0x96 for FLASH_RPT (message size is 6 bytes each)
+		//                                 0x97 for RT_FLASH_RPT (message size is 8 bytes each)
+		//                                 0xd0 for OTHER_RPT (The D2D decoders declare but do not define this message, so unimplemented decoder)
+		//                                 0xd1 for COMM_RPT  (The D2D decoders declare but do not define this message, so unimplemented decoder)
+		//     4-bytes: date time
+		//     multiple of 6 or 8 bytes (as determined by 2nd byte flash type) with count indicated in 1st byte
+		// 
+		// So this is be used to determine whether the data need to be decrypted.  
+		
+		/*
+		// looks like previous assumption on block size bytes are not valid any more.   11/20/2013
         if (data != null) {
 			byte[] sizeSeqBytes = BinLigntningDecoderUtil.findSizeOrSeqBytesFromWMOHeader(data);
 	        if (sizeSeqBytes != null) { 
@@ -268,19 +303,42 @@ public class BinLigntningDecoderUtil {
 	        	}
 	        }
         }
-        
+		*/
+		
         if (needDecrypt) {
     		try {
-    			byte[] decryptedData = cipher.decryptData(pdata, dataDate);	                    
+    			// NOTE: 11/14/2013 WZ:
+    			//       encrypted test data on TNCF (got from Melissa Porricelli) seems to have extra 4 bytes (0x0d 0x0d 0x0a 0x03) at the end,
+    			//       making the data size not a multiple of 16.  However, original test data do not have this trailing bytes. while NCEP test 
+    			//       data has extra 8 trailing bytes.  
+    			//  Brain Rapp's email on 11/13/2013 confirms that Unidata LDM software used by AWIPS II will strips off all SBN protocol headers 
+    			//       that precede the WMO header and adds its own 11 byte header like this: "soh  cr  cr  nl   2   5   4  sp  cr  cr  nl".  It 
+    			//       also adds a four byte trailer consisting of "cr cr nl etx" (0x0d 0x0d 0x0a 0x03)
+    			//  So, it seems necessary to trim trailing bytes if it is not multiple of 16, warning messages will be logged though 
+    			int dataLengthToBeDecrypted = pdata.length;
+    			if (pdata.length % 16 != 0) {
+    				dataLengthToBeDecrypted = pdata.length - (pdata.length % 16);
+					logger.warn(traceId + " - Data length from file " + traceId + " is " + pdata.length + " bytes, trailing " + 
+							(pdata.length - dataLengthToBeDecrypted) + " bytes has been trimmed to " + dataLengthToBeDecrypted + " bytes for decryption.");
+    			}
+    			byte[] encryptedData = new byte[dataLengthToBeDecrypted];
+    			encryptedData = Arrays.copyOfRange(pdata, 0, dataLengthToBeDecrypted);
+    				
+    			byte[] decryptedData = cipher.decryptData(encryptedData, dataDate);	                    
     			// decrypt ok, then decode, first check if keep-alive record
     			if (BinLigntningDecoderUtil.isKeepAliveRecord(decryptedData)) {
     				logger.info(traceId + " - Keep-alive record detected, ignore for now.");
     				decodeDone = true;
     				return null; 
     			}
-    			// not keep-alive record, then decode into an ArrayList<LightningStrikePoint> of strikes
-    			strikes = BinLigntningDecoderUtil.decodeDecryptedBinLightningData(decryptedData); 
-    			decodeDone = true;
+    			// not keep-alive record, then check data validity and decode into an ArrayList<LightningStrikePoint> of strikes
+    			if (BinLigntningDecoderUtil.isLightningDataRecords(decryptedData)) {
+	    			strikes = BinLigntningDecoderUtil.decodeDecryptedBinLightningData(decryptedData); 
+	    			decodeDone = true;
+    			} else {
+    				logger.info(traceId + " - Failed data validity check of the decrypted data, will try decode the old-fashioned way.");
+        			decodeDone = false;
+    			}
     		} catch (IllegalBlockSizeException e) {
 				logger.info(traceId + " - " + e.getMessage() + ": Decryption failed, will try decode the old-fashioned way.");
     			decodeDone = false;
@@ -294,7 +352,13 @@ public class BinLigntningDecoderUtil {
         }
 
         if (decodeDone == false) { // not decoded through decrypt->decode process, try the legacy decoder
-        	strikes = BinLigntningDecoderUtil.decodeBitShiftedBinLightningData(pdata); 
+			logger.info(traceId + " - decoding as bit-shifted data");
+			// bit-shifting data format check call here will get us some more information on the data, also can compare the strikes with the decoder result
+			int estimatedStrikes = getBitShiftedDataStrikeCount(pdata);  
+        	strikes = BinLigntningDecoderUtil.decodeBitShiftedBinLightningData(pdata, wmoHdr);
+        	if (estimatedStrikes != strikes.size()) {
+    			logger.warn(traceId + ": bit-shifted decoder found " + strikes + " strikes, which is different from estimate from data pattern examination: " + estimatedStrikes);
+        	}
         }
         
         return strikes;
@@ -526,4 +590,58 @@ public class BinLigntningDecoderUtil {
 		return false;
 	}
 	
+	/**
+	 * Based on the data format described below, trying to get an estimate of bit-shifted data strike count without actually decoding the data
+	 * 
+	 * Legacy bit-shifted data format has the following known data pattern:
+	 * The bit-shifted data will have multiple groups of the following patterns:
+	 *      1-byte (unsigned byte): for size count. Count be 0, in that case, will only have 4-bytes data-time following (sounds like keep-alive)
+	 *      1-byte (unsigned byte): for flash type:
+	 *                              0x96 for FLASH_RPT (message size is 6 bytes each)
+	 *                              0x97 for RT_FLASH_RPT (message size is 8 bytes each)
+     *                              0xd0 for OTHER_RPT (The D2D decoders declare but do not define this message, so unimplemented decoder)
+	 *                              0xd1 for COMM_RPT  (The D2D decoders declare but do not define this message, so unimplemented decoder)
+	 *     4-bytes: date time
+	 *     multiple of 6 or 8 bytes (as determined by 2nd byte flash type) with count indicated in 1st byte
+	 *
+	 * NOTE: as test file SFUS41_KWBC_241059_53594581.nldn.2013042411 revealed, it is bit-shifted data but somehow with 4 few extra bytes at 
+	 *          the end of the file (0x0d 0x0d 0x0a 0x03).  It still can be decoded as bit-shifted data.  
+	 *       So this method of checking data format is not foolproof.  
+	 *       - 11/07/2013 WZ
+	 * 
+	 *  @param pdata - binary data byte array
+	 *  @return true if conforms to bit-shifted data format, false otherwise 
+	 */
+	public static int getBitShiftedDataStrikeCount(byte[] pdata) {
+		int pos = 0;
+		int strikeCount = 0;
+		int totalGroupCount = 0; // groups that conforms to the data pattern described above in comment
+		while (pos < pdata.length) {
+			int recCount = (int)(pdata[pos] & 0xff);
+			if ((pos+1) >= pdata.length) break; // end of data before even read the flash type
+			byte flashType = pdata[pos + 1];
+			if (flashType == FLASH_RPT) { // FLASH_RPT 0x96, record size is 6 bytes
+				totalGroupCount++;
+				pos = pos + 6 + 6*recCount; // next record start position
+			} else if (flashType == RT_FLASH_RPT) { // RT_FLASH_RPT 0x97, record size is 8 bytes
+				totalGroupCount++;
+				pos = pos + 6 + 8*recCount; // next record start position
+			} else {
+				break; // not a known type
+			}
+			// only when the next record start position is exactly right after the end of data, we get a well conformed data
+			if (pos <= pdata.length) {
+				strikeCount += recCount;
+			} else if (pos > pdata.length) {
+				break;
+			}
+		}
+		if (totalGroupCount == 0 && strikeCount == 0) {
+			logger.info("getBitShiftedDataStrikeCount(): no bit-shifted data pattern found, not likely to be bit-shifted data.");
+			return -1;
+		} else {
+			logger.info("getBitShiftedDataStrikeCount(): found " + totalGroupCount + " groups of bit-shifted data pattern, which contains " + strikeCount + " strikes.");
+			return strikeCount;
+		}
+	}
 }

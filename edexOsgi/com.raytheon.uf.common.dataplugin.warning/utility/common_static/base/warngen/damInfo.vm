@@ -64,7 +64,7 @@
     #set($hycType = "THE ${riverName} BELOW ${damName}")
     #set($emergencyHeadline = "TOWNS AND CITIES IMMEDIATELY BELOW ${damName} ON THE ${riverName}")
     #set($headline = "FOR ${reportType2} ${damName} ON THE ${riverName} ")
-    #set($reportType1 = "${reportType2} ${damName} ON THE ${riverName}${reportInfo}")
+    #set($reportType1 = "${reportType2} ${damName} ON THE ${riverName}")
     #set($addInfo = "THE NEAREST DOWNSTREAM TOWN IS ${cityInfo} FROM THE DAM.")
     #set($sitespecCTA = "IF YOU ARE IN LOW LYING AREAS BELOW THE ${damName} YOU SHOULD MOVE TO HIGHER GROUND IMMEDIATELY.")
 #end

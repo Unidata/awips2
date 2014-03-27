@@ -26,11 +26,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
 /**
@@ -51,6 +52,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2013 1543       djohnson     Initial creation
+ * Jan 15, 2014 2678       bgonzale     Added Queue.
+ * Jan 30, 2014 2686       dhladky      refactor of retrieval.
  * 
  * </pre>
  * 
@@ -60,6 +63,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
 public class PerformRetrievalPluginDataObjectsFinderTest {
 
     private static final String EXCEPTION_MESSAGE = "thrown on purpose";
+
+    private final ConcurrentLinkedQueue<RetrievalRequestRecordPK> retrievalQueue = new ConcurrentLinkedQueue<RetrievalRequestRecordPK>();
 
     private static final IRetrievalDao MOCK_DAO = mock(IRetrievalDao.class);
 
@@ -131,8 +136,8 @@ public class PerformRetrievalPluginDataObjectsFinderTest {
     }
 
     private void processRetrieval(RetrievalRequestRecord retrieval) {
-        final PerformRetrievalsThenReturnFinder pluginDataObjectsFinder = new PerformRetrievalsThenReturnFinder(
-                Network.OPSNET, MOCK_DAO);
-        pluginDataObjectsFinder.process(retrieval);
+        //final PerformRetrievalsThenReturnFinder pluginDataObjectsFinder = new PerformRetrievalsThenReturnFinder(
+        //        retrievalQueue, MOCK_DAO);
+        //pluginDataObjectsFinder.process(retrieval);
     }
 }

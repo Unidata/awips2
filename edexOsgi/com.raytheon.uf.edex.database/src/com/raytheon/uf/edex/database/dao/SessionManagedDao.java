@@ -63,6 +63,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Jun 24, 2013 2106       djohnson    Use IDENTIFIER generic for method signature.
  * 10/8/2013    1682       bphillip    Added the createCriteria method
  * 12/9/2013    2613       bphillip    Added flushAndClearSession method
+ * Jan 17, 2014 2459       mpduff      Added null check to prevent NPE.
+ * 2/13/2014    2769       bphillip    Added read-only flag to query methods and loadById method
  * 
  * </pre>
  * 
@@ -127,8 +129,10 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      */
     @Override
     public void delete(final ENTITY obj) {
-        Object toDelete = template.merge(obj);
-        template.delete(toDelete);
+        if (obj != null) {
+            Object toDelete = template.merge(obj);
+            template.delete(toDelete);
+        }
     }
 
     /**
@@ -145,21 +149,34 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public ENTITY getById(IDENTIFIER id) {
         final Class<ENTITY> entityClass = getEntityClass();
         return entityClass.cast(template.get(entityClass, id));
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public ENTITY loadById(IDENTIFIER id) {
+        final Class<ENTITY> entityClass = getEntityClass();
+        return entityClass.cast(template.load(entityClass, id));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> getAll() {
         return query("from " + getEntityClass().getSimpleName());
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public List<ENTITY> loadAll() {
+        return this.template.loadAll(getEntityClass());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public ENTITY uniqueResult(String queryString) {
         return uniqueResult(queryString, new Object[0]);
     }
@@ -171,7 +188,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @param params
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     protected ENTITY uniqueResult(String queryString, Object... params) {
         final List<ENTITY> results = executeHQLQuery(queryString, params);
         if (results.isEmpty()) {
@@ -183,6 +200,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
         return results.get(0);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> query(String queryString) {
         return executeHQLQuery(queryString);
     }
@@ -194,12 +212,12 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @param params
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> query(String queryString, Object... params) {
         return executeHQLQuery(queryString, 0, params);
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public List<ENTITY> query(String queryString, Integer maxResults,
             Object... params) {
         return executeHQLQuery(queryString, maxResults, params);
@@ -217,7 +235,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             If errors are encountered during the HQL query
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public <T extends Object> List<T> executeHQLQuery(String queryString) {
         return executeHQLQuery(queryString, 0);
     }
@@ -239,7 +257,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @throws DataAccessLayerException
      *             If Hibernate errors occur during the execution of the query
      */
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public <T extends Object> List<T> executeHQLQuery(String queryString,
             Object... params) {
         return executeHQLQuery(queryString, 0, params);
@@ -267,7 +285,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      * @return The results of the query
      */
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public <T extends Object> List<T> executeHQLQuery(final String queryString,
             Integer maxResults, Object... params) {
         if (params.length % 2 != 0) {
@@ -294,7 +312,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public <T extends Object> Iterator<T> getQueryIterator(
             final String queryString, Object... params) {
         if (params.length == 0) {
@@ -388,7 +406,7 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
      *             If errors occur in Hibernate while executing the query
      */
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
     public <T extends Object> List<T> executeCriteriaQuery(
             final DetachedCriteria criteria) {
         if (criteria == null) {
@@ -399,6 +417,11 @@ public abstract class SessionManagedDao<IDENTIFIER extends Serializable, ENTITY 
 
     public void evict(ENTITY entity) {
         this.getSessionFactory().getCurrentSession().evict(entity);
+    }
+
+    public ENTITY load(Serializable id) {
+        return this.template.load(getEntityClass(), id);
+
     }
 
     /**

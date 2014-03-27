@@ -34,6 +34,10 @@ import java.util.Map;
  * ------------ ---------- ----------- --------------------------
  * Oct 14, 2009            jkorman     Initial creation
  * Dec 09, 2013 2581       njensen     Added freezing drizzle
+ * Jan 03, 2014 2581       njensen     Added coastal flood
+ * Jan 13, 2014 2581       njensen     Added debris flow
+ * Jan 17, 2014 2581       njensen     Added blowing snow
+ * Jan 30, 2014 2581       njensen     Added rain
  *
  * </pre>
  *
@@ -83,7 +87,13 @@ public enum LSREventType {
     TSTMWNDGST("TSTM WND GST",37,LSRUnits.MPH),
     WATERSPOUT("WATER SPOUT",38,LSRUnits.NOUNITS),
     WILDFIRE("WILDFIRE",39,LSRUnits.NOUNITS),
-    FREEZINGDRIZZLE("FREEZING DRIZZLE", 40, LSRUnits.NOUNITS);
+    FREEZINGDRIZZLE("FREEZING DRIZZLE", 40, LSRUnits.NOUNITS),
+    COASTALFLOOD("COASTAL FLOOD", 41, LSRUnits.NOUNITS),
+    DEBRISFLOW("DEBRIS FLOW", 42, LSRUnits.NOUNITS),
+    BLOWINGSNOW("BLOWING SNOW", 43, LSRUnits.NOUNITS),
+    RAIN("RAIN", 44, LSRUnits.NOUNITS);
+
+    // TODO contemplate storing the event type as a string in the database instead of an enum/integer
 
     private final String eventName;
     
