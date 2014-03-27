@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.core.reflect;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,6 +46,7 @@ import org.reflections.util.ConfigurationBuilder;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 21, 2013  2491     bsteffen    Initial creation
+ * Jan 22, 2014  2062     bsteffen    Handle bundles with no wiring.
  * 
  * </pre>
  * 
@@ -54,19 +56,28 @@ import org.reflections.util.ConfigurationBuilder;
 
 public class BundleReflections {
 
-    private Reflections reflections;
+    private final Reflections reflections;
 
     public BundleReflections(Bundle bundle, Scanner scanner) throws IOException {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
-        cb.addClassLoader(bundleWiring.getClassLoader());
-        cb.addUrls(FileLocator.getBundleFile(bundle).toURI().toURL());
-        cb.setScanners(scanner);
-        reflections = cb.build();
+        if (bundleWiring != null) {
+            cb.addClassLoader(bundleWiring.getClassLoader());
+            cb.addUrls(FileLocator.getBundleFile(bundle).toURI().toURL());
+            cb.setScanners(scanner);
+            reflections = cb.build();
+        } else {
+            reflections = null;
+        }
+
     }
 
     public <T> Set<Class<? extends T>> getSubTypesOf(final Class<T> type) {
-        return reflections.getSubTypesOf(type);
+        if (reflections == null) {
+            return Collections.emptySet();
+        } else {
+            return reflections.getSubTypesOf(type);
+        }
     }
 
     public Set<Class<?>> getSubTypesOf(Class<?>... types) {

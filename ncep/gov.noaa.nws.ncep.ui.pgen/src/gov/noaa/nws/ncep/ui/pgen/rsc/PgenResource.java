@@ -21,7 +21,9 @@ import gov.noaa.nws.ncep.ui.pgen.display.DisplayElementFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.DisplayProperties;
 import gov.noaa.nws.ncep.ui.pgen.display.ElementContainerFactory;
 import gov.noaa.nws.ncep.ui.pgen.display.IDisplayable;
+import gov.noaa.nws.ncep.ui.pgen.display.ILine;
 import gov.noaa.nws.ncep.ui.pgen.display.ISymbolSet;
+import gov.noaa.nws.ncep.ui.pgen.display.IText;
 import gov.noaa.nws.ncep.ui.pgen.elements.AbstractDrawableComponent;
 import gov.noaa.nws.ncep.ui.pgen.elements.Arc;
 import gov.noaa.nws.ncep.ui.pgen.elements.DECollection;
@@ -141,6 +143,7 @@ import com.vividsolutions.jts.geom.Point;
  * 03/13		#927		B. Yin		Implemented IContextMenuProvider interface
  * 04/13		#874		B. Yin		Added a method replaceElements with parameter parent.
  * 04/13        #977        S. Gilbert  PGEN Database support
+ * 11/13        TTR 752     J. Wu       Add methods for CCFP text auto placement.
  * </pre>
  * 
  * @author B. Yin
@@ -189,6 +192,8 @@ public class PgenResource extends
 
     // Scale factor to allow easy selection of Gfa by its text box.
     private static final double GFA_TEXTBOX_SELECT_SCALE = 2.0;
+
+    private boolean needsDisplay = false;
 
     /**
      * Default constructor
@@ -361,7 +366,10 @@ public class PgenResource extends
             DisplayElementFactory df = new DisplayElementFactory(target,
                     descriptor);
 
+            this.needsDisplay = resourceData.isNeedsDisplay();
             drawProduct(target, paintProps);
+            resourceData.setNeedsDisplay(false);
+
             if (elSelected != null)
                 drawSelected(target, paintProps);
             if (ghost != null)
@@ -1649,8 +1657,8 @@ public class PgenResource extends
      *            - end point of the line segment
      * @return
      */
-    public static double distanceFromLineSegment(Coordinate loc, Coordinate startPt,
-            Coordinate endPt) {
+    public static double distanceFromLineSegment(Coordinate loc,
+            Coordinate startPt, Coordinate endPt) {
         double dist = Double.MAX_VALUE;
 
         // AbstractEditor mapEditor = NmapUiUtils.getActiveNatlCntrsEditor();
@@ -1778,11 +1786,9 @@ public class PgenResource extends
      *            Paint properties from the paint() method.
      */
     private void drawProduct(IGraphicsTarget target, PaintProperties paintProps) {
-
         drawFilledElements(target, paintProps);
 
         drawNonFilledElements(target, paintProps);
-
     }
 
     /*
@@ -1846,7 +1852,6 @@ public class PgenResource extends
 
                 if (el instanceof MultiPointElement
                         && ((MultiPointElement) el).getFilled()) {
-
                     drawElement(el, target, paintProps, dprops);
                 }
             }
@@ -1913,24 +1918,43 @@ public class PgenResource extends
             Iterator<DrawableElement> iterator = layer.createDEIterator();
 
             ArrayList<DrawableElement> filledElements = new ArrayList<DrawableElement>();
-            ArrayList<DrawableElement> textElements = new ArrayList<DrawableElement>();
+            // ArrayList<DrawableElement> textElements = new
+            // ArrayList<DrawableElement>();
+            ArrayList<DrawableElement> ccfpTextElements = new ArrayList<DrawableElement>();
+            ArrayList<DrawableElement> nonCcfpTextElements = new ArrayList<DrawableElement>();
             ArrayList<DrawableElement> otherElements = new ArrayList<DrawableElement>();
+            ArrayList<DrawableElement> ccfpArrowElements = new ArrayList<DrawableElement>();
 
             while (iterator.hasNext()) {
                 DrawableElement el = iterator.next();
 
                 if (el instanceof Text) {
-                    textElements.add(el);
-                } else if (el instanceof MultiPointElement
-                        && ((MultiPointElement) el).getFilled()) {
-                    filledElements.add(el);
+                    if (isCCFPText(el)) {
+                        ccfpTextElements.add(el);
+                    } else {
+                        nonCcfpTextElements.add(el);
+                    }
+                } else if (el instanceof MultiPointElement) {
+                    if (((MultiPointElement) el).getFilled()) {
+                        filledElements.add(el);
+                    } else if (isCCFPArrow(el)) {
+                        ccfpArrowElements.add(el);
+                    } else {
+                        otherElements.add(el);
+                    }
                 } else {
                     otherElements.add(el);
                 }
             }
 
             drawElements(otherElements, target, paintProps, dprops);
-            drawElements(textElements, target, paintProps, dprops);
+
+            // drawElements(textElements, target, paintProps, dprops);
+            drawElements(nonCcfpTextElements, target, paintProps, dprops);
+            drawElements(ccfpTextElements, target, paintProps, dprops);
+
+            // CCFP arrows should be draw last if autoplacement is on?
+            drawElements(ccfpArrowElements, target, paintProps, dprops);
         }
 
     }
@@ -2124,6 +2148,80 @@ public class PgenResource extends
         }
 
         return null;
+    }
+
+    /**
+     * Get a list of DrawableElements in current PGEN activity that need to be
+     * displayed.
+     */
+    public List<DrawableElement> getActiveDrawableElements() {
+
+        List<DrawableElement> des = new ArrayList<DrawableElement>();
+
+        for (Layer layer : resourceData.getActiveProduct().getLayers()) {
+            if (layer != null && layer.isOnOff()) {
+
+                Iterator<DrawableElement> iterator = layer.createDEIterator();
+
+                while (iterator.hasNext()) {
+                    des.add(iterator.next());
+                }
+            }
+        }
+
+        return des;
+    }
+
+    /*
+     * Check if a pointed arrow is part of a CCFP sigmet
+     */
+    protected boolean isCCFPArrow(DrawableElement de) {
+        boolean isccfparrow = false;
+
+        if (de instanceof ILine && (de.getParent() != null)
+                && de.getParent().getParent() != null) {
+            if (de.getParent().getParent().getPgenType() != null
+                    && de.getParent().getParent().getPgenType()
+                            .equals("CCFP_SIGMET")) {
+                isccfparrow = true;
+            }
+        }
+
+        return isccfparrow;
+
+    }
+
+    /*
+     * Check if a Text is part of a CCFP sigmet
+     */
+    private boolean isCCFPText(DrawableElement de) {
+        boolean isccfptext = false;
+
+        if (de instanceof IText && (de.getParent() != null)
+                && de.getParent().getParent() != null) {
+            if (de.getParent().getParent().getPgenType() != null
+                    && de.getParent().getParent().getPgenType()
+                            .equals("CCFP_SIGMET")) {
+                isccfptext = true;
+            }
+        }
+
+        return isccfptext;
+    }
+
+    /**
+     * @return the needsDisplay
+     */
+    public boolean isNeedsDisplay() {
+        return needsDisplay;
+    }
+
+    /**
+     * @param needsDisplay
+     *            the needsDisplay to set
+     */
+    public void setNeedsDisplay(boolean needsDisplay) {
+        this.needsDisplay = needsDisplay;
     }
 
 }

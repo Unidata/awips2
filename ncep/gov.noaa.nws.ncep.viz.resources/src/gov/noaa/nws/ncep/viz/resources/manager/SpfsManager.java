@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.io.File;
+import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.localization.FileUpdatedMessage;
 import com.raytheon.uf.common.localization.ILocalizationAdapter;
@@ -56,6 +57,7 @@ import gov.noaa.nws.ncep.viz.resources.AbstractNatlCntrsRequestableResourceData;
  * 07/22/12       #568      Greg Hull    return Rbds and rbdNames sorted by seq num.
  * 02/10/13       #972      Greg Hull    changed to work with AbstractRbds
  * 05/19/13       #1001     Greg Hull    getRbdsFromSpf(), trap RBD errors
+ * 03/06/14	       ?		B. Yin		 Replaced SerializationUtil with JAXBManager.
  * 
  * </pre>
  * 
@@ -451,7 +453,7 @@ public class SpfsManager implements ILocalizationFileObserver  {
 		// group and spf
 		//
 		try {
-			SerializationUtil.jaxbMarshalToXmlFile( rbd, rbdFile.getAbsolutePath() );
+			AbstractRBD.getJaxbManager().marshalToXmlFile( rbd, rbdFile.getAbsolutePath() );
 
 			rbd.setLocalizationFile( lFile );
 			
@@ -462,6 +464,8 @@ public class SpfsManager implements ILocalizationFileObserver  {
 			lFile.addFileUpdatedObserver(this);
 			
 		} catch (LocalizationOpFailedException e) {
+			throw new VizException(e);
+		} catch (JAXBException e) {
 			throw new VizException(e);
 		} catch (SerializationException e) {
 			throw new VizException(e);

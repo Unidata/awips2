@@ -10,6 +10,11 @@
 ##              to add "U" Unknown servity          ##
 ## VERSION AWIPS II 1.7 - SEP 17 2013   OB13.5.2-4  ##
 ##   Phil Kurimski - Added FFW Emergency Headline   ##
+##   Gene Petrescu - SEP 20 2013                    ##
+##				added AK modifications              ##
+## VERSION AWIPS II 1.8 - JAN 18 2014   OB14.2.1    ##
+##   Mike Rega - added Alaska GP changes            ##
+##   Mike Dangelo 1/24/2014 tweaks to hycTypes to match 10-922
 ######################################################
 ##
 #parse("config.vm")
@@ -20,12 +25,12 @@
 	#set($starttime = ${dateUtil.format(${start}, ${timeFormat.ymdthmz})})
 	#set($extend = false)
 #end
-#if(${list.contains(${bullets}, "sev1")})
+#if(${list.contains(${bullets}, "sev3")} || ${list.contains(${bullets}, "ffwEmergency")})
+	#set($sev = "3")
+#elseif(${list.contains(${bullets}, "sev1")})
 	#set($sev = "1")
 #elseif(${list.contains(${bullets}, "sev2")})
 	#set($sev = "2")
-#elseif(${list.contains(${bullets}, "sev3")})
-	#set($sev = "3")
 #elseif(${list.contains(${bullets}, "sevUnk")})
 	#set($sev = "U")	
 #else
@@ -42,6 +47,9 @@
 #set($ruleofthumb = "")
 #set($sitespecCTA = "")
 #set($volcanoCTA = "")
+### added by GP	
+#set($glacierCTA = "")
+### GP end
 #set($emergencyHeadline = "!** ENTER LOCATION **!")
 #if(${list.contains(${bullets}, "levee")})
 	#set($ic = "DM")
@@ -53,26 +61,36 @@
 	#set($reportType1 = "THE FLOODGATES ON THE !** **! DAM WERE OPENED CAUSING FLASH FLOODING DOWNSTREAM ON THE !** **! RIVER")
 #elseif(${list.contains(${bullets}, "glacier")})
 	#set($ic = "GO")
-	#set($hycType = "A GLACIAL-DAMMED LAKE OUTBURST FLOODING")
-	#set($reportType1 = "A GLACIER AT !** **! HAS MELTED...RELEASING LARGE QUANTITIES OF IMPOUNDED WATER AND CAUSING FLASH FLOODING !** **!")
+### modified by GP
+	#set($hycType = "A GLACIER-DAMMED LAKE OUTBURST")
+	#set($ctaSelected = "YES")
+	#set($reportType1 = "A GLACIER-DAMMED LAKE AT !** **! IS RAPIDLY RELEASING LARGE QUANTITIES OF IMPOUNDED WATER RESULTING IN FLASH FLOODING !** **!")
+	#set($glacierCTA = "STAY AWAY FROM IMPACTED WATERWAYS. WATER LEVELS CAN RISE VERY RAPIDLY EVEN IN DRY WEATHER. VERY COLD GLACIAL MELT WATER INCREASES THE RISK FOR HYPOTHERMIA.")
+### GP end
 #elseif(${list.contains(${bullets}, "icejam")})
 	#set($ic = "IJ")
-	#set($hycType = "ICE JAM FLOODING")
+	#set($hycType = "AN ICE JAM")
 	#set($reportType1 = "AN ICE JAM ON THE !** **! RIVER AT !** **! BROKE CAUSING FLASH FLOODING DOWNSTREAM")
 #elseif(${list.contains(${bullets}, "rain")})
 	#set($ic = "RS")
-	#set($hycType = "EXTREMELY RAPID RAIN SNOW MELT")
-	#set($reportType1 = "RAIN FALLING ON EXISTING SNOWPACK WAS GENERATING FLASH FLOODING FROM EXCESSIVE RUNOFF")
+	#set($hycType = "EXTREMELY RAPID SNOWMELT")
+	#set($reportType1 = "EXTREMELY RAPID SNOWMELT !** COMBINED WITH HEAVY RAIN **! IS GENERATING FLASH FLOODING")
 #elseif(${list.contains(${bullets}, "volcano")})
 	#set($ic = "SM")
-	#set($hycType = "VOLCANIC SNOW MELT")
+### modified by GP	
+	#set($hycType = "EXTREMELY RAPID SNOWMELT CAUSED BY VOLCANIC ERUPTION")
+	#set($ctaSelected = "YES")
 	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID SNOWMELT ON ITS SLOPES AND GENERATING FLASH FLOODING")
+	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY. FLOODS DUE TO VOLCANO INDUCED SNOWMELT CAN OCCUR VERY RAPIDLY AND IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.")
+### end GP
 #elseif(${list.contains(${bullets}, "volcanoLahar")})
 	#set($ic = "SM")
-	#set($hycType = "VOLCANIC SNOW MELT")
+### modified by GP	
+	#set($hycType = "VOLCANIC INDUCED DEBRIS FLOW")
 	#set($ctaSelected = "YES")
 	#set($reportType1 = "ACTIVITY OF THE !** **! VOLCANO WAS CAUSING RAPID MELTING OF SNOW AND ICE ON THE MOUNTAIN. THIS WILL RESULT IN A TORRENT OF MUD...ASH...ROCK AND HOT WATER TO FLOW DOWN THE MOUNTAIN THROUGH !** DRAINAGE **! AND GENERATE FLASH FLOODING")
-	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY.")
+	#set($volcanoCTA = "PERSONS IN THE VICINITY OF !** DRAINAGE **! SHOULD HEAD TO HIGHER GROUND IMMEDIATELY. VOLCANIC DEBRIS FLOWS ARE EXTREMELY DANGEROUS. VOLCANIC DEBRIS FLOWS CAN IMPACT AREAS WELL AWAY FROM NORMAL WATERWAY CHANNELS.")
+### end GP
 #elseif(${list.contains(${bullets}, "dam")})
 	#set($ic = "DM")
 	#set($hycType = "A DAM FAILURE")
@@ -99,7 +117,7 @@
 ## Parse command to include a damInfo.vm file with site specific dam
 ## information. Sites can include their information in this file.
 #########################################################################
-##parse ("damInfo.vm")
+#parse ("damInfo.vm")
 ##
 ${WMOId} ${vtecOffice} 000000 ${BBBId}
 FFW${siteId}
@@ -140,8 +158,18 @@ THIS IS A TEST MESSAGE. ##
 ## to come in line with the 10-922 directive
 #######################################################################
 FLASH FLOOD WARNING FOR...
+#### added by GP
+#if(${alaska}=="true")
+  ${hycType} ON THE...
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!
+#elseif(${wrZoneCounty}=="true")
+  ${hycType} IN...
+#firstBullet(${affectedCounties})
+#else
   ${hycType} IN...
 #firstBullet(${areas})
+#end
+### GP end
 
 * ##
 #if(${productClass}=="T")
@@ -168,6 +196,20 @@ THIS IS A TEST MESSAGE. ##
 #if(${list.contains(${bullets}, "public")})
   #set($report = "THE PUBLIC REPORTED ${reportType1}") 
 #end
+### added by GP
+#if(${list.contains(${bullets}, "onlyGauge")})
+  #set($report = "GAUGES INDICATED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "CAP")})
+  #set($report = "THE CIVIL AIR PATROL REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "alaskaVoc")})
+  #set($report = "THE ALASKA VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+#if(${list.contains(${bullets}, "cascadeVoc")})
+  #set($report = "THE CASCADES VOLCANO OBSERVATORY REPORTED ${reportType1}") 
+#end
+### GP end
 
 * ##
 #if(${productClass}=="T")
@@ -179,7 +221,7 @@ THIS IS A TEST MESSAGE. ##
 ## Flash Flood Emergency per NWS 10-922 Directive goes with third bullet #
 ##########################################################################
 #if(${list.contains(${bullets}, "ffwEmergency")})
-#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}. SEEK HIGHER GROUND NOW!" 2 2)
+#wrapText("THIS IS A FLASH FLOOD EMERGENCY FOR ${emergencyHeadline}." 2 2)
 
 #end
 #set($phenomena = "FLASH FLOOD") 
@@ -255,6 +297,8 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ${sitespecCTA}
 
 ${volcanoCTA}
+
+${glacierCTA}
 
 #if(${list.contains(${bullets}, "ffwEmergencyCTA")} || ${list.contains(${bullets}, "ffwEmergency")})
 #if(${list.contains(${bullets}, "ffwEmergency")})

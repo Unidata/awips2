@@ -7,6 +7,8 @@
 ## UPDATED -- Kurimski 5/20/13 Addl IBW Changes         ##
 ## UPDATED -- Kurimski 9/17/13 Tor Emer Headline        ##
 ## UPDATED -- Bookbinder 9/18/2013 implement config.vm  ##
+## Mike D -- 1/23/2014 used approved wording for torEmerCTA and fixed position of 3rd bullet torEmer mention (immed. below "* AT" para). 
+## Mike D -- 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication)
 ##########################################################
 ## Commented out Impact statements Feb 2013 and created file to
 ## be parsed into the template called impactStatements.vm
@@ -383,10 +385,10 @@ THIS IS A TEST MESSAGE. ##
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
-## VARIABLES TO HEIGHTED AWARENESS OF THIS DANGEROUS SITUATION
+## VARIABLES TO HEIGHTEN AWARENESS OF THIS DANGEROUS SITUATION
 ############################################################################
 #if(${list.contains(${bullets}, "torEmergency")})
-  #set($reportType = "TORNADO EMERGENCY FOR !** LOCATION **!. A CONFIRMED LARGE AND DESTRUCTIVE TORNADO WAS OBSERVED") 
+  #set($reportType = "A CONFIRMED LARGE AND DESTRUCTIVE TORNADO WAS OBSERVED") 
   #set($ctaSelected = "YES")
   #set($torTag = "OBSERVED")
   #set($torHazard = "DEADLY TORNADO")
@@ -468,6 +470,13 @@ THIS IS A TEST MESSAGE. ##
 ## Section to include the dangerous storm wording as well as the hazard ##
 ##########################################################################
 
+#####################################################################
+### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
+#####################################################################
+#if(${list.contains($bullets, "torEmergency")})
+#wrapText("THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!. TAKE COVER NOW." 2 2)
+
+#end
 #wrapText("${pdstor}" 2 2)
 
 #wrapText("HAZARD...${hazard}" 2 11)
@@ -477,16 +486,6 @@ THIS IS A TEST MESSAGE. ##
 #wrapText("IMPACT...${torimpact}" 2 11)
 
 
-#####################################################################
-### TORNADO EMERGENCY PER NWS 10-511 DIRECTIVE GOES WITH 3RD BULLET #
-#####################################################################
-###if(${list.contains(${bullets}, "torEmergency")})
-###wrapText("THIS IS A TORNADO EMERGENCY FOR !** EDIT LOCATION(S) **!...TAKE IMMEDIATE TORNADO PRECAUTIONS NOW." 2 2)
-##
-###end
-###################################################
-######## GENERATE PATHCAST OR CITIES LIST #########
-###################################################
 #if(${stormType} == "line")
 #set($otherLead = "THESE TORNADIC STORMS")
 #else
@@ -551,7 +550,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COULD BE KILLED IF NOT UNDERGROUND OR IN A TORNADO SHELTER. DO NOT DELAY...SEEK SHELTER NOW! IF NO UNDERGROUND SHELTER IS AVAILABLE SEEK SHELTER IN AN INTERIOR ROOM OF THE LOWEST LEVEL OF A STRUCTURE...OR IF TIME ALLOWS...CONSIDER MOVING TO AN UNDERGROUND SHELTER ELSEWHERE. MOBILE HOMES AND OUTBUILDINGS WILL OFFER NO SHELTER FROM THIS TORNADO.
+TO REPEAT...A LARGE...EXTREMELY DANGEROUS...AND POTENTIALLY DEADLY TORNADO IS ON THE GROUND. TO PROTECT YOUR LIFE...TAKE COVER NOW. MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -562,13 +561,17 @@ THIS IS AN EXTREMELY DANGEROUS TORNADO WITH COMPLETE DEVASTATION LIKELY. YOU COU
 THIS TORNADO WARNING REPLACES THE SEVERE THUNDERSTORM WARNING ISSUED FOR THE SAME AREA.
 
 #end
+#if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
+  #set($dummy='dummy')
+#else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
-${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
+${preAmble}TAKE COVER NOW! MOVE TO A BASEMENT OR AN INTERIOR ROOM ON THE LOWEST FLOOR OF A STURDY BUILDING. AVOID WINDOWS. IF YOU ARE IN A VEHICLE OR OUTDOORS...MOVE TO THE CLOSEST SUBSTANTIAL SHELTER AND PROTECT YOURSELF FROM FLYING DEBRIS.
 
+#end
 #end
 #if(${list.contains(${bullets}, "motoristsCTA")})
 MOTORISTS SHOULD NOT TAKE SHELTER UNDER HIGHWAY OVERPASSES. IF YOU CANNOT SAFELY DRIVE AWAY FROM THE TORNADO...AS A LAST RESORT...EITHER PARK YOUR VEHICLE AND STAY PUT...OR ABANDON YOUR VEHICLE AND LIE DOWN IN A LOW LYING AREA AND PROTECT YOURSELF FROM FLYING DEBRIS.

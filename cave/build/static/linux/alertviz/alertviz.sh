@@ -85,8 +85,10 @@ if [ -f /awips2/java/jre/lib/amd64/server/libjvm.so ]; then
 fi
 
 #run a loop for alertviz
-while [ $exitVal -ne 0 ]
+count=0
+while [ $exitVal -ne 0 -a $count -lt 10 ]
 do
+ count=`expr $count + 1`
  curTime=`date +%Y%m%d_%H%M%S`
  LOGFILE=${LOGDIR}/alertviz_${curTime}_console.log
  export LOGFILE_ALERTVIZ=${LOGDIR}/alertviz_${curTime}_admin.log

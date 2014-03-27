@@ -9,16 +9,16 @@
         Change Log:
 
         B. Yin/Chugach  04/10   Initial Coding
+        B. Yin/SGT	    11/13	Remove leading space at each line (TTR884)
 -->
 
 <xsl:variable name="newline"><xsl:text>
- </xsl:text></xsl:variable>
+</xsl:text></xsl:variable>
 
   <xsl:template match="Outlook">
-  	<xsl:value-of select="$newline"/>
-        <xsl:value-of select="@days"/>
+    <xsl:value-of select="@days"/>
 	<xsl:value-of select="$newline"/>
-        <xsl:value-of select="@forecaster"/>
+    <xsl:value-of select="@forecaster"/>
 	<xsl:value-of select="$newline"/>
 	
   	<xsl:value-of select="substring(@issueTime,9,2)"/>

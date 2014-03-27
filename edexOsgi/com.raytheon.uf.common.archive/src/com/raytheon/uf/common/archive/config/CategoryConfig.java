@@ -72,6 +72,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * May 1, 2013  1966       rferrel     Initial creation
  * Aug 03, 2013 2224       rferrel     Changes to include DataSet.
+ * Jan 09, 2014 2603       rferrel     Fix bug in setSelectedDisplayNames
  * 
  * </pre>
  * 
@@ -155,7 +156,7 @@ public class CategoryConfig implements Comparable<CategoryConfig> {
     public void setSelectedDisplayNames(
             Collection<String> selectedDisplayNameList) {
         selectedDisplayNames.clear();
-        selectedDisplayNameList.addAll(selectedDisplayNameList);
+        selectedDisplayNames.addAll(selectedDisplayNameList);
     }
 
     public void addSelectedDisplayName(String displayName) {

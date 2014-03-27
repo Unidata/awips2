@@ -35,6 +35,9 @@ import org.eclipse.ui.dialogs.PreferencesUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2007            chammack    Initial Creation.
+ * Not really created by chammack.
+ * Nov 15, 2013            G. Hull     changed id to gov.noaa.nws.ncep.ui.pgen.PgenPreferences
+ *                                     (No longer getting called from PGEN Layer Link Option.)   
  * 
  * </pre>
  * 
@@ -53,7 +56,7 @@ public class PreferencesHandler extends AbstractHandler  {
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
     	
-    	String prefPageId = "gov.noaa.nws.ncep.ui.pgen.Preferences";
+    	String prefPageId = "gov.noaa.nws.ncep.ui.pgen.PgenPreferences";
     	
         PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(
                 null, prefPageId, new String[] { prefPageId }, null);

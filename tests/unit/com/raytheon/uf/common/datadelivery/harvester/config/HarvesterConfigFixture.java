@@ -28,8 +28,8 @@ import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
 import com.raytheon.uf.common.datadelivery.registry.Collection;
 import com.raytheon.uf.common.datadelivery.registry.Connection;
 import com.raytheon.uf.common.datadelivery.registry.Projection;
-import com.raytheon.uf.common.datadelivery.registry.Projection.ProjectionType;
 import com.raytheon.uf.common.datadelivery.registry.Provider;
+import com.raytheon.uf.common.datadelivery.registry.Projection.ProjectionType;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.AbstractFixture;
 
