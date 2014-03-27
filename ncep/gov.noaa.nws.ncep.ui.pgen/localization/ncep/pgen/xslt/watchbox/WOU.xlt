@@ -38,8 +38,8 @@
           <xsl:if test="@issueStatus = 'Test'">
                 <xsl:text>TEST...</xsl:text>
           </xsl:if>
-
-          <xsl:text>TORNADO WATCH OUTLINE UPDATE FOR WT </xsl:text>
+          <xsl:value-of select="@watchType"/>
+          <xsl:text> WATCH OUTLINE UPDATE FOR WT </xsl:text>
           <xsl:value-of select="@watchNumber"/>
           <xsl:if test="@issueStatus = 'Test'">
                 <xsl:text>...TEST</xsl:text>
@@ -52,7 +52,8 @@
 
 	  <xsl:value-of select="$newline"/>
 	  <xsl:value-of select="$newline"/>
-          <xsl:text>TORNADO WATCH </xsl:text>
+           <xsl:value-of select="@watchType"/>
+          <xsl:text> WATCH </xsl:text>
           <xsl:value-of select="@watchNumber"/>
           <xsl:text> IS IN EFFECT UNTIL </xsl:text>
           <xsl:value-of select="@expTime"/>

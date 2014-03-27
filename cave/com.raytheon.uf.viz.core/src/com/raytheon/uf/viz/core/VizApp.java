@@ -21,10 +21,6 @@
 package com.raytheon.uf.viz.core;
 
 import java.lang.management.ManagementFactory;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
@@ -52,6 +48,7 @@ import com.raytheon.uf.viz.core.localization.LocalizationManager;
  *    Jan 14, 2013  1469        bkowal      Removed the hdf5 data directory.
  *    Aug 27, 2013  2295        bkowal      Removed the jms server property; added
  *                                          jms connection string
+ *    Feb 17, 2014  2812        njensen     getHostName() now uses getWsId()'s hostname
  * 
  * </pre>
  * 
@@ -255,45 +252,20 @@ public final class VizApp {
     private static String host = null;
 
     /**
-     * Gets the ip address of the host machine calling the function
+     * Gets the host name from the WsId of the host machine calling the function
      * 
      * @return
      */
     public static synchronized String getHostName() {
         if (host == null) {
-            InetAddress addrToUse = null;
-            boolean found = false;
-            try {
-                Enumeration<NetworkInterface> nis = NetworkInterface
-                        .getNetworkInterfaces();
-                while (nis.hasMoreElements() && !found) {
-                    NetworkInterface ni = nis.nextElement();
-                    ni.isVirtual();
-                    ni.isUp();
-                    Enumeration<InetAddress> addrs = ni.getInetAddresses();
-                    while (addrs.hasMoreElements() && !found) {
-                        InetAddress addr = addrs.nextElement();
-                        if (addr.isLinkLocalAddress() == false
-                                && addr.isSiteLocalAddress() == false
-                                && addr.isLoopbackAddress() == false) {
-                            addrToUse = addr;
-                            found = true;
-                        }
-                    }
-                }
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
-
-            if (addrToUse == null) {
+            host = getWsId().getHostName();
+            if (host == null) {
                 String hostname = System.getenv("HOSTNAME");
-                if (hostname != null && hostname.trim().length() == 0) {
+                if (hostname != null && hostname.trim().length() > 0) {
                     host = hostname;
                 } else {
                     host = "localhost";
                 }
-            } else {
-                host = addrToUse.getHostName();
             }
         }
         return host;

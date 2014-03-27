@@ -9,22 +9,24 @@
 ##           Mike Dangelo    9-16-2013 slight modifications to urbanCTA output
 ##           Mike Dangelo    9-18-2013 added initial position and pathcasting options
 ##           Evan Bookbinder 9-18-2013 implemented config.vm
+##           Mike Rega       1-18-2014 added Alaska GP changes for 14.2.1
+##           Mike Rega       2-27-2014 changed headline items to match 10-922
 #################################### SET SOME VARs ###################################
 #parse("config.vm")
 #set($hycType = "")
 #set($floodReason = "")
 #set($floodType = "FLOODING")
 #if(${ic} == "SM")
-    #set($hycType = "RAPID SNOW MELT")
-    #set($floodReason = " RAPID SNOW MELT IS OCCURRING AND WILL CONTINUE TO CAUSE ${floodType}.")
+    #set($hycType = "SNOWMELT")
+    #set($floodReason = " RAPID SNOWMELT IS OCCURRING AND WILL CONTINUE TO CAUSE ${floodType}.")
 #elseif(${ic} == "RS")
-	#set($hycType = "RAIN AND SNOW MELT")
-    #set($floodReason = " RAPID SNOW MELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
+	#set($hycType = "RAIN AND SNOWMELT")
+    #set($floodReason = " RAPID SNOWMELT IS ALSO OCCURRING AND WILL ADD TO THE ${floodType}.")
 #elseif(${ic} == "IJ")
-    #set($hycType = "ICE JAM FLOODING")
+    #set($hycType = "AN ICE JAM")
     #set($floodReason = " AN ICE JAM IS OCCURRING AND WILL CONTINUE TO CAUSE ${floodType}.")
 #elseif(${ic} == "IC")
-    #set($hycType = "AN ICE JAM AND HEAVY RAIN")
+    #set($hycType = "")
     #set($floodReason = " FLOODING DUE TO AN ICE JAM AND HEAVY RAIN WILL CONTINUE.")
 #elseif(${ic} == "MC")
     #set($hycType = "")
@@ -33,11 +35,14 @@
     #set($hycType = "")
     #set($floodReason = "")
 #elseif(${ic} == "DM")
-    #set($hycType = "LEVEE FAILURE")
+    #set($hycType = "A LEVEE FAILURE")
     #set($floodReason = " FLOODING DUE TO A LEVEE FAILURE WILL CONTINUE.")
 #elseif(${ic} == "DR")
-    #set($hycType = "DAM GATE RELEASE")
-    #set($floodReason = " FLOODING DUE TO A DAM GATE RELEASE.")
+    #set($hycType = "A DAM FLOODGATE RELEASE")
+    #set($floodReason = " FLOODING DUE TO A DAM FLOODGATE RELEASE WILL CONTINUE.")
+#elseif(${ic} == "GO")
+    #set($hycType = "A GLACIER-DAMMED LAKE OUTBURST")
+    #set($floodReason = " FLOODING DUE TO A GLACIER-DAMMED LAKE OUTBURST WILL CONTINUE.")
 #end
 ##
 ######################################################################################
@@ -126,19 +131,40 @@ ${dateUtil.format(${now}, ${timeFormat.header}, ${localtimezone})}
 
 #if(${action}=="EXP" || ${action}=="CAN")
 ...THE FLOOD WARNING FOR ##
-#if(${hycType} != "")
+#### modified by GP
+#if(${hycType} != "" && ${alaska} != "true")
 <L>${hycType}</L> IN ##
 #end
+#if(${hycType} != "" && ${alaska} == "true")
+<L>${hycType}</L> ##
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false) ${expcanHLTag}...
+#else
 #headlineLocList(${areas} true true true false) ${expcanHLTag}...
+#end
+### GP end
+
 ## SLIGHTLY DIFFERENT VARIABLE FOR PARTIAL CANCELLATION HEADLINE
 #elseif(${action}=="CANCON" || ${CORCAN}=="true")
 ...THE FLOOD WARNING FOR ##
-#if(${hycType} != "")
+### added by GP
+#if(${hycType} != "" && ${alaska} != "true")
 <L>${hycType}</L> IN ##
 #end
+#if(${hycType} != "" && ${alaska} == "true")
+<L>${hycType}</L> ##
+#end
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**! ${expcanHLTag}...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
+#else
 #headlineLocList(${cancelareas} true true true false) ${expcanHLTag}...
-###REPLACE headlineLocList ABOVE WITH THE FOLLOWING FOR ZONE BASED PRODUCT W/ COUNTY HEADLINE
-###headlineLocList(${cancelaffectedCounties} true true true false) ${expcanHLTag}...
+#end
+### GP end
 #end
 ############################
 ## END CAN/EXP HEADLINE ####
@@ -222,7 +248,15 @@ THIS IS A TEST MESSAGE.##
 FOR <L>${hycType}</L> ##
 #end
 REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimezone},${secondtimezone}) FOR ##
+### added by GP
+#if(${alaska}=="true")
+!**INSERT RIVER/STREAM OR AREA**! IN !**INSERT GEO AREA**!...
+#elseif(${wrZoneCounty}=="true")
+#headlineLocList(${affectedCounties} true true true false)...
+#else
 #headlineLocList(${areas} true true true false)...
+#end
+### GP end
 
 ################################################
 #################################
@@ -249,7 +283,9 @@ REMAINS IN EFFECT #secondBullet(${dateUtil},${expire},${timeFormat},${localtimez
 #elseif(${list.contains(${bullets}, "satellite")})
   #set($reportBy = "SATELLITE ESTIMATES INDICATED")
 #elseif(${list.contains(${bullets}, "satelliteGauge")})
-  #set($reportBy = "SATELLITE ESTIMATES AND AUTOMATED RAIN GAUGES INDICATED")   
+  #set($reportBy = "SATELLITE ESTIMATES AND AUTOMATED RAIN GAUGES INDICATED")
+#elseif(${list.contains(${bullets}, "onlyGauge")})
+  #set($reportBy = "REPORTING GAUGES INDICATED") 
 #elseif(${list.contains(${bullets}, "trainedSpotters")})
   #set($reportBy = "TRAINED WEATHER SPOTTERS REPORTED")   
 #elseif(${list.contains(${bullets}, "lawEnforcement")})

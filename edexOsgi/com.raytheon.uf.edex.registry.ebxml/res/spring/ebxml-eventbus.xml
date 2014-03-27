@@ -5,6 +5,10 @@
 	<bean factory-bean="eventBus" factory-method="register">
 		<constructor-arg ref="RegistrySubscriptionManager" />
 	</bean>
+	
+	<bean factory-bean="eventBus" factory-method="register">
+        <constructor-arg ref="RegistryFederationManager" />
+    </bean>
 
 	<bean factory-bean="eventBus" factory-method="register">
 		<constructor-arg ref="AuditableEventService" />

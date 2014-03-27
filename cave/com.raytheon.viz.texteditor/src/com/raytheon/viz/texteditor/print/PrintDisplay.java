@@ -31,6 +31,7 @@ import org.eclipse.swt.printing.PrinterData;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * Common class for handling printing of text.
@@ -45,13 +46,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                     Text is printed using same font as the GUI
  * Dec 31, 2012 15651	   M Gamazaychikov	Added setFont method to scale font for printing
  * Sep 30, 2013 #2420      lvenable    Fixed memory leak in the setFont method.
+ * Feb 12, 2014 #2773      lvenable    Added code to provide a workaround to an Eclipse/SWT bug
+ *                                     that occurs when disposing of the printer.
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-
 public class PrintDisplay {
     public static void print(final String printedText, final FontData fontData,
             IUFStatusHandler statusHandler) {
@@ -108,19 +110,46 @@ public class PrintDisplay {
 
     int end;
 
+    /**
+     * Constructor
+     * 
+     * @param printer
+     *            Printer object.
+     * @param text
+     *            Text to print.
+     * @param fontData
+     *            Font information.
+     */
     private PrintDisplay(Printer printer, String text, FontData fontData) {
         this.printer = printer;
         this.textToPrint = text;
         this.printerFontData = fontData;
     }
 
+    /**
+     * Print thread that will print the information to the printer.
+     */
     private void printJob() {
         Thread thread = new Thread("Printing") {
             public void run() {
                 printIt();
 
-                /** Dispose of the resources. */
-                printer.dispose();
+                /*
+                 * Dispose of the printer resource. Running the dispose on the
+                 * UI Thread should prevent the Eclipse/SWT bug from occurring.
+                 * 
+                 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=259371
+                 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=276438
+                 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=265028
+                 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=265265
+                 */
+
+                VizApp.runAsync(new Runnable() {
+                    @Override
+                    public void run() {
+                        printer.dispose();
+                    }
+                });
 
                 if (tmpFont != null && tmpFont.isDisposed() == false) {
                     tmpFont.dispose();
@@ -130,9 +159,12 @@ public class PrintDisplay {
         thread.start();
     }
 
-    protected void setFont() {
+    /**
+     * Set the font using the fontData.
+     */
+    private void setFont() {
         /*
-         * get the max number of characters in a line of text and add a length
+         * Get the max number of characters in a line of text and add a length
          * of tab
          */
         String[] textLines = textToPrint.split("[\n]");
@@ -197,6 +229,9 @@ public class PrintDisplay {
         gc.setFont(tmpFont);
     }
 
+    /**
+     * Print to the printer.
+     */
     private void printIt() {
         if (printer.startJob("Text")) { // the string is the job name - shows up
                                         // in the printer's job list
@@ -245,6 +280,9 @@ public class PrintDisplay {
         }
     }
 
+    /**
+     * Print the text.
+     */
     private void printText() {
         printer.startPage();
         wordBuffer = new StringBuilder();
@@ -281,6 +319,9 @@ public class PrintDisplay {
         }
     }
 
+    /**
+     * Print the work buffer.
+     */
     private void printWordBuffer() {
         if (wordBuffer.length() > 0) {
             String word = wordBuffer.toString();
@@ -295,6 +336,9 @@ public class PrintDisplay {
         }
     }
 
+    /**
+     * Start a new line for printing.
+     */
     private void newline() {
         x = leftMargin;
         y += lineHeight;

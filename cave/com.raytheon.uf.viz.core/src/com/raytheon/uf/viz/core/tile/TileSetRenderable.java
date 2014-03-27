@@ -36,6 +36,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -63,14 +64,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 8, 2012             mschenke    Initial creation
- * May 28, 2013 2037       njensen     Made imageMap concurrent to fix leak
- * Jun 20, 2013 2122       mschenke    Fixed null pointer in interrogate and made 
- *                                     canceling jobs safer
- * Oct 16, 2013 2333       mschenke    Added auto NaN checking for interrogation
- * Nov 14, 2013 2492       mschenke    Added more interrogate methods that take units
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Aug 08, 2012           mschenke    Initial creation
+ * May 28, 2013  2037     njensen     Made imageMap concurrent to fix leak
+ * Jun 20, 2013  2122     mschenke    Fixed null pointer in interrogate and
+ *                                    made canceling jobs safer
+ * Oct 16, 2013  2333     mschenke    Added auto NaN checking for interrogation
+ * Nov 14, 2013  2492     mschenke    Added more interrogate methods that take
+ *                                    units
+ * Feb 07, 2014  2211     bsteffen    Fix sampling units when data mapping is
+ *                                    enabled.
  * 
  * </pre>
  * 
@@ -539,55 +543,65 @@ public class TileSetRenderable implements IRenderable {
     public double interrogate(Coordinate coordinate, Unit<?> resultUnit,
             double nanValue) throws VizException {
         double dataValue = Double.NaN;
+        TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
+
+        double[] grid = null;
         try {
             double[] local = new double[2];
             llToLocalProj
                     .transform(new double[] { coordinate.x, coordinate.y }, 0,
                             local, 0, 1);
-            double localX = local[0];
-            double localY = local[1];
-
-            TileLevel level = tileSet.getTileLevel(lastPaintedLevel);
-            double[] grid = level.crsToGrid(localX, localY);
-            Tile tile = level.getTile(grid[0], grid[1]);
-            if (tile != null) {
-                DrawableImage di = imageMap.get(tile);
-                if (di != null) {
-                    IImage image = di.getImage();
-                    if (image instanceof IColormappedImage) {
-                        IColormappedImage cmapImage = (IColormappedImage) image;
-                        dataValue = cmapImage.getValue(
-                                (int) grid[0] % tileSize, (int) grid[1]
-                                        % tileSize);
-                        if (dataValue == nanValue) {
-                            dataValue = Double.NaN;
-                        } else {
-                            Unit<?> dataUnit = cmapImage.getDataUnit();
-                            if (resultUnit != null && dataUnit != null
-                                    && dataUnit.equals(resultUnit) == false) {
-                                if (resultUnit.isCompatible(dataUnit)) {
-                                    dataValue = dataUnit.getConverterTo(
-                                            resultUnit).convert(dataValue);
-                                } else {
-                                    throw new IllegalArgumentException(
-                                            "Unable to interrogate tile set. "
-                                                    + String.format(
-                                                            "Desired unit (%s) is not compatible with data unit (%s).",
-                                                            UnitFormat
-                                                                    .getUCUMInstance()
-                                                                    .format(resultUnit),
-                                                            UnitFormat
-                                                                    .getUCUMInstance()
-                                                                    .format(dataUnit)));
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            grid = level.crsToGrid(local[0], local[1]);
         } catch (TransformException e) {
             throw new VizException("Error interrogating ", e);
         }
+
+        IColormappedImage cmapImage = null;
+
+        Tile tile = level.getTile(grid[0], grid[1]);
+        if (tile != null) {
+            DrawableImage di = imageMap.get(tile);
+            if (di != null) {
+                IImage image = di.getImage();
+                if (image instanceof IColormappedImage) {
+                    cmapImage = (IColormappedImage) image;
+                }
+            }
+        }
+
+        if (cmapImage != null) {
+            dataValue = cmapImage.getValue((int) grid[0] % tileSize,
+                    (int) grid[1] % tileSize);
+            if (dataValue == nanValue) {
+                dataValue = Double.NaN;
+            } else {
+                ColorMapParameters parameters = cmapImage
+                        .getColorMapParameters();
+                Unit<?> dataUnit = cmapImage.getDataUnit();
+                if (parameters.getDataMapping() != null) {
+                    /*
+                     * Ignore dataUnit, use colorMapUnit which is derived from
+                     * the data mapping
+                     */
+                    dataUnit = parameters.getColorMapUnit();
+                }
+                if (resultUnit != null && dataUnit != null
+                        && dataUnit.equals(resultUnit) == false) {
+                    if (resultUnit.isCompatible(dataUnit)) {
+                        dataValue = dataUnit.getConverterTo(resultUnit)
+                                .convert(dataValue);
+                    } else {
+                        UnitFormat uf = UnitFormat.getUCUMInstance();
+                        String message = String
+                                .format("Unable to interrogate tile set.  Desired unit (%s) is not compatible with data unit (%s).",
+                                        uf.format(resultUnit),
+                                        uf.format(dataUnit));
+                        throw new IllegalArgumentException(message);
+                    }
+                }
+            }
+        }
+
         return dataValue;
     }
 }

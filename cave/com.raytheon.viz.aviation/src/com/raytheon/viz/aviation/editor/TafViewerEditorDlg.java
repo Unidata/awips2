@@ -80,8 +80,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -229,6 +231,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
  * 01/13/2014   16153       zhao        Modified qcCheck().
  * 01/15/2014   16458       zhao        Check for extra '=' sign before 'regular syntax check'
+ * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
+ * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 
  * </pre>
  * 
@@ -676,6 +680,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             populateTafViewer();
             // Update the metar and mos guidance in the viewer tab.
             updateViewerTab(stationName);
+
+            // Mark the tabs as not current so they get updated.
+            markTabsAsNotCurrent();
+
             break;
 
         case OPEN_RTN:
@@ -771,7 +779,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         }
     }
 
-    @Override
+
+	/**
+	 * Mark the tabs as not current so they get refreshed.
+	 */
+	private void markTabsAsNotCurrent() {
+		for (TabItem tbi : guidanceViewerFolder.getItems()) {
+			if (tbi.getControl() instanceof ViewerTab) {
+				((ViewerTab) tbi.getControl()).setDisplayCurrent(false);
+			}
+		}
+	}
+
+	@Override
     public void clearAll() {
         if (shell == null) {
             return;
@@ -1075,6 +1095,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         // Create the File menu item with a File "dropdown" menu
         Menu fileMenu = new Menu(menuBar);
         fileMenuItem.setMenu(fileMenu);
+        fileMenu.addListener(SWT.Show, new Listener() {
+            public void handleEvent(Event event) {
+            	setAltFlagForEditorTafTabComp();
+            }
+        });
 
         // -------------------------------------------------
         // Create all the items in the File dropdown menu
@@ -1181,6 +1206,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         // Create the Options menu item with a Options "dropdown" menu
         Menu optionsMenu = new Menu(menuBar);
         optionsMenuItem.setMenu(optionsMenu);
+        optionsMenu.addListener(SWT.Show, new Listener() {
+            public void handleEvent(Event event) {
+            	setAltFlagForEditorTafTabComp();
+            }
+        });
 
         // ----------------------------------------------------
         // Create all the items in the Options dropdown menu
@@ -1255,7 +1285,12 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         // Create the File menu item with a File "dropdown" menu
         Menu editMenu = new Menu(menuBar);
         editMenuItem.setMenu(editMenu);
-
+        editMenu.addListener(SWT.Show, new Listener() {
+            public void handleEvent(Event event) {
+            	setAltFlagForEditorTafTabComp();
+            }
+        });
+        
         // -------------------------------------------------
         // Create all the items in the Edit dropdown menu
         // -------------------------------------------------
@@ -1329,6 +1364,19 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             }
         });
     }
+    
+    /**
+     * When respectively using alt+'f', alt+'e', alt+'o' and alt+'h' 
+     * to open/display menus 'File', 'Edit', 'Options' and 'Help', 
+     * the alt flag of the editorTafTabComp object is set to true; 
+     * it needs to be re-set to false
+     * (DR16980)
+     */
+	private void setAltFlagForEditorTafTabComp() {
+		if ( editorTafTabComp.getAlt() ) {
+			editorTafTabComp.setAlt(false);
+		}
+    }        	
 
     /**
      * Create the Help menu.
@@ -1346,6 +1394,11 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         // Create the File menu item with a File "dropdown" menu
         Menu helpMenu = new Menu(menuBar);
         helpMenuItem.setMenu(helpMenu);
+        helpMenu.addListener(SWT.Show, new Listener() {
+            public void handleEvent(Event event) {
+            	setAltFlagForEditorTafTabComp();
+            }
+        });
 
         // -------------------------------------------------
         // Create all the items in the Help dropdown menu

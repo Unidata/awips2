@@ -31,6 +31,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jan 25, 2013 1528       djohnson    Lower priority requests should not be able to unschedule higher priority requests.
  * Jun 25, 2013 2106       djohnson    Access bandwidth bucket contents through RetrievalPlan.
  * Dec 17, 2013 2636       bgonzale    When adding to buckets, call the constrained method.
+ * Feb 14, 2014 2636       mpduff      Clean up logging.
  * </pre>
  * 
  * @version 1.0
@@ -58,7 +59,7 @@ public class PriorityRetrievalScheduler implements IRetrievalScheduler {
 
         long startTimeMillis = startTime.getTimeInMillis();
         long endTimeMillis = endTime.getTimeInMillis();
-        
+
         if (startTimeMillis > endTimeMillis) {
             throw new IllegalArgumentException(String.format(
                     "Invalid start and end times passed for allocation [%s]: "
@@ -164,17 +165,17 @@ public class PriorityRetrievalScheduler implements IRetrievalScheduler {
     }
 
     private List<BandwidthAllocation> reprioritize(RetrievalPlan plan,
-            BandwidthAllocation request,
-            Long startKey, Long endKey) {
+            BandwidthAllocation request, Long startKey, Long endKey) {
 
-        statusHandler.info("Re-prioritizing necessary for BandwidthAllocation["
-                + request + "]");
+        statusHandler
+                .debug("Re-prioritizing necessary for BandwidthAllocation: "
+                        + request);
 
         // Look in the window between start and end times to see if there are
         // lower priority
         // retrievals that can be moved..
-        SortedSet<BandwidthBucket> window = plan
-                .getBucketsInWindow(startKey, endKey);
+        SortedSet<BandwidthBucket> window = plan.getBucketsInWindow(startKey,
+                endKey);
 
         boolean enoughBandwidth = false;
         long total = 0;

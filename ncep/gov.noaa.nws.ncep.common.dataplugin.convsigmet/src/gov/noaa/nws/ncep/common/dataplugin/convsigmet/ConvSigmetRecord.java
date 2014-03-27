@@ -1,26 +1,3 @@
-/**
- * ConvsigmetRecord
- * 
- * This java class performs the mapping to the database table for CONVSIGMET
- * 
- * HISTORY
- *
- * Date         Ticket#         Engineer    Description
- * ------------ ----------      ----------- --------------------------
- * 03/2009      87/114			L. Lin     	Initial coding
- * 07/2009		87/114		    L. Lin		Migration to TO11
- * 09/2011      				Chin Chen   changed to improve purge performance and
- * 											removed xml serialization as well
- * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
- * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
- * May 07, 2013 1869            bsteffen    Remove dataURI column from
- *                                          PluginDataObject.
- * 
- * </pre>
- *
- * This code has been developed by the SIB for use in the AWIPS2 system.
- */
-
 package gov.noaa.nws.ncep.common.dataplugin.convsigmet;
 
 import gov.noaa.nws.ncep.common.tools.IDecoderConstantsN;
@@ -48,6 +25,31 @@ import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+
+/**
+ * ConvsigmetRecord
+ * 
+ * This java class performs the mapping to the database table for CONVSIGMET
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * <pre>
+ * Date         Ticket#         Engineer    Description
+ * ------------ ----------      ----------- --------------------------
+ * 03/2009      87/114          L. Lin      Initial coding
+ * 07/2009      87/114          L. Lin      Migration to TO11
+ * 09/2011                      Chin Chen   changed to improve purge performance and
+ *                                          removed xml serialization as well
+ * Apr 4, 2013        1846 bkowal      Added an index on refTime and forecastTime
+ * Apr 12, 2013 1857            bgonzale    Added SequenceGenerator annotation.
+ * May 07, 2013 1869            bsteffen    Remove dataURI column from
+ *                                          PluginDataObject.
+ * Feb 11, 2014 2784            rferrel     Remove override of setIdentifier.
+ * 
+ * </pre>
+ * 
+ * This code has been developed by the SIB for use in the AWIPS2 system.
+ */
 
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "convsigmetseq")
@@ -288,17 +290,6 @@ public class ConvSigmetRecord extends PluginDataObject {
      */
     public void addConvSigmetSection(ConvSigmetSection psection) {
         convSigmetSection.add(psection);
-
-    }
-
-    /**
-     * Override existing set method to modify any classes that use the dataURI
-     * as a foreign key
-     */
-    @Override
-    public void setIdentifier(Object dataURI) {
-
-        this.identifier = dataURI;
 
     }
 

@@ -8,6 +8,7 @@
      Modified by Mike Dangelo     09-19-2013 added some point source var's for trackable storms - set trackEnabled to true to activate
      Modified by Phil Kurimski    09-19-2013 added geospatialConfig.xml
      Modified by Gene Petrescu    09-20-2013 added Alaska Modifications (G
+     Modified by Mike Rega        01-18-2014 added Alaska GP changes for 14.2.1
 -->
 
 <warngenConfig>
@@ -72,7 +73,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <duration>30</duration>
  </durations>
 
-<lockedGroupsOnFollowup>ic</lockedGroupsOnFollowup> 
+<lockedGroupsOnFollowup>ic,ffwEMER</lockedGroupsOnFollowup> 
 <bulletActionGroups>
 <bulletActionGroup>
  <bullets>
@@ -94,7 +95,7 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
 <bulletActionGroup action="CON" phen="FF" sig="W">
  <bullets>
   <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -102,9 +103,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>  
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE ESTIMATES AND RAIN"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>
@@ -145,8 +148,8 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
   <bullet bulletText="**** CORRECTED PRODUCT. CLICK CREATE TEXT ****" bulletType="title"/>
-  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" parseString="FLASH FLOOD EMERGENCY"/>
-  <bullet bulletName="icrs" bulletText="Also snow melt" parseString=".RS." showString=".RS."/>
+  <bullet bulletName="ffwEmergency" bulletText="**SELECT FOR FLASH FLOOD EMERGENCY**" bulletGroup="ffwEMER" parseString="FLASH FLOOD EMERGENCY"/>
+  <bullet bulletName="icrs" bulletText="Also snowmelt" parseString=".RS." showString=".RS."/>
   <bullet bulletText="*********** SOURCE (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="source" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="dopplerGauge" bulletText="Doppler radar and automated gauges" bulletGroup="source" parseString="DOPPLER RADAR AND AUTOMATED RAIN GAUGES"/>
@@ -154,9 +157,11 @@ Must be paired with proper vm code (also commented out in flashFloodWarningFollo
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="source" parseString="THE PUBLIC REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Local law enforcement reported" bulletGroup="source" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="source" parseString="EMERGENCY MANAGEMENT REPORTED"/>
-  <bullet bulletName="onlyGauge" bulletText="gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>  
-  <bullet bulletName="satellite" bulletText="satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
-  <bullet bulletName="satelliteGauge" bulletText="satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND RAIN"/>
+  <bullet bulletName="satellite" bulletText="Satellite estimates" bulletGroup="source" parseString="SATELLITE ESTIMATES INDICATED"/>
+  <bullet bulletName="satelliteGauge" bulletText="Satellite estimates and automated gauges" bulletGroup="source" parseString="SATELLITE AND RAIN"/>
+<!-- added by GP -->
+  <bullet bulletName="onlyGauge" bulletText="Gauge reports" bulletGroup="source" parseString="GAUGE REPORTS "/>
+<!--  GP end -->
   <bullet bulletText="*********** EVENT (CHOOSE 1) **********" bulletType="title"/>
   <bullet bulletName="thunder" bulletText="Thunderstorm(s)" bulletGroup="event" parseString="THUNDERSTORM"/>
   <bullet bulletName="plainRain" bulletText="Due to only heavy rain" bulletGroup="event" parseString="&quot;HEAVY RAIN&quot;,&quot;-THUNDERSTORM&quot;"/>

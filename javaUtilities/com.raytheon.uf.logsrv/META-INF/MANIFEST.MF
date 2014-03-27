@@ -1,9 +1,10 @@
 Manifest-Version: 1.0
+Main-Class: com.raytheon.uf.logsrv.LogService
+Class-Path: logback-core-1.0.13.jar logback-classic-1.0.13.jar derby.jar mail.jar slf4j-api-1.7.5.jar quartz-1.8.6.jar commons-lang-2.3.jar
 Bundle-ManifestVersion: 2
 Bundle-Name: Logsrv
 Bundle-SymbolicName: com.raytheon.uf.logsrv
-Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: com.raytheon.uf.logsrv.Activator
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy

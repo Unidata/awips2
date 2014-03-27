@@ -32,6 +32,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -49,10 +50,12 @@ import com.raytheon.uf.common.localization.IPathManager;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 03, 2013            bkowal      Initial creation
- * Jan 31, 2013 #1555      bkowal      Made hdf5 variable generic
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 03, 2013           bkowal      Initial creation
+ * Jan 31, 2013  1555     bkowal      Made hdf5 variable generic
+ * Feb 06, 2014  2762     bsteffen    Get geometry from IGridGeometryProvider.
+ * 
  * 
  * </pre>
  * 
@@ -114,7 +117,15 @@ public final class PDOUtil {
      * @return the grid geometry
      */
     public static GridGeometry2D retrieveGeometry(PluginDataObject pdo) {
-        return MapUtil.getGridGeometry(((ISpatialEnabled) pdo)
+        if (pdo instanceof IGridGeometryProvider) {
+            return ((IGridGeometryProvider) pdo).getGridGeometry();
+        } else if (pdo instanceof ISpatialEnabled) {
+            return MapUtil.getGridGeometry(((ISpatialEnabled) pdo)
                 .getSpatialObject());
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to extract a GridGeometry from an object of type: "
+                            + pdo.getClass().getSimpleName());
+        }
     }
 }

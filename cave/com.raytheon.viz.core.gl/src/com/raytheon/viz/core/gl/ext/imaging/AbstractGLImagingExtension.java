@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.core.gl.ext.imaging;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,6 +38,9 @@ import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.core.gl.AbstractGLMesh;
 import com.raytheon.viz.core.gl.GLCapabilities;
+import com.raytheon.viz.core.gl.GLGeometryObject2D;
+import com.raytheon.viz.core.gl.GLGeometryObject2D.GLGeometryObjectData;
+import com.raytheon.viz.core.gl.GLGeometryPainter;
 import com.raytheon.viz.core.gl.IGLTarget;
 import com.raytheon.viz.core.gl.glsl.GLSLFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
@@ -57,7 +57,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2011            mschenke     Initial creation
+ * Dec 15, 2011            mschenke    Initial creation
+ * Jan  9, 2014 2680       mschenke    Switched simple PixelCoverage mesh 
+ *                                     rendering to use VBOs instead of 
+ *                                     deprecated immediate mode rendering
  * 
  * </pre>
  * 
@@ -206,6 +209,11 @@ public abstract class AbstractGLImagingExtension extends
                     continue;
                 }
             }
+            // Needed to fix ATI driver bug, after each image render, flush the
+            // GL pipeline to avoid random images being drawn improperly. May be
+            // fixed with driver update or cleaning up how image coverages are
+            // rendered (getting rid of glEnableClientState as it is deprecated)
+            gl.glFlush();
         }
 
         if (lastTextureType != -1) {
@@ -258,46 +266,36 @@ public abstract class AbstractGLImagingExtension extends
                 return ((AbstractGLMesh) mesh).paint(target, paintProps);
             }
         } else if (coords != null) {
-            FloatBuffer fb = ByteBuffer.allocateDirect(4 * 5 * 4)
-                    .order(ByteOrder.nativeOrder()).asFloatBuffer();
 
             Coordinate ul = pc.getUl();
             Coordinate ur = pc.getUr();
             Coordinate lr = pc.getLr();
             Coordinate ll = pc.getLl();
 
-            fb.put(new float[] { coords.left() + corrFactor,
-                    coords.bottom() + corrFactor });
-            fb.put(new float[] { (float) ll.x, (float) ll.y, (float) ll.z });
+            int geometryType = GL.GL_TRIANGLE_STRIP;
+            GLGeometryObject2D vertexData = new GLGeometryObject2D(
+                    new GLGeometryObjectData(geometryType, GL.GL_VERTEX_ARRAY));
+            vertexData.allocate(4);
+            vertexData.addSegment(new double[][] { { ll.x, ll.y },
+                    { lr.x, lr.y }, { ul.x, ul.y }, { ur.x, ur.y } });
+            vertexData.compile(gl);
 
-            fb.put(new float[] { coords.right() - corrFactor,
-                    coords.bottom() + corrFactor });
-            fb.put(new float[] { (float) lr.x, (float) lr.y, (float) lr.z });
+            GLGeometryObject2D textureData = new GLGeometryObject2D(
+                    new GLGeometryObjectData(geometryType,
+                            GL.GL_TEXTURE_COORD_ARRAY));
+            textureData.allocate(4);
+            textureData.addSegment(new double[][] {
+                    { coords.left(), coords.bottom() },
+                    { coords.right(), coords.bottom() },
+                    { coords.left(), coords.top() },
+                    { coords.right(), coords.top() } });
+            textureData.compile(gl);
 
-            fb.put(new float[] { coords.left() + corrFactor,
-                    coords.top() - corrFactor });
-            fb.put(new float[] { (float) ul.x, (float) ul.y, (float) ul.z });
+            GLGeometryPainter.paintGeometries(gl, vertexData, textureData);
 
-            fb.put(new float[] { coords.right() - corrFactor,
-                    coords.top() - corrFactor });
-            fb.put(new float[] { (float) ur.x, (float) ur.y, (float) ur.z });
+            vertexData.dispose();
+            textureData.dispose();
 
-            // Clear error bit
-            gl.glGetError();
-
-            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
-            gl.glEnableClientState(GL.GL_TEXTURE_COORD_ARRAY);
-
-            gl.glInterleavedArrays(GL.GL_T2F_V3F, 0, fb.rewind());
-            int error = gl.glGetError();
-            if (error == GL.GL_NO_ERROR) {
-                gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
-            } else {
-                target.handleError(error);
-            }
-
-            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
-            gl.glDisableClientState(GL.GL_TEXTURE_COORD_ARRAY);
             return PaintStatus.PAINTED;
         }
         return PaintStatus.ERROR;

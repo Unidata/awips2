@@ -35,7 +35,9 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 12/22/2011               G Hull     Updated getGdFile()
  * 12/06/2012   #538        Q. Zhou    Added skip and filter areas and implements. 
  * 03/28/2012               X. Guo     Don't need to convert gdfile toUppercase
- * 08/29/2012   #743        Archana    Added CLRBAR          
+ * 08/29/2012   #743        Archana    Added CLRBAR  
+ * 09/14/2013   #1036       S. Gurung  Added TEXT  
+ *         
  * </pre>
  * 
  * @author mli
@@ -105,6 +107,9 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 
 	@XmlElement
 	protected String clrbar;
+	
+	@XmlElement
+	protected String text;
 	
     public NcgridResourceData() {
         super();
@@ -303,6 +308,15 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
             return false;
         }        
         
+        if (this.text != null && other.text == null) {
+            return false;
+        } else if (this.text == null && other.text != null) {
+            return false;
+        } else if (this.text != null
+                && this.text.equals(other.text) == false) {
+            return false;
+        }
+        
         return true;
     }
 
@@ -488,6 +502,14 @@ public class NcgridResourceData extends AbstractNatlCntrsRequestableResourceData
 	 */
 	public void setClrbar(String clrbar) {
 		this.clrbar = clrbar;
+	}
+	
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	public String getEventName() {
