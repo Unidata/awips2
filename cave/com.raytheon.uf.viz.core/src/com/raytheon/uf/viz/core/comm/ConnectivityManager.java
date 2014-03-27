@@ -53,6 +53,8 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Mar 22, 2013 1786       mpduff      Changed to use HttpClient for
  *                                     connectivity.
  * Aug 02, 2013 2202       bsteffen    Add edex specific connectivity checking.
+ * Jan 15, 2014            njensen     Added printConnectivityProblems()
+ * Feb 04, 2014 2704       njensen     Check JMS capability, return exceptions with results
  * 
  * </pre>
  * 
@@ -74,9 +76,16 @@ public class ConnectivityManager {
 
         public String server;
 
+        public Exception exception;
+
         public ConnectivityResult(boolean hc, String server) {
+            this(hc, server, null);
+        }
+
+        public ConnectivityResult(boolean hc, String server, Exception e) {
             this.hasConnectivity = hc;
             this.server = server;
+            this.exception = e;
         }
     }
 
@@ -88,8 +97,10 @@ public class ConnectivityManager {
      * @return whether quit was selected. TODO: need to return two booleans, one
      *         for quit and one for connectivity
      */
-    public static void checkHttpServer(String server, IConnectivityCallback callback) {
+    public static void checkHttpServer(String server,
+            IConnectivityCallback callback) {
         boolean good = false;
+        Exception exc = null;
         try {
             HttpClient client = HttpClient.getInstance();
             HttpGet request = new HttpGet();
@@ -97,9 +108,9 @@ public class ConnectivityManager {
             client.executeRequest(request);
             good = true;
         } catch (Exception e) {
-            // ignore
+            exc = e;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
 
     /**
@@ -108,14 +119,16 @@ public class ConnectivityManager {
      * @param server
      *            server to check
      */
-    public static void checkLocalizationServer(String server, IConnectivityCallback callback) {
+    public static void checkLocalizationServer(String server,
+            IConnectivityCallback callback) {
         boolean good = false;
+        Exception exc = null;
         try {
             good = checkLocalizationServer(server, true) != null;
         } catch (Exception e) {
-            // ignore
+            exc = e;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
 
     /**
@@ -124,8 +137,8 @@ public class ConnectivityManager {
      * result is returned, otherwise the localization server is contacted to get
      * the response.
      */
-    public static GetServersResponse checkLocalizationServer(String server, boolean force)
-            throws VizException {
+    public static GetServersResponse checkLocalizationServer(String server,
+            boolean force) throws VizException {
         if (!force) {
             GetServersResponse resp = getServersResponseCache.get(server);
             if (resp != null) {
@@ -133,29 +146,53 @@ public class ConnectivityManager {
             }
         }
         GetServersRequest req = new GetServersRequest();
-        GetServersResponse resp = (GetServersResponse) ThriftClient.sendRequest(req, server);
+        GetServersResponse resp = (GetServersResponse) ThriftClient
+                .sendRequest(req, server);
         getServersResponseCache.put(server, resp);
         return resp;
-
     }
 
     /**
-     * Checks the connectivity of the given server
+     * Checks the connectivity of the given alert service
      * 
      * @param server
      *            server to check
      * @return whether quit was selected. TODO: need to return two booleans, one
      *         for quit and one for connectivity
      */
-    public static void checkJmsServer(String server,
+    public static void checkAlertService(String server,
             IConnectivityCallback callback) {
         boolean good = true;
+        Exception exc = null;
         try {
             ActiveMQConnectionFactory f = new ActiveMQConnectionFactory(server);
             f.createConnection().close();
         } catch (JMSException e) {
+            exc = e;
             good = false;
         }
-        callback.connectionChecked(new ConnectivityResult(good, server));
+        callback.connectionChecked(new ConnectivityResult(good, server, exc));
     }
+
+    /**
+     * Checks the connectivity of the given JMS server
+     * 
+     * @param connectionString
+     * @param callback
+     */
+    public static void checkJmsServer(String connectionString,
+            IConnectivityCallback callback) {
+        boolean good = true;
+        Exception exc = null;
+        try {
+            JMSConnection jms = new JMSConnection(connectionString);
+            jms.getFactory().createConnection().close();
+        } catch (JMSException e) {
+            exc = e;
+            good = false;
+        }
+        callback.connectionChecked(new ConnectivityResult(good,
+                connectionString, exc));
+    }
+
 }

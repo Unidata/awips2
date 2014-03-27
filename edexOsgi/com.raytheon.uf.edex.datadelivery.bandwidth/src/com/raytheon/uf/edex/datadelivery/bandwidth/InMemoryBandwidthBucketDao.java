@@ -58,6 +58,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Sept 17, 2013 2383      bgonzale     Switched back to start from ceiling and end from floor.
  *                                      Constrain start and end keys by each other.
  * Dec 3,  2013  1736      dhladky      Bandwidth bucket size attenuation.
+ * Jan 25, 2014  2741      dhladky      Unsafe nullpointer being thrown.
  * 
  * </pre>
  * 
@@ -244,14 +245,16 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
         Long firstKey = buckets.floorKey(key);
-        if (firstKey < keyConstraint) {
-            // then go back to key before this one
-            firstKey = buckets.ceilingKey(key);
+        if (firstKey != null) {
+            if (firstKey < keyConstraint) {
+                // then go back to key before this one
+                firstKey = buckets.ceilingKey(key);
+            }
         }
+        // safety check
         if (firstKey == null) {
             firstKey = buckets.firstKey();
         }
-        
         return firstKey;
     }
 
@@ -267,14 +270,16 @@ public class InMemoryBandwidthBucketDao implements IBandwidthBucketDao {
         final NavigableMap<Long, BandwidthBucket> buckets = allBuckets
                 .get(network);
         Long lastKey = buckets.ceilingKey(key);
-        if (lastKey > keyConstraint) {
-            // then go back to key before this one
-            lastKey = buckets.floorKey(key);
+        if (lastKey != null) {
+            if (lastKey > keyConstraint) {
+                // then go back to key before this one
+                lastKey = buckets.floorKey(key);
+            }
         }
+        // safety check
         if (lastKey == null) {
-           lastKey = buckets.lastKey();
+            lastKey = buckets.lastKey();
         }
-        
         return lastKey;
     }
 

@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -43,12 +45,15 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintTyp
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 3, 2007             chammack    Initial Creation.
- * Jan 14, 2013 1442       rferrel     Added method searchTreeUsingContraints.
- *                                     Addition checks on constraints.
- * May 28, 2013 1638       mschenke    Added proper support for {@link ConstraintType#ISNULL}
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jul 03, 2007           chammack    Initial Creation.
+ * Jan 14, 2013  1442     rferrel     Added method searchTreeUsingContraints.
+ *                                    Addition checks on constraints.
+ * May 28, 2013  1638     mschenke    Added proper support for
+ *                                    {@link ConstraintType#ISNULL}
+ * Dec 18, 2013  2579     bsteffen    Replace synchronization with a
+ *                                    read/write lock.
  * 
  * </pre>
  * 
@@ -94,9 +99,7 @@ public class DecisionTree<T> {
             if (lvl == 0) {
                 // heuristic: Always start with pluginName
                 entropyPair = new EntropyPair[1];
-                entropyPair[0] = new EntropyPair();
-                entropyPair[0].attribute = "pluginName";
-                entropyPair[0].entropy = 1.0f;
+                entropyPair[0] = new EntropyPair("pluginName", 1.0f);
             } else {
                 for (String attrib : localAttribList) {
                     // For an attribute, pull out the possible values
@@ -133,9 +136,8 @@ public class DecisionTree<T> {
                 Iterator<String> attributeListIter = localAttribList.iterator();
 
                 for (int i = 0; attributeListIter.hasNext(); i++) {
-                    entropyPair[i] = new EntropyPair();
-                    entropyPair[i].attribute = attributeListIter.next();
-                    entropyPair[i].entropy = entropyValues.get(i);
+                    entropyPair[i] = new EntropyPair(attributeListIter.next(),
+                            entropyValues.get(i));
                 }
 
                 Arrays.sort(entropyPair);
@@ -225,22 +227,25 @@ public class DecisionTree<T> {
     }
 
     protected class DataPair {
-        public Map<String, RequestConstraint> metadata;
+        public final Map<String, RequestConstraint> metadata;
 
-        public T data;
+        public final T data;
+
+        public DataPair(Map<String, RequestConstraint> metadata, T data) {
+            this.metadata = metadata;
+            this.data = data;
+        }
+
     }
+
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private final List<DataPair> dataPairs;
 
-    private final Set<String> attributes;
-
     private Node head;
-
-    private int size = 0;
 
     public DecisionTree() {
         dataPairs = new ArrayList<DataPair>();
-        attributes = new HashSet<String>();
     }
 
     public void insertCriteria(Map<String, RequestConstraint> searchCriteria,
@@ -249,25 +254,22 @@ public class DecisionTree<T> {
             throw new IllegalArgumentException(
                     "Search criteria must not be null");
 
-        // Check for the case that the item is already listed
-        DataPair e = new DataPair();
-        e.data = item;
-        e.metadata = searchCriteria;
-        this.dataPairs.add(e);
-        size++;
+        DataPair e = new DataPair(searchCriteria, item);
 
-        Set<String> keys = searchCriteria.keySet();
-
-        this.attributes.addAll(keys);
-
-        if (rebuild) {
-            // Now, trigger a tree rebuild
-            rebuildTree();
+        lock.writeLock().lock();
+        try {
+            this.dataPairs.add(e);
+            if (rebuild) {
+                rebuildTree();
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
     public void rebuildTree() {
-        synchronized (this) {
+        lock.writeLock().lock();
+        try {
             if (this.dataPairs.size() == 0) {
                 this.head = null;
                 return;
@@ -275,6 +277,8 @@ public class DecisionTree<T> {
 
             this.head = new Node();
             this.head.rebuildTree(dataPairs, new ArrayList<String>(), 0);
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -318,7 +322,8 @@ public class DecisionTree<T> {
      */
     private List<T> searchTree(Map<String, ?> searchCriteria,
             boolean evaluateConstraints) {
-        synchronized (this) {
+        lock.readLock().lock();
+        try {
             List<T> lst = new ArrayList<T>();
             if (head == null) {
                 return lst;
@@ -328,6 +333,8 @@ public class DecisionTree<T> {
 
             searchTree(curNode, searchCriteria, lst, 0, evaluateConstraints);
             return lst;
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
@@ -391,8 +398,10 @@ public class DecisionTree<T> {
      * @param item
      */
     public void remove(T item) {
-        boolean itemRemoved = false;
-        synchronized (this) {
+        lock.writeLock().lock();
+        try {
+            boolean itemRemoved = false;
+
             // This could be optimized but removes are a very uncommon operation
             Iterator<DataPair> exampleIterator = dataPairs.iterator();
             while (exampleIterator.hasNext()) {
@@ -404,39 +413,26 @@ public class DecisionTree<T> {
                     itemRemoved = true;
                 }
             }
-        }
-        if (itemRemoved) {
-            rebuildTree();
-        }
-    }
-
-    public void traverse() {
-        System.out.println("Head:");
-        traverse(head);
-
-    }
-
-    public void traverse(Node n) {
-        if (n == null)
-            return;
-        System.out.println(n.type);
-        if (n.type == NodeType.LEAF) {
-            System.out.println(n.values);
-        } else if (n.type == NodeType.DECISION) {
-            System.out.println(n.decision);
-        }
-        System.out.println(n.decisionAttribute);
-        System.out.println("-------");
-
-        for (int i = 0; i < n.nodeChildren.size(); i++) {
-            System.out.println("Child of: " + n.decisionAttribute + " " + i);
-            Node n2 = n.nodeChildren.get(i);
-            traverse(n2);
+            if (itemRemoved) {
+                rebuildTree();
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
     protected List<DataPair> getDataPairs() {
-        return new ArrayList<DecisionTree<T>.DataPair>(dataPairs);
+        /*
+         * Copy dataPairs to avoid external iterators getting concurrent
+         * modification. Must get read lock because copying iterates over
+         * dataPairs.
+         */
+        lock.readLock().lock();
+        try {
+            return new ArrayList<DataPair>(dataPairs);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     private static double calcEntropy(int numExamples, Integer[] values) {
@@ -451,9 +447,14 @@ public class DecisionTree<T> {
     }
 
     private static class EntropyPair implements Comparable<EntropyPair> {
-        public String attribute;
+        public final String attribute;
 
-        public double entropy;
+        public final double entropy;
+
+        public EntropyPair(String attribute, double entropy) {
+            this.attribute = attribute;
+            this.entropy = entropy;
+        }
 
         /*
          * (non-Javadoc)
