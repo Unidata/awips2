@@ -33,11 +33,13 @@ import java.util.List;
 
 public interface IWatchBox extends IMultiPoint{
 	
+	static public final Color[] WATCH_LIST_COLOR = new Color[]{ new Color(30, 144, 255), new Color(30, 144, 255)};
 	public Color[] getColors();
 	public Color getFillColor();
 	public WatchShape getWatchBoxShape();
 	public Station[] getAnchors();
 	public List<SPCCounty> getCountyList();
+	public List<SPCCounty> getOriginalCountyList();
 	public String getWatchSymbolType();
 	public float getWatchSymbolWidth();
 	public double getWatchSymbolSize();

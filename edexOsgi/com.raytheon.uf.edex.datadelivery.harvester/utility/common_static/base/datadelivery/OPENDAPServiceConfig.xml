@@ -86,5 +86,8 @@
     <constant name="UNIT_PATTERN" value=".*(\[(.*?)\])\s*"/>
     <constant name="TWOM" value="2m"/>
     <constant name="TENM" value="10m"/>
+    <constant name="DEFAULT_MULTIPLIER" value="1.5"/>
+    <constant name="DEFAULT_RUN_INCREMENT" value="6"/>
+    <constant name="DEFAULT_OFFSET" value="270"/>
 
 </serviceConfig>

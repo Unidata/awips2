@@ -29,7 +29,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * TODO Add Description
+ * Primary key for an AutoFaxRecord.
  * 
  * <pre>
  * 
@@ -38,7 +38,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2010            bfarmer     Initial creation
- * 
+ * Jan 17, 2014 2125       rjpeter     EmbeddedId should implement hashCode/equals
  * </pre>
  * 
  * @author bfarmer
@@ -94,6 +94,46 @@ public class AutoFaxRecordPK implements ISerializableObject, Serializable {
      */
     public void setFaxNumber(String faxNumber) {
         this.faxNumber = faxNumber;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result)
+                + ((afosPil == null) ? 0 : afosPil.hashCode());
+        result = (prime * result)
+                + ((faxNumber == null) ? 0 : faxNumber.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        AutoFaxRecordPK other = (AutoFaxRecordPK) obj;
+        if (afosPil == null) {
+            if (other.afosPil != null) {
+                return false;
+            }
+        } else if (!afosPil.equals(other.afosPil)) {
+            return false;
+        }
+        if (faxNumber == null) {
+            if (other.faxNumber != null) {
+                return false;
+            }
+        } else if (!faxNumber.equals(other.faxNumber)) {
+            return false;
+        }
+        return true;
     }
 
 }

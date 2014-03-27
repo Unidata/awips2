@@ -26,6 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/04/13         #2023        dgilling       Initial Creation.
+#    01/06/14         #2537        bsteffen       Store geometry index instead of WKT.
 #
 #
 
@@ -37,7 +38,7 @@ class GeometryResponseData(AbstractResponseData):
     def __init__(self):
         super(GeometryResponseData, self).__init__()
         self.dataMap = None
-        self.geometryWKT = None
+        self.geometryWKTindex = None
 
     def getDataMap(self):
         return self.dataMap
@@ -45,8 +46,8 @@ class GeometryResponseData(AbstractResponseData):
     def setDataMap(self, dataMap):
         self.dataMap = dataMap
 
-    def getGeometryWKT(self):
-        return self.geometryWKT
+    def getGeometryWKTindex(self):
+        return self.geometryWKTindex
 
-    def setGeometryWKT(self, geometryWKT):
-        self.geometryWKT = geometryWKT
+    def setGeometryWKTindex(self, geometryWKTindex):
+        self.geometryWKTindex = geometryWKTindex

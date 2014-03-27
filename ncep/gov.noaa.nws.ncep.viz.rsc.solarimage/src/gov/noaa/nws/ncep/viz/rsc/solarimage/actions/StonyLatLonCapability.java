@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 
 /**
- * TODO Add Description
+ * implementation for describing persistable capabilities
  * 
  * <pre>
  * 
@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 @XmlAccessorType(XmlAccessType.NONE)
 public class StonyLatLonCapability extends AbstractCapability {
 
-    private String interval = "No Overlay";
+    private String interval = MenuConstants.latLonIntervals[0];
 
     /**
      * @return the outlineWidth
@@ -62,7 +62,6 @@ public class StonyLatLonCapability extends AbstractCapability {
         }
     }
 
-    
     @Override
     public AbstractCapability clone() {
         StonyLatLonCapability oc = new StonyLatLonCapability();

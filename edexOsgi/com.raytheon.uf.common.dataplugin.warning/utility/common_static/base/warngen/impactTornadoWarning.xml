@@ -10,6 +10,7 @@
      Phil Kurimski   02-04-2013 OB13.2.1-5 Changed Sig Tor to Considerable
      Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts 
      Phil Kurimski   09-19-2013 added geospatialConfig.xml                   
+     Mike Dangelo 1/23/2014 changed parseString for defaultCTAs to match iTW.vm statements, removed cta1 bulletGroup from COR to ensure it is selected when doing a COR for a torEMER 
 -->
 
 <warngenConfig>
@@ -127,11 +128,10 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="specialEvent" bulletText="Special heads-up for large event/venue" parseString="THOSE ATTENDING"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
-  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
+  <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY" bulletGroup="cta1"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
-  <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
-  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>
@@ -200,9 +200,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="*********** CALLS TO ACTION (CHOOSE 1 OR MORE) **********" bulletType="title"/>
   <bullet bulletName="torEmergencyCTA" bulletText="**TOR EMERGENCY CTA** (CATASTROPHIC Tag use only)" parseString="TORNADO EMERGENCY"/>
   <bullet bulletName="replacesSVRCTA" bulletText="TOR Replaces Severe Thunderstorm Warning" parseString="TORNADO WARNING REPLACES THE SEVERE"/>
-  <!-- There are two "default" safety rules. The first...which will probably be used by most offices...includes safety rules for mobile homes. The second...which is commented out...is for large urban areas that do not have mobile homes. If you wish to switch defaults or provide both options, remove comment tags as necessary and adjust the bulletDefault="true" as appropriate if both options are allowed -->
-  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
-  <!--<bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/> -->
+  <bullet bulletName="defaultMobileCTA" bulletText="Default safety rules - includes mobile homes" parseString="IF YOU ARE IN A MOBILE HOME...A VEHICLE OR OUTDOORS" bulletDefault="true" bulletGroup="cta1"/>
+  <bullet bulletName="defaultUrbanCTA" bulletText="Default safety rules for urban - no mobile homes" parseString="IF YOU ARE IN A VEHICLE OR OUTDOORS" bulletGroup="cta1"/>
   <bullet bulletName="motoristsCTA" bulletText="Safety rules for motorists" parseString="MOTORISTS SHOULD NOT TAKE SHELTER UNDER"/>
   <bullet bulletName="rainWrappedCTA" bulletText="Rain wrapped tornado" parseString="HEAVY RAINFALL MAY HIDE THIS TORNADO"/>
   <bullet bulletName="nighttimeCTA" bulletText="Tornadoes at night" parseString="TORNADOES ARE EXTREMELY DIFFICULT TO SEE AND CONFIRM AT NIGHT"/>

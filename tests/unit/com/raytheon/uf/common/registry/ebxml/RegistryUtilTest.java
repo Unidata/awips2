@@ -62,7 +62,7 @@ public class RegistryUtilTest {
         
         RegistryObjectType type = RegistryUtil
                 .newRegistryObject(registryObject,
-                        RegistryEncoders.ofType(Type.DYNAMIC_SERIALIZE));
+                        RegistryEncoders.ofType(Type.JAXB));
 
         SlotType slotToCheck = null;
         for (SlotType slot : type.getSlot()) {

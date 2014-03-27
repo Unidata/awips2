@@ -72,6 +72,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 06/12		TTR559		B. Yin		Link the layer name to Outlook type
  * 12/12  		#937        J. Wu    	Update G_Airmet layers/hazard - "C&V"
  * 09/13  		?           J. Wu    	Use new "StoreActivityDialog" at exit.
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * 
  * </pre>
  *
@@ -1059,7 +1060,7 @@ public class ProductManageDialog extends ProductDialog {
         		OutlookAttrDlg.getInstance( this.getParent() ).close();
         	}
         	else {
-        	    OutlookAttrDlg.getInstance( this.getParent() ).setOtlkType( currentLayer.getName() );
+        	    OutlookAttrDlg.getInstance( this.getParent() ).setOtlkType( currentLayer.getMetaInfoFromKey(OutlookAttrDlg.OTLK_TYPE_IN_LAYER_META) );
         	}
         }
         else {

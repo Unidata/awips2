@@ -19,19 +19,29 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry.handlers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.RecurringSubscription;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionDataSetNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
+import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * Base subscription handler.
@@ -50,6 +60,9 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
  * Jul 18, 2013 2193       mpduff       Changes for SubscriptionDataSetNameQuery.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
+ * Jan 14, 2014 2459       mpduff       Validate subs should be scheduled before returning them.
+ * Jan 17, 2014 2459       mpduff       Persist the state of the expired subs.
+ * Jan 29, 2014 2636       mpduff       Scheduling refactor.
  * 
  * </pre>
  * 
@@ -60,6 +73,11 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY extends SubscriptionFilterableQuery<T>>
         extends BaseRegistryObjectHandler<T, QUERY> implements
         IBaseSubscriptionHandler<T> {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(BaseSubscriptionHandler.class);
+
+    private final List<T> updateList = new ArrayList<T>();
+
     /**
      * {@inheritDoc}
      * 
@@ -183,14 +201,14 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
     @Override
     public List<T> getActiveForRoute(Network route)
             throws RegistryHandlerException {
-        return getActiveForRoutes(route);
+        return getActiveForRoutes(route).get(route);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<T> getActiveForRoutes(Network... routes)
+    public Map<Network, List<T>> getActiveForRoutes(Network... routes)
             throws RegistryHandlerException {
         SubscriptionFilterableQuery<T> query = getQuery();
         query.setActive(true);
@@ -200,7 +218,44 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
 
         checkResponse(response, "getActiveForRoutes");
 
-        return response.getResults();
-    }
+        Map<Network, List<T>> returnMap = new HashMap<Network, List<T>>();
+        for (Network network : routes) {
+            returnMap.put(network, new ArrayList<T>());
+        }
+        for (T sub : response.getResults()) {
+            if (((RecurringSubscription) sub).shouldSchedule()) {
+                returnMap.get(sub.getRoute()).add(sub);
+            } else if (((RecurringSubscription) sub).shouldUpdate()) {
+                updateList.add(sub);
+            }
+        }
 
+        // Save updated objects back to registry
+        if (!updateList.isEmpty()) {
+            ExecutorService executor = Executors.newFixedThreadPool(1);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (updateList) {
+                        ISubscriptionHandler sh = RegistryObjectHandlers
+                                .get(ISubscriptionHandler.class);
+                        for (T s : updateList) {
+                            try {
+                                sh.update(s);
+                                statusHandler.info("Subscription "
+                                        + s.getName() + " is expired.");
+                            } catch (RegistryHandlerException e) {
+                                statusHandler.handle(Priority.WARN,
+                                        "Unable to set subscription to expired ["
+                                                + s.getName() + "]", e);
+                            }
+                        }
+                        updateList.clear();
+                    }
+                }
+            });
+        }
+
+        return returnMap;
+    }
 }

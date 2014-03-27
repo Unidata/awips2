@@ -38,6 +38,7 @@ import gov.noaa.nws.ncep.ui.pgen.elements.Line;
  * 05/12        #710		B. Yin		Set the outlook type to layer name
  * 08/13		TTR784		B. Yin		Remove code that sets the line attributes to the last used
  * 										in order to set the attributes to the default.
+ * 11/13		#1049		B. Yin		Handle outlook type defined in layer.
  * </pre>
  * 
  * @author	B. Yin
@@ -66,10 +67,16 @@ public class PgenOutlookDrawingTool extends AbstractPgenDrawingTool {
     	if ( attrDlg != null && !isDelObj()){
     		((OutlookAttrDlg) attrDlg).enableAddDel(false);
     		
-    		// set the outlook type to the layer name if there is one
     		String layer = drawingLayer.getActiveLayer().getName();
     		boolean setName = false;
-    		if ( layer != null && ! layer.isEmpty() && !layer.equalsIgnoreCase("Default")){
+    		String otlkType = drawingLayer.getActiveLayer().getMetaInfoFromKey(OutlookAttrDlg.OTLK_TYPE_IN_LAYER_META);
+
+    		if ( otlkType != null && !otlkType.isEmpty()){
+    			((OutlookAttrDlg) attrDlg).setOtlkType( otlkType );
+    			setName = true;
+    		}
+    		// set the outlook type to the layer name if there is one
+    		else if ( layer != null && ! layer.isEmpty() && !layer.equalsIgnoreCase("Default")){
     			((OutlookAttrDlg) attrDlg).setOtlkType( layer );
 
     			setName = true;

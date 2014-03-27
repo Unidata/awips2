@@ -19,7 +19,11 @@
  **/
 package com.raytheon.uf.common.datadelivery.registry;
 
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
+
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
+import com.raytheon.uf.common.registry.ebxml.encoder.IRegistryEncoder;
+import com.raytheon.uf.common.serialization.SerializationException;
 
 /**
  * Constants file for data delivery registry object types.
@@ -36,6 +40,7 @@ import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
  * Oct 11, 2013 2460       dhladky      Restored Adhoc to registry store, WFO only.
  * Nov 12, 2013 2506       bgonzale     Added is recurring subscription method.
  * Nov 18, 2013 1736       dhladky      Data Set helper method.
+ * Dec 08, 2013 2584       dhladky      Registry versions for objects.
  * 
  * </pre>
  * 
@@ -48,6 +53,7 @@ public final class DataDeliveryRegistryObjectTypes {
      * Private constructor.
      */
     private DataDeliveryRegistryObjectTypes() {
+        
     }
 
     public static final String DATASETMETADATA = RegistryUtil
@@ -67,6 +73,9 @@ public final class DataDeliveryRegistryObjectTypes {
 
     public static final String PROVIDER = RegistryUtil
             .getObjectType(Provider.class);
+    
+    public static final String PARAMETER = RegistryUtil
+            .getObjectType(Parameter.class);
 
     /**
      * Is the object type a recurring subscription type, excluding adhoc
@@ -94,4 +103,47 @@ public final class DataDeliveryRegistryObjectTypes {
         return DataDeliveryRegistryObjectTypes.DATASETMETADATA
                 .equals(objectType);
     }
+    
+    /**
+     * Convert the object if necessary
+     * 
+     * @param content
+     * @param encoder
+     * @return
+     */
+    public static Object convertObject(Object content,
+            IRegistryEncoder encoder) {
+
+        /**
+         * TODO In next step attempt to
+         * do a conversion
+         */
+        throw new IllegalArgumentException(
+                "Can not convert Data Delivery Registry Objects in this release!");
+
+    }
+    
+
+    /**
+     * Gets the object from the encoder, checking to see if conversion is
+     * necessary or not.
+     * 
+     * @param registryObjectType
+     * @param encoder
+     * @return
+     * @throws SerializationException
+     */
+    public static Object getObject(RegistryObjectType registryObjectType,
+            IRegistryEncoder encoder) throws SerializationException {
+
+        Object object = encoder.decodeObject(registryObjectType);
+
+        //Returned content. Object is of different version!
+        if (object instanceof String) {
+            object = convertObject(object, encoder);
+        }
+
+        return object;
+    }
+   
 }

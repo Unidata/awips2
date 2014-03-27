@@ -21,8 +21,8 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -67,18 +67,24 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 21 APR 2008  ###        lvenable    Initial creation
- * 19 FEB 2010  4132       ryu         Product correction.
- * 28May2010    2187       cjeanbap    Added StdTextProductFactory
- *                                      functionality.
- * 09 NOV 2012  1298       rferrel     Changes for non-blocking dialog.
- * 02apr2013    15564   mgamazaychikov Ensured awipsWanPil to be 10 characters space-padded long
- * 08 MAY 2013  1842       dgilling    Use VtecUtil to set product ETNs, fix
+ * Apr 21, 2008  ###       lvenable    Initial creation
+ * Feb 19, 2010  4132      ryu         Product correction.
+ * May 28, 2010  2187      cjeanbap    Added StdTextProductFactory 
+ *                                     functionality.
+ * Nov 09, 2012  1298      rferrel     Changes for non-blocking dialog.
+ * Apr 02, 2013  15564 mgamazaychikov  Ensured awipsWanPil to be 10 characters
+ *                                     space-padded long
+ * May 08, 2013  1842      dgilling    Use VtecUtil to set product ETNs, fix
  *                                     warnings.
- * 07 Jun 2013  1981       mpduff      Set user's id in OUPRequest as it is now a protected operation.
- * 23 Oct 2013  1843       dgilling    Ensure that dialog is always closed,
+ * Jun 07, 2013  1981      mduff       Set user's id in OUPRequest as it is
+ *                                     now a protected operation.
+ * Oct 23, 2013  1843      dgilling    Ensure that dialog is always closed,
  *                                     even on failure, changes for error handling
  *                                     of intersite ETN assignment.
+ * Dec 18, 2013  2641      dgilling    Support changes to GFEVtecUtil.getVtecLinesThatNeedEtn().
+ * Jan 06, 2014  2649      dgilling    Make ETN assignment process optional.
+ * Feb 17, 2014  2774      dgilling    Merge changes from 14.1 baseline to 14.2.
+ * 
  * </pre>
  * 
  * @author lvenable
@@ -141,17 +147,26 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
 
     private final String pid;
 
+    private final boolean updateVtec;
+
     /**
-     * Constructor.
-     * 
      * @param parent
      *            Parent shell.
      * @param storeDialog
      *            Store flag. True is store, false is transmit.
+     * @param editor
+     *            Parent editor. Product will be updated in this editor after
+     *            transmission.
+     * @param transmissionCB
+     * @param pid
+     * @param updateVtec
+     *            Whether or not to update the ETNs of any VTEC lines in the
+     *            product to be transmitted. Recommend setting this to false
+     *            when correcting a previously transmitted product.
      */
     public StoreTransmitDlg(Shell parent, boolean storeDialog,
             ProductEditorComp editor, ITransmissionState transmissionCB,
-            String pid) {
+            String pid, boolean updateVtec) {
         super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL,
                 CAVE.DO_NOT_BLOCK);
 
@@ -160,6 +175,7 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         parentEditor = editor;
         this.productText = editor.getProductText();
         this.pid = pid;
+        this.updateVtec = updateVtec;
     }
 
     @Override
@@ -343,114 +359,78 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
         // Store/Transmit the product...
 
         if (!countdownThread.threadCancelled()) {
-            boolean retrieveEtnFailed = false;
+            try {
+                if (updateVtec) {
+                    // With GFE VTEC products, it's possible to have multiple
+                    // segments with NEW vtec action codes and the same phensig.
+                    // For
+                    // this reason, HazardsTable.py implemented a "cache" that
+                    // would
+                    // ensure all NEWs for the same phensig would be assigned
+                    // the
+                    // same ETN. This Map replicates that legacy behavior.
+                    //
+                    // This "cache" has two levels:
+                    // 1. The first level is keyed by the hazard's phensig.
+                    // 2. The second level is keyed by the valid period of the
+                    // hazard.
+                    // Effectively, making this a Map<Phensig, Map<ValidPeriod,
+                    // ETN>>.
+                    Map<String, List<VtecObject>> vtecsToAssignEtn = GFEVtecUtil
+                            .initETNCache(productText);
+                    Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
 
-            Set<VtecObject> vtecsToAssignEtn = GFEVtecUtil
-                    .getVtecLinesThatNeedEtn(productText);
-            // With GFE VTEC products, it's possible to have multiple segments
-            // with
-            // NEW vtec action codes and the same phensig. For this reason,
-            // HazardsTable.py implemented a "cache" that would ensure all NEWs
-            // for
-            // the same phensig would be assigned the same ETN. This Map
-            // replicates
-            // that legacy behavior.
-            //
-            // This "cache" has two levels:
-            // 1. The first level is keyed by the hazard's phensig.
-            // 2. The second level is keyed by the valid period of the hazard.
-            // Effectively, making this a Map<Phensig, Map<ValidPeriod, ETN>>.
-            Map<String, Map<TimeRange, Integer>> etnCache = new HashMap<String, Map<TimeRange, Integer>>();
+                    for (String phensig : vtecsToAssignEtn.keySet()) {
+                        Map<TimeRange, Integer> l2EtnCache = new HashMap<TimeRange, Integer>();
+                        List<VtecObject> vtecs = vtecsToAssignEtn.get(phensig);
 
-            for (VtecObject vtec : vtecsToAssignEtn) {
-                try {
-                    GetNextEtnResponse serverResponse = GFEVtecUtil.getNextEtn(
-                            vtec.getOffice(), vtec.getPhensig(), true, true);
-                    if (!serverResponse.isOkay()) {
-                        final VtecObject vtecToFix = vtec;
-                        final boolean[] exitLoopContainer = { false };
-                        final Exception[] exceptionContainer = { null };
-                        final GetNextEtnResponse[] responseContainer = { serverResponse };
+                        for (int i = 0; i < vtecs.size(); i++) {
+                            VtecObject vtec = vtecs.get(i);
+                            TimeRange validPeriod = new TimeRange(
+                                    vtec.getStartTime(), vtec.getEndTime());
+                            Integer currentEtn = vtec.getSequence();
 
-                        do {
-                            getDisplay().syncExec(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GetNextEtnResponse serverResponse = responseContainer[0];
-                                    ETNConfirmationDialog dlg = new ETNConfirmationDialog(
-                                            getShell(), serverResponse);
-                                    if (dlg.open() == ETNConfirmationDialog.OK) {
-                                        int etn = dlg.getProposedEtn();
-                                        statusHandler.info(String
-                                                .format("User confirmed ETN for %s: %04d",
-                                                        serverResponse
-                                                                .getPhensig(),
-                                                        etn));
-                                        try {
-                                            GetNextEtnResponse followupResp = GFEVtecUtil.getNextEtn(
-                                                    vtecToFix.getOffice(),
-                                                    vtecToFix.getPhensig(),
-                                                    true, true, true, etn);
-                                            responseContainer[0] = followupResp;
-                                        } catch (VizException e) {
-                                            exceptionContainer[0] = e;
-                                            exitLoopContainer[0] = true;
-                                        }
-                                    } else {
-                                        statusHandler
-                                                .info("User declined to fix ETN for %s",
-                                                        serverResponse
-                                                                .getPhensig());
-                                        exitLoopContainer[0] = true;
-                                    }
-                                }
-                            });
-                        } while (!responseContainer[0].isOkay()
-                                && !exitLoopContainer[0]);
-
-                        if (!responseContainer[0].isOkay()) {
-                            String msg = "Unable to set ETN for phensig "
-                                    + responseContainer[0].getPhensig()
-                                    + "\nStatus: "
-                                    + responseContainer[0].toString();
-                            Exception e = exceptionContainer[0];
-                            if (e == null) {
-                                throw new VizException(msg);
+                            // the first time we select a new, unique ETN, any
+                            // other
+                            // VTEC lines in the product that have the same
+                            // phensig
+                            // and an adjacent TimeRange can also re-use this
+                            // ETN
+                            if (currentEtn == 0) {
+                                currentEtn = getNextEtn(vtec);
+                                l2EtnCache.put(validPeriod, currentEtn);
                             } else {
-                                throw new VizException(msg, e);
+                                // BUT...once we've made our one pass through
+                                // the
+                                // product and re-used the ETN where
+                                // appropriate, we
+                                // should not check again
+                                continue;
                             }
-                        } else {
-                            serverResponse = responseContainer[0];
+
+                            for (int j = i + 1; j < vtecs.size(); j++) {
+                                VtecObject vtec2 = vtecs.get(j);
+                                TimeRange validPeriod2 = new TimeRange(
+                                        vtec2.getStartTime(),
+                                        vtec2.getEndTime());
+                                Integer currentEtn2 = vtec2.getSequence();
+
+                                if ((currentEtn2 == 0)
+                                        && (validPeriod2
+                                                .isAdjacentTo(validPeriod) || validPeriod2
+                                                .overlaps(validPeriod))) {
+                                    l2EtnCache.put(validPeriod2, currentEtn);
+                                    vtec2.setSequence(currentEtn);
+                                }
+                            }
                         }
+
+                        etnCache.put(phensig, l2EtnCache);
                     }
 
-                    TimeRange validPeriod = new TimeRange(vtec.getStartTime()
-                            .getTime(), vtec.getEndTime().getTime());
-                    String phensig = vtec.getPhensig();
-                    Map<TimeRange, Integer> etnsByTR = etnCache.get(phensig);
-                    if (etnsByTR == null) {
-                        etnsByTR = new HashMap<TimeRange, Integer>();
-                        etnCache.put(phensig, etnsByTR);
-                    }
-                    etnsByTR.put(validPeriod, serverResponse.getNextEtn());
-                } catch (VizException e) {
-                    statusHandler.handle(Priority.CRITICAL,
-                            "Error setting ETNs for product", e);
-                    retrieveEtnFailed = true;
-                    VizApp.runAsync(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            sendTransmissionStatus(ConfigData.productStateEnum.Failed);
-                            StoreTransmitDlg.this.parentEditor.revive();
-                        }
-                    });
-                    break;
+                    productText = GFEVtecUtil.finalizeETNs(productText,
+                            etnCache);
                 }
-            }
-
-            if (!retrieveEtnFailed) {
-                productText = GFEVtecUtil.finalizeETNs(productText, etnCache);
 
                 VizApp.runSync(new Runnable() {
 
@@ -475,6 +455,17 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                     }
 
                 });
+            } catch (VizException e) {
+                statusHandler.handle(Priority.CRITICAL,
+                        "Error preparing product for transmission.", e);
+                VizApp.runAsync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        sendTransmissionStatus(ConfigData.productStateEnum.Failed);
+                        StoreTransmitDlg.this.parentEditor.revive();
+                    }
+                });
             }
         }
 
@@ -487,6 +478,65 @@ public class StoreTransmitDlg extends CaveSWTDialog implements
                 close();
             }
         });
+    }
+
+    private Integer getNextEtn(VtecObject vtec) throws VizException {
+        GetNextEtnResponse serverResponse = GFEVtecUtil.getNextEtn(
+                vtec.getOffice(), vtec.getPhensig(), true, true);
+        if (!serverResponse.isOkay()) {
+            final VtecObject vtecToFix = vtec;
+            final boolean[] exitLoopContainer = { false };
+            final Exception[] exceptionContainer = { null };
+            final GetNextEtnResponse[] responseContainer = { serverResponse };
+
+            do {
+                getDisplay().syncExec(new Runnable() {
+                    @Override
+                    public void run() {
+                        GetNextEtnResponse serverResponse = responseContainer[0];
+                        ETNConfirmationDialog dlg = new ETNConfirmationDialog(
+                                getShell(), serverResponse);
+                        if (dlg.open() == ETNConfirmationDialog.OK) {
+                            int etn = dlg.getProposedEtn();
+                            statusHandler.info(String.format(
+                                    "User confirmed ETN for %s: %04d",
+                                    serverResponse.getPhensig(), etn));
+                            try {
+                                GetNextEtnResponse followupResp = GFEVtecUtil
+                                        .getNextEtn(vtecToFix.getOffice(),
+                                                vtecToFix.getPhensig(), true,
+                                                true, true, etn);
+                                responseContainer[0] = followupResp;
+                            } catch (VizException e) {
+                                exceptionContainer[0] = e;
+                                exitLoopContainer[0] = true;
+                            }
+                        } else {
+                            statusHandler.info(
+                                    "User declined to fix ETN for %s",
+                                    serverResponse.getPhensig());
+                            exitLoopContainer[0] = true;
+                        }
+                    }
+                });
+            } while (!responseContainer[0].isOkay() && !exitLoopContainer[0]);
+
+            if (!responseContainer[0].isOkay()) {
+                String msg = "Unable to set ETN for phensig "
+                        + responseContainer[0].getPhensig() + "\nStatus: "
+                        + responseContainer[0].toString();
+                Exception e = exceptionContainer[0];
+                if (e == null) {
+                    throw new VizException(msg);
+                } else {
+                    throw new VizException(msg, e);
+                }
+            } else {
+                serverResponse = responseContainer[0];
+            }
+        }
+
+        return serverResponse.getNextEtn();
     }
 
     /**
