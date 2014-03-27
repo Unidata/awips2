@@ -64,6 +64,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 20, 2014   2632     mpduff      Initial creation
+ * Mar 27, 2014   2632     mpduff      Corrected the OK, Apply, Cancel actions
  * 
  * </pre>
  * 
@@ -90,7 +91,7 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             .getNotifierTasks();
 
     /** Data map backing the notifier list */
-    private final Map<String, NotifierTask> dataMap = new HashMap<String, NotifierTask>();
+    private Map<String, NotifierTask> dataMap = new HashMap<String, NotifierTask>();
 
     /**
      * {@inheritDoc}
@@ -160,7 +161,7 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             }
         });
 
-        populate();
+        populate(true);
 
         return null;
     }
@@ -168,8 +169,13 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
     /**
      * Populate the list.
      */
-    private void populate() {
-        taskList = NotifierTools.getNotifierTasks();
+    private void populate(boolean reload) {
+        if (reload) {
+            taskList = NotifierTools.getNotifierTasks();
+        } else {
+            taskList.clear();
+            taskList.addAll(dataMap.values());
+        }
         for (NotifierTask task : taskList) {
             dataMap.put(task.getUserName(), task);
         }
@@ -184,11 +190,25 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
      * Edit the notifier task.
      */
     private void editNotifierTask() {
+        if (notifierList.getSelectionIndex() == -1) {
+            MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
+            messageDialog.setText("Select User");
+            messageDialog.setMessage("Please select a user to edit.");
+            messageDialog.open();
+            return;
+        }
         String user = notifierList.getItem(notifierList.getSelectionIndex());
         NotifierTask task = dataMap.get(user);
         if (task != null) {
+            ICloseCallback callback = new ICloseCallback() {
+                @Override
+                public void dialogClosed(Object returnValue) {
+                    updatePrefs((Map<String, NotifierTask>) returnValue);
+                }
+            };
+
             AddNotifierDlg dlg = new AddNotifierDlg(getShell(),
-                    new String[] { task.getUserName() });
+                    new String[] { task.getUserName() }, callback);
             dlg.open();
         }
     }
@@ -197,26 +217,20 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
      * Delete the notifier task.
      */
     private void deleteNotifierTask() {
+        if (notifierList.getSelectionIndex() == -1) {
+            MessageBox messageDialog = new MessageBox(this.getShell(), SWT.OK);
+            messageDialog.setText("Select User");
+            messageDialog.setMessage("Please select a user to delete.");
+            messageDialog.open();
+            return;
+        }
         String user = notifierList.getItem(notifierList.getSelectionIndex());
-        NotifierTask task = dataMap.get(user);
+        NotifierTask task = dataMap.remove(user);
         if (task != null) {
             taskList.remove(task);
             notifierList.remove(notifierList.getSelectionIndex());
         }
         setButtonState();
-    }
-
-    /**
-     * Set the state of the buttons.
-     */
-    private void setButtonState() {
-        if (notifierList.getSelectionCount() > 0) {
-            deleteBtn.setEnabled(true);
-            editBtn.setEnabled(true);
-        } else {
-            deleteBtn.setEnabled(false);
-            editBtn.setEnabled(false);
-        }
     }
 
     /**
@@ -229,7 +243,8 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             ICloseCallback callback = new ICloseCallback() {
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    populate();
+                    updatePrefs((Map<String, NotifierTask>) returnValue);
+                    setButtonState();
                 }
             };
             AddNotifierDlg dlg = new AddNotifierDlg(getShell(), contacts,
@@ -241,6 +256,19 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
             messageDialog
                     .setMessage("User must be logged in to Collaboration to add contact notifiers.");
             messageDialog.open();
+        }
+    }
+
+    /**
+     * Set the state of the buttons.
+     */
+    private void setButtonState() {
+        if (notifierList.getSelectionCount() > 0) {
+            deleteBtn.setEnabled(true);
+            editBtn.setEnabled(true);
+        } else {
+            deleteBtn.setEnabled(false);
+            editBtn.setEnabled(false);
         }
     }
 
@@ -275,9 +303,35 @@ public class ContactNotifierPreferencePage extends PreferencePage implements
         return users.toArray(new String[users.size()]);
     }
 
+    /**
+     * Update with the new settings.
+     */
+    private void updatePrefs(Map<String, NotifierTask> dataMap) {
+        this.dataMap = dataMap;
+        populate(false);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.preference.PreferencePage#performOk()
+     */
     @Override
     public boolean performOk() {
-        NotifierTools.saveNotifiers(taskList);
+        performApply();
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.eclipse.jface.preference.PreferencePage#performApply()
+     */
+    @Override
+    protected void performApply() {
+        taskList.clear();
+        taskList.addAll(dataMap.values());
+        NotifierTools.saveNotifiers(taskList);
+        setButtonState();
     }
 }

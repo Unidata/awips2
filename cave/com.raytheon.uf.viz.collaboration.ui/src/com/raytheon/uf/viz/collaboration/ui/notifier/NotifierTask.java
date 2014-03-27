@@ -28,6 +28,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
  * Notifier Task. Holds a list of {@link Notifier} actions.
@@ -38,7 +39,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 20, 2014    2632    mpduff      Initial creation
+ * Feb 20, 2014    2632    mpduff      Initial creation.
+ * Mar 27, 2014    2632    mpduff      Implemented toString()
  * 
  * </pre>
  * 
@@ -233,5 +235,23 @@ public class NotifierTask {
             return false;
         }
         return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        String nl = StringUtil.NEWLINE;
+        StringBuilder sb = new StringBuilder();
+        sb.append("User:  " + this.userName).append(nl);
+        sb.append("Sound: " + this.soundFilePath).append(nl);
+        for (Notifier notifier : this.notifierList) {
+            sb.append(notifier.getDescription()).append("    ");
+        }
+
+        return sb.toString();
     }
 }
