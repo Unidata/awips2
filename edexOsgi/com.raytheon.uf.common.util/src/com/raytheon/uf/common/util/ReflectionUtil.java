@@ -42,6 +42,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * Jul 10, 2012 455        djohnson     Move in methods from RegistryUtil, 
  *                                      fix setter method to use parameter types.
  * Sep 28, 2012 1195       djohnson     Add {@link #forName(String)}.
+ * Jan 23, 2014 2584       dhladky      Versions for JAXB objects.
  * 
  * </pre>
  * 
@@ -218,6 +219,26 @@ public final class ReflectionUtil {
                 }
             }
         }
+        return null;
+    }
+ 
+    /**
+     * Get this annotation from this class if it exists
+     * 
+     * @param clazz
+     *            The class to check
+     * @param annotation
+     *            The annotation class to look for
+     * @return Annotation
+     */
+    public static <T extends Annotation>T getAnnotationFromClass(Class<?> clazz,
+            Class<T> annotation) throws ReflectionException {
+
+        T ann = clazz.getAnnotation(annotation);
+        if (ann != null) {
+            return ann;
+        }
+        
         return null;
     }
 

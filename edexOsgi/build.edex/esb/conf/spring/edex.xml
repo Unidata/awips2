@@ -27,17 +27,17 @@
  
     <bean id="genericThreadPool"
 		class="com.raytheon.uf.edex.esb.camel.spring.JmsThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="${JMS_POOL_MIN}" />
-		<property name="maxPoolSize" value="${JMS_POOL_MAX}" />
+		<property name="corePoolSize" value="0" />
+		<property name="maxPoolSize" value="1" />
 		<property name="queueCapacity" value="0" />
 	</bean>
 
-    <bean id="jms-generic" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="jms-generic" class="com.raytheon.uf.edex.esb.camel.jms.DedicatedThreadJmsComponent">
        <constructor-arg ref="jmsGenericConfig" />
        <property name="taskExecutor" ref="genericThreadPool" />
 	</bean>
 
-    <bean id="jms-durable" class="org.apache.camel.component.jms.JmsComponent">
+    <bean id="jms-durable" class="com.raytheon.uf.edex.esb.camel.jms.DedicatedThreadJmsComponent">
        <constructor-arg ref="jmsDurableConfig" />
        <property name="taskExecutor" ref="genericThreadPool" />
     </bean>
@@ -63,13 +63,13 @@
 
 	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
 		<property name="cacheLevelName" value="CACHE_NONE"/>
-		<property name="recoveryInterval" value="1000"/>
+		<property name="recoveryInterval" value="10000"/>
 		<property name="requestTimeout" value="5000"/>
 
 		<!-- receiveTimeout is amount of time thread waits to receive a message before recycling -->
 		<!-- receiveTimeout also affects how fast a JMSConsumer will shut down, because the
                   thread may be stuck polling for the duration of receiveTimeout before shutting down -->
-		<property name="receiveTimeout" value="10000"/>
+		<property name="receiveTimeout" value="10000"/>   
 		<property name="transacted" value="false"/>
 
 		<!-- force maxMessagesPerTask so that the threads don't keep disconnecting and reconnecting.
@@ -80,6 +80,7 @@
 		<property name="destinationResolver" ref="qpidNoDurableResolver" />
 		<property name="disableReplyTo" value="true" />
 		<property name="deliveryPersistent" value="false"/>
+        
 		<!--
 		<property name="transacted" value="true" />
 		<property name="acknowledgementModeName" value="TRANSACTED"/>
@@ -240,7 +241,7 @@
     **
     ** http://camel.apache.org/enterprise-integration-patterns.html
     -->
-    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                                                                
+    <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
 		<!-- Route for edex to listen for utility updates -->
 		<route id="edexUtilityNotify">

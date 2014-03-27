@@ -107,6 +107,8 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * Nov 08, 2013 2506       bgonzale    Added RegistryObjectType to RemoveRegistryEvent.
  *                                     Separate update from create notifications.
  * 12/2/2013    1829       bphillip    Auditable events are not genereted via messages on the event bus
+ * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
+ * 2/19/2014    2769        bphillip   Added current time to audit trail events
  * 
  * 
  * </pre>
@@ -230,8 +232,6 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 statusHandler
                         .info("No results returned from remove objects query");
             } else {
-                statusHandler.info("Remove objects query returned "
-                        + queryResponse.getRegistryObjects() + " objects");
                 objectsToRemove.addAll(queryResponse.getRegistryObjects());
             }
         }
@@ -303,7 +303,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
 
         EventBus.publish(new CreateAuditTrailEvent(request.getId(), request,
-                ActionTypes.delete, objectsToRemove));
+                ActionTypes.delete, objectsToRemove, TimeUtil
+                        .currentTimeMillis()));
 
         return response;
     }
@@ -464,6 +465,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         // gives a close estimate to amount taken on each object
         // individually, this will be millis in most cases, hopefully
         long avTimePerRecord = objs.isEmpty() ? 0 : totalTime / objs.size();
+        long currentTime = TimeUtil.currentTimeMillis();
         if (!objsCreated.isEmpty()) {
             for (RegistryObjectType obj : objsCreated) {
                 EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
@@ -473,7 +475,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                         avTimePerRecord));
             }
             EventBus.publish(new CreateAuditTrailEvent(request.getId(),
-                    request, ActionTypes.create, objsCreated));
+                    request, ActionTypes.create, objsCreated, currentTime));
         }
         if (!objsUpdated.isEmpty()) {
             for (RegistryObjectType obj : objsUpdated) {
@@ -484,7 +486,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
                         avTimePerRecord));
             }
             EventBus.publish(new CreateAuditTrailEvent(request.getId(),
-                    request, ActionTypes.update, objsUpdated));
+                    request, ActionTypes.update, objsUpdated, currentTime));
         }
 
         return response;
@@ -739,7 +741,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
         }
         if (!objectsToUpdate.isEmpty()) {
             EventBus.publish(new CreateAuditTrailEvent(request.getId(),
-                    request, ActionTypes.update, objectsToUpdate));
+                    request, ActionTypes.update, objectsToUpdate, TimeUtil
+                            .currentTimeMillis()));
         }
 
         long totalTime = System.currentTimeMillis() - startTime;

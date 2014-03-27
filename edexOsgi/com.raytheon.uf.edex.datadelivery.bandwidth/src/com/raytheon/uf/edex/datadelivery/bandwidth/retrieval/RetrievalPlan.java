@@ -1,5 +1,6 @@
 package com.raytheon.uf.edex.datadelivery.bandwidth.retrieval;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,8 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Dec 17, 2013 2636       bgonzale     Check for removed buckets when removing BandwidthAllocations or 
  *                                      BandwidthReservations. Add constrained bucket addition method.
  *                                      Added debug logging.
+ * Jan 08, 2014 2615       bgonzale     Log registry bandwidth calculation errors.
+ * Feb 10, 2014  2678      dhladky      Prevent duplicate allocations.
  * 
  * </pre>
  * 
@@ -151,8 +154,15 @@ public class RetrievalPlan {
             // subtract registry traffic from total available bytes/per second
             for (BandwidthBucket bucket : bucketsDao.getAll(network)) {
                 long startMillis = bucket.getBucketStartTime();
-                int registryBytesPerSecond = rbs
-                        .getRegistryBandwidth(startMillis);
+                int registryBytesPerSecond = 0;
+                try {
+                    registryBytesPerSecond = rbs
+                            .getRegistryBandwidth(startMillis);
+                } catch (IllegalArgumentException e) {
+                    statusHandler
+                            .error("Failed to init registry bandwidth calculation.  Registry bandwidth will be ignored.",
+                                    e);
+                }
                 bucket.setBucketSize(bucket.getBucketSize()
                         - (registryBytesPerSecond * TimeUtil.SECONDS_PER_MINUTE * bucketMinutes));
             }
@@ -372,12 +382,47 @@ public class RetrievalPlan {
             for (BandwidthBucket bucket : buckets) {
                 reservation = associator.getNextReservation(bucket, agentType);
                 if (reservation != null) {
+                    //TODO: do validity check for expired allocations
                     break;
                 }
             }
         }
 
         return reservation;
+    }
+    
+    /**
+     * Get the scheduled allocations from recent buckets
+     * 
+     * @param agentType
+     * 
+     * @return reservations
+     */
+    public List<BandwidthAllocation> getRecentAllocations(String agentType) {
+        List<BandwidthAllocation> reservations = null;
+
+        synchronized (bucketsLock) {
+
+            // Get the portion of the Map that is before the
+            // current time (DO NOT want to return future reservations)
+            final List<BandwidthBucket> buckets = bucketsDao
+                    .getWhereStartTimeIsLessThanOrEqualTo(
+                            TimeUtil.currentTimeMillis(), network);
+
+            // Iterate over the buckets and find all 
+            // BandwidthAllocation that are in the READY state
+            for (BandwidthBucket bucket : buckets) {
+                BandwidthAllocation allocationReservation = associator.getNextReservation(bucket, agentType);
+                if (allocationReservation != null) {
+                    if (reservations == null) {
+                        reservations = new ArrayList<BandwidthAllocation>();
+                    }
+                    reservations.add(allocationReservation);
+                }
+            }
+        }
+
+        return reservations;
     }
 
     public void updateRequestMapping(long requestId,

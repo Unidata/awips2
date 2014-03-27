@@ -25,7 +25,6 @@ import java.util.List;
 import com.google.common.annotations.VisibleForTesting;
 import com.raytheon.uf.common.datadelivery.event.status.DataDeliverySystemStatusDefinition;
 import com.raytheon.uf.common.datadelivery.event.status.SystemStatusEvent;
-import com.raytheon.uf.common.datadelivery.registry.Network;
 import com.raytheon.uf.common.datadelivery.registry.Provider.ServiceType;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.Retrieval;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.RetrievalAttribute;
@@ -40,6 +39,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.adapters.RetrievalAdapter;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.IRetrievalDao;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord;
 import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecord.State;
+import com.raytheon.uf.edex.datadelivery.retrieval.db.RetrievalRequestRecordPK;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalRequestBuilder;
 import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse;
 
@@ -58,7 +58,8 @@ import com.raytheon.uf.edex.datadelivery.retrieval.interfaces.IRetrievalResponse
  * Feb 12, 2013 1543       djohnson     Retrieval responses are now passed further down the chain.
  * Feb 15, 2013 1543       djohnson     Retrieval responses are now xml.
  * Jul 16, 2013 1655       mpduff       Send a system status event based on the response from the provider.
- * 
+ * Jan 15, 2014 2678       bgonzale     Retrieve RetrievalRequestRecords from a Queue for processing.
+ * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * </pre>
  * 
  * @author djohnson
@@ -70,8 +71,6 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PerformRetrievalsThenReturnFinder.class);
 
-    private final Network network;
-
     private final IRetrievalDao retrievalDao;
 
     /**
@@ -79,9 +78,7 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
      * 
      * @param network
      */
-    public PerformRetrievalsThenReturnFinder(Network network,
-            IRetrievalDao retrievalDao) {
-        this.network = network;
+    public PerformRetrievalsThenReturnFinder(IRetrievalDao retrievalDao) {
         this.retrievalDao = retrievalDao;
     }
 
@@ -89,31 +86,37 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
      * {@inheritDoc}
      */
     @Override
-    public RetrievalResponseXml findRetrievals() throws Exception {
+    public RetrievalResponseXml processRequest(RetrievalRequestWrapper rrw) throws Exception {
+        
         RetrievalResponseXml retVal = null;
-
         ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         try {
-            timer.start();
-            RetrievalRequestRecord request = retrievalDao
-                    .activateNextRetrievalRequest(network);
+            // Process through the retrieval
+            RetrievalRequestRecordPK id = (RetrievalRequestRecordPK) rrw.getPayload();
+
+            if (id == null) {
+                return null;
+            }
+
+            statusHandler.info("Found this RetrievalRequestRecordPK: "
+                    + id.toString());
+            RetrievalRequestRecord request = retrievalDao.getById(id);
 
             if (request == null) {
                 return null;
             }
 
             timer.stop();
-            statusHandler.info("Activation of next retrieval took ["
+            statusHandler.info("Activation of this retrieval took ["
                     + timer.getElapsedTime() + "] ms");
-
             timer.reset();
             timer.start();
 
             try {
                 retVal = process(request);
-
                 timer.stop();
-
                 statusHandler.info("Retrieval Processing for ["
                         + request.getId() + "] took " + timer.getElapsedTime()
                         + " ms");
@@ -123,9 +126,10 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
                         "Retrieval Processing failed: [" + request.getId()
                                 + "]", e);
             }
+
         } catch (Exception e) {
             statusHandler
-                    .error("Unable to look up next retrieval request at this time.",
+                    .error("Unable to look up retrieval request at this time.",
                             e);
         }
 
@@ -135,6 +139,7 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
     /**
      * The actual work gets done here.
      */
+    @SuppressWarnings("rawtypes")
     @VisibleForTesting
     RetrievalResponseXml process(RetrievalRequestRecord requestRecord) {
         requestRecord.setState(State.FAILED);
@@ -190,6 +195,7 @@ public class PerformRetrievalsThenReturnFinder implements IRetrievalsFinder {
         } catch (Exception e) {
             statusHandler.handle(Priority.WARN, e.getLocalizedMessage(), e);
         }
+        
         RetrievalResponseXml retrievalPluginDataObject = new RetrievalResponseXml(
                 requestRecord.getId(), retrievalAttributePluginDataObjects);
         retrievalPluginDataObject

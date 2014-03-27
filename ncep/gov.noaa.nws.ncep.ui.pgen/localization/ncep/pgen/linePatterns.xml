@@ -383,6 +383,14 @@
         <linePattern hasArrowHead="false" name="Solid Line"/>
     </patternEntry>
     <patternEntry>
+        <patternId>KINK_LINE_1</patternId>
+        <linePattern hasArrowHead="false" name="Kink Line with open arrow head"/>
+    </patternEntry>
+    <patternEntry>
+        <patternId>KINK_LINE_2</patternId>
+        <linePattern hasArrowHead="false" name="Kink Line with filled arrow head"/>
+    </patternEntry>
+    <patternEntry>
         <patternId>STORM_TRACK</patternId>
         <linePattern hasArrowHead="false" name="Storm Track"/>
     </patternEntry>

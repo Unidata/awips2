@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +61,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Apr 09, 2012 DR14765    mhuang      Map out correct CCCC site ID for backup
  *                                      sites.
  * May 15, 2013  1040      mpduff      Add awips_site_list.xml.
+ * Mar 18, 2014 DR 17173   D. Friedmna Re-implement DR 14765.
  * 
  * </pre>
  * 
@@ -92,6 +94,8 @@ public class SiteMap {
     private final Map<String, String> siteTo4LetterSite = new HashMap<String, String>();
 
     private final Map<String, Set<String>> siteTo3LetterSite = new HashMap<String, Set<String>>();
+
+    private final Set<String> site3to4LetterOverrides = new HashSet<String>();
 
     private final Map<String, SiteData> siteMap = new TreeMap<String, SiteData>();
 
@@ -163,6 +167,7 @@ public class SiteMap {
         nationalCategoryMap.clear();
         siteTo4LetterSite.clear();
         siteTo3LetterSite.clear();
+        site3to4LetterOverrides.clear();
         siteMap.clear();
 
         // load base afos lookup
@@ -311,6 +316,11 @@ public class SiteMap {
                                 }
                             }
 
+                            // Currently, only the 3-letter IDs are used (in
+                            // getSite4LetterId(), but it should be possible
+                            // to also add the 4-letter IDs to this set.
+                            site3to4LetterOverrides.add(site3);
+
                             site3To4LetterMap.put(site3, site4);
 
                             // Add the entry to the reverse lookup map
@@ -390,22 +400,17 @@ public class SiteMap {
     public String getSite4LetterId(String site3LetterId) {
         String site = siteTo4LetterSite.get(site3LetterId);
 
-        // if site not found default to K
-        if (site == null) {
+        /* If site not found default to K + 3-letter-ID.
+         *
+         * Or, if the 4-letter site ID that was looked up does not
+         * start with a 'K' and did not come from
+         * site3LetterTo4LetterOverride.dat, also return
+         * K + 3-letter-ID.
+         */
+        if (site == null
+                || (site.length() > 0 && site.charAt(0) != 'K' &&
+                        !site3to4LetterOverrides.contains(site3LetterId))) {
             site = "K" + site3LetterId;
-        } else {
-            // DR_14765, in case the site hashed out from combined mapping
-            // table from both national_category_table and afo_lookup_table
-            // does not start with K but not from
-            // site3LetterTo4LetterOerride.dat
-            // which are starting with P or T
-            char[] siteChar = site.toCharArray();
-            if (siteChar[0] != 'K') {
-                if (!((siteChar[0] == 'P' && (siteChar[1] == 'A'
-                        || siteChar[1] == 'G' || siteChar[1] == 'H')) || (siteChar[0] == 'T' && siteChar[1] == 'S'))) {
-                    site = "K" + site3LetterId;
-                }
-            }
         }
 
         return site;

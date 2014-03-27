@@ -164,9 +164,21 @@
          <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
       </encoder>
    </appender>
+   
+   <!-- ohd log --> 
+   <appender name="OhdLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+      <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+         <fileNamePattern>${edex.home}/logs/edex-${edex.run.mode}-ohd-%d{yyyyMMdd}.log</fileNamePattern>
+         <maxHistory>30</maxHistory>
+      </rollingPolicy> 
+
+      <encoder> 
+         <pattern>%-5p %d [%t] %c{0}: %m%n</pattern> 
+      </encoder>
+   </appender>
 
    <appender name="ThreadBasedLog" class="com.raytheon.uf.common.status.logback.ThreadBasedAppender">
-      <threadPatterns>RadarLog:radarThreadPool.*;SatelliteLog:satelliteThreadPool.*;ShefLog:shefThreadPool.*;TextLog:textThreadPool.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*</threadPatterns>
+      <threadPatterns>RadarLog:Ingest.Radar.*;SatelliteLog:Ingest.Satellite.*;ShefLog:Ingest.Shef.*;TextLog:Ingest.Text.*;SmartInitLog:smartInit.*;PurgeLog:Purge.*;ArchiveLog:Archive.*</threadPatterns>
       <defaultAppender>asyncConsole</defaultAppender>
       <appender-ref ref="asyncConsole"/>
       <appender-ref ref="RadarLog"/>
@@ -200,8 +212,9 @@
    <logger name="com.raytheon">
       <level value="INFO"/>
    </logger>
-   <logger name="com.raytheon.edex.plugin.shef">
+   <logger name="com.raytheon.edex.plugin.shef" additivity="false">
       <level value="INFO"/>
+      <appender-ref ref="ShefLog" />
    </logger>
    <logger name="com.raytheon.edex.services.ArchiveSrv">
       <level value="WARN"/>
@@ -298,6 +311,12 @@
    <logger name="FailedTriggerLog" additivity="false">
       <level value="ERROR"/>
       <appender-ref ref="FailedTriggerLog"/>
+   </logger>
+   
+   <logger name="com.raytheon.uf.edex.ohd" additivity="false">
+      <level value="INFO"/>
+      <appender-ref ref="OhdLog" />
+      <appender-ref ref="console" />
    </logger>
 
    <!-- default logging --> 

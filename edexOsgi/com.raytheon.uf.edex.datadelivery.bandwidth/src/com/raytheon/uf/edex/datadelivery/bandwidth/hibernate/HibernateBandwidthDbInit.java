@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttr
  * Apr 30, 2013 1960        djohnson    Extend the generalized DbInit.
  * Jun 24, 2013 2106        djohnson    Add {@link BandwidthBucket} to annotated classes.
  * Jul 11, 2013 2106        djohnson    Add {@link SubscriptionRetrievalAttributes}.
+ * Jan 08, 2013 2645        bgonzale    Added RegistryBandwidthRecord to configuration annotated class list.
  * </pre>
  * 
  * @author jspinks
@@ -82,6 +83,7 @@ public class HibernateBandwidthDbInit extends DbInit implements
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrieval.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.BandwidthAllocation.class);
         aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.dao.SubscriptionRetrievalAttributes.class);
+        aConfig.addAnnotatedClass(com.raytheon.uf.edex.datadelivery.bandwidth.registry.RegistryBandwidthRecord.class);
         return aConfig;
     }
 
