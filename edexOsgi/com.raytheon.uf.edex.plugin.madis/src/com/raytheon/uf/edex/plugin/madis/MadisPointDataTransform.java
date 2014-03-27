@@ -47,6 +47,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * 28 Mar 2013  1746       dhladky      Created 
  * 10 Jun 2013  1763       dhladky      Updates for speed.
  * 08 Jul 2013  2171       dhladky     Removed dataURI
+ * 21 Mar 2014  2939       dhladky     Fixed mismatches in HDF5, DB records.
  * </pre>
  * 
  * @author dhladky
@@ -164,8 +165,10 @@ public class MadisPointDataTransform {
     public static final String RESTRICTION = "restriction";
 
     public static final String TIME_OBS = "timeObs";
-    
+        
     public static final String ID = "id";
+    
+    public static final String EQUAL = "=";
 
     public static final String[] ALL_PARAMS = { DATASET, DEWPOINT,
             DEWPOINT_QCD, DEWPOINT_QCA, DEWPOINT_QCR, RH, RH_QCD, RH_QCA,
@@ -249,10 +252,7 @@ public class MadisPointDataTransform {
     private PointDataView buildView(PointDataContainer container,
             MadisRecord record) {
         PointDataView pdv = container.append();
-        
-        // I think this is inefficient but, PlotData for SVG reads 
-        // the pointDataView so, the first 4 that are already in the 
-        // DB have to be here.
+
         pdv.setLong(TIME_OBS, record.getDataTime().getRefTime().getTime());
         pdv.setString(PROVIDER, record.getProvider());
         pdv.setString(SUB_PROVIDER, record.getSubProvider());
@@ -310,73 +310,8 @@ public class MadisPointDataTransform {
         pdv.setString(PRESSURE_QCD, record.getPressure_qcd().toString());
         pdv.setInt(PRESSURE_QCA, record.getPressure_qca());
         pdv.setInt(PRESSURE_QCR, record.getPressure_qcr());
-
+    
         return pdv;
-    }
-
-    /**
-     * Creates a MadisRecord from a PointDataContainer
-     * 
-     * @param pdc
-     * @return
-     */
-    public static MadisRecord toMadisRecord(MadisRecord mr) {
-
-        PointDataView pdv = mr.getPointDataView();
-        mr.setDataset(pdv.getInt(DATASET));
-        // dewpoint
-        mr.setDewpoint(pdv.getFloat(DEWPOINT));
-        mr.setDewpoint_qcd(QCD.fromString(pdv.getString(DEWPOINT_QCD)));
-        mr.setDewpoint_qca(pdv.getInt(DEWPOINT_QCA));
-        mr.setDewpoint_qcr(pdv.getInt(DEWPOINT_QCR));
-        // relative humidty
-        mr.setRh(pdv.getFloat(RH));
-        mr.setRh_qcd(QCD.fromString(pdv.getString(RH_QCD)));
-        mr.setRh_qca(pdv.getInt(RH_QCA));
-        mr.setRh_qcr(pdv.getInt(RH_QCR));
-        // altimeter setting
-        mr.setAltimeter(pdv.getFloat(ALTIMETER));
-        mr.setAltimeter_qcd(QCD.fromString(pdv.getString(ALTIMETER_QCD)));
-        mr.setAltimeter_qca(pdv.getInt(ALTIMETER_QCA));
-        mr.setAltimeter_qcr(pdv.getInt(ALTIMETER_QCR));
-        // temperature
-        mr.setTemperature(pdv.getFloat(TEMPERATURE));
-        mr.setTemperature_qcd(QCD.fromString(pdv.getString(TEMPERATURE_QCD)));
-        mr.setTemperature_qca(pdv.getInt(TEMPERATURE_QCA));
-        mr.setTemperature_qcr(pdv.getInt(TEMPERATURE_QCR));
-        // wind direction
-        mr.setWindDirection(pdv.getNumber(WINDDIRECTION).intValue());
-        mr.setWindDirection_qcd(QCD.fromString(pdv.getString(WINDDIRECTION_QCD)));
-        mr.setWindDirection_qca(pdv.getInt(WINDDIRECTION_QCA));
-        mr.setWindDirection_qcr(pdv.getInt(WINDDIRECTION_QCR));
-        // precip rate
-        mr.setPrecipRate(pdv.getFloat(PRECIPRATE));
-        mr.setPrecipRate_qcd(QCD.fromString(pdv.getString(PRECIPRATE_QCD)));
-        mr.setPrecipRate_qca(pdv.getInt(PRECIPRATE_QCA));
-        mr.setPrecipRate_qcr(pdv.getInt(PRECIPRATE_QCR));
-        // WINDSPEED
-        mr.setWindSpeed(pdv.getFloat(WINDSPEED));
-        mr.setWindSpeed_qcd(QCD.fromString(pdv.getString(WINDSPEED_QCD)));
-        mr.setWindSpeed_qca(pdv.getInt(WINDSPEED_QCA));
-        mr.setWindSpeed_qcr(pdv.getInt(WINDSPEED_QCR));
-        // Wind Gust
-        mr.setWindGust(pdv.getFloat(WINDGUST));
-        mr.setWindGust_qcd(QCD.fromString(pdv.getString(WINDGUST_QCD)));
-        mr.setWindGust_qca(pdv.getInt(WINDGUST_QCA));
-        mr.setWindGust_qcr(pdv.getInt(WINDGUST_QCR));
-        // Precipital Water
-        mr.setPrecipitalWater(pdv.getFloat(PRECIPITALWATER));
-        mr.setPrecipitalWater_qcd(QCD.fromString(pdv
-                .getString(PRECIPITALWATER_QCD)));
-        mr.setPrecipitalWater_qca(pdv.getInt(PRECIPITALWATER_QCA));
-        mr.setPrecipitalWater_qcr(pdv.getInt(PRECIPITALWATER_QCR));
-        // Pressure
-        mr.setPressure(pdv.getFloat(PRESSURE));
-        mr.setPressure_qcd(QCD.fromString(pdv.getString(PRESSURE_QCD)));
-        mr.setPressure_qca(pdv.getInt(PRESSURE_QCA));
-        mr.setPressure_qcr(pdv.getInt(PRESSURE_QCR));
-
-        return mr;
     }
 
     /**
@@ -458,7 +393,7 @@ public class MadisPointDataTransform {
         try {
             request = new PointDataQuery(MadisRecord.PLUGIN_NAME);
             request.requestAllLevels();
-            request.addParameter(ID, ""+record.getId(), "=");
+            request.addParameter(ID, String.valueOf(record.getId()), EQUAL);
             request.setParameters(ALL_PARAMS_LIST);
             result = request.execute();
             
@@ -483,9 +418,7 @@ public class MadisPointDataTransform {
      * @return populated Madis record Array
      * @throws PluginException
      */
-    // TODO I would like to make a PointDataInterface that could implement this
-    // and other methods that all of these
-    // will use.
+
     public static PluginDataObject[] populatePointDataFields(
             PluginDataObject[] records) {
 
@@ -507,10 +440,19 @@ public class MadisPointDataTransform {
             request.addParameter(ID, ids.toString(), IN);
             request.setParameters(ALL_PARAMS_LIST);
             result = request.execute();
-
+            
+            // correlate up the PointDataViews with the correct records. 
+            HashMap<Integer, PointDataView> pdvs = new HashMap<Integer, PointDataView>(records.length);
             for (int i = 0; i < records.length; i++) {
                 PointDataView pdv = result.readRandom(i);
-                toMadisRecord((MadisRecord) records[i], pdv);
+                // correlate ID from record with ID from PDV
+                int id = pdv.getInt(ID);
+                pdvs.put(id, pdv);
+            }
+
+            for (int i = 0; i < records.length; i++) {
+                int id = records[i].getId();
+                records[i] = toMadisRecord((MadisRecord)records[i], pdvs.get(id));
             }
 
             if (result != null) {
