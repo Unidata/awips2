@@ -109,6 +109,8 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
  * Mar 06, 2014 2848       bclement    get venueName directly from session
  * Mar 11, 2014 #2865      lvenable    Added null checks in threads
+ * Mar 28, 2014 #2960      lvenable    Added check to make sure the SashForm is not getting
+ *                                     negative weights - set to zero if negative.
  * 
  * </pre>
  * 
@@ -331,6 +333,15 @@ public class SessionView extends AbstractSessionView<VenueParticipant>
                     participantsLabel
                             .setToolTipText("Select to hide participants...");
                 }
+
+                // If the weight value is negative then make it zero since it
+                // cannot have a negative number.
+                for (int i = 0; i < weights.length; i++) {
+                    if (weights[i] < 0) {
+                        weights[i] = 0;
+                    }
+                }
+
                 ((SashForm) parent).setWeights(weights);
                 parent.layout();
             }
