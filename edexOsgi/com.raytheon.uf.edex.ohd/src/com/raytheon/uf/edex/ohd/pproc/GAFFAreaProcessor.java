@@ -19,9 +19,9 @@
  **/
 package com.raytheon.uf.edex.ohd.pproc;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
@@ -33,7 +33,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 8, 2011            mpduff     Initial creation
+ * Jan 08, 2011            mpduff      Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * 
  * </pre>
  * 
@@ -44,7 +45,8 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 public class GAFFAreaProcessor {
     private static final float MISSING_VALUE_FLOAT = -99.0f;
 
-    private Log log = LogFactory.getLog("GenArealFFG");
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(GAFFAreaProcessor.class);
 
     private int xor;
 
@@ -68,7 +70,7 @@ public class GAFFAreaProcessor {
 
     private double avgVal = 0;
 
-    private GAFFDB db = new GAFFDB();
+    private final GAFFDB db = new GAFFDB();
 
     /**
      * Default Constructor.
@@ -105,8 +107,8 @@ public class GAFFAreaProcessor {
                  * read the HRAP bin coords for the area and extract the
                  * information from the blob fields.
                  */
-                Object[] lineSegsRs = db.getLineSegs(areaId); 
-log.debug(lineSegsRs.length + " rows in the lineSegsRs");
+                Object[] lineSegsRs = db.getLineSegs(areaId);
+                log.debug(lineSegsRs.length + " rows in the lineSegsRs");
                 int numRows = lineSegsRs.length;
                 rows = new int[numRows];
                 begCol = new int[numRows];
@@ -132,10 +134,12 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
                 } else {
                     /* compute average FFG value for basin and areal coverage */
                     try {
-                    computeAvgFfg(areaId, lineSegsRs.length, rows, begCol,
-                            endCol);
-                    } catch (Exception e){
-                        e.printStackTrace();
+                        computeAvgFfg(areaId, lineSegsRs.length, rows, begCol,
+                                endCol);
+                    } catch (Exception e) {
+                        log.error(
+                                "Error computing average FFG value for basin and areal coverage",
+                                e);
                     }
                     /*
                      * if average FFG value for basin successfully computed AND
@@ -154,9 +158,8 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
                                 log.error(
                                         "Error inserting data into ContingencyValue table",
                                         e);
-                                e.printStackTrace();
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                log.error("Error writing contingency data", e);
                             }
                         } else {
                             log.info("AreaId = " + areaId
@@ -171,8 +174,6 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
         } else {
             log.info("No basins found in GeoArea table");
         }
-        
-        System.out.println("leaving processAreas()");
     }
 
     /*
@@ -201,7 +202,7 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
                  * originally loaded
                  */
                 int row = rows[i] - yor;
-                
+
                 // Grid starts outside the window
                 if (row < 0) {
                     continue;
@@ -241,7 +242,7 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
          * compute the avg ffg value as the average of all the bins within the
          * area that have valid area_id data.
          */
-        if (log.isDebugEnabled()) {
+        if (log.isPriorityEnabled(Priority.DEBUG)) {
             log.debug(areaId + " bincnts: total: " + totalCnt + "(= valid "
                     + valCnt + " + msg " + missCnt + ")");
         }
@@ -260,7 +261,7 @@ log.debug(lineSegsRs.length + " rows in the lineSegsRs");
             min = 0;
         }
 
-        if (log.isDebugEnabled()) {
+        if (log.isPriorityEnabled(Priority.DEBUG)) {
             log.debug(areaId + ": Sum/Cnt=unadjstd avg => " + sum + "/"
                     + valCnt + " = " + avgVal + "; max,min=" + max + "," + min);
         }
