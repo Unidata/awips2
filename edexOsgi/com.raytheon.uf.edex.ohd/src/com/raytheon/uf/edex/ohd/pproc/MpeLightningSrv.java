@@ -23,8 +23,6 @@ package com.raytheon.uf.edex.ohd.pproc;
 import java.io.File;
 import java.sql.Timestamp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.opengis.metadata.spatial.PixelOrientation;
 
@@ -38,6 +36,8 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.hydro.spatial.HRAP;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
@@ -53,8 +53,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date              Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 06, 2011       5951      jnjanga     Initial creation
- * Jan 10, 2013 1448       bgonzale    Added app context check in runOnSchedule().
+ * Jan 10, 2013      1448       bgonzale    Added app context check in runOnSchedule().
  * Jan 18, 2013       1469      bkowal      Removed the hdf5 data directory.
+ * Mar 28, 2014       2952      mpduff      Changed to use UFStatus for logging.
  * 
  * </pre>
  * 
@@ -80,7 +81,8 @@ public class MpeLightningSrv {
         }
     }
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(MpeLightningSrv.class);
 
     /**
      * Check the metadata Database for new lightning entries.
