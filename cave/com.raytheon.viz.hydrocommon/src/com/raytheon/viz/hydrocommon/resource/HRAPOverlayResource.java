@@ -48,6 +48,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2010 1783       mpduff      Initial creation.
+ * Mar 31, 2014 2689       mpduff      Fixed error introduced during a previous code change.
  * 
  * </pre>
  * 
@@ -101,7 +102,7 @@ public class HRAPOverlayResource extends
             }
 
             for (int y = 0; y < height; ++y) {
-                double[][] line = new double[height][];
+                double[][] line = new double[width][];
                 for (int x = 0; x < width; ++x) {
                     double[] out = new double[2];
                     mt.transform(new double[] { minX + x, minY + y }, 0, out,
