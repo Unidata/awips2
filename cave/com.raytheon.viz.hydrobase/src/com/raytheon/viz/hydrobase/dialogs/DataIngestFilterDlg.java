@@ -74,6 +74,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 11, 2008 1787        askripsk    Connect to DB
  * Apr 18, 2013 1790        rferrel     Make dialog non-blocking.
+ * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * 
  * </pre>
  * 
@@ -1015,6 +1016,9 @@ public class DataIngestFilterDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             updatePopulateList(t);
                         }
                     });
