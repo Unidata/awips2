@@ -91,6 +91,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 06, 2014 2751       bclement    added calls to getParticipantUserid()
  * Mar 07, 2014 2848       bclement    moved pubsub close logic to closePubSub()
  *                                      ensure that subscription is setup before joining room
+ * Mar 31, 2014 2899       mpduff      Improve error messages.
  * 
  * </pre>
  * 
@@ -186,7 +187,7 @@ public class SharedDisplaySession extends VenueSession implements
      * #sendObjectToVenue(java.lang.Object)
      */
     @Override
-    public void sendObjectToVenue(Object obj){
+    public void sendObjectToVenue(Object obj) {
         if (obj == null) {
             return;
         }
@@ -300,15 +301,20 @@ public class SharedDisplaySession extends VenueSession implements
      * configureVenue(java.lang.String)
      */
     @Override
-    public void configureVenue()
-            throws CollaborationException {
+    public void configureVenue() throws CollaborationException {
         try {
             configureSubscription();
         } catch (XMPPException e) {
             closePubSub();
-            throw new CollaborationException(
-                    "Unable to configure subscription", e);
+            int errorCode = e.getXMPPError().getCode();
+            String errorMsg = "Error configuring subscription";
+
+            if (errorCode == 404) {
+                errorMsg = "Shared display session no longer exists.";
+            }
+            throw new CollaborationException(errorMsg, e);
         }
+
         try {
             super.configureVenue();
         } catch (CollaborationException e) {
@@ -675,7 +681,7 @@ public class SharedDisplaySession extends VenueSession implements
                     }
                 }
                 if (topicOwnershipGranted) {
-                    try{
+                    try {
                         revokeTopicOwnership(newLeaderId);
                     } catch (XMPPException e1) {
                         log.error(
@@ -689,7 +695,7 @@ public class SharedDisplaySession extends VenueSession implements
                 log.warn("Problem releasing ownership of " + revokeTarget
                         + ". " + e.getLocalizedMessage());
             }
-        } 
+        }
     }
 
     /*
