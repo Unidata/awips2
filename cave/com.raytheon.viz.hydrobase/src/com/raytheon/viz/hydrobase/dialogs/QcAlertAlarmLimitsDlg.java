@@ -81,6 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 27,2011  11305       lbousaidi   change some logic to have physical
  * 										elements matches the selection of default limits
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
+ * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * 
  * </pre>
  * 
@@ -835,6 +836,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             for (String currPE : peList) {
                                 physElemList.add(currPE);
                                 physElemSelItemList.add(currPE);
@@ -850,6 +854,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             durationCbo.setItems(durList.toArray(new String[0]));
                             updateDialogState(DialogStates.DEFAULT_LIMITS);
                             loadData();
@@ -864,6 +871,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             setBusy(false);
                         }
                     });
