@@ -7,7 +7,7 @@
 	<property name="includegen.filter" value="raytheon|collaboration.dataserver" />
 	<property name="basedirectories" value="${workspace}/edexOsgi;${workspace}/javaUtilities;${workspace}/cots" />
 
-	<property name="tmp.dir" value="${basedir}/tmp" />
+	<property name="tmp.dir" value="/tmp/collab-dataserver" />
 	<property name="includes.directory" value="${tmp.dir}/includes" />
 	<property name="tmp.src.dir" value="${tmp.dir}/src" />
 	<property name="tmp.bin.dir" value="${tmp.dir}/bin" />
