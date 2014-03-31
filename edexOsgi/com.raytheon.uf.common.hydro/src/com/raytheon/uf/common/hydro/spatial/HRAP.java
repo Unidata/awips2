@@ -49,6 +49,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 16, 2008            randerso     Initial creation
+ * Mar 31, 2014     2689   mpduff      Log input values on conversion failure.
  * </pre>
  * 
  * @author randerso
@@ -91,13 +92,13 @@ public class HRAP {
 
     private String projectionID;
 
-    private Coordinate latLonUL;
+    private final Coordinate latLonUL;
 
     private Coordinate latLonUR;
 
     private Coordinate latLonLL;
 
-    private Coordinate latLonLR;
+    private final Coordinate latLonLR;
 
     private Coordinate latLonOrigin;
 
@@ -117,9 +118,9 @@ public class HRAP {
 
     private CoordinateReferenceSystem crs;
 
-    private Map<PixelOrientation, MathTransform> toLatLonMap;
+    private final Map<PixelOrientation, MathTransform> toLatLonMap;
 
-    private Map<PixelOrientation, MathTransform> fromLatLonMap;
+    private final Map<PixelOrientation, MathTransform> fromLatLonMap;
 
     private GridToEnvelopeMapper gridMapper;
 
@@ -426,7 +427,8 @@ public class HRAP {
             JTS.transform(latLon, gridCell, getTransformFromLatLon(orientation));
         } catch (TransformException e) {
             throw new Exception(
-                    "Error creating transform from Lat/Lon to HRAP", e);
+                    "Error creating transform from Lat/Lon to HRAP.  Input: x ["
+                            + latLon.x + "], y [" + latLon.y + "]", e);
         }
         return gridCell;
     }
