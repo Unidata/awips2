@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.edex.archive;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,12 +27,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -39,6 +43,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.cluster.handler.CurrentTimeClusterLockHandler;
+import com.raytheon.uf.edex.database.cluster.handler.SharedLockHandler;
+import com.raytheon.uf.edex.database.cluster.handler.SharedLockHandler.LockType;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 
@@ -59,6 +65,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Nov 11, 2013 2478       rjpeter     Updated data store copy to always copy hdf5.
  * Dec 13, 2013 2555       rjpeter     Refactored logic into DatabaseArchiveProcessor.
  * Feb 12, 2014 2784       rjpeter     Fixed clusterLock to not update the time by default.
+ * Apr 01, 2014 2862       rferrel     Add exclusive lock at plug-in level.
  * </pre>
  * 
  * @author rjpeter
@@ -108,6 +115,23 @@ public class DatabaseArchiver implements IPluginArchiver {
 
     private final boolean compressDatabaseFiles;
 
+    /** Task to update the lock time for the locked plugin cluster task. */
+    private static final class LockUpdateTask extends TimerTask {
+        /** The locked cluster task's details. */
+        private final String details;
+
+        public LockUpdateTask(String details) {
+            this.details = details;
+        }
+
+        @Override
+        public void run() {
+            long currentTime = System.currentTimeMillis();
+            ClusterLockUtils.updateLockTime(SharedLockHandler.name, details,
+                    currentTime);
+        }
+    }
+
     /**
      * The constructor.
      */
@@ -138,7 +162,61 @@ public class DatabaseArchiver implements IPluginArchiver {
         }
     }
 
-    public boolean archivePluginData(String pluginName, String archivePath) {
+    /**
+     * Attempt to get exclusive consumer's writer lock.
+     * 
+     * @param details
+     * @return clusterTask when getting lock successful otherwise null
+     */
+    private ClusterTask getWriteLock(String details) {
+        SharedLockHandler lockHandler = new SharedLockHandler(LockType.WRITER);
+        ClusterTask ct = ClusterLockUtils.lock(SharedLockHandler.name, details,
+                lockHandler, false);
+        if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.handle(Priority.INFO, String.format(
+                        "Locked: \"%s\"", ct.getId().getDetails()));
+            }
+        } else {
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.handle(Priority.INFO, String.format(
+                        "Skip database Archive unable to lock: \"%s\"", ct
+                                .getId().getDetails()));
+            }
+            ct = null;
+        }
+
+        return ct;
+    }
+
+    /**
+     * Unlock the consumer's lock.
+     * 
+     * @param ct
+     */
+    private void releaseWriteLock(ClusterTask ct) {
+        if (ClusterLockUtils.unlock(ct, false)) {
+            if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                statusHandler.handle(Priority.INFO, String.format(
+                        "Unlocked: \"%s\"", ct.getId().getDetails()));
+            }
+        } else {
+            if (statusHandler.isPriorityEnabled(Priority.PROBLEM)) {
+                statusHandler.handle(Priority.PROBLEM, String.format(
+                        "Unable to unlock: \"%s\"", ct.getId().getDetails()));
+            }
+        }
+    }
+
+    public void archivePluginData(String pluginName, String archivePath) {
+        File archiveDir = new File(archivePath);
+        File pluginDir = new File(archiveDir, pluginName);
+        ClusterTask ctPlugin = getWriteLock(pluginDir.getAbsolutePath());
+
+        if (ctPlugin == null) {
+            return;
+        }
+
         SimpleDateFormat dateFormat = TL_DATE_FORMAT.get();
         // set archive time
         Calendar runTime = TimeUtil.newGmtCalendar();
@@ -150,7 +228,8 @@ public class DatabaseArchiver implements IPluginArchiver {
         ClusterTask ct = ClusterLockUtils.lock(TASK_NAME, pluginName,
                 lockHandler, false);
         if (!LockState.SUCCESSFUL.equals(ct.getLockState())) {
-            return true;
+            releaseWriteLock(ctPlugin);
+            return;
         }
 
         // keep extra info the same until processing updates the time.
@@ -160,6 +239,11 @@ public class DatabaseArchiver implements IPluginArchiver {
         long timimgStartMillis = System.currentTimeMillis();
         int recordCount = 0;
         statusHandler.info(pluginName + ": Archiving plugin");
+
+        Timer lockUpdateTimer = new Timer("Update Shared Lock Time", true);
+        TimerTask task = new LockUpdateTask(ctPlugin.getId().getDetails());
+        lockUpdateTimer.schedule(task, TimeUtil.MILLIS_PER_MINUTE,
+                TimeUtil.MILLIS_PER_MINUTE);
 
         try {
             // lookup dao
@@ -171,7 +255,7 @@ public class DatabaseArchiver implements IPluginArchiver {
                         .error(pluginName
                                 + ": Error getting data access object!  Unable to archive data!",
                                 e);
-                return false;
+                return;
             }
 
             startTime = determineStartTime(pluginName, ct.getExtraInfo(),
@@ -236,9 +320,21 @@ public class DatabaseArchiver implements IPluginArchiver {
                 // release lock setting archive time in cluster lock
                 ClusterLockUtils.unlock(ct, false);
             }
+
+            /*
+             * Stop updating ctPlugin's last execution time before releasing the
+             * cluster's lock.
+             */
+            if (lockUpdateTimer != null) {
+                lockUpdateTimer.cancel();
+            }
+
+            if (ctPlugin != null) {
+                releaseWriteLock(ctPlugin);
+            }
         }
 
-        return true;
+        return;
     }
 
     /**
