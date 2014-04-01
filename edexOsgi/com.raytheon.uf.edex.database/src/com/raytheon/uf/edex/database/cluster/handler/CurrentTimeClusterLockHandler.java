@@ -26,7 +26,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
 
 /**
- * TODO Add Description
+ * This class allows a lock in the cluster task table to be overridden when the
+ * last execution time is older then the current time by a specified amount.
  * 
  * <pre>
  * 
@@ -35,6 +36,8 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 15, 2010            rjpeter     Initial creation
+ * Apr 08, 2014 2862       rferrel     Changes to properly allow statusHandler
+ *                                      to pickup sub-class.
  * 
  * </pre>
  * 
@@ -43,8 +46,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterTask;
  */
 
 public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
-    private static final transient IUFStatusHandler handler = UFStatus
-            .getHandler(CurrentTimeClusterLockHandler.class);
+    protected final IUFStatusHandler statusHandler;
 
     protected long checkTime;
 
@@ -62,8 +64,7 @@ public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
      * @param extraInfo
      */
     public CurrentTimeClusterLockHandler(long timeOutOverride, String extraInfo) {
-        this.timeOutOverride = timeOutOverride;
-        this.extraInfo = extraInfo;
+        this(timeOutOverride, extraInfo, true);
     }
 
     /**
@@ -76,8 +77,7 @@ public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
      */
     public CurrentTimeClusterLockHandler(long timeOutOverride,
             boolean saveExtraInfoOnLock) {
-        this.timeOutOverride = timeOutOverride;
-        this.saveExtraInfoOnLock = saveExtraInfoOnLock;
+        this(timeOutOverride, null, saveExtraInfoOnLock);
     }
 
     /**
@@ -91,6 +91,7 @@ public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
      */
     public CurrentTimeClusterLockHandler(long timeOutOverride,
             String extraInfo, boolean saveExtraInfoOnLock) {
+        this.statusHandler = UFStatus.getHandler(this.getClass());
         this.timeOutOverride = timeOutOverride;
         this.extraInfo = extraInfo;
         this.saveExtraInfoOnLock = saveExtraInfoOnLock;
@@ -105,18 +106,19 @@ public class CurrentTimeClusterLockHandler implements IClusterLockHandler {
             ls = LockState.ALREADY_RUNNING;
             // Override
             if (checkTime > ct.getLastExecution() + timeOutOverride) {
-                if (handler.isPriorityEnabled(Priority.INFO)) {
-                    handler.handle(
-                            Priority.INFO,
-                            "Overriding lock for cluster task ["
-                                    + ct.getId().getName()
-                                    + "/"
-                                    + ct.getId().getDetails()
-                                    + "] time out ["
-                                    + timeOutOverride
-                                    + "] exceeded by "
-                                    + (checkTime - (ct.getLastExecution() + timeOutOverride))
-                                    + " ms.");
+                if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                    statusHandler
+                            .handle(Priority.INFO,
+                                    "Overriding lock for cluster task ["
+                                            + ct.getId().getName()
+                                            + "/"
+                                            + ct.getId().getDetails()
+                                            + "] time out ["
+                                            + timeOutOverride
+                                            + "] exceeded by "
+                                            + (checkTime - (ct
+                                                    .getLastExecution() + timeOutOverride))
+                                            + " ms.");
                 }
                 ls = LockState.SUCCESSFUL;
             }
