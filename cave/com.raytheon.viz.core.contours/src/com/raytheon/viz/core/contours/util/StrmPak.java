@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.numeric.array.FloatArray2DWrapper;
+import com.raytheon.uf.common.numeric.filter.DataFilter;
 import com.raytheon.uf.common.numeric.source.AxisSwapDataSource;
 import com.raytheon.uf.common.numeric.source.DataSource;
+import com.raytheon.uf.common.numeric.source.FilteredDataSource;
 import com.raytheon.viz.core.contours.util.StreamLineContainer.StreamLinePoint;
 
 /**
@@ -131,7 +133,8 @@ public final class StrmPak {
     private final PointValueBuffer<Float> JPnt;
 
     /**
-     * Generate streamlines using column major float data.
+     * Generate streamlines using column major float data. The u component is
+     * assumed to moving in the opposite direction of the x axis.
      * 
      * @param uComp
      *            data values for the u component of the vector
@@ -153,6 +156,13 @@ public final class StrmPak {
         DataSource vSource = new FloatArray2DWrapper(vComp, ny, nx);
         uSource = new AxisSwapDataSource(uSource);
         vSource = new AxisSwapDataSource(vSource);
+        uSource = FilteredDataSource.addFilters(uSource, new DataFilter() {
+
+            @Override
+            public double filter(double value) {
+                return -value;
+            }
+        });
         return strmpak(uSource, vSource, nx, ny, config);
     }
 
@@ -521,14 +531,14 @@ public final class StrmPak {
                         influx = V.getDataValue(i, j) * (1.0f - x)
                                 + V.getDataValue(ii, j) * x;
                     } else if (side0 == 2) {
-                        influx = -(U.getDataValue(ii, j) * (1.0f - y) + U
-                                .getDataValue(ii, jj) * y);
+                        influx = U.getDataValue(ii, j) * (1.0f - y)
+                                + U.getDataValue(ii, jj) * y;
                     } else if (side0 == 3) {
                         influx = -(V.getDataValue(i, jj) * (1.0f - x) + V
                                 .getDataValue(ii, jj) * x);
                     } else {
-                        influx = U.getDataValue(i, j) * (1.0f - y)
-                                + U.getDataValue(i, jj) * y;
+                        influx = -(U.getDataValue(i, j) * (1.0f - y) + U
+                                .getDataValue(i, jj) * y);
                     }
                     if (influx < 0.0f) {
                         dirflg = -1.0f;
@@ -647,12 +657,12 @@ public final class StrmPak {
                         float[] Flux = { Float.NaN,
                                 (-dirflg) * (float) V.getDataValue(i, j),
                                 (-dirflg) * (float) V.getDataValue(ii, j),
-                                dirflg * (float) U.getDataValue(ii, j),
-                                dirflg * (float) U.getDataValue(ii, jj),
+                                (-dirflg) * (float) U.getDataValue(ii, j),
+                                (-dirflg) * (float) U.getDataValue(ii, jj),
                                 dirflg * (float) V.getDataValue(ii, jj),
                                 dirflg * (float) V.getDataValue(i, jj),
-                                (-dirflg) * (float) U.getDataValue(i, jj),
-                                (-dirflg) * (float) U.getDataValue(i, j) };
+                                dirflg * (float) U.getDataValue(i, jj),
+                                dirflg * (float) U.getDataValue(i, j) };
 
                         // Count total number of in, out, and zero contributions
                         // to net flux.
