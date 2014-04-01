@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 26, 2011 10043      rferrel     Modified identifyReports to
  *                                     have checks like A1.
  * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
+ * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * </pre>
  * 
  * @author jkorman
@@ -69,7 +70,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
     @Override
     protected void createProductId() {
         String ispanId = createIspanId(getWmoHeader());
-        String afosId = staticData.getProductId(ispanId);
+        String afosId = TextDBStaticData.getProductId(ispanId);
 
         if (afosId != null) {
             productId = new AFOSProductId(afosId);
@@ -87,11 +88,11 @@ public class StdTextSeparator extends WMOMessageSeparator {
         WMOHeader wmoHeader = getWmoHeader();
         String ispanId = createIspanId(wmoHeader);
 
-        String product_id = TextDBStaticData.instance(siteId).getProductId(
-                ispanId);
+        String product_id = TextDBStaticData.getProductId(ispanId);
 
         // check whether to exclude from decoding for storage
-        if (product_id != null && staticData.isExcluded(product_id.toString())) {
+        if (product_id != null
+                && TextDBStaticData.isExcluded(product_id.toString())) {
             logger.debug("NCF_ENTRY " + product_id.toString() + " is skipped");
             return;
         }
@@ -196,7 +197,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
         }
 
         // check whether incoming product is excluded from storage
-        if (staticData.isExcluded(product_id.toString())) {
+        if (TextDBStaticData.isExcluded(product_id.toString())) {
             logger.debug("NCF_ENTRY " + product_id.toString() + " is skipped");
             return true;
         }
@@ -354,7 +355,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
         // table.
         if (stdFlg) {
             logger.trace("Mapping from stdflag.");
-            newId = staticData.getProductId(ispanId);
+            newId = TextDBStaticData.getProductId(ispanId);
             if (newId == null) {
                 // logger.error("Unable to create AFOS id - ispan table.");
                 return false;
@@ -368,7 +369,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
 
             // Check to see if the product is a non-collective METAR (out of
             // country), and map against the ISPAN table to get the id.
-            newId = staticData.getProductId(ispanId);
+            newId = TextDBStaticData.getProductId(ispanId);
             if (newId == null) {
                 // logger.error("Unable to create AFOS id - ispan table");
                 return false;
@@ -381,16 +382,16 @@ public class StdTextSeparator extends WMOMessageSeparator {
 
         // Try to map the nnnId with the bit table for a national bit product;
         // otherwise, check the AFOS table for the ccc value of the origin.
-        newId = staticData.getSiteIdFromNNN(nnnId);
+        newId = TextDBStaticData.getSiteIdFromNNN(nnnId, siteId);
 
         if (newId == null) {
-            cccId = staticData.getAFOSTableMap(origin);
+            cccId = TextDBStaticData.getAFOSTableMap(origin);
             if (cccId == null) {
                 if (nnnxxx.length() >= 6) {
-                    cccId = staticData.getAFOSTableMap("K"
+                    cccId = TextDBStaticData.getAFOSTableMap("K"
                             + nnnxxx.substring(3, 6));
                 } else if (nnnxxx.length() > 3) {
-                    cccId = staticData.getAFOSTableMap("K"
+                    cccId = TextDBStaticData.getAFOSTableMap("K"
                             + nnnxxx.substring(3));
                 }
                 if (cccId == null) { // KWBC RCM,VER
@@ -421,7 +422,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
         if ((newId.length() < 7) || (newId.length() > 9)) {
             // If the length is bad, try mapping to the ispan table with the
             // ispan id.
-            newId = staticData.getProductId(ispanId);
+            newId = TextDBStaticData.getProductId(ispanId);
             if (newId == null) {
                 // logger.error("Unable to create AFOS id - ispan table");
                 return false;
@@ -445,7 +446,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
                     }
                 }
                 if (badflag) {
-                    newId = staticData.getProductId(ispanId);
+                    newId = TextDBStaticData.getProductId(ispanId);
                     if (newId == null) {
                         // logger.error("Invalid product - ispan table.");
                         return false;
@@ -458,7 +459,7 @@ public class StdTextSeparator extends WMOMessageSeparator {
                     }
                 }
             } else {
-                newId = staticData.getProductId(ispanId);
+                newId = TextDBStaticData.getProductId(ispanId);
                 if (newId == null) {
                     // logger.error("Invalid product - ispan table.");
                     return false;
