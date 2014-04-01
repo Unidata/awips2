@@ -18,7 +18,7 @@ Export-Package: com.raytheon.edex.textdb.alarms,
  com.raytheon.edex.textdb.dao,
  com.raytheon.edex.textdb.dbapi.impl,
  com.raytheon.edex.textdb.fax
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.serialization.comm,
  org.apache.commons.logging

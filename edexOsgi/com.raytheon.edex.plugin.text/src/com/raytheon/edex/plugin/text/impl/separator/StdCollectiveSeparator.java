@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.text.impl.TextSeparatorFactory;
+import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
@@ -46,6 +47,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Mar 06, 2014 2652       skorolev    Corrected rawMsg extraction.
  * Mar 14, 2014 2652       skorolev    Changed logging for skipped headers.
  *                                     Fixed calculation of message end.
+ * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * </pre>
  * 
  * @author jkorman
@@ -92,7 +94,8 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
     protected void createProductId() {
         WMOHeader wmoHeader = getWmoHeader();
         String hdr = wmoHeader.getWmoHeader();
-        String afosId = staticData.matchStdCollective(createDataDes(wmoHeader));
+        String afosId = TextDBStaticData
+                .matchStdCollective(createDataDes(wmoHeader));
 
         if (afosId != null) {
             // String ccc = SiteMap.getInstance().getCCCFromXXXCode(siteId);
@@ -269,8 +272,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
                             // filter out junk characters
                             while (buffer.length() > 0
-                                    && !checkCharNum(buffer.charAt(0)))
+                                    && !checkCharNum(buffer.charAt(0))) {
                                 buffer.deleteCharAt(0);
+                            }
 
                             // again, trash data if it is less than 20 bytes
                             if (buffer.length() < MIN_COLL_DATA_LEN) {
@@ -444,8 +448,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         } else if (buffer.charAt(0) == (char) 0x1e) {
             parsedMsg.setLength(parsedMsg.length() - 3);
         } else if (buffer.charAt(0) == '=') {
-            if (safeStrpbrk(buffer, CSPL))
+            if (safeStrpbrk(buffer, CSPL)) {
                 buffer.deleteCharAt(0);
+            }
         } else if ((buffer.charAt(0) == EOM)
                 && (parsedMsg.length() > (MIN_COLL_DATA_LEN - 1))) {
             checkFouHeader = true;
@@ -458,8 +463,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         if ((reportType != null)
                 && (reportType.equals("METAR") || reportType.equals("SPECI")
                         || reportType.equals("TESTM") || reportType
-                            .equals("TESTS")))
+                            .equals("TESTS"))) {
             parsedMsg.insert(0, reportType + " ");
+        }
     }
 
     /**
@@ -483,20 +489,18 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
         // If this is a national bit product, then CCC = CCC of the current
         // site.
-        if ("AAA".equals(afos_id.getCcc()))
+        if ("AAA".equals(afos_id.getCcc())) {
             CCC_id = SiteMap.getInstance().getCCCFromXXXCode(siteId);
-        // Otherwise, use the national category table to get the CCC from the
-        // XXX
-        else if ((CCC_id = staticData.mapICAOToCCC(XXX_id.toString())) == null) {
+        } else if ((CCC_id = TextDBStaticData.mapICAOToCCC(XXX_id.toString())) == null) {
             // We failed to get a CCC from the national_category_table...
 
             // If the XXX is 3 characters, and the origin starts with K, try
             // prepending K or P (the latter for AK, HI products)
             if (trimmedXXX.length() == 3 && origin.startsWith("K")) {
                 newId = "K" + trimmedXXX;
-                if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
+                if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
                     newId = "P" + trimmedXXX;
-                    if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
+                    if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
                         // logger.error("NCF_FAIL to map XXX to CCC: " +
                         // XXX_id);
                         subHeadersSkipped
@@ -514,7 +518,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             // character of the origin.
             else if (trimmedXXX.length() == 3) {
                 newId = origin.charAt(0) + trimmedXXX;
-                if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
+                if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
                     subHeadersSkipped
                             .put(newWmoHdr,
                                     "Product "
@@ -533,7 +537,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                                             + " is excluded from storage due to incorrect xxxid"
                                             + XXX_id);
                     return false;
-                } else
+                } else {
                     // If trimmedXXX has 4 characters and not found in
                     // national_category_table.template.
                     subHeadersSkipped
@@ -543,6 +547,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                                             + " is excluded from storage due to "
                                             + trimmedXXX
                                             + " not present in national_category_table.template");
+                }
                 return false;
             }
         }
@@ -554,10 +559,11 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         product_id.setNnn(afos_id.getNnn());
 
         // Put all three of the id pieces together.
-        if (trimmedXXX.length() == 3)
+        if (trimmedXXX.length() == 3) {
             product_id.setXxx(trimmedXXX);
-        else
+        } else {
             product_id.setXxx(XXX_id.substring(1, 4));
+        }
         return true;
     }
 }
