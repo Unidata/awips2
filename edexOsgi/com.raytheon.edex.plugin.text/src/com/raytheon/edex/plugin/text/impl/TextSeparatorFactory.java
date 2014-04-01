@@ -39,16 +39,19 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * TODO Add Description
  * 
  * <pre>
+ * 
  * SOFTWARE HISTORY
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 12, 2008            jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Finished implementation.
- * 06/29/2012   15154      D. Friedman Fix detection of TAF collectives.
- * ======================================
- * AWIPS2 DR Work
- * 07/25/2012          959 jkorman     Modified order of entry for determining
- * the data type (standard or collective) for input data.
+ * Jun 29, 2012 15154      D. Friedman Fix detection of TAF collectives.
+ * Jul 25, 2012 959        jkorman     Modified order of entry for determining
+ *                                     the data type (standard or collective)
+ *                                     for input data.
+ * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * 
  * </pre>
  * 
  * @author jkorman
@@ -62,9 +65,6 @@ public class TextSeparatorFactory {
 
     private static final String siteId = PropertiesFactory.getInstance()
             .getEnvProperties().getEnvValue("SITENAME");
-
-    private static final TextDBStaticData staticData = TextDBStaticData
-            .instance(siteId);
 
     private static Pattern TAF_PTRN = Pattern.compile("^TAF\\s*$");
 
@@ -113,7 +113,7 @@ public class TextSeparatorFactory {
                                     wmoHeader, TextDecoderMode.WARN);
                             break;
                         }
-                            // These message types fall through.
+                        // These message types fall through.
                         case MSG_UNKNOWN:
                         case MSG_DISCARD:
                         default: {
@@ -199,11 +199,11 @@ public class TextSeparatorFactory {
 
                 // Maintain this order of entry so that Standard Text products
                 // are checked before collectives.
-                if ((stdAfosId = staticData.getProductId(ispanId)) != null) {
+                if ((stdAfosId = TextDBStaticData.getProductId(ispanId)) != null) {
                     msgType = WMOMessageType.STD_TEXT;
-                } else if (staticData.matchStdCollective(dataDes) != null) {
+                } else if (TextDBStaticData.matchStdCollective(dataDes) != null) {
                     msgType = WMOMessageType.STD_COLLECTIVE;
-                } else if (staticData.matchUACollective(dataDes) != null) {
+                } else if (TextDBStaticData.matchUACollective(dataDes) != null) {
                     msgType = WMOMessageType.UA_COLLECTIVE;
                 }
 
@@ -211,11 +211,11 @@ public class TextSeparatorFactory {
                 if (msgType == null) {
                     if (!hdr.startsWith("SXUS70")
                             && !hdr.startsWith("FRUS45")
-                            && (firstLineLen > 6 || 
-                                    TAF_PTRN.matcher(firstLine).matches())
+                            && (firstLineLen > 6 || TAF_PTRN.matcher(firstLine)
+                                    .matches())
                             && (hdr.startsWith("SA") || hdr.startsWith("SP")
                                     || hdr.startsWith("FR") || hdr
-                                    .startsWith("FT"))) {
+                                        .startsWith("FT"))) {
                         msgType = WMOMessageType.STD_COLLECTIVE;
                     } else if (!hdr.startsWith("UAXX")
                             && firstLineLen > 6
@@ -223,12 +223,12 @@ public class TextSeparatorFactory {
                                     || hdr.startsWith("UI")
                                     || hdr.startsWith("UM")
                                     || hdr.startsWith("UP") || hdr
-                                    .startsWith("US"))) {
+                                        .startsWith("US"))) {
                         msgType = WMOMessageType.UA_COLLECTIVE;
                     } else if (ispanId.startsWith("W")
                             || ("NOUS71KNCF".equals(ispanId)
                                     || "NTUS96KNCF".equals(ispanId) || "NTUS98KNCF"
-                                    .equals(ispanId))) {
+                                        .equals(ispanId))) {
                         msgType = WMOMessageType.WARN;
                     } else {
                         msgType = WMOMessageType.STD_TEXT;
@@ -237,7 +237,7 @@ public class TextSeparatorFactory {
 
                 if (WMOMessageType.STD_TEXT.equals(msgType)
                         && stdAfosId != null) {
-                    if (staticData.isExcluded(stdAfosId)) {
+                    if (TextDBStaticData.isExcluded(stdAfosId)) {
                         logger.debug("NCF_ENTRY " + ispanId + " is skipped");
                     }
                 }
