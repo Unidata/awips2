@@ -43,8 +43,9 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 5, 2012            bsteffen     Initial creation
+ * Jul  5, 2012            bsteffen    Initial creation
  * Jan 28, 2014 2698       bclement    changed sessionName to sessionId
+ * Mar 31, 2014 2937       bgonzale    Use session name for log retrieval.
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class ArchiveViewerAction extends Action {
     public ArchiveViewerAction(IVenueSession session) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionId = session.getVenue().getId();
+        sessionId = session.getVenue().getName();
     }
 
     @Override
