@@ -69,7 +69,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class TearOffMenuDialog extends CaveSWTDialog {
 
-    private MenuPathElement[] menuPath;
+    private final MenuPathElement[] menuPath;
 
     private Menu menu;
 
@@ -82,6 +82,8 @@ public class TearOffMenuDialog extends CaveSWTDialog {
      * changes Simulated time.
      */
     ISimulatedTimeChangeListener stcl;
+
+    private Listener swtListener;
 
     /**
      * @param parentShell
@@ -152,12 +154,15 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         int y = point.y;
         shell.setLocation(x, y);
 
-        shell.addListener(SWT.Show, new Listener() {
+        swtListener = new Listener() {
             @Override
             public void handleEvent(Event event) {
                 updateItems();
             }
-        });
+
+        };
+        shell.addListener(SWT.Show, swtListener);
+        menu.addListener(SWT.Show, swtListener);
     }
 
     /*
@@ -208,6 +213,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         for (Control control : fullComp.getChildren()) {
             control.dispose();
         }
+
+        shell.removeListener(SWT.Show, swtListener);
+        menu.removeListener(SWT.Show, swtListener);
         super.disposed();
     }
 
@@ -216,10 +224,12 @@ public class TearOffMenuDialog extends CaveSWTDialog {
      */
     private void updateItems() {
         Menu menu = getMenuIfAvailable();
-        if (menu == null)
+        if (menu == null) {
             return;
-        for (MenuItemComposite mic : getMenuItemComposites())
+        }
+        for (MenuItemComposite mic : getMenuItemComposites()) {
             mic.reconnect();
+        }
         for (MenuItem item : menu.getItems()) {
             if (item.getData() instanceof BundleContributionItem) {
                 ((BundleContributionItem) item.getData()).refreshText();
@@ -230,8 +240,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
     private List<MenuItemComposite> getMenuItemComposites() {
         List<MenuItemComposite> result = new ArrayList<MenuItemComposite>();
         for (Control c : fullComp.getChildren()) {
-            if (c instanceof MenuItemComposite)
+            if (c instanceof MenuItemComposite) {
                 result.add((MenuItemComposite) c);
+            }
         }
         return result;
     }
@@ -243,10 +254,11 @@ public class TearOffMenuDialog extends CaveSWTDialog {
      */
     private static String getCleanMenuItemText(String text) {
         int pos = text.indexOf('\t');
-        if (pos >= 0)
+        if (pos >= 0) {
             return text.substring(0, pos);
-        else
+        } else {
             return text;
+        }
     }
 
     private Menu getMenuIfAvailable() {
@@ -256,22 +268,23 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         return menu;
     }
 
-    /*package*/ Menu getTargetMenu() {
+    /* package */Menu getTargetMenu() {
         Menu menu = getMenuIfAvailable();
         if (menu == null) {
-            throw new IllegalStateException(
-                    String.format("Tear-off menu %s is not available", shell.getText()));
+            throw new IllegalStateException(String.format(
+                    "Tear-off menu %s is not available", shell.getText()));
         }
-        if (menu.getItems().length == 0)
+        if (menu.getItems().length == 0) {
             tryToFillMenu(menu);
+        }
         return menu;
     }
 
     private void tryToFillMenu(Menu menu) {
         /*
-         * Menu may not have been created so call listeners. This still does
-         * not work if all of the menu items need the workbench window to be
-         * active in order to be enabled.
+         * Menu may not have been created so call listeners. This still does not
+         * work if all of the menu items need the workbench window to be active
+         * in order to be enabled.
          */
 
         Shell shell = this.shell.getParent().getShell();
@@ -294,14 +307,17 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         MenuPathElement lastPathElement = null;
         for (int i = 0; i < menuPath.length; ++i) {
             MenuItem mi = findItem(container, menuPath[i]);
-            if (mi == null)
+            if (mi == null) {
                 return null;
+            }
             Menu mim = mi.getMenu();
-            if (mim == null)
+            if (mim == null) {
                 throw new IllegalStateException(String.format(
                         "Could not get target menu \"%s\" in %s",
-                        menuPath[i].getName(), lastPathElement != null ?
-                            '"' + lastPathElement.getName() + '"' : "menu bar"));
+                        menuPath[i].getName(),
+                        lastPathElement != null ? '"' + lastPathElement
+                                .getName() + '"' : "menu bar"));
+            }
             tryToFillMenu(mim);
             container = mim;
             lastPathElement = menuPath[i];
@@ -310,39 +326,47 @@ public class TearOffMenuDialog extends CaveSWTDialog {
     }
 
     /**
-     * Identifies a specific item in an SWT menu.  It has been observed that
+     * Identifies a specific item in an SWT menu. It has been observed that
      * associated data of a menu item maintains the same identity during a CAVE
-     * session even if the MenuItem is recreated.  However, the associated
-     * data is not always unique.  Menu item text is used to differentiate.
+     * session even if the MenuItem is recreated. However, the associated data
+     * is not always unique. Menu item text is used to differentiate.
      */
     static class MenuPathElement {
         Object data;
+
         String cleanText;
+
         public MenuPathElement(MenuItem item) {
             data = item.getData();
             cleanText = getCleanMenuItemText(item.getText());
         }
+
         public int getMatchLevel(MenuItem item) {
             int level = 0;
-            if (item.getData() == data)
+            if (item.getData() == data) {
                 ++level;
-            if (cleanText.equals(item.getText()))
+            }
+            if (cleanText.equals(item.getText())) {
                 ++level;
+            }
             return level;
         }
+
         public String getName() {
-            if (cleanText != null && cleanText.length() > 0)
+            if (cleanText != null && cleanText.length() > 0) {
                 return cleanText;
+            }
             Object value = data;
-            if (value instanceof MenuManager)
+            if (value instanceof MenuManager) {
                 value = ((MenuManager) value).getId();
-            else if (value instanceof ContributionItem)
+            } else if (value instanceof ContributionItem) {
                 value = ((ContributionItem) value).getId();
+            }
             return String.valueOf(value);
         }
     }
 
-    /*package*/ static MenuItem findItem(Menu menu, MenuPathElement pe) {
+    /* package */static MenuItem findItem(Menu menu, MenuPathElement pe) {
         MenuItem best = null;
         int bestLevel = 0;
         for (MenuItem item : menu.getItems()) {
@@ -359,8 +383,9 @@ public class TearOffMenuDialog extends CaveSWTDialog {
         ArrayList<MenuPathElement> data = new ArrayList<MenuPathElement>();
         while (menu != null) {
             MenuItem mi = menu.getParentItem();
-            if (mi == null)
+            if (mi == null) {
                 break;
+            }
             data.add(new MenuPathElement(mi));
             menu = menu.getParentMenu();
         }
