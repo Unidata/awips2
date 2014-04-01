@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<translationTable bufrTable="0 20 011" description="Cloud amount">
+    <!-- mapped value for 'totCloudAmount' comes from the Synoptic Code table 2700 -->
+    <entry indexRange="0" description="0">
+        <mappedValue parameter="totCloudAmount" value="0"/>
+    </entry>
+    <entry indexRange="1" description="1 okta or less, but not zero; 1/10 or less, but not zero">
+        <mappedValue parameter="totCloudAmount" value="1"/>
+    </entry>
+    <entry indexRange="2" description="2 oktas; 2/10-3/10">
+        <mappedValue parameter="totCloudAmount" value="2"/>
+    </entry>
+    <entry indexRange="3" description="3 oktas; 4/10">
+        <mappedValue parameter="totCloudAmount" value="3"/>
+    </entry>
+    <entry indexRange="4" description="4 oktas; 5/10">
+        <mappedValue parameter="totCloudAmount" value="4"/>
+    </entry>
+    <entry indexRange="5" description="5 oktas; 6/10">
+        <mappedValue parameter="totCloudAmount" value="5"/>
+    </entry>
+    <entry indexRange="6" description="6 oktas; 7/10-8/10">
+        <mappedValue parameter="totCloudAmount" value="6"/>
+    </entry>
+    <entry indexRange="7" description="7 oktas or more, but not 8 oktas; 9/10 or more, but not 10/10">
+        <mappedValue parameter="totCloudAmount" value="7"/>
+    </entry>
+    <entry indexRange="8" description="8 oktas; 10/10">
+        <mappedValue parameter="totCloudAmount" value="8"/>
+    </entry>
+    <entry indexRange="9" description="Sky obscured by fog and/or other meteorological phenomena">
+        <mappedValue parameter="totCloudAmount" value="9"/>
+    </entry>
+    <entry indexRange="10" description="Sky partially obscured by fog and/or other meteorological phenomena">
+        <mappedValue parameter="totCloudAmount" value="9"/>
+    </entry>
+    <!-- sfc obs does not support these -->
+    <entry indexRange="11" description="Scattered">
+        <mappedValue parameter="totCloudAmount"/>
+    </entry>
+    <entry indexRange="12" description="Broken">
+        <mappedValue parameter="totCloudAmount"/>
+    </entry>
+    <entry indexRange="13" description="Few">
+        <mappedValue parameter="totCloudAmount"/>
+    </entry>
+    <entry indexRange="14" description="Reserved">
+        <mappedValue parameter="totCloudAmount"/>
+    </entry>
+    <entry indexRange="15" description="Cloud cover is Indiscernible for reasons other than fog or other meteorological phenomena, or observation is not made">
+        <mappedValue parameter="totCloudAmount"/>
+    </entry>
+</translationTable>
