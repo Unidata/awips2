@@ -21,31 +21,42 @@ package com.raytheon.edex.textdb.dbapi.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.util.CollectionUtil;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.StringUtil;
 
 /**
- * TODO Add Description
+ * A singleton class that maintains static data used by the TextDB (e.g., the
+ * mappings needed to perform lookups for AFOS and WMO IDs). Data is lazily
+ * loaded by data file.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Sep 2, 2008        1538 jkorman     Initial creation
+ * Sep 02, 2008 1538       jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Added additional methods.
+ * Apr 01, 2014 2915       dgilling    Major re-factor, all methods are now
+ *                                     static.
  * </pre>
  * 
  * @author jkorman
@@ -53,6 +64,9 @@ import com.raytheon.uf.common.site.SiteMap;
  */
 
 public class TextDBStaticData {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TextDBStaticData.class);
 
     private static final int COLLECTIVE_TABLE_KEY_LEN = 6;
 
@@ -62,66 +76,85 @@ public class TextDBStaticData {
 
     private static final int BIT_TABLE_KEY_LEN = 3;
 
+    private static final int ISPAN_KEY_LEN = 10;
+
+    private static final int STD_SEPARATOR_LEN = 1;
+
+    private static final int ISPAN_SEPARATOR_LEN = 2;
+
     private static boolean exclusionFileInplay = System
             .getenv("STD_TEXT_EXCLUSION") != null;
 
-    private static Map<String, TextDBStaticData> instanceMap = new HashMap<String, TextDBStaticData>();
+    private static final String TEXTDB = "textdb";
 
-    private boolean tablesLoaded = false;
+    private static final String COLLECTIVE_TABLE_PATH = FileUtil.join(TEXTDB,
+            "collective_table.dat");
 
-    private Map<String, String> stdCollectiveMap = new HashMap<String, String>();
+    private static final String UPAIR_TABLE_PATH = FileUtil.join(TEXTDB,
+            "upair_table.dat");
 
-    private Map<String, String> uaCollectiveMap = new HashMap<String, String>();
+    private static final String STATION_TABLE_PATH = FileUtil.join(TEXTDB,
+            "station_table.dat");
 
-    private Map<String, String> stationTable = new HashMap<String, String>();
+    private static final String EXCLUSION_PRODUCT_LIST_PATH = FileUtil.join(
+            TEXTDB, "exclusionProductList.dat");
 
-    private Map<String, String> nationalTable = new HashMap<String, String>();
+    private static final String CHECK_PRODUCT_FILE_PATH = FileUtil.join(TEXTDB,
+            "checkProductFile.dat");
 
-    private Map<String, String> ispanTable = new HashMap<String, String>();
+    private static final String ISPAN_TABLE_PATH = FileUtil.join(TEXTDB,
+            "ispan_table.dat");
 
-    private Map<String, String> bitTable = new HashMap<String, String>();
+    private static final String BIT_TABLE_PATH = FileUtil.join(TEXTDB,
+            "bit_table.dat");
 
-    private Set<String> exclusionList = new HashSet<String>();
+    private static final AtomicBoolean stdCollectiveLoaded = new AtomicBoolean(
+            false);
 
-    private Set<String> duplicateCheckList = new HashSet<String>();
+    private static final AtomicBoolean uaCollectiveLoaded = new AtomicBoolean(
+            false);
 
-    private String siteId = null;
+    private static final AtomicBoolean stationTableLoaded = new AtomicBoolean(
+            false);
 
-    /**
-     * 
-     */
-    private TextDBStaticData(String siteId) {
-        this.siteId = siteId;
-        populateTables();
+    private static final AtomicBoolean ispanTableLoaded = new AtomicBoolean(
+            false);
+
+    private static final AtomicBoolean bitTableLoaded = new AtomicBoolean(false);
+
+    private static final AtomicBoolean exclusionListLoaded = new AtomicBoolean(
+            false);
+
+    private static final AtomicBoolean dupCheckListLoaded = new AtomicBoolean(
+            false);
+
+    private static final Map<String, String> stdCollectiveMap = new HashMap<>();
+
+    private static final Map<String, String> uaCollectiveMap = new HashMap<>();
+
+    private static final Map<String, String> stationTable = new HashMap<>();
+
+    private static final Map<String, String> ispanTable = new HashMap<>();
+
+    private static final Map<String, String> bitTable = new HashMap<>();
+
+    private static final Collection<String> exclusionList = new HashSet<>();
+
+    private static final Collection<String> duplicateCheckList = new HashSet<>();
+
+    private TextDBStaticData() {
+        // prevent default constructor from being created.
+        throw new AssertionError();
     }
 
-    public boolean areTablesLoaded() {
-        return tablesLoaded;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public synchronized static TextDBStaticData instance(String siteId) {
-        TextDBStaticData instance = instanceMap.get(siteId);
-        if (instance == null) {
-            instance = new TextDBStaticData(siteId);
-            instanceMap.put(siteId, instance);
-        }
-        return instance;
-    }
-
-    public synchronized static void setDirty() {
-        for (String key : instanceMap.keySet()) {
-            if (null != instanceMap.get(key)) {
-                instanceMap.get(key).makeDirty();
-            }
-        }
-    }
-
-    public synchronized void makeDirty() {
-        tablesLoaded = false;
+    public static void setDirty() {
+        stdCollectiveLoaded.set(false);
+        uaCollectiveLoaded.set(false);
+        stationTableLoaded.set(false);
+        ispanTableLoaded.set(false);
+        bitTableLoaded.set(false);
+        exclusionListLoaded.set(false);
+        dupCheckListLoaded.set(false);
     }
 
     /**
@@ -129,12 +162,15 @@ public class TextDBStaticData {
      * @param dataDes
      * @return
      */
-    public synchronized String matchStdCollective(String dataDes) {
-        if (!tablesLoaded) {
-            reload();
+    public static String matchStdCollective(String dataDes) {
+        if (!stdCollectiveLoaded.get()) {
+            populateMap(stdCollectiveMap, stdCollectiveLoaded,
+                    COLLECTIVE_TABLE_PATH, COLLECTIVE_TABLE_KEY_LEN,
+                    STD_SEPARATOR_LEN);
         }
+
         String retValue = null;
-        if (stdCollectiveMap != null) {
+        synchronized (stdCollectiveMap) {
             retValue = stdCollectiveMap.get(dataDes);
         }
         return retValue;
@@ -145,13 +181,14 @@ public class TextDBStaticData {
      * @param dataDes
      * @return
      */
-    public synchronized String matchUACollective(String dataDes) {
-        if (!tablesLoaded) {
-            reload();
+    public static String matchUACollective(String dataDes) {
+        if (!uaCollectiveLoaded.get()) {
+            populateMap(uaCollectiveMap, uaCollectiveLoaded, UPAIR_TABLE_PATH,
+                    UPAIR_KEY_LEN, STD_SEPARATOR_LEN);
         }
 
         String retValue = null;
-        if (uaCollectiveMap != null) {
+        synchronized (uaCollectiveMap) {
             retValue = uaCollectiveMap.get(dataDes);
         }
         return retValue;
@@ -163,12 +200,14 @@ public class TextDBStaticData {
      * @param WMOId
      * @return
      */
-    public synchronized String mapWMOToICAO(String WMOId) {
-        if (!tablesLoaded) {
-            reload();
+    public static String mapWMOToICAO(String WMOId) {
+        if (!stationTableLoaded.get()) {
+            populateMap(stationTable, stationTableLoaded, STATION_TABLE_PATH,
+                    STATION_TABLE_KEY_LEN, STD_SEPARATOR_LEN);
         }
+
         String retValue = null;
-        if (stationTable != null) {
+        synchronized (stationTable) {
             retValue = stationTable.get(WMOId);
         }
         return retValue;
@@ -180,7 +219,7 @@ public class TextDBStaticData {
      * @param WMOId
      * @return
      */
-    public synchronized String mapICAOToCCC(String icao) {
+    public static String mapICAOToCCC(String icao) {
         return SiteMap.getInstance().mapICAOToCCC(icao);
     }
 
@@ -191,7 +230,7 @@ public class TextDBStaticData {
      * @param WMOId
      * @return
      */
-    public synchronized String mapWMOToCCC(String icao) {
+    public static String mapWMOToCCC(String icao) {
         return mapICAOToCCC(mapWMOToICAO(icao));
     }
 
@@ -200,11 +239,17 @@ public class TextDBStaticData {
      * @param ispanId
      * @return
      */
-    public synchronized boolean isMappedISpanId(String ispanId) {
-        if (!tablesLoaded) {
-            reload();
+    public static boolean isMappedISpanId(String ispanId) {
+        if (!ispanTableLoaded.get()) {
+            populateMap(ispanTable, ispanTableLoaded, ISPAN_TABLE_PATH,
+                    ISPAN_KEY_LEN, ISPAN_SEPARATOR_LEN);
         }
-        return ispanTable.containsKey(ispanId);
+
+        boolean containsKey = false;
+        synchronized (ispanTable) {
+            containsKey = ispanTable.containsKey(ispanId);
+        }
+        return containsKey;
     }
 
     /**
@@ -212,56 +257,67 @@ public class TextDBStaticData {
      * @param afosId
      * @return
      */
-    public synchronized boolean isExcluded(String afosId) {
-        if (!tablesLoaded) {
-            reload();
+    public static boolean isExcluded(String afosId) {
+        if (!exclusionListLoaded.get()) {
+            if (exclusionFileInplay) {
+                populateCollection(exclusionList, exclusionListLoaded,
+                        EXCLUSION_PRODUCT_LIST_PATH);
+            } else {
+                synchronized (exclusionList) {
+                    exclusionList.clear();
+                    exclusionListLoaded.set(true);
+                }
+            }
         }
-        if (exclusionList != null && exclusionList.size() > 0) {
-            // If a product ID in the exclusion file list that matches the
-            // incoming product's ID is found, end the process; otherwise,
-            // continue searching through the end of the list.
 
-            // with CCC_id as wild card
-            String expandProductId = "000"
-                    + afosId.substring(3,
-                            (afosId.length() > 9 ? 9 : afosId.length()));
-            if (exclusionList.contains(expandProductId)) {
-                return true;
+        synchronized (exclusionList) {
+            if (!CollectionUtil.isNullOrEmpty(exclusionList)) {
+                // If a product ID in the exclusion file list that matches the
+                // incoming product's ID is found, end the process; otherwise,
+                // continue searching through the end of the list.
+
+                // with CCC_id as wild card
+                String expandProductId = "000"
+                        + afosId.substring(3,
+                                (afosId.length() > 9 ? 9 : afosId.length()));
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // with NNN_id as wild card
+                expandProductId = afosId.substring(0, 3) + "000"
+                        + afosId.substring(6);
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // with XXX_id as wild card
+                expandProductId = afosId.substring(0, 6) + "000";
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // with both NNN_id and XXX_id as wild card
+                expandProductId = afosId.substring(0, 3) + "000000";
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // with both CCC_id and XXX_id as wild card
+                expandProductId = "000" + afosId.substring(3, 6) + "000";
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // with both CCC_id and NNN_id as wild card
+                expandProductId = "000000" + afosId.substring(6);
+                if (exclusionList.contains(expandProductId)) {
+                    return true;
+                }
+
+                // search full product id
+                return exclusionList.contains(afosId);
             }
-
-            // with NNN_id as wild card
-            expandProductId = afosId.substring(0, 3) + "000"
-                    + afosId.substring(6);
-            if (exclusionList.contains(expandProductId)) {
-                return true;
-            }
-
-            // with XXX_id as wild card
-            expandProductId = afosId.substring(0, 6) + "000";
-            if (exclusionList.contains(expandProductId)) {
-                return true;
-            }
-
-            // with both NNN_id and XXX_id as wild card
-            expandProductId = afosId.substring(0, 3) + "000000";
-            if (exclusionList.contains(expandProductId)) {
-                return true;
-            }
-
-            // with both CCC_id and XXX_id as wild card
-            expandProductId = "000" + afosId.substring(3, 6) + "000";
-            if (exclusionList.contains(expandProductId)) {
-                return true;
-            }
-
-            // with both CCC_id and NNN_id as wild card
-            expandProductId = "000000" + afosId.substring(6);
-            if (exclusionList.contains(expandProductId)) {
-                return true;
-            }
-
-            // search full product id
-            return exclusionList.contains(afosId);
         }
 
         return false;
@@ -272,12 +328,18 @@ public class TextDBStaticData {
      * @param afosId
      * @return
      */
-    public synchronized boolean checkForDuplicate(String afosId) {
-        boolean retVal = false;
-        if (duplicateCheckList != null && duplicateCheckList.size() > 0) {
-            retVal = duplicateCheckList.contains(afosId);
+    public static boolean checkForDuplicate(String afosId) {
+        if (!dupCheckListLoaded.get()) {
+            populateCollection(duplicateCheckList, dupCheckListLoaded,
+                    CHECK_PRODUCT_FILE_PATH);
         }
 
+        boolean retVal = false;
+        synchronized (duplicateCheckList) {
+            if (!CollectionUtil.isNullOrEmpty(duplicateCheckList)) {
+                retVal = duplicateCheckList.contains(afosId);
+            }
+        }
         return retVal;
     }
 
@@ -286,11 +348,17 @@ public class TextDBStaticData {
      * @param ispanId
      * @return
      */
-    public synchronized String getProductId(String ispanId) {
-        if (!tablesLoaded) {
-            reload();
+    public static String getProductId(String ispanId) {
+        if (!ispanTableLoaded.get()) {
+            populateMap(ispanTable, ispanTableLoaded, ISPAN_TABLE_PATH,
+                    ISPAN_KEY_LEN, ISPAN_SEPARATOR_LEN);
         }
-        return ispanTable.get(ispanId);
+
+        String retVal = null;
+        synchronized (ispanTable) {
+            retVal = ispanTable.get(ispanId);
+        }
+        return retVal;
     }
 
     /**
@@ -298,11 +366,19 @@ public class TextDBStaticData {
      * @param nnnId
      * @return
      */
-    public synchronized String getSiteIdFromNNN(String nnnId) {
-        if (!tablesLoaded) {
-            reload();
+    public static String getSiteIdFromNNN(String nnnId, String siteId) {
+        if (!bitTableLoaded.get()) {
+            populateMap(bitTable, bitTableLoaded, BIT_TABLE_PATH,
+                    BIT_TABLE_KEY_LEN, STD_SEPARATOR_LEN);
         }
-        return bitTable.get(nnnId);
+
+        String value = null;
+        synchronized (bitTable) {
+            value = bitTable.get(nnnId);
+        }
+        String retVal = ("AAA".equals(value)) ? SiteMap.getInstance()
+                .getCCCFromXXXCode(siteId) : value;
+        return retVal;
     }
 
     /**
@@ -310,7 +386,7 @@ public class TextDBStaticData {
      * @param wmoCccc
      * @return
      */
-    public synchronized String getAfosCCC(String wmoCccc) {
+    public static String getAfosCCC(String wmoCccc) {
         return SiteMap.getInstance().getCCCFromXXXCode(wmoCccc);
     }
 
@@ -319,85 +395,48 @@ public class TextDBStaticData {
      * @param v
      * @return
      */
-    public synchronized String getAFOSTableMap(String v) {
+    public static String getAFOSTableMap(String v) {
         return SiteMap.getInstance().getAFOSTableMap(v);
     }
-    
-    /**
-     * Cause the internal tables to be reloaded. <code>
-     *   TextDBStaticData.instance(site).reload();
-     * </code>
-     */
-    public void reload() {
-        synchronized (this) {
-            // Drop the old maps.
-            stdCollectiveMap = null;
-            uaCollectiveMap = null;
-            stationTable = null;
-            nationalTable = null;
-            ispanTable = null;
-            bitTable = null;
-            exclusionList = null;
-            duplicateCheckList = null;
-            // and repopulate.
-            populateTables();
+
+    private static void populateMap(final Map<String, String> dataMap,
+            final AtomicBoolean loadedFlag, final String filePath,
+            final int keyLen, final int separatorLen) {
+        synchronized (dataMap) {
+            if (loadedFlag.get()) {
+                return;
+            }
+
+            try {
+                Map<String, String> newData = loadFileToMap(filePath, keyLen,
+                        separatorLen);
+                dataMap.clear();
+                dataMap.putAll(newData);
+                loadedFlag.set(true);
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Could not load TextDBStaticData from file ["
+                                + filePath + "]", e);
+            }
         }
     }
 
-    /**
-     * Populate the internal data maps.
-     */
-    private void populateTables() {
-        tablesLoaded = true;
+    private static void populateCollection(final Collection<String> dataList,
+            final AtomicBoolean loadedFlag, final String filePath) {
+        synchronized (dataList) {
+            if (loadedFlag.get()) {
+                return;
+            }
 
-        // ******************************
-        if (stdCollectiveMap != null) {
-            stdCollectiveMap = new HashMap<String, String>();
-        }
-        tablesLoaded &= loadFile("textdb/collective_table.dat",
-                stdCollectiveMap, COLLECTIVE_TABLE_KEY_LEN);
-        // ******************************
-        if (uaCollectiveMap != null) {
-            uaCollectiveMap = new HashMap<String, String>();
-        }
-        tablesLoaded &= loadFile("textdb/upair_table.dat", uaCollectiveMap,
-                UPAIR_KEY_LEN);
-        // ******************************
-        if (stationTable != null) {
-            stationTable = new HashMap<String, String>();
-        }
-        tablesLoaded &= loadFile("textdb/station_table.dat", stationTable,
-                STATION_TABLE_KEY_LEN);
-        // ******************************
-        if (exclusionList != null) {
-            exclusionList = new HashSet<String>();
-        }
-        if (exclusionFileInplay) {
-            tablesLoaded &= loadFile("textdb/exclusionProductList.dat",
-                    exclusionList);
-        }
-        // ******************************
-        if (duplicateCheckList != null) {
-            duplicateCheckList = new HashSet<String>();
-        }
-        tablesLoaded &= loadFile("textdb/checkProductFile.dat",
-                duplicateCheckList);
-        // ******************************
-        if (ispanTable != null) {
-            ispanTable = new HashMap<String, String>();
-        }
-        tablesLoaded &= loadISpanFile("textdb/ispan_table.dat", ispanTable);
-
-        // ******************************
-        if (bitTable != null) {
-            bitTable = new HashMap<String, String>();
-        }
-        tablesLoaded &= loadFile("textdb/bit_table.dat", bitTable,
-                BIT_TABLE_KEY_LEN);
-        String node = SiteMap.getInstance().getCCCFromXXXCode(siteId);
-        for (String s : bitTable.keySet()) {
-            if ("AAA".equals(bitTable.get(s))) {
-                bitTable.put(s, node);
+            try {
+                Set<String> newData = loadFileToSet(filePath);
+                dataList.clear();
+                dataList.addAll(newData);
+                loadedFlag.set(true);
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Could not load TextDBStaticData from file ["
+                                + filePath + "]", e);
             }
         }
     }
@@ -405,163 +444,126 @@ public class TextDBStaticData {
     /**
      * Read in the desired static file, parse its contains and place results in
      * the map. This assumes that each line of the file is in the following
-     * format: <li>(KEY)(DEL_CHAR)(VALUE)</li> <li>(KEY) is a string of keyLen
-     * characters that may include spaces</li> <li>(DEL_CHAR) a single character
-     * delimiter normally a space or equal sign</li> <li>(VALUE) the reset of
-     * the line that is mapped to (KEY)</li>
+     * format: (KEY)(DELIMETER)(VALUE)
+     * <ul>
+     * <li>(KEY) is a string of <code>keyLen</code> characters that may include
+     * spaces.</li>
+     * <li>(DELIMETER) is a string of <code>separatorLen</code> chars (usually,
+     * a space or equal sign or multiple spaces).</li>
+     * <li>(VALUE) the reset of the line that is mapped to (KEY).</li>
+     * </ul>
      * 
      * @param filename
-     *            - file to parse
-     * @param map
-     *            - parse results
+     *            File to parse
      * @param keyLen
-     *            - Length of the file's keys
-     * @return - true when file read and parsed otherwise false
+     *            Length of the file's keys
+     * @param separatorLen
+     *            Length of the separator between keys and values.
+     * @return A <code>Map</code> pairing the keys to their values.
+     * @throws IOException
+     *             If any errors occur reading the specified input file.
+     * @throws FileNotFoundException
+     *             If the specified file cannot be located in the localization
+     *             hierarchy or if the file cannot be opened for reading.
      */
-    private boolean loadFile(String filename, Map<String, String> map,
-            final int keyLen) {
-        boolean loaded = false;
+    private static Map<String, String> loadFileToMap(final String filename,
+            final int keyLen, final int separatorLen)
+            throws FileNotFoundException, IOException {
+        File file = locateFile(filename);
+        if (file == null) {
+            throw new FileNotFoundException("Could not locate file ["
+                    + filename + "] in localization hierarchy.");
+        }
 
-        InputStream strm = null;
-        BufferedReader bf = null;
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File file = pathMgr.getFile(lc, filename);
-
-        HashMap<String, String> dataMap = new HashMap<String, String>();
-
-        try {
-            try {
-                strm = new FileInputStream(file);
-                if (strm != null) {
-                    bf = new BufferedReader(new InputStreamReader(strm));
-
-                    String line = null;
-                    while ((line = bf.readLine()) != null) {
-
-                        String dataKey = line.substring(0, keyLen);
-                        String tblData = line.substring(keyLen + 1);
-
-                        String tData = dataMap.get(tblData);
-                        if (tData == null) {
-                            dataMap.put(tblData, tblData);
-                            tData = tblData;
-                        }
-                        map.put(dataKey, tData);
-                    }
-                    loaded = true;
+        Map<String, String> retVal = new HashMap<>();
+        try (BufferedReader inFile = new BufferedReader(new FileReader(file))) {
+            String line = null;
+            while ((line = inFile.readLine()) != null) {
+                if ((line.length() < (keyLen + separatorLen + 1))
+                        || (line.startsWith("#"))) {
+                    continue;
                 }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        } finally {
-            if (bf != null) {
-                try {
-                    bf.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
-            }
-            if (dataMap != null) {
-                dataMap.clear();
+
+                /*
+                 * A note on why we're performing this selective trimming: The
+                 * format of the current NDM files on the web are formatted
+                 * slightly differently than those in the current A2 baseline.
+                 * 
+                 * The A2 baseline files have a single separator char between
+                 * key and value, and no excess whitespace between the separator
+                 * char and the value. The new updated files on the web,
+                 * however, vary between a single separator char and using 2
+                 * spaces as a separator.
+                 * 
+                 * To allow both formats to work we expect a fixed-length key,
+                 * and left-trim the value string in case we get an extra
+                 * leading space char from the newer format files.
+                 */
+                String dataKey = line.substring(0, keyLen);
+                String tblData = StringUtil.ltrim(line.substring(keyLen
+                        + separatorLen));
+                retVal.put(dataKey, tblData);
             }
         }
 
-        return loaded;
+        return retVal;
     }
 
     /**
+     * Read in the desired static file, parse its contains and place results in
+     * a <code>Set</code>.
      * 
      * @param filename
-     * @param list
-     * @return
+     *            The path to the input file in the localization hierarchy.
+     * @return A <code>Set</code> containing all the valid values in the input
+     *         file.
+     * @throws FileNotFoundException
+     *             If the specified file cannot be located in the localization
+     *             hierarchy or if the file cannot be opened for reading.
+     * @throws IOException
+     *             If any errors occur reading the specified input file.
      */
-    private boolean loadFile(String filename, Set<String> list) {
-        boolean loaded = false;
+    private static Set<String> loadFileToSet(final String filename)
+            throws FileNotFoundException, IOException {
+        File file = locateFile(filename);
+        if (file == null) {
+            throw new FileNotFoundException("Could not locate file ["
+                    + filename + "] in localization hierarchy.");
+        }
 
-        InputStream strm = null;
-        BufferedReader bf = null;
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File file = pathMgr.getFile(lc, filename);
-
-        try {
-            try {
-                strm = new FileInputStream(file);
-
-                if (strm != null) {
-                    bf = new BufferedReader(new InputStreamReader(strm));
-
-                    String line = null;
-                    while ((line = bf.readLine()) != null) {
-                        line = line.trim();
-                        if (line.length() > 0 && !line.startsWith("#")
-                                && !"000000000".equals(line)) {
-                            list.add(line);
-                        }
-                    }
-                    loaded = true;
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        } finally {
-            if (bf != null) {
-                try {
-                    bf.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
+        Set<String> retVal = new HashSet<>();
+        try (BufferedReader inFile = new BufferedReader(new FileReader(file))) {
+            String line = null;
+            while ((line = inFile.readLine()) != null) {
+                line = line.trim();
+                if (!line.isEmpty() && !line.startsWith("#")
+                        && !"000000000".equals(line)) {
+                    retVal.add(line);
                 }
             }
         }
 
-        return loaded;
+        return retVal;
     }
 
-    /**
-     * 
-     * @param filename
-     * @param map
-     * @return
-     */
-    private boolean loadISpanFile(String filename, Map<String, String> map) {
-        boolean loaded = false;
-
-        InputStream strm = null;
-        BufferedReader bf = null;
+    private static File locateFile(final String filename) {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File file = pathMgr.getFile(lc, filename);
+        Map<LocalizationLevel, LocalizationFile> tieredFile = pathMgr
+                .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
+                        filename);
+        LocalizationContext[] contexts = pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
 
-        try {
-            try {
-                strm = new FileInputStream(file);
-
-                if (strm != null) {
-                    bf = new BufferedReader(new InputStreamReader(strm));
-
-                    String line = null;
-                    while ((line = bf.readLine()) != null) {
-                        map.put(line.substring(0, 10), line.substring(12));
-                    }
-                    loaded = true;
-                }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-        } finally {
-            if (bf != null) {
-                try {
-                    bf.close();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
-                }
+        File file = null;
+        for (LocalizationContext context : contexts) {
+            LocalizationLevel level = context.getLocalizationLevel();
+            LocalizationFile lFile = tieredFile.get(level);
+            if (lFile != null) {
+                file = lFile.getFile();
+                break;
             }
         }
 
-        return loaded;
+        return file;
     }
 }
