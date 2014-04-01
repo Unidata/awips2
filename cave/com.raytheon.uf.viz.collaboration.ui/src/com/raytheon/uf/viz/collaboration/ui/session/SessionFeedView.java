@@ -73,6 +73,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  *                                         having the color update to reflect the change.
  * Mar 24, 2014 2936       mpduff      Remove join alerts from feed view.
  * Mar 25, 2014 2938       mpduff      Show status message for site and role changes.
+ * Apr 01, 2014 2938       mpduff      Update logic for site and role changes.
  * 
  * </pre>
  * 
@@ -414,34 +415,22 @@ public class SessionFeedView extends SessionView {
             return;
         }
 
-        Object roleObj = presence.getProperty(SiteConfigInformation.ROLE_NAME);
-        String roleName = roleObj == null ? "" : roleObj.toString();
-        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
-        String siteName = siteObj == null ? "" : siteObj.toString();
-        String user = participant.getName();
+        String siteName = getSiteName(presence);
 
         // only show sites you care about
         if (enabledSites.contains(siteName)
                 || userEnabledSites.contains(siteName)) {
-            if (!enabledUsers.containsKey(user)) {
-                // Add user
+            String user = participant.getName();
+            Presence prev = enabledUsers.get(user);
+
+            String roleName = getRoleName(presence);
+            if (presence.isAvailable()) {
+                if (prev == null || hasPresenceChanged(prev, presence)) {
+                    StringBuilder message = getMessage(roleName, siteName, user);
+                    sendSystemMessage(message);
+                }
+
                 enabledUsers.put(user, presence);
-                if (!presence.isAway()) {
-                    // Send message
-                    StringBuilder message = getMessage(roleName, siteName, user);
-                    sendSystemMessage(message);
-                }
-            } else if (!presence.isAway()) {
-                Presence prev = enabledUsers.get(user);
-                if (!prev.getProperty(SiteConfigInformation.ROLE_NAME)
-                        .toString().equals(roleName)
-                        || !prev.getProperty(SiteConfigInformation.SITE_NAME)
-                                .toString().equals(siteName)) {
-                    // Send message
-                    StringBuilder message = getMessage(roleName, siteName, user);
-                    sendSystemMessage(message);
-                    enabledUsers.put(user, presence);
-                }
             }
         }
 
@@ -451,6 +440,51 @@ public class SessionFeedView extends SessionView {
          */
         setColorForSite(participant, presence);
         refreshParticipantList();
+    }
+
+    /**
+     * Determine if the user's presence has changed.
+     * 
+     * @param prev
+     *            The previous Presence object
+     * @param current
+     *            The current Presence object
+     * @return true if the presence has changed
+     */
+    private boolean hasPresenceChanged(Presence prev, Presence current) {
+        if (!getRoleName(prev).equals(getRoleName(current))) {
+            return true;
+        }
+
+        if (!getSiteName(prev).equals(getSiteName(current))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the role name from the presence.
+     * 
+     * @param presence
+     *            The Presence
+     * @return the role name for this presence
+     */
+    private String getRoleName(Presence presence) {
+        Object roleObj = presence.getProperty(SiteConfigInformation.ROLE_NAME);
+        return roleObj == null ? "" : roleObj.toString();
+    }
+
+    /**
+     * Get the site name from the presence.
+     * 
+     * @param presence
+     *            The Presence
+     * @return the site name for this presence
+     */
+    private String getSiteName(Presence presence) {
+        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
+        return siteObj == null ? "" : siteObj.toString();
     }
 
     /**
