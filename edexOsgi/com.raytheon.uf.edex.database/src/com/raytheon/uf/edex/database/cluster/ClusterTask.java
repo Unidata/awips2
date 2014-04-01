@@ -32,7 +32,7 @@ import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.handler.IClusterLockHandler;
 
 /**
- * TODO Add Description
+ * The awips.cluser_task table.
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.database.cluster.handler.IClusterLockHandler;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2010            njensen     Initial creation
+ * Apr 02, 2014 2862       rferrel     Make lockHanler getter/setters public.
  * 
  * </pre>
  * 
@@ -128,11 +129,11 @@ public class ClusterTask implements ISerializableObject, Serializable {
         this.lockState = lockState;
     }
 
-    protected IClusterLockHandler getLockHandler() {
+    public IClusterLockHandler getLockHandler() {
         return lockHandler;
     }
 
-    protected void setLockHandler(IClusterLockHandler lockHandler) {
+    public void setLockHandler(IClusterLockHandler lockHandler) {
         this.lockHandler = lockHandler;
     }
 }
