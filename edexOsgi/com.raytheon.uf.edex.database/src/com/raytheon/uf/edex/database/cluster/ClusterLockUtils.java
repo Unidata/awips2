@@ -473,8 +473,7 @@ public class ClusterLockUtils {
      * reset to the epoch time. This can be useful when wanting the next check
      * to always succeed.
      * 
-     * @param taskName
-     * @param details
+     * @param ct
      * @param clearTime
      * @return
      */
@@ -533,7 +532,6 @@ public class ClusterLockUtils {
      * 
      * @param taskName
      * @param details
-     * @param clearTime
      * @return
      */
     public static boolean unlock(String taskName, String details) {
