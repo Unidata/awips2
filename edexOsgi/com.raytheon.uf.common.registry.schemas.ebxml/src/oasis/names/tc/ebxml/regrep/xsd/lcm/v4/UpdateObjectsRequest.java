@@ -82,6 +82,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 12/2/2013     1829       bphillip    Added Hibernate annotations
+ * Mar 31, 2014  2889       dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author bphillip
@@ -121,6 +122,10 @@ public class UpdateObjectsRequest extends RegistryRequestType {
     @XmlAttribute
     @DynamicSerializeElement
     protected Mode mode;
+    
+    @XmlAttribute
+    @DynamicSerializeElement
+    protected String username;
 
     public UpdateObjectsRequest() {
         super();
@@ -315,6 +320,13 @@ public class UpdateObjectsRequest extends RegistryRequestType {
                 return false;
         } else if (!updateAction.equals(other.updateAction))
             return false;
+        if (username != null) {
+            if (other.username != null) {
+                return false;
+            } else if (!username.equals(other.username)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -338,7 +350,18 @@ public class UpdateObjectsRequest extends RegistryRequestType {
         builder.append(", \nmode=");
         builder.append(mode);
         builder.append("]");
+        builder.append(", \nusername=");
+        builder.append(username);
+        builder.append("]");
         return builder.toString();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 }

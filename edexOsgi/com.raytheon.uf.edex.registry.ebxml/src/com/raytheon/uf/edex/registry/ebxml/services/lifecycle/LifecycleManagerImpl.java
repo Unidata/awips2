@@ -109,6 +109,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 12/2/2013    1829       bphillip    Auditable events are not genereted via messages on the event bus
  * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
  * 2/19/2014    2769        bphillip   Added current time to audit trail events
+ * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * 
  * 
  * </pre>
@@ -469,7 +470,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (!objsCreated.isEmpty()) {
             for (RegistryObjectType obj : objsCreated) {
                 EventBus.publish(new InsertRegistryEvent(obj.getId(), obj
-                        .getLid(), obj.getObjectType()));
+                        .getLid(), request.getUsername(), obj.getObjectType()));
                 EventBus.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));
@@ -480,7 +481,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         if (!objsUpdated.isEmpty()) {
             for (RegistryObjectType obj : objsUpdated) {
                 EventBus.publish(new UpdateRegistryEvent(obj.getId(), obj
-                        .getLid(), obj.getObjectType()));
+                        .getLid(), request.getUsername(), obj.getObjectType()));
                 EventBus.publish(new RegistryStatisticsEvent(obj
                         .getObjectType(), obj.getStatus(), obj.getOwner(),
                         avTimePerRecord));

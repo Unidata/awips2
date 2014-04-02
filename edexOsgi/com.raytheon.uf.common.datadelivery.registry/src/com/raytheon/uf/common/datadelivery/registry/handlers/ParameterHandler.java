@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Oct 03, 2012 1241       djohnson     Initial creation
  * Jun 24, 2013 2106       djohnson     Now composes a registryHandler.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -75,19 +76,19 @@ public class ParameterHandler extends
      * ParameterLevel Objects needed to successfully store the Parameter Object.
      */
     @Override
-    public void store(Parameter obj) throws RegistryHandlerException {
+    public void store(String username, Parameter obj) throws RegistryHandlerException {
         final String parameterName = obj.getName();
         try {
-            super.store(obj);
+            super.store(username, obj);
 
             statusHandler.info(String.format(SUCCESSFULLY_STORED_PARAMETER,
                     parameterName));
         } catch (RegistryHandlerException e) {
-            boolean tryAgain = handleUnresolvedReferences(obj, e);
+            boolean tryAgain = handleUnresolvedReferences(username, obj, e);
 
             if (tryAgain) {
                 try {
-                    super.store(obj);
+                    super.store(username, obj);
 
                     statusHandler.info(String.format(
                             SUCCESSFULLY_STORED_PARAMETER, parameterName));
@@ -109,19 +110,19 @@ public class ParameterHandler extends
      * ParameterLevel Objects needed to successfully store the Parameter Object.
      */
     @Override
-    public void update(Parameter obj) throws RegistryHandlerException {
+    public void update(String username, Parameter obj) throws RegistryHandlerException {
         final String parameterName = obj.getName();
         try {
-            super.update(obj);
+            super.update(username, obj);
 
             statusHandler.info(String.format(SUCCESSFULLY_UPDATED_PARAMETER,
                     parameterName));
         } catch (RegistryHandlerException e) {
-            boolean tryAgain = handleUnresolvedReferences(obj, e);
+            boolean tryAgain = handleUnresolvedReferences(username, obj, e);
 
             if (tryAgain) {
                 try {
-                    super.update(obj);
+                    super.update(username, obj);
 
                     statusHandler.info(String.format(
                             SUCCESSFULLY_UPDATED_PARAMETER, parameterName));
@@ -153,7 +154,7 @@ public class ParameterHandler extends
         return response.getResults();
     }
 
-    private boolean handleUnresolvedReferences(Parameter obj,
+    private boolean handleUnresolvedReferences(String username, Parameter obj,
             RegistryHandlerException e) {
         boolean restore = false;
 
@@ -175,7 +176,7 @@ public class ParameterHandler extends
                     pl.setLevelId(Integer.parseInt(parts[0]));
                     pl.setLevelValue(Double.parseDouble(parts[1]));
                     try {
-                        DataDeliveryHandlers.getParameterLevelHandler().update(
+                        DataDeliveryHandlers.getParameterLevelHandler().update(username, 
                                 pl);
                         statusHandler
                                 .info("Successfully stored ParameterLevel "

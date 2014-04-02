@@ -145,6 +145,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Nov 08, 2013   2506     bgonzale    Removed send notification when a subscription is updated and created.
  * Jan 14, 2014   2459     mpduff      Change Subscription status code
  * Feb 11, 2014   2771     bgonzale    Use Data Delivery ID instead of Site.
+ * Mar 31, 2014   2889     dhladky     Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -1223,7 +1224,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
                         .initialPending(currentUser);
 
                 try {
-                    handler.store(pendingSub);
+                    handler.store(username, pendingSub);
 
                     this.subscription = pendingSub;
 
@@ -1265,7 +1266,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
             if (autoApprove) {
                 try {
                     final SubscriptionServiceResult response = subscriptionService
-                            .update(subscription,
+                            .update(username, subscription,
                                     new CancelForceApplyAndIncreaseLatencyDisplayText(
                                             "update", getShell()));
                     if (response.hasMessageToDisplay()) {
@@ -1286,7 +1287,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
             } else {
                 setSubscriptionId(subscription);
                 try {
-                    pendingSubHandler.update(pendingSub);
+                    pendingSubHandler.update(username, pendingSub);
 
                     subscriptionNotificationService
                             .sendCreatedPendingSubscriptionForSubscriptionNotification(
@@ -1559,7 +1560,7 @@ public class CreateSubscriptionDlg extends CaveSWTDialog {
             Subscription subscription, String username) {
         SubscriptionServiceResult result = null;
         try {
-            result = subscriptionService.store(subscription,
+            result = subscriptionService.store(username, subscription,
                     new CancelForceApplyAndIncreaseLatencyDisplayText("create",
                             getShell()));
         } catch (RegistryHandlerException e) {
