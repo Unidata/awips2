@@ -156,6 +156,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
  * Feb 11, 2014   2771     bgonzale   Use Data Delivery ID instead of Site.
  * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
+ * 
  * 
  * </pre>
  * 
@@ -1196,7 +1198,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
 
                         try {
                             SubscriptionServiceResult response = subscriptionService
-                                    .update(sub, forceApplyPromptDisplayText);
+                                    .update(username, sub, forceApplyPromptDisplayText);
                             if (response.hasMessageToDisplay()) {
                                 DataDeliveryUtils.showMessage(getShell(),
                                         SWT.OK, sub.getName() + " Activated",
@@ -1457,7 +1459,7 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                 .get(ISubscriptionHandler.class);
         for (Subscription sub : subscriptions) {
             try {
-                handler.update(sub);
+                handler.update(username, sub);
             } catch (RegistryHandlerException e) {
                 exceptions.add(e);
             }
