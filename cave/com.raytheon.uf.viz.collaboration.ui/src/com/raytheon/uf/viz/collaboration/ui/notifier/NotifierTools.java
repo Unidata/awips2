@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.core.sounds.SoundUtil;
  * Feb 24, 2014   2632     mpduff      Initial creation.
  * Mar 05, 2014   2632     mpduff      Removed unused field.
  * Mar 12, 2014   2632     mpduff      Don't process the notifier if the presence is null.
+ * Apr 02, 2014   2632     mpduff      Remove user from list every time on a sign off
  * 
  * </pre>
  * 
@@ -117,9 +118,9 @@ public class NotifierTools {
                 }
             } else if (usersOnline.contains(userId.getName())
                     && (Type.unavailable == type)) {
+                usersOnline.remove(userId.getName());
                 if (notifiers.contains(Notifier.SignOff)) {
                     executeNotifierTask(task);
-                    usersOnline.remove(userId.getName());
                     NotifierTools.taskExecuted(task);
                     return;
                 }
@@ -127,11 +128,8 @@ public class NotifierTools {
 
             // presence mode change events
             for (Notifier n : notifiers) {
-                if (Notifier.Returns == n && mode == null) {
-                    /*
-                     * Apparently a null mode is the same as available. See
-                     * AbstractUserLabelProvider.getImageName();
-                     */
+                if (Notifier.Returns == n && mode == null
+                        && Type.available == type) {
                     executeNotifierTask(task);
                     NotifierTools.taskExecuted(task);
                     break;
