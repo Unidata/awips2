@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+<aliasList namespace="udunits">
+	<alias base="Pa*s^-1">kg m-1 s-3</alias>
+	<alias base="mm*s^-1">0.0010 m s-1</alias>
+	<alias base="mm">0.0010 m</alias>
+	<alias base="s^-1">s-1</alias>
+	<alias base="K*s^-1">K s-1</alias>
+	<alias base="m*s^-1">m s-1</alias>
+	<alias base="degree_angle">0.017453292519943295 rad</alias>
+	<alias base="J*kg^-1">m2 s-2</alias>
+	<alias base="%">0.01</alias>
+	<alias base="kg*m^-2">kg m-2</alias>
+    <!-- millimeters are equivalent for precipitation measurements -->
+    <alias base="mm">kg m-2</alias>
+	<alias base="°">Degree</alias>
+	<alias base="min">Minute</alias>
+	<alias base="h">Hour</alias>
+	<alias base="day">Day</alias>
+	<alias base="month">Month</alias>
+	<alias base="year">Year</alias>
+	<alias base="J*m^-2">J m-2</alias>
+</aliasList>
