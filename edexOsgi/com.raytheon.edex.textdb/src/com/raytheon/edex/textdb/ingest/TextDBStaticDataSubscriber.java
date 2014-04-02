@@ -19,15 +19,8 @@
  **/
 package com.raytheon.edex.textdb.ingest;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -37,7 +30,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
@@ -52,6 +45,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Jan 25, 2011            bfarmer     Initial creation
  * Oct 18, 2011 10909      rferrel     notify() now saves a file.
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Mar 20, 2014   2915     dgilling    Code cleanup.
  * 
  * </pre>
  * 
@@ -69,50 +63,16 @@ public class TextDBStaticDataSubscriber implements INationalDatasetSubscriber {
         // in the BASE directory.
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File outFile = pathMgr.getFile(lc, "textdb/" + fileName);
-        saveFile(file, outFile);
-    }
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+        File outFile = pathMgr.getFile(lc, FileUtil.join("textdb", fileName));
 
-    private void saveFile(File file, File outFile) {
-        if ((file != null) && file.exists()) {
-            BufferedReader fis = null;
-            BufferedWriter fos = null;
-            try {
-                fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
-                fos = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(outFile)));
-                String line = null;
-                try {
-                    while ((line = fis.readLine()) != null) {
-                        fos.write(line);
-                        fos.newLine();
-                    }
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not read file: " + file.getName(), e);
-                }
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
-                        + file.getName(), e);
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
-            }
+        try {
+            FileUtil.copyFile(file, outFile);
+            TextDBStaticData.setDirty();
+        } catch (IOException e) {
+            statusHandler.error("Unable to copy textdb static data file ["
+                    + file.getPath() + "] to destination [" + outFile.getPath()
+                    + "].", e);
         }
-        TextDBStaticData.setDirty();
     }
 }
