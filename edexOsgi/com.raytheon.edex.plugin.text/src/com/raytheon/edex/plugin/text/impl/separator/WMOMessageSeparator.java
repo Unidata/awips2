@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
-import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -96,8 +95,6 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
 
     protected final String traceId;
 
-    protected final TextDBStaticData staticData;
-
     protected final String siteId;
 
     protected final TextDecoderMode mode;
@@ -133,8 +130,6 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
         this.siteId = siteId;
         this.wmoHeader = wmoHeader;
         this.mode = mode;
-        staticData = TextDBStaticData.instance(siteId);
-        // localCCC = staticData.getProductId("LOCALCCC  ").substring(0, 3);
     }
 
     /**
@@ -282,7 +277,6 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
         return numSkipped;
     }
 
-
     /*
      * private AFOSProductId createProductId() { AFOSProductId productId = null;
      * 
@@ -382,10 +376,11 @@ public abstract class WMOMessageSeparator extends AbstractRecordSeparator {
     //
     // ---------------------------------------------------------------------------
     static boolean checkCharNum(char x) {
-        if ((x > 64) && (x < 91))
+        if ((x > 64) && (x < 91)) {
             return true;
-        else if ((x > 47) && (x < 58))
+        } else if ((x > 47) && (x < 58)) {
             return true;
+        }
 
         return false;
     }
