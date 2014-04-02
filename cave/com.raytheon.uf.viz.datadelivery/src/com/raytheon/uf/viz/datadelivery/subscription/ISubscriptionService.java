@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.datadelivery.subscription.SubscriptionService.IForceA
  * Nov 28, 2012 1286      djohnson     Consolidate more notifications.
  * Jul 18, 2013 1653      mpduff       Added SubscriptionStatusSummary to ISubscriptionServiceResult
  * Oct 25, 2013 2292      mpduff       Move overlap checks to edex.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author djohnson
@@ -56,7 +57,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    SubscriptionServiceResult store(Subscription subscription,
+    SubscriptionServiceResult store(String username, Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -68,7 +69,7 @@ public interface ISubscriptionService {
      * @param displayTextStrategy
      * @return the result object
      */
-    SubscriptionServiceResult update(Subscription subscription,
+    SubscriptionServiceResult update(String username, Subscription subscription,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -81,7 +82,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    SubscriptionServiceResult update(List<Subscription> subscriptions,
+    SubscriptionServiceResult update(String username, List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 
@@ -94,7 +95,7 @@ public interface ISubscriptionService {
      * @return the result
      * @throws RegistryHandlerException
      */
-    SubscriptionServiceResult updateWithPendingCheck(
+    SubscriptionServiceResult updateWithPendingCheck(String username,
             List<Subscription> subscriptions,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
@@ -110,7 +111,7 @@ public interface ISubscriptionService {
      * @return the result object
      * @throws RegistryHandlerException
      */
-    public SubscriptionServiceResult store(AdhocSubscription sub,
+    public SubscriptionServiceResult store(String username, AdhocSubscription sub,
             IForceApplyPromptDisplayText displayTextStrategy)
             throws RegistryHandlerException;
 }
