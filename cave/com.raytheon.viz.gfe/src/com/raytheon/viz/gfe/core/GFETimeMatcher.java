@@ -64,7 +64,7 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Nov 14, 2012           mschenke    Initial creation
  * Feb 26, 2013  1708     randerso    Fixed double notification for time change
  * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations, fix iscMode.
- * 
+ * Apr 02, 2014  2961     randerso    Code cleanup (Ben already fixed issue under #2703)
  * 
  * </pre>
  * 
@@ -151,10 +151,6 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
                     parms.add(iscParm);
                 }
                 tmbResources.add(rsc);
-                DataManager dataManager = parm.getDataManager();
-                if (dataManager.getParmManager().iscMode()) {
-                    parms.add(dataManager.getIscDataAccess().getISCParm(parm));
-                }
             }
         }
 
@@ -164,8 +160,8 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
             dateSet.add(new DataTime(stepTime));
         }
 
-        if (currTime != null && selectedDate == null
-                && dateSet.contains(currTime) == false) {
+        if ((currTime != null) && (selectedDate == null)
+                && (dateSet.contains(currTime) == false)) {
             selectedDate = currTime.getRefTime();
         }
 
@@ -285,7 +281,7 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
      * @param parms
      * @return
      */
-    public static List<Date> calcTimeSteps(List<Parm> parms) {
+    private static List<Date> calcTimeSteps(List<Parm> parms) {
         SortedSet<Date> dateSet = new TreeSet<Date>();
         for (Parm pi : parms) {
             IGridData[] inv = pi.getGridInventory();
@@ -294,9 +290,9 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
 
                 if (!dateSet.contains(grid.getGridTime().getEnd())) {
                     for (Parm pk : parms) {
-                        if (pi != pk
-                                && pk.overlappingGrid(grid.getGridTime()
-                                        .getEnd()) != null) {
+                        if ((pi != pk)
+                                && (pk.overlappingGrid(grid.getGridTime()
+                                        .getEnd()) != null)) {
                             dateSet.add(grid.getGridTime().getEnd());
                             break;
                         }
