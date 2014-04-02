@@ -28,10 +28,10 @@ import java.util.Set;
 /**
  * 
  * Represents a bidirectional map for going between base names and aliases.
- * Allows for caseInsensitive aliases since some naming conventions are ambigous
- * on case. The base names cannot be treated case insensitive because this would
- * cause ambiguity and require case insensitive handling of base names in all
- * namespaces.
+ * Allows for caseInsensitive aliases since some naming conventions are
+ * ambiguous on case. The base names cannot be treated case insensitive because
+ * this would cause ambiguity and require case insensitive handling of base
+ * names in all namespaces.
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import java.util.Set;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 22, 2012            bsteffen     Initial creation
+ * Apr 02, 2014 2906       bclement     changed to return empty set instead of null for lookup methods
  * 
  * </pre>
  * 
@@ -86,21 +87,29 @@ public class AliasNamespace {
         }
     }
 
+    /**
+     * @param alias
+     * @return empty set if no mapping from alias to base is found
+     */
     public Set<String> lookupBaseNames(String alias) {
         if (!caseSensitive) {
             alias = alias.toLowerCase();
         }
         Set<String> base = alias2base.get(alias);
         if (base == null) {
-            return base;
+            return Collections.emptySet();
         }
         return Collections.unmodifiableSet(base);
     }
 
+    /**
+     * @param base
+     * @return empty set if no mapping from base to aliases is found
+     */
     public Set<String> lookupAliases(String base) {
         Set<String> alias = base2alias.get(base);
         if (alias == null) {
-            return alias;
+            return Collections.emptySet();
         }
         return Collections.unmodifiableSet(alias);
     }
