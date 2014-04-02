@@ -147,6 +147,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  *                                      of already scheduled BandwidthAllocations.
  * Feb 11, 2014 2771       bgonzale     Added handler for GET_DATADELIVERY_ID request.
  * Feb 10, 2014 2636       mpduff       Changed how retrieval plan is updated over time.
+ * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
  * 
  * </pre>
  * 
@@ -1132,13 +1133,18 @@ public abstract class BandwidthManager<T extends Time, C extends Coverage>
      * @throws SerializationException
      */
     protected Set<String> scheduleSubscriptions(
-            List<Subscription<T, C>> subscriptions)
+            List<Subscription<T, C>> insubscriptions)
             throws SerializationException {
+        
         Set<String> unscheduledSubscriptions = new TreeSet<String>();
-
         Set<BandwidthAllocation> unscheduledAllocations = new HashSet<BandwidthAllocation>();
-
         Map<String, SubscriptionRequestEvent> subscriptionEventsMap = new HashMap<String, SubscriptionRequestEvent>();
+        
+        // Order list by Subscription Priority
+        // We want highest priority subscriptions scheduled first.
+        List<Subscription<T, C>> subscriptions = new ArrayList<Subscription<T,C>>(insubscriptions.size());
+        subscriptions.addAll(insubscriptions);
+        Collections.sort(subscriptions);
 
         for (Subscription<T, C> subscription : subscriptions) {
             List<BandwidthAllocation> unscheduled = subscriptionUpdated(subscription);
