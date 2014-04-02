@@ -23,10 +23,12 @@ package com.raytheon.uf.edex.ohd.pproc;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.raytheon.uf.common.mpe.fieldgen.MpeFieldGenRequest;
+import com.raytheon.uf.common.mpe.fieldgen.MpeFieldGenResponse;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.ohd.MainMethod;
 
@@ -38,12 +40,16 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            bphillip    Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use ThriftSrv and UFStatus, cleanup
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
-public class MpeFieldGenSrv {
+public class MpeFieldGenSrv implements IRequestHandler<MpeFieldGenRequest> {
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(MpeFieldGenSrv.class);
 
     /** The argument pattern if only hours are specified */
     private static final String HOURS_ARG = "\\d{1,2}";
@@ -54,36 +60,60 @@ public class MpeFieldGenSrv {
     private static final Pattern HOURS_DATE_PATTERN = Pattern
             .compile(HOURS_DATE_ARG);
 
+    private static final Pattern HOURS_ARG_PATTERN = Pattern.compile(HOURS_ARG);
+
     /** The default number of hours to process if no argument if provided */
-    private static final String defaultMpeArg = "3";
+    private static final String DEFAULT_ARG = "3";
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private static final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static final String EXECUTE_PATH = appsDefaults
+            .getToken("pproc_bin") + "/run_mpe_fieldgen";
 
-    public Object process(String mpeArg) throws EdexException {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object handleRequest(MpeFieldGenRequest request) throws Exception {
+        MpeFieldGenResponse response = new MpeFieldGenResponse();
+        int exitValue = process(request.getArgs());
+        response.setExitValue(exitValue);
 
-        if (!mpeArg.matches(HOURS_ARG) && !mpeArg.matches(HOURS_DATE_ARG)) {
-            throw new EdexException("Invalid argument sent to mpe_fieldgen");
+        return response;
+    }
+
+    /**
+     * Execute mpe fieldgen.
+     * 
+     * @param mpeArg
+     *            Program arguments
+     * @return exit status
+     * @throws EdexException
+     */
+    private int process(String mpeArg) throws EdexException {
+
+        if (!HOURS_ARG_PATTERN.matcher(mpeArg).matches()
+                && !HOURS_DATE_PATTERN.matcher(mpeArg).matches()) {
+            throw new EdexException("Invalid argument sent to mpe_fieldgen: "
+                    + mpeArg);
         }
 
         int exitValue = 0;
+        logger.info("Executing MPE FieldGen with argument: " + mpeArg);
+
         if (appsDefaults.setAppContext(this)) {
-            if (mpeArg.matches(HOURS_ARG)) {
-                logger.info("Executing MPE FieldGen with argument: " + mpeArg);
-                exitValue = MainMethod.runProgram("ksh",
-                        appsDefaults.getToken("pproc_bin")
-                                + "/run_mpe_fieldgen", mpeArg);
+            if (HOURS_ARG_PATTERN.matcher(mpeArg).matches()) {
+                exitValue = MainMethod.runProgram("ksh", EXECUTE_PATH, mpeArg);
             } else if (mpeArg.matches(HOURS_DATE_ARG)) {
-                logger.info("Executing MPE FieldGen with arguments: " + mpeArg);
                 Matcher matcher = HOURS_DATE_PATTERN.matcher(mpeArg);
                 if (matcher.find()) {
-                    exitValue = MainMethod.runProgram("ksh",
-                            appsDefaults.getToken("pproc_bin")
-                                    + "/run_mpe_fieldgen", matcher.group(1),
-                            matcher.group(2), matcher.group(3));
+                    exitValue = MainMethod.runProgram("ksh", EXECUTE_PATH,
+                            matcher.group(1), matcher.group(2),
+                            matcher.group(3));
                 }
-
+            } else {
+                throw new EdexException(
+                        "Invalid argument sent to mpe_fieldgen: " + mpeArg);
             }
         }
 
@@ -94,11 +124,18 @@ public class MpeFieldGenSrv {
                     "MpeFieldGen process terminated abnormally with exit code: "
                             + exitValue);
         }
+
         return exitValue;
     }
 
+    /**
+     * Run fieldgen with the defalut argument.
+     * 
+     * @return exit status
+     * @throws EdexException
+     */
     public Object runHourlyMpe() throws EdexException {
-        return process(defaultMpeArg);
+        return process(DEFAULT_ARG);
     }
 
 }
