@@ -14,6 +14,7 @@ import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandler
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetHandler;
 import com.raytheon.uf.common.datadelivery.registry.handlers.IDataSetMetaDataHandler;
 import com.raytheon.uf.common.datadelivery.retrieval.xml.ServiceConfig;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 03, 2012 1241       djohnson     Use registry handler, move unresolved reference handling into handlers themselves.
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Sept 30, 2013 1797      dhladky      Generics
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -90,7 +92,7 @@ public abstract class MetaDataParser implements IParseMetaData {
 
         IDataSetHandler handler = DataDeliveryHandlers.getDataSetHandler();
         try {
-            handler.update(dataSetToStore);
+            handler.update(RegistryUtil.registryUser, dataSetToStore);
             statusHandler.info("Dataset [" + dataSetName
                     + "] successfully stored in Registry");
             storeDataSetName(dataSet);
@@ -115,7 +117,7 @@ public abstract class MetaDataParser implements IParseMetaData {
         dsn.setParameters(dataSetToStore.getParameters());
 
         try {
-            DataDeliveryHandlers.getDataSetNameHandler().update(dsn);
+            DataDeliveryHandlers.getDataSetNameHandler().update(RegistryUtil.registryUser, dsn);
             statusHandler.info("DataSetName object store complete, dataset ["
                     + dsn.getDataSetName() + "]");
         } catch (RegistryHandlerException e) {
@@ -144,7 +146,7 @@ public abstract class MetaDataParser implements IParseMetaData {
             final String url = dsmd.getUrl();
 
             try {
-                handler.update(dsmd);
+                handler.update(RegistryUtil.registryUser, dsmd);
                 statusHandler.info("DataSetMetaData [" + url
                         + "] successfully stored in Registry");
             } catch (RegistryHandlerException e) {

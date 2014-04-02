@@ -105,14 +105,14 @@ public class EDEXRegistryManager extends
             if (objects.size() > 1) {
                 statusHandler.error(CAN_ONLY_STORE_SINGLE_OBJECT);
             }
-            response = registryHandler.storeOrReplaceObject(objects
+            response = registryHandler.storeOrReplaceObject(request.getUsername(), objects
                     .get(0));
             break;
         case STORE:
             if (objects.size() > 1) {
                 statusHandler.error(CAN_ONLY_STORE_SINGLE_OBJECT);
             }
-            response = registryHandler.storeObject(objects.get(0));
+            response = registryHandler.storeObject(request.getUsername(), objects.get(0));
             break;
         }
 

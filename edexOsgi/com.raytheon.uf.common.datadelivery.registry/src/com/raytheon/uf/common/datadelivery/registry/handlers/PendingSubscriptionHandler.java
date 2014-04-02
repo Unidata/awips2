@@ -57,6 +57,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * May 29, 2013 1650       djohnson     Fix ability to delete multiple types of subscriptions at once.
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -250,13 +251,13 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public void store(InitialPendingSubscription obj)
+    public void store(String username, InitialPendingSubscription obj)
             throws RegistryHandlerException {
         if (obj instanceof InitialPendingSiteSubscription) {
-            siteSubscriptionHandler.store((InitialPendingSiteSubscription) obj);
+            siteSubscriptionHandler.store(username, (InitialPendingSiteSubscription) obj);
         } else {
             sharedSubscriptionHandler
-                    .store((InitialPendingSharedSubscription) obj);
+                    .store(username, (InitialPendingSharedSubscription) obj);
         }
     }
 
@@ -264,14 +265,14 @@ public class PendingSubscriptionHandler implements IPendingSubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public void update(InitialPendingSubscription obj)
+    public void update(String username, InitialPendingSubscription obj)
             throws RegistryHandlerException {
         if (obj instanceof InitialPendingSiteSubscription) {
             siteSubscriptionHandler
-                    .update((InitialPendingSiteSubscription) obj);
+                    .update(username, (InitialPendingSiteSubscription) obj);
         } else {
             sharedSubscriptionHandler
-                    .update((InitialPendingSharedSubscription) obj);
+                    .update(username, (InitialPendingSharedSubscription) obj);
         }
     }
 
