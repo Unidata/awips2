@@ -44,6 +44,7 @@ import com.raytheon.uf.edex.plugin.cwa.util.TableLoader;
  * Feb 01, 2010            jsanchez     Initial creation
  * Apr 19, 2012  #457      dgilling     Minor code cleanup.
  * Mar 25, 2014  2930      skorolev     Fixed error in distance.
+ * Apr 02, 2014  2930      skorolev     Corrected log message.
  * 
  * </pre>
  * 
@@ -111,20 +112,15 @@ public class CWADecoder {
 
         if (data != null && data.length > 0) {
             List<CWARecord> obsList = new ArrayList<CWARecord>();
-            try {
-                CWAParser parser = new CWAParser(dao, pdd, pluginName, loader);
-                parser.setData(data, traceId, headers);
+            CWAParser parser = new CWAParser(dao, pdd, pluginName, loader);
+            parser.setData(data, traceId, headers);
 
-                CWARecord report;
-                while (parser.hasNext()) {
-                    report = parser.next();
-                    if (report != null) {
-                        obsList.add(report);
-                    }
+            CWARecord report;
+            while (parser.hasNext()) {
+                report = parser.next();
+                if (report != null) {
+                    obsList.add(report);
                 }
-            } catch (Exception e) {
-                logger.error(traceId + "-Error in decode", e);
-            } finally {
                 if (!obsList.isEmpty()) {
                     decodedData = obsList.toArray(new PluginDataObject[obsList
                             .size()]);
