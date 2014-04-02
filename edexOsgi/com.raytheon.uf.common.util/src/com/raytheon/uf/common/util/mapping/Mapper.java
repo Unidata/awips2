@@ -53,6 +53,7 @@ import javax.xml.bind.Unmarshaller;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 22, 2012            bsteffen     Initial creation
+ * Apr 02, 2014 2906       bclement     changed to return empty set instead of null for lookup methods
  * 
  * </pre>
  * 
@@ -97,6 +98,13 @@ public abstract class Mapper {
         Mapper.unmarshaller = unmarshaller;
     }
 
+    /**
+     * @param alias
+     * @param namespace
+     * @param defaultUseAlias
+     *            default to populating return with alias if no base names found
+     * @return empty set if no base names found and defaultUseAlias is false
+     */
     protected Set<String> lookupBaseNames(String alias, String namespace,
             boolean defaultUseAlias) {
         AliasNamespace list = namespaceMap.get(namespace);
@@ -108,7 +116,7 @@ public abstract class Mapper {
             if (defaultUseAlias) {
                 baseNames = new HashSet<String>(Arrays.asList(alias));
             } else {
-                return null;
+                return Collections.emptySet();
             }
         }
         AliasNamespace deprecated = namespaceMap.get(DEPRECATED);
@@ -148,18 +156,27 @@ public abstract class Mapper {
 
     /**
      * Lookup all the baseNames associated with the given alias in a namespace.
-     * If no baseNames are defined null is returned.
+     * If no baseNames are defined an empty set is returned.
      * 
      * @param namespace
      *            - the defined alias namespace to look for the name
      * @param alias
      *            - the name of an alias defined in the namespace
-     * @return the base names or null if the namespace or alias is undefined
+     * @return the base names or an empty set if the namespace or alias is
+     *         undefined
      */
-    public Set<String> lookupBaseNamesOrNull(String alias, String namespace) {
+    public Set<String> lookupBaseNamesOrEmpty(String alias, String namespace) {
         return lookupBaseNames(alias, namespace, false);
     }
 
+    /**
+     * @param base
+     * @param namespace
+     * @param defaultUseBase
+     *            default to populating return with base if no aliases found
+     * @return empty set if no aliases found and defaultUseBase is false
+     * @return
+     */
     protected Set<String> lookupAliases(String base, String namespace,
             boolean defaultUseBase) {
         AliasNamespace ns = namespaceMap.get(namespace);
@@ -167,7 +184,7 @@ public abstract class Mapper {
         if (ns != null) {
             aliases = ns.lookupAliases(base);
         }
-        if (aliases == null) {
+        if (aliases == null || aliases.isEmpty()) {
             AliasNamespace deprecated = namespaceMap.get(DEPRECATED);
             if (deprecated != null) {
                 Set<String> depNames = deprecated.lookupAliases(base);
@@ -186,8 +203,12 @@ public abstract class Mapper {
                     }
                 }
             }
-            if (aliases == null && defaultUseBase) {
-                aliases = new HashSet<String>(Arrays.asList(base));
+            if (aliases == null || aliases.isEmpty()) {
+                if (defaultUseBase) {
+                    aliases = new HashSet<String>(Arrays.asList(base));
+                } else {
+                    aliases = Collections.emptySet();
+                }
             }
         }
         return aliases;
@@ -209,15 +230,15 @@ public abstract class Mapper {
 
     /**
      * Lookup an alias name within a given namespace for a base name. If no
-     * alias is defined then null is returned
+     * alias is defined then an empty set is returned
      * 
      * @param parameter
      *            - The base name to find an alias for
      * @param namespace
      *            - The namespace in which to look for an alias.
-     * @return an alias abbreviation or null if none is found.
+     * @return an alias abbreviation or an empty set if none is found.
      */
-    public Set<String> lookupAliasesOrNull(String base, String namespace) {
+    public Set<String> lookupAliasesOrEmpty(String base, String namespace) {
         return lookupAliases(base, namespace, false);
     }
 
@@ -255,7 +276,7 @@ public abstract class Mapper {
     public String lookupAlias(String base, String namespace)
             throws MultipleMappingException {
         Set<String> aliases = lookupAliases(base, namespace);
-        if (aliases == null) {
+        if (aliases == null || aliases.isEmpty()) {
             return null;
         } else if (aliases.size() == 1) {
             return aliases.iterator().next();
@@ -265,18 +286,19 @@ public abstract class Mapper {
     }
 
     /**
-     * Provides same functionality as lookupBaseNamesOrNull but is more
+     * Provides same functionality as lookupBaseNamesOrEmpty but is more
      * convenient when only alias is expected.
      * 
      * @param alias
      * @param namespace
-     * @return
+     * @return null if no mapping from alias to base name is found
      * @throws MultipleMappingException
+     *             if more than one base name is found for alias
      */
     public String lookupBaseNameOrNull(String alias, String namespace)
             throws MultipleMappingException {
-        Set<String> baseNames = lookupBaseNamesOrNull(alias, namespace);
-        if (baseNames == null || baseNames.isEmpty()) {
+        Set<String> baseNames = lookupBaseNamesOrEmpty(alias, namespace);
+        if (baseNames.isEmpty()) {
             return null;
         } else if (baseNames.size() == 1) {
             return baseNames.iterator().next();
@@ -287,17 +309,18 @@ public abstract class Mapper {
     }
 
     /**
-     * Provides same functionality as lookupAliasesOrNull but is more convenient
-     * when only one base name is expected.
+     * Provides same functionality as lookupAliasesOrEmpty but is more
+     * convenient when only one base name is expected.
      * 
      * @param base
      * @param namespace
-     * @return
+     * @return null if no mapping from base to alias is found
      * @throws MultipleMappingException
+     *             if more than one alias is found for base
      */
     public String lookupAliasOrNull(String base, String namespace)
             throws MultipleMappingException {
-        Set<String> aliases = lookupAliasesOrNull(base, namespace);
+        Set<String> aliases = lookupAliasesOrEmpty(base, namespace);
         if (aliases == null) {
             return null;
         } else if (aliases.size() == 1) {
