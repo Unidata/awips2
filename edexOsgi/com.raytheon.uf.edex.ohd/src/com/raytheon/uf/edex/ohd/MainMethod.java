@@ -27,10 +27,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2008            jelkins     Initial creation
  * Oct 19, 2012  #1274     bgonzale    Set AppContext on the process builder in ctor.
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * </pre>
  * 
  * @author jelkins
@@ -59,9 +59,10 @@ import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 public class MainMethod extends Process {
 
-    protected Log log;
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(MainMethod.class);
 
-    private ProcessBuilder processBuilder;
+    private final ProcessBuilder processBuilder;
 
     private Process process;
 
@@ -112,7 +113,6 @@ public class MainMethod extends Process {
     public MainMethod(ProcessBuilder builder) {
 
         this.processBuilder = builder;
-        this.log = LogFactory.getLog(processBuilder.getClass());
 
         try {
             processBuilder.environment().put(
@@ -156,7 +156,7 @@ public class MainMethod extends Process {
                 error.append(processBuilder.command().get(i)).append(" ");
             }
             error.append("failed with exit code " + exitValue);
-            log.error(error);
+            log.error(error.toString());
         }
 
         return exitValue;
