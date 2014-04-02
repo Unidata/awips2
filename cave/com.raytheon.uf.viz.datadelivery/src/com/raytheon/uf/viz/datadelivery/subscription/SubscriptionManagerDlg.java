@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.datadelivery.subscription;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -156,8 +157,8 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
  * Feb 11, 2014   2771     bgonzale   Use Data Delivery ID instead of Site.
  * Mar 24, 2014  #2951     lvenable     Added dispose checks for SWT widgets.
- * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
- * 
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
+ * Apr 2,  2014 2974       dhladky      DD ID added to list for dropdowns in DD.
  * 
  * </pre>
  * 
@@ -1309,10 +1310,8 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
      */
     public void loadOfficeNames() {
 
-        Map<String, SiteData> siteData = SiteMap.getInstance().getSiteData();
-        Set<String> sites = siteData.keySet();
-
-        officeNames = sites.toArray(new String[sites.size()]);
+        List<String> siteList = DataDeliveryUtils.getDataDeliverySiteList();
+        officeNames = siteList.toArray(new String[siteList.size()]);
 
         officeCbo.setItems(officeNames);
 
