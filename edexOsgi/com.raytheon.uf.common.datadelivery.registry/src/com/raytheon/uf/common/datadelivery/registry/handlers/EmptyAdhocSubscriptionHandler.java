@@ -40,6 +40,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2014   2538     mpduff      Initial creation
  * Jan 29, 2014   2636     mpduff      Scheduling refactor.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -124,13 +125,13 @@ public class EmptyAdhocSubscriptionHandler implements IAdhocSubscriptionHandler 
     }
 
     @Override
-    public void store(AdhocSubscription obj) throws RegistryHandlerException {
+    public void store(String username, AdhocSubscription obj) throws RegistryHandlerException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void update(AdhocSubscription obj) throws RegistryHandlerException {
+    public void update(String username, AdhocSubscription obj) throws RegistryHandlerException {
         // TODO Auto-generated method stub
 
     }
