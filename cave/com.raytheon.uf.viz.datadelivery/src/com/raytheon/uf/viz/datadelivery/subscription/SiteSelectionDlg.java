@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.site.SiteData;
 import com.raytheon.uf.common.site.SiteData.SiteDataType;
 import com.raytheon.uf.common.site.SiteMap;
+import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.DualListComposite;
 import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
@@ -53,6 +54,7 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
  * ------------ ---------- ----------- --------------------------
  * Apr 29, 2013   1040     mpduff      Initial creation
  * Feb 11, 2014   2771     bgonzale    Show all SiteDataTypes in site list.
+ * Apr 2,  2014 2974       dhladky      DD ID added to list for dropdowns in DD.
  * 
  * </pre>
  * 
@@ -147,15 +149,8 @@ public class SiteSelectionDlg extends CaveSWTDialog {
      * @return list of site ids
      */
     private List<String> getSiteList() {
-        SiteMap siteMap = SiteMap.getInstance();
-        List<String> siteList = new ArrayList<String>();
-
-        Map<String, SiteData> siteDataMap = siteMap.getSiteData();
-
-        for (Entry<String, SiteData> entry : siteDataMap.entrySet()) {
-            SiteDataType type = entry.getValue().getType();
-            siteList.add(entry.getKey());
-        }
+    
+        List<String> siteList = DataDeliveryUtils.getDataDeliverySiteList();
 
         // Remove the current site
         siteList.remove(this.site);
