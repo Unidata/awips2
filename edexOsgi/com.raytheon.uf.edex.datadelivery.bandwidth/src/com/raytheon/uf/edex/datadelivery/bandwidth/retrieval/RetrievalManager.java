@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.datadelivery.registry.Network;
+import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -41,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.retrieval.RetrievalManagerNotifyEvent;
  * Oct 03, 2013 2267       bgonzale     Added check for no retrieval plan matching in the proposed retrieval plans.
  * Jan 30, 2014   2686     dhladky      refactor of retrieval.
  * Feb 10, 2014  2678      dhladky      Prevent duplicate allocations.
+ * Apr 02, 2014  2810      dhladky      Priority sorting of allocations.
  * 
  * </pre>
  * 
@@ -87,8 +89,12 @@ public class RetrievalManager {
      *         scheduled
      */
     public <T extends BandwidthAllocation> List<BandwidthAllocation> schedule(
-            List<T> bandwidthAllocations) {
+            List<T> inallocations) {
         List<BandwidthAllocation> unscheduled = new ArrayList<BandwidthAllocation>();
+        // Arrange allocations in priority order
+        List<BandwidthAllocation> bandwidthAllocations = new ArrayList<BandwidthAllocation>(inallocations.size());
+        bandwidthAllocations.addAll(inallocations);
+        Collections.sort(bandwidthAllocations);
 
         for (BandwidthAllocation bandwidthAllocation : bandwidthAllocations) {
             Network network = bandwidthAllocation.getNetwork();
