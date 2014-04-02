@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.PluginException;
@@ -50,6 +48,9 @@ import com.raytheon.uf.common.hydro.spatial.HRAPSubGrid;
 import com.raytheon.uf.common.mpe.util.XmrgFile;
 import com.raytheon.uf.common.mpe.util.XmrgFile.XmrgHeader;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -71,6 +72,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Jan 26, 2011            snaples     Initial creation
  * Jan 10, 2013 1448       bgonzale    Added app context check in processArealQpe().
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * 
  * </pre>
  * 
@@ -79,6 +81,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class ArealQpeGenSrv {
+    private static final IUFStatusHandler log = UFStatus
+            .getHandler(ArealQpeGenSrv.class);
 
     /**
      * <pre>
@@ -146,8 +150,6 @@ public class ArealQpeGenSrv {
 
     private HRAPSubGrid subGrid;
 
-    private Log log = LogFactory.getLog("GenArealQPE");
-
     private Rectangle wfoExtent;
 
     /**
@@ -183,13 +185,13 @@ public class ArealQpeGenSrv {
 
     private static final String GRIBIT = "gribit.LX";
 
-    private Map<String, Rectangle> extentsMap = new HashMap<String, Rectangle>();
+    private final Map<String, Rectangle> extentsMap = new HashMap<String, Rectangle>();
 
-    private Map<String, float[]> gridMap = new HashMap<String, float[]>();
+    private final Map<String, float[]> gridMap = new HashMap<String, float[]>();
 
     private int dur;
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     private String gaq_xmrg_1hr_dir;
 
@@ -205,9 +207,10 @@ public class ArealQpeGenSrv {
 
     private boolean qpe_out;
 
-    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat sdf = new SimpleDateFormat(
+            "yyyy-MM-dd HH:mm:ss");
 
-    private SimpleDateFormat fdf = new SimpleDateFormat("yyyyMMddHH");
+    private final SimpleDateFormat fdf = new SimpleDateFormat("yyyyMMddHH");
 
     public Object processArealQpe() {
         if (!AppsDefaults.getInstance().setAppContext(this)) {
@@ -232,7 +235,7 @@ public class ArealQpeGenSrv {
 
         /* loop on QPE durations */
         for (int dd : durs) {
-            if (log.isDebugEnabled()) {
+            if (log.isPriorityEnabled(Priority.DEBUG)) {
                 log.debug("Processing for " + dd + " hr duration");
             }
             processSingleQpe(dd, hrap, subGrid);
@@ -377,13 +380,12 @@ public class ArealQpeGenSrv {
                         } catch (IOException e) {
                             log.error("Copy grib file " + mvFile.getName()
                                     + " to " + d2d_input_dir + File.separator
-                                    + "arealQpeGenSrv" + " failed. ");
-                            e.printStackTrace();
+                                    + "arealQpeGenSrv" + " failed. ", e);
                         }
                     }
                     // Remove the xmrg file from the temp directory.
                     fr.delete();
-                    if (log.isDebugEnabled()) {
+                    if (log.isPriorityEnabled(Priority.DEBUG)) {
                         log.debug("Removed file " + fr
                                 + " from rfcqpe_temp directory.");
                     }
@@ -465,7 +467,6 @@ public class ArealQpeGenSrv {
             xmhead = null;
         } catch (IOException e) {
             log.error("Error writing RFC QPE file", e);
-            e.printStackTrace();
             xmhead = null;
             return;
         }
@@ -492,7 +493,6 @@ public class ArealQpeGenSrv {
             xmhead = null;
         } catch (IOException e) {
             log.error("Error writing Temp QPE file", e);
-            e.printStackTrace();
             xmhead = null;
             return;
         }
@@ -517,7 +517,6 @@ public class ArealQpeGenSrv {
                 wfoExtent = HRAPCoordinates.getHRAPCoordinates();
             } catch (Exception e2) {
                 log.error("Error setting up the wfo extent", e2);
-                e2.printStackTrace();
                 return;
             }
 
@@ -544,7 +543,7 @@ public class ArealQpeGenSrv {
             processGrids();
             writeXmrg(dd, mosaicQpeShort);
         } else {
-            if (log.isDebugEnabled()) {
+            if (log.isPriorityEnabled(Priority.DEBUG)) {
                 log.debug("Getting data for duration " + durString
                         + " returned no data.");
             }
@@ -584,7 +583,6 @@ public class ArealQpeGenSrv {
             subGrid = hrap.getHRAPSubGrid(extent);
         } catch (Exception e) {
             log.error("Error setting up HRAP subgrid", e);
-            e.printStackTrace();
             return;
         }
     }
@@ -698,11 +696,9 @@ public class ArealQpeGenSrv {
 
         } catch (PluginException e1) {
             log.error("Error querying grids", e1);
-            e1.printStackTrace();
             return false;
         } catch (Exception e) {
             log.error("Error creating rfc qpe grid", e);
-            e.printStackTrace();
             return false;
         }
         return true;
@@ -748,10 +744,7 @@ public class ArealQpeGenSrv {
                     y--;
                 }
             } catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Error in populating getData::mosaicQpeShort.");
-                }
-                e.printStackTrace();
+                log.error("Error in populating getData::mosaicQpeShort.", e);
             }
         }
         return;
