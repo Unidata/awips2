@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
  * Jul 13, 2012 740        djohnson    Add join.
  * Nov 09, 2012 1322       djohnson    Add NEWLINE, createMessage.
  * Mar 02, 2013 1970       bgonzale    Added fast string replacement method.
+ * Apr 02, 2014 2915       dgilling    Added left and right trim methods.
  * 
  * </pre>
  * 
@@ -311,16 +312,54 @@ public final class StringUtil {
         int count = 0;
         Pattern pat = Pattern.compile("\\p{Alnum}");
         Matcher mat = pat.matcher(str);
-    
+
         while (mat.find()) {
             count++;
         }
-    
+
         if (count == str.length()) {
             return true;
         } else {
             return false;
         }
-    
+
+    }
+
+    /**
+     * Returns a copy of the string, with only leading whitespace omitted.
+     * <p>
+     * Like String.trim(), whitespace is defined as any character with a code
+     * less than or equal to <code>'&#92;u0020'</code> (the space character).
+     * 
+     * @param s
+     *            The <code>String</code> to trim.
+     * @return A copy of this string with leading white space removed, or the
+     *         passed in string if it has no leading white space.
+     */
+    public static String ltrim(String s) {
+        int i = 0;
+        while ((i < s.length()) && (s.charAt(i) <= ' ')) {
+            i++;
+        }
+        return (i > 0) ? s.substring(i) : s;
+    }
+
+    /**
+     * Returns a copy of the string, with only trailing whitespace omitted.
+     * <p>
+     * Like String.trim(), whitespace is defined as any character with a code
+     * less than or equal to <code>'&#92;u0020'</code> (the space character).
+     * 
+     * @param s
+     *            The <code>String</code> to trim.
+     * @return A copy of this string with trailing white space removed, or the
+     *         passed in string if it has no trailing white space.
+     */
+    public static String rtrim(String s) {
+        int i = s.length();
+        while ((i > 0) && (s.charAt(i - 1) <= ' ')) {
+            i--;
+        }
+        return (i < s.length()) ? s.substring(0, i) : s;
     }
 }
