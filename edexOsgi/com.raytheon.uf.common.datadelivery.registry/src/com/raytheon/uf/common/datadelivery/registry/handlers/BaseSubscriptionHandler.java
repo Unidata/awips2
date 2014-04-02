@@ -36,6 +36,7 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionDataSetNameQuery;
 import com.raytheon.uf.common.datadelivery.registry.ebxml.SubscriptionFilterableQuery;
 import com.raytheon.uf.common.registry.RegistryQueryResponse;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.BaseRegistryObjectHandler;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.registry.handler.RegistryObjectHandlers;
@@ -63,6 +64,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Jan 14, 2014 2459       mpduff       Validate subs should be scheduled before returning them.
  * Jan 17, 2014 2459       mpduff       Persist the state of the expired subs.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -241,7 +243,7 @@ public abstract class BaseSubscriptionHandler<T extends Subscription, QUERY exte
                                 .get(ISubscriptionHandler.class);
                         for (T s : updateList) {
                             try {
-                                sh.update(s);
+                                sh.update(RegistryUtil.registryUser, s);
                                 statusHandler.info("Subscription "
                                         + s.getName() + " is expired.");
                             } catch (RegistryHandlerException e) {

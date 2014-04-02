@@ -866,7 +866,7 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
                                 .isAuthorized()) {
                             sub.getOfficeIDs().add(CURRENT_SITE);
                             DataDeliveryHandlers.getSubscriptionHandler()
-                                    .update(sub);
+                                    .update(user.uniqueId().toString(), sub);
                         }
                     } catch (AuthException e) {
                         statusHandler.handle(Priority.PROBLEM,
