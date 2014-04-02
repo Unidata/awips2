@@ -44,6 +44,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Nov 04, 2013  2545      bgonzale    Initial creation
  * Jan 29, 2014  2636      mpduff      Scheduling refactor.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -236,7 +237,7 @@ public class EmptySharedSubscriptionHandler implements
      * java.lang.Object)
      */
     @Override
-    public void store(SharedSubscription obj) throws RegistryHandlerException {
+    public void store(String username, SharedSubscription obj) throws RegistryHandlerException {
     }
 
     /*
@@ -247,7 +248,7 @@ public class EmptySharedSubscriptionHandler implements
      * (java.lang.Object)
      */
     @Override
-    public void update(SharedSubscription obj) throws RegistryHandlerException {
+    public void update(String username, SharedSubscription obj) throws RegistryHandlerException {
     }
 
     /*
