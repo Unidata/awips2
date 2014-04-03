@@ -372,6 +372,7 @@ ${canwarning}
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 #######################################################################
 ## MWS CON PRODUCT
@@ -544,6 +545,7 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 ## #####################################################################
 ## MWS CAN/CON PRODUCT
@@ -921,6 +923,7 @@ THE ${eventType} !** WEAKENED / MOVED OUT OF THE WARNED AREA **! AND NO LONGER $
 #if(${list.contains(${includedWatches}, "svrWatches")})
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
+
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
@@ -928,7 +931,6 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
-
 
 $$
 
@@ -1109,6 +1111,7 @@ REPORT SEVERE WEATHER TO THE COAST GUARD OR NEAREST LAW ENFORCEMENT AGENCY. THEY
 #insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 #end
 #end
+
 ##
 ## #####################################################################
 ## MWS EXP PRODUCT

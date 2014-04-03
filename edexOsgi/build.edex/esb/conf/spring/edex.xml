@@ -262,6 +262,13 @@
 			<bean ref="serializationUtil" method="transformToThrift" />
 			<to uri="jms-generic:topic:edex.alarms.msg" />
 		</route>
+		
+		<!-- Route to send geospatial data update notification -->
+        <route id="geospatialUpdateNotify">
+            <from uri="vm:edex.geospatialUpdateNotification" />
+            <bean ref="serializationUtil" method="transformToThrift" />
+            <to uri="jms-generic:topic:edex.geospatialUpdate.msg" />
+        </route>
 
         <!-- Route to periodically close any unused jms resources that have been pooled -->
         <route id="jmsPooledResourceChecker">
