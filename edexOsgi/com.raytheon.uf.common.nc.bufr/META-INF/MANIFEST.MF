@@ -8,9 +8,12 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: ucar.nc2,
  ucar.nc2.bufrsplitter,
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.numeric
+ com.raytheon.uf.common.numeric,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.util
 Export-Package: com.raytheon.uf.common.nc.bufr,
  com.raytheon.uf.common.nc.bufr.tables,
+ com.raytheon.uf.common.nc.bufr.time,
  com.raytheon.uf.common.nc.bufr.util
 Bundle-ClassPath: .,
  res/
