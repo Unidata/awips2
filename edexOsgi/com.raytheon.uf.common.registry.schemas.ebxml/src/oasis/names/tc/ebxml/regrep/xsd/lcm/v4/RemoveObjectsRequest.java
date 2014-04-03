@@ -27,7 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -81,6 +80,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 2012                     bphillip    Initial implementation
  * 10/17/2013    1682       bphillip    Added software history
  * 12/2/2013     1829       bphillip    Added Hibernate annotations
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author bphillip
@@ -120,7 +120,6 @@ public class RemoveObjectsRequest extends RegistryRequestType {
     @DynamicSerializeElement
     protected String deletionScope;
 
-    @Transient
     @XmlAttribute
     @DynamicSerializeElement
     protected String username;
