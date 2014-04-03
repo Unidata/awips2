@@ -37,6 +37,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPDataContainer;
@@ -260,9 +261,7 @@ public class FFMPProcessor {
                 try {
                     xmrg = (XmrgFile) config.getSourceData(
                             source.getSourceName()).get(dataKey);
-                    this.extent = getExtents(source.getHrapGridFactor());
-                    setHRAPSubGrid(extent, source.getHrapGridFactor());
-                    xmrgData = xmrg.getData(extent);
+                    xmrgData = getXMRGData();
                 } catch (Exception e) {
                     fireBadConfigMessage(type, e);
                     return;
@@ -610,6 +609,7 @@ public class FFMPProcessor {
                     }
 
                     catch (Exception e) {
+                        ffmpRec = null;
                         throw new Exception(
                                 "FFMPProcessor: Failed to process source domain: "
                                         + source.getSourceName() + ": "
@@ -704,6 +704,7 @@ public class FFMPProcessor {
             }
 
         } catch (Exception e) {
+            ffmpRec = null;
             throw new Exception("FFMPProcessor: Failed to process source: "
                     + source.getSourceName());
         }
@@ -735,9 +736,7 @@ public class FFMPProcessor {
             try {
                 xmrg = (XmrgFile) config.getSourceData(source.getSourceName()).get(
                         dataKey);
-                this.extent = getExtents(source.getHrapGridFactor());
-                setHRAPSubGrid(extent, source.getHrapGridFactor());
-                xmrgData = xmrg.getData(extent);
+                xmrgData = getXMRGData();
                 recdate = xmrg.getHeader().getValidDate();
             } catch (Exception e) {
                 fireBadConfigMessage(type, e);
@@ -804,6 +803,7 @@ public class FFMPProcessor {
                     }
 
                 } catch (Exception e) {
+                    ffmpRec = null;
                     statusHandler.error("Unable to process VGB: "+type, e);
                 }
             }
@@ -1820,8 +1820,26 @@ public class FFMPProcessor {
                 sb.append("Record: " + gribRec.getDataURI() + " \n");
             }
         }
-        
+        // null out the record it is garbage.
+        ffmpRec = null;
         statusHandler.handle(Priority.ERROR, sb.toString(), e);
     }
 
+    /**
+     * Gets the XMRG data array
+     * 
+     * @return
+     */
+    private short[][] getXMRGData() throws Exception {
+
+        this.extent = getExtents(source.getHrapGridFactor());
+        setHRAPSubGrid(extent, source.getHrapGridFactor());
+        if (xmrg.getHrapExtent() != null) {
+            xmrgData = xmrg.getData(extent);
+        } else {
+            throw new MalformedDataException("The XMRG data is malformed or the file is non-readable.");
+        }
+
+        return xmrgData;
+    }
 }
