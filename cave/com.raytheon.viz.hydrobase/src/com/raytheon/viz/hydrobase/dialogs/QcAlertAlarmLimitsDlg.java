@@ -1,4 +1,4 @@
-/**
+/**  
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
  * 
@@ -81,7 +81,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Oct 27,2011  11305       lbousaidi   change some logic to have physical
  * 										elements matches the selection of default limits
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
- * 
+ * Nov 26, 2013 15800       wkwock      Fix unhandled event loop 
+ * Jan 07, 2013 16643       snaples     Fixed changeFormat to use string formatting instead of converting to Date.
  * </pre>
  * 
  * @author lvenable
@@ -1286,21 +1287,13 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     private String changeFormat(String initDateFormat, SimpleDateFormat dateF1,
             SimpleDateFormat dateF2) {
         String finalDateFormat = null;
-        Date dd1 = null;
 
         if ((initDateFormat != null) && !(initDateFormat.equals(""))) {
-            try {
-                dateF1.setLenient(false);
-                dateF2.setLenient(false);
-
-                dd1 = dateF1.parse(initDateFormat);
-
-            } catch (ParseException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error parsing data. ",
-                        e);
-            }
-
-            finalDateFormat = dateF2.format(dd1);
+                String dateformat1 = dateF1.toPattern();
+                String dateformat2 = dateF2.toPattern();
+                char ch1 = dateformat1.charAt(2);
+                char ch2 = dateformat2.charAt(2);
+                finalDateFormat = initDateFormat.replace(ch1, ch2);
 
         }
 
@@ -1329,7 +1322,23 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         if (success) {
             // Reload the data keeping the selection
             selection = limitsList.getSelectionIndex();
+            String currentItem=locationSelItemTF.getText();
             loadData(true);
+            if (selection<0) {//must be new item
+                int index = 0 ;
+                for (index=0; index<limitsList.getItemCount();index++) {
+                    String item = limitsList.getItem(index);
+                    if (item.trim().split(" ")[0].compareToIgnoreCase(currentItem)==0)
+                            break; //found the index
+                }
+
+
+                if (index>=limitsList.getItemCount())
+                    selection=0;
+                else
+                    selection = index;
+            }
+            
             limitsList.setSelection(selection);
             getSelectedLimit();
         }
