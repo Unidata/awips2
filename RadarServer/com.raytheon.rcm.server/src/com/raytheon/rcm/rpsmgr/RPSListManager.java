@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.raytheon.rcm.config.Configuration;
 import com.raytheon.rcm.config.EndpointConfig;
@@ -35,6 +35,7 @@ import com.raytheon.rcm.config.RadarConfig;
 import com.raytheon.rcm.config.RadarType;
 import com.raytheon.rcm.config.Util;
 import com.raytheon.rcm.event.ConfigEvent;
+import com.raytheon.rcm.event.ConfigEvent.Category;
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 import com.raytheon.rcm.message.GSM;
@@ -69,6 +70,7 @@ import com.raytheon.rcm.server.StatusManager.RadarStatus;
  * 2009-04-22   #1693      D. Friedman Initial checkin
  * ...
  * 2013-01-31   DR 15458   D. Friedman Explicitly handle UNSPECIFIED_VCP.
+ * 2014-02-03   DR 14762   D. Friedman Handle updated national RPS lists.
  * </pre>
  * 
  */
@@ -79,13 +81,11 @@ public class RPSListManager extends RadarEventAdapter {
 
     RadarServer radarServer;
 
-    HashMap<String, RpsList> immediateLists = new HashMap<String, RpsList>(); // TODO:
-
     // on sendRpsList (not store), set. on (true) vcp change, remove. should
     // persist...
-    HashMap<String, RpsList> currentRpsLists = new HashMap<String, RpsList>();
+    ConcurrentHashMap<String, RpsList> currentRpsLists = new ConcurrentHashMap<String, RpsList>();
 
-    HashMap<String, Integer> currentVcps = new HashMap<String, Integer>();
+    ConcurrentHashMap<String, Integer> currentVcps = new ConcurrentHashMap<String, Integer>();
 
     /**
      * Indicates RadarServer should generate AWIPS 1 style RPS lists. There does
@@ -580,23 +580,35 @@ public class RPSListManager extends RadarEventAdapter {
                     && newCfg.isDedicated()
                     && (oldCfg.isCollectionEnabled() != newCfg
                             .isCollectionEnabled())) {
-                String radarID = newCfg.getRadarID();
-                RadarStatus status = radarServer.getStatusManager()
-                        .getRadarStatus(radarID);
-                byte[] gsmData = null;
-                if (status != null)
-                    gsmData = status.getCurrentGSM();
-                currentVcps.remove(radarID);
-                currentRpsLists.remove(radarID);
-                if (gsmData != null) {
-                    handleGSM(newCfg, gsmData);
-                } else {
-                    Log.debugf(
-                            "RPS-relevant configuration changed for %s, but "
-                                    + "it is not connected.  Cannot send a list now.",
-                            radarID);
+                resetRpsListForRadar(newCfg);
+            }
+        } else if (event.getCategory() == Category.NATIONAL_RPS_LISTS) {
+            Configuration config = radarServer.getConfiguration();
+            for (String radarID : config.getConfiguredRadarList()) {
+                RadarConfig rc = config.getConfigForRadar(radarID);
+                if (rc.isCollectionEnabled()) {
+                    resetRpsListForRadar(rc);
                 }
             }
+        }
+    }
+
+    private void resetRpsListForRadar(RadarConfig rc) {
+        String radarID = rc.getRadarID();
+        RadarStatus status = radarServer.getStatusManager()
+                .getRadarStatus(radarID);
+        byte[] gsmData = null;
+        if (status != null)
+            gsmData = status.getCurrentGSM();
+        currentVcps.remove(radarID);
+        currentRpsLists.remove(radarID);
+        if (gsmData != null) {
+            handleGSM(rc, gsmData);
+        } else {
+            Log.debugf(
+                    "RPS-relevant configuration changed for %s, but "
+                            + "it is not connected.  Cannot send a list now.",
+                    radarID);
         }
     }
 }
