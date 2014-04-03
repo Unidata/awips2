@@ -67,6 +67,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 3/18/2013    1802         bphillip    Modified to use transaction boundaries and spring injection
  * 4/9/2013     1802        bphillip     Import changes due to moved constant classes
  * 5/21/2013    2022        bphillip     Implemented RegistryInitializedListener
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author bphillip
@@ -212,6 +213,7 @@ public class XACMLPolicyAdministrator implements RegistryInitializedListener {
         submitRequest.setComment("Submission of access control policy");
         submitRequest.setCheckReferences(false);
         submitRequest.setMode(Mode.CREATE_OR_REPLACE);
+        submitRequest.setUsername(RegistryUtil.registryUser);
         submitRequest.setId("ACP submission");
         List<RegistryObjectType> regObjs = new ArrayList<RegistryObjectType>();
         for (int i = 0; i < fileList.length; i++) {
