@@ -51,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.raytheon.uf.common.datadelivery.registry.web.IRegistryDataAccessService;
 import com.raytheon.uf.common.registry.RegistryException;
 import com.raytheon.uf.common.registry.constants.CanonicalQueryTypes;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.services.rest.response.RestCollectionResponse;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -78,6 +79,7 @@ import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
  * 10/2/2013    2385        bphillip    Fixed subscription backup queries
  * 10/8/2013    1682        bphillip    Added query queries
  * 11/7/2013    1678        bphillip    Added getCustomQueries method
+ * Mar 31, 2014 2889        dhladky     Added username for notification center tracking.
  * </pre>
  * 
  * @author bphillip
@@ -284,6 +286,7 @@ public class RegistryDataAccessService implements IRegistryDataAccessService {
                     .setComment("Restoring backed up subscriptions");
             submitObjectsRequest.setId("Restore subscription [" + subId + "]");
             submitObjectsRequest.setMode(Mode.CREATE_OR_REPLACE);
+            submitObjectsRequest.setUsername(RegistryUtil.registryUser);
             submitObjectsRequest
                     .setRegistryObjectList(new RegistryObjectListType());
             submitObjectsRequest.getRegistryObjects().add(sub);
