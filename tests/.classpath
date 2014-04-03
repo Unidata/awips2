@@ -87,7 +87,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/javax.servlet_2.5.0.v200910301333.jar"/>
-	<classpathentry kind="lib" path="/com.raytheon.edex.plugin.redbook/res/conf"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.common.datadelivery.harvester"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/javax.jms"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.apache.commons.cxf"/>

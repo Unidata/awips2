@@ -63,6 +63,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Sep 11, 2013 2352       mpduff       Add siteId to getSubscribedToDataSetNames method.
  * Jan 20, 2014 2538       mpduff       Added AdhocSubscriptionHandler.
  * Jan 29, 2014 2636       mpduff       Scheduling refactor.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -321,11 +322,11 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public void store(Subscription obj) throws RegistryHandlerException {
+    public void store(String username, Subscription obj) throws RegistryHandlerException {
         if (obj instanceof SiteSubscription) {
-            siteSubscriptionHandler.store((SiteSubscription) obj);
+            siteSubscriptionHandler.store(username, (SiteSubscription) obj);
         } else {
-            sharedSubscriptionHandler.store((SharedSubscription) obj);
+            sharedSubscriptionHandler.store(username, (SharedSubscription) obj);
         }
     }
 
@@ -333,11 +334,11 @@ public class SubscriptionHandler implements ISubscriptionHandler {
      * {@inheritDoc}
      */
     @Override
-    public void update(Subscription obj) throws RegistryHandlerException {
+    public void update(String username, Subscription obj) throws RegistryHandlerException {
         if (obj instanceof SiteSubscription) {
-            siteSubscriptionHandler.update((SiteSubscription) obj);
+            siteSubscriptionHandler.update(username, (SiteSubscription) obj);
         } else {
-            sharedSubscriptionHandler.update((SharedSubscription) obj);
+            sharedSubscriptionHandler.update(username, (SharedSubscription) obj);
         }
     }
 
