@@ -80,6 +80,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDialogStatus;
  * Jan 27, 2011 #5274      bkowal      Using the swt job class to request data
  *                                     asynchronously and display a progress
  *                                     indicator on the main interface.
+ * Feb 11, 2014 #15829     lbousaidi   check for Missing before processing River Threat.                                    
  * </pre>
  * 
  * @author mpduff
@@ -390,6 +391,13 @@ public class PointDataControlManager extends Job {
              * missing data are only added if requested, since it takes a finite
              * time to determine which stations are missing.
              */
+            if (pcOptions.getSupressMissing() == 1) {
+                repList = PointDataControlAddMissing.addMissingReports(repList);
+            }
+
+            if (this.cancelJob) {
+                 return;
+            }
 
             /*
              * Check to determine if the user wants the displayed river icons to
@@ -400,24 +408,6 @@ public class PointDataControlManager extends Job {
             if (pcOptions.getRiverStatus() == 1) {
                 repList = PointDataControlRiverStatus.processRiverThreatIndex(
                         repList, dataRetrievalRequired);
-            }
-
-            if (this.cancelJob) {
-                return;
-            }
-
-            /*
-             * if the user has requested that a missing report be shown for each
-             * station being considered, then add them as necessary. the report
-             * list is passed in AND returned to handle the case where the
-             * report list may be empty, and therefore this function must assign
-             * a new Head pointer.
-             * 
-             * missing data are only added if requested, since it takes a finite
-             * time to determine which stations are missing.
-             */
-            if (pcOptions.getSupressMissing() == 1) {
-                repList = PointDataControlAddMissing.addMissingReports(repList);
             }
 
             if (this.cancelJob) {
