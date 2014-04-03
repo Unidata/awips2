@@ -34,6 +34,8 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul 9, 2008	1194			mpduff	Initial creation.
+ * Mar 7, 2014  16692                   lbousaidi Any Forecast source other than
+ *                                      H*,P*,Q*,T* should be handled by fcstother.
  * 
  * </pre>
  * 
@@ -110,6 +112,9 @@ public class DbUtils {
                                                                 * data
                                                                 */
             retVal = fcstTableMap.get(pe.substring(0, 1).toLowerCase());
+            if (retVal==null) {
+            	retVal="Fcstother";
+            }
             matchFound = true;
         } else { /* if type-source not valid */
             // TODO - Log error message - "Invalid type-source specified for
