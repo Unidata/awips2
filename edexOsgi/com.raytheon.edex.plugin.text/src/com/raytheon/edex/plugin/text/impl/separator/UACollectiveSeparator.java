@@ -35,7 +35,7 @@ import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Upper Air Collective text Separator.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
  * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * Apr 02, 2014 2652       skorolev    Corrected a removing of excess control characters.
  * </pre>
  * 
  * @author jkorman
@@ -122,7 +123,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
-        if (nnnxxxMatcher.find()) {
+        if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
             rawMsg = rawMsg.substring(nnnxxxMatcher.end());
         }
         StringBuilder buffer = new StringBuilder(rawMsg);
@@ -398,7 +399,6 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
     // ---------------------------------------------------------------------------
     private void parseUpairMsg(StringBuilder buffer, StringBuilder stationNum,
             StringBuilder parsedMsg, String dataDes) {
-        StringBuilder temp = new StringBuilder();
         stationNum.setLength(0);
 
         // Check each message for the \036 record separator and increment past
@@ -459,8 +459,15 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 trim_message(parsedMsg);
             }
         } else if (buffer.charAt(0) == '=') {
-            safeStrpbrk(temp, CSPL);
             buffer.deleteCharAt(0);
+            while (buffer.length() > 0) {
+                char c = buffer.charAt(0);
+                if ((c == '\n') || (c == '\r')) {
+                    buffer.deleteCharAt(0);
+                } else {
+                    break;
+                }
+            }
         } else if ((buffer.charAt(0) == EOM)
                 && (parsedMsg.length() > (MIN_COLL_DATA_LEN - 1))) {
             trim_message(parsedMsg);
