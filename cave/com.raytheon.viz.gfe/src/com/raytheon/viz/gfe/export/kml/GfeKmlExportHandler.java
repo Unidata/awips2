@@ -24,6 +24,9 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.kml.export.KmlExportHandler;
+import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
+import com.raytheon.viz.gfe.core.IParmManager;
 
 /**
  * A custom {@link KmlExportHandler} for GFE which allows adds options to the
@@ -36,6 +39,7 @@ import com.raytheon.uf.viz.kml.export.KmlExportHandler;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 23, 2014  2702     bsteffen    Initial creation
+ * Apr 03, 2014  2847     dgilling    Pass ParmManager instance to dialog.
  * 
  * </pre>
  * 
@@ -47,8 +51,13 @@ public class GfeKmlExportHandler extends KmlExportHandler {
 
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {
+        DataManager dataMgr = DataManagerUIFactory.getCurrentInstance();
+        IParmManager parmMgr = null;
+        if (dataMgr != null) {
+            parmMgr = dataMgr.getParmManager();
+        }
         new GfeKmlExportDialog(HandlerUtil.getActiveShell(event),
-                getDefaultOptions()).open();
+                getDefaultOptions(), parmMgr).open();
         return null;
     }
 
