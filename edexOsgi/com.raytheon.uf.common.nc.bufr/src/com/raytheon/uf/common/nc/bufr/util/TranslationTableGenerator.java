@@ -48,6 +48,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2014 2905       bclement     Initial creation
+ * Apr 02, 2014 2905       bclement     made replaceWhiteSpace() public
  * 
  * </pre>
  * 
@@ -153,7 +154,7 @@ public class TranslationTableGenerator {
      * @param replacement
      * @return
      */
-    private static String replaceWhiteSpace(String str, String replacement) {
+    public static String replaceWhiteSpace(String str, String replacement) {
         Matcher m = WmoCodeTableParser.WHITESPACE.matcher(str);
         return m.replaceAll(replacement);
     }
