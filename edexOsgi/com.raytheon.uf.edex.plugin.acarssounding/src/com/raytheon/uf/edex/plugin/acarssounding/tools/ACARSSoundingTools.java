@@ -21,6 +21,17 @@ import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.pointdata.spatial.AircraftObsLocation;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
+/**
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ??			           ??           Initial creation
+ * Feb 24, 2014 DR15038    M.Porricelli Modified 'accept' to
+ *                                      not discard sounding data
+ *                                      based on altitude here
+ */
+
 public final class ACARSSoundingTools {
 
     // 30 minute offset to apply to observation time.
@@ -436,13 +447,8 @@ public final class ACARSSoundingTools {
                 if (altitudes != null) {
                     double minAlt = altitudes.get(0).doubleValue();
                     double maxAlt = altitudes.get(1).doubleValue();
-                    // We want the lowest entry to be at or below MAX_FIRST
-                    if (minAlt <= MAX_FIRST) {
-                        // Is the sounding deep enough? If not, clear the list.
-                        if ((maxAlt - minAlt) < MIN_DEPTH) {
-                            soundingList.clear();
-                        }
-                    } else {
+                    // Is the sounding deep enough? If not, clear the list.
+                    if ((maxAlt - minAlt) < MIN_DEPTH) {
                         soundingList.clear();
                     }
                 }

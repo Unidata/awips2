@@ -36,6 +36,5 @@
 
 -->
 <gridReprojectionRules>
-  <rule srcProjection="Equidistant_Cylindrical" reproject="TEST" />
   <rule reproject="NEVER" />
 </gridReprojectionRules>
