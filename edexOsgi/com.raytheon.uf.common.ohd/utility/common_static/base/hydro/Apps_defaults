@@ -125,6 +125,7 @@
 #
 #10/01/09    - Added 5 tokens for arcnav application.                          //only for arcnav for raxum application
 #10/03/12    - Added token section for script execution
+#02/12/2014  - Added token for default display to replace field in rwprefs table
 #02/18/14    - Added section for run_report_alarm service configuration.
 
 
@@ -972,6 +973,7 @@ mpe_map_width              :   1320
 mpe_zoom_out_limit         :   20
 mpe_disclosure_limit       :   60
 mpe_map_projection         :   FLAT
+mpe_def_display            :   MMOSAIC
 
 ### Misc tokens 
 mpe_load_hourlypc          :   ON

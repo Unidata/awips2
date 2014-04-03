@@ -102,7 +102,9 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
  * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data, 
  *                                      fix formatting of legend for Base field Height.
- * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.                                     
+ * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.  
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
  * 
  * </pre>
  * 
@@ -207,6 +209,8 @@ public class MPEDisplayManager {
 
     private AbstractVizResource<?, ?> displayedResource;
 
+    private boolean savedData = true;
+
     public void setDisplayedResource(AbstractVizResource<?, ?> rsc) {
         displayedResource = rsc;
         if (displayedFieldResource != null
@@ -222,11 +226,11 @@ public class MPEDisplayManager {
      * @return the dataSaved
      */
     public boolean isDataSaved() {
-        // TODO: Does A1 MPE EVER have a time where you change edit dates and it
-        // doesn't prompt? If so, we need to check here if data is saved or not
-        // TODO: Also, any editing methods need to change displayed frame to
-        // stop looping so they can see what they are editing.
-        return false;
+        return savedData;
+    }
+
+    public void setSavedData(boolean saved) {
+        savedData = saved;
     }
 
     /**
@@ -430,8 +434,15 @@ public class MPEDisplayManager {
         }
         editTime = getCurrentDisplayedDate();
 
-        displayedField = DisplayFieldData.mMosaic;
+        // token for default display
+        String mdd = AppsDefaults.getInstance().getToken("mpe_def_display");
 
+        if(mdd != null){
+            displayedField = DisplayFieldData.fromString(mdd);
+        } else {
+            displayedField = DisplayFieldData.fromString("MMOSAIC");
+        }
+        
         ChangeTimeProvider.update(this);
 
         VizApp.runAsync(new Runnable() {
@@ -955,6 +966,7 @@ public class MPEDisplayManager {
         String fname = null;
         if (prismType != null) {
             // Load prism type
+            dateString= dateString.toLowerCase();
             String mpe_site_id = appsDefaults.getToken("mpe_site_id");
             fname = FileUtil.join(dirname, "prism_" + prismType + "_"
                     + mpe_site_id + "_" + dateString);
