@@ -64,7 +64,9 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * Nov 14, 2012           mschenke    Initial creation
  * Feb 26, 2013  1708     randerso    Fixed double notification for time change
  * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations, fix iscMode.
- * Apr 02, 2014  2961     randerso    Code cleanup (Ben already fixed issue under #2703)
+ * Apr 02, 2014  2961     randerso    Fixed issue where the ISC grid is selected based on the
+ *                                    start time of the Fcst grid not the one that overlaps the
+ * 
  * 
  * </pre>
  * 
@@ -113,20 +115,25 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
             for (int i = 0; i < descriptorTimes.length; ++i) {
                 IGridData overlapping = parm.overlappingGrid(descriptorTimes[i]
                         .getRefTime());
-                if (overlapping != null) {
-                    TimeRange tr = overlapping.getGridTime();
-                    rscTimes[i] = new DataTime(tr.getStart().getTime(),
-                            new TimeRange(tr.getStart(), tr.getEnd()));
-                } else if (iscParm != null) {
-                    overlapping = iscParm.overlappingGrid(descriptorTimes[i]
+                IGridData iscOverlapping = null;
+                if (iscParm != null) {
+                    iscOverlapping = iscParm.overlappingGrid(descriptorTimes[i]
                             .getRefTime());
-                    if (overlapping != null) {
-                        TimeRange tr = overlapping.getGridTime();
-                        rscTimes[i] = new DataTime(tr.getStart().getTime(),
-                                new TimeRange(tr.getStart(), tr.getEnd()));
+                }
+                TimeRange tr = null;
+                if (overlapping != null) {
+                    tr = overlapping.getGridTime();
+                    if (iscOverlapping != null) {
+                        tr = tr.intersection(iscOverlapping.getGridTime());
                     }
+                } else if (iscOverlapping != null) {
+                    tr = iscOverlapping.getGridTime();
                 }
 
+                if (tr != null) {
+                    rscTimes[i] = new DataTime(tr.getStart().getTime(),
+                            new TimeRange(tr.getStart(), tr.getEnd()));
+                }
             }
             if (timeMap != null) {
                 timeMap.put(rsc, rscTimes);
