@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
  * Nov 08, 2013 2506       bgonzale     Added constructors.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -48,8 +49,8 @@ public class InsertRegistryEvent extends RegistryEvent {
 
     }
 
-    public InsertRegistryEvent(String id, String lid, String objectType) {
-        super(id, lid, objectType, Action.INSERT);
+    public InsertRegistryEvent(String id, String lid, String username, String objectType) {
+        super(id, lid, objectType, username, Action.INSERT);
     }
 
     @Override

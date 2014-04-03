@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 08, 2013 1453       djohnson     Split creation and edit dialogs.
  * Apr 08, 2013 1826       djohnson     Remove delivery options.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -290,7 +291,8 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
             }
 
             try {
-                saveGroupDefinition(groupDefinition);
+                saveGroupDefinition(LocalizationManager.getInstance()
+                        .getCurrentUser(), groupDefinition);
             } catch (RegistryHandlerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Unable to save Group object", e);
@@ -432,7 +434,7 @@ public abstract class BaseGroupDefinitionDlg extends CaveSWTDialog implements
      *            the group definition
      * @throws RegistryHandlerException
      */
-    protected abstract void saveGroupDefinition(GroupDefinition groupDefinition)
+    protected abstract void saveGroupDefinition(String username, GroupDefinition groupDefinition)
             throws RegistryHandlerException;
 
     /**

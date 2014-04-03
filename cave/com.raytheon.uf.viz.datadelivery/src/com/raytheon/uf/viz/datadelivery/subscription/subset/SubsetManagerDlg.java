@@ -146,6 +146,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 26, 2014   #2833    lvenable     Added code to prevent the Subset (this) dialog from
  *                                      disappearing when the Subscription button is double clicked.
  *                                      Added dispose check for subscription button.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author mpduff
@@ -552,7 +553,8 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
             }
             try {
                 as.setSubscriptionType(SubscriptionType.QUERY);
-                SubscriptionServiceResult result = subscriptionService.store(
+                SubscriptionServiceResult result = subscriptionService.store(LocalizationManager.getInstance()
+                        .getCurrentUser(),
                         as, this);
 
                 if (result.hasMessageToDisplay()) {
