@@ -4159,4 +4159,20 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
      </contourLabeling>
   </contourStyle>
 </styleRule>
+
+<styleRule>
+    <paramLevelMatches>
+      <parameter>zAGL</parameter>
+      <parameter>GH</parameter>
+      <singleLevel units="FRZ" />
+      <singleLevel units="TW0" />
+    </paramLevelMatches>
+    <contourStyle>
+      <displayUnits>ft</displayUnits>
+      <contourLabeling labelSpacing="4">
+        <increment>1000</increment>
+      </contourLabeling>
+    </contourStyle>
+</styleRule>
+
 </styleRuleset>
