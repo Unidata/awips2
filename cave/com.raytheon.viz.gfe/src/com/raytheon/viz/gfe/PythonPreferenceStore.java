@@ -58,6 +58,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 05, 2013  #2307     dgilling    Use better PythonScript constructor.
  * Sep 11, 2013  #2033     dgilling    Don't load loadConfig.py from 
  *                                     localization store.
+ * Apr 02, 2014  #2729     randerso    Added commonPython to path for LogStream
  * 
  * </pre>
  * 
@@ -89,6 +90,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
 
     @SuppressWarnings("unchecked")
     public void loadConfiguration(String configName) {
+        String commonPythonPath = GfePyIncludeUtil.getCommonPythonIncludePath();
         String configPath = GfePyIncludeUtil.getConfigIncludePath();
         String vtecPath = GfePyIncludeUtil.getVtecIncludePath();
 
@@ -100,8 +102,8 @@ public class PythonPreferenceStore implements IPreferenceStore,
                             new Path(FileUtil.join("python", "utility",
                                     "loadConfig.py")), null)).getPath());
             py = new PythonScript(scriptFile.getPath(),
-                    PyUtil.buildJepIncludePath(configPath, vtecPath), this
-                            .getClass().getClassLoader());
+                    PyUtil.buildJepIncludePath(commonPythonPath, configPath,
+                            vtecPath), this.getClass().getClassLoader());
         } catch (JepException e) {
             statusHandler.handle(Priority.CRITICAL,
                     "Unable to load GFE config", e);
@@ -188,7 +190,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
     public void firePropertyChangeEvent(String name, Object oldValue,
             Object newValue) {
         // The following criteria meets the Eclipse contract
-        if (oldValue == null || oldValue.equals(newValue)) {
+        if ((oldValue == null) || oldValue.equals(newValue)) {
             return;
         }
 
@@ -675,32 +677,32 @@ public class PythonPreferenceStore implements IPreferenceStore,
 
     public boolean isBoolean(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof Boolean);
+        return ((obj != null) && (obj instanceof Boolean));
     }
 
     public boolean isInt(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof Integer);
+        return ((obj != null) && (obj instanceof Integer));
     }
 
     public boolean isFloat(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof Float);
+        return ((obj != null) && (obj instanceof Float));
     }
 
     public boolean isDouble(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof Double);
+        return ((obj != null) && (obj instanceof Double));
     }
 
     public boolean isLong(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof Long);
+        return ((obj != null) && (obj instanceof Long));
     }
 
     public boolean isString(String name) {
         Object obj = selectedConfiguration.get(name);
-        return (obj != null && obj instanceof String);
+        return ((obj != null) && (obj instanceof String));
     }
 
     public boolean isStringArray(String name) {
@@ -711,7 +713,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof String) {
+                if ((list.size() == 0) || (list.get(0) instanceof String)) {
                     result = true;
                 }
             }
@@ -728,7 +730,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof Float) {
+                if ((list.size() == 0) || (list.get(0) instanceof Float)) {
                     result = true;
                 }
             }
@@ -745,7 +747,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof Integer) {
+                if ((list.size() == 0) || (list.get(0) instanceof Integer)) {
                     result = true;
                 }
             }
