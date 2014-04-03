@@ -95,6 +95,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Jul 26, 2013 2232       mpduff      Refactored Data Delivery permissions.
  * Sep 03, 2013 2315       mpduff      Add subscription name to denied approval message.
  * Oct 23, 2013 2292       mpduff      Move subscription overlap checks to edex.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -532,7 +533,7 @@ public class SubscriptionApprovalDlg extends CaveSWTDialog implements
             String exceptionMessage = "Unable to update subscription.";
             try {
                 SubscriptionServiceResult result = subscriptionService
-                        .update(s,
+                        .update(username, s,
                                 new ApproveSubscriptionForceApplyPromptDisplayText());
                 if (result.hasMessageToDisplay()) {
                     DataDeliveryUtils.showMessage(getShell(), SWT.OK,
