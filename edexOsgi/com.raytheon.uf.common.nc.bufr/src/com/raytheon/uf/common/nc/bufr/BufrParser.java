@@ -20,11 +20,11 @@
 package com.raytheon.uf.common.nc.bufr;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
 import ucar.ma2.Array;
@@ -37,8 +37,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
-import ucar.nc2.iosp.bufr.writer.BufrSplitter;
-import ucar.nc2.iosp.bufr.writer.BufrSplitter.Options;
 
 import com.raytheon.uf.common.numeric.UnsignedNumbers;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -58,6 +56,8 @@ import com.raytheon.uf.common.status.UFStatus;
  * ------------ ---------- ----------- --------------------------
  * Mar 18, 2014 2905       bclement    Initial creation
  * Mar 26, 2014 2905       bclement    fixed types, added scale/offset
+ * Apr 01, 2014 2905       bclement    moved splitter functionality to separate utility
+ *                                     added scanForStructField()
  * 
  * </pre>
  * 
@@ -79,30 +79,11 @@ public class BufrParser {
     private static final IUFStatusHandler log = UFStatus
             .getHandler(BufrParser.class);
 
-    private final static File DEFAULT_TMP_DIR;
+    private final File bufrFile;
 
-    static {
-        final String edexHomeProp = "edex.home";
-        String baseDir = System.getProperty(edexHomeProp);
-        if (baseDir == null || baseDir.trim().isEmpty()) {
-            log.warn("Property '" + edexHomeProp
-                    + "' not set, defaulting to system tmp directory");
-            DEFAULT_TMP_DIR = new File(System.getProperty("java.io.tmpdir"));
-        } else {
-            DEFAULT_TMP_DIR = new File(baseDir + File.separator + "data",
-                    "processing");
-        }
-    }
+    private final NetcdfFile ncfile;
 
-    private final Options options;
-
-    private final File[] splitFiles;
-
-    private int fileIndex = 0;
-
-    private NetcdfFile currentNcfile;
-
-    private Iterator<Variable> varIter;
+    private final Iterator<Variable> varIter;
 
     private Variable currentVar;
 
@@ -118,59 +99,9 @@ public class BufrParser {
      * @throws IOException
      */
     public BufrParser(final File bufrFile) throws IOException {
-        this(bufrFile, DEFAULT_TMP_DIR);
-    }
-
-    /**
-     * @param bufrFile
-     *            BUFR file, may contain mixed message types
-     * @param outputBaseDir
-     *            base directory for temporary storage of split files
-     * @throws IOException
-     */
-    public BufrParser(final File bufrFile, final File outputBaseDir)
-            throws IOException {
-        final String inputFile = bufrFile.getAbsolutePath();
-        final File outputDir = getOutputDir(bufrFile.getName(), outputBaseDir);
-        options = new Options() {
-
-            @Override
-            public String getFileSpec() {
-                return inputFile;
-            }
-
-            @Override
-            public String getDirOut() {
-                return outputDir.getAbsolutePath();
-            }
-        };
-
-        BufrSplitter splitter = new BufrSplitter(options);
-        splitter.execute();
-
-        splitFiles = outputDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".bufr");
-            }
-        });
-    }
-
-    /**
-     * Create a temporary output directory based on the input file name
-     * 
-     * @param inputName
-     * @param outputBaseDir
-     * @return
-     */
-    private static File getOutputDir(final String inputName,
-            final File outputBaseDir) {
-        String name = inputName + "-" + System.currentTimeMillis() + "-split";
-        File rval = new File(outputBaseDir, name);
-        if (rval.exists()) {
-            log.warn("BUFR splitter output directory already exists, is a file being processed twice?");
-        }
-        return rval;
+        this.bufrFile = bufrFile;
+        this.ncfile = NetcdfFile.open(bufrFile.getAbsolutePath());
+        this.varIter = ncfile.getVariables().iterator();
     }
 
     /**
@@ -178,6 +109,10 @@ public class BufrParser {
      * @throws IOException
      */
     public boolean hasNext() throws IOException {
+        if (lastEvent == null) {
+            /* we haven't started the file yet */
+            return true;
+        }
         if (!structStack.isEmpty()) {
             StructureLevel level = structStack.peek();
             if (level.hasNext()) {
@@ -190,11 +125,8 @@ public class BufrParser {
         if (varIter != null && varIter.hasNext()) {
             return true;
         }
-        if (fileIndex < splitFiles.length) {
-            return true;
-        }
         if (lastEvent != null && !lastEvent.equals(Event.END_FILE)) {
-            /* only one more event left, the end of the last file */
+            /* only one more event left, the end of the file */
             return true;
         }
         return false;
@@ -209,7 +141,9 @@ public class BufrParser {
      */
     public Event next() throws IOException {
         Event rval;
-        if (!structStack.isEmpty()) {
+        if (lastEvent == null) {
+            rval = Event.START_FILE;
+        } else if (!structStack.isEmpty()) {
             rval = nextMember();
         } else if (structIter != null && structIter.hasNext()) {
             /* in a variable with a sequence of structures, get the next one */
@@ -229,14 +163,8 @@ public class BufrParser {
                 /* no more variables, we are at the end of the bufr file */
                 structIter = null;
                 currentVar = null;
-                varIter = null;
-                rval = endFile();
+                rval = Event.END_FILE;
             }
-        } else if (fileIndex < splitFiles.length) {
-            /* start the next bufr file */
-            rval = startFile();
-        } else if (lastEvent != null && !lastEvent.equals(Event.END_FILE)) {
-            rval = endFile();
         } else {
             /* don't set rval to null so we preserve the correct lastEvent */
             return null;
@@ -323,10 +251,9 @@ public class BufrParser {
             log.error("Structure variable members out of sync");
             throw new IllegalStateException("Structure variable members out of sync");
         }
-        Iterator<Variable> memberVarIter = ((Structure) parentVar)
-                .getVariables().iterator();
+        List<Variable> memberVars = ((Structure) parentVar).getVariables();
         return startStructure(new StructureLevel(childData, childMembers,
-                memberVarIter));
+                memberVars));
     }
 
     /**
@@ -340,8 +267,7 @@ public class BufrParser {
      */
     private Event startStructure(Structure s, StructureData structData)
             throws IOException {
-        StructureLevel level = new StructureLevel(structData, s.getVariables()
-                .iterator());
+        StructureLevel level = new StructureLevel(structData, s.getVariables());
         return startStructure(level);
     }
 
@@ -400,49 +326,17 @@ public class BufrParser {
     }
 
     /**
-     * Start processing the next NetCDF file
-     * 
-     * @return
-     * @throws IOException
+     * @return the NetCDF File
      */
-    private Event startFile() throws IOException {
-        File f = splitFiles[fileIndex];
-        fileIndex += 1;
-        currentNcfile = NetcdfFile.open(f.getAbsolutePath());
-        varIter = currentNcfile.getVariables().iterator();
-        return Event.START_FILE;
+    public NetcdfFile getNcfile() {
+        return ncfile;
     }
 
     /**
-     * Finalize processing of NetCDF file
-     * 
-     * @return
-     * @throws IOException
+     * @return BUFR file being processed
      */
-    private Event endFile() throws IOException {
-        if (currentNcfile != null) {
-            currentNcfile.close();
-            currentNcfile = null;
-        }
-        return Event.END_FILE;
-    }
-
-    /**
-     * @return null if no file is currently being processed
-     */
-    public NetcdfFile getCurrentNcfile() {
-        return currentNcfile;
-    }
-
-    /**
-     * @return null if no file has started being processed
-     */
-    public File getCurrentFile() {
-        if (fileIndex < splitFiles.length) {
-            return splitFiles[fileIndex];
-        } else {
-            return null;
-        }
+    public File getFile() {
+        return bufrFile;
     }
 
     /**
@@ -534,7 +428,7 @@ public class BufrParser {
      * @param var
      * @return
      */
-    private DataType getUnscaledDataType(Variable var) {
+    private static DataType getUnscaledDataType(Variable var) {
         DataType rval;
         /*
          * We will promote unsigned values to the next largest signed type
@@ -566,7 +460,7 @@ public class BufrParser {
      * @param var
      * @return true if the field has a scale factor or addition offset
      */
-    private boolean isScaledOrOffset(Variable var) {
+    private static boolean isScaledOrOffset(Variable var) {
         return var.findAttribute(OFFSET_ATTRIB) != null
                 || var.findAttribute(SCALE_FACTOR_ATTRIB) != null;
     }
@@ -583,6 +477,22 @@ public class BufrParser {
         if (typedArray == null) {
             return null;
         }
+        Variable var = getFieldVariable();
+        return getFieldScalarValue(typedArray, var, charArrayAsString);
+    }
+
+    /**
+     * @param typedArray
+     *            storage for field value
+     * @param var
+     *            NetCDF variable
+     * @param charArrayAsString
+     *            true if character arrays should be treated as strings
+     * @return null if value is a missing value
+     * @throws IOException
+     */
+    private static Object getFieldScalarValue(TypedArray typedArray,
+            Variable var, boolean charArrayAsString) {
         Array array = typedArray.array;
         DataType type = typedArray.type;
         Object value;
@@ -598,23 +508,23 @@ public class BufrParser {
             value = array.getObject(0);
         }
 
-        return processValue(value);
+        return processValue(value, var);
     }
 
     /**
      * Perform any promotion, scaling or missing value operations
      * 
      * @param value
+     * @param var
      * @return
      */
-    private Object processValue(Object value) {
-        Variable var = getFieldVariable();
-        Object rval = promoteValueType(var, value);
-        if (isMissingValue(var, rval)) {
+    private static Object processValue(Object value, Variable var) {
+        Object rval = promoteValueType(value, var);
+        if (isMissingValue(rval, var)) {
             rval = null;
         } else if (isScaledOrOffset(var)) {
             if (value instanceof Number) {
-                rval = scaleAndOffset((Number) rval);
+                rval = scaleAndOffset((Number) rval, var);
             } else {
                 log.warn("Scale or offset attribute on non-numerical field: "
                         + var.getFullName());
@@ -626,11 +536,11 @@ public class BufrParser {
     /**
      * Promote unsigned numbers to next largest data type if needed
      * 
-     * @param var
      * @param value
+     * @param var
      * @return
      */
-    private Object promoteValueType(Variable var, Object value) {
+    private static Object promoteValueType(Object value, Variable var) {
         if (value == null) {
             return null;
         }
@@ -660,14 +570,15 @@ public class BufrParser {
      * Apply scale factor or addition offset if present
      * 
      * @param value
+     * @param var
      * @return
      */
-    public Number scaleAndOffset(Number value) {
-        Number scaleFactor = getScaleFactor();
+    public static Number scaleAndOffset(Number value, Variable var) {
+        Number scaleFactor = getFieldAttributeAsNum(SCALE_FACTOR_ATTRIB, var);
         if (scaleFactor != null) {
             value = value.doubleValue() * scaleFactor.doubleValue();
         }
-        Number offset = getOffset();
+        Number offset = getFieldAttributeAsNum(OFFSET_ATTRIB, var);
         if (offset != null) {
             value = value.doubleValue() + offset.doubleValue();
         }
@@ -687,11 +598,12 @@ public class BufrParser {
         if (typedArray == null) {
             return null;
         }
+        Variable var = getFieldVariable();
         Array array = typedArray.array;
         int len = (int) array.getSize();
         Collection<Object> rval = new ArrayList<Object>(len);
         for (int i = 0; i < len; ++i) {
-            rval.add(processValue(array.getObject(i)));
+            rval.add(processValue(array.getObject(i), var));
         }
         return rval;
     }
@@ -778,6 +690,22 @@ public class BufrParser {
     }
 
     /**
+     * Get attribute value for field from variable
+     * 
+     * @param name
+     * @param var
+     * @return
+     */
+    private static Number getFieldAttributeAsNum(String name, Variable var) {
+        Number rval = null;
+        Attribute attr = var.findAttributeIgnoreCase(name);
+        if (attr != null) {
+            rval = attr.getNumericValue();
+        }
+        return rval;
+    }
+
+    /**
      * Get variable object for current field
      * 
      * @return
@@ -794,17 +722,18 @@ public class BufrParser {
     }
 
     /**
-     * @param var
      * @param unscaledValue
      *            field value before any scaling or offset is applied
+     * @param var
      * @return true if value matches the missing value for field
      */
-    private boolean isMissingValue(Variable var, Object unscaledValue) {
+    private static boolean isMissingValue(Object unscaledValue, Variable var) {
         if (unscaledValue == null) {
             return true;
         }
         boolean rval;
-        Attribute missingAttrib = getFieldAttribute(MISSING_VAL_ATTRIB);
+        Attribute missingAttrib = var
+                .findAttributeIgnoreCase(MISSING_VAL_ATTRIB);
         if (missingAttrib == null) {
             /* if there is no special missing value, all values are valid */
             rval = false;
@@ -851,19 +780,41 @@ public class BufrParser {
     }
 
     /**
-     * clean up temporary files
+     * Get field from current structure level. Does not affect the current state
+     * of the parser. Only searches current level (does not go into
+     * substructures).
+     * 
+     * @param fieldName
+     * @param charArrayAsString
+     * @return null if no field found or parser is not currently parsing a
+     *         structure
      */
-    public void clean() {
-        for (File f : splitFiles) {
-            if (!f.delete()) {
-                log.error("Unable to delete temporary file: "
-                        + f.getAbsolutePath());
+    public BufrDataItem scanForStructField(String fieldName, boolean charArrayAsString) {
+        BufrDataItem rval = null;
+        if ( structStack.isEmpty()){
+            return rval;
+        }
+        StructureLevel level = structStack.peek();
+        Iterator<Member> memberIter = level.getMemberList().iterator();
+        Iterator<Variable> varIter = level.getMemberVarList().iterator();
+        while (memberIter.hasNext() && varIter.hasNext()) {
+            Member member = memberIter.next();
+            Variable variable = varIter.next();
+            DataType type = member.getDataType();
+            if (!type.equals(DataType.STRUCTURE) && !type.equals(DataType.SEQUENCE)) {
+                /* current member is a field */
+                if (member.getName().equals(fieldName)){
+                    StructureData sd = level.getStructData();
+                    Array array = sd.getArray(member);
+                    Object value = getFieldScalarValue(new TypedArray(array,
+                            type), variable, charArrayAsString);
+                    rval = new BufrDataItem(member.getName(), value, type,
+                            variable);
+                    break;
+                }
             }
         }
-        File outdir = new File(options.getDirOut());
-        if (!outdir.delete()) {
-            log.error("Unable to delete temporary directory: "
-                    + outdir.getAbsolutePath());
-        }
+        return rval;
     }
+
 }
