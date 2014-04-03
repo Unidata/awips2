@@ -19,17 +19,27 @@
  **/
 package com.raytheon.viz.gfe.export.kml;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
+import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.kml.export.KmlExportDialog;
 import com.raytheon.uf.viz.kml.export.KmlExportOptions;
 import com.raytheon.uf.viz.kml.export.KmlPane;
+import com.raytheon.viz.gfe.core.IParmManager;
+import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.export.image.GfeImageExportDialog;
+import com.raytheon.viz.gfe.rsc.GFEResource;
 
 /**
  * A custom {@link KmlExportDialog} for GFE which adds on option to use the Grid
@@ -42,6 +52,7 @@ import com.raytheon.viz.gfe.export.image.GfeImageExportDialog;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 23, 2014  2702     bsteffen    Initial creation
+ * Apr 03, 2014  2847     dgilling    Add "Export Selected" option.
  * 
  * </pre>
  * 
@@ -53,8 +64,14 @@ public class GfeKmlExportDialog extends KmlExportDialog {
 
     protected Button selectedFrameRangeButton;
 
-    public GfeKmlExportDialog(Shell shell, KmlExportOptions options) {
+    protected Button exportSelectParmsButton;
+
+    private final IParmManager parmMgr;
+
+    public GfeKmlExportDialog(Shell shell, KmlExportOptions options,
+            IParmManager parmMgr) {
         super(shell, options);
+        this.parmMgr = parmMgr;
     }
 
     @Override
@@ -72,16 +89,62 @@ public class GfeKmlExportDialog extends KmlExportDialog {
         if (selectedFrameRangeButton.getSelection()) {
             KmlPane pane = options.getSinglPane();
             IRenderableDisplay renderableDispaly = pane.getDisplay();
-            
-            int[] frameRange = GfeImageExportDialog.getSelectedFrameRange(getShell(),
-                    renderableDispaly);
-            if(frameRange == null){
+
+            int[] frameRange = GfeImageExportDialog.getSelectedFrameRange(
+                    getShell(), renderableDispaly);
+            if (frameRange == null) {
                 return;
             }
             options.setFirstFrameIndex(frameRange[0]);
             options.setLastFrameIndex(frameRange[1]);
         }
         super.okPressed();
+    }
+
+    @Override
+    protected void initializeOptionsGroup(Group group) {
+        if (parmMgr != null) {
+            exportSelectParmsButton = new Button(group, SWT.CHECK);
+            exportSelectParmsButton.setText("Export Selected");
+            exportSelectParmsButton.setSelection(true);
+            exportSelectParmsButton
+                    .setToolTipText("Include only selected weather elements in the selection of products to export.");
+            exportSelectParmsButton
+                    .addSelectionListener(new SelectionAdapter() {
+
+                        @Override
+                        public void widgetSelected(SelectionEvent e) {
+                            populateProductTree();
+                        }
+                    });
+        }
+        super.initializeOptionsGroup(group);
+    }
+
+    @Override
+    protected void populateProductTree() {
+        boolean exportMaps = isExportMapsSelected();
+        boolean exportHidden = isExportHiddenSelected();
+        boolean exportSelected = exportSelectParmsButton.getSelection();
+        List<ResourcePair> prelimRscList = options.getSinglPane().getResources(
+                exportMaps, exportHidden);
+
+        List<ResourcePair> rscList;
+        if (exportSelected) {
+            rscList = new ArrayList<ResourcePair>();
+            List<Parm> selectedParms = Arrays
+                    .asList(parmMgr.getSelectedParms());
+            for (ResourcePair rp : prelimRscList) {
+                GFEResource gfeRsc = (GFEResource) rp.getResource();
+                if (selectedParms.contains(gfeRsc.getParm())) {
+                    rscList.add(rp);
+                }
+            }
+        } else {
+            rscList = prelimRscList;
+        }
+
+        populateProductSubTree(rscList, null);
     }
 
 }
