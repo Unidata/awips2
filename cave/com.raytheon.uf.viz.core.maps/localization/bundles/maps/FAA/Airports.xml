@@ -25,19 +25,49 @@
                 <resource>
                     <loadProperties>
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="1" />
                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
-                            <capability xsi:type="labelableCapability" labelField="name"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true"
-                        isHoverOn="false" isVisible="true">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
-                    </properties>
-                    <resourceData xsi:type="dbPointMapResourceData">
-						<table>mapdata.airport</table>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true" />
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                                        outlineWidth="1" />
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
+                                    <capability xsi:type="labelableCapability" labelField="name"/>
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true"
+                                isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                            </properties>
+                            <resourceData xsi:type="dbPointMapResourceData">
+                                <table>mapdata.airport</table>
+                                <mapName>Airports</mapName>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
+                                    <capability xsi:type="labelableCapability" labelField="name" />
+                                    <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1" />
+                                </capabilities>
+                                <resourceType>PLAN_VIEW</resourceType>
+                            </loadProperties>
+                            <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
+                                <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                            </properties>
+                            <resourceData xsi:type="lpiResourceData">
+                                <filename>airport.lpi</filename>
+                                <mapName>Airports</mapName>
+                            </resourceData>
+                        </resource>
                         <mapName>Airports</mapName>
                     </resourceData>
                 </resource>
