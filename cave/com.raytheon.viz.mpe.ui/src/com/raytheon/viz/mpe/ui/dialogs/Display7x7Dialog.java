@@ -74,6 +74,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 05, 2013  15961     lbousaidi    added routines for set Bad/set not bad buttons
  *                                     to reflect the state of the gages.                                   
  * Jul 02, 2013   2160     mpduff      Changed to not call deprecated resource.getData() method.
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * 
  * </pre>
  * 
  * @author randerso
@@ -155,10 +157,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
     private DisplayFieldData selectedFieldData;
 
     private static boolean oldManedit = false;
+    private MPEDisplayManager mgr;
 
     public Display7x7Dialog(Shell parentShell, MPEGageData data) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Display 7 X 7 Gage Editing Utility");
+        mgr = MPEDisplayManager.getCurrent();
         selectedGage = data;
         gData = MPEDataManager.getInstance().getEditedGage(selectedGage);
         ArrayList<String> bg = MPEDataManager.getInstance().readBadGageList();
@@ -488,6 +492,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 undoMissing.setEnabled(undoEn);
                 String wid = workingGage.getId();
                 editGage.put(wid, workingGage);
+                mgr.setSavedData(false);
 
                 if (!editGage.isEmpty()) {
                     Iterator<MPEGageData> x = editGage.values().iterator();
@@ -578,6 +583,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                         MPEGageData gd = x.next();
                         MPEDataManager.getInstance().addEditedGage(gd);
                     }
+                    mgr.setSavedData(false);
                 }
             }
         });
@@ -678,6 +684,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 if ((!notBadGage.isEmpty() || !badGage.isEmpty())
                         && !editGage.isEmpty()) {
                     MPEDataManager.getInstance().writeBadGageList();
+                    
                 }
             }
         });
@@ -938,7 +945,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
     }
 
     private void updateGridField(DisplayFieldData fieldType) {
-        MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
         if (selectedFieldData != fieldType) {
             selectedFieldData = fieldType;
             mgr.displayFieldData(fieldType);

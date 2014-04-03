@@ -23,6 +23,11 @@
 		    <from ref="ndmFileEndpoint" />
 		    <bean ref="ndmProc" method="processEvent" />
 		</route>
+
+		<route id="textDBStaticSetDirty">
+		    <from uri="jms-generic:topic:textDBFilesChanged" />
+		    <bean ref="textDBStaticDataListener" method="setDirty" />
+		</route>
     </camelContext>
 
 	<bean factory-bean="clusteredCamelContextMgr"
@@ -38,11 +43,15 @@
 	<bean id="mtrListener" class="com.raytheon.uf.common.site.ingest.MTRSubscriber" />
 	<bean id="afosToAwipsListener" class="com.raytheon.edex.plugin.text.ingest.AfosToAwipsListener" />
 	<bean id="disseminationListener" class="com.raytheon.uf.edex.dissemination.ingest.DisseminationNationalDatasetSubscriber" />
-	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber" />
+	<bean id="textDBStaticDataListener" class="com.raytheon.edex.textdb.ingest.TextDBStaticDataSubscriber">
+	    <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
+	</bean>
 	<bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
 
 	<bean id="radarMenuCreator" class="com.raytheon.edex.plugin.radar.util.RadarMenuUtil"/>
 	<bean id="import88dLocations" class="com.raytheon.edex.plugin.radar.util.Import88DLocationsUtil"/>
+
+	<bean id="radarServerNdmListener" class="com.raytheon.edex.rpgenvdata.ndm.RadarServerNdmSubscriber"/>
 
 	<bean id="marineInfoListener" class="com.raytheon.uf.edex.site.ingest.MarineInfoSubscriber">
 		<constructor-arg value="${db.port}" />
@@ -180,5 +189,29 @@
 	<bean factory-bean="ndmProc" factory-method="registerListener">
 		<constructor-arg value="afosMasterPIL.txt" />
 		<constructor-arg ref="afosBrowserListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="prodList.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="tdwrProdList.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-RPGOP-tcp.clear-air" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-RPGOP-tcp.storm" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="rps-SPGOP-tcp.storm" />
+		<constructor-arg ref="radarServerNdmListener" />
+	</bean>
+	<bean factory-bean="ndmProc" factory-method="registerListener">
+		<constructor-arg value="wmoSiteInfo.txt" />
+		<constructor-arg ref="radarServerNdmListener" />
 	</bean>
 </beans>
