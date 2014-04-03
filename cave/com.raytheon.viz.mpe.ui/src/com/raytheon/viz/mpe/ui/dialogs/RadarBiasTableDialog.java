@@ -69,6 +69,8 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * Jul 14, 2009            snaples     Initial creation
  * Jun 18, 2013  16053     snaples     Removed reference to setRadarEditFlag
  * Aug 06, 2013  16243                 Changed the Gui to a ScrolledComposite.
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * 
  * </pre>
  * 
  * @author snaples
@@ -251,6 +253,8 @@ public class RadarBiasTableDialog extends Dialog {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 applyBiasUpdate(dt);
+                MPEDisplayManager mgr = MPEDisplayManager.getCurrent();
+                mgr.setSavedData(false);
                 shell.dispose();
             }
         });
