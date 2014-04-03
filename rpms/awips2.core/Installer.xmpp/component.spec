@@ -24,7 +24,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 requires: awips2-java
-requires: awips2-httpd-collaboration
+requires: awips2-collab-dataserver
 provides: awips2-%{_xmpp_server}
 
 %description
