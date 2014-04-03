@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.registry.ebxml.util.EbxmlObjectUtil;
  * 7/30/2012    724        bphillip     Initial creation
  * 3/13/2013    1082       bphillip     Modified to use spring injection
  * Apr 23, 2013 1910       djohnson     RegistryResponseStatus is now an enum.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -485,6 +486,7 @@ public class RegistryWebUtil {
         submitRequest.setComment("Object submission");
         submitRequest.setCheckReferences(false);
         submitRequest.setMode(Mode.CREATE_OR_REPLACE);
+        submitRequest.setUsername(RegistryUtil.registryUser);
         submitRequest.setId("User/Organization Profiles and Roles");
 
         submitRequest.setRegistryObjectList(EbxmlObjectUtil

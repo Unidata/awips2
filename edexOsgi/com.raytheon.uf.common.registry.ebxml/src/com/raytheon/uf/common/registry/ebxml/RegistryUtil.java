@@ -79,6 +79,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Jun 03, 2013 2038       djohnson    Allow setting the same encoder strategy.
  * Jun 24, 2013 2106       djohnson    Remove encoder strategy from instance variables.
  * Dec 04, 2013 2584       dhladky     Versions for Registry objects
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -96,6 +97,8 @@ public final class RegistryUtil {
     public static final String registryObjectClassName = "registryObjectClassName";
     
     public static final String registryObjectDefaultVersion = "1.0";
+    
+    public static final String registryUser = "Registry";
 
     static {
         if (System.getenv("EBXML_REGISTRY_HOST") != null
@@ -612,10 +615,11 @@ public final class RegistryUtil {
      * @return the request
      */
     public static SubmitObjectsRequest newSubmitObjects(
-            List<RegistryObjectType> asList, Mode mode) {
+            List<RegistryObjectType> asList, String username, Mode mode) {
         SubmitObjectsRequest request = new SubmitObjectsRequest();
         request.setCheckReferences(false);
         request.setMode(mode);
+        request.setUsername(username);
         RegistryObjectListType registryObjectList = new RegistryObjectListType();
         registryObjectList.getRegistryObject().addAll(asList);
         request.setRegistryObjectList(registryObjectList);

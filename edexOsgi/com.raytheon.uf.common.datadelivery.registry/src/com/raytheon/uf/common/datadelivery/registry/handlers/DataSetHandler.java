@@ -58,6 +58,7 @@ import com.raytheon.uf.common.util.CollectionUtil;
  * Jun 04, 2013  223      mpduff       Added datatype to the filter.
  * Jun 24, 2013 2106      djohnson     Now composes a registryHandler.
  * Oct 09, 2013 2267      bgonzale     Fix Collection cast to List error.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -76,15 +77,15 @@ public class DataSetHandler extends
      * {@inheritDoc}
      */
     @Override
-    public void store(DataSet obj) throws RegistryHandlerException {
+    public void store(String username, DataSet obj) throws RegistryHandlerException {
         try {
-            super.store(obj);
+            super.store(username, obj);
         } catch (RegistryHandlerException e) {
             boolean tryAgain = handleUnresolvedReferences(obj, e);
 
             if (tryAgain) {
                 try {
-                    super.store(obj);
+                    super.store(username, obj);
                 } catch (RegistryHandlerException e1) {
                     throw e1;
                 }
@@ -98,15 +99,15 @@ public class DataSetHandler extends
      * {@inheritDoc}
      */
     @Override
-    public void update(DataSet obj) throws RegistryHandlerException {
+    public void update(String username, DataSet obj) throws RegistryHandlerException {
         try {
-            super.update(obj);
+            super.update(username, obj);
         } catch (RegistryHandlerException e) {
             boolean tryAgain = handleUnresolvedReferences(obj, e);
 
             if (tryAgain) {
                 try {
-                    super.update(obj);
+                    super.update(username, obj);
                 } catch (RegistryHandlerException e1) {
                     throw e1;
                 }
@@ -169,7 +170,7 @@ public class DataSetHandler extends
                         // non-gridded data...
                         try {
                             DataDeliveryHandlers.getParameterHandler()
-                                    .update(p);
+                                    .update(RegistryUtil.registryUser, p);
                         } catch (RegistryHandlerException e1) {
                             return false;
                         }
