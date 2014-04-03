@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.nc.bufr;
 
 import java.util.Iterator;
+import java.util.List;
 
 import ucar.ma2.ArraySequence;
 import ucar.ma2.StructureData;
@@ -40,6 +41,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2014 2905       bclement     Initial creation
+ * Apr 01, 2014 2905       bclement     added references to member and variable lists
  * 
  * </pre>
  * 
@@ -53,7 +55,11 @@ public class StructureLevel {
 
     private final StructureData structData;
 
+    private final List<Member> memberList;
+
     private final Iterator<Member> memberIter;
+
+    private final List<Variable> memberVarList;
 
     private final Iterator<Variable> memberVarIter;
 
@@ -66,8 +72,8 @@ public class StructureLevel {
      * @param memberVarIter
      */
     public StructureLevel(StructureData structData,
-            Iterator<Variable> memberVarIter) {
-        this(structData, structData.getStructureMembers(), memberVarIter);
+            List<Variable> memberVariables) {
+        this(structData, structData.getStructureMembers(), memberVariables);
     }
 
     /**
@@ -76,10 +82,12 @@ public class StructureLevel {
      * @param memberVarIter
      */
     public StructureLevel(StructureData structData, StructureMembers members,
-            Iterator<Variable> memberVarIter) {
+            List<Variable> memberVariables) {
         this.structData = structData;
-        this.memberIter = members.getMembers().iterator();
-        this.memberVarIter = memberVarIter;
+        this.memberList = members.getMembers();
+        this.memberIter = memberList.iterator();
+        this.memberVarList = memberVariables;
+        this.memberVarIter = memberVarList.iterator();
     }
 
     /**
@@ -126,17 +134,17 @@ public class StructureLevel {
     }
 
     /**
-     * @return the memberIter
+     * @return the memberList
      */
-    public Iterator<Member> getMemberIter() {
-        return memberIter;
+    public List<Member> getMemberList() {
+        return memberList;
     }
 
     /**
-     * @return the memberVarIter
+     * @return the memberVarList
      */
-    public Iterator<Variable> getMemberVarIter() {
-        return memberVarIter;
+    public List<Variable> getMemberVarList() {
+        return memberVarList;
     }
 
     /**
