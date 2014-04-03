@@ -59,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jun 05, 2012           bsteffen    Initial creation
  * Jan 23, 2014  2703     bsteffen    Enable subclasses to add custom frame
  *                                    selection options.
+ * Apr 03, 2014  2847     dgilling    Add some additional methods for
+ *                                    use by sub-classes.
  * 
  * </pre>
  * 
@@ -169,6 +171,7 @@ public class KmlExportDialog extends CaveSWTDialog {
         Button button = new Button(group, SWT.PUSH);
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile();
             }
@@ -383,7 +386,7 @@ public class KmlExportDialog extends CaveSWTDialog {
         }
     }
 
-    private void populateProductSubTree(List<ResourcePair> rscList,
+    protected void populateProductSubTree(List<ResourcePair> rscList,
             final TreeItem parent) {
         TreeItem[] items = parent != null ? parent.getItems() : productTree
                 .getItems();
@@ -605,4 +608,11 @@ public class KmlExportDialog extends CaveSWTDialog {
         return true;
     }
 
+    public boolean isExportHiddenSelected() {
+        return exportHiddenButton.getSelection();
+    }
+
+    public boolean isExportMapsSelected() {
+        return exportMapsButton.getSelection();
+    }
 }
