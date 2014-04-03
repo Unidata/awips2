@@ -45,6 +45,7 @@ import com.raytheon.uf.common.serialization.comm.response.ServerErrorResponse;
  * Nov 15, 2012 1322       djohnson    Remove ThriftCommunicator in lieu of server-keyed routing.
  * Dec 03, 2012 1379       djohnson    Use registry service keys.
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -192,8 +193,9 @@ public class ThriftRegistryHandler implements RegistryHandler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> RegistryResponse<T> storeObject(T object) {
+    public <T> RegistryResponse<T> storeObject(String username, T object) {
         IRegistryRequest<T> request = new IRegistryRequest<T>();
+        request.setUsername(username);
         request.setObjects(Arrays.<T> asList(object));
         request.setAction(Action.STORE);
 
@@ -202,8 +204,9 @@ public class ThriftRegistryHandler implements RegistryHandler {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> RegistryResponse<T> storeOrReplaceObject(T object) {
+    public <T> RegistryResponse<T> storeOrReplaceObject(String username, T object) {
         IRegistryRequest<T> request = new IRegistryRequest<T>();
+        request.setUsername(username);
         request.setObjects(Arrays.<T> asList(object));
         request.setAction(Action.STORE_OR_REPLACE);
 
