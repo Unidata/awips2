@@ -67,7 +67,7 @@
 	<parameter name="obVis_cat1" numDims="1" type="INT" unit="%"/>
 	<parameter name="obVis_cat2" numDims="1" type="INT" unit="%"/>
 	<parameter name="obVis_cat3" numDims="1" type="INT" unit="%"/>
-	<parammeeter name="QPF24hr_cat2" numDims="1" type="INT" unit="%"/>
+	<parameter name="QPF24hr_cat2" numDims="1" type="INT" unit="%"/>
 	<parameter name="QPF24hr_cat3" numDims="1" type="INT" unit="%"/>
 	<parameter name="QPF24hr_cat1" numDims="1" type="INT" unit="%"/>
 	<parameter name="QPF24hr_cat7" numDims="1" type="INT" unit="%"/>
