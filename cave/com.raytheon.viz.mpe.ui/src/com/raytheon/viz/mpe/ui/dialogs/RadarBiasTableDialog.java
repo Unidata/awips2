@@ -69,7 +69,9 @@ import com.raytheon.viz.mpe.ui.radartable.ReadBiasTableParam;
  * Jul 14, 2009            snaples     Initial creation
  * Jun 18, 2013  16053     snaples     Removed reference to setRadarEditFlag
  * Aug 06, 2013  16243                 Changed the Gui to a ScrolledComposite.
- * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Feb 2, 2014   16201     snaples     Added saved data flag support
+ * Apr 4, 2014   17223     snaples     Updated other_office_id and rfc_bias to object 
+ *                                     array so that called procedure can update and return values properly.
  * 
  * </pre>
  * 
@@ -469,18 +471,22 @@ public class RadarBiasTableDialog extends Dialog {
             }
             bcoefLbl.setText(bbias);
             bcoefLbl.setLayoutData(gd);
-
+            
+            String[] oid = new String[1];
             String office_id = "";
-            float other_bias_value = 0;
+            oid[0] = office_id;
+            Float[] obias_value = new Float[1];
+            Float other_bias_value = 0.00f;
+            obias_value[0] = other_bias_value;
             int bias_found = ReadBiasTableParam.get_rfc_bias_value(rid,
-                    office_id, other_bias_value);
+                    oid, obias_value);
 
             if (bias_found == 0) {
                 obias = "N/A";
                 ooffice = "N/A";
             } else {
-                obias = String.format("%-1.2f", other_bias_value);
-                ooffice = office_id;
+                obias = String.format("%-1.2f", obias_value[0]);
+                ooffice = oid[0];
             }
             gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
             Label obiasLbl = new Label(biasListComp, SWT.CENTER);
