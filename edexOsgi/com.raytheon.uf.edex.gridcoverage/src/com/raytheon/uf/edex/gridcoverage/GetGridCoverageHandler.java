@@ -45,10 +45,13 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 26, 2012            bsteffen     Initial creation
- * Mar 07, 2013 1771       bsteffen    fix gridcoverage duplicate checks.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 26, 2012           bsteffen    Initial creation
+ * Mar 07, 2013  1771     bsteffen    fix gridcoverage duplicate checks.
+ * Mar 20, 2013  2910     bsteffen    Commit transaction within cluster locks.
+ * 
+ * 
  * 
  * </pre>
  * 
@@ -96,6 +99,8 @@ public class GetGridCoverageHandler implements
                         coverage.initialize();
                         sess.saveOrUpdate(coverage);
                         rval = coverage;
+                        trans.commit();
+                        trans = null;
                     }
                 } finally {
                     ClusterLockUtils.deleteLock(ct.getId().getName(), ct
@@ -103,7 +108,6 @@ public class GetGridCoverageHandler implements
                 }
             }
 
-            trans.commit();
         } catch (Exception e) {
             statusHandler.error("Error occurred looking up GridCoverage["
                     + coverage.getName() + "]", e);
