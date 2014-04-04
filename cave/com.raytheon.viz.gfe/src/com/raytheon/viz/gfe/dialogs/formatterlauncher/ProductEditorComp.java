@@ -156,6 +156,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     update VTEC lines on products that
  *                                     aren't being corrected.
  * 02/05/2014  17022       ryu         Modified loadDraft() to fix merging of WMO heading and AWIPS ID.
+ * 03/25/2014   #2884      randerso    Added xxxid to check for disabling editor
  * 
  * </pre>
  * 
@@ -2728,20 +2729,31 @@ public class ProductEditorComp extends Composite implements
                 && !msg.getMode().equals(ActiveTableMode.PRACTICE)) {
             return;
         }
-        List<String> pils = VTECTableChangeNotification.DisableTable.get(pil);
         String brained = null;
         boolean allFound = false;
         String sid = getDefString("fullStationID");
-        String pil = getDefString("pil");
-        if (pil != null) {
-            pil = pil.substring(0, 3);
+        String pilxxx = getDefString("pil");
+        String pil = null;
+        if (pilxxx != null) {
+            pil = pilxxx.substring(0, 3);
+            List<String> pils = VTECTableChangeNotification.DisableTable
+                    .get(pil);
+
+            // append xxxId to pil for matching
+            if (pils != null) {
+                String xxxId = pilxxx.substring(3, pilxxx.length());
+                for (int i = 0; i < pils.size(); i++) {
+                    pils.set(i, pils.get(i) + xxxId);
+                }
+            }
 
             for (VTECChange m : msg.getChanges()) {
                 if (m.getSite().equals("*ALL") || m.getPil().equals("*ALL*")) {
                     allFound = true;
                 }
+                String msgPilxxx = m.getPil() + m.getXxxid();
                 if (m.getSite().equals(sid)) {
-                    if ((pils == null) && m.getPil().equals(pil)) {
+                    if ((pils == null) && msgPilxxx.equals(pilxxx)) {
                         if (brain()) {
                             brained = m.getPil();
                         }

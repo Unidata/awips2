@@ -82,6 +82,7 @@ import com.raytheon.viz.radar.util.StationUtils;
  * ------------ ---------- ----------- --------------------------
  * Mar 23, 2010 #4473      rjpeter     Initial creation
  * Feb 21, 2014 DR 16744   D. Friedman Add getUpdateConstraints
+ * Apr  1, 2014 DR 17220   D. Friedman Handle uninitialized grid inventory
  * 
  * </pre>
  * 
@@ -398,6 +399,11 @@ public class RadarAdapter {
     }
 
     public Map<String, RequestConstraint> getUpdateConstraints() {
+        RadarStation radarStation = getConfiguredRadar();
+        if (radarStation == null) {
+            // Can happen if grid inventory has not been initialized
+            return null;
+        }
         RadarProductCodeMapping rpcMap = RadarProductCodeMapping.getInstance();
         HashSet<Integer> productCodes = new HashSet<Integer>();
         for (String abbrev : rpcMap.getParameterAbbrevs()) {
@@ -406,8 +412,8 @@ public class RadarAdapter {
         Map<String, RequestConstraint> rcMap = new HashMap<String, RequestConstraint>();
         rcMap.put(RadarAdapter.PLUGIN_NAME_QUERY, new RequestConstraint(
                 RADAR_SOURCE));
-        rcMap.put(ICAO_QUERY, new RequestConstraint(getConfiguredRadar()
-                .getRdaId().toLowerCase()));
+        rcMap.put(ICAO_QUERY, new RequestConstraint(radarStation.getRdaId()
+                .toLowerCase()));
         rcMap.put(
                 PRODUCT_CODE_QUERY,
                 new RequestConstraint(Arrays.toString(new ArrayList<Integer>(

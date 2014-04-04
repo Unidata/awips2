@@ -315,6 +315,10 @@
 #       	Status:           TEST
 #       	Title:             AvnFPS: OB9.2 installation breaks mtrs.cfg file
 #       
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02APR2014       17211         zhao (code obtained from the listserver via Virgil that implements a new rule regarding CB, TS etc) 
+#
 #
 #
 import exceptions, re, time, types
@@ -423,6 +427,8 @@ ddHH/ddHH)""",
 60: """NSW not needed""",
 61: """The period covered by a TAF shall not exceed 30
 hours""",
+81: """CB may only be mentioned when TS or VCTS mentioned
+(NWSI 10-813, Appendix B, 1.2.7.3)""",
 }
 
 _Warnings = { \
@@ -1054,6 +1060,10 @@ class Decoder(tpg.VerboseParser):
             'TS' in g['vcnty']['str']:
             if 'sky' not in g or 'CB' not in g['sky']['str']:
                 raise Error(_Errors[11])
+        if 'sky' in g and 'CB' in g['sky']['str']:
+            if ('pcp' not in g or 'TS' not in g['pcp']['str']) and \
+                    ('vcnty' not in g or 'TS' not in g['vcnty']['str']):
+                raise Error(_Errors[81])
 
     def check_obv(self):
         # NWSI 10-813, 1.2.6
