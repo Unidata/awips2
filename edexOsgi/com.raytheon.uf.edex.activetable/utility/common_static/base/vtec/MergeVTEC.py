@@ -32,7 +32,7 @@
 #    01/25/13        1447          dgilling       Initial Creation.
 #    03/19/13        1447          dgilling       Merge A1 DR 21434.
 #    06/11/13        #2083         randerso       Move backups to edex_static
-# 
+#    03/25/14        #2884         randerso       Added xxxid to VTECChange
 #
 
 
@@ -264,7 +264,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                     changed = True
 
                 if changed:
-                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
+                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'], othRec['xxxid'])
                     if chgRec not in changes:
                         changes.append(chgRec)
 
@@ -285,7 +285,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                                oldReplaceEntriesAct.append(activeTable[i])
                                activeTable[i] = othRec  #replace the record
                                chgRec = (activeTable[i]['officeid'], 
-                                 activeTable[i]['pil'], activeTable[i]['phensig'])
+                                 activeTable[i]['pil'], activeTable[i]['phensig'], activeTable[i]['xxxid'])
                                if chgRec not in changes:
                                    changes.append(chgRec)
                            else:
@@ -298,7 +298,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                 if found == 0:
                     missingEntriesAct.append(othRec)
                     activeTable.append(othRec)   #add the record
-                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
+                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'], othRec['xxxid'])
                     if chgRec not in changes:
                         changes.append(chgRec)
 
@@ -326,7 +326,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                     newReplaceEntriesPast.append(othRec)
                     oldReplaceEntriesPast.append(activeTable[maxETNIndex])
                     activeTable[maxETNIndex] = othRec #replace record
-                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
+                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'], othRec['xxxid'])
                     if chgRec not in changes:
                         changes.append(chgRec)
 
@@ -334,7 +334,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                 if maxETN is None:
                     missingEntriesPast.append(othRec)
                     activeTable.append(othRec) #add the record
-                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'])
+                    chgRec = (othRec['officeid'], othRec['pil'], othRec['phensig'], othRec['xxxid'])
                     if chgRec not in changes:
                         changes.append(chgRec)
                     
@@ -382,7 +382,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
     
         changeList = ArrayList()
         for c in self._changes:
-            changeList.add(VTECChange(c[0],c[1],c[2]))
+            changeList.add(VTECChange(c[0],c[1],c[2],c[3]))
 
         result = MergeResult(updatedList, purgedList, changeList)
         return result
