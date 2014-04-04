@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -62,6 +63,8 @@ import com.raytheon.uf.common.archive.config.DisplayData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -82,6 +85,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     implementation of compression.
  * Oct 08, 2013 2442       rferrel     Remove category directory.
  * Feb 04, 2013 2270       rferrel     Move HDF files to parent's directory.
+ * Mar 26, 2014 2880       rferrel     Compress and split cases implemented.
  * 
  * </pre>
  * 
@@ -130,9 +134,8 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     /** When true break the compress file into multiple files. */
     private final boolean doMultiFiles;
 
-    // Needed when compress and split implemented
-    // /** The compress size for multiple files. */
-    // private final long splitSize;
+    /** The compress size for multiple files. */
+    private final long splitSize;
 
     /** Job to perform the case generation off of the UI thread. */
     private GenerateJob generateJob;
@@ -174,8 +177,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
         this.doCompress = doCompress;
         this.doMultiFiles = doMultiFiles;
 
-        // Needed when compress and split implemented.
-        // this.splitSize = splitSize;
+        this.splitSize = splitSize;
         this.caseName = caseDir.getAbsolutePath().substring(
                 targetDir.getAbsolutePath().length() + 1);
         setText("Generating - " + caseName);
@@ -412,6 +414,9 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             String currentCategory = null;
             boolean updateDestDir = false;
 
+            ITimer timer = TimeUtil.getTimer();
+            timer.start();
+
             try {
                 for (DisplayData displayData : sourceDataList) {
                     if (shutdown.get()) {
@@ -436,7 +441,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                             if (!doCompress) {
                                 caseCopy = new CopyMove();
                             } else if (doMultiFiles) {
-                                caseCopy = new CompressAndSplitCopy();
+                                caseCopy = new CompressAndSplitCopy(splitSize);
                             } else {
                                 caseCopy = new CompressCopy();
                             }
@@ -478,10 +483,17 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 if (caseCopy != null) {
                     try {
                         caseCopy.finishCase();
-                    } catch (CaseCreateException ex) {
+                    } catch (Exception ex) {
                         // Ignore
                     }
                     caseCopy = null;
+                }
+                timer.stop();
+                if (statusHandler.isPriorityEnabled(Priority.INFO)) {
+                    String message = String.format("Case %s took %s.",
+                            caseDir.getName(),
+                            TimeUtil.prettyDuration(timer.getElapsedTime()));
+                    statusHandler.handle(Priority.INFO, message);
                 }
             }
 
@@ -504,6 +516,8 @@ public class GenerateCaseDlg extends CaveSWTDialog {
      * This class copies selected files/directories to a case-directory/archive.
      */
     private static class CopyMove implements ICaseCopy {
+        private final IUFStatusHandler statusHandler;
+
         /**
          * Flag to indicate user canceled the case generation.
          */
@@ -520,6 +534,13 @@ public class GenerateCaseDlg extends CaveSWTDialog {
         private int startRelativePath;
 
         /**
+         * Constructor.
+         */
+        public CopyMove() {
+            statusHandler = UFStatus.getHandler(this.getClass());
+        }
+
+        /**
          * Copy source File to desired destination.
          * 
          * @param source
@@ -528,6 +549,16 @@ public class GenerateCaseDlg extends CaveSWTDialog {
          */
         private void copyFile(File source, File destination) throws IOException {
             if (shutdown.get()) {
+                return;
+            }
+
+            if (!source.exists()) {
+                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                    String message = String.format(
+                            "Purged and unable to place in case: %s",
+                            source.getAbsoluteFile());
+                    statusHandler.handle(Priority.DEBUG, message);
+                }
                 return;
             }
 
@@ -554,6 +585,11 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             }
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#copy(java.io.File)
+         */
         @Override
         public void copy(File source) throws CaseCreateException {
             String relativePath = source.getAbsolutePath().substring(
@@ -563,10 +599,17 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 destination.getParentFile().mkdirs();
                 copyFile(source, destination);
             } catch (IOException ex) {
-                throw new CaseCreateException("CopyMove.copy: ", ex);
+                throw new CaseCreateException("Copy Move ", ex);
             }
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#startCase(java.io.File,
+         * com.raytheon.uf.common.archive.config.DisplayData,
+         * java.util.concurrent.atomic.AtomicBoolean)
+         */
         @Override
         public void startCase(File caseDir, DisplayData displayData,
                 AtomicBoolean shutdown) {
@@ -578,6 +621,11 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             startRelativePath = displayData.getRootDir().length();
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#finishCase()
+         */
         @Override
         public void finishCase() {
             // Nothing to do.
@@ -587,55 +635,79 @@ public class GenerateCaseDlg extends CaveSWTDialog {
     /**
      * This class takes selected directories/files to
      * case-directory/archive/compress-category-file. The compress-category-file
-     * is a tar gzip file containing the categorie's data.
+     * is a tar gzip file containing the category's data.
      */
     private static class CompressCopy implements ICaseCopy {
+        private final IUFStatusHandler statusHandler;
+
         /**
          * Flag to indicate user canceled case generation.
          */
-        private AtomicBoolean shutdown;
+        protected AtomicBoolean shutdown;
 
         /**
          * Top Level destination directory.
          */
-        private File destDir;
+        protected File destDir;
 
         /**
          * Stream to the file being created.
          */
-        private FileOutputStream fileStream;
+        protected FileOutputStream fileStream;
 
         /**
          * Stream to perform the compression.
          */
-        private GZIPOutputStream zipStream;
+        protected GZIPOutputStream zipStream;
 
         /**
          * Stream to create the tar image.
          */
-        private ArchiveOutputStream tarStream;
+        protected ArchiveOutputStream tarStream;
+
+        /**
+         * The category directory name used to generate tar file name(s).
+         */
+        protected String categoryDirName;
 
         /**
          * Index to start of relative path in source File.
          */
-        private int startRelativePath;
+        protected int startRelativePath;
 
         /**
          * Directories already created in the tar image.
          */
-        private final HashSet<File> tarDirFile = new HashSet<File>();
+        protected final HashSet<File> tarDirFile = new HashSet<File>();
 
         /**
          * Buffer to use for reading in a file.
          */
-        private final byte[] buffer = new byte[(int) (32 * FileUtils.ONE_KB)];
+        protected final byte[] buffer = new byte[(int) (32 * FileUtils.ONE_KB)];
 
+        /**
+         * Current tar file being created.
+         */
+        protected File tarFile;
+
+        /**
+         * Constructor.
+         */
+        public CompressCopy() {
+            this.statusHandler = UFStatus.getHandler(this.getClass());
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#copy(java.io.File)
+         */
         @Override
         public void copy(File source) throws CaseCreateException {
             try {
                 addParentDir(source);
                 addTarFiles(new File[] { source });
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new CaseCreateException("Compress Copy failed: ", e);
             }
         }
@@ -645,14 +717,26 @@ public class GenerateCaseDlg extends CaveSWTDialog {
          * 
          * @param files
          * @throws IOException
+         * @throws ArchiveException
+         * @throws CaseCreateException
          */
-        private void addTarFiles(File[] files) throws IOException {
+        private void addTarFiles(File[] files) throws IOException,
+                ArchiveException {
             for (File file : files) {
                 if (shutdown.get()) {
                     return;
                 }
                 String name = file.getAbsolutePath().substring(
                         startRelativePath);
+                if (!file.exists()) {
+                    if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                        String message = String.format(
+                                "Purged and unable to place in case: %s",
+                                file.getAbsoluteFile());
+                        statusHandler.handle(Priority.DEBUG, message);
+                    }
+                    continue;
+                }
                 if (file.isDirectory()) {
                     if (!tarDirFile.contains(file)) {
                         TarArchiveEntry entry = new TarArchiveEntry(file, name);
@@ -662,6 +746,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                         addTarFiles(file.listFiles());
                     }
                 } else {
+                    checkFit(file);
                     // DR 2270 bump HDF files up a directory.
                     if (name.endsWith(hdfExt)) {
                         File destination = new File(file.getParentFile()
@@ -695,7 +780,7 @@ public class GenerateCaseDlg extends CaveSWTDialog {
          * 
          * @param stream
          */
-        private void closeStream(Closeable stream) {
+        protected void closeStream(Closeable stream) {
             try {
                 stream.close();
             } catch (IOException ex) {
@@ -704,12 +789,20 @@ public class GenerateCaseDlg extends CaveSWTDialog {
         }
 
         /**
+         * Allows sub-class to check to see if file will fit in the current tar
+         * file and if needed setup new tar file.
+         */
+        protected void checkFit(File file) throws IOException, ArchiveException {
+            // Do not change the tar file.
+        }
+
+        /**
          * If needed add parent directories to the tar image.
          * 
          * @param file
          * @throws IOException
          */
-        private void addParentDir(File file) throws IOException {
+        protected void addParentDir(File file) throws IOException {
             File parent = file.getParentFile();
             if (parent != null && !tarDirFile.contains(parent)
                     && (parent.getAbsolutePath().length() > startRelativePath)) {
@@ -723,6 +816,13 @@ public class GenerateCaseDlg extends CaveSWTDialog {
             }
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#startCase(java.io.File,
+         * com.raytheon.uf.common.archive.config.DisplayData,
+         * java.util.concurrent.atomic.AtomicBoolean)
+         */
         @Override
         public void startCase(File caseDir, DisplayData displayData,
                 AtomicBoolean shutdown) throws CaseCreateException {
@@ -730,30 +830,67 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 this.shutdown = shutdown;
                 String archiveDirName = ArchiveConstants
                         .convertToFileName(displayData.getArchiveName());
-                String categoryDirName = ArchiveConstants
+                categoryDirName = ArchiveConstants
                         .convertToFileName(displayData.getCategoryName());
                 destDir = new File(caseDir, archiveDirName);
                 destDir.mkdirs();
-                tarDirFile.clear();
                 startRelativePath = displayData.getRootDir().length();
-                File tarFile = new File(destDir, categoryDirName
-                        + ArchiveConstants.TAR_EXTENSION);
-                fileStream = new FileOutputStream(tarFile);
-                zipStream = new GZIPOutputStream(fileStream);
-                ArchiveStreamFactory factory = new ArchiveStreamFactory();
-                tarStream = factory.createArchiveOutputStream(
-                        ArchiveStreamFactory.TAR, zipStream);
-                if (tarStream instanceof TarArchiveOutputStream) {
-                    ((TarArchiveOutputStream) tarStream)
-                            .setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-                }
+                openStreams();
             } catch (Exception e) {
-                throw new CaseCreateException("CompressCopy.startCase: ", e);
+                throw new CaseCreateException("Compress Copy start case: ", e);
             }
         }
 
+        /**
+         * Determine a new tar file and set up its streams.
+         * 
+         * @throws IOException
+         * @throws ArchiveException
+         */
+        protected void openStreams() throws IOException, ArchiveException {
+            tarDirFile.clear();
+            tarFile = getTarFile();
+            fileStream = new FileOutputStream(tarFile);
+            zipStream = new GZIPOutputStream(fileStream);
+            ArchiveStreamFactory factory = new ArchiveStreamFactory();
+            tarStream = factory.createArchiveOutputStream(
+                    ArchiveStreamFactory.TAR, zipStream);
+            if (tarStream instanceof TarArchiveOutputStream) {
+                ((TarArchiveOutputStream) tarStream)
+                        .setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
+            }
+        }
+
+        /**
+         * Determine new tar file.
+         * 
+         * @return tarFile
+         */
+        protected File getTarFile() {
+            return new File(destDir, categoryDirName
+                    + ArchiveConstants.TAR_EXTENSION);
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.raytheon.uf.viz.archive.ui.ICaseCopy#finishCase()
+         */
         @Override
         public void finishCase() throws CaseCreateException {
+            try {
+                closeStreams();
+            } catch (IOException e) {
+                throw new CaseCreateException("Compress Copy finish: ", e);
+            }
+        }
+
+        /**
+         * Close all the streams for current tar file.
+         * 
+         * @throws IOException
+         */
+        protected void closeStreams() throws IOException {
             try {
                 if (tarStream != null) {
                     tarStream.finish();
@@ -761,8 +898,6 @@ public class GenerateCaseDlg extends CaveSWTDialog {
                 if (zipStream != null) {
                     zipStream.finish();
                 }
-            } catch (IOException e) {
-                throw new CaseCreateException("CaseCopy.finish: ", e);
             } finally {
                 if (tarStream != null) {
                     closeStream(tarStream);
@@ -780,315 +915,89 @@ public class GenerateCaseDlg extends CaveSWTDialog {
 
     /*
      * This class intended for making "image" files read for burning to a CD or
-     * DVD. Need to resolve issues on how this should be done.
+     * DVD.
      */
-    private static class CompressAndSplitCopy implements ICaseCopy {
+    private static class CompressAndSplitCopy extends CompressCopy {
+        /**
+         * Number of bytes to back off the split limit to allow finishing the
+         * tar without exceeding the limit.
+         */
+        private final long BACK_OFF_BYTES = 5 * FileUtils.ONE_KB;
 
+        /**
+         * Maximum bytes for a tar file.
+         */
+        private final long splitSize;
+
+        /**
+         * Count of tar files for a category.
+         */
+        private int fileCnt = 0;
+
+        /**
+         * Constructor.
+         * 
+         * @param splitSize
+         */
+        public CompressAndSplitCopy(long splitSize) {
+            super();
+            this.splitSize = splitSize - BACK_OFF_BYTES;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.archive.ui.GenerateCaseDlg.CompressCopy#startCase
+         * (java.io.File, com.raytheon.uf.common.archive.config.DisplayData,
+         * java.util.concurrent.atomic.AtomicBoolean)
+         */
+        @Override
         public void startCase(File caseDir, DisplayData displayData,
                 AtomicBoolean shutdown) throws CaseCreateException {
-            throw new CaseCreateException(
-                    "Compress and split not yet implemented.");
+            this.fileCnt = 0;
+            super.startCase(caseDir, displayData, shutdown);
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.archive.ui.GenerateCaseDlg.CompressCopy#getTarFile
+         * ()
+         */
         @Override
-        public void copy(File source) throws CaseCreateException {
-            // TODO Auto-generated method stub
-
+        protected File getTarFile() {
+            int cnt = ++fileCnt;
+            String name = String.format("%s_%03d%s", categoryDirName, cnt,
+                    ArchiveConstants.TAR_EXTENSION);
+            return new File(destDir, name);
         }
 
+        /*
+         * (non-Javadoc)
+         * 
+         * @see
+         * com.raytheon.uf.viz.archive.ui.GenerateCaseDlg.CompressCopy#checkFit
+         * (java.io.File)
+         */
         @Override
-        public void finishCase() {
-            // TODO Auto-generated method stub
+        protected void checkFit(File file) throws IOException, ArchiveException {
+            // force update of tarFile length.
+            tarStream.flush();
+            zipStream.flush();
+            fileStream.flush();
+
+            /*
+             * Most likely over estimates the size since it is unknown how well
+             * file will compress.
+             */
+            long size = tarFile.length() + file.length();
+            if (size >= splitSize) {
+                closeStreams();
+                openStreams();
+                addParentDir(file);
+            }
         }
-
-        // TODO Example code for future implementation of this class.
-        // Will need to break up into the starCase, copy and finishCase will
-        // need close and join.
-
-        // private void compressAndSplitCase() {
-        // ArchiveOutputStream tarStream = null;
-        // GZIPOutputStream zipStream = null;
-        // try {
-        // Pipe pipe = Pipe.open();
-        // OutputStream poStream = Channels.newOutputStream(pipe.sink());
-        // zipStream = new GZIPOutputStream(poStream);
-        // ArchiveStreamFactory factory = new ArchiveStreamFactory();
-        //
-        // tarStream = factory.createArchiveOutputStream(
-        // ArchiveStreamFactory.TAR, zipStream);
-        //
-        // if (tarStream instanceof TarArchiveOutputStream) {
-        // ((TarArchiveOutputStream) tarStream)
-        // .setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-        // }
-        //
-        // final InputStream piStream = Channels.newInputStream(pipe
-        // .source());
-        // splitDone.set(false);
-        //
-        // Job splitJob = new Job("Split") {
-        //
-        // @Override
-        // protected IStatus run(IProgressMonitor monitor) {
-        // OutputStream splitStream = null;
-        // long totSize = 0;
-        // try {
-        // byte[] buffer = new byte[12 * 1024];
-        //
-        // int bufCnt = 0;
-        // long splitCnt = 0L;
-        // while ((bufCnt = piStream.read(buffer)) != -1) {
-        // totSize += bufCnt;
-        // if (splitStream == null) {
-        // splitStream = openSplitFile(++numSplitFiles);
-        // }
-        // long fileSize = splitCnt + bufCnt;
-        // if (fileSize < splitSize) {
-        // splitStream.write(buffer, 0, bufCnt);
-        // splitCnt = fileSize;
-        // } else if (fileSize == splitSize) {
-        // splitStream.write(buffer, 0, bufCnt);
-        // splitStream.close();
-        // splitStream = null;
-        // splitCnt = 0L;
-        // } else {
-        // int cnt = (int) (splitSize - splitCnt);
-        // splitStream.write(buffer, 0, cnt);
-        // splitStream.close();
-        // splitStream = openSplitFile(++numSplitFiles);
-        // int remainder = bufCnt - cnt;
-        // splitStream.write(buffer, cnt, remainder);
-        // splitCnt = remainder;
-        // }
-        // }
-        // } catch (IOException e) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // e.getLocalizedMessage(), e);
-        // } finally {
-        // if (splitStream != null) {
-        // try {
-        // splitStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        // splitDone.set(true);
-        // System.out.println("totalSize: " + totSize
-        // + ", splitSize: " + splitSize
-        // + ", numSplitFiles: " + numSplitFiles);
-        // }
-        //
-        // return Status.OK_STATUS;
-        // }
-        // };
-        // splitJob.schedule();
-        //
-        // createTarFile(tarStream, caseDir.listFiles());
-        // tarStream.finish();
-        // zipStream.finish();
-        // try {
-        // tarStream.close();
-        // } catch (IOException ex) {
-        // // Ignore
-        // }
-        // tarStream = null;
-        //
-        // try {
-        // zipStream.close();
-        // } catch (IOException ex) {
-        // // Ignore
-        // }
-        // zipStream = null;
-        //
-        // while (!splitDone.get()) {
-        // if (splitJob.getState() == Job.RUNNING) {
-        // try {
-        // System.out.println("splitJob.join()");
-        // splitJob.join();
-        // } catch (InterruptedException e) {
-        // statusHandler.handle(Priority.INFO,
-        // e.getLocalizedMessage(), e);
-        // }
-        // } else {
-        // try {
-        // private void compressAndSplitCase() {
-        // ArchiveOutputStream tarStream = null;
-        // GZIPOutputStream zipStream = null;
-        // try {
-        // Pipe pipe = Pipe.open();
-        // OutputStream poStream = Channels.newOutputStream(pipe.sink());
-        // zipStream = new GZIPOutputStream(poStream);
-        // ArchiveStreamFactory factory = new ArchiveStreamFactory();
-        //
-        // tarStream = factory.createArchiveOutputStream(
-        // ArchiveStreamFactory.TAR, zipStream);
-        //
-        // if (tarStream instanceof TarArchiveOutputStream) {
-        // ((TarArchiveOutputStream) tarStream)
-        // .setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU);
-        // }
-        //
-        // final InputStream piStream = Channels.newInputStream(pipe
-        // .source());
-        // splitDone.set(false);
-        //
-        // Job splitJob = new Job("Split") {
-        //
-        // @Override
-        // protected IStatus run(IProgressMonitor monitor) {
-        // OutputStream splitStream = null;
-        // long totSize = 0;
-        // try {
-        // byte[] buffer = new byte[12 * 1024];
-        //
-        // int bufCnt = 0;
-        // long splitCnt = 0L;
-        // while ((bufCnt = piStream.read(buffer)) != -1) {
-        // totSize += bufCnt;
-        // if (splitStream == null) {
-        // splitStream = openSplitFile(++numSplitFiles);
-        // }
-        // long fileSize = splitCnt + bufCnt;
-        // if (fileSize < splitSize) {
-        // splitStream.write(buffer, 0, bufCnt);
-        // splitCnt = fileSize;
-        // } else if (fileSize == splitSize) {
-        // splitStream.write(buffer, 0, bufCnt);
-        // splitStream.close();
-        // splitStream = null;
-        // splitCnt = 0L;
-        // } else {
-        // int cnt = (int) (splitSize - splitCnt);
-        // splitStream.write(buffer, 0, cnt);
-        // splitStream.close();
-        // splitStream = openSplitFile(++numSplitFiles);
-        // int remainder = bufCnt - cnt;
-        // splitStream.write(buffer, cnt, remainder);
-        // splitCnt = remainder;
-        // }
-        // }
-        // } catch (IOException e) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // e.getLocalizedMessage(), e);
-        // } finally {
-        // if (splitStream != null) {
-        // try {
-        // splitStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        // splitDone.set(true);
-        // System.out.println("totalSize: " + totSize
-        // + ", splitSize: " + splitSize
-        // + ", numSplitFiles: " + numSplitFiles);
-        // }
-        //
-        // return Status.OK_STATUS;
-        // }
-        // };
-        // splitJob.schedule();
-        //
-        // createTarFile(tarStream, caseDir.listFiles());
-        // tarStream.finish();
-        // zipStream.finish();
-        // try {
-        // tarStream.close();
-        // } catch (IOException ex) {
-        // // Ignore
-        // }
-        // tarStream = null;
-        //
-        // try {
-        // zipStream.close();
-        // } catch (IOException ex) {
-        // // Ignore
-        // }
-        // zipStream = null;
-        //
-        // while (!splitDone.get()) {
-        // if (splitJob.getState() == Job.RUNNING) {
-        // try {
-        // System.out.println("splitJob.join()");
-        // splitJob.join();
-        // } catch (InterruptedException e) {
-        // statusHandler.handle(Priority.INFO,
-        // e.getLocalizedMessage(), e);
-        // }
-        // } else {
-        // try {
-        // Thread.sleep(200L);
-        // } catch (InterruptedException e) {
-        // statusHandler.handle(Priority.INFO,
-        // e.getLocalizedMessage(), e);
-        // }
-        // }
-        // }
-        // } catch (IOException e) {
-        // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-        // e);
-        // } catch (ArchiveException e1) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // e1.getLocalizedMessage(), e1);
-        // } finally {
-        // if (tarStream != null) {
-        // try {
-        // tarStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        //
-        // if (zipStream != null) {
-        // try {
-        // zipStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        // }
-        // setProgressBar(100, SWT.NORMAL);
-        // deleteCaseDir();
-        // String message = caseDir.getName() + "split into " + numSplitFiles
-        // + " file(s).";
-        // setStateLbl(message, null);
-        // }
-        // Thread.sleep(200L);
-        // } catch (InterruptedException e) {
-        // statusHandler.handle(Priority.INFO,
-        // e.getLocalizedMessage(), e);
-        // }
-        // }
-        // }
-        // } catch (IOException e) {
-        // statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-        // e);
-        // } catch (ArchiveException e1) {
-        // statusHandler.handle(Priority.PROBLEM,
-        // e1.getLocalizedMessage(), e1);
-        // } finally {
-        // if (tarStream != null) {
-        // try {
-        // tarStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        //
-        // if (zipStream != null) {
-        // try {
-        // zipStream.close();
-        // } catch (IOException e) {
-        // // Ignore
-        // }
-        // }
-        // }
-        // setProgressBar(100, SWT.NORMAL);
-        // deleteCaseDir();
-        // String message = caseDir.getName() + "split into " + numSplitFiles
-        // + " file(s).";
-        // setStateLbl(message, null);
-        // }
-
     }
 }
