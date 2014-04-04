@@ -2,12 +2,22 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-    <bean id="archiveAdminAuthorization"
+    <bean id="archiveRetentionAuthorization"
         class="com.raytheon.uf.edex.archive.useradmin.ArchiveAdminPrivilegedRequestHandler" />
 
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg
             value="com.raytheon.uf.common.archive.request.ArchiveAdminAuthRequest" />
-        <constructor-arg ref="archiveAdminAuthorization" />
+        <constructor-arg ref="archiveRetentionAuthorization" />
     </bean>
+    
+    <bean id="archiveCaseCreationAuthorization"
+        class="com.raytheon.uf.edex.archive.useradmin.ArchiveCaseCreationAuthRequestHandler" />
+
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg
+            value="com.raytheon.uf.common.archive.request.ArchiveCaseCreationAuthRequest" />
+        <constructor-arg ref="archiveCaseCreationAuthorization" />
+    </bean>
+    
 </beans>

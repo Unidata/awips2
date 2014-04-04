@@ -21,11 +21,9 @@ package com.raytheon.uf.common.dataplugin.gfe.textproduct;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.raytheon.uf.common.dataplugin.gfe.StatusConstants;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.serialization.SerializationException;
@@ -37,14 +35,15 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * Handles saving and loading of draft GFE text products
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 23, 2010            randerso     Initial creation
+ * Mar 23, 2010            randerso    Initial creation
+ * Mar 26, 2014  #2884     randerso    Code clean up
  * 
  * </pre>
  * 
@@ -54,7 +53,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 @DynamicSerialize
 public class DraftProduct {
-    private static final transient IUFStatusHandler statusHandler = UFStatus.getHandler(DraftProduct.class);
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DraftProduct.class);
+
     @DynamicSerializeElement
     private ProductDefinition productDefinition;
 
@@ -94,15 +95,10 @@ public class DraftProduct {
 
         FileOutputStream out = null;
         try {
-            out = new FileOutputStream(file);
+            out = lf.openOutputStream();
             out.write(bytes);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
-
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
 
         } finally {
             if (out != null) {
@@ -120,21 +116,15 @@ public class DraftProduct {
     public static DraftProduct load(LocalizationFile lf)
             throws SerializationException {
 
-        File file = lf.getFile();
-
         byte[] bytes = null;
         FileInputStream in = null;
         try {
-            in = new FileInputStream(file);
+            File file = lf.getFile(true);
+            in = lf.openInputStream();
             bytes = new byte[(int) file.length()];
             in.read(bytes);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
-
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
 
         } finally {
             if (in != null) {
@@ -147,6 +137,6 @@ public class DraftProduct {
             }
         }
 
-        return (DraftProduct) SerializationUtil.transformFromThrift(bytes);
+        return SerializationUtil.transformFromThrift(DraftProduct.class, bytes);
     }
 }
