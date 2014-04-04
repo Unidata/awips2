@@ -817,4 +817,14 @@ public class BufrParser {
         return rval;
     }
 
+    /**
+     * Get the level of the current structure. 0 indicates that there is no
+     * current structure.
+     * 
+     * @return
+     */
+    public int getStructLevel() {
+        return structStack.size();
+    }
+
 }
