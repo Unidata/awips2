@@ -1,4 +1,32 @@
 #!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Create GFE Start Script
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    03/20/14        #2933         randerso       Fixed for Dual Domain
+##############################################################################
 if [ ${#AWIPS_HOME} = 0 ]
 then
         path_to_script=`readlink -f $0`
@@ -39,7 +67,15 @@ fi
 
 chmod +x ${LAUNCH_SCRIPT}
 
-SITE_LOWER=`echo ${AW_SITE_IDENTIFIER}|tr [a-z] [A-Z]`
+if [ -z $PRIMARY_SITES ]
+then
+  LOCAL_SITE=${AW_SITE_IDENTIFIER}
+else
+  IFS=','
+  site_list=($PRIMARY_SITES)
+  LOCAL_SITE=${site_list[0]}
+fi
+SITE_LOWER=`echo ${LOCAL_SITE}|tr [a-z] [A-Z]`
 echo  $SITE_LOWER > $SCRIPTS_DIR/siteID.txt
 
 log_msg "GFE launch script created for ${SITE_CAPS}"
