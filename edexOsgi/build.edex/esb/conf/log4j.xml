@@ -27,16 +27,30 @@
    <appender name="ProductSrvRequestLog" class="org.apache.log4j.rolling.RollingFileAppender">
       <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
          <param name="FileNamePattern" value="${edex.home}/logs/edex-request-productSrvRequest-%d{yyyyMMdd}.log"/>
-      </rollingPolicy> 
+      </rollingPolicy>
 
-      <layout class="org.apache.log4j.PatternLayout"> 
-         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/> 
-      </layout> 
-   </appender>    
-   
-   <appender name="ProductSrvRequestLogAsync" class="org.apache.log4j.AsyncAppender">            
-      <appender-ref ref="ProductSrvRequestLog" />
-   </appender> 
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/>
+      </layout>
+   </appender>
+
+   <appender name="TextDBSrvRequestLog" class="org.apache.log4j.rolling.RollingFileAppender">
+      <rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
+         <param name="FileNamePattern" value="${edex.home}/logs/edex-request-textdbSrvRequest-%d{yyyyMMdd}.log"/>
+      </rollingPolicy>
+
+      <layout class="org.apache.log4j.PatternLayout">
+         <param name="ConversionPattern" value="%-5p %d [%t] %c{1}: %m%n"/>
+      </layout>
+   </appender>
+
+   <appender name="ProductSrvRequestLogAsync" class="org.apache.log4j.AsyncAppender">
+      <appender-ref ref="ProductSrvRequestLog"/>
+   </appender>
+
+   <appender name="TextDBSrvRequestLogAsync" class="org.apache.log4j.AsyncAppender">
+      <appender-ref ref="TextDBSrvRequestLog"/>
+   </appender>
 
    <!-- ThriftSrv (RemoteRequestRouteWrapper) request log --> 
    <appender name="ThriftSrvRequestLog" class="org.apache.log4j.rolling.RollingFileAppender">
@@ -81,9 +95,14 @@
    </appender> 
 
    <logger name="ProductSrvRequestLogger" additivity="false">
-   		<level value="DEBUG"/>
-   		<appender-ref ref="ProductSrvRequestLogAsync"/>
-   </logger>    
+      <level value="DEBUG"/>
+      <appender-ref ref="ProductSrvRequestLogAsync"/>
+   </logger>
+
+   <logger name="TextDBSrvRequestLogger" additivity="false">
+      <level value="DEBUG"/>
+      <appender-ref ref="TextDBSrvRequestLogAsync"/>
+   </logger>
 
    <logger name="ThriftSrvRequestLogger" additivity="false">
       <level value="Info"/>

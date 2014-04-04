@@ -56,6 +56,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  * Aug 20, 2012  #1081     dgilling     Don't pass -server and -site args
  *                                      to python script.
  * Dec 04, 2013  #2588     dgilling     Add thread to force shutdown.
+ * Mar 25, 2014  #2963     randerso     Removed obsolete python_include support 
+ *                                      which was adding an empty string into the 
+ *                                      python path causing python to look in user's
+ *                                      current default directory for modules.
  * 
  * </pre>
  * 
@@ -104,19 +108,14 @@ public class GfeClient extends AbstractCAVEComponent {
 
         String pyVizDir = pathMgr.getFile(baseContext, "pyViz").getPath();
 
-        String pyInclude = System.getProperty("python_include");
-        if (pyInclude == null) {
-            pyInclude = "";
-        }
-
         String utilityDir = pathMgr.getFile(baseContext,
                 com.raytheon.uf.common.util.FileUtil.join("gfe", "utility"))
                 .getPath();
 
         boolean includeUser = (!VizApp.getWsId().getUserName().equals("SITE"));
 
-        String includePath = PyUtil.buildJepIncludePath(true, pyInclude,
-                utilityDir, GfePyIncludeUtil.getCommonPythonIncludePath(),
+        String includePath = PyUtil.buildJepIncludePath(true, utilityDir,
+                GfePyIncludeUtil.getCommonPythonIncludePath(),
                 GfePyIncludeUtil.getCommonGfeIncludePath(),
                 GfePyIncludeUtil.getConfigIncludePath(includeUser), pyVizDir,
                 GfePyIncludeUtil.getUtilitiesIncludePath(includeUser),
