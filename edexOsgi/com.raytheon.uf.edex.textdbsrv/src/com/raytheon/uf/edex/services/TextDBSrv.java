@@ -19,12 +19,15 @@
  **/
 package com.raytheon.uf.edex.services;
 
-import static com.raytheon.uf.edex.services.textdbimpl.CommandExecutor.createErrorMessage;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.message.Message;
+import com.raytheon.uf.common.serialization.SerializationUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.edex.services.textdbimpl.CommandExecutor;
 import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
 
@@ -35,31 +38,21 @@ import com.raytheon.uf.edex.services.textdbsrv.ICommandExecutor;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 03, 2008       1538 jkorman     Initial implementation
+ * Oct 03, 2008 1538       jkorman     Initial implementation.
+ * Mar 26, 2014 2835       rjpeter     Added logging.
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
 public class TextDBSrv {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(TextDBSrv.class);
+
+    private static final IUFStatusHandler textDbSrvLogger = UFStatus
+            .getNamedHandler("TextDBSrvRequestLogger");
 
     private static Integer instanceId = 0;
-
-    private Integer serviceInstanceId = null;
-
-    // private boolean jmxModeOn = false;
-
-    // private ObjectName serviceJmxId = null;
-
-    // private boolean serviceRegistered = false;
-
-    // Exposed properties
-
-    // private String serviceName = null;
-
-    private int messageCount = 0;
-
-    private Log logger = LogFactory.getLog(getClass());
 
     private ICommandExecutor executor = null;
 
@@ -67,146 +60,77 @@ public class TextDBSrv {
         super();
         synchronized (instanceId) {
             instanceId = instanceId + 1;
-            serviceInstanceId = new Integer(instanceId);
         }
         executor = new CommandExecutor();
     }
 
-    // /**
-    // *
-    // */
-    // public String process(String text) throws EdexException {
-    // String retMsg = "";
-    // if (text != null) {
-    //
-    // try {
-    // messageCount++;
-    // String xmlMessage = null;
-    // try {
-    // Object m = unmarshalFromXml(text);
-    //
-    // Message sMessage = null;
-    //
-    // if (m instanceof Message) {
-    //                        
-    // sMessage = executeMessage((Message) m);
-    //
-    // if (sMessage != null) {
-    // xmlMessage = marshalToXml(sMessage);
-    // } else {
-    // xmlMessage =
-    // marshalToXml(createErrorMessage("ERROR:Null return from execute"));
-    // }
-    // } else {
-    // String errMsg = "Message content was null";
-    // if (m != null) {
-    // errMsg = "ERROR:Incorrect message type "
-    // + m.getClass().getName();
-    // }
-    // xmlMessage = marshalToXml(createErrorMessage(errMsg));
-    // }
-    // } catch (Exception e) {
-    // logger.error("Error processing message", e);
-    // // attempt to send an error message back to the client.
-    // try {
-    // xmlMessage =
-    // marshalToXml(createErrorMessage("ERROR:Exception processing message"));
-    // } catch (JAXBException e1) {
-    // logger.error(e1);
-    // }
-    // }
-    //
-    // retMsg = xmlMessage;
-    //
-    // } catch (Exception e) {
-    // logger.error("Error getting message payload", e);
-    // }
-    // }
-    //
-    // if (retMsg == null) {
-    // retMsg = "An error occurred";
-    // }
-    //
-    // return retMsg;
-    // }
+    /**
+     * Processes an xml message from the text db service endpoint.
+     * 
+     * @param xml
+     * @return
+     */
+    public String processXmlMessage(String xml) {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+        String sizeString = SizeUtil.prettyByteSize(xml.length());
+        textDbSrvLogger.info("Processing xml message of length: " + sizeString);
 
+        Message returnMessage = null;
+        String outXml = null;
+
+        try {
+            Message message = SerializationUtil.unmarshalFromXml(Message.class,
+                    xml);
+            returnMessage = processMessage(message);
+            outXml = SerializationUtil.marshalToXml(returnMessage);
+        } catch (JAXBException e) {
+            statusHandler.error("Serialization of message failed", e);
+            outXml = "";
+        }
+
+        timer.stop();
+
+        StringBuilder sb = new StringBuilder(300);
+        sb.append("Processed message in ").append(timer.getElapsedTime())
+                .append("ms, ");
+        sb.append("request was size ").append(sizeString);
+        sb.append(", response was size ").append(
+                SizeUtil.prettyByteSize(outXml.length()));
+        textDbSrvLogger.info(sb.toString());
+
+        return outXml;
+    }
+
+    /**
+     * Processes a textdb message.
+     * 
+     * @param message
+     * @return
+     */
     public Message processMessage(Message message) {
         Message returnMessage = null;
         try {
             if (message != null) {
-                messageCount++;
                 returnMessage = executeMessage(message);
 
                 if (returnMessage == null) {
-                    returnMessage = createErrorMessage("ERROR:Null return from execute");
+                    returnMessage = CommandExecutor
+                            .createErrorMessage("ERROR:Null return from execute");
                 }
             } else {
                 String errMsg = "Message content was null";
-                returnMessage = createErrorMessage(errMsg);
+                returnMessage = CommandExecutor.createErrorMessage(errMsg);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            returnMessage = CommandExecutor
+                    .createErrorMessage("Processing of message failed: "
+                            + e.getLocalizedMessage());
+            statusHandler.error("Processing of message failed", e);
         }
 
         return returnMessage;
     }
-
-    // /**
-    // *
-    // * @return
-    // */
-    // public boolean isJmxModeOn() {
-    // return jmxModeOn;
-    // }
-    //
-    // /**
-    // *
-    // * @param desiredMode
-    // */
-    // public void setJmxModeOn(boolean desiredJmxMode) {
-    // jmxModeOn = desiredJmxMode;
-    // // if (desiredJmxMode) {
-    // // register(serviceName);
-    // // }
-    // }
-
-    // /**
-    // * Get the name of this service.
-    // *
-    // * @return The service name.
-    // */
-    // @Override
-    // public String getServiceName() {
-    // return serviceName;
-    // }
-    //
-    // /**
-    // * Set the name of this service.
-    // *
-    // * @param serviceName
-    // * The service name.
-    // */
-    // public void setServiceName(String serviceName) {
-    // this.serviceName = serviceName;
-    // }
-
-    // /**
-    // * Clear the message count to zero.
-    // */
-    // @Override
-    // public void clearMessageCount() {
-    // messageCount = 0;
-    // }
-    //
-    // /**
-    // * Get a count of messages processed since startup or the last reset.
-    // *
-    // * @return Message count.
-    // */
-    // @Override
-    // public int getMessageCount() {
-    // return messageCount;
-    // }
 
     /**
      * 
@@ -236,67 +160,7 @@ public class TextDBSrv {
      */
     private synchronized void executeCommand(String command) {
         if ("read".equals(command)) {
-            logger.info("Processing command");
+            statusHandler.info("Processing command");
         }
     }
-
-    // /**
-    // * Register this service with the JMX management.
-    // */
-    // protected void register(String name) {
-    // if (serviceRegistered || !isJmxModeOn()) {
-    // return;
-    // }
-    //
-    // String domain = rightShortenName(
-    // this.getClass().getPackage().getName(), 2);
-    //
-    // // Get the MBean server for the platform
-    // MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-    // try {
-    // // register the "server" dummy class, if necessary
-    // ObjectName dummyId = new ObjectName(domain + ":type=server");
-    // if (!mbs.isRegistered(dummyId)) {
-    // mbs.registerMBean(new ServerGroup(), dummyId);
-    // }
-    // // register this class as an MBean
-    // serviceJmxId = new ObjectName(domain + ":type=server,name=" + name
-    // + "." + serviceInstanceId);
-    // StandardMBean smbean = new StandardMBean(this,
-    // TextDBSrvInterface.class);
-    // mbs.registerMBean(smbean, serviceJmxId);
-    // serviceRegistered = true;
-    // } catch (Exception e) {
-    // logger.error("register(2) failed to register with JMX server", e);
-    //
-    // serviceRegistered = false;
-    // jmxModeOn = false;
-    // }
-    // }
-    //
-    // /**
-    // * Unregister this service from the JMX server. This should be called
-    // prior
-    // * to shutting down the service.
-    // */
-    // protected void unRegister(String name) {
-    // if (!serviceRegistered || !isJmxModeOn()) {
-    // return;
-    // }
-    // // Get the MBean server for the platform
-    // MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-    // try {
-    // if (mbs.isRegistered(serviceJmxId)) {
-    // mbs.unregisterMBean(serviceJmxId);
-    // }
-    //
-    // serviceRegistered = false;
-    // logger.info("JMX Monitoring for " + serviceName + " stopped");
-    // } catch (Exception e) {
-    // logger.error("register(2) failed to register with JMX server", e);
-    // serviceRegistered = false;
-    // jmxModeOn = false;
-    // }
-    // }
-
 }

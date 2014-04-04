@@ -47,6 +47,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Feb 07, 2013 1543       djohnson     Use ServiceLoader to find how to load jaxbable classes, defaulting to SerializableManager.
  * Mar 21, 2013 1794       djohnson     ServiceLoaderUtil now requires the requesting class.
  * May 01, 2013 1968       djohnson     Prevent deadlock due to SerializableManager threads needing to serialize things.
+ * Mar 26, 2014 2884       randerso     Fixed broken javadoc link
  * 
  * </pre>
  * 
@@ -327,9 +328,9 @@ public final class SerializationUtil {
      *            the object as bytes
      * @return the Java object
      * @throws SerializationException
-     * @deprecated Use {@link #transformFromThrift(Class, byte[]) which performs
-     *             the cast for you, and wraps any {@link ClassCastException}s
-     *             in a serialization exception
+     * @deprecated Use {@link #transformFromThrift(Class, byte[])} which
+     *             performs the cast for you, and wraps any
+     *             {@link ClassCastException}s in a serialization exception
      */
     @Deprecated
     public static Object transformFromThrift(byte[] bytes)
