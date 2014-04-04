@@ -52,9 +52,11 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * 06/30/08     #875       bphillip    Initial Creation
  * 01/29/09     #1271      njensen     Rewrote for thrift capabilities
  * 06/24/09                njensen     Added sending notifications
- * 09/22/09     3058       rjpeter     Converted to IRequestHandler
- * 02/12/2013        #1597 randerso    Added logging to support GFE Performance investigation
- * 06/13/13     2044       randerso    Refactored to use IFPServer
+ * 09/22/09     #3058      rjpeter     Converted to IRequestHandler
+ * 02/12/2013   #1597      randerso    Added logging to support GFE Performance investigation
+ * 06/13/13     #2044      randerso    Refactored to use IFPServer
+ * 04/03/2014   #2737      randerso    Changed to send ISC even when no grids are saved
+ *                                     (i.e. on grid deletes)
  * </pre>
  * 
  * @author bphillip
@@ -72,13 +74,10 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
     public ServerResponse<?> handleRequest(SaveGfeGridRequest request)
             throws Exception {
         ServerResponse<?> sr = null;
-        List<SaveGridRequest> saveRequest = request.getSaveRequest();
+        List<SaveGridRequest> saveRequest = request.getSaveRequests();
         WsId workstationID = request.getWorkstationID();
         String siteID = request.getSiteID();
-        boolean clientSendStatus = false;
-        if (!saveRequest.isEmpty()) {
-            clientSendStatus = saveRequest.get(0).isClientSendStatus();
-        }
+        boolean clientSendStatus = request.isClientSendStatus();
 
         try {
             ITimer timer = TimeUtil.getTimer();
@@ -102,11 +101,10 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
                         saveRequest.size());
                 for (SaveGridRequest save : saveRequest) {
                     DatabaseID dbid = save.getParmId().getDbId();
+
                     // ensure Fcst database
                     if (dbid.getModelName().equals("Fcst")
-                            && dbid.getDbType().isEmpty()
-                            && !save.getGridSlices().isEmpty()
-                            && save.isClientSendStatus()) {
+                            && dbid.getDbType().isEmpty()) {
                         IscSendRecord sendReq = new IscSendRecord(
                                 save.getParmId(),
                                 save.getReplacementTimeRange(), "",
