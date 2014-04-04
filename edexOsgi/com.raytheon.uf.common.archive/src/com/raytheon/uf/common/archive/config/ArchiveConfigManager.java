@@ -31,9 +31,11 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -65,6 +67,7 @@ import com.raytheon.uf.common.localization.exception.LocalizationOpFailedExcepti
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 
@@ -89,6 +92,8 @@ import com.raytheon.uf.common.util.FileUtil;
  * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns the number of files purged.
  * Dec 04, 2013 2603       rferrel     Changes to improve archive purging.
  * Dec 17, 2013 2603       rjpeter     Fix directory purging.
+ * Mar 21, 2014 2835       rjpeter     Optimized getDisplayData to only scan directories to the depth required to
+ *                                     populate the display label.
  * </pre>
  * 
  * @author rferrel
@@ -105,7 +110,7 @@ public class ArchiveConfigManager {
     public final String ARCHIVE_DIR = "archiver/purger";
 
     /** Localization manager. */
-    protected IPathManager pathMgr;
+    protected final IPathManager pathMgr;
 
     private final Map<String, LocalizationFile> archiveNameToLocalizationFileMap = new HashMap<String, LocalizationFile>();
 
@@ -715,15 +720,16 @@ public class ArchiveConfigManager {
         List<File> fileList = new LinkedList<File>();
         ArchiveConfig archiveConfig = displayData.archiveConfig;
 
-        for (CategoryDataSet dataSet : displayData.dataSets) {
+        Map<CategoryDataSet, Set<File>> fullMatchDirs = getDirs(new File(
+                archiveConfig.getRootDir()), displayData.getLabelDirMap());
 
+        for (Map.Entry<CategoryDataSet, Set<File>> entry : fullMatchDirs
+                .entrySet()) {
+            CategoryDataSet dataSet = entry.getKey();
             int[] timeIndices = dataSet.getTimeIndices();
-
             String filePatternStr = dataSet.getFilePattern();
-
             boolean dirOnly = dataSet.isDirOnly();
-
-            List<File> dirs = displayData.dirsMap.get(dataSet);
+            Set<File> dirs = entry.getValue();
 
             int beginIndex = archiveConfig.getRootDir().length();
 
@@ -790,62 +796,171 @@ public class ArchiveConfigManager {
 
     /**
      * Get a list of directories matching the categories directory patterns that
-     * are sub-directories of the archive's root directory.
+     * are sub-directories of the archive's root directory. maxDepth is the
+     * depth of directories to list, 0 for no listing, 1 for root directory,
+     * etc.
      * 
      * @param archiveConfig
      * @param categoryConfig
+     * @param maxDepth
      * @return dirs
      */
     private Map<CategoryDataSet, List<File>> getDirs(File rootFile,
-            CategoryConfig categoryConfig) {
-        List<File> resultDirs = null;
-        List<File> dirs = new ArrayList<File>();
-        List<File> tmpDirs = new ArrayList<File>();
-        List<File> swpDirs = null;
+            CategoryConfig categoryConfig, int maxDepth) {
         List<CategoryDataSet> dataSets = categoryConfig.getDataSetList();
         Map<CategoryDataSet, List<File>> rval = new HashMap<CategoryDataSet, List<File>>(
                 dataSets.size(), 1);
 
-        // keep an in memory map since some of the categories cause the same
-        // directories to be listed over and over
-        Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
+        if (maxDepth > 0) {
+            List<File> resultDirs = null;
+            List<File> dirs = new ArrayList<File>();
+            List<File> tmpDirs = new ArrayList<File>();
+            List<File> swpDirs = null;
 
-        for (CategoryDataSet dataSet : dataSets) {
-            resultDirs = new LinkedList<File>();
+            /*
+             * keep an in memory map since some of the categories cause the same
+             * directories to be listed over and over
+             */
+            Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
 
-            for (String dirPattern : dataSet.getDirPatterns()) {
-                String[] subExpr = dirPattern.split(File.separator);
-                dirs.clear();
-                dirs.add(rootFile);
-                tmpDirs.clear();
+            for (CategoryDataSet dataSet : dataSets) {
+                resultDirs = new LinkedList<File>();
 
-                for (String regex : subExpr) {
-                    Pattern subPattern = Pattern.compile("^" + regex + "$");
-                    IOFileFilter filter = FileFilterUtils
-                            .makeDirectoryOnly(new RegexFileFilter(subPattern));
+                for (String dirPattern : dataSet.getDirPatterns()) {
+                    String[] subExpr = dirPattern.split(File.separator);
+                    dirs.clear();
+                    dirs.add(rootFile);
+                    tmpDirs.clear();
+                    int depth = 0;
 
-                    for (File dir : dirs) {
-                        List<File> dirList = polledDirs.get(dir);
-                        if (dirList == null) {
-                            File[] list = dir.listFiles();
-                            dirList = Arrays.asList(list);
-                            polledDirs.put(dir, dirList);
+                    for (String regex : subExpr) {
+                        Pattern subPattern = Pattern.compile("^" + regex + "$");
+                        IOFileFilter filter = FileFilterUtils
+                                .makeDirectoryOnly(new RegexFileFilter(
+                                        subPattern));
+
+                        for (File dir : dirs) {
+                            List<File> dirList = polledDirs.get(dir);
+                            if (dirList == null) {
+                                File[] list = dir.listFiles();
+                                dirList = Arrays.asList(list);
+                                polledDirs.put(dir, dirList);
+                            }
+
+                            if (dirList != null) {
+                                tmpDirs.addAll(FileFilterUtils.filterList(
+                                        filter, dirList));
+                            }
                         }
 
-                        if (dirList != null) {
-                            tmpDirs.addAll(FileFilterUtils.filterList(filter,
-                                    dirList));
+                        swpDirs = dirs;
+                        dirs = tmpDirs;
+                        tmpDirs = swpDirs;
+                        tmpDirs.clear();
+                        depth++;
+
+                        if (depth >= maxDepth) {
+                            break;
                         }
                     }
 
-                    swpDirs = dirs;
-                    dirs = tmpDirs;
-                    tmpDirs = swpDirs;
-                    tmpDirs.clear();
+                    resultDirs.addAll(dirs);
                 }
-
-                resultDirs.addAll(dirs);
+                rval.put(dataSet, resultDirs);
             }
+        }
+
+        return rval;
+    }
+
+    /**
+     * Gets the directories that fully match the given data sets. Starts with
+     * the directories that previously matched up to displayLabel generation.
+     * 
+     * @param rootFile
+     * @param dataSetMap
+     * @return
+     */
+    private Map<CategoryDataSet, Set<File>> getDirs(File rootFile,
+            Map<CategoryDataSet, Set<File>> dataSetMap) {
+        Map<CategoryDataSet, Set<File>> rval = new HashMap<CategoryDataSet, Set<File>>(
+                dataSetMap.size(), 1);
+
+        int rootFileDepth = rootFile.getAbsolutePath().split(File.separator).length;
+
+        Set<File> dirs = new HashSet<File>();
+        Set<File> tmpDirs = new HashSet<File>();
+        Set<File> swpDirs = null;
+
+        /*
+         * keep in memory map since some of the categories cause the same
+         * directories to be listed over and over
+         */
+        Map<File, List<File>> polledDirs = new HashMap<File, List<File>>();
+
+        for (Map.Entry<CategoryDataSet, Set<File>> entry : dataSetMap
+                .entrySet()) {
+            CategoryDataSet dataSet = entry.getKey();
+            Set<File> resultDirs = new HashSet<File>();
+
+            Set<File> dirsToScan = entry.getValue();
+            for (File dirToScan : dirsToScan) {
+                // determine depth of file that was already matched
+                String[] tokens = dirToScan.getAbsolutePath().split(
+                        File.separator);
+
+                DIR_PATTERN_LOOP: for (String dirPattern : dataSet
+                        .getDirPatterns()) {
+                    String[] subExpr = dirPattern.split(File.separator);
+                    dirs.clear();
+                    dirs.add(dirToScan);
+                    tmpDirs.clear();
+                    int subExprIndex = 0;
+
+                    for (int i = rootFileDepth; i < tokens.length; i++) {
+                        Pattern subPattern = Pattern.compile("^"
+                                + subExpr[subExprIndex++] + "$");
+                        Matcher m = subPattern.matcher(tokens[i]);
+                        if (!m.matches()) {
+                            continue DIR_PATTERN_LOOP;
+                        }
+                    }
+
+                    while (subExprIndex < subExpr.length) {
+                        Pattern subPattern = Pattern.compile("^"
+                                + subExpr[subExprIndex++] + "$");
+                        IOFileFilter filter = FileFilterUtils
+                                .makeDirectoryOnly(new RegexFileFilter(
+                                        subPattern));
+
+                        for (File dir : dirs) {
+                            List<File> dirList = polledDirs.get(dir);
+                            if (dirList == null) {
+                                File[] list = dir.listFiles();
+
+                                // When null something has purged the directory.
+                                if (list != null) {
+                                    dirList = Arrays.asList(list);
+                                    polledDirs.put(dir, dirList);
+                                }
+                            }
+
+                            if (dirList != null) {
+                                tmpDirs.addAll(FileFilterUtils.filterList(
+                                        filter, dirList));
+                            }
+                        }
+
+                        swpDirs = dirs;
+                        dirs = tmpDirs;
+                        tmpDirs = swpDirs;
+                        tmpDirs.clear();
+                    }
+
+                    resultDirs.addAll(dirs);
+                }
+            }
+
             rval.put(dataSet, resultDirs);
         }
 
@@ -866,27 +981,67 @@ public class ArchiveConfigManager {
      */
     public List<DisplayData> getDisplayData(String archiveName,
             String categoryName, boolean setSelect) {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
         Map<String, List<File>> displayMap = new HashMap<String, List<File>>();
 
         ArchiveConfig archiveConfig = archiveMap.get(archiveName);
         String rootDirName = archiveConfig.getRootDir();
         CategoryConfig categoryConfig = findCategory(archiveConfig,
                 categoryName);
-        File rootFile = new File(rootDirName);
-        TreeMap<String, DisplayData> displays = new TreeMap<String, DisplayData>();
-        Map<CategoryDataSet, List<File>> dirMap = getDirs(rootFile,
-                categoryConfig);
+
+        int maxDepth = 0;
         for (CategoryDataSet dataSet : categoryConfig.getDataSetList()) {
-            List<String> dataSetDirPatterns = dataSet.getDirPatterns();
+            maxDepth = Math.max(maxDepth,
+                    dataSet.getMaxDirDepthForDisplayLabel());
+        }
+
+        File rootFile = new File(rootDirName);
+        TreeMap<String, Map<CategoryDataSet, Set<File>>> displays = new TreeMap<String, Map<CategoryDataSet, Set<File>>>();
+        Map<CategoryDataSet, List<File>> dirMap = getDirs(rootFile,
+                categoryConfig, maxDepth);
+        for (CategoryDataSet dataSet : categoryConfig.getDataSetList()) {
+            List<String[]> dataSetDirPatterns = dataSet.getSplitDirPatterns();
             List<File> dirs = dirMap.get(dataSet);
 
             int beginIndex = rootFile.getAbsolutePath().length() + 1;
             List<Pattern> patterns = new ArrayList<Pattern>(
                     dataSetDirPatterns.size());
 
-            for (String dirPattern : dataSetDirPatterns) {
-                Pattern pattern = Pattern.compile("^" + dirPattern + "$");
+            /*
+             * Need to limit patterns by maxDepth so that matching works
+             * correctly on the shortened directory. This could cause a few
+             * false hits, but can't be helped without doing a full match which
+             * is too costly.
+             */
+            StringBuilder builder = new StringBuilder(100);
+            for (String[] dirTokens : dataSetDirPatterns) {
+                int depth = 0;
+
+                for (String token : dirTokens) {
+                    if (depth > 0) {
+                        /*
+                         * The config files specifically use / to delimit
+                         * directories in the patterns. It does not depend on
+                         * the platform, specifically since its regex extra
+                         * handling would need to be added to handle \ if it was
+                         * ever used. Also window clients aren't going to mount
+                         * /data_store and /archive which is all the servers
+                         * knows/exports.
+                         */
+                        builder.append("/");
+                    }
+                    builder.append(token);
+                    depth++;
+                    if (depth >= maxDepth) {
+                        break;
+                    }
+                }
+
+                Pattern pattern = Pattern.compile("^" + builder.toString()
+                        + "$");
                 patterns.add(pattern);
+                builder.setLength(0);
             }
 
             MessageFormat msgfmt = new MessageFormat(dataSet.getDisplayLabel());
@@ -906,22 +1061,26 @@ public class ArchiveConfigManager {
                         }
                         String displayLabel = msgfmt.format(args, sb, pos0)
                                 .toString();
+                        Map<CategoryDataSet, Set<File>> matchingDatasets = displays
+                                .get(displayLabel);
+                        if (matchingDatasets == null) {
+                            matchingDatasets = new HashMap<CategoryDataSet, Set<File>>();
+                            displays.put(displayLabel, matchingDatasets);
+                        }
+
+                        Set<File> labelDirs = matchingDatasets.get(dataSet);
+                        if (labelDirs == null) {
+                            labelDirs = new HashSet<File>();
+                            matchingDatasets.put(dataSet, labelDirs);
+                        }
+
+                        labelDirs.add(dir);
                         List<File> displayDirs = displayMap.get(displayLabel);
                         if (displayDirs == null) {
-                            displayDirs = new ArrayList<File>();
+                            displayDirs = new LinkedList<File>();
                             displayMap.put(displayLabel, displayDirs);
                         }
                         displayDirs.add(dir);
-                        DisplayData displayData = displays.get(displayLabel);
-                        if (displayData == null) {
-                            displayData = new DisplayData(archiveConfig,
-                                    categoryConfig, dataSet, displayLabel);
-                            displays.put(displayLabel, displayData);
-                        } else if (!displayData.dataSets.contains(dataSet)) {
-                            displayData.dataSets.add(dataSet);
-                        }
-
-                        displayData.dirsMap.put(dataSet, displayDirs);
                         break;
                     }
                 }
@@ -931,7 +1090,18 @@ public class ArchiveConfigManager {
         List<DisplayData> displayDataList = new ArrayList<DisplayData>(
                 displays.size());
 
-        displayDataList.addAll(displays.values());
+        for (String label : displays.keySet()) {
+            displayDataList.add(new DisplayData(archiveConfig, categoryConfig,
+                    displays.get(label), label));
+        }
+
+        timer.stop();
+
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("DisplayData for " + archiveName + " - "
+                    + categoryName + " maxDepth " + maxDepth + " took "
+                    + timer.getElapsedTime());
+        }
 
         return displayDataList;
     }
