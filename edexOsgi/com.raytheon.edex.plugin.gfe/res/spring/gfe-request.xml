@@ -32,7 +32,10 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest"/>
         <constructor-arg ref="clearTableHandler"/>
     </bean>
-    <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler"/>
+    <bean id="brokerConnectionsProvider" class="com.raytheon.uf.edex.esb.camel.jms.QpidBrokerConnectionsImpl"/>
+    <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler">
+        <constructor-arg ref="brokerConnectionsProvider"/>
+    </bean>
     <bean factory-bean="handlerRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.GetClientsRequest"/>
         <constructor-arg ref="clientsHandler"/>
