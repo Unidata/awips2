@@ -15,9 +15,12 @@ Require-Bundle: org.apache.camel;bundle-version="1.0.0",
  com.raytheon.uf.edex.core,
  com.raytheon.uf.common.stats;bundle-version="1.0.0",
  org.quartz;bundle-version="1.8.6",
- org.slf4j;bundle-version="1.7.5"
+ org.slf4j;bundle-version="1.7.5",
+ com.raytheon.uf.common.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.common.json;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.esb.camel,
- com.raytheon.uf.edex.esb.camel.directvm
+ com.raytheon.uf.edex.esb.camel.directvm,
+ com.raytheon.uf.edex.esb.camel.jms
 Import-Package: com.raytheon.uf.common.event,
  com.raytheon.uf.common.message,
  com.raytheon.uf.edex.database.cluster,
