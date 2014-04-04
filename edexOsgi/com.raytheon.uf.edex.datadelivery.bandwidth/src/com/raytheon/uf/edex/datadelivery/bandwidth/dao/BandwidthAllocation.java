@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 24, 2013 2106       djohnson     Add copy constructor.
  * Jul 11, 2013 2106       djohnson     Use SubscriptionPriority enum.
  * Oct 30, 2013  2448      dhladky      Moved methods to TimeUtil.
+ * Apr 02, 2014  2810      dhladky      Priority sorting of allocations.
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
 @DynamicSerialize
 @SequenceGenerator(name = "BANDWIDTH_SEQ", sequenceName = "bandwidth_seq", allocationSize = 1, initialValue = 1)
 public class BandwidthAllocation implements IPersistableDataObject<Long>,
-        Serializable, IDeepCopyable<BandwidthAllocation> {
+        Serializable, IDeepCopyable<BandwidthAllocation>, Comparable<BandwidthAllocation> {
 
     private static final long serialVersionUID = 743702044231376839L;
 
@@ -338,22 +339,20 @@ public class BandwidthAllocation implements IPersistableDataObject<Long>,
     }
 
     /**
-     * Check whether this allocation is higher priority than another.
-     * 
-     * @param other
-     *            the other
-     * @return true if this allocation is higher priority than the other one
-     */
-    public boolean isHigherPriorityThan(BandwidthAllocation other) {
-        return this.getPriority().isHigherPriorityThan(other.getPriority());
-    }
-
-    /**
      * @return
      */
     @Override
     public BandwidthAllocation copy() {
         return new BandwidthAllocation(this);
+    }
+
+    @Override
+    public int compareTo(BandwidthAllocation o) {
+       
+        SubscriptionPriority oPriority = o.priority;
+        SubscriptionPriority myPriority = this.priority;
+        
+        return myPriority.compareTo(oPriority);
     }
 
 }
