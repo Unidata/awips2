@@ -11,7 +11,8 @@ Require-Bundle: com.raytheon.edex.common,
  org.geotools,
  javax.measure,
  javax.persistence
-Export-Package: com.raytheon.edex.plugin.sfcobs.common
+Export-Package: com.raytheon.edex.plugin.sfcobs,
+ com.raytheon.edex.plugin.sfcobs.common
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.sfcobs,
  com.raytheon.uf.common.pointdata,
