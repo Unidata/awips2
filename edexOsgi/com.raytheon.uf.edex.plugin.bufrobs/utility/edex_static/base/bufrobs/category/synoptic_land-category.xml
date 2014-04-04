@@ -1,0 +1,16 @@
+<categories>
+    <category code="0" description="Surface data — land">
+        <subcategory code="0" description="Hourly synoptic observations from fixed-land stations (SYNOP)"
+            reportType="1001" />
+        <subcategory code="1" description="Intermediate synoptic observations from fixed-land stations (SYNOP)"
+            reportType="1001" />
+        <subcategory code="2" description="Main synoptic observations from fixedland stations (SYNOP)"
+            reportType="1001" />
+        <subcategory code="3" description="Hourly synoptic observations from mobile-land stations (SYNOP MOBIL)"
+            reportType="1002" />
+        <subcategory code="4" description="Intermediate synoptic observations from mobile-land stations (SYNOP MOBIL)"
+            reportType="1002" />
+        <subcategory code="5" description="Main synoptic observations from mobile land stations (SYNOP MOBIL)"
+            reportType="1002" />
+    </category>
+</categories>
