@@ -9,6 +9,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.edex.textdb,
  org.apache.commons.logging,
  org.apache.commons.lang,
+ com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.site;bundle-version="1.12.1152"

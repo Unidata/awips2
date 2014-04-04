@@ -57,6 +57,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                     PluginDataObject.
  * May 16, 2013 1869       bsteffen    Remove DataURI column from qc.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 27, 2014 2852       rferrel     Add getter/setter to FakePointDataView.
  * 
  * </pre>
  * 
@@ -683,6 +684,14 @@ public class QCRecord extends PluginDataObject implements ISpatialEnabled {
         @DynamicSerializeElement
         @Column(name = "idx")
         int curIdx;
+
+        public int getCurIdx() {
+            return curIdx;
+        }
+
+        public void setCurIdx(int curIdx) {
+            this.curIdx = curIdx;
+        }
     }
 
     public QCRecord() {
