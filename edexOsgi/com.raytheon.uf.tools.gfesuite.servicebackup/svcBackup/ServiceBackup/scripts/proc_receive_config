@@ -1,4 +1,33 @@
 #!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+##############################################################################
+# Process Received Configuration
+#
+#     SOFTWARE HISTORY
+#    
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    03/20/14        #2933         randerso       Changed PRDDIR and LOGDIR to use
+                                                  Backup site's configuration 
+##############################################################################
 
 import_file=${1}
 log_msg The import_file is: $import_file
@@ -179,8 +208,15 @@ BACKUP_MHSID=$(egrep "GFESUITE_MHSID" ${backup_config})
 FAILED_MHSID=$(egrep "GFESUITE_MHSID" ${failed_config})
 BACKUP_SERVER=$(egrep "GFESUITE_SERVER" ${backup_config})
 FAILED_SERVER=$(egrep "GFESUITE_SERVER" ${failed_config})
-sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
+BACKUP_LOGDIR=$(egrep "GFESUITE_LOGDIR" ${backup_config})
+FAILED_LOGDIR=$(egrep "GFESUITE_LOGDIR" ${failed_config})
+BACKUP_PRDDIR=$(egrep "GFESUITE_PRDDIR" ${backup_config})
+FAILED_PRDDIR=$(egrep "GFESUITE_PRDDIR" ${failed_config})
+
 sed -i "s/$FAILED_MHSID/$BACKUP_MHSID/" ${failed_config}
+sed -i "s/$FAILED_SERVER/$BACKUP_SERVER/" ${failed_config}
+sed -i "s/$FAILED_LOGDIR/$BACKUP_LOGDIR/" ${failed_config}
+sed -i "s/$FAILED_PRDDIR/$BACKUP_PRDDIR/" ${failed_config}
 sed -i "s/98000000/$SVCBU_FAILED_SITE_PORT/" ${failed_config}
 
 cd ${SVCBU_HOME}
