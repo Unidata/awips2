@@ -62,10 +62,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 25, 2012            bsteffen     Initial creation
- * Jul 18, 2013       2189 mschenke    Added ability to specify font type
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 25, 2012           bsteffen    Initial creation
+ * Jul 18, 2013  2189     mschenke    Added ability to specify font type
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -179,8 +180,8 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
         }
 
         if (bounds != null) {
-            if (parameters.textStyle == TextStyle.BLANKED
-                    || parameters.textStyle == TextStyle.BOXED) {
+            if (parameters.getTextStyles().contains(TextStyle.BOXED)
+                    || parameters.getTextStyles().contains(TextStyle.BLANKED)) {
                 maxWidth += 1.0f;
             }
             bounds.setRect(0, 0, maxWidth, totalHeight);
@@ -397,8 +398,14 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment, Double rotation)
             throws VizException {
-        drawString(font, text, x, y, z, textStyle, color, horizontalAlignment,
-                verticalAlignment, rotation, 1.0f, 1.0f);
+        DrawableString params = new DrawableString(text, color);
+        params.font = font;
+        params.setCoordinates(x, y, z);
+        params.addTextStyle(textStyle);
+        params.horizontalAlignment = horizontalAlignment;
+        params.verticallAlignment = verticalAlignment;
+        params.rotation = rotation != null ? rotation : 0.0;
+        drawStrings(params);
     }
 
     @Override
@@ -418,27 +425,9 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
         DrawableString params = new DrawableString(text, colors);
         params.font = font;
         params.setCoordinates(x, y, z);
-        params.textStyle = textStyle;
+        params.addTextStyle(textStyle);
         params.horizontalAlignment = horizontalAlignment;
         params.verticallAlignment = verticalAlignment;
-        drawStrings(params);
-    }
-
-    @Override
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment, Double rotation, float alpha,
-            double magnification) throws VizException {
-        DrawableString params = new DrawableString(string, color);
-        params.font = font;
-        params.setCoordinates(xPos, yPos, zPos);
-        params.textStyle = textStyle;
-        params.horizontalAlignment = horizontalAlignment;
-        params.verticallAlignment = verticalAlignment;
-        params.rotation = rotation != null ? rotation : 0.0;
-        params.basics.alpha = alpha;
-        params.magnification = magnification;
         drawStrings(params);
     }
 
@@ -466,7 +455,7 @@ public abstract class AbstractGraphicsTarget implements IGraphicsTarget {
             TextStyle style) {
         DrawableString params = new DrawableString(text, (RGB[]) null);
         params.font = font;
-        params.textStyle = style;
+        params.addTextStyle(style);
         return getStringsBounds(params);
     }
 
