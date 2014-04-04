@@ -169,6 +169,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Jan 23, 2014  2703     bsteffen    Allow construction using a resourceData,
  *                                    paint using the time in paintProps and
  *                                    remove dead code in paintInternal
+ * Apr 03, 2014  2737     randerso    Uncommented out listers for iscParm inventory changed
  * 
  * </pre>
  * 
@@ -322,8 +323,7 @@ public class GFEResource extends
      *            the datamanager responsible for it
      */
     public GFEResource(GFEResourceData resourceData, LoadProperties loadProps,
-            Parm parm,
-            DataManager dataManager) {
+            Parm parm, DataManager dataManager) {
         super(resourceData, loadProps);
         this.resourceData.addChangeListener(this);
         this.parm = parm;
@@ -1580,12 +1580,12 @@ public class GFEResource extends
                 .getISCParm(this.parm);
         if (iscParm != null) {
             if (message.show()) {
-                // iscParm.getListeners().addParmInventoryChangedListener(
-                // this.parmInventoryChanged);
+                iscParm.getListeners().addParmInventoryChangedListener(
+                        this.parmInventoryChanged);
                 iscParm.getListeners().addGridChangedListener(this.gridChanged);
             } else {
-                // iscParm.getListeners().removeParmInventoryChangedListener(
-                // this.parmInventoryChanged);
+                iscParm.getListeners().removeParmInventoryChangedListener(
+                        this.parmInventoryChanged);
                 iscParm.getListeners().removeGridChangedListener(
                         this.gridChanged);
             }
