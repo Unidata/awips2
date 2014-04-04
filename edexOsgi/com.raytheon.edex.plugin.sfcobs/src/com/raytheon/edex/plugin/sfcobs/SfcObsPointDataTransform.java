@@ -20,13 +20,12 @@
 package com.raytheon.edex.plugin.sfcobs;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +42,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Populates point data views from fields in obs common records.
  * 
  * <pre>
  * 
@@ -53,6 +52,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Oct 1, 2009             jkorman     Initial creation
  * Feb 15,2011  5705       cjeanbap    Added wmoHeader to HDR_PARAMS_LIST.
+ * Apr 04,2014  2906       bclement    made getDescription() and static constants public
  * 
  * </pre>
  * 
@@ -66,143 +66,143 @@ public class SfcObsPointDataTransform {
     private static Log logger = LogFactory
             .getLog(SfcObsPointDataTransform.class);
 
-    private static final int INT_DEFAULT = -9999;
+    public static final int INT_DEFAULT = -9999;
 
-    private static final float FLOAT_DEFAULT = -9999.0f;
+    public static final float FLOAT_DEFAULT = -9999.0f;
 
     // /pluginName/dataTime/reportType/corIndicator/latitude/longitude
     // /sfcobs/2009-10-12_12:00:00.0/1001/null/71905/55.28/-77.76
 
     // ** DataUri
-    private static final String STATION_ID = "stationId";
+    public static final String STATION_ID = "stationId";
 
     // ** DataUri
-    private static final String LATITUDE = "latitude";
+    public static final String LATITUDE = "latitude";
 
     // ** DataUri
-    private static final String LONGITUDE = "longitude";
+    public static final String LONGITUDE = "longitude";
 
-    private static final String ELEVATION = "elevation";
+    public static final String ELEVATION = "elevation";
 
-    private static final String TIME_OBS = "timeObs";
+    public static final String TIME_OBS = "timeObs";
 
-    private static final String TIME_NOMINAL = "timeNominal";
-
-    // ** DataUri
-    private static final String REPORT_TYPE = "reportType";
+    public static final String TIME_NOMINAL = "timeNominal";
 
     // ** DataUri
-    private static final String COR_INDICATOR = "corIndicator";
+    public static final String REPORT_TYPE = "reportType";
 
-    private static final String DATA_URI = "dataURI";
+    // ** DataUri
+    public static final String COR_INDICATOR = "corIndicator";
 
-    private static final String WMO_HEADER = "wmoHeader";
+    public static final String DATA_URI = "dataURI";
 
-    private static final String RAW_REPORT = "rawReport";
+    public static final String WMO_HEADER = "wmoHeader";
 
-    private static final String PRESS_CHANGE_3HR = "pressChange3Hour";
+    public static final String RAW_REPORT = "rawReport";
 
-    private static final String PRESS_CHANGE_CHAR = "pressChangeChar";
+    public static final String PRESS_CHANGE_3HR = "pressChange3Hour";
 
-    private static final String PRECIP1_HOUR = "precip1Hour";
+    public static final String PRESS_CHANGE_CHAR = "pressChangeChar";
 
-    private static final String PRECIP6_HOUR = "precip6Hour";
+    public static final String PRECIP1_HOUR = "precip1Hour";
 
-    private static final String PRECIP12_HOUR = "precip12Hour";
+    public static final String PRECIP6_HOUR = "precip6Hour";
 
-    private static final String PRECIP18_HOUR = "precip18Hour";
+    public static final String PRECIP12_HOUR = "precip12Hour";
 
-    private static final String PRECIP24_HOUR = "precip24Hour";
+    public static final String PRECIP18_HOUR = "precip18Hour";
 
-    private static final String TEMPERATURE = "temperature";
+    public static final String PRECIP24_HOUR = "precip24Hour";
 
-    private static final String DEWPOINT = "dewpoint";
+    public static final String TEMPERATURE = "temperature";
 
-    private static final String WIND_DIR = "windDir";
+    public static final String DEWPOINT = "dewpoint";
 
-    private static final String WIND_GUST = "windGust";
+    public static final String WIND_DIR = "windDir";
 
-    private static final String WIND_SPEED = "windSpeed";
+    public static final String WIND_GUST = "windGust";
 
-    private static final String PEAK_WIND_DIR = "peakWindDir";
+    public static final String WIND_SPEED = "windSpeed";
 
-    private static final String PEAK_WIND_SPEED = "peakWindSpeed";
+    public static final String PEAK_WIND_DIR = "peakWindDir";
 
-    private static final String PEAK_WIND_SPEED_TIME = "peakWindSpeedTime";
+    public static final String PEAK_WIND_SPEED = "peakWindSpeed";
 
-    private static final String SEA_LEVEL_PRESS = "seaLevelPress";
+    public static final String PEAK_WIND_SPEED_TIME = "peakWindSpeedTime";
 
-    private static final String ALTIMETER = "altimeter";
+    public static final String SEA_LEVEL_PRESS = "seaLevelPress";
 
-    private static final String STATION_PRESS = "stationPress";
+    public static final String ALTIMETER = "altimeter";
 
-    private static final String VISIBILITY = "visibility";
+    public static final String STATION_PRESS = "stationPress";
 
-    private static final String PRES_WEATHER = "presWeather";
+    public static final String VISIBILITY = "visibility";
 
-    private static final String WX_PRESENT = "wx_present";
+    public static final String PRES_WEATHER = "presWeather";
 
-    private static final String WX_PAST_1 = "wx_past_1";
+    public static final String WX_PRESENT = "wx_present";
 
-    private static final String WX_PAST_2 = "wx_past_2";
+    public static final String WX_PAST_1 = "wx_past_1";
 
-    private static final String CLOUD_AMOUNT_TOT = "totCloudAmount";
+    public static final String WX_PAST_2 = "wx_past_2";
 
-    private static final String CLOUD_HGT_LOW = "lowCloudHeight";
+    public static final String CLOUD_AMOUNT_TOT = "totCloudAmount";
 
-    private static final String CLOUD_AMOUNT_LOW = "lowCloudAmount";
+    public static final String CLOUD_HGT_LOW = "lowCloudHeight";
 
-    private static final String CLOUD_TYPE_LOW = "lowCloudType";
+    public static final String CLOUD_AMOUNT_LOW = "lowCloudAmount";
 
-    private static final String CLOUD_TYPE_MID = "midCloudType";
+    public static final String CLOUD_TYPE_LOW = "lowCloudType";
 
-    private static final String CLOUD_TYPE_HI = "hiCloudType";
+    public static final String CLOUD_TYPE_MID = "midCloudType";
 
-    private static final String SEA_SFC_TEMP = "seaSurfaceTemp";
+    public static final String CLOUD_TYPE_HI = "hiCloudType";
 
-    private static final String ICE_CODE = "iceCode";
+    public static final String SEA_SFC_TEMP = "seaSurfaceTemp";
 
-    private static final String WET_BULB = "wetBulb";
+    public static final String ICE_CODE = "iceCode";
 
-    private static final String PLATFORM_DIR = "platformTrueDirection";
+    public static final String WET_BULB = "wetBulb";
 
-    private static final String PLATFORM_SPD = "platformTrueSpeed";
+    public static final String PLATFORM_DIR = "platformTrueDirection";
 
-    private static final String WIND_SPD_EQUIV_10M = "equivWindSpeed10m";
+    public static final String PLATFORM_SPD = "platformTrueSpeed";
 
-    private static final String WIND_SPD_EQUIV_20M = "equivWindSpeed20m";
+    public static final String WIND_SPD_EQUIV_10M = "equivWindSpeed10m";
 
-    private static final String WIND_WV_HGT = "windWaveHeight";
+    public static final String WIND_SPD_EQUIV_20M = "equivWindSpeed20m";
 
-    private static final String WIND_WV_PD = "windWavePeriod";
+    public static final String WIND_WV_HGT = "windWaveHeight";
 
-    private static final String WV_HGT = "waveHeight";
+    public static final String WIND_WV_PD = "windWavePeriod";
 
-    private static final String WV_PD = "wavePeriod";
+    public static final String WV_HGT = "waveHeight";
 
-    private static final String WV_STEEPNESS = "waveSteepness";
+    public static final String WV_PD = "wavePeriod";
 
-    private static final String HI_RES_WV_HGT = "highResWaveHeight";
+    public static final String WV_STEEPNESS = "waveSteepness";
 
-    private static final String PRI_SWELL_WV_DIR = "primarySwellWaveDir";
+    public static final String HI_RES_WV_HGT = "highResWaveHeight";
 
-    private static final String PRI_SWELL_WV_PD = "primarySwellWavePeriod";
+    public static final String PRI_SWELL_WV_DIR = "primarySwellWaveDir";
 
-    private static final String PRI_SWELL_WV_HGT = "primarySwellWaveHeight";
+    public static final String PRI_SWELL_WV_PD = "primarySwellWavePeriod";
 
-    private static final String SEC_SWELL_WV_DIR = "secondarySwellWaveDir";
+    public static final String PRI_SWELL_WV_HGT = "primarySwellWaveHeight";
 
-    private static final String SEC_SWELL_WV_PD = "secondarySwellWavePeriod";
+    public static final String SEC_SWELL_WV_DIR = "secondarySwellWaveDir";
 
-    private static final String SEC_SWELL_WV_HGT = "secondarySwellWaveHeight";
+    public static final String SEC_SWELL_WV_PD = "secondarySwellWavePeriod";
 
-    private static final String NUM_INTER_WINDS = "numInterWinds";
+    public static final String SEC_SWELL_WV_HGT = "secondarySwellWaveHeight";
 
-    private static final String INTER_WIND_TIME = "interWindTime";
+    public static final String NUM_INTER_WINDS = "numInterWinds";
 
-    private static final String INTER_WIND_DIR = "interWindDir";
+    public static final String INTER_WIND_TIME = "interWindTime";
 
-    private static final String INTER_WIND_SPD = "interWindSpeed";
+    public static final String INTER_WIND_DIR = "interWindDir";
+
+    public static final String INTER_WIND_SPD = "interWindSpeed";
 
     public static final String HDR_PARAMS_LIST;
     static {
@@ -489,21 +489,28 @@ public class SfcObsPointDataTransform {
     }
 
     /**
+     * Read description file from classpath for specified type
      * 
      * @param type
      * @return
-     * @throws JAXBException
+     * @throws SerializationException
      */
-    private PointDataDescription getDescription(String type)
+    public static PointDataDescription getDescription(String type)
             throws SerializationException {
-        InputStream is = this.getClass().getResourceAsStream(
-                "/res/pointdata/" + type + ".xml");
+        InputStream is = SfcObsPointDataTransform.class
+                .getResourceAsStream("/res/pointdata/" + type + ".xml");
         if (is == null) {
             throw new RuntimeException("Cannot find descriptor for: " + type);
         }
-        PointDataDescription d = PointDataDescription.fromStream(is);
-
-        return d;
+        try {
+            return PointDataDescription.fromStream(is);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                logger.error(e.getLocalizedMessage(), e);
+            }
+        }
     }
 
     public static ObsCommon toSfcObsRecord(PointDataView pdv) {
