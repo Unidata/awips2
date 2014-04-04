@@ -84,10 +84,12 @@ public class BufrFileSeparator {
      * @throws IOException
      */
     public static List<String> separate(File mixedBufrFile) throws IOException {
-        final File outputBaseDir = DEFAULT_TMP_DIR;
         final String inputFile = mixedBufrFile.getAbsolutePath();
-        final File outputDir = getOutputDir(mixedBufrFile.getName(),
-                outputBaseDir);
+        final File outputDir = getOutputDir(mixedBufrFile);
+        if (outputDir.exists()) {
+            log.warn("BUFR splitter output directory already exists, is file "
+                    + mixedBufrFile + " being processed twice?");
+        }
         Options options = new Options() {
             @Override
             public String getFileSpec() {
@@ -115,18 +117,39 @@ public class BufrFileSeparator {
      * Create a temporary output directory based on the input file name
      * 
      * @param inputName
-     * @param outputBaseDir
      * @return
      */
-    private static File getOutputDir(final String inputName,
-            final File outputBaseDir) {
-        String name = inputName + "-" + System.currentTimeMillis() + "-split";
-        File rval = new File(outputBaseDir, name);
-        if (rval.exists()) {
-            log.warn("BUFR splitter output directory already exists, is file "
-                    + inputName + " being processed twice?");
-        }
+    private static File getOutputDir(final File inputFile) {
+        String absPath = inputFile.getAbsolutePath();
+        /*
+         * include absolute path hash to account for files with the same name in
+         * different directories (ie hourly subdirectories)
+         */
+        String hash = Integer.toHexString(absPath.hashCode());
+        String name = inputFile.getName() + "-" + hash + "-split";
+        File rval = new File(DEFAULT_TMP_DIR, name);
         return rval;
     }
 
+    /**
+     * Clean up split files and temp directory
+     * 
+     * @param mixedBufrFile
+     */
+    public static void clean(File mixedBufrFile) {
+        File outputDir = getOutputDir(mixedBufrFile);
+        if (!outputDir.exists()) {
+            log.debug("Split output directory removed before clean");
+            return;
+        }
+        for (File f : outputDir.listFiles(BUFR_FILTER)) {
+            if (!f.delete() && f.exists()) {
+                log.error("Unable to clean up temporary BUFR file: " + f);
+            }
+        }
+        if (!outputDir.delete() && outputDir.exists()) {
+            log.error("Unable to clean up temporary BUFR directory: "
+                    + outputDir);
+        }
+    }
 }
