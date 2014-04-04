@@ -48,6 +48,7 @@ VariableList = [
          #  If Flooding is "Yes", the system will insert a statement in the
          #  product when FFA, FLW, or FLS is in effect.
          #("Flooding?" , "No", "radio", ["Yes","No"]),
+         #(("Include Tropical?", "includeTropical") , "No", "radio", ["Yes","No"]),
      ]
 
 #**********************************************************************

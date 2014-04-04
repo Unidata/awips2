@@ -27,6 +27,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    06/11/13        #2083         randerso       Log active table changes, save backups
 #    03/06/14        #2883         randerso       Pass siteId into mergeFromJava
+#    03/25/14        #2884         randerso       Added xxxid to VTECChange
 #
 
 import time
@@ -195,7 +196,7 @@ class ActiveTable(VTECTableUtil.VTECTableUtil):
                         changedFlag = True
 
                         #determine changes for notifications
-                        rec = (newR['officeid'], newR['pil'], newR['phensig'])
+                        rec = (newR['officeid'], newR['pil'], newR['phensig'], newR['xxxid'])
                         if rec not in changes:
                             changes.append(rec)
 
@@ -309,7 +310,7 @@ def mergeFromJava(siteId, activeTable, newRecords, logger, mode, offsetSecs=0):
     if (changedFlag):
         from com.raytheon.uf.common.activetable import VTECChange
         for c in changes:
-            changeList.add(VTECChange(c[0],c[1],c[2]))
+            changeList.add(VTECChange(c[0],c[1],c[2],c[3]))
 
     from com.raytheon.uf.common.activetable import MergeResult
     result = MergeResult(updatedList, purgedList, changeList)
