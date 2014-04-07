@@ -31,14 +31,14 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
+import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * 
- * TODO Add Description
+ * A resource for displaying watches as shaded polygons
  * 
  * <pre>
  * 
@@ -54,6 +54,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * 										  so a child class can override the implementation.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
+ * Apr 07, 2014 2959       njensen     Correct handling of color change
  * 
  * </pre>
  * 
@@ -94,8 +95,6 @@ public class WatchesResource extends AbstractWWAResource {
 
     private final Set<Long> expTaskSet;
 
-    protected IGraphicsTarget target;
-
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
 
     public WatchesResource(WWAResourceData data, LoadProperties props) {
@@ -108,17 +107,14 @@ public class WatchesResource extends AbstractWWAResource {
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        if (this.target == null) {
-            this.target = target;
-
-            synchronized (this) {
-                try {
-                    addRecord(getWarningRecordArray());
-                } catch (VizException e) {
-                    e.printStackTrace();
-                }
+        synchronized (this) {
+            try {
+                addRecord(getWarningRecordArray());
+            } catch (VizException e) {
+                statusHandler.error("Error initializing watches", e);
             }
         }
+
         // force creation of a frame for any currently active warnings, this
         // frame might get displayed in place of the last frame.
         requestData(new DataTime(SimulatedTime.getSystemTime().getTime()));
@@ -157,15 +153,8 @@ public class WatchesResource extends AbstractWWAResource {
 
                 for (String dataUri : entryMap.keySet()) {
                     WarningEntry entry = entryMap.get(dataUri);
-                    if (entry.shadedShape != null) {
-                        entry.shadedShape.dispose();
-                        try {
-                            initShape(target, entry.record);
-                        } catch (VizException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                        }
-                    }
+                    // project will ensure it gets recreated on next paint
+                    entry.project = true;
                 }
             }
         }
@@ -184,8 +173,10 @@ public class WatchesResource extends AbstractWWAResource {
                         descriptor.getGridGeometry(), false);
                 geo = record.getGeometry();
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
-                        this.descriptor, PointStyle.CROSS);
-                jtsCompiler.handle(geo, color);
+                        this.descriptor);
+                JTSGeometryData geoData = jtsCompiler.createGeometryData();
+                geoData.setGeometryColor(color);
+                jtsCompiler.handle(geo, geoData);
                 ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
                         .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
                 ss.compile();
@@ -435,7 +426,6 @@ public class WatchesResource extends AbstractWWAResource {
             this.getDescriptor().getTimeMatcher()
                     .redoTimeMatching(this.getDescriptor());
         } catch (VizException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
