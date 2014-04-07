@@ -28,11 +28,8 @@ import org.eclipse.ui.PartInitException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationGroupView;
-import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
-import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
 /**
  * Action to open the group view, as well as the default chat room
@@ -45,6 +42,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012             rferrel     Initial creation
  * Mar 05, 2014   2798     mpduff      Don't create a new DisplayFeedAction
+ * Apr 11, 2014 2903       bclement    moved collaboration view init to CollaborationGroupView
  * 
  * </pre>
  * 
@@ -62,27 +60,12 @@ public class CollaborationGroupAction extends AbstractHandler {
             // If connection is null then user has not logged in
             boolean initialExecutionFlag = CollaborationConnection
                     .getConnection() == null;
-            new LoginAction().run();
-            CollaborationConnection connection = CollaborationConnection
-                    .getConnection();
-            if (connection == null) {
+            if (!new LoginAction().login()) {
                 // user cancelled login
                 return event;
             }
 
-            CollaborationGroupView view = (CollaborationGroupView) CaveWorkbenchPageManager
-                    .getActiveInstance().showView(CollaborationGroupView.ID);
-
-            // Is this is the first log in
-            if (initialExecutionFlag) {
-                // if autojoin is selected (to join the default room)
-                if (Activator.getDefault().getPreferenceStore()
-                        .getBoolean(CollabPrefConstants.AUTO_JOIN)) {
-                    DisplayFeedAction action = view.getDisplayFeedAction();
-                    action.setChecked(true);
-                    action.run();
-                }
-            }
+            CollaborationGroupView.showView(initialExecutionFlag);
         } catch (PartInitException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to open collaboration contact list", e);
