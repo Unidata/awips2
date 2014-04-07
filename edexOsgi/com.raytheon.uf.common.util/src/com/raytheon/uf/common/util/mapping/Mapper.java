@@ -55,6 +55,7 @@ import javax.xml.bind.Unmarshaller;
  * Mar 22, 2012            bsteffen     Initial creation
  * Apr 02, 2014 2906       bclement     changed to return empty set instead of null for lookup methods
  * Apr 02, 2014 2906       bclement     fixed not checking for empty set in lookupAliases()
+ *                                      and in lookupAliasOrNull()
  * 
  * </pre>
  * 
@@ -299,7 +300,7 @@ public abstract class Mapper {
     public String lookupBaseNameOrNull(String alias, String namespace)
             throws MultipleMappingException {
         Set<String> baseNames = lookupBaseNamesOrEmpty(alias, namespace);
-        if (baseNames.isEmpty()) {
+        if (baseNames == null || baseNames.isEmpty()) {
             return null;
         } else if (baseNames.size() == 1) {
             return baseNames.iterator().next();
@@ -322,7 +323,7 @@ public abstract class Mapper {
     public String lookupAliasOrNull(String base, String namespace)
             throws MultipleMappingException {
         Set<String> aliases = lookupAliasesOrEmpty(base, namespace);
-        if (aliases == null) {
+        if (aliases == null || aliases.isEmpty()) {
             return null;
         } else if (aliases.size() == 1) {
             return aliases.iterator().next();
