@@ -17,13 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.identity.roster;
+package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.ISubscriptionRequestCompleteAction;
+import com.raytheon.uf.viz.collaboration.comm.identity.roster.SubscriptionResponse;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * Interface for handling subscription invitation events from other users
+ * Interface for post request actions.
  * 
  * <pre>
  * 
@@ -31,27 +31,23 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 16, 2012            jkorman     Initial creation
- * Jan 27, 2014 2700       bclement    handle subscribe request returns a boolean
- *                                     all methods take user id instead of qualified id
- * Feb 13, 2014 2755       bclement    handleSubscribeRequest now returns SubscriptionResponse
- * Apr 07, 2014 2785       mpduff      Remove return type from and add parameter to handleSubscribeRequest
- *                                        Removed unused methods
+ * Apr 04, 2014    2785    mpduff      Initial creation
  * 
  * </pre>
  * 
- * @author jkorman
+ * @author mpduff
  * @version 1.0
  */
 
-public interface ISubscriptionResponder {
-
+public interface ISubscriptionRequestCompleteAction {
     /**
-     * Triggered when a contact requests a presence subscription
+     * Called after subscription request is complete.
      * 
-     * @param fromID
-     * @param action
+     * @param userId
+     *            The originating userId
+     * @param response
+     *            The response
      */
-    public void handleSubscribeRequest(UserId fromID,
-            ISubscriptionRequestCompleteAction action);
+    public void executeSubscriptionRequestComplete(UserId userId,
+            SubscriptionResponse response);
 }
