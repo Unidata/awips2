@@ -272,7 +272,7 @@ if [ "${1}" = "-full" ]; then
    buildRPM "awips2-tools"
    buildRPM "awips2-edex-environment"
    buildRPM "awips2-openfire"
-   buildRPM "awips2-httpd-collaboration"
+   buildRPM "awips2-collab-dataserver"
    buildRPM "awips2-python-shapely"
 
    exit 0
