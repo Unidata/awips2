@@ -31,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
+import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
@@ -47,8 +48,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.collections.UpdatingSet;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 
 /**
  * Manage contacts from local groups and roster on server
@@ -71,6 +75,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Jan 30, 2014 2698       bclement     removed unneeded nickname changed event
  * Jan 31, 2014 2700       bclement     added addToRoster, fixed add to group when in roster, but blocked
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
+ * Apr 11, 2014 2903       bclement     moved roster listener from collaboration connection to here
  * 
  * </pre>
  * 
@@ -83,13 +88,13 @@ public class ContactsManager {
             .getHandler(ContactsManager.class);
 
     private final CollaborationConnection connection;
-    
+
     private final XMPPConnection xmpp;
 
     private final UserSearch search;
 
     private Map<String, String> localAliases;
-    
+
     /**
      * Cached view of shared groups list on openfire. Will only reach out to
      * server if it hasn't updated in an hour. This will disable itself if there
@@ -127,8 +132,61 @@ public class ContactsManager {
         this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
         this.xmpp = xmpp;
+        final Roster roster = xmpp.getRoster();
+        roster.addRosterListener(new RosterListener() {
+
+            @Override
+            public void presenceChanged(Presence presence) {
+                String fromId = presence.getFrom();
+                UserId u = IDConverter.convertFrom(fromId);
+                if (u != null) {
+                    RosterEntry entry = getRosterEntry(u);
+                    post(entry);
+                    IRosterChangeEvent event = new RosterChangeEvent(
+                            RosterChangeType.PRESENCE, entry, presence);
+                    post(event);
+                }
+            }
+
+            @Override
+            public void entriesUpdated(Collection<String> addresses) {
+                send(addresses, RosterChangeType.MODIFY);
+            }
+
+            @Override
+            public void entriesDeleted(Collection<String> addresses) {
+                send(addresses, RosterChangeType.DELETE);
+            }
+
+            @Override
+            public void entriesAdded(Collection<String> addresses) {
+                send(addresses, RosterChangeType.ADD);
+            }
+
+            /**
+             * Send event bus notification for roster
+             * 
+             * @param addresses
+             * @param type
+             */
+            private void send(Collection<String> addresses,
+                    RosterChangeType type) {
+                for (String addy : addresses) {
+                    RosterEntry entry = roster.getEntry(addy);
+                    if (entry != null) {
+                        IRosterChangeEvent event = new RosterChangeEvent(type,
+                                entry);
+                        post(event);
+                    }
+                }
+            }
+
+            private void post(Object event) {
+                ContactsManager.this.connection.postEvent(event);
+            }
+        });
     }
-    
+
     /**
      * Get groups that are managed by server. These are not modifiable from the
      * client.
@@ -272,19 +330,20 @@ public class ContactsManager {
      */
     public void deleteFromGroup(String groupName, UserId user) {
         RosterEntry entry = getRosterEntry(user);
-        if ( entry == null){
-            statusHandler.warn("Attempted to alter group for non-contact: " + user);
+        if (entry == null) {
+            statusHandler.warn("Attempted to alter group for non-contact: "
+                    + user);
             return;
         }
         RosterGroup group = getRoster().getGroup(groupName);
-        if ( group != null){
+        if (group != null) {
             deleteFromGroup(group, entry);
         } else {
             statusHandler.warn("Attempted to modify non-existent group: "
                     + groupName);
         }
     }
-    
+
     /**
      * Remove entry from group.
      * 
@@ -299,12 +358,13 @@ public class ContactsManager {
             }
         } catch (XMPPException e) {
             String msg = getGroupModInfo(e);
-            statusHandler.error("Problem removing entry from group: "
-                    + IDConverter.convertFrom(entry) + " from "
+            statusHandler.error(
+                    "Problem removing entry from group: "
+                            + IDConverter.convertFrom(entry) + " from "
                             + group.getName() + ". " + msg, e);
         }
     }
-    
+
     /**
      * Attempt to get more information about group modification error. Returns
      * an empty string if no extra information is found.
@@ -350,8 +410,9 @@ public class ContactsManager {
     public RosterGroup createGroup(String groupName) {
         Roster roster = getRoster();
         RosterGroup rval = roster.getGroup(groupName);
-        if ( rval != null){
-            statusHandler.debug("Attempted to create existing group: " + groupName);
+        if (rval != null) {
+            statusHandler.debug("Attempted to create existing group: "
+                    + groupName);
             return rval;
         }
         rval = roster.createGroup(groupName);
@@ -369,7 +430,7 @@ public class ContactsManager {
     public void deleteGroup(String groupName) {
         Roster roster = getRoster();
         RosterGroup group = roster.getGroup(groupName);
-        if ( group == null){
+        if (group == null) {
             statusHandler.warn("Attempted to delete non-existent group: "
                     + groupName);
             return;
