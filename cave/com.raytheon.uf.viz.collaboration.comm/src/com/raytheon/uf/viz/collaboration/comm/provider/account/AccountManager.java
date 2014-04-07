@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.viz.collaboration.comm.provider.account;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -34,6 +34,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
@@ -60,6 +61,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 12, 2014 2797       bclement    added protective copy to sendPresence
  * Feb 13, 2014 2755       bclement    added user input for which group to add contact to
  * Apr 07, 2014 2785       mpduff      Moved PacketListener implementation to its own class
+ * Apr 14, 2014 2903       bclement    moved from session subpackage to account, made constructor public
  * 
  * </pre>
  * 
@@ -81,7 +83,7 @@ public class AccountManager implements IAccountManager {
      * 
      * @param adapter
      */
-    AccountManager(CollaborationConnection manager) {
+    public AccountManager(CollaborationConnection manager) {
         sessionManager = manager;
         subscriptionEventListener = new SubscriptionPacketListener(
                 sessionManager);
