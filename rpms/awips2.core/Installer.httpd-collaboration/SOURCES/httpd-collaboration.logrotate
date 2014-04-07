@@ -1,8 +1,0 @@
-/awips2/httpd_openfire/var/log/httpd/*log {
-    missingok
-    notifempty
-    sharedscripts
-    postrotate
-        /sbin/service httpd-pypies reload > /dev/null 2>/dev/null || true
-    endscript
-}
