@@ -23,6 +23,8 @@ import java.nio.Buffer;
 
 import javax.media.opengl.GL;
 
+import com.raytheon.uf.common.util.BufferUtil;
+
 /**
  * Abstract gl data format object for colormapped data
  * 
@@ -35,6 +37,7 @@ import javax.media.opengl.GL;
  * Nov 21, 2011           mschenke    Initial creation
  * Oct 16, 2013  2333     mschenke    Removed Buffer from GLColorMapData
  * Nov 18, 2013  2543     bsteffen    Add more buffer compatibility checks.
+ * Apr 07, 2014  2968     njensen     Duplicate buffer in formatForGL()
  * 
  * </pre>
  * 
@@ -166,6 +169,7 @@ public abstract class AbstractGLColorMapDataFormat {
      * @return
      */
     public Buffer formatForGL(Buffer buffer, GLColorMapData data) {
+        buffer = BufferUtil.duplicate(buffer);
         buffer = handleBufferSizing(data, buffer);
         if (!buffer.isDirect() && !buffer.hasArray()) {
             /*
