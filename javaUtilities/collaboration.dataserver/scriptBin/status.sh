@@ -22,30 +22,23 @@
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- --------------------------
-# Mar 03, 2014 2756       bclement    initial creation
-# Mar 06, 2014 2756       bclement    changed classpath to reflect new lib structure
-#                                     added log level change when debugging
+# Apr 03, 2014 2886       bgonzale    Initial creation
 #
 #
 
-if [[ $# > 0 && $1 == '-d' ]]
-then
-    dbArg='-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5118'
-    logLevel='-Ddataserver.logging.level=DEBUG'
-else
-    # defaults
-    dbArg=''
-    logLevel=''
-fi
 
 (cd $(dirname "$0")/..
 PIDFILE=collabserver.pid
-if [[ -e $PIDFILE ]]
-then
-	echo "PID file already exists at $PIDFILE, exiting"
-	exit 1
-fi
-nohup java $dbArg $logLevel -server -cp lib/uframe/*:lib/foss/* com.raytheon.collaboration.dataserver.DataserverMain > /dev/null 2>collab-dataserver.err &
 
-echo $! > $PIDFILE
+if [[ -e $PIDFILE ]]; then
+   PIDID=`cat $PIDFILE`
+   PROCESS=`ps --pid $PIDID -o args | grep -c "DataserverMain"`
+   if [ $PROCESS -eq 1 ]; then
+      echo "HTTP Collaboration Dataserver is running"
+   else
+      echo "HTTP Collaboration Dataserver is not running"
+   fi
+else
+   echo "HTTP Collaboration Dataserver is not running"
+fi
 )
