@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
