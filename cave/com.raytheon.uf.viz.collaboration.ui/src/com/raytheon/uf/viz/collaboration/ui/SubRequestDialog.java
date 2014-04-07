@@ -19,28 +19,30 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.List;
 
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.window.IShellProvider;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * Dialog to respond to a chat subscription request
+ * Dialog to respond to a chat subscription request. Returns the name of the
+ * group if accepted, null for denial of request.
  * 
  * <pre>
  * 
@@ -51,94 +53,90 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jan 27, 2014 2700       bclement     Initial creation
  * Jan 31, 2014 2700       bclement     don't prompt for group if user is already in one
  * Feb 13, 2014 2755       bclement     roster addition now done in account manager, user input passed back
+ * Apr 07, 2014 2785       mpduff       Changed to implement CaveSWTDialog
  * 
  * </pre>
  * 
  * @author bclement
  * @version 1.0
  */
-public class SubRequestDialog extends Dialog {
-    
-    private final String title;
-    
-    private final String message;
+public class SubRequestDialog extends CaveSWTDialog {
+    private final String NEW_GROUP = "New Group...";
 
-    private final UserId userid;
+    private final String userid;
 
-    private Combo groupCombo;
-
-    private String group;
+    private Combo groupCbo;
 
     /**
+     * Constructor
+     * 
      * @param parentShell
+     * @param userid
      */
-    public SubRequestDialog(Shell parentShell, String title, String message,
-            UserId userid) {
-        super(parentShell);
-        this.title = title;
-        this.message = message;
+    public SubRequestDialog(Shell parentShell, String userid) {
+        super(parentShell, SWT.DIALOG_TRIM);
         this.userid = userid;
+        setText("Contact Request");
     }
 
-    /**
-     * @param parentShell
-     */
-    public SubRequestDialog(IShellProvider parentShell, String title,
-            String message, UserId userid) {
-        super(parentShell);
-        this.title = title;
-        this.message = message;
-        this.userid = userid;
-    }
-
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.dialogs.Dialog#buttonPressed(int)
-     */
     @Override
-    protected void buttonPressed(int buttonId) {
-        if (buttonId == IDialogConstants.OK_ID) {
-            int count = groupCombo.getItemCount();
-            int index = groupCombo.getSelectionIndex();
-            if ( index == count - 1){
-                // new group
-                CreateGroupDialog dialog = new CreateGroupDialog(Display
-                        .getCurrent().getActiveShell());
-                dialog.open();
-                group = dialog.getNewGroup();
-            } else if ( index >= 0){
-                group = groupCombo.getItem(index);
-            } 
-        }
-        super.buttonPressed(buttonId);
-    }
+    protected void initializeComponents(Shell shell) {
+        GridLayout gl = new GridLayout(1, false);
+        GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        Composite mainComp = new Composite(shell, SWT.NONE);
+        mainComp.setLayout(gl);
+        mainComp.setLayoutData(gd);
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets.Composite)
-     */
-    @Override
-    protected Control createDialogArea(Composite parent) {
-        Composite container = (Composite) super.createDialogArea(parent);
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        Label msgLbl = new Label(mainComp, SWT.NONE);
+        msgLbl.setText(userid + " wants to add you to their contacts list.");
+        msgLbl.setLayoutData(gd);
 
-        new Label(container, SWT.NONE).setText(message);
+        gl = new GridLayout(2, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Composite groupComp = new Composite(mainComp, SWT.NONE);
+        groupComp.setLayout(gl);
+        groupComp.setLayoutData(gd);
 
-        Composite groupComposite = new Composite(container, SWT.NONE);
-        groupComposite.setLayout(new GridLayout(2, false));
-        groupComposite.setLayoutData(new GridData(SWT.LEFT, SWT.DEFAULT,
-                true, false));
-        new Label(groupComposite, SWT.NONE).setText("Group: ");
-        groupCombo = new Combo(groupComposite, SWT.BORDER | SWT.READ_ONLY
-                | SWT.DROP_DOWN);
-        groupCombo.setItems(getGroupNames());
-        CollaborationConnection conn = CollaborationConnection.getConnection();
-        Collection<RosterGroup> groups = conn.getContactsManager().getGroups(
-                userid);
-        if (!groups.isEmpty()) {
-            // we already have this user in a group in our roster, no need to
-            // prompt
-            groupComposite.setVisible(false);
-        }
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        Label groupLbl = new Label(groupComp, SWT.NONE);
+        groupLbl.setText("Group: ");
+        groupLbl.setLayoutData(gd);
+        groupCbo = new Combo(groupComp, SWT.DROP_DOWN | SWT.READ_ONLY);
+        groupCbo.setItems(getGroupNames());
+        groupCbo.select(0);
+        groupCbo.setLayout(gl);
+        groupCbo.setLayoutData(gd);
 
-        return container;
+        gl = new GridLayout(2, false);
+        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        Composite btnComp = new Composite(mainComp, SWT.NONE);
+        btnComp.setLayout(gl);
+        btnComp.setLayoutData(gd);
+
+        int btnWidth = 75;
+
+        gd = new GridData(btnWidth, SWT.DEFAULT);
+        Button allowBtn = new Button(btnComp, SWT.PUSH);
+        allowBtn.setText("Allow");
+        allowBtn.setLayoutData(gd);
+        allowBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                action(true);
+            }
+        });
+
+        gd = new GridData(btnWidth, SWT.DEFAULT);
+        Button denyBtn = new Button(btnComp, SWT.PUSH);
+        denyBtn.setText("Deny");
+        denyBtn.setLayoutData(gd);
+        denyBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                action(false);
+            }
+        });
     }
 
     /**
@@ -152,43 +150,39 @@ public class SubRequestDialog extends Dialog {
         }
         Collection<RosterGroup> groups = connection.getContactsManager()
                 .getGroups();
-        String[] rval = new String[groups.size() + 1];
-        Iterator<RosterGroup> iter = groups.iterator();
-        int i = 0;
-        for (; iter.hasNext(); ++i) {
-            rval[i] = iter.next().getName();
+        List<String> groupList = new ArrayList<String>(groups.size());
+        for (String group : groupList) {
+            groupList.add(group);
         }
-        rval[i] = "New Group...";
-        return rval;
-    }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets.Shell)
-     */
-    @Override
-    protected void configureShell(Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText(title);
-    }
+        Collections.sort(groupList);
+        groupList.add(0, NEW_GROUP);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
-    @Override
-    protected void createButtonsForButtonBar(Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, "Allow", true);
-        createButton(parent, IDialogConstants.CANCEL_ID, "Deny", false);
+        return groupList.toArray(new String[groupList.size()]);
     }
 
     /**
-     * @return the group
+     * Action handler.
+     * 
+     * @param approved
+     *            true if request approved, false if denied
      */
-    public String getGroup() {
-        return group;
-    }
+    private void action(boolean approved) {
+        if (approved) {
+            if (groupCbo.getSelectionIndex() == 0) {
+                // new group
+                CreateGroupDialog dialog = new CreateGroupDialog(Display
+                        .getCurrent().getActiveShell());
+                dialog.open();
+                String group = dialog.getNewGroup();
+                setReturnValue(group);
+            } else {
+                setReturnValue(groupCbo.getItem(groupCbo.getSelectionIndex()));
+            }
+        } else {
+            setReturnValue(null);
+        }
 
+        close();
+    }
 }
