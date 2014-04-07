@@ -46,6 +46,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * ------------ ---------- ----------- --------------------------
  * Mar 24, 2014 2905       bclement     Initial creation
  * Apr 03, 2014 2905       bclement     added lookup methods
+ * Apr 07, 2014 2905       bclement     removed java 1.7 specific Integer.compare()
  * 
  * </pre>
  * 
@@ -209,7 +210,7 @@ public class TranslationTable {
         public static final Comparator<QueueNode> comp = new Comparator<QueueNode>() {
             @Override
             public int compare(QueueNode o1, QueueNode o2) {
-                return Integer.compare(o1.index, o2.index);
+                return o1.index - o2.index;
             }
         };
 
