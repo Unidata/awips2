@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.viz.collaboration.comm.provider.account;
 
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -50,6 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2014 2756       bclement     Initial creation
+ * Apr 14, 2014 2903       bclement    moved from session subpackage to account
  * 
  * </pre>
  * 
