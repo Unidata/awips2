@@ -29,9 +29,6 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.svrwx.SvrWxRecord;
@@ -39,12 +36,14 @@ import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.plugin.svrwx.SvrWxRecordDao;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * 
+ * SvrWx Parser
  * 
  * <pre>
  * 
@@ -53,6 +52,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Jan 04, 2010            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Apr 07, 2014 2971       skorolev    Add condition to avoid malformed parts in the message.
  * 
  * </pre>
  * 
@@ -62,7 +62,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class SvrWxParser {
 
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(SvrWxParser.class);
 
     private final PointDataDescription pointDataDescription;
 
@@ -108,6 +109,26 @@ public class SvrWxParser {
 
     private static final HashMap<String, Integer> MONTH_MAP = new HashMap<String, Integer>();
 
+    /** List of lines with non-parsed location. */
+    private List<String> badLines;
+
+    private static final Pattern EVENT_KEY_PTRN = Pattern
+            .compile(InternalReport.EVENT_KEY);
+
+    private static final Pattern DATE_TIME_PTRN = Pattern
+            .compile(InternalReport.TIME);
+
+    private static final Pattern LAT_LON_PTRN = Pattern
+            .compile(InternalReport.LATLON);
+
+    private static final Pattern STATION_ID_PTRN = Pattern
+            .compile(InternalReport.STATIONID);
+
+    private static final Pattern yearPtrn = Pattern.compile("\\d{4,4}");
+
+    private static final Pattern monthPtrn = Pattern
+            .compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
+
     static {
         MONTH_MAP.put("JAN", 1);
         MONTH_MAP.put("FEB", 2);
@@ -124,10 +145,11 @@ public class SvrWxParser {
     }
 
     /**
+     * SvrWx Parser.
      * 
-     * @param message
-     * @param wmoHeader
+     * @param dao
      * @param pdd
+     * @param name
      */
     public SvrWxParser(SvrWxRecordDao dao, PointDataDescription pdd, String name) {
         pointDataDescription = pdd;
@@ -143,13 +165,26 @@ public class SvrWxParser {
      *            Raw message data.
      * @param traceId
      *            Trace id for this data.
+     * @param headers
      */
     public void setData(byte[] message, String traceId, Headers headers) {
         currentReport = -1;
+        badLines = new ArrayList<String>();
         this.traceId = traceId;
         wmoHeader = new WMOHeader(message, headers);
         if (wmoHeader != null) {
             reports = findReports(message);
+            if (!badLines.isEmpty()) {
+                StringBuilder warnMsg = new StringBuilder("Message ");
+                warnMsg.append(wmoHeader);
+                warnMsg.append(" skipped lines:");
+                for (String s : badLines) {
+                    warnMsg.append("\nUnrecognized location: ");
+                    warnMsg.append(s);
+                }
+                logger.warn(warnMsg.toString());
+                badLines.clear();
+            }
         } else {
             logger.error(traceId + "- Missing or invalid WMOHeader");
         }
@@ -193,7 +228,6 @@ public class SvrWxParser {
         } else {
             report = reports.get(currentReport++);
             logger.debug("Getting report " + report);
-
             try {
                 report.constructDataURI();
                 if (URI_MAP.containsKey(report.getDataURI())) {
@@ -227,6 +261,7 @@ public class SvrWxParser {
     }
 
     /**
+     * Gets Container
      * 
      * @param obsData
      * @return
@@ -243,9 +278,10 @@ public class SvrWxParser {
     }
 
     /**
+     * Collect Reports from svrWx Records.
      * 
-     * @param start
-     * @return
+     * @param message
+     * @return reports
      */
     private List<SvrWxRecord> findReports(byte[] message) {
 
@@ -261,7 +297,8 @@ public class SvrWxParser {
                     parseTimeRangeLine(rpt.getReportLine());
                     break;
                 case REPORT_TYPE:
-                    if ((reportType != null) && (eventKey != null)) {
+                    if ((reportType != null && eventKey != null)
+                            && isStationOk()) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
@@ -278,7 +315,8 @@ public class SvrWxParser {
                     clearData();
                     break;
                 case EVENT_LN:
-                    if ((reportType != null) && (eventKey != null)) {
+                    if ((reportType != null && eventKey != null)
+                            && isStationOk()) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
@@ -303,9 +341,13 @@ public class SvrWxParser {
                     if ((s.length() != 0) && (remarks != null)) {
                         remarks += " " + s;
                     }
+                    if (s.length() != 0 && eventKey != null && !isStationOk()) {
+                        badLines.add(s);
+                    }
                     break;
                 case END:
-                    if ((reportType != null) && (eventKey != null)) {
+                    if ((reportType != null && eventKey != null)
+                            && isStationOk()) {
                         SurfaceObsLocation location = new SurfaceObsLocation(
                                 stationId);
                         location.setLongitude(longitude.doubleValue());
@@ -327,26 +369,29 @@ public class SvrWxParser {
         return reports;
     }
 
+    /**
+     * Parse Time Range Line.
+     * 
+     * @param timeRangeLine
+     */
     private void parseTimeRangeLine(String timeRangeLine) {
-        Pattern yearPtrn = Pattern.compile("\\d{4,4}");
-        Pattern monthPtrn = Pattern
-                .compile("(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)");
-
         Matcher m = monthPtrn.matcher(timeRangeLine);
         if (m.find()) {
             month = MONTH_MAP.get(m.group());
         }
-
         m = yearPtrn.matcher(timeRangeLine);
         if (m.find()) {
             year = Integer.parseInt(m.group());
         }
     }
 
+    /**
+     * Parse Event Key Line.
+     * 
+     * @param eventKeyLine
+     */
     private void parseEventKeyLine(String eventKeyLine) {
-        Pattern eventKeyPtrn = Pattern.compile(InternalReport.EVENT_KEY);
-        Pattern dateTimePtrn = Pattern.compile(InternalReport.TIME);
-        Matcher m = eventKeyPtrn.matcher(eventKeyLine);
+        Matcher m = EVENT_KEY_PTRN.matcher(eventKeyLine);
         if (m.find()) {
             String type = m.group();
             if (type.equals(TORN)) {
@@ -360,10 +405,9 @@ public class SvrWxParser {
                 eventKey = type.replace(" ", "");
                 reportType = "A";
             }
-
         }
 
-        m = dateTimePtrn.matcher(eventKeyLine);
+        m = DATE_TIME_PTRN.matcher(eventKeyLine);
         if (m.find()) {
             String time = m.group();
             greenTime = time.replace("/", ".");
@@ -383,18 +427,19 @@ public class SvrWxParser {
             cal.set(Calendar.MILLISECOND, 0);
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
             refTime = new DataTime(cal);
-
         } else {
             refTime = null;
         }
 
     }
 
+    /**
+     * Parse Remarks Line.
+     * 
+     * @param remarksLine
+     */
     private void parseRemarksLine(String remarksLine) {
-        Pattern latLonPtrn = Pattern.compile(InternalReport.LATLON);
-        Pattern stationIdPtrn = Pattern.compile(InternalReport.STATIONID);
-
-        Matcher m = latLonPtrn.matcher(remarksLine);
+        Matcher m = LAT_LON_PTRN.matcher(remarksLine);
         if (m.find()) {
             String latLon = m.group();
             String latStr = latLon.substring(0, 4);
@@ -403,7 +448,7 @@ public class SvrWxParser {
             longitude = Float.parseFloat(lonStr) / -100;
         }
 
-        m = stationIdPtrn.matcher(remarksLine);
+        m = STATION_ID_PTRN.matcher(remarksLine);
         if (m.find()) {
             stationId = m.group();
         }
@@ -414,6 +459,9 @@ public class SvrWxParser {
         }
     }
 
+    /**
+     * Clear SvrWx Record.
+     */
     private void clearData() {
         eventKey = null;
         refTime = null;
@@ -424,6 +472,11 @@ public class SvrWxParser {
         greenTime = null;
     }
 
+    /**
+     * Get details of SvrWx Record.
+     * 
+     * @return details
+     */
     private String getDetails() {
         String details = eventKey + " " + greenTime + ":";
         if (stationId != null) {
@@ -431,5 +484,16 @@ public class SvrWxParser {
         }
         details += " " + remarks;
         return details;
+    }
+
+    /**
+     * Checks if parsed location is valid. If it returns false it indicates the
+     * station or latitude/longitude was not parsed from the product since it
+     * didn't match.
+     * 
+     * @return true if location is valid.
+     */
+    private boolean isStationOk() {
+        return longitude != null && latitude != null && stationId != null;
     }
 }
