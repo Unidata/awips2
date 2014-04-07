@@ -1,11 +1,15 @@
 <project default="deploy" basedir=".">
 
-	<property name="workspace" value="${basedir}/../.." />
-	<property name="esb.build.directory" value="${workspace}/edexOsgi/build.edex" />
+    <property name="workspace" value="${basedir}/../.." />
+    <property name="workspace_edexOsgi" value="${workspace}/edexOsgi"/>
+    <property name="workspace_javaUtilities" value="${workspace}/javaUtilities"/>
+    <property name="workspace_cots" value="${workspace}/cots" />
+
+	<property name="esb.build.directory" value="${workspace_edexOsgi}/build.edex" />
 	<property name="feature.file" value="${basedir}.feature/feature.xml" />
 	<property name="dataserver.root.directory" value="/awips2/collab-dataserver" />
 	<property name="includegen.filter" value="raytheon|collaboration.dataserver" />
-	<property name="basedirectories" value="${workspace}/edexOsgi;${workspace}/javaUtilities;${workspace}/cots" />
+	<property name="basedirectories" value="${workspace_edexOsgi};${workspace_javaUtilities};${workspace_cots}" />
 
 	<property name="tmp.dir" value="/tmp/collab-dataserver" />
 	<property name="includes.directory" value="${tmp.dir}/includes" />
@@ -85,12 +89,12 @@
 			<includegen providerfilter="${includegen.filter}" basedirectories="${basedirectories}" featurefile="${feature.file}" cotsout="${includes.directory}/cots.includes" plugsout="${includes.directory}/plugins.includes" coreout="${includes.directory}/core.includes" />
 
 			<!-- copy foss jars to tmp lib folder -->
-			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace}/cots" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
+			<copyToBuild includes.file="${includes.directory}/cots.includes" source.base="${workspace_cots}" source.suffix="" includes.pattern="*.jar" target.dir="${tmp.lib.dir}" />
 
 			<!-- copy all uframe source to tmp src folder -->
-			<copyToBuild includes.file="${includes.directory}/core.includes" source.base="${workspace}/edexOsgi" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
+			<copyToBuild includes.file="${includes.directory}/core.includes" source.base="${workspace_edexOsgi}" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
 
-			<copyToBuild includes.file="${includes.directory}/plugins.includes" source.base="${workspace}/edexOsgi" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
+			<copyToBuild includes.file="${includes.directory}/plugins.includes" source.base="${workspace_edexOsgi}" source.suffix="src" includes.pattern="**/*.java" target.dir="${tmp.src.dir}" />
 
 			<copy todir="${tmp.src.dir}" overwrite="true" verbose="true">
 				<fileset dir="src" includes="**/*.java" />
