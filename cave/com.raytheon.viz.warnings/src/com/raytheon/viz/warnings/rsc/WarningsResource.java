@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
+ * Apr 07, 2014 2959       njensen     Correct handling of color change
  * 
  * </pre>
  * 
@@ -156,22 +157,10 @@ public class WarningsResource extends AbstractWWAResource {
                     && (color.equals(getCapability((ColorableCapability.class))
                             .getColor()) == false)) {
                 color = getCapability((ColorableCapability.class)).getColor();
-
-                // TODO this needs to be fixed to work with watches which are
-                // shaded
-                // for (String dataUri : entryMap.keySet()) {
-                // WarningEntry entry = entryMap.get(dataUri);
-                // TODO init a shape somewhere else
-                // if (entry.shadedShape != null) {
-                // entry.shadedShape.dispose();
-                // try {
-                // initShape(entry.record);
-                // } catch (VizException e) {
-                // statusHandler.handle(Priority.PROBLEM,
-                // e.getLocalizedMessage(), e);
-                // }
-                // }
-                // }
+                for (String dataUri : entryMap.keySet()) {
+                    WarningEntry entry = entryMap.get(dataUri);
+                    entry.project = true;
+                }
             }
         }
         issueRefresh();
@@ -221,8 +210,6 @@ public class WarningsResource extends AbstractWWAResource {
     protected synchronized void updateDisplay(IGraphicsTarget target)
             throws VizException {
         if (!this.recordsToLoad.isEmpty()) {
-            FramesInfo info = getDescriptor().getFramesInfo();
-            DataTime[] frames = info.getFrameTimes();
             for (AbstractWarningRecord warnrec : recordsToLoad) {
                 WarningAction act = WarningAction.valueOf(warnrec.getAct());
                 if ((act == WarningAction.CON) || (act == WarningAction.CAN)
