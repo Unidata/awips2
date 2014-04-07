@@ -40,7 +40,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
@@ -70,6 +70,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Feb 13, 2014 2751      bclement    messages return IUser instead of IQualifiedID
  * Mar 06, 2014 2848      bclement    moved SharedDisplaySessionMgr.joinSession call to InviteDialog
  * Apr 08, 2014 2785      mpduff      removed preference listener
+ * Apr 11, 2014 2903      bclement    added disconnect handler
  * 
  * </pre>
  * 
@@ -87,6 +88,8 @@ public class ConnectionSubscriber {
     private IWorkbenchListener wbListener;
 
     private final AwayTimeOut awayTimeOut = new AwayTimeOut();
+
+    private final DisconnectHandler disconnect = new DisconnectHandler();
 
     private ConnectionSubscriber() {
     }
@@ -124,6 +127,7 @@ public class ConnectionSubscriber {
                     new SubscriptionResponderImpl(connection));
             // Register handlers and events for the new sessionManager.
             connection.registerEventHandler(this);
+            connection.registerEventHandler(disconnect);
             try {
                 ISession p2pSession = connection.getPeerToPeerSession();
                 p2pSession.registerEventHandler(this);
@@ -159,11 +163,14 @@ public class ConnectionSubscriber {
             awayTimeOut.cancel();
             try {
                 ISession p2pSession = connection.getPeerToPeerSession();
-                p2pSession.unregisterEventHandler(this);
+                if (p2pSession != null) {
+                    p2pSession.unregisterEventHandler(this);
+                }
             } catch (CollaborationException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error unregistering peer to peer handler", e);
             }
+            connection.unregisterEventHandler(disconnect);
             connection.unregisterEventHandler(this);
         }
         PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
