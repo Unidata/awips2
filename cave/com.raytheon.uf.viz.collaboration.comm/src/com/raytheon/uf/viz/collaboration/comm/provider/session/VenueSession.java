@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
@@ -105,6 +106,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
  *                                      moved muc close logic to closeMuc()
  *                                      handle is now set in constructor
+ * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
  * 
  * 
  * </pre>
@@ -145,7 +147,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus,
+    public VenueSession(EventBus externalBus,
             CollaborationConnection manager, String venueName, String handle,
             String sessionId) {
         super(externalBus, manager, sessionId);
@@ -158,7 +160,7 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus,
+    public VenueSession(EventBus externalBus,
             CollaborationConnection manager, CreateSessionData data) {
         super(externalBus, manager);
         this.venueName = data.getName();

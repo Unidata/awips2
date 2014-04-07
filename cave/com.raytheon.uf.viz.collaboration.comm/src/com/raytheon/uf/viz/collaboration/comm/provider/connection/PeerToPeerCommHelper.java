@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.viz.collaboration.comm.provider.connection;
 
 import java.net.URI;
 import java.net.URL;
@@ -63,6 +63,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Feb 17, 2014 2756       bclement    null check for message from field
  *                                      moved url validation from regex to java utility
  * Feb 24, 2014 2756       bclement    moved xmpp objects to new packages
+ * Apr 14, 2014 2903       bclement    moved from session subpackage to connection
  * 
  * </pre>
  * 
@@ -72,8 +73,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class PeerToPeerCommHelper implements PacketListener {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PeerToPeerCommHelper.class);
+    private static final transient IUFStatusHandler statusHandler = CollaborationConnection
+            .getStatusHandler();
 
     private static volatile String httpServer;
 
@@ -88,7 +89,7 @@ public class PeerToPeerCommHelper implements PacketListener {
         return httpServer;
     }
 
-    private CollaborationConnection manager;
+    private final CollaborationConnection manager;
 
     /**
      * 

@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.viz.collaboration.comm.provider.session;
+package com.raytheon.uf.viz.collaboration.comm.provider.connection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +36,7 @@ import org.jivesoftware.smack.packet.Presence.Mode;
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2012            mschenke     Initial creation
  * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
+ * Apr 14, 2014 2903       bclement    removed password, moved from session subpackage to connection
  * 
  * </pre>
  * 
@@ -48,8 +49,6 @@ public class CollaborationConnectionData {
     private String server;
 
     private String userName;
-
-    private String password;
 
     private Mode status;
 
@@ -89,21 +88,6 @@ public class CollaborationConnectionData {
      */
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    /**
-     * @param password
-     *            the password to set
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     /**
@@ -163,8 +147,6 @@ public class CollaborationConnectionData {
         result = prime * result
                 + ((attributes == null) ? 0 : attributes.hashCode());
         result = prime * result + ((message == null) ? 0 : message.hashCode());
-        result = prime * result
-                + ((password == null) ? 0 : password.hashCode());
         result = prime * result + ((server == null) ? 0 : server.hashCode());
         result = prime * result + ((status == null) ? 0 : status.hashCode());
         result = prime * result
@@ -195,11 +177,6 @@ public class CollaborationConnectionData {
             if (other.message != null)
                 return false;
         } else if (!message.equals(other.message))
-            return false;
-        if (password == null) {
-            if (other.password != null)
-                return false;
-        } else if (!password.equals(other.password))
             return false;
         if (server == null) {
             if (other.server != null)
