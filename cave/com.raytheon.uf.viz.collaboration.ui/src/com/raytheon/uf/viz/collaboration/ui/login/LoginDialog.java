@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.google.common.collect.Iterators;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -50,6 +51,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnectionData;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -72,6 +74,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Jan 06, 2014 2563       bclement     moved server text parsing to ServerInput class
  * Jan 08, 2014 2563       bclement     added Add/Remove buttons for server list
  * Jan 15, 2014 2630       bclement     connection data stores status as Mode object
+ * Apr 07, 2014 2785       mpduff       Implemented change to CollaborationConnection
  * 
  * </pre>
  * 
@@ -81,9 +84,9 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 
 public class LoginDialog extends Dialog {
 
-    private IPreferenceStore preferences;
+    private final IPreferenceStore preferences;
 
-    private CollaborationConnectionData loginData;
+    private final CollaborationConnectionData loginData;
 
     private Text userText;
 
@@ -156,9 +159,7 @@ public class LoginDialog extends Dialog {
         // Server setting
         new Label(body, SWT.NONE).setText("Server: ");
 
-
-        serverText = new Combo(body, SWT.BORDER | SWT.READ_ONLY
-                | SWT.DROP_DOWN);
+        serverText = new Combo(body, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 200;
         serverText.setLayoutData(gd);
@@ -198,13 +199,13 @@ public class LoginDialog extends Dialog {
         addServerButton = new Button(serverButtons, SWT.PUSH);
         addServerButton.setText(ServerListListener.addButtonText);
         addServerButton.setLayoutData(gd);
-        addServerButton.addListener(SWT.Selection, new ServerListListener(serverText));
+        addServerButton.addListener(SWT.Selection, new ServerListListener(
+                serverText));
         removeServerButton = new Button(serverButtons, SWT.PUSH);
         removeServerButton.setText(ServerListListener.removeButtonText);
         removeServerButton.setLayoutData(gd);
         removeServerButton.addListener(SWT.Selection, new ServerListListener(
                 serverText));
-
 
         // Password setting
         new Label(body, SWT.NONE).setText("Password: ");
@@ -365,11 +366,33 @@ public class LoginDialog extends Dialog {
                     messageBox.open();
                 } else {
                     try {
-                        CollaborationConnection connection = CollaborationConnection
-                                .connect(loginData);
-                        ConnectionSubscriber.subscribe(connection);
+                        // Create the connection
+                        CollaborationConnection collabConnection = CollaborationConnection
+                                .createConnection(loginData);
+
+                        // Subscribe to the collaboration connection
+                        ConnectionSubscriber.subscribe(collabConnection);
+
+                        // Connect to the XMPP server
+                        collabConnection.connect();
+
                         storeLoginData();
                         shell.dispose();
+
+                        // send initial presence
+                        Mode mode = loginData.getStatus();
+                        if (mode == null) {
+                            mode = Mode.available;
+                        }
+
+                        Presence initialPresence = new Presence(Type.available,
+                                loginData.getMessage(), 0, mode);
+                        Tools.setProperties(initialPresence,
+                                loginData.getAttributes());
+
+                        collabConnection.getAccountManager().sendPresence(
+                                initialPresence);
+
                     } catch (CollaborationException e) {
                         Activator.statusHandler.handle(Priority.PROBLEM,
                                 "Error connecting to collaboration server: "
