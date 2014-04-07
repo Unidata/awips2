@@ -723,7 +723,7 @@ public abstract class AbstractWWAResource extends
 
         if (emergencyFont != null) {
             emergencyFont.dispose();
-            // set font to null for recylcle safety
+            // set font to null for recycle safety
             emergencyFont = null;
         }
     }
