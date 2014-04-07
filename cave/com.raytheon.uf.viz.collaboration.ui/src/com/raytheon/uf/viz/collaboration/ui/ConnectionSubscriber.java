@@ -44,8 +44,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
 import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
-import com.raytheon.uf.viz.collaboration.ui.prefs.AutoSubscribePropertyListener;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.collaboration.ui.prefs.SubscriptionResponderImpl;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Jan 30, 2014 2698      bclement    moved xmpp join logic to dialog so we can reprompt user on failure
  * Feb 13, 2014 2751      bclement    messages return IUser instead of IQualifiedID
  * Mar 06, 2014 2848      bclement    moved SharedDisplaySessionMgr.joinSession call to InviteDialog
+ * Apr 08, 2014 2785      mpduff      removed preference listener
  * 
  * </pre>
  * 
@@ -88,11 +89,6 @@ public class ConnectionSubscriber {
     private final AwayTimeOut awayTimeOut = new AwayTimeOut();
 
     private ConnectionSubscriber() {
-        Activator
-                .getDefault()
-                .getPreferenceStore()
-                .addPropertyChangeListener(
-                        AutoSubscribePropertyListener.getInstance());
     }
 
     /**
@@ -124,9 +120,8 @@ public class ConnectionSubscriber {
 
     private void setup(final CollaborationConnection connection) {
         if (connection != null) {
-            AutoSubscribePropertyListener autoSub = AutoSubscribePropertyListener
-                    .getInstance();
-            autoSub.initialize(connection);
+            connection.getAccountManager().setSubscriptionRequestResponder(
+                    new SubscriptionResponderImpl(connection));
             // Register handlers and events for the new sessionManager.
             connection.registerEventHandler(this);
             try {
@@ -170,9 +165,6 @@ public class ConnectionSubscriber {
                         "Error unregistering peer to peer handler", e);
             }
             connection.unregisterEventHandler(this);
-            AutoSubscribePropertyListener autoSub = AutoSubscribePropertyListener
-                    .getInstance();
-            autoSub.close();
         }
         PlatformUI.getWorkbench().removeWorkbenchListener(wbListener);
     }
@@ -193,7 +185,8 @@ public class ConnectionSubscriber {
                     IVenueSession session = inviteBox.getSession();
                     if (inviteBox.isSharedDisplay()) {
                         CaveWorkbenchPageManager.getActiveInstance().showView(
-                                CollaborationSessionView.ID, session.getSessionId(),
+                                CollaborationSessionView.ID,
+                                session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     } else {
                         CaveWorkbenchPageManager.getActiveInstance().showView(
