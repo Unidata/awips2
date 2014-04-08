@@ -69,8 +69,9 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * 
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
- * Jun 26, 2012           bsteffen     Initial creation
- * Jan 14, 2013  2313     bsteffen     Add image rendering
+ * Jun 26, 2012           bsteffen    Initial creation
+ * Jan 14, 2013  2313     bsteffen    Add image rendering
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -309,7 +310,7 @@ public class KmlCanvasRenderingExtension extends
                 } else if (VerticalAlignment.MIDDLE == string.verticallAlignment) {
                     realY -= bounds.getY() / 2;
                 }
-                if (string.textStyle == TextStyle.BLANKED) {
+                if (string.getTextStyles().contains(TextStyle.BLANKED)) {
                     setColor(graphics, backgroundColor);
                     graphics.fillRect((int) realX,
                             (int) (realY + bounds.getY()),
