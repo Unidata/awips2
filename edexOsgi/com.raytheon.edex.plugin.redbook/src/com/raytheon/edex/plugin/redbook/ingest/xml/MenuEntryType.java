@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2014   2855     mpduff      Initial creation
+ * Mar 19, 2014   2860     mpduff      Add DataURI as a type.
  * 
  * </pre>
  * 
@@ -60,7 +61,11 @@ public enum MenuEntryType {
 
     /** Menu Title type */
     @XmlEnumValue("title")
-    Title("title");
+    Title("title"),
+
+    /** Data URI type */
+    @XmlEnumValue("dataUri")
+    DataUri("dataUri");
 
     /** Menu entry type */
     private String entryType;
