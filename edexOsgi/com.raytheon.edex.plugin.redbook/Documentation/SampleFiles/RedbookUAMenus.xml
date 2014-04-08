@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+This file is the A2 NDM replacement for redbookUpperAirMenus.txt.  
+
+Dropping RedbookUAMenus.xml into the /awips2/edex/data/ndm directory 
+will generate an override of the Upper Air NDM menu.
+
+RedbookUAMenus.xml as written here will generate the base version 
+of the Upper Air NDM menus.
+ -->
+<redbookMenu>
+    <menuEntry type="submenu" text="Model Graphics">
+        <menuEntry type="productButton" 
+                    text="UKMO 500 hgt" id="uaUKMO500hgt">
+            <menuEntry type="substitute" key="wmo" value="PHZM50, PHZO50, PHZQ50"/>      
+        </menuEntry>
+    </menuEntry>
+    <menuEntry type="submenu" text="CPC Charts">
+        <menuEntry type="productButton" 
+                    text="6-10 day mean 500 Hgt" id="ua610daymean500Hgt">
+            <menuEntry type="dataURI">/redbook/%/PHBV50/%</menuEntry>
+            <menuEntry type="substitute" key="wmo" value="PHBV50"/>          
+        </menuEntry>
+        <menuEntry type="productButton" 
+                    text="8-14 day Mean 500 Hgt" id="ua814dayMean500Hgt">
+            <menuEntry type="dataURI">/redbook/%/PHTT50/%</menuEntry>
+            <menuEntry type="substitute" key="wmo" value="PHTT50"/>          
+        </menuEntry>
+        <menuEntry type="productButton" 
+                    text="6-10 day 500 Hgt Anomaly" id="ua610day500HgtAnomaly">
+            <menuEntry type="dataURI">/redbook/%/PHNT50/%</menuEntry>
+            <menuEntry type="substitute" key="wmo" value="PHNT50"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+                    text="8-14 day 500 Anom" id="ua814day500Anom">
+            <menuEntry type="dataURI">/redbook/%/PHTT51/%</menuEntry>
+            <menuEntry type="substitute" key="wmo" value="PHTT51"/>
+        </menuEntry>
+    </menuEntry>
+</redbookMenu>
