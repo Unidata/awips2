@@ -79,6 +79,7 @@ import com.raytheon.uf.viz.remote.graphics.events.ICreationEvent;
  * Feb 25, 2014 2751       bclement     fixed provider id path for webDAV
  * Feb 28, 2014 2756       bclement     added auth, moved response code checks to response object
  * Mar 06, 2014 2826       njensen      Fix spelling mistake
+ * Apr 08, 2014 2968       njensen      PersistedObject serialization efficiency improvement
  * 
  * </pre>
  * 
@@ -178,8 +179,8 @@ public class CollaborationObjectEventStorage implements
      * (com.raytheon.uf.viz.remote.graphics.AbstractRemoteGraphicsEvent)
      */
     @Override
-    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event)
-            throws CollaborationException {
+    public IPersistedEvent persistEvent(AbstractDispatchingObjectEvent event,
+            byte[] eventData) throws CollaborationException {
         if (event instanceof ICreationEvent) {
             // TODO this is for pre 14.3 compatibility
             createFolder(String.valueOf(event.getObjectId()));
@@ -202,12 +203,18 @@ public class CollaborationObjectEventStorage implements
                     + event.getClass().getName() + ".obj";
             String eventObjectURL = sessionDataURL + objectPath;
 
+            /*
+             * We will not set the event or compress the byte[] because the
+             * underlying event has already been serialized and compressed by
+             * the CollaborationDispatcher.
+             */
             CollaborationHttpPersistedObject persistObject = new CollaborationHttpPersistedObject();
-            persistObject.persistTime = System.currentTimeMillis();
-            persistObject.event = event;
-            byte[] toPersist = CompressionUtil.compress(SerializationUtil
-                    .transformToThrift(persistObject));
+            persistObject.setPersistTime(System.currentTimeMillis());
+            persistObject.setEventAsCompressedBytes(eventData);
+            byte[] toPersist = SerializationUtil
+                    .transformToThrift(persistObject);
             stats.log(event.getClass().getSimpleName(), toPersist.length, 0);
+
             HttpPut put = createPut(eventObjectURL, toPersist);
             HttpClientResponse response = executeRequest(put);
             if (response.isSuccess() == false) {
@@ -284,10 +291,10 @@ public class CollaborationObjectEventStorage implements
             if (object == null) {
                 // No object available
                 return null;
-            } else if (object.event != null) {
-                stats.log(object.event.getClass().getSimpleName(), 0,
+            } else if (object.getEvent() != null) {
+                stats.log(object.getEvent().getClass().getSimpleName(), 0,
                         object.dataSize);
-                return object.event;
+                return object.getEvent();
             } else {
                 throw new CollaborationException(
                         "Unable to deserialize persisted event into event object");
@@ -318,7 +325,7 @@ public class CollaborationObjectEventStorage implements
                 CollaborationHttpPersistedObject dataObject = SerializationUtil
                         .transformFromThrift(
                                 CollaborationHttpPersistedObject.class,
-                                CompressionUtil.uncompress(response.data));
+                                response.data);
                 if (dataObject != null) {
                     dataObject.dataSize = response.data.length;
                 }
@@ -388,7 +395,7 @@ public class CollaborationObjectEventStorage implements
                 .size()];
         int i = 0;
         for (CollaborationHttpPersistedObject object : objectEvents) {
-            events[i++] = object.event;
+            events[i++] = object.getEvent();
         }
 
         return events;
@@ -570,7 +577,15 @@ public class CollaborationObjectEventStorage implements
         @DynamicSerializeElement
         private long persistTime;
 
+        /**
+         * This will be serialized instead of the event. Provides better
+         * efficiency than serializing the event itself since
+         * CollaborationDispatcher is already handling the serialization and
+         * compression.
+         */
         @DynamicSerializeElement
+        private byte[] eventAsCompressedBytes;
+
         private AbstractDispatchingObjectEvent event;
 
         private long dataSize;
@@ -592,17 +607,32 @@ public class CollaborationObjectEventStorage implements
 
         /**
          * @return the event
+         * @throws CollaborationException
+         * @throws SerializationException
          */
-        public AbstractDispatchingObjectEvent getEvent() {
+        public AbstractDispatchingObjectEvent getEvent()
+                throws CollaborationException {
+            if (event == null && eventAsCompressedBytes != null) {
+                try {
+                    event = SerializationUtil.transformFromThrift(
+                            AbstractDispatchingObjectEvent.class,
+                            CompressionUtil.uncompress(eventAsCompressedBytes));
+                    eventAsCompressedBytes = null;
+                } catch (SerializationException e) {
+                    throw new CollaborationException(
+                            "Error deserializing event retrieved from collaboration data service",
+                            e);
+                }
+            }
             return event;
         }
 
-        /**
-         * @param event
-         *            the event to set
-         */
-        public void setEvent(AbstractDispatchingObjectEvent event) {
-            this.event = event;
+        public byte[] getEventAsCompressedBytes() {
+            return eventAsCompressedBytes;
+        }
+
+        public void setEventAsCompressedBytes(byte[] eventAsCompressedBytes) {
+            this.eventAsCompressedBytes = eventAsCompressedBytes;
         }
 
     }
