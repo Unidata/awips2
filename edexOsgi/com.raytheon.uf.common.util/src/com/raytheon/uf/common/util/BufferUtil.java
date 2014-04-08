@@ -20,9 +20,13 @@
 package com.raytheon.uf.common.util;
 
 import java.awt.Rectangle;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 
 /**
@@ -33,7 +37,8 @@ import java.nio.ShortBuffer;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2010            mschenke     Initial creation
+ * Mar 01, 2010            mschenke    Initial creation
+ * Apr 07, 2014 2968       njensen     Added asReadOnly() and duplicate()
  * 
  * </pre>
  * 
@@ -174,6 +179,64 @@ public class BufferUtil {
         } else {
             return ByteBuffer.allocate(capacity);
         }
+    }
+
+    /**
+     * Returns a new read-only view into a buffer
+     * 
+     * @param buffer
+     * @return
+     */
+    public static Buffer asReadOnly(Buffer buffer) {
+        Buffer ret = null;
+        if (buffer instanceof ByteBuffer) {
+            ret = ((ByteBuffer) buffer).asReadOnlyBuffer();
+        } else if (buffer instanceof ShortBuffer) {
+            ret = ((ShortBuffer) buffer).asReadOnlyBuffer();
+        } else if (buffer instanceof IntBuffer) {
+            ret = ((IntBuffer) buffer).asReadOnlyBuffer();
+        } else if (buffer instanceof LongBuffer) {
+            ret = ((LongBuffer) buffer).asReadOnlyBuffer();
+        } else if (buffer instanceof FloatBuffer) {
+            ret = ((FloatBuffer) buffer).asReadOnlyBuffer();
+        } else if (buffer instanceof DoubleBuffer) {
+            ret = ((DoubleBuffer) buffer).asReadOnlyBuffer();
+        } else {
+            throw new IllegalArgumentException(
+                    "Cannot create read only buffer of type "
+                            + buffer.getClass().getName());
+        }
+
+        return ret;
+    }
+
+    /**
+     * Creates a new view into a buffer with an independent position and mark
+     * 
+     * @param buffer
+     * @return
+     */
+    public static Buffer duplicate(Buffer buffer) {
+        Buffer ret = null;
+        if (buffer instanceof ByteBuffer) {
+            ret = ((ByteBuffer) buffer).duplicate();
+        } else if (buffer instanceof ShortBuffer) {
+            ret = ((ShortBuffer) buffer).duplicate();
+        } else if (buffer instanceof IntBuffer) {
+            ret = ((IntBuffer) buffer).duplicate();
+        } else if (buffer instanceof LongBuffer) {
+            ret = ((LongBuffer) buffer).duplicate();
+        } else if (buffer instanceof FloatBuffer) {
+            ret = ((FloatBuffer) buffer).duplicate();
+        } else if (buffer instanceof DoubleBuffer) {
+            ret = ((DoubleBuffer) buffer).duplicate();
+        } else {
+            throw new IllegalArgumentException(
+                    "Cannot create duplicate buffer of type "
+                            + buffer.getClass().getName());
+        }
+
+        return ret;
     }
 
 }
