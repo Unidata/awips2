@@ -46,20 +46,22 @@ import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * 
- * Base for any graphics target (GL, Swing, AWT, Postscript, etc.)
+ * Base class for accessing all the drawing functionality available for
+ * displaying things on a renderable display.
  * 
  * <pre>
  * 
- *     SOFTWARE HISTORY
+ * SOFTWARE HISTORY
  *    
- *     Date          Ticket#     Engineer    Description
- *     ------------ ----------  ----------- --------------------------
- *     7/1/06                    chammack    Initial Creation.
- *     7/19/10      #5952        bkowal      Created a new member and method that could
- *                                           track any needed updates to the Target extents.
- *                                           This functionality is primarily used by the
- *                                           Feature Following Zoom Tool at this time.
- *     7/18/13      #2189        mschenke    Added ability to specify font type
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2006           chammack    Initial Creation.
+ * Jul 19, 2010  5952     bkowal      Created a new member and method that could
+ *                                    track any needed updates to the Target extents.
+ *                                    This functionality is primarily used by the
+ *                                    Feature Following Zoom Tool at this time.
+ * Jul 18, 2013  2189     mschenke    Added ability to specify font type
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -79,7 +81,14 @@ public interface IGraphicsTarget extends IImagingExtension {
 
     /** Defines text characteristics */
     public static enum TextStyle {
-        NORMAL, BLANKED, BOXED, WORD_WRAP, DROP_SHADOW, OUTLINE, UNDERLINE, OVERLINE, STRIKETHROUGH;
+        /**
+         * @deprecated Normal is indicated by adding no other styles to a
+         *             {@link DrawableString}
+         */
+        @Deprecated
+        NORMAL,
+
+        BLANKED, BOXED, WORD_WRAP, DROP_SHADOW, UNDERLINE, OVERLINE, STRIKETHROUGH;
     };
 
     /**
@@ -857,16 +866,6 @@ public interface IGraphicsTarget extends IImagingExtension {
             double y, double z, TextStyle textStyle, RGB[] colors,
             HorizontalAlignment horizontalAlignment,
             VerticalAlignment verticalAlignment) throws VizException;
-
-    /**
-     * Use drawStrings(DrawableString parameters)
-     */
-    @Deprecated
-    public void drawString(IFont font, String string, double xPos, double yPos,
-            double zPos, TextStyle textStyle, RGB color,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment, Double rotation, float alpha,
-            double magnification) throws VizException;
 
     /**
      * Use getStringsBounds(DrawableStrings...) functions
