@@ -68,6 +68,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * Feb 19, 2014  2751     bclement    added check for closed session
  * Mar 05, 2014  2843     bsteffen    Prevent exceptions on dispose.
  * Mar 06, 2014  2848     bclement    only send to venue if non empty
+ * Apr 08, 2014  2968     njensen     Only serialize/compress persisted objects once
  * 
  * 
  * </pre>
@@ -213,24 +214,34 @@ public class CollaborationDispatcher extends Dispatcher {
                 // when they close the view.
                 return;
             }
-            boolean immediateSend = true;
-            if (eventObject instanceof ICreationEvent == false) {
-                // Not a creation event, check event size. All creation events
-                // are sent immediately to avoid false negatives
-                try {
-                    byte[] data = CompressionUtil.compress(SerializationUtil
-                            .transformToThrift(eventObject));
-                    if (data.length > IMMEDIATE_SEND_SIZE) {
-                        immediateSend = false;
-                    }
-                } catch (Exception e) {
-                    Activator.statusHandler.handle(Priority.PROBLEM,
-                            "Error determing size of eventObject: "
-                                    + eventObject, e);
-                }
+
+            boolean immediateSend = false;
+            byte[] data = null;
+            try {
+                data = CompressionUtil.compress(SerializationUtil
+                        .transformToThrift(eventObject));
+            } catch (Exception e) {
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        "Error serializing eventObject: " + eventObject, e);
+                return;
             }
+            if (eventObject instanceof ICreationEvent
+                    || data.length <= IMMEDIATE_SEND_SIZE) {
+                /*
+                 * All creation events are sent immediately to avoid false
+                 * negatives. All events under a set size are also sent
+                 * immediately for optimal performance.
+                 */
+                immediateSend = true;
+            }
+
+            final byte[] compressedEvent = data;
             final AbstractDispatchingObjectEvent toPersist = (AbstractDispatchingObjectEvent) eventObject;
             final boolean[] sendPersisted = new boolean[] { !immediateSend };
+            /*
+             * we will always persist events to the data service for clients
+             * that join late
+             */
             persistPool.schedule(new Runnable() {
                 @Override
                 public void run() {
@@ -238,8 +249,12 @@ public class CollaborationDispatcher extends Dispatcher {
                         synchronized (persistance) {
                             if (!disposed) {
                                 IPersistedEvent event = persistance
-                                        .persistEvent(toPersist);
-                                // If was no immediateSend, send now
+                                        .persistEvent(toPersist,
+                                                compressedEvent);
+                                /*
+                                 * If it was not immediately sent, send
+                                 * notification now that it's persisted
+                                 */
                                 if (sendPersisted[0]) {
                                     send(event);
                                 }
@@ -251,8 +266,14 @@ public class CollaborationDispatcher extends Dispatcher {
                     }
                 }
             });
-            // Need to immediately send eventObject
+
             if (immediateSend) {
+                /*
+                 * Need to immediately send eventObject to get fast behavior on
+                 * connected clients. It will go through serialization again and
+                 * not be compressed, but since it's only small objects we don't
+                 * care.
+                 */
                 try {
                     send(eventObject);
                 } catch (RuntimeException e) {
