@@ -26,6 +26,7 @@ import com.raytheon.edex.plugin.redbook.menu.RedbookHazardsMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookHpcMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookMpcMenuUtil;
 import com.raytheon.edex.plugin.redbook.menu.RedbookNcoMenuUtil;
+import com.raytheon.edex.plugin.redbook.menu.RedbookUaMenuUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
@@ -45,6 +46,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Mar 17, 2014    2856    mpduff      Implement CPC.
  * Mar 19, 2014    2857    mpduff      Implement NCO.
  * Mar 19, 2014    2859    mpduff      Implement MPC.
+ * Mar 19, 2014    2860    mpduff      Implement Upper Air.
  * 
  * </pre>
  * 
@@ -72,6 +74,9 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
     /** NCO menu file */
     private static final String NCO_MENU_FILE = "RedbookNCOMenus.xml";
 
+    /** Upper air menu file */
+    private static final String UA_MENU_FILE = "RedbookUAMenus.xml";
+
     /**
      * {@inheritDoc}
      */
@@ -90,8 +95,12 @@ public class RedbookMenuSubscriber implements INationalDatasetSubscriber {
             menuUtil.createMenusFromFile(file.getAbsolutePath());
         } else if (MPC_MENU_FILE.equals(fileName)) {
             RedbookMpcMenuUtil menuUtil = new RedbookMpcMenuUtil();
+            menuUtil.createMenusFromFile(file.getAbsolutePath());
         } else if (NCO_MENU_FILE.equals(fileName)) {
             RedbookNcoMenuUtil menuUtil = new RedbookNcoMenuUtil();
+            menuUtil.createMenusFromFile(file.getAbsolutePath());
+        } else if (UA_MENU_FILE.equals(fileName)) {
+            RedbookUaMenuUtil menuUtil = new RedbookUaMenuUtil();
             menuUtil.createMenusFromFile(file.getAbsolutePath());
         }
     }
