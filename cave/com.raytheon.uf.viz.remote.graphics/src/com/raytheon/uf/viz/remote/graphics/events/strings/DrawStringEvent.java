@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.remote.graphics.events.strings;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -40,9 +41,10 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingFont;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 10, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 10, 2012           mschenke    Initial creation
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -72,7 +74,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     private VerticalAlignment verticalAlignment;
 
     @DynamicSerializeElement
-    private TextStyle textStyle;
+    private EnumSet<TextStyle> textStyles;
 
     @DynamicSerializeElement
     private RGB boxColor;
@@ -126,8 +128,8 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         if (verticalAlignment != diffEvent.verticalAlignment) {
             diffObject.verticalAlignment = diffEvent.verticalAlignment;
         }
-        if (textStyle != diffEvent.textStyle) {
-            diffObject.textStyle = diffEvent.textStyle;
+        if (!textStyles.equals(diffEvent.textStyles)) {
+            diffObject.textStyles = diffEvent.textStyles;
         }
         return diffObject;
     }
@@ -164,8 +166,8 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         if (diffObject.text != null) {
             text = diffObject.text;
         }
-        if (diffObject.textStyle != null) {
-            textStyle = diffObject.textStyle;
+        if (diffObject.textStyles != null) {
+            textStyles = diffObject.textStyles;
         }
     }
 
@@ -178,7 +180,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         this.xOrColors = string.basics.xOrColors;
         this.horizontalAlignment = string.horizontalAlignment;
         this.verticalAlignment = string.verticallAlignment;
-        this.textStyle = string.textStyle;
+        this.textStyles = string.getTextStyles();
         this.magnification = string.magnification;
         this.point = new double[] { string.basics.x, string.basics.y,
                 string.basics.z };
@@ -196,7 +198,9 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
         ds.shadowColor = shadowColor;
         ds.horizontalAlignment = horizontalAlignment;
         ds.verticallAlignment = verticalAlignment;
-        ds.textStyle = textStyle;
+        for (TextStyle textStyle : textStyles) {
+            ds.addTextStyle(textStyle);
+        }
         ds.magnification = magnification;
         ds.setCoordinates(point[0], point[1], point[2]);
         ds.rotation = rotation;
@@ -296,16 +300,16 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     /**
      * @return the textStyle
      */
-    public TextStyle getTextStyle() {
-        return textStyle;
+    public EnumSet<TextStyle> getTextStyles() {
+        return textStyles;
     }
 
     /**
      * @param textStyle
      *            the textStyle to set
      */
-    public void setTextStyle(TextStyle textStyle) {
-        this.textStyle = textStyle;
+    public void setTextStyle(EnumSet<TextStyle> textStyles) {
+        this.textStyles = textStyles;
     }
 
     /**
@@ -435,7 +439,7 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
             return false;
         if (!Arrays.equals(text, other.text))
             return false;
-        if (textStyle != other.textStyle)
+        if (!textStyles.equals(other.textStyles))
             return false;
         if (verticalAlignment != other.verticalAlignment)
             return false;
