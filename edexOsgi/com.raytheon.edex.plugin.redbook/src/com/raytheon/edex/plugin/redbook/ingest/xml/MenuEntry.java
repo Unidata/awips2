@@ -38,6 +38,7 @@ import javax.xml.bind.annotation.XmlElements;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 12, 2014    2855    mpduff      Initial creation
+ * Mar 19, 2014    2860    mpduff      Added DataUri.
  * 
  * </pre>
  * 
@@ -82,6 +83,12 @@ public class MenuEntry {
      */
     @XmlAttribute(name = "file")
     protected String file = "bundles/Redbook.xml";
+
+    /**
+     * The data uri value
+     */
+    @XmlElement(name = "dataUri")
+    protected String dataUri;
 
     /**
      * List of MenuEntry items
@@ -205,6 +212,21 @@ public class MenuEntry {
         this.menuEntryList = menuEntryList;
     }
 
+    /**
+     * @return the dataUri
+     */
+    public String getDataUri() {
+        return dataUri;
+    }
+
+    /**
+     * @param dataUri
+     *            the dataUri to set
+     */
+    public void setDataUri(String dataUri) {
+        this.dataUri = dataUri;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -230,6 +252,9 @@ public class MenuEntry {
         }
         if (value != null) {
             sb.append("  Value: ").append(this.value).append(nl);
+        }
+        if (this.dataUri != null) {
+            sb.append("DataURI: ").append(this.dataUri).append(nl);
         }
 
         sb.append("  File:  ").append(this.file).append(nl);
