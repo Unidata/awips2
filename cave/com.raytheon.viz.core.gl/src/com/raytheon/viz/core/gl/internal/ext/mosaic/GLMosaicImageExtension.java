@@ -27,7 +27,6 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.drawables.IImage.Status;
 import com.raytheon.uf.viz.core.drawables.ImagingSupport;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.IMosaicImageExtension;
@@ -40,7 +39,6 @@ import com.raytheon.viz.core.gl.glsl.GLSLStructFactory;
 import com.raytheon.viz.core.gl.glsl.GLShaderProgram;
 import com.raytheon.viz.core.gl.images.AbstractGLColormappedImage;
 import com.raytheon.viz.core.gl.images.AbstractGLImage;
-import com.raytheon.viz.core.gl.images.GLColormappedImage;
 import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
 
 /**
@@ -58,6 +56,8 @@ import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
  * Oct 16, 2013  2333     mschenke    Cleaned up render logic, switched to use 
  *                                    GLOffscreenColormappedImage
  * Nov 20, 2013  2492     bsteffen    Mosaic in image units.
+ * Apr 08, 2014  2950     bsteffen    Always use float for maximum precision 
+ *                                    offscreen so interpolation works.
  * 
  * </pre>
  * 
@@ -70,13 +70,14 @@ public abstract class GLMosaicImageExtension extends
 
     private GLOffscreenColormappedImage writeToImage;
 
+    @Override
     public GLMosaicImage initializeRaster(int[] imageBounds,
             IExtent imageExtent, ColorMapParameters params) throws VizException {
         // Since byte is the most common type of mosaic start with a byte image.
         // It might switch later if needed when images to mosaic are set
         return new GLMosaicImage(target.getExtension(
                 GLOffscreenRenderingExtension.class).constructOffscreenImage(
-                ColorMapDataType.BYTE, imageBounds, params), imageBounds,
+                ColorMapDataType.FLOAT, imageBounds, params), imageBounds,
                 imageExtent, this.getClass());
     }
 
@@ -100,7 +101,7 @@ public abstract class GLMosaicImageExtension extends
                 // Make sure images are staged before we mosaic them
                 ImagingSupport.prepareImages(target, imagesToMosaic);
 
-                writeToImage = getWriteToImage(mosaicImage);
+                writeToImage = mosaicImage.getWrappedImage();
                 if (writeToImage != null) {
                     GLOffscreenRenderingExtension extension = target
                             .getExtension(GLOffscreenRenderingExtension.class);
@@ -148,45 +149,6 @@ public abstract class GLMosaicImageExtension extends
         }
         // Fall through here, no actual rendering will occur
         return null;
-    }
-
-    private GLOffscreenColormappedImage getWriteToImage(
-            GLMosaicImage mosaicImage) throws VizException {
-        ColorMapDataType neededType = null;
-        for (DrawableImage di : mosaicImage.getImagesToMosaic()) {
-            IImage image = di.getImage();
-            if (image.getStatus() != Status.LOADED
-                    && image.getStatus() != Status.STAGED) {
-                continue;
-            }
-            if (image instanceof GLColormappedImage) {
-                GLColormappedImage colorMapImage = (GLColormappedImage) image;
-                ColorMapDataType type = colorMapImage.getColorMapDataType();
-                if (neededType == null) {
-                    neededType = type;
-                } else if (neededType != type) {
-                    // Mosaicing images of different types?
-                    // No Idea how to handle this
-                    return mosaicImage.getWrappedImage();
-                }
-            }
-        }
-
-        if (neededType == null) {
-            return null;
-        }
-
-        GLOffscreenColormappedImage writeTo = mosaicImage.getWrappedImage();
-        if (neededType != null && neededType != writeTo.getColorMapDataType()) {
-            GLOffscreenRenderingExtension offscreenExt = target
-                    .getExtension(GLOffscreenRenderingExtension.class);
-            int[] dimensions = { writeTo.getWidth(), writeTo.getHeight() };
-            writeTo.dispose();
-            writeTo = offscreenExt.constructOffscreenImage(neededType,
-                    dimensions, writeTo.getColorMapParameters());
-            mosaicImage.setWrappedImage(writeTo);
-        }
-        return writeTo;
     }
 
     /*
