@@ -27,6 +27,7 @@ import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IView;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
@@ -49,6 +50,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                    parameters, disable colormap interpolation
  *                                    by default.
  * Jan 14, 2014  2313     bsteffen    Add method to draw images.
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * 
  * </pre>
@@ -76,7 +78,9 @@ public class GeneralCanvasRenderingExtension extends
             mapString.magnification = screenString.magnification;
             mapString.rotation = screenString.rotation;
             mapString.shadowColor = screenString.shadowColor;
-            mapString.textStyle = screenString.textStyle;
+            for (TextStyle textStyle : screenString.getTextStyles()) {
+                mapString.addTextStyle(textStyle);
+            }
             mapString.verticallAlignment = screenString.verticallAlignment;
             mapString.basics.alpha = screenString.basics.alpha;
             mapString.basics.xOrColors = screenString.basics.xOrColors;
