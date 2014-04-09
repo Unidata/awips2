@@ -18,8 +18,10 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.dataplugin.qpf;bundle-version="1.0.0",
  com.raytheon.uf.viz.productbrowser;bundle-version="1.12.1153",
  com.raytheon.uf.common.style;bundle-version="1.0.0",
- com.raytheon.uf.common.numeric;bundle-version="1.14.0"
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.viz.datacube
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.qpf
-Import-Package: com.raytheon.uf.common.colormap.prefs
+Import-Package: com.raytheon.uf.common.colormap.prefs,
+ com.raytheon.uf.common.inventory.exception

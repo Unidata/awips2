@@ -20,3 +20,5 @@ Bundle-ActivationPolicy: lazy
 Eclipse-BuddyPolicy: registered
 Export-Package: com.raytheon.uf.viz.sounding,
  com.raytheon.uf.viz.sounding.providers
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.viz.datacube
