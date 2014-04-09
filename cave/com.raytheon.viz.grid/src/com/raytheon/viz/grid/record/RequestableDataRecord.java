@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.Request;
@@ -31,7 +33,6 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
 import com.raytheon.viz.grid.util.TiltRequest;
@@ -98,11 +99,12 @@ public class RequestableDataRecord extends GridRecord {
         this.requester = pdo.requester;
     }
 
-    public IDataRecord[] getDataRecord() throws VizException {
+    public IDataRecord[] getDataRecord() throws DataCubeException {
         return getDataRecord(Request.ALL);
     }
 
-    public IDataRecord[] getDataRecord(Request request) throws VizException {
+    public IDataRecord[] getDataRecord(Request request)
+            throws DataCubeException {
         Object obj = null;
         if (request instanceof TiltRequest) {
             obj = requester.getDataValue(new TiltCenterPoint(
