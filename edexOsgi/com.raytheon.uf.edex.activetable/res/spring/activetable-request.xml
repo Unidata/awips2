@@ -3,6 +3,11 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <bean id="clearTableHandler" class="com.raytheon.uf.edex.activetable.handler.ClearPracticeVTECTableHandler"/>
+    <bean factory-bean="handlerRegistry" factory-method="register">
+        <constructor-arg value="com.raytheon.uf.common.activetable.request.ClearPracticeVTECTableRequest"/>
+        <constructor-arg ref="clearTableHandler"/>
+    </bean>
 	<bean id="getActiveTableHandler" class="com.raytheon.uf.edex.activetable.GetActiveTableHandler"/>
   	<bean factory-bean="handlerRegistry" factory-method="register">
   	  <constructor-arg value="com.raytheon.uf.common.activetable.GetActiveTableRequest"/>
