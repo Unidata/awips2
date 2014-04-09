@@ -118,6 +118,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 07, 2014 2848       bclement    removed join*Venue methods, now only creates venue objects
  *                                      changed session map to a concurrent hash map
  * Apr 07, 2014 2785       mpduff      Changed the order of startup, sets up listeners before actually connecting.
+ * Apr 09, 2014 2785       mpduff      Throw error when not connected and the connection should exist.
  * 
  * </pre>
  * 
@@ -207,10 +208,7 @@ public class CollaborationConnection implements IEventPublisher {
         this.user = new UserId(connectionData.getUserName(),
                 connection.getServiceName());
 
-        setupConnectionListener();
         setupInternalConnectionListeners();
-        setupInternalVenueInvitationListener();
-        setupP2PComm();
         getPeerToPeerSession();
 
         instanceMap.put(connectionData, this);
@@ -525,13 +523,18 @@ public class CollaborationConnection implements IEventPublisher {
         return sessions.get(sessionId);
     }
 
-    private void setupP2PComm() {
-        PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
-        connection.addPacketListener(helper,
-                new PacketTypeFilter(Message.class));
+    private void setupP2PComm() throws CollaborationException {
+        if (isConnected()) {
+            PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
+            connection.addPacketListener(helper, new PacketTypeFilter(
+                    Message.class));
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
+        }
     }
 
-    private void setupConnectionListener() {
+    private void setupConnectionListener() throws CollaborationException {
         if (isConnected()) {
             connection.addConnectionListener(new ConnectionListener() {
 
@@ -591,6 +594,9 @@ public class CollaborationConnection implements IEventPublisher {
                     eventBus.post(event);
                 }
             });
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
         }
     }
 
@@ -599,9 +605,12 @@ public class CollaborationConnection implements IEventPublisher {
     // ***************************
 
     /**
+     * Set up the invitation listener.
      * 
+     * @throws CollaborationException
      */
-    private void setupInternalVenueInvitationListener() {
+    private void setupInternalVenueInvitationListener()
+            throws CollaborationException {
         if (isConnected()) {
             MultiUserChat.addInvitationListener(connection,
                     new InvitationListener() {
@@ -633,6 +642,9 @@ public class CollaborationConnection implements IEventPublisher {
                                     message);
                         }
                     });
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
         }
     }
 
@@ -777,5 +789,10 @@ public class CollaborationConnection implements IEventPublisher {
                 connectionData.getPassword());
 
         authManager = new ClientAuthManager(getXmppConnection());
+
+        // Finish setup
+        setupInternalVenueInvitationListener();
+        setupP2PComm();
+        setupConnectionListener();
     }
 }
