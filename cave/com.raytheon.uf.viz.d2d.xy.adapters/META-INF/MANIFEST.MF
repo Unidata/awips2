@@ -24,8 +24,11 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  com.raytheon.uf.common.style,
  com.raytheon.uf.common.comm,
  javax.measure,
- org.eclipse.swt;bundle-version="3.8.0"
-Import-Package: com.raytheon.viz.core.map
+ org.eclipse.swt;bundle-version="3.8.0",
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.viz.datacube,
+ com.raytheon.viz.core.map
 Export-Package: com.raytheon.uf.viz.d2d.xy.adapters.crosssection,
  com.raytheon.uf.viz.d2d.xy.adapters.timeseries,
  com.raytheon.uf.viz.d2d.xy.adapters.varheight

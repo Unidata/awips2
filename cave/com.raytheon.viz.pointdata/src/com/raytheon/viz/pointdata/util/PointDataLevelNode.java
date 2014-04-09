@@ -22,14 +22,14 @@ package com.raytheon.viz.pointdata.util;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 
 /**
  * A BaseDataNode for PointData types so that they can be used within derived
@@ -80,7 +80,7 @@ public class PointDataLevelNode extends AbstractBaseDataNode {
     public Set<AbstractRequestableData> getData(
             Map<String, RequestConstraint> orignalConstraints,
             Set<TimeAndSpace> availability, Object response)
-            throws VizException {
+            throws DataCubeException {
         return null;
     }
 
