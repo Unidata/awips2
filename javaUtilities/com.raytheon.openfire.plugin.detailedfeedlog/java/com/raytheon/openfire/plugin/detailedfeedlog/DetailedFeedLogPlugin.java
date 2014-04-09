@@ -70,6 +70,9 @@ import com.raytheon.openfire.plugin.detailedfeedlog.listener.DetailedFeedLogEven
  *                                     in a 'Rooms' subdirectory so that readLogInfo()
  *                                     only parses room logs. Add finally block to close
  *                                     the buffered readers.
+ * Apr 07, 2014 2937       bgonzale    Use new LogEntry toString and fromString methods
+ *                                     and changed error handling to log each bad line.
+ *                                     Create new DateFormatter for the purge thread.
  * 
  * </pre>
  * 
@@ -117,8 +120,9 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
 
     private static final String ROOM_DIR = "Rooms";
 
-    private DateFormat dateFormat = new SimpleDateFormat(
-            "MM/dd/yyyy h:mm a");
+    private static final String DATE_FORMAT_STR = "MM/dd/yyyy h:mm a";
+
+    private DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_STR);
 
     private File ROOM_LOG_DIR;
 
@@ -172,7 +176,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
 
         // flush all the current information out of log and write it to the feed
         // log file
-        writeToFile();
+        writeToFile(dateFormat);
         entries.clear();
 
         // cancel the task so we aren't trying to purge when there is no plugin
@@ -187,30 +191,27 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
         for (File file : files) {
             BufferedReader bReader = null;
             try {
-                logger.info("Reading " + file.getName());
                 FileReader reader = new FileReader(file);
                 bReader = new BufferedReader(reader);
                 while (bReader.ready()) {
                     String line = bReader.readLine();
-                    String[] splitLine = line.split("\\|");
-                    String dateString = splitLine[0];
-                    // replace the first parentheses and the second one with
-                    // nothing, so the date can be formatted
-                    dateString = dateString.replaceAll("\\(|\\)", "");
-                    Date date = dateFormat.parse(dateString);
-                    String user = splitLine[1];
-                    String message = splitLine[3];
-                    addToMemoryLog(date, user, message, file.getName()
-                            .replaceAll(".log", ""));
+                    try {
+                        LogEntry entry = LogEntry.fromString(line, dateFormat);
+                        addToMemoryLog(entry,
+                                file.getName()
+                                .replaceAll(".log", ""));
+                    } catch (ParseException e) {
+                        logger.error("Failed in log " + file.getName()
+                                + " to parse date from line: " + line, e);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        logger.info("Failed in log " + file.getName()
+                                + " to read line:" + line, e);
+                    }
                 }
             } catch (FileNotFoundException e) {
                 logger.error("Unable to find " + file.getName(), e);
             } catch (IOException e) {
                 logger.error("Unable to read from " + file.getName(), e);
-            } catch (ParseException e) {
-                logger.error("Unable to parse date", e);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                logger.info("Unable to read " + file.getName(), e);
             } finally {
                 if (bReader != null) {
                     try {
@@ -244,7 +245,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
         String site = getSiteFromPresence(user);
 
         // format it with the site so the site can be sent with the packet later
-        log(user.getUsername() + "|" + site, message.getBody(), room);
+        log(user.getUsername(), site, message.getBody(), room);
     }
 
     /**
@@ -254,23 +255,22 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
      *            - fqname
      * @param message
      */
-    private static void log(String user, String message, String room) {
-        logger.info("Logging : " + user + message);
+    private static void log(String user, String site, String message,
+            String room) {
+        logger.info("Logging : " + user + " \"" + message + "\"");
         Date date = new Date();
-        addToMemoryLog(date, user, message, room);
+        LogEntry entry = new LogEntry(date, site, user, message);
+        addToMemoryLog(entry, room);
     }
 
     /**
      * Add the log message to memory
      * 
-     * @param date
-     * @param user
-     * @param message
+     * @param entry
      * @param room
      */
-    private static void addToMemoryLog(Date date, String user, String message,
+    private static void addToMemoryLog(LogEntry entry,
             String room) {
-        LogEntry entry = new LogEntry(date, user, message);
         Queue<LogEntry> queue = null;
         if (entries.containsKey(room)) {
             queue = entries.get(room);
@@ -314,7 +314,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
     /**
      * Write out the current in memory log to a file
      */
-    private void writeToFile() {
+    private void writeToFile(DateFormat dateFormat) {
         try {
             // writes out each log file for each room, all active and permanent,
             // and for rooms that the purge has not removed all logs yet
@@ -323,9 +323,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
                 FileWriter writer = new FileWriter(file);
 
                 for (LogEntry entry : entries.get(room)) {
-                    writer.write("(" + dateFormat.format(entry.getDate()) + ")");
-                    writer.write("|" + entry.getUsername() + "|");
-                    writer.write(entry.getMessage());
+                    writer.write(entry.toString(dateFormat));
                     writer.write("\n");
                 }
                 writer.close();
@@ -356,6 +354,9 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
                         Date latestTimeToKeep = new Date(
                                 System.currentTimeMillis()
                                         - (purgeLogTime * SECONDS_TO_MILLIS));
+                        // DateFormat for this thread
+                        DateFormat dateFormat = new SimpleDateFormat(
+                                "MM/dd/yyyy h:mm a");
                         String dateText = dateFormat.format(latestTimeToKeep);
                         logger.info("Purging the log of anything before "
                                 + dateText);
@@ -374,7 +375,7 @@ public class DetailedFeedLogPlugin implements Plugin, PropertyEventListener {
                         }
 
                         // write to file now since we have possibly purged items
-                        writeToFile();
+                        writeToFile(dateFormat);
                     }
                 });
                 thread.run();
