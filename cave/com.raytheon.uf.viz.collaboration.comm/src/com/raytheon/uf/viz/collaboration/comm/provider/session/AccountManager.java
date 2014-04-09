@@ -22,31 +22,19 @@ package com.raytheon.uf.viz.collaboration.comm.provider.session;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster.SubscriptionMode;
-import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
-import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
-import com.raytheon.uf.viz.collaboration.comm.identity.roster.SubscriptionResponse;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserPresenceChangedEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
@@ -71,6 +59,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Jan 31, 2014 2700       bclement    fixed subscribe back after accepting subscription
  * Feb 12, 2014 2797       bclement    added protective copy to sendPresence
  * Feb 13, 2014 2755       bclement    added user input for which group to add contact to
+ * Apr 07, 2014 2785       mpduff      Moved PacketListener implementation to its own class
  * 
  * </pre>
  * 
@@ -80,139 +69,28 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 public class AccountManager implements IAccountManager {
 
-    private final IUFStatusHandler log = UFStatus.getHandler(this.getClass());
-
-    /**
-     * Listens for subscription events including subscription requests. If the
-     * subscription responder is null, the default action is to accept
-     * subscription requests.
-     */
-    private PacketListener subscriptionEventListener = new PacketListener() {
-        
-        @Override
-        public void processPacket(Packet packet) {
-            if ( packet instanceof Presence){
-                Presence pres = (Presence) packet;
-                Type type = pres.getType();
-                if (type == null) {
-                    return;
-                }
-                UserId fromId = IDConverter.convertFrom(pres.getFrom());
-                switch (type) {
-                case subscribe:
-                    SubscriptionResponse response;
-                    if (responder != null) {
-                        response = responder.handleSubscribeRequest(fromId);
-                    } else {
-                        response = new SubscriptionResponse(true);
-                    }
-                    handleSubRequest(fromId, response);
-                    break;
-                case subscribed:
-                    if (responder != null) {
-                        responder.handleSubscribed(fromId);
-                    }
-                    handleSubscribed(fromId);
-                    break;
-                case unsubscribed:
-                    if (responder != null) {
-                        responder.handleUnsubscribed(fromId);
-                    }
-                    handleUnsubscribed(fromId);
-                    break;
-                default:
-                    // do nothing
-                    break;
-                }
-            }
-        }
-
-        /**
-         * notify UI that someone subscribed to user
-         * 
-         * @param fromID
-         */
-        private void handleSubscribed(UserId fromID) {
-            ContactsManager cm = sessionManager.getContactsManager();
-            RosterEntry entry = cm.getRosterEntry((UserId) fromID);
-            IRosterChangeEvent event = new RosterChangeEvent(
-                    RosterChangeType.ADD, entry);
-            sessionManager.postEvent(event);
-        }
-
-        /**
-         * notify UI that someone unsubscribed to user
-         * 
-         * @param fromID
-         */
-        private void handleUnsubscribed(UserId fromID) {
-            ContactsManager cm = sessionManager.getContactsManager();
-            RosterEntry entry = cm.getRosterEntry((UserId) fromID);
-            if (entry == null) {
-                return;
-            }
-            IRosterChangeEvent event = new RosterChangeEvent(
-                    RosterChangeType.DELETE, entry);
-            sessionManager.postEvent(event);
-        }
-
-        /**
-         * process subscription request
-         * 
-         * @param fromId
-         */
-        private void handleSubRequest(UserId fromId,
-                SubscriptionResponse response) {
-            Presence.Type subscribedType;
-            ContactsManager cm = sessionManager.getContactsManager();
-            boolean addToRoster = false;
-            if (response.isAccepted()) {
-                subscribedType = Presence.Type.subscribed;
-                RosterEntry entry = cm.getRosterEntry(fromId);
-                if (entry == null) {
-                    addToRoster = true;
-                }
-            } else {
-                subscribedType = Presence.Type.unsubscribed;
-            }
-
-            Presence presence = new Presence(subscribedType);
-            try {
-                sendPresence(fromId, presence);
-                if (addToRoster) {
-                    if (response.addToGroup()) {
-                        cm.addToGroup(response.getGroup(), fromId);
-                    } else {
-                        cm.addToRoster(fromId);
-                    }
-
-                }
-            } catch (CollaborationException e) {
-                AccountManager.this.log.error("Unable to send presence", e);
-            }
-        }
-
-    };
-
     private ISubscriptionResponder responder;
 
     private CollaborationConnection sessionManager = null;
 
-    private org.jivesoftware.smack.AccountManager smackManager;
+    private final org.jivesoftware.smack.AccountManager smackManager;
+
+    private final SubscriptionPacketListener subscriptionEventListener;
 
     /**
      * 
      * @param adapter
      */
-    AccountManager(
-            CollaborationConnection manager) {
+    AccountManager(CollaborationConnection manager) {
         sessionManager = manager;
+        subscriptionEventListener = new SubscriptionPacketListener(
+                sessionManager);
         XMPPConnection xmppConnection = manager.getXmppConnection();
-        smackManager = new org.jivesoftware.smack.AccountManager(
-                xmppConnection);
+        smackManager = new org.jivesoftware.smack.AccountManager(xmppConnection);
         xmppConnection.getRoster().setSubscriptionMode(SubscriptionMode.manual);
-        sessionManager.getXmppConnection().addPacketListener(subscriptionEventListener,
-                new PacketTypeFilter(Presence.class));
+        sessionManager.getXmppConnection()
+                .addPacketListener(subscriptionEventListener,
+                        new PacketTypeFilter(Presence.class));
     }
 
     /*
@@ -232,6 +110,7 @@ public class AccountManager implements IAccountManager {
     @Override
     public void setSubscriptionRequestResponder(ISubscriptionResponder responder) {
         this.responder = responder;
+        subscriptionEventListener.setResponder(responder);
     }
 
     /**
@@ -241,6 +120,7 @@ public class AccountManager implements IAccountManager {
     @Override
     public void removeSubscriptionRequestResponder() {
         responder = null;
+        subscriptionEventListener.setResponder(responder);
     }
 
     /**
@@ -340,11 +220,11 @@ public class AccountManager implements IAccountManager {
      * @param userPresence
      * @throws CollaborationException
      */
+    @Override
     public void sendPresence(UserId toId, Presence userPresence)
             throws CollaborationException {
         userPresence.setFrom(sessionManager.getUser().getFQName());
         userPresence.setTo(toId.getNormalizedId());
         sessionManager.getXmppConnection().sendPacket(userPresence);
     }
-
 }
