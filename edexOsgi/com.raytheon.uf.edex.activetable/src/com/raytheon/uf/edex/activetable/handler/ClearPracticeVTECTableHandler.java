@@ -17,57 +17,51 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.edex.plugin.gfe.server.handler;
+package com.raytheon.uf.edex.activetable.handler;
 
-/**
- * TODO Add Description
- * 
- * <pre>
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 23, 2010            wkwock     Initial creation
- *
- * </pre>
- *
- * @author wkwock
- * @version 1.0	
- */
-
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest;
-import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
+import com.raytheon.uf.common.activetable.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.activetable.ActiveTable;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 
+/**
+ * Request handler for clearing the practice VTEC active table.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 23, 2010            wkwock      Initial creation
+ * Apr 09, 2014  #3004     dgilling    Move to activetable plugin, remove GFE
+ *                                     dependencies.
+ * 
+ * </pre>
+ * 
+ * @author wkwock
+ * @version 1.0
+ */
 public class ClearPracticeVTECTableHandler implements
         IRequestHandler<ClearPracticeVTECTableRequest> {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ClearPracticeVTECTableHandler.class);
+
     @Override
-    public ServerResponse<List<String>> handleRequest(
-            ClearPracticeVTECTableRequest request) throws Exception {
-
-        ServerResponse<List<String>> sr = new ServerResponse<List<String>>();
-        Log logger = LogFactory.getLog(getClass());
-
+    public Boolean handleRequest(ClearPracticeVTECTableRequest request)
+            throws Exception {
         try {
-            ActiveTable.clearPracticeTable(request.getRequestedSiteId(),
-                    request.getMode());
-
+            ActiveTable.clearPracticeTable(request.getSiteID());
         } catch (DataAccessLayerException e) {
-            logger.error("Error failed to clear practice VTEC table", e);
-            sr.addMessage("Error failed to clear practice VTEC table");
+            statusHandler.error("Error failed to clear practice VTEC table", e);
+            throw new Exception("Unable to clear practice VTEC table.", e);
         }
 
-        logger
+        statusHandler
                 .info("Practice VTEC table (practice_activetable in DB) has been cleared.");
-        return sr;
+        return Boolean.TRUE;
     }
 }
