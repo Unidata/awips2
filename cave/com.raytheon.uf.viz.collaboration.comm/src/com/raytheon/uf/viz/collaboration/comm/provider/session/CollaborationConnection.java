@@ -37,8 +37,6 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Mode;
-import org.jivesoftware.smack.packet.Presence.Type;
 import org.jivesoftware.smack.packet.StreamError;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.ProviderManager;
@@ -119,6 +117,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Feb 28, 2014 2756       bclement    added authManager
  * Mar 07, 2014 2848       bclement    removed join*Venue methods, now only creates venue objects
  *                                      changed session map to a concurrent hash map
+ * Apr 07, 2014 2785       mpduff      Changed the order of startup, sets up listeners before actually connecting.
  * 
  * </pre>
  * 
@@ -144,9 +143,9 @@ public class CollaborationConnection implements IEventPublisher {
 
     private static Map<CollaborationConnectionData, CollaborationConnection> instanceMap = new HashMap<CollaborationConnectionData, CollaborationConnection>();
 
-    private final Map<String, ISession> sessions;
+    private Map<String, ISession> sessions;
 
-    private final UserId user;
+    private UserId user;
 
     private Presence userPresence;
 
@@ -154,17 +153,17 @@ public class CollaborationConnection implements IEventPublisher {
 
     private IAccountManager accountManager = null;
 
-    private final EventBus eventBus;
+    private EventBus eventBus;
 
-    private final ContactsManager contactsMgr;
+    private ContactsManager contactsMgr;
 
     private final CollaborationConnectionData connectionData;
 
     private XMPPConnection connection;
 
-    private final ClientAuthManager authManager;
+    private ClientAuthManager authManager;
 
-    public static boolean COMPRESS = true;
+    private static boolean COMPRESS = true;
 
     static {
         try {
@@ -181,15 +180,13 @@ public class CollaborationConnection implements IEventPublisher {
     private CollaborationConnection(CollaborationConnectionData connectionData)
             throws CollaborationException {
         this.connectionData = connectionData;
-        String password = connectionData.getPassword();
-        Mode mode = connectionData.getStatus();
-        if (mode == null) {
-            mode = Mode.available;
-        }
-        Presence initialPresence = new Presence(Type.available,
-                connectionData.getMessage(), 0, mode);
-        Tools.setProperties(initialPresence, connectionData.getAttributes());
+        init();
+    }
 
+    /**
+     * Initialize this object.
+     */
+    private void init() throws CollaborationException {
         eventBus = new EventBus();
         sessions = new ConcurrentHashMap<String, ISession>();
 
@@ -205,28 +202,16 @@ public class CollaborationConnection implements IEventPublisher {
         conConfig.setCompressionEnabled(COMPRESS);
 
         connection = new XMPPConnection(conConfig);
-
-        connectInternal(connectionData.getUserName(), password);
+        accountManager = new AccountManager(this);
 
         this.user = new UserId(connectionData.getUserName(),
                 connection.getServiceName());
 
         setupConnectionListener();
-        setupAccountManager();
         setupInternalConnectionListeners();
         setupInternalVenueInvitationListener();
         setupP2PComm();
         getPeerToPeerSession();
-
-        authManager = new ClientAuthManager(connection);
-
-        userPresence = initialPresence;
-        if (accountManager != null && initialPresence != null) {
-            accountManager.sendPresence(initialPresence);
-        }
-
-        contactsMgr = new ContactsManager(this, connection);
-        this.registerEventHandler(contactsMgr);
 
         instanceMap.put(connectionData, this);
         if (instance == null) {
@@ -278,7 +263,6 @@ public class CollaborationConnection implements IEventPublisher {
 
     /**
      * @return
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#getUser()
      */
     public UserId getUser() {
         return user;
@@ -294,21 +278,10 @@ public class CollaborationConnection implements IEventPublisher {
 
     /**
      * 
-     * @return
+     * @param presence
      */
     public void setPresence(Presence presence) {
         userPresence = presence;
-    }
-
-    /**
-     * 
-     */
-    private void setupAccountManager() {
-        if (accountManager == null) {
-            if (isConnected()) {
-                accountManager = new AccountManager(this);
-            }
-        }
     }
 
     /**
@@ -317,9 +290,6 @@ public class CollaborationConnection implements IEventPublisher {
      * @return The account manager for this connection.
      */
     public IAccountManager getAccountManager() {
-        if (accountManager == null) {
-            setupAccountManager();
-        }
         return accountManager;
     }
 
@@ -374,6 +344,7 @@ public class CollaborationConnection implements IEventPublisher {
      * Get the PeerToPeerChat session instance.
      * 
      * @return
+     * @throws CollaborationException
      */
     public ISession getPeerToPeerSession() throws CollaborationException {
         if (chatInstance == null) {
@@ -427,7 +398,6 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      * @param data
      * @return
-     * @throws CollaborationException
      */
     public SharedDisplaySession createCollaborationVenue(CreateSessionData data) {
         SharedDisplaySession session = new SharedDisplaySession(eventBus, this,
@@ -445,7 +415,6 @@ public class CollaborationConnection implements IEventPublisher {
      * @param venueName
      * @param handle
      * @return
-     * @throws CollaborationException
      */
     public VenueSession createTextOnlyVenue(String venueName, String handle) {
         return createTextOnlyVenue(new CreateSessionData(venueName, handle));
@@ -557,11 +526,9 @@ public class CollaborationConnection implements IEventPublisher {
     }
 
     private void setupP2PComm() {
-        if (isConnected()) {
-            PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
-            connection.addPacketListener(helper, new PacketTypeFilter(
-                    Message.class));
-        }
+        PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
+        connection.addPacketListener(helper,
+                new PacketTypeFilter(Message.class));
     }
 
     private void setupConnectionListener() {
@@ -750,14 +717,15 @@ public class CollaborationConnection implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public static CollaborationConnection connect(
+    public static CollaborationConnection createConnection(
             CollaborationConnectionData userData) throws CollaborationException {
         if (instance != null) {
             throw new CollaborationException("Already connected");
-        } else {
-            instance = new CollaborationConnection(userData);
-            return getConnection();
         }
+
+        instance = new CollaborationConnection(userData);
+
+        return getConnection();
     }
 
     /**
@@ -795,4 +763,19 @@ public class CollaborationConnection implements IEventPublisher {
         return authManager;
     }
 
+    /**
+     * Connect to the XMPP server. This needs to be called after the
+     * CollaborationConnection has been created and initialized.
+     * 
+     * @throws CollaborationException
+     */
+    public void connect() throws CollaborationException {
+        contactsMgr = new ContactsManager(this, this.getXmppConnection());
+        registerEventHandler(instance.getContactsManager());
+
+        connectInternal(connectionData.getUserName(),
+                connectionData.getPassword());
+
+        authManager = new ClientAuthManager(getXmppConnection());
+    }
 }
