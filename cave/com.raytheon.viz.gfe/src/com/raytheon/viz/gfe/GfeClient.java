@@ -58,6 +58,10 @@ import com.raytheon.viz.ui.personalities.awips.AbstractCAVEComponent;
  *                                      now that they're no longer in 
  *                                      localization store.
  * Dec 04, 2013  #2588     dgilling     Add thread to force shutdown.
+ * Mar 25, 2014  #2963     randerso     Removed obsolete python_include support 
+ *                                      which was adding an empty string into the 
+ *                                      python path causing python to look in user's
+ *                                      current default directory for modules.
  * 
  * </pre>
  * 
@@ -104,11 +108,6 @@ public class GfeClient extends AbstractCAVEComponent {
                         FileUtil.join("python", "pyViz")), null)).getPath())
                 .getPath();
 
-        String pyInclude = System.getProperty("python_include");
-        if (pyInclude == null) {
-            pyInclude = "";
-        }
-
         String utilityDir = new File(FileLocator.resolve(
                 FileLocator.find(Activator.getDefault().getBundle(), new Path(
                         FileUtil.join("python", "utility")), null)).getPath())
@@ -116,8 +115,8 @@ public class GfeClient extends AbstractCAVEComponent {
 
         boolean includeUser = (!VizApp.getWsId().getUserName().equals("SITE"));
 
-        String includePath = PyUtil.buildJepIncludePath(true, pyInclude,
-                utilityDir, GfeCavePyIncludeUtil.getCommonPythonIncludePath(),
+        String includePath = PyUtil.buildJepIncludePath(true, utilityDir,
+                GfeCavePyIncludeUtil.getCommonPythonIncludePath(),
                 GfeCavePyIncludeUtil.getCommonGfeIncludePath(),
                 GfeCavePyIncludeUtil.getConfigIncludePath(includeUser),
                 pyVizDir,
