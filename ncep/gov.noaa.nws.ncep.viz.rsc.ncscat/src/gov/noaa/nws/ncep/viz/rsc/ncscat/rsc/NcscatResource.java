@@ -28,6 +28,7 @@ import javax.measure.unit.Unit;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -35,7 +36,6 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.PixelExtent;

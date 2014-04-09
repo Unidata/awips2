@@ -29,14 +29,23 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.common.derivparam.tree.ParameterNode;
-import com.raytheon.uf.common.derivparam.tree.SourceNode;
+import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod.MethodType;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -44,14 +53,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
  * Abstract implementation of a point data inventory that can be used by
@@ -194,7 +195,7 @@ public abstract class AbstractPointDataInventory extends AbstractInventory {
 
     @Override
     public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query)
-            throws VizException {
+            throws DataCubeException {
         return null;
     }
 
