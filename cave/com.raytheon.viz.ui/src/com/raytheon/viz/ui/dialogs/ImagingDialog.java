@@ -39,6 +39,7 @@ import org.eclipse.ui.handlers.IHandlerService;
 
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -86,8 +87,9 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 10, 2011  7842     bkowal      set caveStyle for dialog to INDEPENDENT
  *                                    SHELL
  * Oct 17, 2012  1229     rferrel     Make dialog non-blocking.
- * Jan 15, 2015  2313     bsteffen    Disable color map selection when
+ * Jan 15, 2014  2313     bsteffen    Disable color map selection when
  *                                    ColorMapCapability is not present.
+ * Apr 08, 2014  2905     bsteffen    Add option to interpolate colors.
  * 
  * </pre>
  * 
@@ -145,9 +147,14 @@ public class ImagingDialog extends CaveSWTDialog implements
     private Label alphaText;
 
     /**
-     * Interpolation check box control.
+     * Interpolate image check box control.
      */
-    private Button interpolationChk;
+    private Button interpolateImageCheckbox;
+
+    /**
+     * Interpolate colors check box control.
+     */
+    private Button interpolateColorsCheckbox;
 
     /**
      * Interpolation check box control.
@@ -377,10 +384,10 @@ public class ImagingDialog extends CaveSWTDialog implements
                 true, 3, 1));
         checkBoxComp.setLayout(new GridLayout(2, false));
 
-        interpolationChk = new Button(checkBoxComp, SWT.CHECK);
-        interpolationChk.setText("Interpolate");
+        interpolateImageCheckbox = new Button(checkBoxComp, SWT.CHECK);
+        interpolateImageCheckbox.setText("Interpolate Image");
         GridData gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
-        interpolationChk.setLayoutData(gd);
+        interpolateImageCheckbox.setLayoutData(gd);
 
         combineNextImage = new Button(checkBoxComp, SWT.CHECK);
         combineNextImage.setText("Combine Next Image Load");
@@ -405,6 +412,11 @@ public class ImagingDialog extends CaveSWTDialog implements
                 refreshEditor();
             }
         });
+
+        interpolateColorsCheckbox = new Button(checkBoxComp, SWT.CHECK);
+        interpolateColorsCheckbox.setText("Interpolate Colors");
+        interpolateColorsCheckbox.setLayoutData(new GridData(SWT.LEFT,
+                SWT.CENTER, true, true));
 
         ImageCombiner.addListener(combineNextImageListener);
 
@@ -453,20 +465,49 @@ public class ImagingDialog extends CaveSWTDialog implements
 
         });
 
-        interpolationChk.addSelectionListener(new SelectionAdapter() {
+        interpolateImageCheckbox.addSelectionListener(new SelectionAdapter() {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
                 for (AbstractVizResource<?, ?> rsc : getResourcesToEdit()) {
                     ImagingCapability imgCap = rsc
                             .getCapability(ImagingCapability.class);
-                    imgCap.setInterpolationState(interpolationChk
+                    imgCap.setInterpolationState(interpolateImageCheckbox
                             .getSelection());
                 }
                 refreshEditor();
             }
 
         });
+
+        interpolateColorsCheckbox.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                setInterpolatedColors(getResourcesToEdit());
+                refreshEditor();
+            }
+
+        });
+    }
+
+    protected void setInterpolatedColors(
+            List<AbstractVizResource<?, ?>> resources) {
+        for (AbstractVizResource<?, ?> rsc : resources) {
+            ColorMapCapability cmapCap = rsc
+                    .getCapability(ColorMapCapability.class);
+            ColorMapParameters parameters = cmapCap.getColorMapParameters();
+            if (parameters != null) {
+                parameters.setInterpolate(interpolateColorsCheckbox
+                        .getSelection());
+            }
+            if (rsc.hasCapability(BlendableCapability.class)) {
+                ResourceList subList = rsc.getCapability(
+                        BlendableCapability.class).getResourceList();
+                setInterpolatedColors(subList
+                        .getResourcesByType(AbstractVizResource.class));
+            }
+        }
     }
 
     private void initializeBottomControls(Composite parent) {
@@ -709,7 +750,7 @@ public class ImagingDialog extends CaveSWTDialog implements
             topColormapComp.getCMapButton().setEnabled(true);
             brightnessScale.setEnabled(true);
             contrastScale.setEnabled(true);
-            interpolationChk.setEnabled(true);
+            interpolateImageCheckbox.setEnabled(true);
 
             String topResourceName = topResource.getName();
             if (editables.size() > 1) {
@@ -746,14 +787,19 @@ public class ImagingDialog extends CaveSWTDialog implements
                 topColormapComp.getCMapButton().setText(currentCMap);
 
                 topColorMapButton.setText("Edit " + topResourceName);
+                interpolateColorsCheckbox.setEnabled(true);
+                interpolateColorsCheckbox.setSelection(cmcap
+                        .getColorMapParameters().isInterpolate());
             } else {
                 topColorMapButton.setText(topResourceName
                         + " is not color mapped.");
                 topColormapComp.getCMapButton().setText("Not Selected");
                 topColorMapButton.setEnabled(false);
                 topColormapComp.getCMapButton().setEnabled(false);
-                interpolationChk.setEnabled(false);
-                interpolationChk.setSelection(false);
+                interpolateImageCheckbox.setEnabled(false);
+                interpolateImageCheckbox.setSelection(false);
+                interpolateColorsCheckbox.setEnabled(false);
+                interpolateColorsCheckbox.setSelection(false);
             }
             ImagingCapability imgCap = topResource
                     .getCapability(ImagingCapability.class);
@@ -766,7 +812,7 @@ public class ImagingDialog extends CaveSWTDialog implements
 
             contrastText.setText(contrastScale.getSelection() + "%");
 
-            interpolationChk.setSelection(imgCap.isInterpolationState());
+            interpolateImageCheckbox.setSelection(imgCap.isInterpolationState());
         } else {
             topColorMapButton.setText("Top image is not displayed.");
             topColormapComp.getCMapButton().setText("Not Selected");
@@ -774,8 +820,10 @@ public class ImagingDialog extends CaveSWTDialog implements
             topColormapComp.getCMapButton().setEnabled(false);
             brightnessScale.setEnabled(false);
             contrastScale.setEnabled(false);
-            interpolationChk.setEnabled(false);
-            interpolationChk.setSelection(false);
+            interpolateImageCheckbox.setEnabled(false);
+            interpolateImageCheckbox.setSelection(false);
+            interpolateColorsCheckbox.setEnabled(false);
+            interpolateColorsCheckbox.setSelection(false);
         }
 
         // Setup blended alpha
@@ -888,7 +936,7 @@ public class ImagingDialog extends CaveSWTDialog implements
                 ((GridData) alphaLabel.getLayoutData()).exclude = true;
             }
 
-            interpolationChk.setSelection(imgCap.isInterpolationState());
+            interpolateImageCheckbox.setSelection(imgCap.isInterpolationState());
         } else {
             brightnessText.setVisible(false);
             contrastText.setVisible(false);
