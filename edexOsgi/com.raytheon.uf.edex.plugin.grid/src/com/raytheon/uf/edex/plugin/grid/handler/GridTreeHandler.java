@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.raytheon.uf.common.inventory.tree.DataTree;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
