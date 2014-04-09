@@ -191,7 +191,7 @@
          install-size="0"
          version="1.1.1"
          fragment="true"/>
-         
+
    <plugin
          id="javax.media.opengl.win64"
          os="win32"
@@ -229,6 +229,13 @@
 
    <plugin
          id="org.eclipse.emf.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.datacube"
          download-size="0"
          install-size="0"
          version="0.0.0"
