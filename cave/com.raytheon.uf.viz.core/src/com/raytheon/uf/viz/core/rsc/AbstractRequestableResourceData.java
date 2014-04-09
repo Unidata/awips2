@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.lang.Validate;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURIUtil;
@@ -52,13 +53,13 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AbstractAlertMessageParser;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.NoDataAvailableException;
 import com.raytheon.uf.viz.core.exception.NoMatchingTimesException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Provides a base implementation for data types that are requestable from the
@@ -543,8 +544,13 @@ public abstract class AbstractRequestableResourceData extends
             }
             List<DataTime> slice = selectedEntryTimes.subList(start, end);
 
-            PluginDataObject[] pdos = DataCubeContainer.getData(
-                    getMetadataMap(), slice.toArray(new DataTime[0]));
+            PluginDataObject[] pdos;
+            try {
+                pdos = DataCubeContainer.getData(getMetadataMap(),
+                        slice.toArray(new DataTime[0]));
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
             responses.addAll(Arrays.asList(pdos));
         }
 
@@ -597,8 +603,12 @@ public abstract class AbstractRequestableResourceData extends
             Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
             throws VizException {
         Validate.notNull(constraintMap);
-        return DataCubeContainer.performTimeQuery(constraintMap, false,
-                binOffset);
+        try {
+            return DataCubeContainer.performTimeQuery(constraintMap, false,
+                    binOffset);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
     }
 
     /**
