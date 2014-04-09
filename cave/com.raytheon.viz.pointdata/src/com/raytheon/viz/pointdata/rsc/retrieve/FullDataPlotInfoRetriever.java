@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -22,10 +23,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.PlotInfo;
 
 /**
@@ -101,7 +102,7 @@ public class FullDataPlotInfoRetriever extends AbstractPlotInfoRetriever {
                 try {
                     pdc = DataCubeContainer.getPointData(plugin,
                             getParameters(), levelKey, metadataMap);
-                } catch (VizException e) {
+                } catch (DataCubeException e) {
                     statusHandler.handle(Priority.ERROR,
                             e.getLocalizedMessage(), e);
                     return Status.OK_STATUS;

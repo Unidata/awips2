@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
@@ -46,10 +47,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.datacube.CubeUtil;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
@@ -288,7 +289,12 @@ public class GridTimeSeriesAdapter extends
         for (GridRecord rec : gribs) {
             IDataRecord[] records = cache.get(rec);
             if (records == null) {
-                records = DataCubeContainer.getDataRecord(rec, request, null);
+                try {
+                    records = DataCubeContainer.getDataRecord(rec, request,
+                            null);
+                } catch (DataCubeException e) {
+                    throw new VizException(e);
+                }
                 cache.put(rec, records);
             }
             

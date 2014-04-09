@@ -30,6 +30,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -38,7 +39,6 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -51,6 +51,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.d2d.core.map.IDataScaleResource;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.grid.inv.GribDataCubeAlertMessageParser;
 import com.raytheon.viz.grid.inv.GridInventory;
@@ -369,7 +370,12 @@ public class GridResourceData extends AbstractRequestableResourceData implements
                 TiltRequest request = new TiltRequest();
                 request.setType(Request.Type.ALL);
                 request.setTiltLocation(tiltLoc);
-                return DataCubeContainer.getDataRecord(record, request, null);
+                try {
+                    return DataCubeContainer.getDataRecord(record, request,
+                            null);
+                } catch (DataCubeException e) {
+                    throw new VizException(e);
+                }
             }
         }
         return null;
