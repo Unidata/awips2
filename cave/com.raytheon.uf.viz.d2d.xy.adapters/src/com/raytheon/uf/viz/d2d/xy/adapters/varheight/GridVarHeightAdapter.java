@@ -33,6 +33,7 @@ import javax.measure.unit.Unit;
 
 import org.geotools.geometry.DirectPosition2D;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -46,8 +47,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -227,7 +228,12 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             if (request == null) {
                 continue;
             }
-            DataCubeContainer.getDataRecords(entry.getValue(), request, null);
+            try {
+                DataCubeContainer.getDataRecords(entry.getValue(), request,
+                        null);
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
 
         }
 
@@ -383,8 +389,13 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             metadataMap.put(GridInventory.PARAMETER_QUERY,
                     new RequestConstraint(heightScale.getParameter()));
 
-            PluginDataObject[] pdos = DataCubeContainer.getData(metadataMap,
-                    times.toArray(new DataTime[0]));
+            PluginDataObject[] pdos;
+            try {
+                pdos = DataCubeContainer.getData(metadataMap,
+                        times.toArray(new DataTime[0]));
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
             for (PluginDataObject pdo : pdos) {
                 GridRecord gRecord = (GridRecord) pdo;
                 Set<GridRecord> recordSet = yRecordMap.get(gRecord

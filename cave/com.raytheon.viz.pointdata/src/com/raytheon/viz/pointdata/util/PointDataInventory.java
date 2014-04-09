@@ -25,8 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.DataTree;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.pointdata.GetPointDataTreeRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -114,7 +115,7 @@ public class PointDataInventory extends AbstractPointDataInventory implements
             if (getAllSources() != null && !getAllSources().contains(source)) {
                 try {
                     initTree(derParLibrary);
-                } catch (VizException e) {
+                } catch (DataCubeException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
                 }

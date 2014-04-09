@@ -3,6 +3,7 @@ package com.raytheon.uf.viz.spring.dm;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +18,6 @@ import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 
 /**
  * 
@@ -100,6 +100,7 @@ public class Activator implements BundleActivator {
             Map<String, Bundle> bundles,
             Map<String, OSGIXmlApplicationContext> contextMap, Bundle bundle,
             Set<String> processing) {
+        BundleResolver bundleResolver = new BundleResolver();
         String bundleName = bundle.getSymbolicName();
         OSGIXmlApplicationContext appCtx = contextMap.get(bundleName);
         if (contextMap.containsKey(bundleName) == false
@@ -129,27 +130,16 @@ public class Activator implements BundleActivator {
                 }
                 if (files.size() > 0) {
                     // Files found, check for dependencies
-                    String requiredBundlesHeader = (String) bundle.getHeaders()
-                            .get(Constants.REQUIRE_BUNDLE);
-                    // Split comma separated string from MANIFEST
-                    String[] requiredBundles = COMMA_SPLIT
-                            .split(requiredBundlesHeader);
+                    Collection<Bundle> requiredBundles = bundleResolver
+                            .getRequiredBundles(bundle);
                     List<OSGIXmlApplicationContext> parentContexts = new ArrayList<OSGIXmlApplicationContext>();
-                    for (String requiredBndl : requiredBundles) {
-                        // Extract bundle name which is first item in
-                        // semicolon
-                        // split list
-                        String[] bndlParts = SEMICOLON_SPLIT
-                                .split(requiredBndl);
-                        Bundle reqBndl = bundles.get(bndlParts[0]);
-                        if (reqBndl != null) {
-                            // Found bundle, process context for bundle
-                            OSGIXmlApplicationContext parent = createContext(
-                                    bundles, contextMap, reqBndl, processing);
-                            if (parent != null) {
-                                // Context found, add to list
-                                parentContexts.add(parent);
-                            }
+                    for (Bundle requiredBundle : requiredBundles) {
+                        // Found bundle, process context for bundle
+                        OSGIXmlApplicationContext parent = createContext(
+                                bundles, contextMap, requiredBundle, processing);
+                        if (parent != null) {
+                            // Context found, add to list
+                            parentContexts.add(parent);
                         }
                     }
 

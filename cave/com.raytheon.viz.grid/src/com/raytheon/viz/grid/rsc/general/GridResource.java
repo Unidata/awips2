@@ -28,6 +28,7 @@ import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.GridStyleUtil;
@@ -35,10 +36,10 @@ import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * 
@@ -86,7 +87,12 @@ public class GridResource<T extends AbstractResourceData> extends
     protected GeneralGridData getData(GridRecord gridRecord)
             throws VizException {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
-        IDataRecord[] dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+        IDataRecord[] dataRecs;
+        try {
+            dataRecs = DataCubeContainer.getDataRecord(gridRecord);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         if (dataRecs == null) {
             return null;
         }
