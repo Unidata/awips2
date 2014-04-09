@@ -305,10 +305,10 @@ public class DrawStringEvent extends AbstractRemoteGraphicsRenderEvent {
     }
 
     /**
-     * @param textStyle
-     *            the textStyle to set
+     * @param textStyles
+     *            the textStyles to set
      */
-    public void setTextStyle(EnumSet<TextStyle> textStyles) {
+    public void setTextStyles(EnumSet<TextStyle> textStyles) {
         this.textStyles = textStyles;
     }
 
