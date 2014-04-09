@@ -20,26 +20,21 @@
 
 # File auto-generated against equivalent DynamicSerialize Java class
 
-from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request import AbstractGfeRequest
 
-
-class ClearPracticeVTECTableRequest(AbstractGfeRequest):
+class ClearPracticeVTECTableRequest(object):
 
     def __init__(self):
-        super(ClearPracticeVTECTableRequest, self).__init__()
-        self.requestedSiteId = None
-        self.mode = None
+        self.siteID = None
+        self.workstationID = None
 
-    def getRequestedSiteId(self):
-        return self.requestedSiteId
+    def getSiteID(self):
+        return self.siteID
 
-    def setRequestedSiteId(self, requestedSiteId):
-        self.requestedSiteId = requestedSiteId
+    def setSiteID(self, siteID):
+        self.siteID = siteID
 
-    def getMode(self):
-        return self.mode
+    def getWorkstationID(self):
+        return self.workstationID
 
-    def setMode(self, mode):
-        if mode not in ['OPERATIONAL', 'PRACTICE']:
-            raise ValueError("Invalid value " + mode + " specified for ActiveTableMode.")
-        self.mode = mode
+    def setWorkstationID(self, workstationID):
+        self.workstationID = workstationID
