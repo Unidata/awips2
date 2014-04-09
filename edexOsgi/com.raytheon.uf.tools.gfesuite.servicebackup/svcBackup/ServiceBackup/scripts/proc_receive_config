@@ -26,7 +26,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    03/20/14        #2933         randerso       Changed PRDDIR and LOGDIR to use
-                                                  Backup site's configuration 
+#                                                  Backup site's configuration 
 ##############################################################################
 
 import_file=${1}
