@@ -27,11 +27,6 @@
         <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.SaveASCIIGridsRequest"/>
         <constructor-arg ref="SaveASCIIGridsHandler"/>
     </bean>
-    <bean id="clearTableHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ClearPracticeVTECTableHandler"/>
-    <bean factory-bean="handlerRegistry" factory-method="register">
-        <constructor-arg value="com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest"/>
-        <constructor-arg ref="clearTableHandler"/>
-    </bean>
     <bean id="brokerConnectionsProvider" class="com.raytheon.uf.edex.esb.camel.jms.QpidBrokerConnectionsImpl"/>
     <bean id="clientsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetClientsHandler">
         <constructor-arg ref="brokerConnectionsProvider"/>
