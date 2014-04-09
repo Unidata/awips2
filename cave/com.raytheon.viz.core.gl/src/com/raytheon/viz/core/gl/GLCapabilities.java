@@ -19,20 +19,24 @@
  **/
 package com.raytheon.viz.core.gl;
 
+import java.nio.IntBuffer;
+
 import javax.media.opengl.GL;
 
 import com.raytheon.viz.core.gl.internal.GLTarget;
 
 /**
- * TODO Add Description
+ * Holds the results of several queries into GL to determine what level of
+ * capabilities are supported.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 6, 2011            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 06, 2011           mschenke    Initial creation
+ * Apr 08, 2014  2950     bsteffen    Add max texture size.
  * 
  * </pre>
  * 
@@ -58,6 +62,8 @@ public class GLCapabilities {
     public boolean cardSupportsShaders = false;
 
     public boolean textureRectangleSupported;
+
+    public final int maxTextureSize;
 
     private GLCapabilities(GL gl) {
         String openGlVersion = gl.glGetString(GL.GL_VERSION);
@@ -86,5 +92,9 @@ public class GLCapabilities {
             }
         }
         System.out.println("Shader supported: " + cardSupportsShaders);
+        IntBuffer ib = IntBuffer.allocate(1);
+        gl.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE, ib);
+        ib.rewind();
+        maxTextureSize = ib.get();
     }
 }
