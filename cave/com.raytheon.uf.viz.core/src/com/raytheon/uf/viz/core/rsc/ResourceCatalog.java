@@ -27,9 +27,9 @@ import java.util.Set;
 
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Manages a catalog of resource utilization

@@ -43,6 +43,8 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridCoverageFactory;
 import org.geotools.coverage.grid.GridGeometry2D;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
@@ -58,19 +60,17 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
-import com.raytheon.uf.viz.core.datastructure.DefaultDataCubeAdapter;
-import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
-import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
+import com.raytheon.uf.viz.datacube.DefaultDataCubeAdapter;
+import com.raytheon.uf.viz.datacube.IDataCubeAdapter;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
+import com.raytheon.uf.common.derivparam.library.IDerivParamField;
 
 /**
  * {@link IDataCubeAdapter} for satellite plugin data
@@ -112,7 +112,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
     @Override
     public PluginDataObject[] getData(
             Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
-            throws VizException {
+            throws DataCubeException {
         Map<String, RequestConstraint> originalQuery = constraints;
         if (originalQuery.containsKey(DERIVED) == false) {
             return super.getData(originalQuery, selectedTimes);
@@ -128,7 +128,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
 
         if (!originalQuery.containsKey(PE)
                 || !originalQuery.containsKey("pluginName")) {
-            throw new VizException("getData method requires more query "
+            throw new DataCubeException("getData method requires more query "
                     + "information for plugin : "
                     + originalQuery.get("pluginName").getConstraintValue());
         } else {
@@ -137,8 +137,13 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
             requestedParam = physicalElements[physicalElements.length - 1];
         }
 
-        List<String> baseParams = new ArrayList<String>(
-                Arrays.asList(CatalogQuery.performQuery(PE, modifiedQuery)));
+        List<String> baseParams;
+        try {
+            baseParams = new ArrayList<String>(Arrays.asList(CatalogQuery
+                    .performQuery(PE, modifiedQuery)));
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
 
         if (!baseParams.contains(requestedParam)
                 && derParLibrary.containsKey(requestedParam)) {
@@ -208,7 +213,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj)
-            throws VizDataCubeException {
+            throws DataCubeException {
         if (obj.getMessageData() == null) {
             return super.getRecord(obj);
         }
@@ -218,7 +223,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         if (obj.getMessageData() == null) {
             return super.getRecord(obj, req, dataset);
         }
@@ -284,7 +289,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
                 i++;
             }
         } catch (Exception e) {
-            throw new VizDataCubeException("Error in Satellite Data Cube", e);
+            throw new DataCubeException("Error in Satellite Data Cube", e);
         }
 
         derivedRequest.setArgumentRecords(bytes.toArray(new Object[] {}));
@@ -292,7 +297,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
         try {
             finalResult = DerivedParameterGenerator.calculate(derivedRequest);
         } catch (ExecutionException e) {
-            throw new VizDataCubeException(e);
+            throw new DataCubeException(e);
         }
 
         if (finalResult != null && finalResult.size() == 1) {
@@ -310,7 +315,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
      */
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         for (PluginDataObject obj : objs) {
             IDataRecord[] records = getRecord(obj, req, dataset);
             obj.setMessageData(records);
@@ -412,7 +417,7 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
 
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
-            throws VizException {
+            throws DataCubeException {
         Map<TimeQueryRequest, Integer> derivedRequests = new HashMap<TimeQueryRequest, Integer>();
         List<TimeQueryRequest> baseRequests = new ArrayList<TimeQueryRequest>(
                 requests.size());
@@ -431,9 +436,12 @@ public class SatelliteDataCubeAdapter extends DefaultDataCubeAdapter {
         }
         TimeQueryRequestSet set = new TimeQueryRequestSet();
         set.setRequests(baseRequests.toArray(new TimeQueryRequest[0]));
-        @SuppressWarnings("unchecked")
-        List<List<DataTime>> baseResults = (List<List<DataTime>>) ThriftClient
-                .sendRequest(set);
+        List<List<DataTime>> baseResults;
+        try {
+            baseResults = (List<List<DataTime>>) ThriftClient.sendRequest(set);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         List<List<DataTime>> results = new ArrayList<List<DataTime>>(
                 requests.size());
         int baseIndex = 0;

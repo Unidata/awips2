@@ -34,6 +34,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
@@ -56,7 +57,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
@@ -64,6 +64,7 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
@@ -161,6 +162,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     @Override
     protected GeneralGridData getData(GridRecord gridRecord)
             throws VizException {
+        try {
         Unit<?> dataUnit = gridRecord.getParameter().getUnit();
         GridCoverage location = gridRecord.getLocation();
         /*
@@ -259,6 +261,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         }
         data = GridMemoryManager.getInstance().manage(data);
         return data;
+        } catch ( DataCubeException e ) {
+            throw new VizException(e);
+        }
     }
 
     public GeneralGridData reprojectData(GeneralGridData data) {

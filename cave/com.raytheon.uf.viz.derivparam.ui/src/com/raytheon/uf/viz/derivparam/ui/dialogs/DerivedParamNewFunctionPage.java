@@ -41,9 +41,9 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.raytheon.uf.viz.derivparam.DerivParamFunctionType;
-import com.raytheon.uf.viz.derivparam.DerivParamFunctionType.FunctionArgument;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
+import com.raytheon.uf.common.derivparam.DerivParamFunctionType;
+import com.raytheon.uf.common.derivparam.DerivParamFunctionType.FunctionArgument;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizardPage;
 
