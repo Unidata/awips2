@@ -39,6 +39,7 @@ import java.util.concurrent.Semaphore;
 
 import javax.measure.unit.NonSI;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
@@ -47,9 +48,9 @@ import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.jobs.JobPool;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.PointDataRequest;
 
 /**
@@ -1875,6 +1876,9 @@ public class NcPlotModelHdf5DataRequestor {
             } catch (VizException e) {
 
                 e.printStackTrace();
+            } catch (DataCubeException e1) {
+
+                e1.printStackTrace();
             }
 
         }

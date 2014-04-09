@@ -27,7 +27,6 @@ Export-Package: gov.noaa.nws.ncep.viz.gempak,
  gov.noaa.nws.ncep.viz.gempak.grid.mapper,
  gov.noaa.nws.ncep.viz.gempak.grid.units,
  gov.noaa.nws.ncep.viz.gempak.util
-Import-Package: com.raytheon.uf.common.derivparam.tree,
- gov.noaa.nws.ncep.edex.common.ncinventory,
+Import-Package: gov.noaa.nws.ncep.edex.common.ncinventory,
  gov.noaa.nws.ncep.common.log.logger,
  com.raytheon.uf.common.serialization

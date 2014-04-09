@@ -32,10 +32,10 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * This is the inventory available for a product.
@@ -97,7 +97,7 @@ public class ProductInventory extends Job {
             try {
                 dataTimes = DataCubeContainer.performTimeQuery(
                         productParameters, false);
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 throw new RuntimeException(e);
             }
 
