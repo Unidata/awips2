@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -35,9 +36,9 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.CubeUtil;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
@@ -135,9 +136,15 @@ public class PointDataVarHeightAdapter extends
                             .formatToSqlTimestamp(currentTime.getRefTime())));
         }
         String parameter = resourceData.getParameter();
-        PointDataContainer pdc = DataCubeContainer.getPointData(records
-                .iterator().next().getPluginName(), new String[] { parameter,
-                heightScale.getParameter() }, constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(records.iterator().next()
+                    .getPluginName(),
+                    new String[] { parameter, heightScale.getParameter() },
+                    constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         xUnit = pdc.getDescription(parameter).getUnitObject();
         yUnit = pdc.getDescription(heightScale.getParameter()).getUnitObject();
         for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
