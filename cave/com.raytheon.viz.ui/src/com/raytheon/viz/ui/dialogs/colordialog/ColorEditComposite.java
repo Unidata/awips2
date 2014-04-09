@@ -24,8 +24,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
@@ -33,26 +35,30 @@ import com.raytheon.uf.common.colormap.ColorMap;
 
 /**
  * Composite for colormap editing
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 18, 2010            mschenke     Initial creation
- * Jan 10, 2013 15648      ryu         Editing GFE discrete colormap: a check button
- *                                     is added and duplicate entries in the colormap
- *                                     are removed when it is selected.
- *
+ * 
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 18, 2010           mschenke    Initial creation
+ * Jan 10, 2013  15648    ryu         Editing GFE discrete colormap: a check button
+ *                                    is added and duplicate entries in the colormap
+ *                                    are removed when it is selected.
+ * Apr 08, 2014  2950     bsteffen    Support dynamic color counts.
+ * 
  * </pre>
- *
+ * 
  * @author mschenke
  * @version 1.0
  */
 
 public class ColorEditComposite extends Composite implements IColorWheelAction,
         IColorBarAction {
+
+    private static final int[] COLOR_COUNT_OPTIONS = { 8, 16, 256, 512, 1024,
+            2048 };
 
     /**
      * Upper color wheel (composite object).
@@ -78,6 +84,9 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
      * HSB radio button.
      */
     private Button hsbRdo;
+
+    /** Color count combo*/
+    private Combo colorCount;
 
     /**
      * GFE discrete check button.
@@ -112,8 +121,12 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
     private void initializeComponents(Composite parent) {
         // Initialize the components.
         // Create the RGB and the HSB radio buttons.
-        createRgbHsbButtons();
-
+        Composite topComposite = new Composite(parent, SWT.NONE);
+        topComposite.setLayout(new GridLayout(2, false));
+        topComposite
+                .setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        createRgbHsbButtons(topComposite);
+        createSizeCombo(topComposite);
         ColorData initial = new ColorData(new RGB(255, 255, 255), 255);
 
         // Create the upper color wheel for the display.
@@ -136,14 +149,16 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
 
         // Create the GFE discrete check button.
         createGFEDiscreteButton();
+
+        updateColorCount();
     }
 
     /**
      * Create the RGB and the HSB radio buttons.
      */
-    private void createRgbHsbButtons() {
+    private void createRgbHsbButtons(Composite parent) {
         // Create a group to contain the RGB and HSB radio buttons.
-        Group colorGroup = new Group(getParent(), SWT.NONE);
+        Group colorGroup = new Group(parent, SWT.NONE);
         colorGroup.setText(" Use color model: ");
 
         RowLayout groupRowLayout = new RowLayout();
@@ -151,7 +166,7 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
         groupRowLayout.marginRight = 10;
         groupRowLayout.spacing = 10;
         colorGroup.setLayout(groupRowLayout);
-        colorGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        colorGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 
         // Create the RGB radio button. When the radio button is selected
         // update the upper and lower color wheel objects to display the RGB
@@ -176,6 +191,38 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
             public void widgetSelected(SelectionEvent event) {
                 changeColorWheels();
             }
+        });
+    }
+
+    private void createSizeCombo(Composite parent) {
+        // Create a group to contain the RGB and HSB radio buttons.
+        Group colorGroup = new Group(parent, SWT.NONE);
+        colorGroup.setText(" Colormap size: ");
+
+        RowLayout groupRowLayout = new RowLayout();
+        groupRowLayout.marginLeft = 10;
+        groupRowLayout.marginRight = 10;
+        groupRowLayout.spacing = 10;
+        colorGroup.setLayout(groupRowLayout);
+        colorGroup
+                .setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false));
+
+        colorCount = new Combo(colorGroup, SWT.READ_ONLY);
+        for (int i = 0; i < COLOR_COUNT_OPTIONS.length; i += 1) {
+            int option = COLOR_COUNT_OPTIONS[i];
+            colorCount.add(Integer.toString(option));
+        }
+        colorCount.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                int index = colorCount.getSelectionIndex();
+                String selection = colorCount.getItem(index);
+                int count = Integer.valueOf(selection);
+                colorBar.setColorCount(count);
+                updateColorMap();
+            }
+
         });
     }
 
@@ -283,6 +330,31 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
             colorMap.removeDuplicates();
         }
         callback.updateColorMap(colorMap);
+        updateColorCount();
+    }
+
+
+    public void updateColorCount() {
+        int newCount = colorBar.getColorCount();
+        boolean added = true;
+        for (int i = 0; i < colorCount.getItemCount(); i += 1) {
+            String item = colorCount.getItem(i);
+            int count = Integer.parseInt(item);
+            if (count == newCount) {
+                colorCount.select(i);
+                added = true;
+                break;
+            } else if (count > newCount) {
+                colorCount.add(Integer.toString(newCount), i);
+                colorCount.select(i);
+                added = true;
+                break;
+            }
+        }
+        if (!added) {
+            colorCount.add(Integer.toString(newCount));
+            colorCount.select(colorCount.getItemCount() - 1);
+        }
     }
 
     public ColorWheelComp getUpperColorWheel() {
@@ -319,6 +391,17 @@ public class ColorEditComposite extends Composite implements IColorWheelAction,
 
     public boolean isGFEDiscrete() {
         return gfeDiscreteCheck.getSelection();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        upperColorWheel.setEnabled(enabled);
+        lowerColorWheel.setEnabled(enabled);
+        colorBar.setEnabled(enabled);
+        rgbRdo.setEnabled(enabled);
+        hsbRdo.setEnabled(enabled);
+        colorCount.setEnabled(enabled);
     }
 
 }
