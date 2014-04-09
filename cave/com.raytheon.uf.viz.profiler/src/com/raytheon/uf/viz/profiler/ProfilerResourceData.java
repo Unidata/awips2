@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.profiler.ProfilerObs;
 import com.raytheon.uf.common.dataplugin.profiler.dao.ProfilerDataTransform;
@@ -36,11 +37,11 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * ProfilerResourceData
@@ -91,9 +92,13 @@ public class ProfilerResourceData extends AbstractRequestableResourceData {
                 getMetadataMap());
         constraints.put(PluginDataObject.DATATIME_ID, new RequestConstraint(
                 dataTimes));
-        PointDataContainer pdc = DataCubeContainer.getPointData(
-                ProfilerObs.PLUGIN_NAME, ProfilerDataTransform.MAN_PARAMS,
-                constraints);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(ProfilerObs.PLUGIN_NAME,
+                    ProfilerDataTransform.MAN_PARAMS, constraints);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         if (pdc != null) {
             return ProfilerDataTransform.toProfilerRecords(pdc);
         }

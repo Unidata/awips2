@@ -30,6 +30,9 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.geometry.Envelope;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSSpatialCoverage;
@@ -51,9 +54,7 @@ import com.raytheon.uf.common.numeric.filter.FillValueFilter;
 import com.raytheon.uf.common.numeric.filter.InverseFillValueFilter;
 import com.raytheon.uf.common.numeric.filter.UnsignedFilter;
 import com.raytheon.uf.common.numeric.source.DataSource;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 
 /**
  * Object capable of requesting VIIRS data for base or derived displays. Can
@@ -122,7 +123,7 @@ public class VIIRSRequestableData extends AbstractRequestableData {
      * @throws VizException
      */
     public IDataRecord[] getRawDataValue(VIIRSRequest request)
-            throws VizException {
+            throws DataCubeException {
         IDataStore store = DataStoreFactory.getDataStore(HDF5Util
                 .findHDF5Location(dataRecord));
         try {
@@ -249,7 +250,7 @@ public class VIIRSRequestableData extends AbstractRequestableData {
                         request.request) };
             }
         } catch (Exception e) {
-            throw new VizException("Error retrieving viirs data: "
+            throw new DataCubeException("Error retrieving viirs data: "
                     + e.getLocalizedMessage(), e);
         }
     }
@@ -262,7 +263,7 @@ public class VIIRSRequestableData extends AbstractRequestableData {
      * (java.lang.Object)
      */
     @Override
-    public IDataRecord[] getDataValue(Object arg) throws VizException {
+    public IDataRecord[] getDataValue(Object arg) throws DataCubeException {
         VIIRSRequest request = (VIIRSRequest) arg;
         // Get raw data
         IDataRecord[] records = getRawDataValue(request);

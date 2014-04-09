@@ -68,13 +68,13 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.viz.derivparam"
+         id="com.raytheon.uf.common.derivparam"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.viz.derivparam.python"
+         id="com.raytheon.uf.common.derivparam.python"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -133,7 +133,7 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-         
+
    <plugin
          id="com.raytheon.uf.viz.personalities.cave"
          download-size="0"
@@ -204,4 +204,19 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.inventory"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.datacube"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
 </feature>
