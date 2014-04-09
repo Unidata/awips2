@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -138,10 +139,11 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * May 28, 2013  1638     mschenke    Made sure {@link TextStyle#BLANKED} text
  *                                    is drawing correct size box around text
  * Nov 04, 2013  2492     mschenke    Switched colormap drawing to use 1D
- *                                     texture object for alpha mask
+ *                                    texture object for alpha mask
  * Mar 03, 2014  2804     mschenke    Added clipping pane field to only setup
  *                                    if changed
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * Apr 08, 2014  2950     bsteffen    Reduce oversized colormaps.
  * 
  * </pre>
  * 
@@ -1257,6 +1259,25 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
     }
 
     protected GLTextureObject loadColormapIntoTexture(ColorMap glColorMap) {
+        if (glColorMap.getSize() > capabilities.maxTextureSize) {
+            double ratio = (glColorMap.getSize() - 1)
+                    / (capabilities.maxTextureSize - 1.0);
+            List<Color> colors = glColorMap.getColors();
+            List<Color> lessColors = new ArrayList<Color>(
+                    capabilities.maxTextureSize);
+            for (int i = 0; i < capabilities.maxTextureSize; i += 1) {
+                lessColors.add(colors.get((int) (i * ratio)));
+            }
+            statusHandler.info("Reducing colormap to " + lessColors.size()
+                    + " colors because this graphics card only supports "
+                            + capabilities.maxTextureSize
+                    + " colors and the colormap contains "
+                            + glColorMap.getSize() + " colors.");
+            glColorMap = new ColorMap(lessColors.size());
+            for (int i = 0; i < lessColors.size(); i += 1) {
+                glColorMap.setColor(i, lessColors.get(i));
+            }
+        }
         Buffer bb = glColorMap.getColorMap();
         GLContextBridge.makeMasterContextCurrent();
         GLTextureObject t = new GLTextureObject();
@@ -1276,11 +1297,6 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                 GL.GL_NEAREST);
         gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
                 GL.GL_NEAREST);
-
-        // gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-        // GL.GL_NEAREST);
-        // gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-        // GL.GL_NEAREST);
 
         gl.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA, glColorMap.getSize(),
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
