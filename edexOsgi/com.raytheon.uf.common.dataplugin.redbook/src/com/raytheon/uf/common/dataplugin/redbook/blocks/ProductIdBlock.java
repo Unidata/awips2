@@ -38,6 +38,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     nested Factory class.
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
+ * Apr 09, 2014 2907       njensen     Fix productFileTime month
  * 
  * </pre>
  * 
@@ -129,7 +130,8 @@ public class ProductIdBlock extends RedbookBlock {
 
             Calendar t = TimeUtil.newGmtCalendar();
             t.set(Calendar.YEAR, year);
-            t.set(Calendar.MONTH, month);
+            // subtract 1 from month since Calendar is zero-based but data isn't
+            t.set(Calendar.MONTH, month - 1);
             t.set(Calendar.DAY_OF_MONTH, day);
             t.set(Calendar.HOUR_OF_DAY, hour);
             t.set(Calendar.MINUTE, minute);
