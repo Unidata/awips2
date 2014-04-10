@@ -56,9 +56,6 @@ public final class SharedLockHandler extends CurrentTimeClusterLockHandler {
         WRITER
     };
 
-    /** The value for the cluster tasks' name column. */
-    public static final String name = "Shared Lock";
-
     /**
      * Common override time out. Clients need to rely on this value in order to
      * update last execution time to maintain the lock.
