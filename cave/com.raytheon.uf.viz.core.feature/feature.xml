@@ -68,18 +68,6 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.common.derivparam"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.derivparam.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="com.raytheon.uf.viz.derivparam.ui"
          download-size="0"
          install-size="0"
@@ -204,12 +192,5 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.inventory"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
 </feature>
