@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
+import com.raytheon.uf.common.dataquery.requests.DbQueryRequest.OrderMode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
@@ -42,9 +43,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 12, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 12, 2012           bsteffen    Initial creation
+ * Mar 20, 2013  2910     bsteffen    Add warning for duplicate coverages.
+ * 
  * 
  * </pre>
  * 
@@ -74,17 +77,29 @@ public class GridCoverageLookup {
         initializeMaps();
         DbQueryRequest query = new DbQueryRequest();
         query.setEntityClass(GridCoverage.class.getName());
+        query.setOrderByField("id", OrderMode.DESC);
         try {
             DbQueryResponse resp = (DbQueryResponse) RequestRouter.route(query);
             for (Map<String, Object> map : resp.getResults()) {
                 GridCoverage coverage = (GridCoverage) map.get(null);
-                coverageToId.put(coverage, coverage.getId());
+                Integer oldValue = coverageToId.put(coverage, coverage.getId());
+                if (oldValue != null) {
+                    statusHandler
+                            .handle(Priority.WARN,
+                                    "Two grid coverages were found in the database that are spatially equivalent(id="
+                                            + oldValue
+                                            + ","
+                                            + coverage.getId()
+                                            + ")");
+                }
                 idToCoverage.put(coverage.getId(), coverage);
             }
         } catch (Exception e) {
-            // do not rethrow, the lookup is not broken at this point so if the
-            // problems persist then more exceptions will come from the actual
-            // lookup methods themselves.
+            /*
+             * Do not rethrow, the lookup is not broken at this point so if the
+             * problems persist then more exceptions will come from the actual
+             * lookup methods themselves.
+             */
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving coverages from server.", e);
         }
