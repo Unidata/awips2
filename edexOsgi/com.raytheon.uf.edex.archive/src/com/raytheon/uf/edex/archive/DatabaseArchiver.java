@@ -30,6 +30,7 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.PluginProperties;
@@ -127,8 +128,8 @@ public class DatabaseArchiver implements IPluginArchiver {
         @Override
         public void run() {
             long currentTime = System.currentTimeMillis();
-            ClusterLockUtils.updateLockTime(SharedLockHandler.name, details,
-                    currentTime);
+            ClusterLockUtils.updateLockTime(ArchiveConstants.CLUSTER_NAME,
+                    details, currentTime);
         }
     }
 
@@ -170,8 +171,8 @@ public class DatabaseArchiver implements IPluginArchiver {
      */
     private ClusterTask getWriteLock(String details) {
         SharedLockHandler lockHandler = new SharedLockHandler(LockType.WRITER);
-        ClusterTask ct = ClusterLockUtils.lock(SharedLockHandler.name, details,
-                lockHandler, false);
+        ClusterTask ct = ClusterLockUtils.lock(ArchiveConstants.CLUSTER_NAME,
+                details, lockHandler, false);
         if (LockState.SUCCESSFUL.equals(ct.getLockState())) {
             if (statusHandler.isPriorityEnabled(Priority.INFO)) {
                 statusHandler.handle(Priority.INFO, String.format(
