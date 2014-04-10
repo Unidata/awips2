@@ -18,24 +18,6 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<aliasList namespace="udunits">
-	<alias base="Pa*s^-1">kg m-1 s-3</alias>
-	<alias base="mm*s^-1">0.0010 m s-1</alias>
-	<alias base="mm">0.0010 m</alias>
-	<alias base="s^-1">s-1</alias>
-	<alias base="K*s^-1">K s-1</alias>
-	<alias base="m*s^-1">m s-1</alias>
-	<alias base="degree_angle">0.017453292519943295 rad</alias>
-	<alias base="J*kg^-1">m2 s-2</alias>
-	<alias base="%">0.01</alias>
-	<alias base="kg*m^-2">kg m-2</alias>
-    <!-- millimeters are equivalent for precipitation measurements -->
-    <alias base="mm">kg m-2</alias>
-	<alias base="°">Degree true</alias>
-	<alias base="min">Minute</alias>
-	<alias base="h">Hour</alias>
-	<alias base="day">Day</alias>
-	<alias base="month">Month</alias>
-	<alias base="year">Year</alias>
-	<alias base="J*m^-2">J m-2</alias>
-</aliasList>
+<requestPatterns xmlns:ns2="group">
+    <regex>^IS[IMN]</regex>
+</requestPatterns>
