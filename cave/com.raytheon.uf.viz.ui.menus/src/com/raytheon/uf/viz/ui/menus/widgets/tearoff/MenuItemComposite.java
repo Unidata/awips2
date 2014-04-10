@@ -53,6 +53,7 @@ import org.eclipse.ui.menus.CommandContributionItem;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuDialog.MenuPathElement;
+import com.raytheon.viz.core.mode.CAVEMode;
 
 /**
  * Holds the information for all the menu items in the dialog
@@ -65,7 +66,8 @@ import com.raytheon.uf.viz.ui.menus.widgets.tearoff.TearOffMenuDialog.MenuPathEl
  * ------------ ---------- ----------- --------------------------
  * Sep 15, 2011            mnash     Initial creation
  * Apr 10, 2013 DR 15185   D. Friedman Preserve tear-offs over perspective switches.
- * Jev 26, 2014    2842    mpduff    Utilize the command listener.
+ * Feb 26, 2014    2842    mpduff    Utilize the command listener.
+ * Apr 10, 2014    2241    mnash     Fix in practice mode, fixed the new month, Jev
  * 
  * </pre>
  * 
@@ -105,6 +107,8 @@ public class MenuItemComposite extends Composite {
 
     /** Disabled color */
     private final Color disabledColor;
+
+    private final Color backgroundColor = CAVEMode.getBackgroundColor();
 
     /**
      * @param parent
@@ -256,9 +260,7 @@ public class MenuItemComposite extends Composite {
                                 setForeground(enabledColor);
                             } else {
                                 setForeground(disabledColor);
-                                setBackground(Display.getCurrent()
-                                        .getSystemColor(
-                                                SWT.COLOR_WIDGET_BACKGROUND));
+                                setBackground(backgroundColor);
 
                                 // changes the arrow image to the unhighlighted
                                 // version
@@ -334,7 +336,9 @@ public class MenuItemComposite extends Composite {
     @Override
     public void setBackground(Color color) {
         firstItem.setBackground(color);
-        secondItem.setBackground(color);
+        if (secondItem != null) {
+            secondItem.setBackground(color);
+        }
         super.setBackground(color);
     }
 
@@ -435,8 +439,8 @@ public class MenuItemComposite extends Composite {
                 // and foreground, so we set that here, this is to
                 // unhighlight the whole thing
                 if (item.isEnabled()) {
-                    setBackground(Display.getCurrent().getSystemColor(
-                            SWT.COLOR_WIDGET_BACKGROUND));
+
+                    setBackground(backgroundColor);
 
                     setForeground(Display.getCurrent().getSystemColor(
                             SWT.COLOR_WIDGET_FOREGROUND));
