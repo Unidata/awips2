@@ -34,10 +34,10 @@
 #    10/20/08                      njensen        Initial Creation.
 #    01/17/13         1486         dgilling       Make a new-style class.
 #    09/23/13         16614        njensen        Fixed reload method
-#    
-# 
+#    03/25/14         2963         randerso       Added check to instantiate method to
+#                                                 verify module contains desired class
+#                                                 throw a useful error message if not
 #
-
 
 import os, string
 import sys, inspect, traceback
@@ -103,9 +103,13 @@ class MasterInterface(object):
     def isInstantiated(self, moduleName):
         return self.__instanceMap.has_key(moduleName)
     
-    def instantiate(self, moduleName, className, **kwargs):        
-        instance = sys.modules[moduleName].__dict__.get(className)(**kwargs)
-        self.__instanceMap[moduleName] = instance            
+    def instantiate(self, moduleName, className, **kwargs):
+        if sys.modules[moduleName].__dict__.has_key(className):
+            instance = sys.modules[moduleName].__dict__.get(className)(**kwargs)
+            self.__instanceMap[moduleName] = instance
+        else:
+            msg = "Module %s (in %s) has no class named %s" % (moduleName, sys.modules[moduleName].__file__, className)
+            raise Exception(msg)         
     
     def runMethod(self, moduleName, className, methodName, **kwargs):
         instance = self.__instanceMap[moduleName]
