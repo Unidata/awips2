@@ -47,6 +47,8 @@ import com.raytheon.uf.common.json.geo.BasicJsonService;
  */
 
 public class QpidBrokerConnectionsImpl implements IBrokerConnectionsProvider {
+    private static final String JMS_CONNECTIONS_URL = "JMS_CONNECTIONS_URL";
+
     @Override
     public List<String> getConnections() throws Exception {
         // Use rest services to pull connection clientId
@@ -54,7 +56,11 @@ public class QpidBrokerConnectionsImpl implements IBrokerConnectionsProvider {
         // port needs to be passed as a parameter
         // parse json response for clientId, recommend using a hash of some kind
 
-        String url = System.getenv("JMS_CONNECTIONS_URL");
+        String url = System.getenv(JMS_CONNECTIONS_URL);
+        if (url == null) {
+            throw new Exception(JMS_CONNECTIONS_URL
+                    + " is not set in setup.env");
+        }
 
         HttpGet request = new HttpGet(url);
         HttpClientResponse response = HttpClient.getInstance().executeRequest(
