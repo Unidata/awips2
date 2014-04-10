@@ -64,11 +64,12 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 4/7/09       1994        bphillip    Initial Creation
- * Mar 14, 2013 1587        bsteffen    Fix static data persisting to datastore.
- * Mar 27, 2013 1821        bsteffen    Speed up GridInfoCache.   
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 07, 2009  1994     bphillip    Initial Creation
+ * Mar 14, 2013  1587     bsteffen    Fix static data persisting to datastore.
+ * Mar 27, 2013  1821     bsteffen    Speed up GridInfoCache.   
+ * Mar 20, 2013  2910     bsteffen    Clear dataURI after loading cached info.
  * 
  * </pre>
  * 
@@ -246,6 +247,8 @@ public class GridDao extends PluginDao {
                             + record.getDataURI(), e);
             return false;
         }
+        /* Clear the dataURI just in case something changed. */
+        record.setDataURI(null);
         return true;
 
     }
@@ -325,15 +328,6 @@ public class GridDao extends PluginDao {
             }
         }
         record.setLocation(dbCoverage);
-        if (!coverage.getId().equals(dbCoverage.getId())) {
-            record.setDataURI(null);
-            try {
-                record.constructDataURI();
-            } catch (PluginException e) {
-                logger.info("Error constructing dataURI: " + record);
-                return false;
-            }
-        }
         return true;
     }
 
@@ -382,7 +376,7 @@ public class GridDao extends PluginDao {
             QueryResult result = (QueryResult) this.executeNativeSql(sqlString
                     .toString());
             for (int i = 0; i < result.getResultCount(); i++) {
-                orphanedIds.remove((Integer) result.getRowColumnValue(i, 0));
+                orphanedIds.remove(result.getRowColumnValue(i, 0));
             }
             if (!orphanedIds.isEmpty()) {
                 sqlString = new StringBuilder(orphanedIds.size() * 15 + 60);
