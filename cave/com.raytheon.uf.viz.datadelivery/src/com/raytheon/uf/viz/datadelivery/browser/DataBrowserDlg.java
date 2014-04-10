@@ -124,6 +124,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 26, 2013   2412     mpduff       Handle auto selecting data type.
  * Sep 26, 2013   2413     mpduff       Added isDirty check to New Configuration menu selection.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Apr 10, 2014   2892     mpduff       Fix problems with loading of saved configs.
  * 
  * </pre>
  * 
@@ -371,7 +372,6 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
             @Override
             public void widgetSelected(SelectionEvent event) {
                 displayLoadSaveConfigDlg(DialogType.OPEN);
-                setClean();
             }
         });
 
@@ -970,7 +970,6 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                                         "Selection Required",
                                         "Must make a selection before saving.");
                             }
-
                         } else if (type == DialogType.OPEN) {
                             setText(WINDOW_TITLE + " - ("
                                     + locFile.getFile().getName() + ")");
@@ -978,7 +977,7 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                             xml = fm.getXml();
                             updateFilters();
                             selectedFile = locFile.getFile().getName();
-
+                            setClean();
                         } else if (type == DialogType.DELETE) {
                             try {
                                 if (locFile != null) {
@@ -1070,9 +1069,9 @@ public class DataBrowserDlg extends CaveSWTDialog implements IDataTableUpdate,
                 int i = 0;
                 for (String s : dataTypes) {
                     if (s.equals(valueList.get(0))) {
-                        i++;
                         break;
                     }
+                    i++;
                 }
                 datatypeList.select(i);
                 handleDataTypeSelection();
