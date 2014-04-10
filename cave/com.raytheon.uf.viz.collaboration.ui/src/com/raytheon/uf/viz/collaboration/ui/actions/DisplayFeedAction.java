@@ -58,12 +58,14 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 5, 2012            bsteffen     Initial creation
- * Dec 19, 2013 2563      bclement     added check for feed venue existence
+ * Jul  5, 2012            bsteffen    Initial creation
+ * Dec 19, 2013 2563       bclement    added check for feed venue existence
  * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
  * Jan 30, 2014 2698       bclement    added default handle of username
  * Feb  3, 2014 2699       bclement    use preference handle default, display error if handle taken
  * Mar 06, 2014 2848       bclement    removed CollaborationConnection.joinTextOnlyVenue()
+ * Apr 10, 2014 2937       bgonzale    Connect to the venue after the feed view is available
+ *                                     to display messages.
  * 
  * </pre>
  * 
@@ -117,12 +119,12 @@ public class DisplayFeedAction extends Action {
 
     /**
      * Attempt to join the feed venue on server using the handle set in
-     * preferences. Displays and error and returns null if join wasn't
+     * preferences. Displays an error and returns null if the join wasn't
      * successful.
      * 
-     * @return
+     * @return the joined VenueSession; null if failed to join
      */
-    private String joinFeedVenue() {
+    private VenueSession joinFeedVenue() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         String defaultHandle = HandleUtil.getDefaultHandle();
@@ -130,9 +132,8 @@ public class DisplayFeedAction extends Action {
                 defaultHandle);
         try {
             session.configureVenue();
-            session.connectToRoom();
             connection.postEvent(session);
-            return session.getSessionId();
+            return session;
         } catch (CollaborationException e) {
             connection.removeSession(session);
             final String msg = e.getLocalizedMessage()
@@ -160,36 +161,39 @@ public class DisplayFeedAction extends Action {
             return;
         }
 
-        String sessionId;
         if (isChecked()) {
-            sessionId = joinFeedVenue();
-            if (sessionId == null) {
+            VenueSession session = joinFeedVenue();
+            if (session == null) {
                 // we couldn't join, stop action
                 setChecked(false);
                 return;
             }
+            // handle if it is clicked to close or open the view as
+            // necessary
+            CaveWorkbenchPageManager page = CaveWorkbenchPageManager
+                    .getActiveInstance();
+            try {
+                page.showView(SessionFeedView.ID, session.getSessionId(),
+                        IWorkbenchPage.VIEW_ACTIVATE);
+                // Connect to the room after opening the feed view.
+                session.connectToRoom();
+            } catch (PartInitException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to join collaboration feed", e);
+            } catch (CollaborationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to join collaboration feed", e);
+            }
         } else {
-            sessionId = getSessionId();
-        }
-
-        // handle if it is clicked to close or open the view as
-        // necessary
-        CaveWorkbenchPageManager page = CaveWorkbenchPageManager
-                .getActiveInstance();
-
-        if (!isChecked()) {
+            String sessionId = getSessionId();
+            // handle if it is clicked to close or open the view as
+            // necessary
+            CaveWorkbenchPageManager page = CaveWorkbenchPageManager
+                    .getActiveInstance();
             IViewReference ref = page.findViewReference(SessionFeedView.ID,
                     sessionId);
             if (ref != null) {
                 page.hideView(ref);
-            }
-        } else {
-            try {
-                page.showView(SessionFeedView.ID, sessionId,
-                        IWorkbenchPage.VIEW_ACTIVATE);
-            } catch (PartInitException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to join collaboration feed", e);
             }
         }
     }
