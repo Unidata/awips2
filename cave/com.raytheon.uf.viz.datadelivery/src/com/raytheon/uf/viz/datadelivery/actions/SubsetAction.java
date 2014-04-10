@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.datadelivery.actions;
 
-import java.io.File;
-
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -30,20 +28,20 @@ import org.eclipse.ui.PlatformUI;
 import com.raytheon.uf.common.auth.AuthException;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryPermission;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.auth.UserController;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg;
-import com.raytheon.uf.viz.datadelivery.common.ui.LoadSaveConfigDlg.DialogType;
 import com.raytheon.uf.viz.datadelivery.filter.MetaDataManager;
 import com.raytheon.uf.viz.datadelivery.services.DataDeliveryServices;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetFileManager;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.SubsetManagerDlg;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.ListSelectionDlg;
 
 /**
  * Handler for launching the Subset Manager Dialog.
@@ -56,12 +54,13 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * ------------ ---------- ----------- --------------------------
  * Apr 02, 2012            mpduff       Initial creation
  * Aug 06, 2012 955        djohnson     Change to accept {@link DataSet}.
- * Aug 10, 2012 1022       djohnson     Store provider name in {@link SubsetXml}, use GriddedDataSet.
+ * Aug 10, 2012 1022       djohnson     Store provider name in {@link SubsetXML}, use GriddedDataSet.
  * Aug 21, 2012 0743       djohnson     Change getMetaData to getDataSet.
  * Oct 03, 2012 1241       djohnson     Use {@link DataDeliveryPermission}.
  * Jul 26, 2013   2232     mpduff       Refactored Data Delivery permissions.
  * Sep 04, 2013   2314     mpduff       LoadSave dialog now non-blocking.
  * Oct 11, 2013   2386     mpduff       Refactor DD Front end.
+ * Apr 10, 2014   2864     mpduff       Changed how saved subset files are stored.
  * 
  * </pre>
  * 
@@ -74,15 +73,11 @@ public class SubsetAction extends AbstractHandler {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SubsetAction.class);
 
-    /** Saved subset path */
-    private final String SUBSET_PATH = "dataDelivery" + File.separator
-            + "subset" + File.separator;
-
     /** Dialog instance */
     private SubsetManagerDlg dlg = null;
 
     /** Dialog instance */
-    private LoadSaveConfigDlg loadDlg = null;
+    private ListSelectionDlg selectionDlg = null;
 
     private final String permission = DataDeliveryPermission.SUBSCRIPTION_EDIT
             .toString();
@@ -97,37 +92,55 @@ public class SubsetAction extends AbstractHandler {
                     + permission;
             if (DataDeliveryServices.getPermissionsService()
                     .checkPermissions(user, msg, permission).isAuthorized()) {
+                String[] choices = SubsetFileManager.getInstance()
+                        .getAllLocalizationFileNames();
                 final Shell shell = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getShell();
-                if (loadDlg == null || loadDlg.isDisposed()) {
-                    loadDlg = new LoadSaveConfigDlg(shell, DialogType.OPEN,
-                            SUBSET_PATH, "", true);
-                    loadDlg.setCloseCallback(new ICloseCallback() {
+                if (selectionDlg == null || selectionDlg.isDisposed()) {
+                    selectionDlg = new ListSelectionDlg(shell, choices);
+                    selectionDlg.setCloseCallback(new ICloseCallback() {
                         @Override
                         public void dialogClosed(Object returnValue) {
-                            if (returnValue instanceof LocalizationFile) {
-                                LocalizationFile locFile = (LocalizationFile) returnValue;
-                                SubsetXML subset = SubsetFileManager
-                                        .getInstance().loadSubset(
-                                                locFile.getFile().getName());
+                            if (returnValue instanceof String[]) {
+                                String[] selection = (String[]) returnValue;
+                                if (selection.length == 1) {
+                                    String[] parts = selection[0].split(":");
 
-                                DataSet data = MetaDataManager.getInstance()
-                                        .getDataSet(subset.getDatasetName(),
-                                                subset.getProviderName());
+                                    SubsetFileManager sfm = SubsetFileManager
+                                            .getInstance();
+                                    LocalizationFile locFile = sfm.getFile(
+                                            parts[1],
+                                            DataType.valueOf(parts[0]));
+                                    SubsetXML subset = SubsetFileManager
+                                            .getInstance().loadSubset(locFile);
 
-                                if (dlg == null || dlg.isDisposed()) {
-                                    dlg = SubsetManagerDlg.fromSubsetXML(shell,
-                                            data, true, subset);
-                                    dlg.open();
+                                    DataSet data = MetaDataManager
+                                            .getInstance().getDataSet(
+                                                    subset.getDatasetName(),
+                                                    subset.getProviderName());
+
+                                    if (dlg == null || dlg.isDisposed()) {
+                                        dlg = SubsetManagerDlg.fromSubsetXML(
+                                                shell, data, true, subset);
+                                        dlg.open();
+                                    } else {
+                                        dlg.bringToTop();
+                                    }
                                 } else {
-                                    dlg.bringToTop();
+                                    throw new IllegalArgumentException(
+                                            "Expected 1 item, received "
+                                                    + selection.length
+                                                    + " items.");
                                 }
+                            } else {
+                                throw new IllegalArgumentException(
+                                        "Invalid return type from ListSelectionDlg");
                             }
                         }
                     });
-                    loadDlg.open();
+                    selectionDlg.open();
                 } else {
-                    loadDlg.bringToTop();
+                    selectionDlg.bringToTop();
                 }
             }
         } catch (AuthException e) {
