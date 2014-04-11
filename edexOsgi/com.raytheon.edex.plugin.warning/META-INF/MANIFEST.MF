@@ -20,4 +20,5 @@ Require-Bundle: org.geotools,
 Export-Package: com.raytheon.edex.plugin.warning.tools
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.time,
+ org.apache.commons.logging,
  org.hibernate.annotations
