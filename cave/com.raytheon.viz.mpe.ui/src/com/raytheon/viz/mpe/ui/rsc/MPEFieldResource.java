@@ -79,7 +79,10 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  *                                      hour less than the file time stamp. 
  * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * Sep 17, 2013 16563      snaples      Updated createFrameImage to handle trace precip 
- *                                      properly when mapping to screen.													 
+ *                                      properly when mapping to screen.	
+ * Mar 10, 2014 17059      snaples      Added case for Prism data for unit conversion correction.
+ * Mar 19, 2014 17109      snaples      Removed code that added an hour to SATPRE, the base file reference time has been adjusted.
+ * 												 
  * </pre>
  * 
  * @author mschenke
@@ -324,12 +327,6 @@ public class MPEFieldResource extends
             timeToLoad.setTime(currTime.getRefTime());
             timeToLoad.add(Calendar.HOUR, -i);
 
-            if (displayField == DisplayFieldData.satPre) {
-                // SATPRE MPE file time stamp is the start time of the hour
-                // i.e. a 12z -13z product has a time stamp of 12z.
-                timeToLoad.add(Calendar.HOUR, -1);
-            }
-
             XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
                     timeToLoad.getTime());
             try {
@@ -435,6 +432,17 @@ public class MPEFieldResource extends
                     }
                 } 
             	break;
+            
+            case Prism:
+                for (int i = 0; i < length; ++i) {
+                    short value = data[i];
+                    if (value < 0) {
+                        imageData[i] = 0;
+                    } else {
+                        imageData[i] = (short) dataToImage.convert(value);
+                    }
+                } 
+                break;   
                 
             default :
             	for (int i = 0; i < length; ++i) {
