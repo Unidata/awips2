@@ -26,9 +26,12 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
+import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 
 /**
  * Represents a simple alias, where a parameter represents the same data as
@@ -42,6 +45,8 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * ------------- -------- ----------- --------------------------
  * Jan 15, 2010  3965     rjpeter     Initial creation
  * Jan 14, 2014  2661     bsteffen    Make vectors u,v only
+ * Apr 11, 2014  2947     bsteffen    Perform unit conversion on more types of
+ *                                    records.
  * 
  * </pre>
  * 
@@ -59,6 +64,7 @@ public class AliasRequestableData extends AbstractRequestableData {
         this.space = sourceRecord.space;
     }
 
+    @Override
     public Object getDataValue(Object arg) throws DataCubeException {
         return getDataAndConvert(sourceRecord, arg);
     }
@@ -102,47 +108,74 @@ public class AliasRequestableData extends AbstractRequestableData {
                     if ((Float) rval > -9999) {
                         rval = converter.convert((Float) rval);
                     }
-                } else if (rval instanceof FloatDataRecord) {
-                    float[] data = ((FloatDataRecord) rval).getFloatData();
-                    for (int c = 0; c < data.length; c++) {
-                        if (data[c] > -9999) {
-
-                            data[c] = (float) converter.convert(data[c]);
-                        }
-                    }
-                } else if (rval instanceof FloatDataRecord[]) {
-                    FloatDataRecord[] recs = (FloatDataRecord[]) rval;
-                    if (recs.length != 1 || !unit.equals(NonSI.DEGREE_ANGLE)) {
-                        for (int i = 0; i < recs.length; i++) {
-                            float[] data = recs[i].getFloatData();
-                            for (int c = 0; c < data.length; c++) {
-                                if (data[c] > -9999) {
-                                    data[c] = (float) converter
-                                            .convert(data[c]);
-                                }
-                            }
-                        }
-                    }
+                } else if (rval instanceof IDataRecord) {
+                    rval = convertDataRecord(converter, (IDataRecord) rval);
                 } else if (rval instanceof IDataRecord[]) {
                     IDataRecord[] recs = (IDataRecord[]) rval;
                     if (recs.length != 1 || !unit.equals(NonSI.DEGREE_ANGLE)) {
+                        rval = recs = Arrays.copyOf(recs, recs.length);
                         for (int i = 0; i < recs.length; i++) {
-                            if (recs[i] instanceof FloatDataRecord) {
-                                float[] data = ((FloatDataRecord) recs[i])
-                                        .getFloatData();
-                                for (int c = 0; c < data.length; c++) {
-                                    if (data[c] > -9999) {
-                                        data[c] = (float) converter
-                                                .convert(data[c]);
-                                    }
-                                }
-                            }
+                            recs[i] = convertDataRecord(converter, recs[i]);
                         }
                     }
                 }
             }
         }
         return rval;
+    }
+
+    private static IDataRecord convertDataRecord(UnitConverter converter,
+            IDataRecord record) {
+        float[] newData = null;
+        double fillValue = Double.NaN;
+        if (record.getFillValue() != null) {
+            fillValue = record.getFillValue().doubleValue();
+        }
+        if (record instanceof FloatDataRecord) {
+            float[] data = ((FloatDataRecord) record).getFloatData();
+            newData = new float[data.length];
+            for (int c = 0; c < data.length; c++) {
+                if (data[c] == fillValue) {
+                    newData[c] = Float.NaN;
+                } else {
+                    newData[c] = (float) converter.convert(data[c]);
+                }
+            }
+        } else if (record instanceof ByteDataRecord) {
+            byte[] data = ((ByteDataRecord) record).getByteData();
+            newData = new float[data.length];
+            for (int c = 0; c < data.length; c++) {
+                if (data[c] == fillValue) {
+                    newData[c] = Float.NaN;
+                } else {
+                    newData[c] = (float) converter.convert(data[c]);
+                }
+            }
+        } else if (record instanceof ShortDataRecord) {
+            short[] data = ((ShortDataRecord) record).getShortData();
+            newData = new float[data.length];
+            for (int c = 0; c < data.length; c++) {
+                if (data[c] == fillValue) {
+                    newData[c] = Float.NaN;
+                } else {
+                    newData[c] = (float) converter.convert(data[c]);
+                }
+            }
+        } else if (record instanceof IntegerDataRecord) {
+            int[] data = ((IntegerDataRecord) record).getIntData();
+            newData = new float[data.length];
+            for (int c = 0; c < data.length; c++) {
+                if (data[c] == fillValue) {
+                    newData[c] = Float.NaN;
+                } else {
+                    newData[c] = (float) converter.convert(data[c]);
+                }
+            }
+        } else{
+            return record;
+        }
+        return new FloatDataRecord(record.getName(), record.getGroup(),
+                newData, record.getDimension(), record.getSizes());
     }
 
     /*
