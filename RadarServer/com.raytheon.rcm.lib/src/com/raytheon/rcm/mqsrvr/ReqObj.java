@@ -35,6 +35,19 @@ import com.raytheon.rcm.request.Request;
 import com.raytheon.rcm.rmr.MultipleRequest;
 
 
+/**
+ * Request messages that can be sent to the RadarServer.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Add SendConfigFile
+ * </pre>
+ *
+ */
 @XmlSeeAlso({ReqObj.GetRadarList.class, 
 	ReqObj.GetRadarConfig.class, ReqObj.SetRadarConfig.class,
 	ReqObj.GetRadarStatus.class, ReqObj.GetRadarStatusMessages.class, 
@@ -45,7 +58,8 @@ import com.raytheon.rcm.rmr.MultipleRequest;
 	ReqObj.GetGlobalConfig.class, ReqObj.SetGlobalConfig.class,
 	ReqObj.ActivateRMR.class, ReqObj.CancelRMR.class, 
 	ReqObj.GetActiveRMRs.class, ReqObj.GetAlertRequest.class,
-	ReqObj.SendAlertRequest.class, ReqObj.SendMessageToRPG.class})
+	ReqObj.SendAlertRequest.class, ReqObj.SendMessageToRPG.class,
+	ReqObj.SendConfigFile.class})
 public class ReqObj {
 	@XmlRootElement
 	public static class GetRadarList extends ReqObj {		
@@ -121,6 +135,16 @@ public class ReqObj {
 		// nothing else
 	}
 	
+	@XmlRootElement
+	public static class SendConfigFile extends ReqObj {
+	    public String fileName;
+	    public byte[] fileData;
+	    public String toString() {
+	        return String.format("%s(%s, ...)",
+	            getClass().getSimpleName(), fileName);
+	    }
+	}
+
 	@XmlRootElement
 	public static class ActivateRMR extends ReqObj {
 		public MultipleRequest multipleRequest;

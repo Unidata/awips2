@@ -63,6 +63,7 @@
 #    Date             Ticket#       Engineer       Description
 #    -------------    ----------    -----------    --------------------------
 #    Feb. 21, 2013    15834         zhao           Modified for CCFP 8hr data
+#    Jan. 14  2014    16289         zhao           Modified time format in _makeData() to match A1
 #
 import logging, time
 import Avn, AvnLib, Globals, MonitorP
@@ -97,7 +98,7 @@ class Monitor(MonitorP.Monitor):
                     fcst[vtime] = d = dict(tmp)
                     ttok = ['%s: %s' % (x.upper(), _Code[x].get(int(d[x]), ''))\
                             for x in d]
-                    text.append('%sZ %s' % (tok[1][4:-2], ' '.join(ttok)))
+                    text.append('%sZ %s' % (tok[1][6:-2], ' '.join(ttok)))
             if not text:
                 text.append('NIL CONVECTION')
             for s in seq:

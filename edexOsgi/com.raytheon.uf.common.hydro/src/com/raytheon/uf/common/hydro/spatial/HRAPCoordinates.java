@@ -28,6 +28,21 @@ import java.io.IOException;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.util.FileUtil;
+/**
+ * TODO Returns HRAP Coordinates
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 18, 2014  17067      snaples     Added trim to readline to prevent parsing issues.
+ * 
+ * </pre>
+ * 
+ * @author snaples
+ * @version 1.0
+ */
 
 public class HRAPCoordinates {
     public static Rectangle getHRAPCoordinates() throws Exception {
@@ -49,13 +64,13 @@ public class HRAPCoordinates {
         String line = null;
         try {
             in = new BufferedReader(new FileReader(coordFile));
-            line = in.readLine();
+            line = in.readLine().trim();
             Hrap_XOR = Integer.parseInt(line);
-            line = in.readLine();
+            line = in.readLine().trim();
             Hrap_YOR = Integer.parseInt(line);
-            line = in.readLine();
+            line = in.readLine().trim();
             Hrap_MAXX = Integer.parseInt(line);
-            line = in.readLine();
+            line = in.readLine().trim();
             Hrap_MAXY = Integer.parseInt(line);
         } catch (FileNotFoundException e) {
             throw new Exception("unable to find coordinate file: "
