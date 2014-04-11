@@ -26,10 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
@@ -37,9 +33,13 @@ import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.gridcoverage.lookup.GridCoverageLookup;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -55,9 +55,11 @@ import com.raytheon.viz.grid.util.CoverageUtils;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 19, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 19, 2010           bsteffen    Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -130,7 +132,7 @@ public class GridRequestableNode extends AbstractBaseDataNode {
         boolean timeAgnostic = false;
         boolean spaceAgnostic = false;
         Set<DataTime> times = new HashSet<DataTime>();
-        Set<ISpatialObject> spaces = new HashSet<ISpatialObject>();
+        Set<IGridGeometryProvider> spaces = new HashSet<IGridGeometryProvider>();
         for (TimeAndSpace ast : availability) {
             if (ast.isTimeAgnostic()) {
                 timeAgnostic = true;
@@ -162,7 +164,7 @@ public class GridRequestableNode extends AbstractBaseDataNode {
         if (!spaceAgnostic) {
             RequestConstraint spaceRc = new RequestConstraint();
             spaceRc.setConstraintType(ConstraintType.IN);
-            for (ISpatialObject space : spaces) {
+            for (IGridGeometryProvider space : spaces) {
                 if (space instanceof GridCoverage) {
                     spaceRc.addToConstraintValueList(Integer
                             .toString(((GridCoverage) space).getId()));
