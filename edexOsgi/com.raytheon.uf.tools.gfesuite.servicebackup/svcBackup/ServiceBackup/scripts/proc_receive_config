@@ -106,6 +106,7 @@ edex_site_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}/config
 edex_site_si_dest=${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}
 common_site_dest=${LOCALIZATION_PATH}/common_static/site/${SITE_CAPS}
 cave_site_dest=${LOCALIZATION_PATH}/cave_static/site/${SITE_CAPS}
+rsync_parms_dest=/awips2/GFESuite/ServiceBackup/data # DR 16464
 
 if [ -d ${edex_site_dest} ]; then
 	log_msg "edex_static site directory exists for ${SITE_CAPS}"
@@ -127,6 +128,14 @@ else
 	log_msg "Creating cave_static site directory for ${SITE_CAPS}"
 	mkdir -p ${cave_site_dest}
 fi
+# DR 16464
+if [ -d ${rsync_parms_dest} ]; then
+	log_msg "rsync_parms_dest directory exists for ${SITE_CAPS}"
+else
+	log_msg "Creating rsync_parms_dest directory for ${SITE_CAPS}"
+	mkdir -p ${rsync_parms_dest}
+fi
+log msg 59
 
 log_msg "${SITE_CAPS}'s localization directories have been verified"
 log_msg 60
@@ -138,6 +147,9 @@ cp -r GFEconfig/edex_static/site/smartinit ${edex_site_si_dest}
 log_msg 90
 cp -r GFEconfig/cave_static/site/* ${cave_site_dest}
 log_msg 93
+# DR 16464
+cp -a GFEConfig/site/rsync_parms.${SITE_CAPS} ${rsync_parms_dest}.${SITE_CAPS}
+log_msg 94
 log_msg "Files successfully copied!"
 
 log_msg "Changing ownership of received configuration"
@@ -146,6 +158,7 @@ then
 	chown -R awips:fxalpha ${LOCALIZATION_PATH}/edex_static/site/${SITE_CAPS}
 	chown -R awips:fxalpha ${LOCALIZATION_PATH}/common_static/site/${SITE_CAPS}
 	chown -R awips:fxalpha ${LOCALIZATION_PATH}/cave_static/site/${SITE_CAPS}
+        chown -R awips:fxalpha /awips2/GFESuite/ServiceBackup/data    # DR 16464
 elif [ $USER = "awips" ]
 then
 	log_msg "Files already owned by awips"
