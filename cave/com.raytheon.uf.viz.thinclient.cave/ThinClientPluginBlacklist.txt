@@ -26,6 +26,7 @@ gov.noaa.nws.ncep.viz.rsc.idft
 gov.noaa.nws.ncep.viz.rsc.intlsig
 gov.noaa.nws.ncep.viz.rsc.lightning
 gov.noaa.nws.ncep.viz.rsc.mosaic
+gov.noaa.nws.ncep.viz.rsc.ncgrid
 gov.noaa.nws.ncep.viz.rsc.ncscat
 gov.noaa.nws.ncep.viz.rsc.nonconvsigmet
 gov.noaa.nws.ncep.viz.rsc.plotdata

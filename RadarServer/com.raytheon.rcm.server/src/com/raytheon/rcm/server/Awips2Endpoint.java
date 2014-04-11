@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import org.itadaki.bzip2.BZip2InputStream;
 
 import com.raytheon.rcm.event.ConfigEvent;
+import com.raytheon.rcm.event.ConfigEvent.Category;
 import com.raytheon.rcm.event.RadarEvent;
 import com.raytheon.rcm.event.RadarEventAdapter;
 import com.raytheon.rcm.message.GraphicProduct;
@@ -38,9 +39,20 @@ import com.raytheon.rcm.message.Message;
 import com.raytheon.rcm.message.MessageFormatException;
 
 /**
- * A radar server component that delivers radar products to an EDEX file
+ * <p>A radar server component that delivers radar products to an EDEX file
  * endpoint.
- */
+ *
+ * <p>This class is obsoleted by DataArchiveEndpoint.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Refactor config events.
+ * </pre>
+*/
 public class Awips2Endpoint extends RadarEventAdapter {
 
     RadarServer radarServer;
@@ -152,7 +164,7 @@ public class Awips2Endpoint extends RadarEventAdapter {
 
     @Override
     public void handleConfigEvent(ConfigEvent event) {
-        if (event.getRadarID() == null)
+        if (event.getCategory() == Category.GLOBAL_CONFIG)
             updateConfig();
     }
 
