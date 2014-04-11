@@ -27,7 +27,6 @@ import java.util.Map;
 
 import jep.JepException;
 
-import com.raytheon.uf.common.inventory.tree.CubeLevel;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -35,8 +34,9 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
-import com.raytheon.uf.common.python.PythonInterpreter;
 import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
+import com.raytheon.uf.common.inventory.tree.CubeLevel;
+import com.raytheon.uf.common.python.PythonInterpreter;
 
 /**
  * A script for running the master derived parameter script, which can run any
@@ -44,12 +44,14 @@ import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jul 8, 2008				njensen	    Initial creation
- * Nov 20, 2009 #3387       jelkins     Use derived script's variableId instead of filename
- * Nov 21, 2009 #3576       rjpeter     Refactored to populate DerivParamDesc.
- * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 08, 2008           njensen     Initial creation
+ * Nov 20, 2009  3387     jelkins     Use derived script's variableId instead of filename
+ * Nov 21, 2009  3576     rjpeter     Refactored to populate DerivParamDesc.
+ * Oct 29, 2013  2476     njensen     Renamed numeric methods to numpy
+ * Apr 11, 2014  2947     bsteffen    Allow returning NaN
+ * 
  * </pre>
  * 
  * @author njensen
@@ -351,20 +353,9 @@ public class MasterDerivScript extends PythonInterpreter {
     }
 
     private void filterResult() throws JepException {
-        StringBuilder script = new StringBuilder();
-        jep.eval("import numpy");
-        // Float NaN filtering
-        script.append("if isinstance(" + RESULT + ", numpy.ndarray) and "
-                + RESULT + ".dtype == numpy.float32:\n");
-        script.append("  " + RESULT + "[" + RESULT + " <= -9999] = -999999\n");
-        script.append("  " + RESULT + "[" + RESULT + " >= 999999] = -999999\n");
-        script.append("  " + RESULT + "[ numpy.isnan(" + RESULT
-                + ") ] = -999999\n");
-        script.append("  " + RESULT + "[ numpy.isinf(" + RESULT
-                + ") ] = -999999\n");
-        jep.eval(script.toString());
-        script = new StringBuilder();
         // String conversion
+        jep.eval("import numpy");
+        StringBuilder script = new StringBuilder();
         script.append("if isinstance(" + RESULT + ", numpy.ndarray) and "
                 + RESULT + ".dtype.kind == \"S\":\n");
         script.append("  " + RESULT + "=" + RESULT + ".flatten().tolist()\n");
