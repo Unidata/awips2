@@ -96,6 +96,7 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  *                                     AreaConfiguration to areaFields List.
  * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
  * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
+ * Feb 07, 2014  16090  mgamazaychikov Changed visibility of some methods
  * </pre>
  * 
  * @author rjpeter
@@ -124,12 +125,31 @@ public class GeospatialDataGenerator {
         List<String> sites = getBackupSites(dialogConfig);
         sites.add(0, mySite);
         List<String> templates = getTemplates(dialogConfig);
+        Set<GeospatialMetadata> metaDataSet = getMetaDataSet(sites, templates);
+
+        for (String site : sites) {
+            statusHandler.handle(Priority.INFO,
+                    "Generating warngen geometries for site: " + site);
+            for (GeospatialMetadata md : metaDataSet) {
+                try {
+                    generateGeoSpatialList(site, md);
+                } catch (Exception e) {
+                    statusHandler
+                            .handle(Priority.ERROR,
+                                    "Failed to generate geospatial data for warngen",
+                                    e);
+                }
+            }
+        }
+    }
+
+    public static Set<GeospatialMetadata> getMetaDataSet(List<String> sites,
+            List<String> templates) {
+
         Set<GeospatialMetadata> metaDataSet = new HashSet<GeospatialMetadata>();
 
         for (String site : sites) {
             metaDataSet.clear();
-            statusHandler.handle(Priority.INFO,
-                    "Generating warngen geometries for site: " + site);
 
             // get the unique geospatialMetadata sets to generate
             for (String templateName : templates) {
@@ -155,21 +175,10 @@ public class GeospatialDataGenerator {
                     metaDataSet.add(gmd);
                 }
             }
-
-            for (GeospatialMetadata md : metaDataSet) {
-                try {
-                    generateGeoSpatialList(site, md);
-                } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.ERROR,
-                                    "Failed to generate geospatial data for warngen",
-                                    e);
-                }
-            }
         }
+        return metaDataSet;
     }
-
-    private static List<String> getBackupSites(DialogConfiguration dialogConfig) {
+    static List<String> getBackupSites(DialogConfiguration dialogConfig) {
         String[] CWAs = dialogConfig.getBackupCWAs().split(",");
         List<String> rval = new ArrayList<String>(CWAs.length + 1);
         for (String s : CWAs) {
@@ -180,7 +189,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static List<String> getTemplates(DialogConfiguration dialogConfig) {
+    static List<String> getTemplates(DialogConfiguration dialogConfig) {
         String[] mainProducts = dialogConfig.getMainWarngenProducts()
                 .split(",");
         String[] otherProducts = dialogConfig.getOtherWarngenProducts().split(
@@ -337,7 +346,7 @@ public class GeospatialDataGenerator {
         return rval;
     }
 
-    private static GeospatialTime queryForCurrentTimes(
+    static GeospatialTime queryForCurrentTimes(
             GeospatialMetadata metaData) throws Exception {
         GeospatialTime rval = new GeospatialTime();
         String areaSource = metaData.getAreaSource().toLowerCase();

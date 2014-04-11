@@ -56,6 +56,11 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2009            jkorman     Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 24, 2014 DR15038    M.Porricelli In createSounding, use 
+ *                                      difference between flight
+ *                                      level and airport elevation
+ *                                      to determine which airport
+ *                                      to use
  * 
  * </pre>
  * 
@@ -203,17 +208,17 @@ public class SoundingBuilder {
             List<ACARSRecord> obsData) {
         ACARSSoundingRecord sounding = null;
         if (obsData != null) {
-
             // examine the lower MAX_FIRST meters of the data to determine which
             // airport to use.
             Airport airport = null;
             Double dist = Double.MAX_VALUE;
             ACARSRecord recObs = null;
             for (ACARSRecord r : obsData) {
-                if (r.getFlightLevel() < ACARSSoundingTools.MAX_FIRST) {
-                    Airport a = airports.nearest(r,
-                            ACARSSoundingTools.MAX_DISTANCE);
-                    if ((a != null) && (a.getDistance() < dist)) {
+                Airport a = airports
+                        .nearest(r, ACARSSoundingTools.MAX_DISTANCE);
+                if (a != null
+                        && (r.getFlightLevel() - a.getElevation()) < ACARSSoundingTools.MAX_FIRST) {
+                    if ((a.getDistance() < dist)) {
                         // Keep track of the obs that contributes the distance.
                         recObs = r;
                         dist = a.getDistance();
@@ -221,7 +226,7 @@ public class SoundingBuilder {
                     }
                 }
             }
-            // If we have an airport we'll use that to create the sounding
+ // If we have an airport we'll use that to create the sounding
             if (airport != null) {
                 sounding = new ACARSSoundingRecord();
                 Calendar soundingTime = recObs.getTimeObs();

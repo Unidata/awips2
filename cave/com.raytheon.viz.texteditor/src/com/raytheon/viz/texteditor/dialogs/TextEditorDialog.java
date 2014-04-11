@@ -334,6 +334,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
  * 10Dec2013   2601         mpduff      Fix NullPointerException.
+ * 28Jan2014   DR14595   mgamazaychikov Added template loading and editing functionality.
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
  * </pre>
  * 
@@ -1088,6 +1089,12 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Search and replace dialog.
      */
     private SearchReplaceDlg searchReplaceDlg;
+    
+    /** 
+     * Flag indicating if the overwrite mode has been set for
+     * template editing.
+     */
+    private boolean isTemplateOverwriteModeSet = false;
 
     /**
      * Flag to indicate if the document being edited has been saved.
@@ -2052,14 +2059,16 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         overStrikeItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (overwriteMode == true) {
-                    overwriteMode = false;
-                    editorInsertCmb.select(INSERT_TEXT);
-                } else {
-                    overwriteMode = true;
-                    editorInsertCmb.select(OVERWRITE_TEXT);
+            	if (!AFOSParser.isTemplate) {
+                    if (overwriteMode == true) {
+                        overwriteMode = false;
+                        editorInsertCmb.select(INSERT_TEXT);
+                    } else {
+                        overwriteMode = true;
+                        editorInsertCmb.select(OVERWRITE_TEXT);
+                    }
+                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                 }
-                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
             }
         });
     }
@@ -3699,18 +3708,20 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         editorInsertCmb.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if ((editorInsertCmb.getSelectionIndex() == INSERT_TEXT)
-                        && (overwriteMode == true)) {
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
-                    overwriteMode = false;
-                    overStrikeItem.setSelection(false);
-                } else if ((editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT)
-                        && (overwriteMode == false)) {
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
-                    overwriteMode = true;
-                    overStrikeItem.setSelection(true);
+            	if (!AFOSParser.isTemplate) {
+                    if (editorInsertCmb.getSelectionIndex() == INSERT_TEXT
+                            && overwriteMode == true) {
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                        overwriteMode = false;
+                        overStrikeItem.setSelection(false);
+                    } else if (editorInsertCmb.getSelectionIndex() == OVERWRITE_TEXT
+                            && overwriteMode == false) {
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                        overwriteMode = true;
+                        overStrikeItem.setSelection(true);
+                    }
+                    textEditor.setFocus();
                 }
-                textEditor.setFocus();
             }
         });
 
@@ -3870,16 +3881,18 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                     event.doit = false; // Ignore Ctrl+Shift+PageDown
                 } else if (event.keyCode == SWT.INSERT) {
                     // Ins key on the keypad
-                    if (overwriteMode == true) {
-                        overwriteMode = false;
-                        overStrikeItem.setSelection(false);
-                        editorInsertCmb.select(INSERT_TEXT);
-                    } else {
-                        overwriteMode = true;
-                        overStrikeItem.setSelection(true);
-                        editorInsertCmb.select(OVERWRITE_TEXT);
+                	if (AFOSParser.isTemplate) {
+                        if (overwriteMode == true) {
+                            overwriteMode = false;
+                            overStrikeItem.setSelection(false);
+                            editorInsertCmb.select(INSERT_TEXT);
+                        } else {
+                            overwriteMode = true;
+                            overStrikeItem.setSelection(true);
+                            editorInsertCmb.select(OVERWRITE_TEXT);
+                        }
+                        textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                     }
-                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                 } else if (event.keyCode > 500) {
                     // Do nothing...
                     // We need to capture the non-alphanumeric editing-related
@@ -3892,6 +3905,71 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
                         && (event.character != '\r')
                         && (event.character != '\n')) {
                     userKeyPressed = true;
+                }
+                if (AFOSParser.isTemplate) {
+
+                    if (event.keyCode == SWT.BS) {
+                        event.doit = false;
+                        int currentPos = textEditor.getCaretOffset();
+                        String textUpToCaret = textEditor.getText().substring(0, currentPos);
+                        int leftMost=textUpToCaret.lastIndexOf("[") + 1;
+                        int rightMost = textEditor.getText().indexOf("]",currentPos);
+                        int editableTextWidth = rightMost - leftMost;
+                        String leftPart="";
+                        String rightPart="";
+                        if (currentPos == leftMost) {
+                             leftPart  = "";
+                             rightPart = textEditor.getText().substring(
+                                     currentPos, rightMost);
+                             textEditor.setCaretOffset(leftMost);
+                        }
+                        else if (currentPos > leftMost && currentPos <= rightMost){
+                            leftPart  = textEditor.getText().substring(
+                                    leftMost, currentPos - 1);
+                            rightPart = textEditor.getText().substring(
+                                    currentPos, rightMost);
+                        }
+                        else if (currentPos == rightMost) {
+                            leftPart  = textEditor.getText().substring(
+                                    leftMost, currentPos-1);
+                            rightPart = "";
+                        }
+                        String newString = leftPart + rightPart;
+                        int width = newString.length();
+                        int neededPadSpaces = editableTextWidth - newString.length();
+                        String newPaddedString = String.format("%1$-"
+                                + (neededPadSpaces+1) + "s", newString);
+                        String spacedoutString = String.format("%1$-"
+                                + (editableTextWidth) + "s",
+                                " ");
+                        textEditor.replaceTextRange(leftMost,
+                                spacedoutString.length(), spacedoutString);
+                        textEditor.replaceTextRange(leftMost,
+                                newPaddedString.length(), newPaddedString);
+                        textEditor.setCaretOffset(currentPos - 1);
+
+
+                    } else if (event.keyCode == SWT.TAB) {
+                        if (!isTemplateOverwriteModeSet) {
+                            if (overwriteMode) {
+                                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                            } else {
+                            }
+                            isTemplateOverwriteModeSet = true;
+                        }
+
+                        event.doit = false;
+                        int currentPos = textEditor.getCaretOffset();
+                        String textUpToCaret = textEditor.getText().substring(
+                                0, currentPos);
+                        int openBracketPos = textUpToCaret.lastIndexOf("[");
+                        openBracketPos = textEditor.getText().indexOf("[", currentPos);
+                        textEditor.setCaretOffset(openBracketPos + 1);
+                    }
+                    else if (event.keyCode>=97 && event.keyCode <=122 ||
+                             event.keyCode>=48 && event.keyCode <=57){
+                        event.doit = true;
+                    }
                 }
             }
         });
@@ -4077,6 +4155,7 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
      * Enter the text editor mode.
      */
     private void enterEditor() {
+    	initTemplateOverwriteMode();
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
         if ((product != null)
@@ -5120,6 +5199,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             body.append("\n");
         }
         body.append(textEditor.getText().trim());
+        
+        if (AFOSParser.isTemplate){
+            return removePreformat(body.toString());
+        }
 
         return body.toString();
     }
@@ -5249,6 +5332,10 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
             int startIndex = statusBarLabel.getText().indexOf(":") + 2;
             productText += ATTACHMENT_STR
                     + statusBarLabel.getText().substring(startIndex);
+        }
+        
+        if (AFOSParser.isTemplate) {
+            productText = removePreformat(productText);
         }
 
         storedProduct.setProduct(productText.trim());
@@ -6853,7 +6940,9 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         }
         String textProduct = product.getASCIIProduct();
         if ((product.getNnnid() + product.getXxxid())
-                .startsWith(AFOSParser.DRAFT_PIL)) {
+                .startsWith(AFOSParser.DRAFT_PIL) ||
+                (product.getNnnid() + product.getXxxid())
+            .startsWith(AFOSParser.MCP_NNN )) {
             String[] nnnxxx = TextDisplayModel.getNnnXxx(textProduct);
             String operationalPil = nnnxxx[0] + nnnxxx[1];
             String siteNode = SiteAbbreviationUtil.getSiteNode(nnnxxx[1]);
@@ -8496,5 +8585,47 @@ public class TextEditorDialog extends CaveSWTDialog implements VerifyListener,
         } else {
             return bbb;
         }
+    }
+    
+    private void initTemplateOverwriteMode() {
+        if (AFOSParser.isTemplate) {
+            editorInsertCmb.setEnabled(false);
+            editorCutBtn.setEnabled(false);
+            editorCopyBtn.setEnabled(false);
+            editorPasteBtn.setEnabled(false);
+            editorFillBtn.setEnabled(false);
+            editorAttachBtn.setEnabled(false);
+            overStrikeItem.setEnabled(false);
+            if (!isTemplateOverwriteModeSet) {
+                if (overwriteMode) {
+                } else {
+                    textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                }
+                isTemplateOverwriteModeSet = true;
+            }
+
+        }
+        else {
+            editorInsertCmb.setEnabled(true);
+            overStrikeItem.setEnabled(true);
+            editorCutBtn.setEnabled(true);
+            editorCopyBtn.setEnabled(true);
+            editorPasteBtn.setEnabled(true);
+            editorFillBtn.setEnabled(true);
+            editorAttachBtn.setEnabled(true);
+            if (isTemplateOverwriteModeSet && !overwriteMode){
+                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+                isTemplateOverwriteModeSet=false;
+            }
+            if (!isTemplateOverwriteModeSet && overwriteMode){
+                textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
+            }
+        }
+    }
+    
+    private String removePreformat(String preformattedText) {
+        String modifiedText = preformattedText.replaceAll("\\[|\\]", " ");
+        modifiedText = removeSoftReturns(modifiedText);
+        return modifiedText;
     }
 }

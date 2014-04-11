@@ -1,6 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 
   	<bean id="generateGeospatialDataRequestHandler" class="com.raytheon.edex.plugin.warning.gis.GenerateGeospatialDataRequestHandler" />
@@ -11,4 +12,32 @@
 
     <!-- Instantiating class causes a thread to be run that will generate the warngen geometries -->
 	<bean class="com.raytheon.edex.plugin.warning.gis.GeospatialDataGeneratorThread" depends-on="spatialQueryRegistered" />
+	
+    <!--Instantiating class will update the warngen geometries-->
+	<bean id="geospatialDataUpdater" class="com.raytheon.edex.plugin.warning.gis.GeospatialDataUpdater" />
+
+    <camelContext id="geospatialDataUpdater-context"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+
+        <endpoint id="geospatialDataUpdaterCron"
+            uri="clusteredquartz://warning/geospatialDataUpdaterScheduled/?cron=${geospatial.updater.cron}" />
+
+        <route id="geospatialDataUpdaterScheduled">
+            <from uri="geospatialDataUpdaterCron" />
+            <to uri="jms-generic:queue:geospatialDataUpdaterScheduledWork" />
+        </route>
+
+        <route id="geospatialDataUpdaterScheduledWork">
+            <from uri="jms-generic:queue:geospatialDataUpdaterScheduledWork" />
+            <doTry>
+                <bean ref="geospatialDataUpdater" method="runCheckUpdate" />
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:geospatialDataUpdater?level=ERROR" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
 </beans>

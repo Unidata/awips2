@@ -1,36 +1,46 @@
-RPS List rps-RPGOP-tcp.clear-air modified 2007:01:03:00:00:00 ... 31 products
- An RPS list contains the following fields: Product Name, Product
- Mnemonic, Product Code, Number of Data Levels, Resolution, Layer Code,
- Elevation, Contour Interval, Priority, Req Interval, and Map
- The record format is: '%-39s  %-3s%4d%4d%6d %c%6d%7d%2d%2d%c'
-Reflectivity (Z)                         Z    19  16   100 -     5     -1 0 1N
-Reflectivity (Z)                         Z    19  16   100 -    15     -1 0 1N
-Reflectivity (Z)                         Z    19  16   100 -    25     -1 0 1N
-Reflectivity (Z)                         Z    19  16   100 -    35     -1 0 1N
-Reflectivity (Z)                         Z    20  16   200 -     5     -1 0 1N
-Velocity (V)                             V    27  16   100 -     5     -1 0 1N
-Velocity (V)                             V    27  16   100 -    15     -1 0 1N
-Velocity (V)                             V    27  16   100 -    25     -1 0 1N
-Velocity (V)                             V    27  16   100 -    35     -1 0 1N
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -     5     -1 0 1N
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    15     -1 0 1N
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    25     -1 0 1N
-Storm Rel Velocity (SRM)                 SRM  56  16   100 -    35     -1 0 1N
-Composite Ref (CZ)                       CZ   36   8   400 -    -1     -1 0 1N
-Composite Ref (CZ)                       CZ   37  16   100 -    -1     -1 0 1N
-Composite Ref (CZ)                       CZ   38  16   400 -    -1     -1 0 1N
-Lyr Comp Ref Max (LRM) Level 1           LRM  65   8     0 L    -1     -1 0 1N
-Lyr Comp Ref Max (LRM) Level 2           LRM  66   8     0 M    -1     -1 0 1N
-Lyr Comp Ref Max (LRM) Level 3           LRM  90   8     0 H    -1     -1 0 1N
-Lyr Comp Ref MAX (APR)                   APR  67  16     0 L    -1     -1 0 1N
-Echo Tops (ET)                           ET   41  16     0 -    -1     -1 0 1N
-Vert Integ Liq (VIL)                     VIL  57  16     0 -    -1     -1 0 1N
-One Hour Precip (OHP)                    OHP  78  16     0 -    -1     -1 0 1N
-Storm Total Precip (STP)                 STP  80  16     0 -    -1     -1 0 1N
-VAD Wind Profile (VWP)                   VWP  48   0     0 -    -1     -1 0 1N
-Digital Precip Array (DPA)               DPA  81 256   400 -    -1     -1 0 1N
-Velocity (V)                             V    25  16   100 -     5     -1 0 1N
-Base Spectrum Width (SW)                 SW   28   8   100 -     5     -1 0 1N
-Base Spectrum Width (SW)                 SW   30   8   100 -     5     -1 0 1N
-Digital Hybrid Scan Refl (DHR)           DHR  32 256   100 -    -1     -1 0 1N -1 -1
-Storm Total Precip (STP)                 STP 138 256   200 -    -1     -1 0 1N -1 -1 N
+RPS List rps-RPGOP-tcp.VCP32.rps created    2010:11:18:17:32:56 ... 41 products
+ An RPS list contains the fields: Prod-Name, Mnemonic, Prod-Code
+ Number of Data Levels, Resolution, Layer Code, Elevation, Contour Interval,
+ Priority, Req Interval, Map, Lower Layer, Upper Layer, multCut, endHour, timeSpan
+ The record format is: '%-39s  %-3s%4d%4d%6d %c%6d%7d%2d%2d%c%3d%3d %c%7d%7d'
+Reflectivity (Z)                         Z    94 256   100 -  8227     -1 0 1N -1 -1 N     -1      0
+Velocity (V)                             V    99 256    25 -  8227     -1 0 1N -1 -1 N     -1      0
+Reflectivity (Z)                         Z    19  16   100 -     5     -1 0 1N -1 -1 N     -1      0
+Reflectivity (Z)                         Z    20  16   200 -     5     -1 0 1N -1 -1 N     -1      0
+Velocity (V)                             V    27  16   100 -     5     -1 0 1N -1 -1 N     -1      0
+Storm Rel Velocity (SRM)                 SRM  56  16   100 -     5     -1 0 1N -1 -1 N     -1      0
+Storm Rel Velocity (SRM)                 SRM  56  16   100 -    15     -1 0 1N -1 -1 N     -1      0
+Storm Rel Velocity (SRM)                 SRM  56  16   100 -    25     -1 0 1N -1 -1 N     -1      0
+Storm Rel Velocity (SRM)                 SRM  56  16   100 -    35     -1 0 1N -1 -1 N     -1      0
+Composite Ref (CZ)                       CZ   36   8   400 -    -1     -1 0 1N  2 -1 N     -1      0
+Composite Ref (CZ)                       CZ   37  16   100 -    -1     -1 0 1N  2 -1 N     -1      0
+Composite Ref (CZ)                       CZ   38  16   400 -    -1     -1 0 1N  2 -1 N     -1      0
+Lyr Comp Ref Max (LRM) Level 1           LRM  65   8     0 L    -1     -1 0 1N -1 -1 N     -1      0
+Lyr Comp Ref Max (LRM) Level 2           LRM  66   8     0 M    -1     -1 0 1N -1 -1 N     -1      0
+Lyr Comp Ref Max (LRM) Level 3           LRM  90   8     0 H    -1     -1 0 1N -1 -1 N     -1      0
+Lyr Comp Ref MAX (APR)                   APR  67  16     0 L    -1     -1 0 1N -1 -1 N     -1      0
+Echo Tops (ET)                           ET   41  16     0 -    -1     -1 0 1N  2 -1 N     -1      0
+Vert Integ Liq (VIL)                     VIL  57  16     0 -    -1     -1 0 1N  2 -1 N     -1      0
+Enhanced Echo Tops (EET)                 EET 135 256   100 -    -1     -1 0 1N -1 -1 N     -1      0
+Digital Vert Integ Liq (DVL)             DVL 134 256   100 -    -1     -1 0 1N -1 -1 N     -1      0
+One Hour Precip (OHP)                    OHP  78  16     0 -    -1     -1 0 1N -1 -1 N     -1      0
+Storm Total Precip (STP)                 STP  80  16     0 -    -1     -1 0 1N -1 -1 N     -1      0
+VAD Wind Profile (VWP)                   VWP  48   0     0 -    -1     -1 0 1N -1 -1 N     -1      0
+Digital Precip Array (DPA)               DPA  81 256   400 -    -1     -1 0 1N -1 -1 N     -1      0
+Base Spectrum Width (SW)                 SW   28   8   100 -     5     -1 0 1N -1 -1 N     -1      0
+Base Spectrum Width (SW)                 SW   30   8   100 -     5     -1 0 1N -1 -1 N     -1      0
+Digital Hybrid Scan Refl (DHR)           DHR  32 256   100 -    -1     -1 0 1N -1 -1 N     -1      0
+Storm Total Precip (STP)                 STP 138 256   200 -    -1     -1 0 1N -1 -1 N     -1      0
+Differential Refl (ZDR)                  ZDR 159 256    25 -  8227     -1 0 1N -1 -1 N     -1      0
+Correlation Coeff (CC)                   CC  161 256    25 -  8227     -1 0 1N -1 -1 N     -1      0
+Specific Diff Phase (KDP)                KDP 163 256    25 -  8227     -1 0 1N -1 -1 N     -1      0
+Hydrometeor Class (HC)                   HC  165 256    25 -  8227     -1 0 1N -1 -1 N     -1      0
+Melting Layer (ML)                       ML  166   0     0 -  8227     -1 0 1N -1 -1 N     -1      0
+Digital Inst Precip Rate (DPR)           DPR 176   0    25 -    -1     -1 0 1N -1 -1 N     -1      0
+Hybrid Hydrometeor Class (HHC)           HHC 177 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
+One Hour Accum (OHA)                     OHA 169  16   200 -    -1     -1 0 1N -1 -1 N     -1      0
+One Hour Unbiased Accum (DAA)            DAA 170 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
+Storm Total Accum (STA)                  STA 171  16   200 -    -1     -1 0 1N -1 -1 N     -1      0
+Storm Total Accum (STA)                  STA 172 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
+One Hour Diff (DOD)                      DOD 174 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
+Storm Total Diff (DSD)                   DSD 175 256    25 -    -1     -1 0 1N -1 -1 N     -1      0
