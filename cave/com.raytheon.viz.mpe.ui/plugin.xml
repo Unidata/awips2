@@ -805,6 +805,44 @@
                </parameter>
             </command>
       </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=hydrocommon-1">
+         <toolbar
+               id="com.raytheon.viz.mpe.ui.toolbar.mpecontrol">
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.chooseHourPrev"
+                  icon="icons/back0.gif"
+                  label="Previous Hour"
+                  style="push"
+                  tooltip="Previous Hour">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inMPEActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="increment"
+                     value="-1">
+               </parameter>
+            </command>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.chooseHourNext"
+                  icon="icons/fwd0.gif"
+                  label="Next Hour"
+                  style="push"
+                  tooltip="Next Hour">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.viz.inMPEActionSet">
+                  </reference>
+               </visibleWhen>
+               <parameter
+                     name="increment"
+                     value="1">
+               </parameter>
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
