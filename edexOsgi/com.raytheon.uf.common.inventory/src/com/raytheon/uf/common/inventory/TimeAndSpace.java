@@ -19,11 +19,10 @@
  **/
 package com.raytheon.uf.common.inventory;
 
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.time.DataTime;
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Represents a time and space(location) where data can exist. This is used in
@@ -34,9 +33,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 11, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Apr 11, 2012           bsteffen    Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch space to use IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -73,40 +73,23 @@ public class TimeAndSpace {
      * elevation angle for a grid coverage, this can be calculated for any
      * gridcoverage.
      */
-    public static final ISpatialObject SPACE_AGNOSTIC = new ISpatialObject() {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Integer getNy() {
-            return null;
-        }
-
-        @Override
-        public Integer getNx() {
-            return null;
-        }
-
-        @Override
-        public Geometry getGeometry() {
-            return null;
-        }
-
-        @Override
-        public CoordinateReferenceSystem getCrs() {
-            return null;
-        }
+    public static final IGridGeometryProvider SPACE_AGNOSTIC = new IGridGeometryProvider() {
 
         @Override
         public String toString() {
             return "SPACE_AGNOSTIC";
         }
 
+        @Override
+        public GridGeometry2D getGridGeometry() {
+            return null;
+        }
+
     };
 
     private final DataTime time;
 
-    private final ISpatialObject space;
+    private final IGridGeometryProvider space;
 
     public TimeAndSpace() {
         this(TIME_AGNOSTIC, SPACE_AGNOSTIC);
@@ -117,11 +100,11 @@ public class TimeAndSpace {
 
     }
 
-    public TimeAndSpace(ISpatialObject space) {
+    public TimeAndSpace(IGridGeometryProvider space) {
         this(TIME_AGNOSTIC, space);
     }
 
-    public TimeAndSpace(DataTime time, ISpatialObject space) {
+    public TimeAndSpace(DataTime time, IGridGeometryProvider space) {
         this.time = time;
         this.space = space;
     }
@@ -130,7 +113,7 @@ public class TimeAndSpace {
         return time;
     }
 
-    public ISpatialObject getSpace() {
+    public IGridGeometryProvider getSpace() {
         return space;
     }
 
