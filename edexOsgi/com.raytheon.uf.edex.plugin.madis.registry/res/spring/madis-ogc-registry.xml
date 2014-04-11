@@ -22,8 +22,7 @@
         <constructor-arg ref="madis-camel" />
     </bean>
 
-	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator"
-		depends-on="jmsIngestMadisConfig, jms-madis, madisThreadPool">
+	<bean id="madisSeparator" class="com.raytheon.uf.edex.plugin.madis.MadisSeparator">
 		<constructor-arg
 			value="jms-durable:queue:Ingest.madisSeparator" />
 		<!-- time in hours for orphan purging -->
