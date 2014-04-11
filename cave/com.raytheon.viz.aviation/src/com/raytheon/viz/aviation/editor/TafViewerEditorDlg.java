@@ -229,6 +229,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 08/09/2013   2033        mschenke    Switched File.separator to IPathManager.SEPARATOR
  * 09/04/2013   2322        lvenable    Added CAVE style so this dialog is perspective independent
  * 10/24/2013   16478       zhao        add syntax check for extra '=' sign
+ * 01/13/2014   16153       zhao        Modified qcCheck().
+ * 01/15/2014   16458       zhao        Check for extra '=' sign before 'regular syntax check'
  * 02/12/2014   17076       lvenable    Mark guidance tabs as not current so they get refreshed
  * 02/19/2014   16980       zhao        add code to ensure the Alt flag is false after the Alt kay is released
  * 21Mar2014    #2925       lvenable    Fixed NPE error found during testing.
@@ -1781,6 +1783,9 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
         syntaxBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
+            	if ( checkBasicSyntaxError(true) ) {
+            		return;
+            	}
                 syntaxCheck();
             }
         });
@@ -2031,7 +2036,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                             .getSelectionIndex());
                     String bbb = editorTafTabComp.getBBB();
 
-                    // DR166478
+                    // DR16478
                     if (toolName.equals("UseMetarForPrevailing")) {
                         if (checkBasicSyntaxError(true)) {
                             return;
@@ -3689,7 +3694,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                 if (endIndex == -1) {
                     endIndex = in.length();
                 }
-                String line = in.substring(beginIndex, endIndex);
+				boolean isWrapping = false;
+				String thisSite = "";
+				String lastLine = "";
+				String line = in.substring(beginIndex, endIndex);
                 int lineNumber = 1;
                 Set<List<String>> keySet = results.keySet();
                 int maxLevel = 0;
@@ -3699,6 +3707,10 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                     int level = 0;
                     int start = -1;
                     int length = -1;
+                    
+                    if (line.startsWith("TAF")) {
+                    	thisSite = in.substring(endIndex+1, endIndex+5);
+                    }
 
                     if (!line.startsWith("TAF")) {
                         if (line.trim().length() == 0) {
@@ -3713,6 +3725,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                 endIndex = in.length();
                             }
 
+                            lastLine = line;
                             line = in.substring(beginIndex, endIndex);
                             continue;
                         }
@@ -3726,17 +3739,25 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                     .get(key);
 
                             if (lineNumber == keyLineNum) {
-                                text = result.get("text").toString() + "\n";
-                                level = Integer.parseInt(result.get("level")
-                                        .toString());
-                                start = Integer.parseInt(temp.substring(temp
-                                        .indexOf('.') + 1));
-                                temp = key.get(1);
-                                length = Integer.parseInt(temp.substring(temp
-                                        .indexOf('.') + 1));
-                                length = length - start;
-                                start = beginIndex + start;
-                                break;
+                            	if (!isWrappingLine(line,thisSite)) {
+                            		isWrapping = false;
+									text = result.get("text").toString() + "\n";
+									level = Integer.parseInt(result.get("level").toString());
+									start = Integer.parseInt(temp.substring(temp.indexOf('.') + 1));
+									temp = key.get(1);
+									length = Integer.parseInt(temp.substring(temp.indexOf('.') + 1));
+									length = length - start;
+									start = beginIndex + start;
+									break;
+								} else {
+									// a PROB30 group is wrapped in two lines
+									isWrapping = true;
+									text = result.get("text").toString() +"\n";
+									level = Integer.parseInt(result.get("level").toString());
+									start = beginIndex - 1 - lastLine.length() + lastLine.indexOf("PROB30");
+									length = lastLine.substring(lastLine.indexOf("PROB30")).length() + 1 + line.length();
+									break;
+								}
                             }
                         }
 
@@ -3749,8 +3770,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                                 start = beginIndex + start;
                             }
 
-                            StyleRange sr = new StyleRange(start, length, null,
-                                    qcColors[level]);
+                            StyleRange sr = new StyleRange(start, length, null,qcColors[level]);
                             st.setStyleRange(sr);
                             qcResultMap.put(sr, text);
 
@@ -3775,6 +3795,7 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
                         beginIndex = endIndex = in.length();
                         line = "";
                     } else {
+                    	lastLine = line;
                         line = in.substring(beginIndex, endIndex);
                     }
 
@@ -3791,12 +3812,22 @@ public class TafViewerEditorDlg extends CaveSWTDialog implements ITafSettable,
             setMessageStatusError("An Error occured while performing the QC check.");
         } catch (IOException e) {
             setMessageStatusError("An Error occured while performing the QC check.");
+        } catch (Exception e) {
+        	setMessageStatusError("An Error occured while performing the QC check.");
         } finally {
             setWaitCursor(false);
         }
     }
 
-    /**
+    private boolean isWrappingLine(String line, String site) {
+		String tempLine = line.trim();
+		if (tempLine.startsWith(site)||tempLine.startsWith("TEMPO")||tempLine.startsWith("FM")||tempLine.startsWith("PROB30")) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
      * Read in the TAF viewer editor config XML.
      * 
      * @return An array of viewer tab configuration data.
