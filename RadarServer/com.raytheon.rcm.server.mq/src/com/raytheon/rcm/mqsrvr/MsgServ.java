@@ -66,6 +66,7 @@ import com.raytheon.rcm.mqsrvr.ReqObj.GetRadarList;
 import com.raytheon.rcm.mqsrvr.ReqObj.GetRadarStatusMessages;
 import com.raytheon.rcm.mqsrvr.ReqObj.GetRpsList;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendAlertRequest;
+import com.raytheon.rcm.mqsrvr.ReqObj.SendConfigFile;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendMessageToRPG;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendOneTimeRequests;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendRpsList;
@@ -79,6 +80,19 @@ import com.raytheon.rcm.server.Log;
 import com.raytheon.rcm.server.RadarServer;
 import com.raytheon.rcm.server.StatusManager.RadarStatus;
 
+/**
+ * JMS-based RadarServer request message handler.
+ *
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ...
+ * 2014-02-03   DR 14762   D. Friedman Handle NDM config files.
+ * </pre>
+ *
+ */
 public class MsgServ implements RadarEventListener, MessageListener {
 
     QueueConnection queueConn;
@@ -313,6 +327,9 @@ public class MsgServ implements RadarEventListener, MessageListener {
         } else if (ro instanceof SendMessageToRPG) {
             SendMessageToRPG ro2 = (SendMessageToRPG) ro;
             error = serv.sendMessageToRPG(ro2.radarID, ro2.message);
+        } else if (ro instanceof SendConfigFile) {
+            SendConfigFile ro2 = (SendConfigFile) ro;
+            error = serv.sendConfigFile(ro2.fileName, ro2.fileData);
         } else if (ro instanceof DebugCommand) {
             DebugCommand.Command c = ((DebugCommand) ro).command;
             if (c == DebugCommand.Command.LOG_OTR_STATUS)

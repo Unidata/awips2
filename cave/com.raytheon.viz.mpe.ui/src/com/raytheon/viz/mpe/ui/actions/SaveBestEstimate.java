@@ -56,6 +56,7 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 11, 2012            mschenke     Initial creation
+ * Feb 2, 2014  16201      snaples      Added saved data flag support
  * 
  * </pre>
  * 
@@ -263,6 +264,7 @@ public class SaveBestEstimate {
             // "%s\n", command_string ));
             // system ( command_string );
         }
+        MPEDisplayManager.getCurrent().setSavedData(true);
     }
 
     private static void mpegui_save_image(BufferedImage bi, String format,
