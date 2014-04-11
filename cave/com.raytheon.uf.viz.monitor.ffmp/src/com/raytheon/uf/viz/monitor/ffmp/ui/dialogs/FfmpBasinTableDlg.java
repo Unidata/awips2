@@ -122,8 +122,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jun 06, 2013  2075      njensen      Removed loading labels
  * Jul 09, 2013  2152      njensen      Fix potential widget disposed error
  * Jun 20, 2013  14907     gzhang       Thresholds menu ColorCell check fix.
+ * Jan 09, 2014  DR16096   gzhang	    Fix QPFSCAN not showing M issue for different radar source.
  * </pre>
- * 
  * @author lvenable
  * @version 1.0
  */
@@ -1343,7 +1343,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         // Update the data in the FFMPConfig with the selections
         this.ffmpConfig.setVisibleColumns(attrData);
         this.ffmpConfig.setAttrData(attrData);
-        this.ffmpTable.showHideTableColumns();
+        if( ! updateData)    this.ffmpTable.showHideTableColumns(); // DR 16096
         boolean changeSplit = false;
 
         if (timeDurScale.split != ffmpConfig.isSplit()) {

@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * ------------ ---------- ----------- --------------------------
  * Sep 8, 2009            snaples     Initial creation
  * Feb 15, 2013 1638       mschenke    Moved DataURINotificationMessage to uf.common.dataplugin
+ * Mar 19, 2014 17109     snaples     Removed code that adds 1 hour to grid reftime, was not needed.
  * 
  * </pre>
  * 
@@ -229,8 +230,6 @@ public class SatPrecipFileBuilder {
         // this get the reftime of the record
         grReftime = gr.getDataTime().getRefTime();
         long millis = grReftime.getTime();
-        // convert 1 hour to milliseconds to add to time.
-        millis += 60 * 60 * 1000;
         grReftime.setTime(millis);
     }
 
