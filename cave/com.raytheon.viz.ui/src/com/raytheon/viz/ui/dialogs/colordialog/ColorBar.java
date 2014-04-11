@@ -21,8 +21,11 @@
 package com.raytheon.viz.ui.dialogs.colordialog;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 
@@ -56,6 +59,20 @@ import org.eclipse.swt.widgets.Composite;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
+/**
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 11, 2014 DR 15811   Qinglu Lin  Added decimalPlaceMap and logic to have 4 decimal places
+ *                                     for color editor's color bar for radar correlation coefficient.
+ * 
+ * </pre>
+ * 
+ */
 public class ColorBar extends Composite implements MouseListener,
         MouseMoveListener {
     /**
@@ -309,6 +326,18 @@ public class ColorBar extends Composite implements MouseListener,
      */
     protected Image colorBarWithMask;
 
+    private final Map<String, String> decimalPlaceMap = new HashMap<String, String>() {
+        private static final long serialVersionUID = 1L;
+        {
+            // keys are the last portion of the title in the color table editor for 
+            // a specific radar product, in lower case and value is the decimals expected 
+            // to be displayed in color bar. 
+            put("correlation coeff", "0000");
+        }
+    };
+
+    private NumberFormat numberFormat = null;
+
     /**
      * Constructor.
      * 
@@ -342,6 +371,13 @@ public class ColorBar extends Composite implements MouseListener,
         this.parent = parent;
         this.enabledColorMask = enableColorMask;
         this.cmapParams = cmapParams;
+
+        for (String s: decimalPlaceMap.keySet()) {
+            if (parent.getShell().getText().toLowerCase().contains(s)) {
+                numberFormat = new DecimalFormat("###,###,##0." + decimalPlaceMap.get(s));
+                break;
+            }
+        }
 
         initializeColorData();
 
@@ -1500,7 +1536,11 @@ public class ColorBar extends Composite implements MouseListener,
                     // If value is not a number then prepend ">"
                     // to the value.
                     if (((Double) value).isNaN()) {
-                        textStr = "> " + lastVal;
+                        if (numberFormat != null) {
+                            textStr = "> " + numberFormat.format(lastVal);
+                        } else {
+                            textStr = "> " + lastVal;
+                        }
                     } else {
                         lastVal = value;
                     }
@@ -1535,7 +1575,11 @@ public class ColorBar extends Composite implements MouseListener,
              * value variable.
              */
             if (textStr.length() == 0) {
-                txt = format.format(value);
+                if (numberFormat != null ) {
+                    txt = numberFormat.format(value);
+                } else {
+                    txt = format.format(value);
+                }
             } else {
                 txt = textStr;
             }
