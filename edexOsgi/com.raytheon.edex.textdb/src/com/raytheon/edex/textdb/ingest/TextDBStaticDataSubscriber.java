@@ -31,6 +31,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
@@ -45,6 +47,7 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * Jan 25, 2011            bfarmer     Initial creation
  * Oct 18, 2011 10909      rferrel     notify() now saves a file.
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
+ * Mar 17, 2014 DR 16449   D. Friedman Send 'setDirty' notification to all nodes.
  * Mar 20, 2014   2915     dgilling    Code cleanup.
  * 
  * </pre>
@@ -57,6 +60,12 @@ public class TextDBStaticDataSubscriber implements INationalDatasetSubscriber {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextDBStaticDataSubscriber.class);
 
+    private String setDirtyURI;
+
+    public TextDBStaticDataSubscriber(String setDirtyURI) {
+        this.setDirtyURI = setDirtyURI;
+    }
+
     @Override
     public void notify(String fileName, File file) {
         // Assumes the fileName is the name of the file to place
@@ -68,11 +77,22 @@ public class TextDBStaticDataSubscriber implements INationalDatasetSubscriber {
 
         try {
             FileUtil.copyFile(file, outFile);
-            TextDBStaticData.setDirty();
+        try {
+            if (setDirtyURI != null) {
+                EDEXUtil.getMessageProducer().sendAsyncUri(setDirtyURI, "");
+            } else {
+                setDirty();
+            }
+        } catch (EdexException e) {
+            statusHandler.error("Unable to notify that TextDB static files have changes", e);
+        }
         } catch (IOException e) {
             statusHandler.error("Unable to copy textdb static data file ["
                     + file.getPath() + "] to destination [" + outFile.getPath()
                     + "].", e);
         }
+    }
+    public void setDirty() {
+        TextDBStaticData.setDirty();
     }
 }
