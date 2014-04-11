@@ -4900,4 +4900,25 @@
             <displayUnits>C</displayUnits>
         </imageStyle>
     </styleRule>
+
+ <styleRule>
+    <paramLevelMatches>
+      <parameter>zAGL</parameter>
+      <parameter>GH</parameter>
+      <singleLevel units="FRZ" />
+      <singleLevel units="TW0" />
+    </paramLevelMatches>
+    <imageStyle>
+      <displayUnits>ft</displayUnits>
+      <range scale="LINEAR">
+        <minValue>0</minValue>
+        <maxValue>20000</maxValue>
+      </range>
+      <defaultColormap>Grid/gridded data</defaultColormap>
+      <colorbarLabeling>
+        <increment>5000</increment>
+      </colorbarLabeling>
+    </imageStyle>
+ </styleRule>
+
 </styleRuleset>

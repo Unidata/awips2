@@ -55,6 +55,7 @@ import com.raytheon.uf.common.util.StringUtil;
  * ------------ ---------- ----------- --------------------------
  * Sep 02, 2008 1538       jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Added additional methods.
+ * Mar 17, 2014 DR 16449   D. Friedman Fix reload/populate.
  * Apr 01, 2014 2915       dgilling    Major re-factor, all methods are now
  *                                     static.
  * </pre>

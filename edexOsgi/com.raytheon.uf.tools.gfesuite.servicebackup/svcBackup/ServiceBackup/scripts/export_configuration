@@ -47,6 +47,7 @@ log_msg  Preparing configuration files for export...
 edexDest=GFEconfig/edex_static
 commonDest=GFEconfig/common_static
 caveDest=GFEconfig/cave_static 
+rsyncParms=GFEConfig    # DR 16464
 log_msg 15
 
 log_msg Making temporary edex configuration directories...
@@ -60,6 +61,11 @@ log_msg 25
 log_msg Making temporary cave configuration directories
 mkdir -p $caveDest/site
 log_msg 30
+
+# DR 16464
+log_msg Making temporary rsync_parms directory
+mkdir -p $rsyncParms/site
+log_msg 35
 
 # Copies the localization information to the staging area
 log_msg Copying common site configuration for site ${CAPS_SITE} to temporary directory...
@@ -87,6 +93,13 @@ log_msg 75
 log_msg Copying cave site colormaps configuration for site ${CAPS_SITE} to temporary directory...
 cp -r ${LOCALIZATION_PATH}/cave_static/site/${CAPS_SITE}/colormaps $caveDest/site
 log_msg 80
+
+# DR 16464
+if [ -f /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_SITE} ]; then
+    log_msg Copying the rsync_parms file for site ${CAPS_SITE} to temporary directory...
+    cp -a /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_SITE} $rsyncParms/site
+    log_msg 83
+fi
 
 # Tar up everything.
 log_msg 85
