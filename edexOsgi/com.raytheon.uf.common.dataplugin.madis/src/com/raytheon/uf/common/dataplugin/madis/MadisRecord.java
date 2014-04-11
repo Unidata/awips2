@@ -75,6 +75,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Oct 14, 2013 2361       njensen     Removed IDecoderGettable
  * Dec 10, 2013 2616       mpduff      Added stationId to the unique constraint
  * jan 22, 2014 2713       dhladky     Calendar conversion.
+ * Mar 21, 2014  2939      dhladky     Fixed mismatches in HDF5, DB records.
  * 
  * </pre>
  * 
@@ -85,7 +86,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "madisseq")
 @Table(name = "madis", uniqueConstraints = { @UniqueConstraint(columnNames = {
-        "location", "stationId", "refTime", "provider", "subProvider", "restriction" }) })
+        "latitude", "longitude", "stationId", "refTime", "provider", "subProvider", "restriction" }) })
 @org.hibernate.annotations.Table(appliesTo = "madis", indexes = { @Index(name = "madis_wfsQueryIndex", columnNames = {
         "refTime", "location" }), })
 @DynamicSerialize
@@ -121,7 +122,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @Column
     @DataURI(position = 4)
     private int restriction;
-
+    
     /** A string denoting the time of observation */
     @DynamicSerializeElement
     @Transient
@@ -349,7 +350,7 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @DynamicSerializeElement
     @Embedded
     private PointDataView pointDataView;
-
+    
     public static final String PLUGIN_NAME = "madis";
 
     public static final String STATION_ID = "stationId";
@@ -452,6 +453,19 @@ public class MadisRecord extends PersistablePluginDataObject implements
         public static final String STATIONID = "STATIONID";
 
         public static final String RESTRICTION = "RESTRICTION";
+    }
+    
+    /**
+     * URI constructor
+     * @param string
+     */
+    public MadisRecord(String string) {
+        super();
+    }
+    
+    //empty constructor
+    public MadisRecord() {
+ 
     }
 
     /**
@@ -1085,5 +1099,15 @@ public class MadisRecord extends PersistablePluginDataObject implements
     @Override
     public String getPluginName() {
         return PLUGIN_NAME;
+    }
+    
+    /**
+     * Allow overwrite of MADIS records
+     * MADIS records are frequently updated for even the same temporal
+     * record.  QC value changes will cause record re-submissions.
+     * @return
+     */
+    public boolean getAllowOverWrite() {
+        return true;
     }
 }
