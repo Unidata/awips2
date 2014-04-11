@@ -28,6 +28,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import com.raytheon.uf.viz.core.IDisplayPane;
@@ -44,6 +45,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 23, 2008            randerso     Initial creation
+ * Feb 26, 2014    2842    mpduff      Use PlatformUI rather than HandlerUtil.
  * </pre>
  * 
  * @author randerso
@@ -86,7 +88,7 @@ public class ChooseHour extends AbstractHandler {
         MPEDisplayManager dm = MPEDisplayManager.getInstance(pane);
         Date currentDate = dm.getCurrentEditDate();
         if ((increment == 0) || (currentDate == null)) {
-            Shell shell = HandlerUtil.getActiveWorkbenchWindow(event)
+            Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             ChooseDataPeriodDialog dialog = new ChooseDataPeriodDialog(shell);
             dialog.open();
