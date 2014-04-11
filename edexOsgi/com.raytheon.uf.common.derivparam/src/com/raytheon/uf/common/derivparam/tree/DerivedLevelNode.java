@@ -32,13 +32,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.data.AliasRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher;
-import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher.MatchResult;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.derivparam.data.DerivedRequestableData;
 import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
@@ -47,6 +40,13 @@ import com.raytheon.uf.common.derivparam.library.DerivParamField;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.uf.common.derivparam.library.IDerivParamField;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher;
+import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher.MatchResult;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.data.AliasRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -57,9 +57,10 @@ import com.raytheon.uf.common.time.DataTime;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 14, 2009            rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 14, 2009           rjpeter     Initial creation
+ * Apr 11, 2014  2947     bsteffen    Don't check units until data is requested.
  * 
  * </pre>
  * 
@@ -400,15 +401,11 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
         Set<AbstractRequestableData> newRecs = new HashSet<AbstractRequestableData>(
                 records.size());
         for (AbstractRequestableData record : records) {
-            if (record.getUnit() != null
-                    && !record.getUnit().equals(field.getUnit())
-                    && record.getUnit().isCompatible(field.getUnit())) {
-                AbstractRequestableData alias = new AliasRequestableData(record);
-                alias.setUnit(field.getUnit());
-                newRecs.add(alias);
-            } else {
-                newRecs.add(record);
-            }
+            /* Wrap in an alias to perform unit conversion when necessary. */
+            AbstractRequestableData alias = new AliasRequestableData(record);
+            alias.setUnit(field.getUnit());
+            newRecs.add(alias);
+
         }
         return newRecs;
     }
