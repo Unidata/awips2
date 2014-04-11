@@ -194,7 +194,6 @@ fi
 BASE_LOGDIR=$HOME/caveData/logs/consoleLogs
 LOGDIR=$BASE_LOGDIR/$hostName/
 
-
 # make sure directory exists
 if [ ! -d $LOGDIR ]; then
  mkdir -p $LOGDIR

@@ -26,6 +26,51 @@ if [ -d $SVCBU_HOME ];then
   echo ${SVCBU_HOME}/* | xargs rm -rf
 fi
 
+# DR 16362
+if [ -d ${LOCALIZATION_PATH}/common_static/site/${CAPS_FAILED_SITE}/gfe ]; then
+    log_msg "Removing common site configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/common_static/site/${CAPS_FAILED_SITE}/gfe
+fi
+
+if [ -d ${LOCALIZATION_PATH}/common_static/site/${CAPS_FAILED_SITE}/vtec ]; then
+    log_msg "Removing common site vtec configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/common_static/site/${CAPS_FAILED_SITE}/vtec
+fi
+
+if [ -d ${LOCALIZATION_PATH}/edex_static/site/${CAPS_FAILED_SITE}/config/gfe ]; then
+    log_msg "Removing edex site configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/edex_static/site/${CAPS_FAILED_SITE}/config/gfe
+fi
+
+if [ -d ${LOCALIZATION_PATH}/edex_static/site/${CAPS_FAILED_SITE}/smartinit ]; then
+    log_msg "Removing edex smartinit for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/edex_static/site/${CAPS_FAILED_SITE}/smartinit
+fi
+
+if [ -d ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/gfe ]; then
+    log_msg "Removing cave site configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/cave_static/site/${SITE}/gfe
+fi
+
+if [ -d ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/bundles/maps ]; then
+    log_msg "Removing cave site maps configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/bundles/maps
+fi
+
+if [ -d ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/colormaps ]; then
+    log_msg "Removing cave site colormaps configuration for site ${CAPS_FAILED_SITE}"
+    rm -fr ${LOCALIZATION_PATH}/cave_static/site/${CAPS_FAILED_SITE}/colormaps
+fi
+
+# end DR 16362
+
+# DR 16464
+if [ -d /awips2/GFESuite/ServiceBackup/data/${CAPS_FAILED_SITE} ]; then
+    log_msg "Removing rsync_parms.site for site ${CAPS_FAILED_SITE}"
+    rm -f /awips2/GFESuite/ServiceBackup/data/rsync_parms.${CAPS_FAILED_SITE}
+fi
+# end DR 16464
+
 #-- Remove the rsync grids
 if [ "$CAPS_FAILED_SITE" = "aer" ]
 then
