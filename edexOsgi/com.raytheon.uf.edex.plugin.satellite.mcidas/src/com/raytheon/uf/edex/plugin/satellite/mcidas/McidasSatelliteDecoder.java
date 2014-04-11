@@ -69,6 +69,7 @@ import com.raytheon.uf.edex.plugin.satellite.mcidas.util.McidasSatelliteLookups.
  * 07/12/2012    798        jkorman     Changed projection "magic" numbers
  * 09/24/2012   1210        jkorman     Modified the decode method to create the
  *                                      IDataRecord required by the SatelliteDao
+ * 12/03/2013   DR 16841    D. Friedman Allow record overwrites
  * </pre>
  * 
  * @author
@@ -246,6 +247,7 @@ public class McidasSatelliteDecoder {
             rec.setTraceId(traceId);
             rec.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
             rec.constructDataURI();
+            rec.setOverwriteAllowed(true);
 
             // Set the data into the IDataRecord
             // Set the data into the IDataRecord

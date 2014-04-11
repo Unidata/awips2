@@ -173,9 +173,9 @@ import com.vividsolutions.jts.geom.Point;
  * Jul 15, 2013 2184        dhladky     Remove all HUC's for storage except ALL
  * Jul 17, 2013  2197       njensen     Improved speed of getName()
  * Oct 18, 2013  DR 16151	gzhang		Used getAverageValue() for QPF Graph.
+ * Jan 21, 2014  DR 15874   gzhang		Use getValue() for QPFSCAN independent. 
  * Feb 19, 2014 2819        randerso    Removed unnecessary .clone() call
  * Mar  3, 2014 2804        mschenke    Set back up clipping pane
- * 
  * </pre>
  * 
  * @author dhladky
@@ -798,9 +798,9 @@ public class FFMPResource extends
                 } else {
                     switch (field) {
                     case QPF: {
-                        value = getBasin(key, field, recentTime, aggregate)
-                                .getAverageValue(recentTime,
-                                        getQpfSourceExpiration());
+                        value = getBasin(key, field, recentTime, aggregate).getValue(recentTime);// DR 15874
+                                //.getAverageValue(recentTime,
+                                        //getQpfSourceExpiration());
                         break;
                     }
                     case GUIDANCE: {
@@ -3166,9 +3166,10 @@ public class FFMPResource extends
 
             // Float qpfFloat = qpfBasin.getValue(monitor.getQpfWindow()
             // .getBeforeTime(), monitor.getQpfWindow().getAfterTime());
+            // DR 16151
             Float qpfFloat = qpfBasin.getAverageValue(monitor.getQpfWindow()
-                    .getAfterTime(), monitor.getQpfWindow().getBeforeTime()); // DR
-                                                                              // 16151
+                    .getAfterTime(), monitor.getQpfWindow().getBeforeTime());
+
             fgd.setQpfValue(qpfFloat);
 
             ArrayList<Double> qpfTimes = new ArrayList<Double>();

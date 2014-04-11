@@ -110,6 +110,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * 10/28/2013   16711      lbousaidi   if the id is not in location table,but defined in geoarea table
  *                                     data can be posted to appropriate pe-based tables only if the data 
  *                                     type is not READING like in A1 code. 
+ * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.                                     
  * 
  * </pre>
  * 
@@ -642,7 +643,9 @@ public class PostShef {
              * SHEF value coming in and if so adjust that value in the shefrec
              * structure
              */
-            adjustRawValue(locId, data);
+            if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
+                  adjustRawValue(locId, data);
+            }
             
             /*
              * multiply non-missing values of discharge values and unspecified
