@@ -28,10 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
@@ -43,7 +39,12 @@ import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.common.derivparam.inv.MetadataContainer;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 
 /**
@@ -54,12 +55,14 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 30, 2012            mschenke     Initial creation
- * Feb 25, 2013 1659       bsteffen    Stop derived parameters from sending
- *                                     empty requests for cached times
- * Jan 30, 2014  #2725     ekladstrup  Remove usage of ThriftClient
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 30, 2012           mschenke    Initial creation
+ * Feb 25, 2013  1659     bsteffen    Stop derived parameters from sending
+ *                                    empty requests for cached times
+ * Jan 30, 2014  2725     ekladstrup  Remove usage of ThriftClient
+ * Apr 11, 2014  2947     bsteffen    Fix binoffset time queries and getRecord.
+ * 
  * 
  * </pre>
  * 
@@ -169,6 +172,11 @@ public abstract class AbstractDataCubeAdapter extends DefaultDataCubeAdapter {
                     }
                 }
             }
+            if (request.getBinOffset() != null) {
+                BinOffset bin = request.getBinOffset();
+                results = bin.getNormalizedTimes(results
+                        .toArray(new DataTime[0]));
+            }
             if (!request.isMaxQuery() || results.isEmpty()) {
                 finalResponse.add(new ArrayList<DataTime>(results));
             } else {
@@ -255,7 +263,13 @@ public abstract class AbstractDataCubeAdapter extends DefaultDataCubeAdapter {
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
             String dataset) throws DataCubeException {
         getRecords(Arrays.asList(obj), req, dataset);
-        IDataRecord[] result = (IDataRecord[]) obj.getMessageData();
+        IDataRecord[] result = null;
+        Object message = obj.getMessageData();
+        if (message instanceof IDataRecord[]) {
+            result = (IDataRecord[]) message;
+        } else if (message instanceof IDataRecord) {
+            result = new IDataRecord[] { (IDataRecord) message };
+        }
         obj.setMessageData(null);
         return result;
     }
