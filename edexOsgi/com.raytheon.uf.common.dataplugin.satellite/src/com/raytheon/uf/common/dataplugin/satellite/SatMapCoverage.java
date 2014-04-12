@@ -65,13 +65,16 @@ import com.vividsolutions.jts.geom.Polygon;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jul 24, 2007 353         bphillip    Initial Checkin
- * Jul 12, 2012 798         jkorman     Changed projection "magic" numbers
- * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
- *                                      spatial
- * Sep 30, 2013 2333        mschenke    Refactored to store coordinates in CRS space
+ * Date          Ticket#   Engineer    Description
+ * ------------- --------  ----------- --------------------------
+ * Jul 24, 2007  353       bphillip    Initial Checkin
+ * Jul 12, 2012  798       jkorman     Changed projection "magic" numbers
+ * Jul 16, 2013  2181      bsteffen    Convert geometry types to use hibernate-
+ *                                     spatial
+ * Sep 30, 2013  2333      mschenke    Refactored to store coordinates in CRS
+ *                                     space
+ * Apr 11, 2014  2947      bsteffen    Fix equals
+ * 
  * 
  * </pre>
  */
@@ -417,9 +420,15 @@ public class SatMapCoverage extends PersistableDataObject<Object> implements
         if (Double.doubleToLongBits(minY) != Double
                 .doubleToLongBits(other.minY))
             return false;
-        if (nx != other.nx)
+        if (nx == null) {
+            if (other.nx != null)
+                return false;
+        } else if (!nx.equals(other.nx))
             return false;
-        if (ny != other.ny)
+        if (ny == null) {
+            if (other.ny != null)
+                return false;
+        } else if (!ny.equals(other.ny))
             return false;
         return true;
     }
