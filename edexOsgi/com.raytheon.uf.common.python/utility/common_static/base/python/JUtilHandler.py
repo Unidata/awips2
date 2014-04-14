@@ -171,7 +171,7 @@ fallbackBasics = OrderedDict({Number:_toPythonFloat})
 The following methods will handle Python and Java collection conversion.
 '''
 from java.lang import Object
-from java.util import Collections, HashMap, LinkedHashMap, ArrayList
+from java.util import Collections, HashMap, LinkedHashMap, ArrayList, HashSet
 from java.util import Date
 from java.lang.reflect import Array
 from java.util import List, Set, Map
@@ -226,23 +226,24 @@ def _toPythonDict(obj, customConverter=None):
     '''
     Converts to a Python dict.
     '''
-    return __toPythonDict(obj, {}, customConverter)
+    return __toPythonDictInternal(obj, {}, customConverter)
 
 def _toPythonSet(obj, customConverter=None):
     '''
     Converts to a Python set.
     '''
     retVal = set()
-    size = obj.size()
-    for i in range(size):
-        retVal.add(JUtil.javaObjToPyVal(obj.get(i), customConverter))
+    itr = obj.iterator()
+    while itr.hasNext():
+        val = itr.next() 
+        retVal.add(JUtil.javaObjToPyVal(val, customConverter))
     return retVal
 
 def _toPythonOrderedDict(obj, customConverter=None):
     '''
     Converts to a Python OrderedDict.
     '''
-    return __toPythonDict(obj, OrderedDict(), customConverter)
+    return __toPythonDictInternal(obj, OrderedDict(), customConverter)
 
 def _fromJavaArray(obj, customConverter=None):
     '''
@@ -264,7 +265,7 @@ def _fromJepArray(obj, customConverter=None):
         retVal.append(JUtil.javaObjToPyVal(obj[i], customConverter))    
     return retVal
 
-def __toPythonDict(javaMap, pyDict, customConverter=None):
+def __toPythonDictInternal(javaMap, pyDict, customConverter=None):
     '''
     Converts to a Python dict.  Passed in the dict type, and then handles the key conversion.
     '''
@@ -311,15 +312,37 @@ def _toJavaLinkedMap(val):
     '''
     Turns a Python OrderedDict to a Java LinkedHashMap
     '''
-    return __toJavaMap(val, LinkedHashMap())
+    return __toJavaMapInternal(val, LinkedHashMap())
 
 def _toJavaMap(val):
     '''
     Turns a Python dict to a Java HashMap
     '''
-    return __toJavaMap(val, HashMap())
+    return __toJavaMapInternal(val, HashMap())
 
-def __toJavaMap(pyDict, jmap):
+def _toJavaSet(val):
+    '''
+    Turns a Python set to a Java set
+    '''
+    return __toJavaSetInternal(val)
+
+def _toJavaUnmodifiableSet(val):
+    '''
+    Turns a Python frozenset to a Java unmodifiableset
+    '''
+    return Collections.unmodifiableSet(__toJavaSetInternal(val))
+
+def __toJavaSetInternal(val):
+    '''
+    Does the actual conversion of the elements inside of the set or frozenset to Set
+    '''
+    retObj = HashSet()
+    for v in val :
+        retObj.add(JUtil.pyValToJavaObj(v))
+    return retObj
+
+
+def __toJavaMapInternal(pyDict, jmap):
     '''
     Does the actual conversion of the elements inside of the dict to Map
     '''
@@ -328,7 +351,7 @@ def __toJavaMap(pyDict, jmap):
     return jmap
 
 javaCollections = OrderedDict({'java.util.ArrayList':_toPythonList, 'java.util.Arrays$ArrayList':_toPythonList, 'java.util.Collections$UnmodifiableRandomAccessList':_toPythonTuple, 'java.util.HashMap':_toPythonDict, 'java.util.LinkedHashMap':_toPythonOrderedDict})
-pythonCollections = OrderedDict({ list:_toJavaList, tuple:_toJavaUnmodifiableList, OrderedDict:_toJavaLinkedMap, dict:_toJavaMap })
+pythonCollections = OrderedDict({ list:_toJavaList, tuple:_toJavaUnmodifiableList, OrderedDict:_toJavaLinkedMap, dict:_toJavaMap, set:_toJavaSet, frozenset:_toJavaUnmodifiableSet })
 fallbackCollections = OrderedDict({ List:_toPythonList, Map:_toPythonDict, Set:_toPythonSet })
 
 '''
