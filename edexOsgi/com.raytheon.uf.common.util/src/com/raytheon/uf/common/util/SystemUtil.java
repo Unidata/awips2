@@ -23,9 +23,9 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import com.raytheon.uf.common.util.collections.BoundedMap;
 
 /**
  * System utilities such as hostname and pid lookup.
@@ -44,30 +44,6 @@ import java.util.Map.Entry;
  * @version 1.0
  */
 public class SystemUtil {
-    /**
-     * Map that can be limited to a given number of entries.
-     */
-    private static class BoundedMap<K, V> extends LinkedHashMap<K, V> {
-        private static final long serialVersionUID = 1L;
-
-        private final int maxSize;
-
-        public BoundedMap(int maxSize) {
-            super(16, 0.75f, true);
-            this.maxSize = maxSize;
-        }
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.LinkedHashMap#removeEldestEntry(java.util.Map.Entry)
-         */
-        @Override
-        protected boolean removeEldestEntry(Entry<K, V> eldest) {
-            return size() > maxSize;
-        }
-    }
-
     private static final Map<InetAddress, String> hostNameCache = Collections
             .synchronizedMap(new BoundedMap<InetAddress, String>(100));
 
