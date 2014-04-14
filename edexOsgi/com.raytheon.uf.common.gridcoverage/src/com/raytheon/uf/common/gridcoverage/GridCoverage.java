@@ -51,6 +51,7 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.geospatial.CRSCache;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
@@ -77,6 +78,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                    spatial
  * Oct 15, 2013  2473     bsteffen    add @XmlSeeAlso for self contained JAXB
  *                                    context.
+ * Apr 11, 2014  2947     bsteffen    Implement IGridGeometryProvider.
  * 
  * </pre>
  * 
@@ -93,7 +95,7 @@ import com.vividsolutions.jts.geom.Geometry;
         StereographicGridCoverage.class })
 @DynamicSerialize
 public abstract class GridCoverage extends PersistableDataObject<Integer>
-        implements ISpatialObject {
+        implements ISpatialObject, IGridGeometryProvider {
 
     private static final long serialVersionUID = -1355232934065074837L;
 
@@ -394,6 +396,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         this.description = description;
     }
 
+    @Override
     public GridGeometry2D getGridGeometry() {
         if (gridGeometry == null) {
             gridGeometry = MapUtil.getGridGeometry(this);
