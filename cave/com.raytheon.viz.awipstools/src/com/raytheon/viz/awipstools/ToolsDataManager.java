@@ -84,6 +84,7 @@ import com.vividsolutions.jts.geom.LineString;
  * 10-21-09	    #1711      bsteffen    Initial Creation
  * 04-07-10     #4614      randerso    Reworked to use localization files
  * 07-11-12     #875       rferrel     Move points to PointsDataManager.
+ * 04-02-14     DR 16351   D. Friedman Fix updates to storm track from preferences. (backport from 14.2.2)
  * 
  * </pre>
  * 
@@ -135,6 +136,8 @@ public class ToolsDataManager implements ILocalizationFileObserver,
     private ListenerList stormListeners = new ListenerList();
 
     private Object stormLock = new Object();
+
+    private boolean stormTrackDirty = false;
 
     private String site;
 
@@ -232,7 +235,7 @@ public class ToolsDataManager implements ILocalizationFileObserver,
 
     public StormTrackData getStormTrackData() {
         synchronized (stormLock) {
-            if (stormData == null) {
+            if (stormData == null || stormTrackDirty) {
                 loadStormData();
             }
             return new StormTrackData(stormData);
@@ -268,6 +271,7 @@ public class ToolsDataManager implements ILocalizationFileObserver,
         if (points != null) {
             setCoordinates(stormData, points);
         }
+        stormTrackDirty = false;
     }
 
     private void setCoordinates(StormTrackData data, String[] points) {
@@ -664,6 +668,11 @@ public class ToolsDataManager implements ILocalizationFileObserver,
                 } else if (P_STORMTRACK_SPEED.equals(key)
                         && value instanceof Double) {
                     stormData.setMotionSpeed((Double) value);
+                } else {
+                    /* Incompatible value indicates update from preference
+                     * store.  We will want to reload.
+                     */
+                    stormTrackDirty = true;
                 }
             }
 
