@@ -52,6 +52,7 @@ import com.raytheon.openfire.plugin.detailedfeedlog.LogEntry;
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012            mnash       Initial creation
  * Apr 07, 2014 2937       bgonzale    Handle errors processing room events.
+ *                                     Fixed message from user.
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
                             // set all the necessary values in the message to be
                             // sent out
                             message.setTo(user);
-                            message.setFrom(roomJID + "/" + nickname);
+                            message.setFrom(roomJID + "/" + sendUser);
                             String body = HISTORY_START
                                     + entry.getDate().getTime() + "|"
                                     + sendUser + "|" + entry.getSite() + "|"
