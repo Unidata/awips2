@@ -64,7 +64,7 @@ public class TestJaxbableClassesLocator implements IJaxbableClassesLocator {
         Class<?>[] array = new Class<?>[] {
                 com.raytheon.uf.common.archive.config.ArchiveConfig.class,
                 com.raytheon.uf.common.archive.config.CategoryConfig.class,
-                com.raytheon.edex.plugin.redbook.decoder.RedbookFcstMap.class,
+                com.raytheon.uf.edex.plugin.redbook.decoder.RedbookFcstMap.class,
                 com.raytheon.uf.common.datadelivery.registry.AdhocSubscription.class,
                 com.raytheon.uf.common.datadelivery.registry.Connection.class,
                 com.raytheon.uf.common.datadelivery.registry.Coverage.class,
