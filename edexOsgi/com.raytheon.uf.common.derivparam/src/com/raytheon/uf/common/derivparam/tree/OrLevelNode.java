@@ -27,17 +27,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher;
-import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher.MatchResult;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher;
+import com.raytheon.uf.common.inventory.TimeAndSpaceMatcher.MatchResult;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 
 /**
  * 
@@ -50,9 +50,11 @@ import com.raytheon.uf.common.geospatial.ISpatialObject;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2010           bsteffen    Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -214,8 +216,8 @@ public class OrLevelNode extends AbstractDerivedDataNode {
             Collection<MatchResult> matches = matcher.match(myAvailability,
                     nodeAvail).values();
             for (MatchResult match : matches) {
-                ISpatialObject space1 = match.get1().getSpace();
-                ISpatialObject space2 = match.get2().getSpace();
+                IGridGeometryProvider space1 = match.get1().getSpace();
+                IGridGeometryProvider space2 = match.get2().getSpace();
                 // if the spaces are equal then remove the new time so it is not
                 // added. This will remove identical times and times that match
                 // ignoring range.
