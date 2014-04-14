@@ -71,7 +71,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.units"/>
 	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.viz.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.dom4j"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.edex.plugin.redbook"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.redbook"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.level"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.dataplugin.level"/>
 	<classpathentry kind="src" path="/com.raytheon.uf.common.dataplugin.ffmp"/>
