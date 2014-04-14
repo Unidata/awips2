@@ -10,56 +10,6 @@
 
 	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
 
-	<!-- uEngineWeb -->
-	<bean id="uengineWebServer" class="org.eclipse.jetty.server.Server"
-		init-method="start" destroy-method="stop">
-
-		<property name="threadPool">
-			<bean id="ThreadPool" class="org.eclipse.jetty.util.thread.QueuedThreadPool">
-				<property name="minThreads" value="25" />				
-				<property name="maxThreads" value="50" />
-			</bean>
-		</property>
-
-		<property name="connectors">
-			<list>
-				<bean id="Connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
-					<property name="port" value="${web.port}" />
-					<property name="maxIdleTime" value="30000" />
-					<property name="acceptors" value="2" />
-					<property name="confidentialPort" value="${confidential.port}" />
-				</bean>
-			</list>
-		</property>
-
-		<property name="handler">
-			<bean id="handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
-				<property name="handlers">
-					<list>
-						<bean id="contexts"
-							class="org.eclipse.jetty.server.handler.ContextHandlerCollection">
-							<property name="handlers">
-								<list>
-									<bean class="org.eclipse.jetty.webapp.WebAppContext">
-										<property name="contextPath" value="/uEngineWeb" />
-										<property name="war"
-											value="file:///${edex.home}/webapps/uEngineWeb" />
-									</bean>
-									<bean class="org.eclipse.jetty.webapp.WebAppContext">
-										<property name="contextPath" value="/uEngineProducts" />
-										<property name="war" value="file:///${edex.home}/data/uEngine" />
-									</bean>
-								</list>
-							</property>
-						</bean>
-						<bean id="defaultHandler" class="org.eclipse.jetty.server.handler.DefaultHandler" />
-						<bean id="requestLog" class="org.eclipse.jetty.server.handler.RequestLogHandler" />
-					</list>
-				</property>
-			</bean>
-		</property>
-	</bean>
-
 	<camelContext id="uengine-camel" xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler">
 		<endpoint id="uEngineHttpThrift_from"
