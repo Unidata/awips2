@@ -19,8 +19,11 @@
  **/
 package com.raytheon.viz.gfe.dialogs.sbu;
 
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.List;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -48,10 +51,10 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.osgi.framework.Bundle;
 
 import com.raytheon.uf.common.dataplugin.gfe.request.GetKnownSitesRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetSbLockFilesRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.GetServiceBackupServerRequest;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.site.requests.GetActiveSitesRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -63,6 +66,7 @@ import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.dialogs.sbu.jobs.ServiceBackupJobManager;
 import com.raytheon.viz.gfe.dialogs.sbu.jobs.SvcbuActivateSiteJob;
 import com.raytheon.viz.gfe.dialogs.sbu.jobs.SvcbuCleanupJob;
@@ -94,6 +98,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  *                                      from A1 DR 21404, some code cleanup.
  * May 01, 2013    1762    dgilling     Remove national center check.
  * Jul 22, 2013    1762    dgilling     Fix running as primary check.
+ * Apr 14, 2014    2984    njensen      Moved help files to viz.gfe plugin
  * 
  * </pre>
  * 
@@ -342,12 +347,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         helpItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                final String url = "http://"
-                        + getServiceBackupServer()
-                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_help.html";
-                if (!Program.launch(url)) {
-                    statusHandler.error("Unable to open Help page: " + url);
-                }
+                openHelp("help/GfeServiceBackup/svcbu_help.html");
             }
         });
 
@@ -356,13 +356,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         instructionsItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                final String url = "http://"
-                        + getServiceBackupServer()
-                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_instructions.html";
-                if (!Program.launch(url)) {
-                    statusHandler.error("Unable to open Instructions page: "
-                            + url);
-                }
+                openHelp("help/GfeServiceBackup/svcbu_instructions.html");
             }
         });
 
@@ -371,12 +365,7 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         faqItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                final String url = "http://"
-                        + getServiceBackupServer()
-                        + ":8080/uEngineWeb/GfeServiceBackup/help/svcbu_faq.html";
-                if (!Program.launch(url)) {
-                    statusHandler.error("Unable to open FAQ page: " + url);
-                }
+                openHelp("help/GfeServiceBackup/svcbu_faq.html");
             }
         });
 
@@ -1207,19 +1196,22 @@ public class ServiceBackupDlg extends CaveJFACEDialog {
         this.getShell().pack(true);
     }
 
-    private String getServiceBackupServer() {
-        GetServiceBackupServerRequest request = new GetServiceBackupServerRequest();
-        try {
-            String obj = (String) ThriftClient.sendRequest(request);
-            return obj;
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error processing get service backup server request", e);
-        }
-        return "dx3";
-    }
-
     private void displayMessage(String msg) {
         MessageDialog.openWarning(getShell(), "Warning", msg);
+    }
+
+    private void openHelp(String helpPath) {
+        try {
+            Bundle bundle = Activator.getDefault().getBundle();
+            URL url = bundle.getEntry(helpPath);
+            if (url == null) {
+                throw new FileNotFoundException(helpPath);
+            }
+            url = FileLocator.toFileURL(url);
+            Program.launch(url.toString());
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM, "Error loading help "
+                    + helpPath, e);
+        }
     }
 }
