@@ -28,11 +28,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * TODO Add Description
+ * Internal Report
  * 
  * <pre>
  * 
@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 10, 2010            jsanchez     Initial creation
+ * Apr 10, 2014  2971      skorolev     Cleaned code.
  * 
  * </pre>
  * 
@@ -49,9 +50,13 @@ import org.apache.commons.logging.LogFactory;
  */
 public class InternalReport {
 
-    private static Log logger = LogFactory.getLog(InternalReport.class);
+    private static IUFStatusHandler logger = UFStatus
+            .getHandler(InternalReport.class);
 
     public static final String REPORT_TYPE_LN = "^((.*)(TORNADO REPORTS|LRG HAIL/STRONG WIND RPTS|OTHER SEVERE REPORTS)(.*))";
+
+    private static final Pattern REPORT_TYPE_LN_PTRN = Pattern
+            .compile(REPORT_TYPE_LN);
 
     public static final String EVENT_KEY = "(\\*TORN|WNDG|([AG]\\s{0,1}\\d{2,3}))";
 
@@ -60,6 +65,8 @@ public class InternalReport {
     public static final String EVENT_LN = "^((.*)" + EVENT_KEY + "(.*)" + TIME
             + ")";
 
+    private static final Pattern EVENT_LN_PTRN = Pattern.compile(EVENT_LN);
+
     public static final String LATLON = "(\\d{4,4}\\s{0,1}\\d{4,5})";
 
     public static final String STATIONID = "(\\w{3,3}/\\w{3,3})";
@@ -67,10 +74,15 @@ public class InternalReport {
     public static final String RMK_LN = "^((.*)" + STATIONID + "(.*)" + LATLON
             + ")";
 
+    private static final Pattern RMK_LN_PTRN = Pattern.compile(RMK_LN);
+
     public static final String REFTIME = "(\\d{2,2}CST\\s\\w{3,3}\\s\\w{3,3}\\s{1,2}\\d{1,2}\\s{1,2}\\d{4,4})";
 
     public static final String TIME_RANGE_LN = "^((.*)FOR\\s" + REFTIME
             + "\\sTHRU\\s" + REFTIME + ")";
+
+    private static final Pattern TIME_RANGE_LN_PTRN = Pattern
+            .compile(TIME_RANGE_LN);
 
     private final InternalType lineType;
 
@@ -78,12 +90,19 @@ public class InternalReport {
 
     private List<InternalReport> subLines = null;
 
+    /**
+     * 
+     * @param type
+     * @param line
+     */
     public InternalReport(InternalType type, String line) {
         lineType = type;
         reportLine = line;
     }
 
     /**
+     * Get Line Type.
+     * 
      * @return the lineType
      */
     public InternalType getLineType() {
@@ -91,6 +110,8 @@ public class InternalReport {
     }
 
     /**
+     * Get Report Line.
+     * 
      * @return the reportLine
      */
     public String getReportLine() {
@@ -98,6 +119,7 @@ public class InternalReport {
     }
 
     /**
+     * Get SubLines.
      * 
      * @return
      */
@@ -141,21 +163,23 @@ public class InternalReport {
         return sb.toString();
     }
 
+    /**
+     * Message identification.
+     * 
+     * @param message
+     * @return
+     */
     public static List<InternalReport> identifyMessage(byte[] message) {
         List<InternalReport> reports = new ArrayList<InternalReport>();
         List<String> lines = separateLines(message);
         if (lines != null) {
-            Pattern p1 = Pattern.compile(REPORT_TYPE_LN);
-            Pattern p2 = Pattern.compile(EVENT_LN);
-            Pattern p3 = Pattern.compile(RMK_LN);
-            Pattern p4 = Pattern.compile(TIME_RANGE_LN);
-
             InternalType t1 = InternalType.REPORT_TYPE;
             InternalType t2 = InternalType.EVENT_LN;
             InternalType t3 = InternalType.REMARKS;
             InternalType t4 = InternalType.TIME_RANGE;
 
-            Pattern patterns[] = { p1, p2, p3, p4 };
+            Pattern patterns[] = { REPORT_TYPE_LN_PTRN, EVENT_LN_PTRN,
+                    RMK_LN_PTRN, TIME_RANGE_LN_PTRN };
             InternalType types[] = { t1, t2, t3, t4 };
             boolean found;
             for (String s : lines) {
@@ -169,25 +193,23 @@ public class InternalReport {
                         break;
                     }
                 }
-
                 if (!found) {
                     InternalReport rptLine = new InternalReport(
                             InternalType.EXTRA, s);
                     reports.add(rptLine);
                 }
             }
-
             InternalReport rptLine = new InternalReport(InternalType.END, "");
             reports.add(rptLine);
-
         }
         return reports;
     }
 
     /**
+     * Separate Lines.
      * 
      * @param message
-     * @return
+     * @return reportLines
      */
     private static List<String> separateLines(byte[] message) {
         List<String> reportLines = null;
