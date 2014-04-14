@@ -2,14 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Uengine Plug-in
 Bundle-SymbolicName: com.raytheon.edex.uengine
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.edex.uengine,
  com.raytheon.edex.uengine.exception,
  com.raytheon.edex.uengine.jep,
  com.raytheon.edex.uengine.runners,
- com.raytheon.edex.uengine.subscription,
  com.raytheon.edex.uengine.tasks,
  com.raytheon.edex.uengine.tasks.query,
  com.raytheon.edex.uengine.util
@@ -19,8 +18,7 @@ Import-Package: com.raytheon.edex.colormap,
  com.raytheon.edex.msg,
  com.raytheon.edex.util,
  com.raytheon.edex.utility,
- javax.servlet,
- javax.servlet.http,
+ com.raytheon.uf.common.colormap,
  org.apache.commons.logging
 Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
@@ -30,17 +28,12 @@ Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.common.message;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.uf.common.velocity;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
  com.raytheon.uf.common.python;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  org.apache.commons.configuration;bundle-version="1.6.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  org.apache.commons.pool;bundle-version="1.3.0",
  org.apache.activemq;bundle-version="5.2.0",
- org.apache.http;bundle-version="4.1.2",
- org.springframework;bundle-version="3.1.4",
- javax.jms;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0"
+ javax.jms;bundle-version="1.0.0"
