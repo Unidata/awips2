@@ -34,6 +34,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
 import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
+import com.raytheon.uf.common.archive.config.ArchiveConstants;
 import com.raytheon.uf.common.archive.config.CategoryConfig;
 import com.raytheon.uf.common.archive.config.CategoryFileDateHelper;
 import com.raytheon.uf.common.archive.config.DataSetStatus;
@@ -264,8 +265,8 @@ public class ArchivePurgeManager {
      */
     private ClusterTask getWriteLock(String details) {
         SharedLockHandler lockHandler = new SharedLockHandler(LockType.WRITER);
-        ClusterTask ct = ClusterLockUtils.lock(SharedLockHandler.name, details,
-                lockHandler, false);
+        ClusterTask ct = ClusterLockUtils.lock(ArchiveConstants.CLUSTER_NAME,
+                details, lockHandler, false);
         if (ct.getLockState().equals(LockState.SUCCESSFUL)) {
             if (statusHandler.isPriorityEnabled(Priority.INFO)) {
                 statusHandler.handle(Priority.INFO, String.format(
