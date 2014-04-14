@@ -28,10 +28,6 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
-import com.raytheon.uf.common.inventory.TimeAndSpace;
-import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -39,8 +35,12 @@ import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractAliasLevelNode;
-import com.raytheon.uf.common.geospatial.ISpatialObject;
+import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.data.ImportRequestableData;
@@ -50,15 +50,17 @@ import com.raytheon.viz.grid.util.RadarAdapter;
 /**
  * This node handles all Alias derived parameters which includes Import in AWIPS
  * I. Data requests and Time queries are simply forwarded to the source nodes.
- * Returned records are wrapped in an ALiasRecord which can handle unit
+ * Returned records are wrapped in an AliasRecord which can handle unit
  * conversion and model conversion if necessary.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 15, 2010 #3965      rjpeter     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 15, 2010  3965     rjpeter     Initial creation
+ * Apr 11, 2014  2947     bsteffen    Switch spatial matching to use
+ *                                    IGridGeometryProvider
  * 
  * </pre>
  * 
@@ -113,7 +115,7 @@ public class ImportLevelNode extends AbstractAliasLevelNode {
                     }
                 }
                 Collection<GridCoverage> spaces = null;
-                ISpatialObject space = time.getSpace();
+                IGridGeometryProvider space = time.getSpace();
                 if (space.equals(TimeAndSpace.SPACE_AGNOSTIC)) {
                     try {
                         spaces = CoverageUtils.getInstance().getCoverages(
