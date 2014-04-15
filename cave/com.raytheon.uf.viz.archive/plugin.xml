@@ -30,6 +30,14 @@
           recursive="false"
           extensionFilter=".xml">
        </path>
+       <path
+          application="Archive"
+          localizationType="COMMON_STATIC"
+          name="gui"
+          value="archiver/gui" 
+          recursive="false"
+          extensionFilter=".xml">
+       </path>
     </extension>
    <extension
          point="org.eclipse.ui.menus">
