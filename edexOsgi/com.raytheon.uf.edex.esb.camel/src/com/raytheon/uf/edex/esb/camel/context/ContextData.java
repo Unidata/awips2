@@ -21,11 +21,9 @@ package com.raytheon.uf.edex.esb.camel.context;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +44,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 10, 2014 2726       rjpeter     Initial creation
+ * Apr 10, 2014 2726       rjpeter     Initial creation.
  * 
  * </pre>
  * 
@@ -54,18 +52,6 @@ import com.raytheon.uf.edex.core.EdexException;
  * @version 1.0
  */
 public class ContextData {
-    /**
-     * Set of endpoint types that allow multiple consumers.
-     */
-    private static final Set<String> MULTIPLE_CONSUMER_TYPES;
-
-    static {
-        Set<String> multipleConsumerTypes = new HashSet<String>(1, 1);
-        multipleConsumerTypes.add("topic");
-        MULTIPLE_CONSUMER_TYPES = Collections
-                .unmodifiableSet(multipleConsumerTypes);
-    }
-
     private final List<CamelContext> contexts;
 
     private final Map<String, Route> consumerRouteMapping;
@@ -77,7 +63,7 @@ public class ContextData {
      * the endpoint URI.
      */
     private static final Pattern endpointUriParsePattern = Pattern
-            .compile("(?:[^:]+:)*([^:]+):(?://)?([^?]+)\\??.*$");
+            .compile("([^:]+)://([^?]+)");
 
     /**
      * Parses passed contexts for route and endpoint data about all contexts.
@@ -126,8 +112,7 @@ public class ContextData {
 
                         Route prev = routeMapping.put(endpointName, route);
                         if ((prev != null)
-                                && !MULTIPLE_CONSUMER_TYPES
-                                        .contains(typeAndName.getFirst())) {
+                                && !endpointName.startsWith("topic:")) {
                             throw new ConfigurationException(
                                     "Two contexts listen to the same endpoint name ["
                                             + endpointName
