@@ -21,9 +21,11 @@ package com.raytheon.uf.edex.esb.camel.context;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,6 +54,18 @@ import com.raytheon.uf.edex.core.EdexException;
  * @version 1.0
  */
 public class ContextData {
+    /**
+     * Set of endpoint types that allow multiple consumers.
+     */
+    private static final Set<String> MULTIPLE_CONSUMER_TYPES;
+
+    static {
+        Set<String> multipleConsumerTypes = new HashSet<String>(1, 1);
+        multipleConsumerTypes.add("topic");
+        MULTIPLE_CONSUMER_TYPES = Collections
+                .unmodifiableSet(multipleConsumerTypes);
+    }
+
     private final List<CamelContext> contexts;
 
     private final Map<String, Route> consumerRouteMapping;
@@ -63,7 +77,7 @@ public class ContextData {
      * the endpoint URI.
      */
     private static final Pattern endpointUriParsePattern = Pattern
-            .compile("([^:]+)://([^?]+)");
+            .compile("(?:[^:]+:)*([^:]+):(?://)?([^?]+)\\??.*$");
 
     /**
      * Parses passed contexts for route and endpoint data about all contexts.
@@ -78,9 +92,11 @@ public class ContextData {
                 .unmodifiableMap(generateRouteMappings(this.contexts));
         Map<String, String> idUriMapping = new HashMap<String, String>(
                 consumerRouteMapping.size(), 1);
-        for (Route route : consumerRouteMapping.values()) {
-            idUriMapping.put(route.getId(), route.getEndpoint()
-                    .getEndpointUri());
+        for (CamelContext ctx : this.contexts) {
+            for (Route route : ctx.getRoutes()) {
+                idUriMapping.put(route.getId(), route.getEndpoint()
+                        .getEndpointUri());
+            }
         }
 
         this.routeIdUriMapping = Collections.unmodifiableMap(idUriMapping);
@@ -109,7 +125,9 @@ public class ContextData {
                         String endpointName = typeAndName.getSecond();
 
                         Route prev = routeMapping.put(endpointName, route);
-                        if (prev != null) {
+                        if ((prev != null)
+                                && !MULTIPLE_CONSUMER_TYPES
+                                        .contains(typeAndName.getFirst())) {
                             throw new ConfigurationException(
                                     "Two contexts listen to the same endpoint name ["
                                             + endpointName
