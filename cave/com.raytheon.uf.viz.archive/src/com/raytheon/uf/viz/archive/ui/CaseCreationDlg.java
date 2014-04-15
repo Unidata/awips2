@@ -71,6 +71,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
+ * Apr 11, 2014 #3023      rferrel     Configurable Threshold options.
  * 
  * </pre>
  * 
@@ -162,6 +163,9 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     /** Allow only single instance of dialog. */
     private GenerateCaseDlg generateCaseDlg;
 
+    /** Manager for configurable values for the dialog. */
+    private final CaseCreationManager ccManager;
+
     /**
      * Constructor.
      * 
@@ -175,6 +179,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         this.type = Type.Case;
         this.setSelect = false;
         this.type = Type.Case;
+        this.ccManager = new CaseCreationManager();
     }
 
     /*
@@ -829,24 +834,33 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         if (isDisposed()) {
             return;
         }
-        File dir = (File) locationLbl.getData();
+        Object o = locationLbl.getData();
+        if (!(o instanceof File)) {
+            return;
+        }
+        File dir = (File) o;
         long totSpace = dir.getTotalSpace();
         long freeSpace = dir.getUsableSpace();
+
+        o = uncompressSizeLbl.getData();
+        if (o instanceof Long) {
+            freeSpace -= (Long) o;
+        }
         long percentFull = (long) Math.round(((totSpace - freeSpace) * 100.0)
                 / totSpace);
         String state = null;
         Color bgColor = null;
         Color fgColor = null;
         Display display = shell.getDisplay();
-        if (percentFull <= 84) {
+        if (freeSpace > ccManager.getCautionThreshold()) {
             state = "GOOD";
             bgColor = display.getSystemColor(SWT.COLOR_GREEN);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
-        } else if (percentFull <= 94) {
+        } else if (freeSpace > ccManager.getDangerThreshold()) {
             state = "CAUTION";
             bgColor = display.getSystemColor(SWT.COLOR_YELLOW);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
-        } else if (percentFull <= 97) {
+        } else if (freeSpace > ccManager.getFatalThreshold()) {
             state = "DANGER";
             bgColor = display.getSystemColor(SWT.COLOR_RED);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
@@ -955,10 +969,46 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         return str;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSizeText(java
+     * .lang.String)
+     */
+    @Override
     protected void setTotalSizeText(String text) {
-        uncompressSizeLbl.setText(text);
+        if (!uncompressSizeLbl.isDisposed()) {
+            uncompressSizeLbl.setText(text);
+        }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSelectedSize
+     * (long)
+     */
+    @Override
+    protected void setTotalSelectedSize(long totalSize) {
+        super.setTotalSelectedSize(totalSize);
+        Long tSize = null;
+        if (totalSize > 0) {
+            tSize = new Long(totalSize);
+        }
+        uncompressSizeLbl.setData(tSize);
+        updateLocationState();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSelectedItems
+     * (int)
+     */
+    @Override
     protected void setTotalSelectedItems(int totalSelected) {
         selectedItemsSize = totalSelected;
         totalSelectedItemsLbl.setText("" + totalSelected);
