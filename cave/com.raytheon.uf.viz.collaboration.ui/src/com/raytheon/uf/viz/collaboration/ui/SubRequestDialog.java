@@ -54,6 +54,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 31, 2014 2700       bclement     don't prompt for group if user is already in one
  * Feb 13, 2014 2755       bclement     roster addition now done in account manager, user input passed back
  * Apr 07, 2014 2785       mpduff       Changed to implement CaveSWTDialog
+ *                                      Fix loading of groups
  * 
  * </pre>
  * 
@@ -148,11 +149,11 @@ public class SubRequestDialog extends CaveSWTDialog {
         if (connection == null) {
             return new String[0];
         }
-        Collection<RosterGroup> groups = connection.getContactsManager()
+        Collection<RosterGroup> rosterGroups = connection.getContactsManager()
                 .getGroups();
-        List<String> groupList = new ArrayList<String>(groups.size());
-        for (String group : groupList) {
-            groupList.add(group);
+        List<String> groupList = new ArrayList<String>(rosterGroups.size());
+        for (RosterGroup group : rosterGroups) {
+            groupList.add(group.getName());
         }
 
         Collections.sort(groupList);
