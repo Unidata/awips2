@@ -30,6 +30,7 @@ package com.raytheon.uf.common.util;
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012            njensen     Initial creation
  * Jun 12, 2013   2064     mpduff      Add prettyKiloByteSize.
+ * Apr 10, 2014   3023     rferrel     Properly handle negative numbers.
  * 
  * </pre>
  * 
@@ -54,14 +55,21 @@ public class SizeUtil {
      * @return the pretty String representation of the byte size
      */
     public static String prettyByteSize(long numberOfBytes) {
-        float n = numberOfBytes;
+        StringBuilder sb = new StringBuilder();
+        float n;
+        if (numberOfBytes < 0) {
+            sb.append("-");
+            n = -numberOfBytes;
+        } else {
+            n = numberOfBytes;
+        }
+
         int reps = 0;
         while (n > BYTES_PER && reps < REP_PREFIX.length - 1) {
             reps++;
             n /= BYTES_PER;
         }
         int tenth = ((int) (n * 10)) % 10;
-        StringBuilder sb = new StringBuilder();
         sb.append((int) n).append(".").append(tenth);
         sb.append(REP_PREFIX[reps]);
         return sb.toString();
