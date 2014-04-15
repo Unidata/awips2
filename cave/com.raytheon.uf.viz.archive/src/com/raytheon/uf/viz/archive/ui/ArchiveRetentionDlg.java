@@ -56,6 +56,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 26, 2013 #2225      rferrel      Make dialog perspective independent.
  * Oct 01, 2013 #2147      rferrel      Change getEnd() to pick up files with future time stamps.
  * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
+ * Apr 14, 2014 #3023      rferrel      Code clean up.
  * 
  * </pre>
  * 
@@ -69,12 +70,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
 
     /** Current Archive/Category selection's extended retention hours. */
     private RetentionHours extRetention;
-
-    /** Displays the total number of selected items for all tables. */
-    private Label totalSelectedItems;
-
-    /** Displays the total size of selected items. */
-    private Label totalSizeLbl;
 
     /** Flag to indicate when retention hours are modified. */
     private boolean retentionHoursAreModified = false;
@@ -293,9 +288,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     @Override
     protected void setTotalSizeText(String sizeStringText) {
-        if (totalSizeLbl != null && !totalSizeLbl.isDisposed()) {
-            totalSizeLbl.setText(sizeStringText);
-        }
     }
 
     /*
@@ -307,9 +299,6 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
      */
     @Override
     protected void setTotalSelectedItems(int totalSize) {
-        if (totalSelectedItems != null && !totalSelectedItems.isDisposed()) {
-            totalSelectedItems.setText("" + totalSize);
-        }
     }
 
     /*
