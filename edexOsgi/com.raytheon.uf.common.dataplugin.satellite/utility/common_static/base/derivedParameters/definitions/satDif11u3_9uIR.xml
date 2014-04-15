@@ -18,9 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="℃" name="WV/IR" abbreviation="satDivWVIR" xmlns:ns2="group">
-    <Method name="satDivWVIR">
-    	<Field abbreviation="Imager_6pp7hh6pp5_micron_IR_ooWVcc"/>
-        <Field abbreviation="Imager_11_micron_IR"/>
+<DerivedParameter unit="GenericPixel" name="11u-3.9u Satellite" abbreviation="satDif11u3_9uIR" xmlns:ns2="group">
+    <Method name="satDif11u3_9uIR">
+        <Field abbreviation="Imager 11 micron IR" unit="IRPixel"/>
+        <Field abbreviation="Imager 3.9 micron IR" unit="IRPixel"/>
     </Method>
 </DerivedParameter>
