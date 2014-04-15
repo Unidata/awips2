@@ -78,6 +78,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 14, 2013 2549       rferrel      Get category data moved off the UI thread.
  * Dec 11, 2013 2624       rferrel      No longer clear table prior to populating.
  * Apr 15, 2014 3034       lvenable     Added dispose checks in runAsync calls.
+ * Apr 10, 2014 3023       rferrel      Added setTotalSelectedSize method.
  * 
  * </pre>
  * 
@@ -577,15 +578,22 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
             }
         }
 
+        setTotalSelectedSize(totalSize);
+        setTotalSelectedItems(totalSelected);
+    }
+
+    /**
+     * 
+     * @param selectedTotalSize
+     */
+    protected void setTotalSelectedSize(long selectedTotalSize) {
         String sizeMsg = null;
-        if (totalSize == DisplayData.UNKNOWN_SIZE) {
+        if (selectedTotalSize == DisplayData.UNKNOWN_SIZE) {
             sizeMsg = DisplayData.UNKNOWN_SIZE_LABEL;
         } else {
-            sizeMsg = SizeUtil.prettyByteSize(totalSize);
+            sizeMsg = SizeUtil.prettyByteSize(selectedTotalSize);
         }
-
         setTotalSizeText(sizeMsg);
-        setTotalSelectedItems(totalSelected);
     }
 
     /**
