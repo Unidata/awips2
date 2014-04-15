@@ -218,6 +218,10 @@ case $func in
          stopEDEX $service &
       done
       wait
+
+      # small sleep for wrapper lock to disappear so that we don't make .1 version of log files
+      sleep 5
+
       for service in ${SERVICES[*]};
       do
          echo "Starting EDEX Camel ($service): "
