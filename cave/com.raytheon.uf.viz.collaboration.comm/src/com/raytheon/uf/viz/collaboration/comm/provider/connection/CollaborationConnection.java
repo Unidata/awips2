@@ -33,6 +33,10 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.pubsub.PubSubElementType;
+import org.jivesoftware.smackx.pubsub.packet.PubSubNamespace;
+import org.jivesoftware.smackx.pubsub.provider.SubscriptionProvider;
+import org.jivesoftware.smackx.pubsub.provider.SubscriptionsProvider;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.net.HostAndPort;
@@ -108,6 +112,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 09, 2014 2785       mpduff      Throw error when not connected and the connection should exist.
  * Apr 14, 2014 2903       bclement    moved from session subpackage to connection, removed password from memory, 
  *                                      moved listeners to own classes, reworked connect/register listeners/login order
+ * Apr 15, 2014 2822       bclement    added pubsub owner subscriptions provider registration
  * 
  * </pre>
  * 
@@ -124,6 +129,19 @@ public class CollaborationConnection implements IEventPublisher {
                 PacketConstants.COLLAB_XMLNS, new SessionPayloadProvider());
         pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
                 AuthInfo.AUTH_QUERY_XMLNS, new AuthInfoProvider());
+        /*
+         * smack doesn't support some of the OWNER operations such as getting
+         * all subscriptions on a node. PubSubOperations creates the request
+         * objects for these operations, but the response needs to be parsed.
+         * Here we register the existing smack parsers using the OWNER
+         * namespace.
+         */
+        pm.addExtensionProvider(
+                PubSubElementType.SUBSCRIPTION.getElementName(),
+                PubSubNamespace.OWNER.getXmlns(), new SubscriptionProvider());
+        pm.addExtensionProvider(
+                PubSubElementType.SUBSCRIPTIONS.getElementName(),
+                PubSubNamespace.OWNER.getXmlns(), new SubscriptionsProvider());
     }
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
