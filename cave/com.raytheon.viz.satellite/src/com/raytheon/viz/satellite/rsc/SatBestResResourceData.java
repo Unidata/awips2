@@ -49,7 +49,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ProgressiveDisclosureProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.satellite.SatelliteDataCubeAdapter;
+import com.raytheon.viz.satellite.inventory.SatelliteDataCubeAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
