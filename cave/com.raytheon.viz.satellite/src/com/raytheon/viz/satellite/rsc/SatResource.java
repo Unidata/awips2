@@ -66,8 +66,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.satellite.SatelliteConstants;
+import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -97,6 +97,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      interrogation
  *  Nov 20, 2013  2492      bsteffen    Always get min/max values from style
  *                                      rules.
+ *  Apr 09, 2014  2947      bsteffen    Improve flexibility of sat derived
+ *                                      parameters.
  * 
  * </pre>
  * 
@@ -283,14 +285,7 @@ public class SatResource extends
         }
 
         SingleLevel level = new SingleLevel(Level.LevelType.SURFACE);
-        String physicalElement = null;
-        DerivedParameterRequest request = (DerivedParameterRequest) record
-                .getMessageData();
-        if (request == null) {
-            physicalElement = record.getPhysicalElement();
-        } else {
-            physicalElement = request.getParameterAbbreviation();
-        }
+        String physicalElement = record.getPhysicalElement();
 
         // Grab the sampleRange from the preferences
         ParamLevelMatchCriteria match = new ParamLevelMatchCriteria();
@@ -459,17 +454,13 @@ public class SatResource extends
         return String.format("%.1f%s", measuredValue, unitString);
     }
 
-    private String getLegend(PluginDataObject record) {
-        String productName = null;
-        DerivedParameterRequest request = (DerivedParameterRequest) record
-                .getMessageData();
-        if (request == null) {
-            productName = ((SatelliteRecord) record).getPhysicalElement();
-        } else {
-            productName = request.getParameterAbbreviation();
+    private String getLegend(SatelliteRecord record) {
+        String productName = record.getPhysicalElement();
+        if (record instanceof DerivedSatelliteRecord) {
+            productName = ((DerivedSatelliteRecord) record).getName();
         }
         return SatelliteConstants.getLegend(productName,
-                ((SatelliteRecord) record).getCreatingEntity());
+                record.getCreatingEntity());
     }
 
     public List<DrawableImage> getImages(IGraphicsTarget target,
