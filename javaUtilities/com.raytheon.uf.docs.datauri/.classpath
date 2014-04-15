@@ -19,7 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.profiler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.radar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.recco"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.redbook"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.satellite"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.sfcobs"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.shef"/>
@@ -148,5 +147,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.stormtrack"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.tcm"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gov.noaa.nws.ncep.edex.plugin.wcp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.redbook"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
