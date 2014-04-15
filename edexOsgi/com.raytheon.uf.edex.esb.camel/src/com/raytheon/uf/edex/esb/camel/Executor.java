@@ -29,6 +29,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -67,6 +69,9 @@ public class Executor {
 
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
 
+    private static final Logger logger = LoggerFactory
+            .getLogger(Executor.class);
+
     public static void start() throws Exception {
         final long t0 = System.currentTimeMillis();
 
@@ -76,24 +81,23 @@ public class Executor {
                 ContextManager ctxMgr = ContextManager.getInstance();
 
                 long t1 = System.currentTimeMillis();
-                System.out
-                        .println("**************************************************");
-                System.out
-                        .println("* EDEX ESB is shutting down                      *");
-                System.out
-                        .println("**************************************************");
+                StringBuilder msg = new StringBuilder(250);
+                msg.append(
+                        "\n**************************************************")
+                        .append("\n* EDEX ESB is shutting down                      *")
+                        .append("\n**************************************************");
+                logger.info(msg.toString());
                 ctxMgr.stopContexts();
                 long t2 = System.currentTimeMillis();
-                System.out
-                        .println("**************************************************");
-                System.out
-                        .println("* EDEX ESB is shut down                          *");
-                System.out.println("* Total time to shutdown: "
-                        + TimeUtil.prettyDuration(t2 - t1));
-                System.out.println("* EDEX ESB uptime: "
-                        + TimeUtil.prettyDuration(t2 - t0));
-                System.out
-                        .println("**************************************************");
+                msg.setLength(0);
+                msg.append("\n**************************************************");
+                msg.append("\n* EDEX ESB is shut down                          *");
+                msg.append("\n* Total time to shutdown: ")
+                        .append(TimeUtil.prettyDuration(t2 - t1)).append("");
+                msg.append("\n* EDEX ESB uptime: ")
+                        .append(TimeUtil.prettyDuration(t2 - t0)).append("");
+                msg.append("\n**************************************************");
+                logger.info(msg.toString());
                 shutdownLatch.countDown();
             }
         });
@@ -137,29 +141,24 @@ public class Executor {
         String modeName = System.getProperty("edex.run.mode");
 
         if ((modeName != null) && (modeName.length() > 0)) {
-            System.out.println("EDEX run configuration: " + modeName);
+            logger.info("EDEX run configuration: " + modeName);
         } else {
-            System.out
-                    .println("No EDEX run configuration specified, defaulting to use all discovered spring XML files");
+            logger.info("No EDEX run configuration specified, defaulting to use all discovered spring XML files");
         }
-        System.out.println("EDEX site configuration: "
+        logger.info("EDEX site configuration: "
                 + System.getProperty("aw.site.identifier"));
 
         List<String> discoveredPlugins = EDEXModesUtil.extractSpringXmlFiles(
                 xmlFiles, modeName);
 
-        System.out.println();
-        System.out.println(" ");
-        System.out.println("EDEX configuration files: ");
-        System.out.println("-----------------------");
-        System.out.println(printList(springList));
-        System.out.println(" ");
-        System.out.println(" ");
-        System.out.println("Spring-enabled Plugins:");
-        System.out.println("-----------------------");
-        System.out.println(printList(discoveredPlugins));
-        System.out.println(" ");
-        System.out.println(" ");
+        StringBuilder msg = new StringBuilder(1000);
+        msg.append("\n\nEDEX configuration files: ");
+        msg.append("\n-----------------------");
+        msg.append("\n").append(printList(springList));
+        msg.append("\n\nSpring-enabled Plugins:");
+        msg.append("\n-----------------------");
+        msg.append("\n").append(printList(discoveredPlugins)).append("\n");
+        logger.info(msg.toString());
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
                 xmlFiles.toArray(new String[xmlFiles.size()]));
@@ -171,14 +170,14 @@ public class Executor {
         ctxMgr.startContexts();
 
         long t1 = System.currentTimeMillis();
-        System.out
-                .println("**************************************************");
-        System.out
-                .println("* EDEX ESB is now operational                    *");
-        System.out.println("* Total startup time: "
-                + TimeUtil.prettyDuration(t1 - t0));
-        System.out
-                .println("**************************************************");
+        msg.setLength(0);
+        msg.append("\n**************************************************");
+        msg.append("\n* EDEX ESB is now operational                    *");
+        msg.append("\n* Total startup time: ").append(
+                TimeUtil.prettyDuration(t1 - t0));
+        msg.append("\n**************************************************");
+        logger.info(msg.toString());
+        msg = null;
         System.setProperty("System.status", "Operational");
         EDEXUtil.notifyIsRunning();
 
