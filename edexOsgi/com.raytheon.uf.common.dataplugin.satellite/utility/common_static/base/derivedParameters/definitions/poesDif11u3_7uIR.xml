@@ -18,9 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter name="11u-13u" abbreviation="satDif11u13uIR" xmlns:ns2="group">
-    <Method name="satDifference">
-        <Field abbreviation="Imager 11 micron IR"/>
-        <Field abbreviation="Imager 13 micron (IR)"/>
+<DerivedParameter unit="GenericPixel" name="POES 11u-3.7u Satellite" abbreviation="poesDif11u3_7uIR" xmlns:ns2="group">
+    <Method name="Difference">
+        <Field abbreviation="Polar IR"/>
+        <Field abbreviation="Polar 3.7u"/>
     </Method>
 </DerivedParameter>
