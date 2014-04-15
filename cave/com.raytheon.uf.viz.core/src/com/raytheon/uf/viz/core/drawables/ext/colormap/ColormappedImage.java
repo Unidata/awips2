@@ -44,7 +44,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 16, 2011            mschenke     Initial creation
+ * Dec 16, 2011            mschenke    Initial creation
+ * Feb 27, 2013  #1532     bsteffen    Delete uf.common.colormap.image     
+ * Nov 11, 2013  #2492     mschenke    Added getDataUnti to IColormappedImage
+ * Apr 15, 2014  #3016     randerso    Fix null pointer during construction
  * 
  * </pre>
  * 
@@ -107,7 +110,9 @@ public class ColormappedImage implements IColormappedImage,
      */
     @Override
     public void dispose() {
-        image.dispose();
+        if (image != null) {
+            image.dispose();
+        }
     }
 
     /*
