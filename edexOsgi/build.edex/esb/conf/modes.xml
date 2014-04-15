@@ -73,9 +73,6 @@
 		<include>.*request.*</include>
 		<include>.*common.*</include>
         <includeMode>excludeDpaAndOgc</includeMode>
-		<!-- ncep excludes until tested -->
-		<exclude>purgeutil-request.xml</exclude>
-		<!-- end of ncep excludes -->
 	</mode>
 	<mode name="ingest">
 		<exclude>webservices.xml</exclude>
