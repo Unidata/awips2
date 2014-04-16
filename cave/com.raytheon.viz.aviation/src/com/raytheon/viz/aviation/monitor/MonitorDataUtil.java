@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.raytheon.edex.plugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
+import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
