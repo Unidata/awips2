@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.plugin.ccfp;
+package com.raytheon.uf.common.dataplugin.ccfp;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -46,6 +46,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Jul 16, 2013 2181        bsteffen    Convert geometry types to use hibernate-
  *                                      spatial
  * Nov 01, 2013 2361        njensen     Remove XML annotations
+ * Apr 15, 2014 3001        bgonzale    Refactored to common package,
+ *                                      com.raytheon.uf.common.dataplugin.ccfp.
  * 
  * 
  * </pre>
