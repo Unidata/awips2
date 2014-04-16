@@ -57,6 +57,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Aug 18, 2013 #2097      dhladky      Allowed extension by OGCJAXBManager
  * Sep 30, 2013 2361       njensen      Refactored for cleanliness
  * Nov 14, 2013 2361       njensen      Added lazy init option, improved unmarshal error message
+ * Apr 16, 2014 2928       rjpeter      Updated marshalToStream to not close the stream.
  * </pre>
  * 
  * @author chammack
@@ -372,13 +373,22 @@ public class JAXBManager {
      */
     public void marshalToXmlFile(Object obj, String filePath,
             boolean formattedOutput) throws SerializationException {
+        OutputStream os = null;
         try {
-            marshalToStream(obj, new FileOutputStream(new File(filePath)),
-                    formattedOutput);
+            os = new FileOutputStream(new File(filePath));
+            marshalToStream(obj, os, formattedOutput);
         } catch (SerializationException e) {
             throw e;
         } catch (Exception e) {
             throw new SerializationException(e);
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    // ignore
+                }
+            }
         }
     }
 
@@ -418,13 +428,6 @@ public class JAXBManager {
         } finally {
             if ((msh != null) && (marshallers.size() < QUEUE_SIZE)) {
                 marshallers.add(msh);
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // ignore
-                }
             }
         }
     }
