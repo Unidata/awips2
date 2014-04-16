@@ -55,4 +55,11 @@
               itemProvider="com.raytheon.viz.satellite.menu.SatBundleMenuContribution">
         </contributionItemProvider>
      </extension>
+     <extension
+           point="com.raytheon.uf.viz.core.units">
+        <units
+              class="com.raytheon.viz.satellite.inventory.SatelliteUnitRegistrar"
+              name="com.raytheon.viz.satellite.units">
+        </units>
+     </extension>
 </plugin>

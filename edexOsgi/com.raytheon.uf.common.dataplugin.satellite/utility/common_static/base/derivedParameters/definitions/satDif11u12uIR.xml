@@ -18,9 +18,9 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="℃" name="11u-12u" abbreviation="satDif11u12uIR" xmlns:ns2="group">
+<DerivedParameter unit="GenericPixel" name="11u-12u Satellite" abbreviation="satDif11u12uIR" xmlns:ns2="group">
     <Method name="satDifference">
-        <Field abbreviation="Imager 11_micron IR"/>
-        <Field abbreviation="Imager 12 micron IR"/>
+        <Field abbreviation="Imager 11 micron IR" unit="IRPixel"/>
+        <Field abbreviation="Imager 12 micron IR" unit="IRPixel"/>
     </Method>
 </DerivedParameter>
