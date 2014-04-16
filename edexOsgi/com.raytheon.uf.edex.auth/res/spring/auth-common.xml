@@ -9,6 +9,7 @@
 
     <bean id="routeWrapper" class="com.raytheon.uf.edex.auth.RemoteRequestRouteWrapper">
         <property name="server" ref="serializeServer" />
+        <property name="byteLimitInMB" value="${thriftService.byteLimitInMB}" />
     </bean>
 
 </beans>
