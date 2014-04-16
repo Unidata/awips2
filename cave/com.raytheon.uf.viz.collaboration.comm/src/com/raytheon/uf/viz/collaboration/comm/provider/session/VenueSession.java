@@ -107,6 +107,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                      moved muc close logic to closeMuc()
  *                                      handle is now set in constructor
  * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
+ * Apr 16, 2014 3020       bclement    added check for invited rooms in roomExistsOnServer()
  * 
  * 
  * </pre>
@@ -147,9 +148,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    public VenueSession(EventBus externalBus,
-            CollaborationConnection manager, String venueName, String handle,
-            String sessionId) {
+    public VenueSession(EventBus externalBus, CollaborationConnection manager,
+            String venueName, String handle, String sessionId) {
         super(externalBus, manager, sessionId);
         this.venueName = venueName;
         this.handle = handle;
@@ -160,8 +160,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    public VenueSession(EventBus externalBus,
-            CollaborationConnection manager, CreateSessionData data) {
+    public VenueSession(EventBus externalBus, CollaborationConnection manager,
+            CreateSessionData data) {
         super(externalBus, manager);
         this.venueName = data.getName();
         this.handle = data.getHandle();
@@ -433,16 +433,30 @@ public class VenueSession extends BaseSession implements IVenueSession {
     public static boolean roomExistsOnServer(XMPPConnection conn, String roomId)
             throws XMPPException {
         String host = Tools.parseHost(roomId);
+
+        /* check for public rooms */
         ServiceDiscoveryManager serviceDiscoveryManager = new ServiceDiscoveryManager(
                 conn);
         DiscoverItems result = serviceDiscoveryManager.discoverItems(host);
-
         for (Iterator<DiscoverItems.Item> items = result.getItems(); items
                 .hasNext();) {
             DiscoverItems.Item item = items.next();
             if (roomId.equals(item.getEntityID())) {
                 return true;
             }
+        }
+
+        /* check for private rooms that we have access to */
+        try {
+            MultiUserChat.getRoomInfo(conn, roomId);
+            /* getRoomInfo only returns if the room was found */
+            return true;
+        } catch (XMPPException e) {
+            /*
+             * getRoomInfo throws a 404 if the room does exist or is private and
+             * we don't have access. In either case, we can't say that the room
+             * exists
+             */
         }
         return false;
     }
