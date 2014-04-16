@@ -77,6 +77,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Aug 06, 2013 2222       rferrel      Changes to display all selected data.
  * Nov 14, 2013 2549       rferrel      Get category data moved off the UI thread.
  * Dec 11, 2013 2624       rferrel      No longer clear table prior to populating.
+ * Apr 15, 2014 3034       lvenable     Added dispose checks in runAsync calls.
+ * 
  * </pre>
  * 
  * @author bgonzale
@@ -509,6 +511,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
             @Override
             public void run() {
+                // If the dialog has been disposed then return.
+                if (isDisposed()) {
+                    return;
+                }
+
                 try {
                     if (displayDatas != null) {
                         tableComp.populateTable(archiveName, categoryName,
@@ -676,6 +683,11 @@ public abstract class AbstractArchiveDlg extends CaveSWTDialog implements
 
             @Override
             public void run() {
+                // If the dialog has been disposed then return.
+                if (isDisposed()) {
+                    return;
+                }
+
                 tableComp.updateSize(myDisplayDatas);
                 updateTotals(null);
             }
