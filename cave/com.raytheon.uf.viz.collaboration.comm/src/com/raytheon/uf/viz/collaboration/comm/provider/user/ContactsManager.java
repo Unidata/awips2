@@ -76,6 +76,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
  * Jan 31, 2014 2700       bclement     added addToRoster, fixed add to group when in roster, but blocked
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * Apr 11, 2014 2903       bclement     moved roster listener from collaboration connection to here
+ * Apr 16, 2014 2981       bclement     fixed NPE when cached shared group deleted on server
  * 
  * </pre>
  * 
@@ -199,7 +200,13 @@ public class ContactsManager {
         Roster roster = getRoster();
         for (String group : groups) {
             RosterGroup rg = roster.getGroup(group);
-            rval.add(new SharedGroup(rg));
+            /*
+             * group will be null if it has been removed from server after
+             * cached in shared groups.
+             */
+            if (rg != null) {
+                rval.add(new SharedGroup(rg));
+            }
         }
         return rval;
     }
