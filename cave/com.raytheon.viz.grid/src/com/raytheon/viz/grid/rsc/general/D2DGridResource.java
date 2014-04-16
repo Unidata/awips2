@@ -73,16 +73,19 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 09, 2011            bsteffen    Initial creation
- * Feb 25, 2013 1659       bsteffen    Add PDOs to D2DGridResource in
- *                                     constructor to avoid duplicate data
- *                                     requests.
- * Jul 15, 2013 2107       bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013 2287       randerso    Removed 180 degree adjustment required by error
- *                                     in Maputil.rotation
- * Sep 24, 2013 DR 15972   D. Friedman Make reprojection of grids configurable.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 09, 2011           bsteffen    Initial creation
+ * Feb 25, 2013  1659     bsteffen    Add PDOs to D2DGridResource in
+ *                                    constructor to avoid duplicate data
+ *                                    requests.
+ * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
+ * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
+ *                                    error in Maputil.rotation
+ * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
+ * Mar 27, 2014  2945     bsteffen    Enable omitting the plane from the legend
+ *                                    based off style rules.
+ * 
  * 
  * </pre>
  * 
@@ -252,6 +255,10 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
 
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
+            if (stylePreferences.getDisplayFlags() != null) {
+                legendParams.isPlaneLabelDisplayed = !stylePreferences
+                        .getDisplayFlags().hasFlag("NoPlane");
+            }
         }
 
         if (legendParams.unit == null || legendParams.unit.isEmpty()) {
