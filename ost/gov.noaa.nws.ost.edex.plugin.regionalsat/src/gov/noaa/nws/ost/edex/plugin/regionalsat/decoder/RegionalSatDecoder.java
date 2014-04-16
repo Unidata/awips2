@@ -60,6 +60,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Sep 24, 2012 1210        jkorman     Modified the decode method to create the
  *                                      IDataRecord required by the SatelliteDao
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Apr 15, 2014 3017        bsteffen    Call new methods in SatSpatialFactory
  * </pre>
  * 
  * @author tk
@@ -273,49 +274,25 @@ public class RegionalSatDecoder extends AbstractDecoder {
                         "Unable to decode Satellite: Encountered Unknown projection");
             } // end of if map projection block
 
-            SatMapCoverage mapCoverage = null;
+            SatMapCoverage mapCoverage = SatSpatialFactory.getInstance()
+                    .getCoverageTwoCorners(mapProjection, nx, ny, lov, latin,
+                            la1, lo1, la2, lo2);
 
-            try {
-                mapCoverage = SatSpatialFactory.getInstance()
-                        .getMapCoverage(mapProjection, nx, ny, dx, dy, lov,
-                                latin, la1, lo1, la2, lo2);
-            } catch (Exception e) {
-                StringBuffer buf = new StringBuffer();
-                buf.append(
-                        "Error getting or constructing SatMapCoverage for values: ")
-                        .append("\n\t");
-                buf.append("mapProjection=" + mapProjection).append("\n\t");
-                buf.append("nx=" + nx).append("\n\t");
-                buf.append("ny=" + ny).append("\n\t");
-                buf.append("dx=" + dx).append("\n\t");
-                buf.append("dy=" + dy).append("\n\t");
-                buf.append("lov=" + lov).append("\n\t");
-                buf.append("latin=" + latin).append("\n\t");
-                buf.append("la1=" + la1).append("\n\t");
-                buf.append("lo1=" + lo1).append("\n\t");
-                buf.append("la2=" + la2).append("\n\t");
-                buf.append("lo2=" + lo2).append("\n");
-                throw new DecoderException(buf.toString(), e);
-            } // end of catch block
+            record.setTraceId(traceId);
+            record.setCoverage(mapCoverage);
+            record.setPersistenceTime(TimeTools.getSystemCalendar().getTime());
 
-            if (record != null) {
-                record.setTraceId(traceId);
-                record.setCoverage(mapCoverage);
-                record.setPersistenceTime(TimeTools.getSystemCalendar()
-                        .getTime());
+            // Set the data into the IDataRecord
+            IDataRecord dataRec = SatelliteRecord.getDataRecord(record);
+            if (dataRec != null) {
+                record.setMessageData(dataRec);
+            } else {
+                handler.error(
+                        String.format("Could not create datarecord for %s"),
+                        traceId);
+                record = null;
+            }
 
-                // Set the data into the IDataRecord
-                IDataRecord dataRec = SatelliteRecord.getDataRecord(record);
-                if (dataRec != null) {
-                    record.setMessageData(dataRec);
-                } else {
-                    handler.error(
-                            String.format("Could not create datarecord for %s"),
-                            traceId);
-                    record = null;
-                }
-
-            } // end of if statement
         } // end of if data not empty statement
 
         if (record == null) {
