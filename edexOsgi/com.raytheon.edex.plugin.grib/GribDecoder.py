@@ -578,7 +578,10 @@ class GribDecoder():
             if levelName=='EATM':
                 levelOneValue=float(0)
                 levelTwoValue=float(Level.getInvalidLevelValue())
-                
+              
+            durationSecs = None
+            typeOfTimeInterval = None
+              
             # Special case handling for specific PDS Templates
             if pdsTemplateNumber == 1 or pdsTemplateNumber == 11:
                 typeEnsemble = Integer(pdsTemplate[15]).intValue()
@@ -622,7 +625,6 @@ class GribDecoder():
                 
                 
             elif pdsTemplateNumber == 5 or pdsTemplateNumber == 9:
-                parameterUnit = "%"
                 probabilityNumber = pdsTemplate[15]
                 forecastProbabilities = pdsTemplate[16]
                 probabilityType = pdsTemplate[17]
@@ -636,31 +638,63 @@ class GribDecoder():
                     numTimeRanges = pdsTemplate[28]
                     numMissingValues = pdsTemplate[29]
                     statisticalProcess = pdsTemplate[30]
+                    typeOfTimeInterval = pdsTemplate[31]
+                    durationSecs = self._convertToSeconds(pdsTemplate[33], pdsTemplate[32])
                 
+                scaledValue = None 
                 if(probabilityType == 1 or probabilityType ==2):
-                    if(scaleFactorUL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueUL)+"E"+str(scaleFactorUL)
-                elif(probabilityType == 0):
-                    if(scaleFactorLL == 0):
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)
-                    else:
-                        parameterAbbreviation = parameterAbbreviation+"_"+str(scaledValueLL)+"E"+str(scaleFactorLL)
+                    scaledValue = self._convertScaledValue(scaledValueUL, scaleFactorUL)
+                    parameterName = "Prob of " + parameterName + " > " + str(scaledValue) + parameterUnit
+                else:
+                    scaledValue = self._convertScaledValue(scaledValueLL, scaleFactorLL)
+                    parameterName = "Prob of " + parameterName + " < " + str(scaledValue) + parameterUnit
+                parameterAbbreviation = parameterAbbreviation + str(scaledValue) + parameterUnit
+
+                parameterUnit = "%"
                 
             elif pdsTemplateNumber == 8:
                 endTime = GregorianCalendar(pdsTemplate[15], pdsTemplate[16] - 1, pdsTemplate[17], pdsTemplate[18], pdsTemplate[19], pdsTemplate[20])
                 
-                numTimeRanges = pdsTemplate[21]
-                numMissingValues = pdsTemplate[22]
-                statisticalProcess = pdsTemplate[23]
+                #numTimeRanges = pdsTemplate[21]
+                #numMissingValues = pdsTemplate[22]
+                #statisticalProcess = pdsTemplate[23]
 
             elif pdsTemplateNumber == 10:
+                parameterAbbreviation = parameterAbbreviation + str(pdsTemplate[15]) + "pct"
+                parameterName = str(pdsTemplate[15]) +"th percentile " + parameterName
+
                 endTime = GregorianCalendar(pdsTemplate[16], pdsTemplate[17] - 1, pdsTemplate[18], pdsTemplate[19], pdsTemplate[20], pdsTemplate[21])
 
                 numTimeRanges = pdsTemplate[22]
                 numMissingValues = pdsTemplate[23]
                 statisticalProcess = pdsTemplate[24]
+                
+                typeOfTimeInterval = pdsTemplate[25]
+                durationSecs =  self._convertToSeconds(pdsTemplate[27], pdsTemplate[26])
+                
+
+            if durationSecs is not None:
+                # This only applies for templates 9 and 10 which are not
+                # commonly used templates. For all other data the duration is
+                # ignored and it is assumed that reftime, forecast time, and 
+                # endtime will define the duration. For Template 9 and 10 this
+                # will cause forecast time to be ignored so duration is correct.
+
+                # The decoder assumes reftime + forecastTime equals 
+                # endTime - duration, however for some models 
+                # reftime + forecasttime instead equals endTime. This reassigns
+                # forecastTime as endTime - refTime - duration so that
+                # duration is correctly calculated.
+                refTime = GregorianCalendar(idSection[5], idSection[6] - 1, idSection[7], idSection[8], idSection[9], idSection[10])
+                refToEndSecs = (endTime.getTimeInMillis() - refTime.getTimeInMillis())/ 1000
+                forecastTime = refToEndSecs - durationSecs
+            
+            if typeOfTimeInterval == 192 and centerID == 7 and subcenterID == 14:
+                # For TPC Surge data the type of time interval is significant and they have indicated that 
+                # 192 means the data is cumulative. Since we don't ordinarily do table lookups on the
+                # type of time interval we must encode this information in the parameter abbreviation here.
+                parameterAbbreviation = parameterAbbreviation + "Cumul"
+                parameterName = parameterName + " - cumulative"
 
             if(pdsTemplate[2] == 6 or pdsTemplate[2] == 7):
                 parameterAbbreviation = parameterAbbreviation+"erranl"
