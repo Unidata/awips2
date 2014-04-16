@@ -513,9 +513,6 @@
 		<DatabaseLevel levelName="FHAG" levelOneValue="250"
 			unit="m" />
 	</Level>
-	<Level displayName="0 km AGL" key="0kmAgl" group="S">
-		<DatabaseLevel levelName="FHAG" levelOneValue="0" unit="m" />
-	</Level>
 	<Level displayName="0.5 km AGL" key="0.5kmAgl" group="S">
 		<DatabaseLevel levelName="FHAG" levelOneValue="500"
 			unit="m" />
