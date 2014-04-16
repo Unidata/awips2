@@ -20,11 +20,15 @@
 package com.raytheon.uf.viz.core.reflect;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.osgi.framework.internal.core.AbstractBundle;
+import org.eclipse.osgi.framework.internal.core.BundleRepository;
+import org.eclipse.osgi.framework.internal.core.Framework;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 import org.reflections.Reflections;
@@ -47,6 +51,7 @@ import org.reflections.util.ConfigurationBuilder;
  * ------------- -------- ----------- --------------------------
  * Oct 21, 2013  2491     bsteffen    Initial creation
  * Jan 22, 2014  2062     bsteffen    Handle bundles with no wiring.
+ * Apr 16, 2014  3018     njensen     Synchronize against BundleRepository
  * 
  * </pre>
  * 
@@ -58,11 +63,53 @@ public class BundleReflections {
 
     private final Reflections reflections;
 
+    @SuppressWarnings("restriction")
     public BundleReflections(Bundle bundle, Scanner scanner) throws IOException {
         ConfigurationBuilder cb = new ConfigurationBuilder();
         BundleWiring bundleWiring = bundle.adapt(BundleWiring.class);
+
+        /*
+         * If BundleReflection's constructor is invoked on a thread other than
+         * main/UI thread, then there is a possible deadlock if the application
+         * shuts down while the bundleWiring.getClassloader() call below is
+         * still going. The BundleRepository of the Framework is the primary
+         * resource that is in contention in this deadlock scenario, due to the
+         * BundleRepository being used as a synchronization lock both deep in
+         * bundleWiring.getClassloader() and in Framework shutdown code.
+         * 
+         * Therefore to avoid this deadlock, we attempt to get the
+         * BundleRepository and synchronize against it, ensuring the call to
+         * getClassLoader() can finish and then release synchronization locks.
+         * 
+         * If we fail to get the BundleRepository due to access restrictions,
+         * then we proceed onwards anyway because the odds of the application
+         * shutting down at the same time as this is still running is low, and
+         * even if that occurs, the odds are further reduced that the two
+         * threads will synchronize against the BundleRepository at the same
+         * time and deadlock.
+         */
+        BundleRepository bundleRepo = null;
+        if (bundle instanceof AbstractBundle) {
+            try {
+                AbstractBundle ab = (AbstractBundle) bundle;
+                Field bundleRepoField = Framework.getField(Framework.class,
+                        BundleRepository.class, true);
+                bundleRepo = (BundleRepository) bundleRepoField.get(ab
+                        .getFramework());
+            } catch (Throwable t) {
+                // intentionally log to console and proceed anyway
+                t.printStackTrace();
+            }
+        }
+
         if (bundleWiring != null) {
-            cb.addClassLoader(bundleWiring.getClassLoader());
+            if (bundleRepo != null) {
+                synchronized (bundleRepo) {
+                    cb.addClassLoader(bundleWiring.getClassLoader());
+                }
+            } else {
+                cb.addClassLoader(bundleWiring.getClassLoader());
+            }
             cb.addUrls(FileLocator.getBundleFile(bundle).toURI().toURL());
             cb.setScanners(scanner);
             reflections = cb.build();
@@ -87,4 +134,5 @@ public class BundleReflections {
         }
         return subTypes;
     }
+
 }
