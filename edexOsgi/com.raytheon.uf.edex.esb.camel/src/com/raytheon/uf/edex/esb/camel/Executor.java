@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,10 @@ public class Executor {
     public static void start() throws Exception {
         final long t0 = System.currentTimeMillis();
 
+        Thread.currentThread().setName("EDEXMain");
+        System.setProperty("System.status", "Starting");
+        final AtomicBoolean shutdownContexts = new AtomicBoolean(false);
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -87,7 +92,12 @@ public class Executor {
                         .append("\n* EDEX ESB is shutting down                      *")
                         .append("\n**************************************************");
                 logger.info(msg.toString());
-                ctxMgr.stopContexts();
+                if (shutdownContexts.get()) {
+                    ctxMgr.stopContexts();
+                } else {
+                    logger.info("Contexts never started, skipping context shutdown");
+                }
+
                 long t2 = System.currentTimeMillis();
                 msg.setLength(0);
                 msg.append("\n**************************************************");
@@ -101,9 +111,6 @@ public class Executor {
                 shutdownLatch.countDown();
             }
         });
-
-        Thread.currentThread().setName("EDEXMain");
-        System.setProperty("System.status", "Starting");
 
         List<String> xmlFiles = new ArrayList<String>();
 
@@ -165,6 +172,8 @@ public class Executor {
 
         ContextManager ctxMgr = (ContextManager) context
                 .getBean("contextManager");
+
+        shutdownContexts.set(true);
 
         // start final routes
         ctxMgr.startContexts();

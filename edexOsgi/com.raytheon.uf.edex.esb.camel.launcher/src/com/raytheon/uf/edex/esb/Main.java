@@ -161,7 +161,7 @@ public class Main {
                 m.invoke(null, new Object[0]);
             }
             System.exit(0);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | LinkageError e) {
             logger.error("Could not load class", e);
             if (cl != null) {
                 StringBuilder msg = new StringBuilder(1000);
