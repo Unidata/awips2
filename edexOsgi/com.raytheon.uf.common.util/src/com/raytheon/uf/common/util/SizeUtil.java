@@ -39,11 +39,14 @@ package com.raytheon.uf.common.util;
  */
 
 public class SizeUtil {
-
     private static final int BYTES_PER = 1024;
 
     private static final String[] REP_PREFIX = new String[] { "B", "kB", "MB",
             "GB", "TB", "PB", "EB", "ZB", "YB" };
+
+    public static final long BYTES_PER_KB = BYTES_PER;
+
+    public static final long BYTES_PER_MB = BYTES_PER_KB * BYTES_PER;
 
     /**
      * Transforms a number of bytes to a pretty string based on the total number
@@ -65,7 +68,7 @@ public class SizeUtil {
         }
 
         int reps = 0;
-        while (n > BYTES_PER && reps < REP_PREFIX.length - 1) {
+        while ((n > BYTES_PER) && (reps < (REP_PREFIX.length - 1))) {
             reps++;
             n /= BYTES_PER;
         }
