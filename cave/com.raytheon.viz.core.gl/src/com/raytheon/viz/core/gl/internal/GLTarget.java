@@ -144,6 +144,7 @@ import com.sun.opengl.util.j2d.TextRenderer;
  *                                    if changed
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * Apr 08, 2014  2950     bsteffen    Reduce oversized colormaps.
+ * Apr 15, 2014  2956     njensen     Throw VizException from drawShadedShapesInternal
  * 
  * </pre>
  * 
@@ -836,7 +837,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
     }
 
     private void drawShadedShapesInternal(List<GLShadedShape> shapes,
-            float alpha, float brightness) {
+            float alpha, float brightness) throws VizException {
         brightness = Math.max(brightness, 0.0f);
         brightness = Math.min(brightness, 1.0f);
 
@@ -1270,9 +1271,9 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
             }
             statusHandler.info("Reducing colormap to " + lessColors.size()
                     + " colors because this graphics card only supports "
-                            + capabilities.maxTextureSize
+                    + capabilities.maxTextureSize
                     + " colors and the colormap contains "
-                            + glColorMap.getSize() + " colors.");
+                    + glColorMap.getSize() + " colors.");
             glColorMap = new ColorMap(lessColors.size());
             for (int i = 0; i < lessColors.size(); i += 1) {
                 glColorMap.setColor(i, lessColors.get(i));
