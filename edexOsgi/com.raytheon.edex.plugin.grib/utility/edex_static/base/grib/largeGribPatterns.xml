@@ -21,5 +21,10 @@
 <largeGribPatterns xmlns:ns2="group">
 	<regex>^al*</regex>
 	<regex>^tpcprblty*</regex>
+	<!--TPCSurgeProb pSurge2 + Tide -->
 	<regex>^LGX[TP]*</regex>
+    <!--TPCSurgeProb PHISH heights -->
+    <regex>^L[L-X]X[QP][1-5]0</regex>
+    <!--TPCSurgeProb PHISH Probablilities -->
+    <regex>^L[HG]X[A-M][0-2][0-9]</regex>
 </largeGribPatterns>
