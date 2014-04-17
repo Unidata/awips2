@@ -116,6 +116,7 @@ import com.raytheon.uf.common.time.TimeRange;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 11, 2011            dgilling     Initial creation
+ * 04/08/2014   DR 17187   randerson (code checked in by zhao) 
  * 
  * </pre>
  * 
@@ -451,7 +452,7 @@ public class WeatherInterp extends Interp {
                 // are already set to 0.
 
                 // get its value
-                key = keys1[index];
+                key = keys1[0xFF & index];
 
                 // find this key in the new list, and save the corresponding
                 // index
@@ -466,7 +467,7 @@ public class WeatherInterp extends Interp {
                 // bytes
                 index = grid2.get(i, j);
                 // get its key
-                key = keys2[index];
+                key = keys2[0xFF & index];
                 // find this key in the new list, and save the corresponding
                 // index
                 for (int k = 0; k < _allKeys.size(); k++) {
