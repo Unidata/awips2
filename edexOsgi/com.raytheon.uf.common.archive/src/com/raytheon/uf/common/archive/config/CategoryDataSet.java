@@ -20,6 +20,7 @@
 package com.raytheon.uf.common.archive.config;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -45,6 +46,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 02, 2013 #2147      rferrel     Allow Date to ignore hour in time stamp.
  * Dec 10, 2013 #2624      rferrel     Added Julian date.
  * Dec 17, 2013 2603       rjpeter     Clear low order time fields on time generation.
+ * Mar 21, 2014 2835       rjpeter     Add methods to determine max directory depth
+ *                                     needed to populate display labels.
  * </pre>
  * 
  * @author rferrel
@@ -66,6 +69,25 @@ public class CategoryDataSet {
     private static final int HOUR_INDEX = 3;
 
     private static final int TIMESTAMP_INDEX = 0;
+
+    private static final Pattern LABEL_BACK_REF_FINDER = Pattern
+            .compile("\\{(\\d+)\\}");
+
+    /**
+     * The config files specifically use / to delimit directories in the
+     * patterns. It does not depend on the platform, specifically since its
+     * regex extra handling would need to be added to handle \ if it was ever
+     * used. Also window clients aren't going to mount /data_store and /archive
+     * which is all the servers knows/exports.
+     */
+    private static final Pattern DIR_SPLITTER = Pattern.compile("/");
+
+    /**
+     * Not technically sound due to optional capturing groups, but good enough
+     * for performance optimization of directory scanning.
+     */
+    private static final Pattern GROUP_FINDER = Pattern
+            .compile("[^\\\\\\(]?+\\([^\\?]");
 
     /**
      * Types of times and the number of indices for getting the time stamp from
@@ -116,6 +138,24 @@ public class CategoryDataSet {
 
     public List<String> getDirPatterns() {
         return dirPatterns;
+    }
+
+    /**
+     * Returns the directory patterns split on /. Not using File.separator due
+     * to this splitting on escape characters on a windows based platform.
+     * 
+     * @return
+     */
+    public List<String[]> getSplitDirPatterns() {
+        if (dirPatterns != null) {
+            List<String[]> rval = new ArrayList<String[]>(dirPatterns.size());
+            for (String dirPat : dirPatterns) {
+                rval.add(DIR_SPLITTER.split(dirPat));
+            }
+            return rval;
+        }
+
+        return null;
     }
 
     public void setDirPatterns(List<String> dirPatterns) {
@@ -311,6 +351,64 @@ public class CategoryDataSet {
             break;
         }
         return fileTime;
+    }
+
+    /**
+     * Returns the max directory depth scan needed to resolve the display label.
+     * 0 implies no scan, 1 is all files under root, etc.
+     * 
+     * @return
+     */
+    public int getMaxDirDepthForDisplayLabel() {
+        int rval = 0;
+
+        if ((displayLabel != null) && (displayLabel.length() > 0)
+                && (dirPatterns != null) && (dirPatterns.size() > 0)) {
+            Matcher m = LABEL_BACK_REF_FINDER.matcher(displayLabel);
+            /* find all back references, keeping only highest one */
+            int maxBackReference = -1;
+            while (m.find()) {
+                int backReference = Integer.parseInt(m.group(1));
+                maxBackReference = Math.max(maxBackReference, backReference);
+            }
+            if (maxBackReference >= 0) {
+                for (String[] tokens : getSplitDirPatterns()) {
+                    rval = Math.max(rval,
+                            depthForCapturingGroup(tokens, maxBackReference));
+                }
+            }
+        }
+
+        return rval;
+    }
+
+    /**
+     * Parses tokens looking for the directory depth to scan to get groupToFind.
+     * This is not perfect and optional capturing groups will throw this off.
+     * 
+     * @param tokens
+     * @param groupToFind
+     * @return
+     */
+    private int depthForCapturingGroup(String[] tokens, int groupToFind) {
+        int rval = 0;
+        if (groupToFind == 0) {
+            rval = tokens.length;
+        } else {
+            int groupCount = 0;
+            for (String token : tokens) {
+                rval++;
+                Matcher m = GROUP_FINDER.matcher(token);
+                while (m.find()) {
+                    groupCount++;
+                }
+                if (groupCount >= groupToFind) {
+                    break;
+                }
+            }
+        }
+
+        return rval;
     }
 
     /*
