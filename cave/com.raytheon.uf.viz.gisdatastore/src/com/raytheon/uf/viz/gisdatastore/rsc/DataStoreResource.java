@@ -119,6 +119,7 @@ import com.vividsolutions.jts.geom.Point;
  * Feb 18, 2014      #2819 randerso     Removed unnecessary clones of geometries
  * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * Mar 25, 2014      #2664 randerso     Added support for non-WGS84 shape files
+ * Apr 14, 2014      #2664 randerso     Fix NullPointerException when no .prj file present
  * 
  * </pre>
  * 
@@ -611,6 +612,13 @@ public class DataStoreResource extends
             schema = dataStore.getSchema(typeName);
             CoordinateReferenceSystem incomingCrs = schema
                     .getGeometryDescriptor().getCoordinateReferenceSystem();
+            if (incomingCrs == null) {
+                statusHandler.warn("No projection information found for "
+                        + dataStore.getFeatureSource(typeName).getName()
+                                .getURI()
+                        + ", assuming WGS84 unprojected lat/lon.");
+                incomingCrs = MapUtil.getLatLonProjection();
+            }
             incomingToLatLon = MapUtil.getTransformToLatLon(incomingCrs);
             latLonToIncoming = MapUtil.getTransformFromLatLon(incomingCrs);
 
