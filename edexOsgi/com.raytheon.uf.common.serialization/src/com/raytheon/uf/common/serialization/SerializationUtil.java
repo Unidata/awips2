@@ -50,6 +50,7 @@ import com.raytheon.uf.common.util.ServiceLoaderUtil;
  * Aug 06, 2013 2228       njensen      More efficient transformFromThrift(Class, byte[])
  * Aug 13, 2013 2169       bkowal       Unzip any gzipped data before applying thrift transformations
  * Oct 01, 2013 2163       njensen      Updated calls to JAXBManager
+ * Mar 26, 2014 2884       randerso     Fixed broken javadoc link
  * 
  * </pre>
  * 
@@ -336,9 +337,9 @@ public final class SerializationUtil {
      *            the object as bytes
      * @return the Java object
      * @throws SerializationException
-     * @deprecated Use {@link #transformFromThrift(Class, byte[]) which performs
-     *             the cast for you, and wraps any {@link ClassCastException}s
-     *             in a serialization exception
+     * @deprecated Use {@link #transformFromThrift(Class, byte[])} which
+     *             performs the cast for you, and wraps any
+     *             {@link ClassCastException}s in a serialization exception
      */
     @Deprecated
     public static Object transformFromThrift(byte[] bytes)
