@@ -5,7 +5,7 @@
 
 	<bean id="ccfpProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" value="ccfp" />
-		<property name="pluginFQN" value="com.raytheon.edex.plugin.ccfp" />
+		<property name="pluginFQN" value="com.raytheon.uf.edex.plugin.ccfp" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord" />
 	</bean>
 	
