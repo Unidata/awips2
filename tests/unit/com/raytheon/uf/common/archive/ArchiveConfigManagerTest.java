@@ -51,7 +51,6 @@ import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.TestUtil;
-import com.raytheon.uf.edex.archive.purge.ArchivePurgeManager;
 
 /**
  * Test ArchiveConfigManager Archive Ingest Purge and Archive Creation.
@@ -68,6 +67,7 @@ import com.raytheon.uf.edex.archive.purge.ArchivePurgeManager;
  * Aug 28, 2013 2299       rferrel     purgeExpiredFromArchive now returns number of files purged.
  * Apr 14, 2014 3023       rferrel     Remove archive purge test no long works with implementation
  *                                      cluster locks.
+ * Apr 17, 2014 3045       rferrel     Commented out test so no longer have dependence ArchivPurgeManger.
  * 
  * </pre>
  * 
@@ -555,39 +555,40 @@ public class ArchiveConfigManagerTest {
      * awips.cluster_task table to perform the locks.
      */
     // @Test
-    public void testArchiveManagerPurge() throws IOException {
-        ArchivePurgeManager manager = ArchivePurgeManager.getInstance();
-        Collection<File> filesFoundInPurge = new ArrayList<File>();
-        int purgeCount = 0;
-
-        for (ArchiveConfig a : manager.getArchives()) {
-            purgeCount += manager.purgeExpiredFromArchive(a);
-        }
-
-        // assertEquals(
-        //
-        // "The expected number of purged files and number of purge files not the same",
-        // purgeCount, purgeFiles.size());
-
-        for (File file : allFiles) {
-            if (!file.exists()) {
-                filesFoundInPurge.add(file);
-            }
-        }
-        System.out.println("purgeCount: " + purgeCount + ", pureFiles.size:"
-                + purgeFiles.size() + ", filesFoundInPurge.size(): "
-                + filesFoundInPurge.size());
-
-        for (File file : purgeFiles) {
-            if (!filesFoundInPurge.contains(file)) {
-                System.out.println("not purged: " + file.getAbsolutePath());
-            }
-        }
-
-        assertEquals(
-                "The expected purge files and the files purged are not the same",
-                createFileNameListRemoveTestDir(purgeFiles),
-                createFileNameListRemoveTestDir(filesFoundInPurge));
-    }
+    // public void testArchiveManagerPurge() throws IOException {
+    // ArchivePurgeManager manager = ArchivePurgeManager.getInstance();
+    // Collection<File> filesFoundInPurge = new ArrayList<File>();
+    // int purgeCount = 0;
+    //
+    // for (ArchiveConfig a : manager.getArchives()) {
+    // purgeCount += manager.purgeExpiredFromArchive(a);
+    // }
+    //
+    // // assertEquals(
+    // //
+    // //
+    // "The expected number of purged files and number of purge files not the same",
+    // // purgeCount, purgeFiles.size());
+    //
+    // for (File file : allFiles) {
+    // if (!file.exists()) {
+    // filesFoundInPurge.add(file);
+    // }
+    // }
+    // System.out.println("purgeCount: " + purgeCount + ", pureFiles.size:"
+    // + purgeFiles.size() + ", filesFoundInPurge.size(): "
+    // + filesFoundInPurge.size());
+    //
+    // for (File file : purgeFiles) {
+    // if (!filesFoundInPurge.contains(file)) {
+    // System.out.println("not purged: " + file.getAbsolutePath());
+    // }
+    // }
+    //
+    // assertEquals(
+    // "The expected purge files and the files purged are not the same",
+    // createFileNameListRemoveTestDir(purgeFiles),
+    // createFileNameListRemoveTestDir(filesFoundInPurge));
+    // }
 
 }
