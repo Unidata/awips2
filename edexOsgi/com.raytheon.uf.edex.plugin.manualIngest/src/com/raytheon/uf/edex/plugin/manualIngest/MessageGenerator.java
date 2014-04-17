@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.distribution.DistributionPatterns;
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2009            brockwoo    Initial creation
  * Sep 03, 2013 2327       rjpeter     Added directory routing by plugin and date of product.
+ * Apr 17, 2014 2942       skorolev    Updated throw exception in sendFileToIngest.
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -285,6 +287,10 @@ public class MessageGenerator implements Processor {
 
         try {
             File archiveFile = copyFileToArchive(new File(inFile));
+            if (archiveFile == null) {
+                throw new Exception("File " + inFile
+                        + " has not been copied into archive.");
+            }
             EDEXUtil.getMessageProducer().sendAsync(route,
                     archiveFile.getAbsolutePath());
         } catch (Exception e) {
