@@ -6,7 +6,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.binlightning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.bufrmos"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.bufrua"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.ccfp"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.uf.edex.plugin.ccfp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.gfe"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.goessounding"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/com.raytheon.edex.plugin.grib"/>
