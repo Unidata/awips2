@@ -41,11 +41,9 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -74,7 +72,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.core.spatial.GeometryCache;
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.TopologyException;
@@ -85,7 +82,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * 
  * <pre>
  * 
- * SOFTWARE HISTORY
+ * SOFTWARE HISTORY 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 19, 2009            randerso    Initial creation
@@ -95,6 +92,7 @@ import com.vividsolutions.jts.io.WKBReader;
  * Nov 06, 2013 2361       njensen     Prepopulate fields in initInternal
  *                                     instead of constructor for speed
  * Feb 18, 2014 2819       randerso    Removed unnecessary clones of geometries
+ * Apr 09, 2014 2997       randerso    Replaced buildEnvelope with buildBoundingGeometry
  * 
  * </pre>
  * 
@@ -171,18 +169,18 @@ public class DbMapResource extends
 
             String shadingField;
 
-            Envelope envelope;
+            Geometry boundingGeom;
 
             Map<Object, RGB> colorMap;
 
             Request(IGraphicsTarget target, IMapDescriptor descriptor,
-                    DbMapResource rsc, Envelope envelope, String geomField,
+                    DbMapResource rsc, Geometry boundingGeom, String geomField,
                     String labelField, String shadingField,
                     Map<Object, RGB> colorMap) {
                 this.target = target;
                 this.descriptor = descriptor;
                 this.rsc = rsc;
-                this.envelope = envelope;
+                this.boundingGeom = boundingGeom;
                 this.geomField = geomField;
                 this.labelField = labelField;
                 this.shadingField = shadingField;
@@ -217,10 +215,10 @@ public class DbMapResource extends
 
             public Throwable cause;
 
-            public Envelope query;
+            public String table;
 
-            private Result(Envelope query) {
-                this.query = query;
+            private Result(String table) {
+                this.table = table;
                 failed = true;
             }
         }
@@ -238,13 +236,13 @@ public class DbMapResource extends
         }
 
         public void request(IGraphicsTarget target, IMapDescriptor descriptor,
-                DbMapResource rsc, Envelope query, String geomField,
+                DbMapResource rsc, Geometry boundingGeom, String geomField,
                 String labelField, String shadingField,
                 Map<Object, RGB> colorMap) {
             if (requestQueue.size() == QUEUE_LIMIT) {
                 requestQueue.poll();
             }
-            requestQueue.add(new Request(target, descriptor, rsc, query,
+            requestQueue.add(new Request(target, descriptor, rsc, boundingGeom,
                     geomField, labelField, shadingField, colorMap));
 
             this.cancel();
@@ -265,7 +263,7 @@ public class DbMapResource extends
         protected IStatus run(IProgressMonitor monitor) {
             Request req = requestQueue.poll();
             while (req != null) {
-                Result result = new Result(req.envelope);
+                Result result = new Result(resourceData.getTable());
                 try {
                     String table = resourceData.getTable();
                     if (canceled) {
@@ -302,7 +300,7 @@ public class DbMapResource extends
                     QueryResult mappedResult = DbMapQueryFactory.getMapQuery(
                             resourceData.getTable(),
                             getGeomField(lev[lev.length - 1]))
-                            .queryWithinEnvelope(req.envelope, fields,
+                            .queryWithinGeometry(req.boundingGeom, fields,
                                     constraints);
                     Map<Integer, Geometry> gidMap = new HashMap<Integer, Geometry>(
                             mappedResult.getResultCount() * 2);
@@ -363,11 +361,13 @@ public class DbMapResource extends
                                 byte[] wkb = (byte[]) obj;
                                 g = wkbReader.read(wkb);
                             } else {
-                                statusHandler.handle(Priority.ERROR,
+                                statusHandler.handle(
+                                        Priority.ERROR,
                                         "Expected byte[] received "
                                                 + obj.getClass().getName()
                                                 + ": " + obj.toString()
-                                                + "\n  query=\"" + req.envelope
+                                                + "\n  table=\""
+                                                + resourceData.getTable()
                                                 + "\"");
                             }
                             gidMap.put(gid, g);
@@ -580,19 +580,6 @@ public class DbMapResource extends
                 getLabelFields().toArray(new String[0]));
     }
 
-    private Envelope buildEnvelope(PixelExtent extent) throws VizException {
-        Envelope env = null;
-        try {
-            Envelope e = descriptor.pixelToWorld(extent, descriptor.getCRS());
-            ReferencedEnvelope ref = new ReferencedEnvelope(e,
-                    descriptor.getCRS());
-            env = ref.transform(MapUtil.LATLON_PROJECTION, true);
-        } catch (Exception e) {
-            throw new VizException("Error transforming extent", e);
-        }
-        return env;
-    }
-
     protected String getGeomField(double simpLev) {
         DecimalFormat df = new DecimalFormat("0.######");
         String suffix = "_"
@@ -623,20 +610,27 @@ public class DbMapResource extends
             PaintProperties paintProps) throws VizException {
         PixelExtent screenExtent = (PixelExtent) paintProps.getView()
                 .getExtent();
+        Rectangle canvasBounds = paintProps.getCanvasBounds();
+        int screenWidth = canvasBounds.width;
+        double worldToScreenRatio = screenExtent.getWidth() / screenWidth;
+
+        int displayWidth = (int) (descriptor.getMapWidth() * paintProps
+                .getZoomLevel());
+        double kmPerPixel = (displayWidth / screenWidth) / 1000.0;
 
         // compute an estimate of degrees per pixel
         double yc = screenExtent.getCenter()[1];
-        double x1 = screenExtent.getMinX();
-        double x2 = screenExtent.getMaxX();
+        double x1 = screenExtent.getCenter()[0];
+        double x2 = x1 + 1;
         double[] c1 = descriptor.pixelToWorld(new double[] { x1, yc });
         double[] c2 = descriptor.pixelToWorld(new double[] { x2, yc });
-        Rectangle canvasBounds = paintProps.getCanvasBounds();
-        int screenWidth = canvasBounds.width;
-        double dppX = Math.abs(c2[0] - c1[0]) / screenWidth;
-        // System.out.println("c1:" + Arrays.toString(c1) + "  c2:"
-        // + Arrays.toString(c2) + "  dpp:" + dppX);
+        double dppX = (Math.abs(c2[0] - c1[0]) * screenExtent.getWidth())
+                / screenWidth;
 
         double simpLev = getSimpLev(dppX);
+        // System.out.println("c1:" + Arrays.toString(c1) + "\nc2:"
+        // + Arrays.toString(c2) + "\ndpp:" + dppX + "\nsimpLev:"
+        // + simpLev);
 
         String labelField = getCapability(LabelableCapability.class)
                 .getLabelField();
@@ -655,8 +649,10 @@ public class DbMapResource extends
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
                 PixelExtent expandedExtent = getExpandedExtent(screenExtent);
-                Envelope query = buildEnvelope(expandedExtent);
-                queryJob.request(aTarget, descriptor, this, query,
+                Geometry boundingGeom = buildBoundingGeometry(expandedExtent,
+                        worldToScreenRatio, kmPerPixel);
+
+                queryJob.request(aTarget, descriptor, this, boundingGeom,
                         getGeomField(simpLev), labelField, shadingField,
                         colorMap);
                 lastExtent = expandedExtent;
@@ -670,8 +666,9 @@ public class DbMapResource extends
         if (result != null) {
             if (result.failed) {
                 lastExtent = null; // force to re-query when re-enabled
-                throw new VizException("Error processing map query request: "
-                        + result.query, result.cause);
+                throw new VizException(
+                        "Error processing map query request for: "
+                                + result.table, result.cause);
             }
             if (outlineShape != null) {
                 outlineShape.dispose();
@@ -716,14 +713,11 @@ public class DbMapResource extends
                                 (float) (10 * labelMagnification), null);
                 font.setSmoothing(false);
             }
-            double screenToWorldRatio = paintProps.getView().getExtent()
-                    .getWidth()
-                    / paintProps.getCanvasBounds().width;
 
             double offsetX = getCapability(LabelableCapability.class)
-                    .getxOffset() * screenToWorldRatio;
+                    .getxOffset() * worldToScreenRatio;
             double offsetY = getCapability(LabelableCapability.class)
-                    .getyOffset() * screenToWorldRatio;
+                    .getyOffset() * worldToScreenRatio;
             RGB color = getCapability(ColorableCapability.class).getColor();
             IExtent extent = paintProps.getView().getExtent();
             List<DrawableString> strings = new ArrayList<DrawableString>(
@@ -737,7 +731,7 @@ public class DbMapResource extends
                     .getDensity();
             double minScreenDistance = Double.MAX_VALUE;
             if (density > 0) {
-                minScreenDistance = (screenToWorldRatio * BASE_DENSITY_MULT)
+                minScreenDistance = (worldToScreenRatio * BASE_DENSITY_MULT)
                         / density;
             }
 
@@ -763,10 +757,10 @@ public class DbMapResource extends
                 IExtent strExtent = new PixelExtent(
                         node.location[0],
                         node.location[0]
-                                + (node.rect.getWidth() * screenToWorldRatio),
+                                + (node.rect.getWidth() * worldToScreenRatio),
                         node.location[1],
                         node.location[1]
-                                + ((node.rect.getHeight() - node.rect.getY()) * screenToWorldRatio));
+                                + ((node.rect.getHeight() - node.rect.getY()) * worldToScreenRatio));
 
                 if ((lastLabel != null) && lastLabel.equals(node.label)) {
                     // check intersection of extents
