@@ -18,7 +18,7 @@
  * further licensing information.
  **/
 
-package com.raytheon.edex.plugin.ccfp;
+package com.raytheon.uf.edex.plugin.ccfp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
