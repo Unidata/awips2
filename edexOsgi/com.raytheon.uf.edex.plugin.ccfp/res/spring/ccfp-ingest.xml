@@ -3,8 +3,8 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
   http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="ccfpDecoder" class="com.raytheon.edex.plugin.ccfp.CcfpDecoder" />
-	<bean id="ccfpSeparator" class="com.raytheon.edex.plugin.ccfp.CcfpSeparator" />
+	<bean id="ccfpDecoder" class="com.raytheon.uf.edex.plugin.ccfp.CcfpDecoder" />
+	<bean id="ccfpSeparator" class="com.raytheon.uf.edex.plugin.ccfp.CcfpSeparator" />
 
 	<bean id="ccfpDistRegistry" factory-bean="distributionSrv"
 		factory-method="register">
