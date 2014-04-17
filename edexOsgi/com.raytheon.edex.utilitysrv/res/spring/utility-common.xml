@@ -1,0 +1,18 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+
+	<camelContext id="utility-camel" xmlns="http://camel.apache.org/schema/spring"
+		errorHandlerRef="errorHandler">
+
+		<route id="utilityNotify">
+			<from uri="vm://utilityNotify" />
+			<bean ref="serializationUtil" method="transformToThrift" />
+			<to uri="jms-generic:topic:edex.alerts.utility?timeToLive=60000" />
+		</route>
+
+	</camelContext>
+
+</beans>
