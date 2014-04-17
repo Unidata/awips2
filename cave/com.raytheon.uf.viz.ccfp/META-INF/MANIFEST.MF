@@ -2,13 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ccfp Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.ccfp;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
-Bundle-Activator: com.raytheon.uf.viz.ccfp.Activator
+Bundle-Version: 1.14.0
 Bundle-Vendor: RAYTHEON
-Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.plugin.ccfp,
  com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.time,
@@ -28,5 +27,4 @@ Import-Package: com.raytheon.edex.plugin.ccfp,
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core,
  org.geotools;bundle-version="2.5.2"
-Export-Package: com.raytheon.uf.viz.ccfp,
- com.raytheon.uf.viz.ccfp.rsc
+Export-Package: com.raytheon.uf.viz.ccfp.rsc
