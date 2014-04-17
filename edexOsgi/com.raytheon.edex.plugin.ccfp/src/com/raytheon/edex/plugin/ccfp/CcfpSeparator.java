@@ -27,11 +27,10 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.AbstractRecordSeparator;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.StringUtil;
 
 /**
@@ -44,8 +43,9 @@ import com.raytheon.uf.common.util.StringUtil;
  * ------------ ----------  ----------- --------------------------
  * 03/03/2007   908         bwoodle     initial creation
  * 12/03/2008               chammack    Camel refactor
- * 09/16/2009   3027      njensen        Static patterns
+ * 09/16/2009   3027        njensen     Static patterns
  * 01/02/2013	DCS 135		tk			use \\r* for testing end of line
+ * 04/16/2014   3001        bgonzale    Use UfStatus for logging.
  * 
  * </pre>
  * 
@@ -55,7 +55,8 @@ import com.raytheon.uf.common.util.StringUtil;
 
 public class CcfpSeparator extends AbstractRecordSeparator {
 
-    private final Log theLogger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler theLogger = UFStatus
+            .getHandler(CcfpSeparator.class);
 
     /** Regex used for separating multi-record files */
     private static final Pattern DATASET = Pattern

@@ -29,6 +29,10 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.ccfp.CcfpLocation;
+import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
@@ -49,6 +53,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Sep 21, 2009 3072        bsteffen    Fixed Decoding of Line Records
  * Jan 02, 2013 DCS 135     tk          handle coverage value Line records
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Apr 16, 2014 3001        bgonzale    Use UfStatus for logging.
  * 
  * </pre>
  * 
@@ -59,6 +64,9 @@ import com.vividsolutions.jts.io.WKTReader;
 public class CcfpDecoder extends AbstractDecoder {
 
     private static final String PLUGIN_NAME = "ccfp";
+
+    private static final IUFStatusHandler theLogger = UFStatus
+            .getHandler(CcfpDecoder.class);
 
     /** Match the product returned from separator */
     private static final String PARSE_STRING = "[A-Z]{4}[0-9]{1,2} [A-Z]{4} [0-9]{6}(?: [A-Z]{3})?\n"
@@ -226,7 +234,7 @@ public class CcfpDecoder extends AbstractDecoder {
             }
         } catch (Exception e) {
             record = null;
-            logger.error("Unable to decode CCFP", e);
+            theLogger.error("Unable to decode CCFP", e);
         }
         data = EMPTY_PDO;
         if (record != null) {
@@ -235,7 +243,7 @@ public class CcfpDecoder extends AbstractDecoder {
                 record.setInsertTime(baseTime);
                 data = new PluginDataObject[] { record };
             } catch (PluginException e) {
-                logger.error("Error constructing datauri", e);
+                theLogger.error("Error constructing datauri", e);
             }
         }
         return data;
