@@ -20,7 +20,6 @@ package com.raytheon.uf.common.datadelivery.retrieval.xml;
  * further licensing information.
  **/
 
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,6 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Data Set Info XML Object.
@@ -39,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 14, 2014            dhladky      Initial creation.
+ * Apr 09, 2014  #3012     dhladky      Fixed incorrect default calc.
  * 
  * </pre>
  * 
@@ -54,25 +55,26 @@ public class DataSetInformation {
     @XmlElement(name = "modelName", type = String.class)
     @DynamicSerializeElement
     protected String modelName;
-    
+
     @XmlElement(name = "multiplier", type = Double.class)
     @DynamicSerializeElement
     protected Double multiplier;
-    
+
     @XmlElement(name = "modelRunIncrement", type = Integer.class)
     @DynamicSerializeElement
     protected Integer modelRunIncrement;
-    
+
     @XmlElement(name = "defaultOffset", type = Integer.class)
     @DynamicSerializeElement
     protected Integer defaultOffset;
-        
+
     public DataSetInformation() {
-        
+
     }
-    
-    public DataSetInformation(String modelName, Double multiplier, int modelRunIncrement, int defaultOffset) {
-  
+
+    public DataSetInformation(String modelName, Double multiplier,
+            int modelRunIncrement, int defaultOffset) {
+
         this.modelName = modelName;
         this.multiplier = multiplier;
         this.modelRunIncrement = modelRunIncrement;
@@ -111,8 +113,12 @@ public class DataSetInformation {
         this.defaultOffset = defaultOffset;
     }
     
+    /**
+     * The range int is in minutes, so we need multiplier * model running increment * minutes per hour
+     * @return
+     */
     public int getRange() {
-        return (int) (getMultiplier() * getModelRunIncrement());
+        return (int) ((getMultiplier() * getModelRunIncrement()) * TimeUtil.MINUTES_PER_HOUR);
     }
 
 }
