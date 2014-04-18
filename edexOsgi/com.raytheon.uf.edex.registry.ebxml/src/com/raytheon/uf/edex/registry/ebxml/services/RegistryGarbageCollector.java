@@ -140,6 +140,7 @@ public class RegistryGarbageCollector {
 
     @Subscribe
     public void deleteOrphanedSlot(DeleteSlotEvent slotEvent) {
+
         if (!CollectionUtil.isNullOrEmpty(slotEvent.getSlotsToDelete())) {
             long start = TimeUtil.currentTimeMillis();
             statusHandler.info("Deleting "
@@ -149,6 +150,7 @@ public class RegistryGarbageCollector {
                     + " slots in " + (TimeUtil.currentTimeMillis() - start)
                     + " ms");
         }
+
     }
 
 }
