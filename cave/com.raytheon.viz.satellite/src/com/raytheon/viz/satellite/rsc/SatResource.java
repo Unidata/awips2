@@ -41,7 +41,6 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
 import com.raytheon.uf.common.geospatial.IGridGeometryProvider;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
@@ -60,12 +59,14 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
+import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.inventory.DerivedSatelliteRecord;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
@@ -98,7 +99,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *  Nov 20, 2013  2492      bsteffen    Always get min/max values from style
  *                                      rules.
  *  Apr 09, 2014  2947      bsteffen    Improve flexibility of sat derived
- *                                      parameters.
+ *                                      parameters, implement ImageProvider
  * 
  * </pre>
  * 
@@ -106,7 +107,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * @version 1
  */
 public class SatResource extends
-        AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor> {
+        AbstractPluginDataObjectResource<SatResourceData, IMapDescriptor>
+        implements ImageProvider {
 
     /** String id to look for satellite-provided data values */
     public static final String SATELLITE_DATA_INTERROGATE_ID = "satelliteDataValue";
@@ -268,7 +270,7 @@ public class SatResource extends
 
     private void initializeFirstFrame(SatelliteRecord record)
             throws VizException {
-        SatelliteUnits.register();
+        getCapability(ImagingCapability.class).setProvider(this);
         ColorMapParameters colorMapParameters = null;
         IColorMap colorMap = null;
         String cmName = null;
@@ -463,6 +465,7 @@ public class SatResource extends
                 record.getCreatingEntity());
     }
 
+    @Override
     public List<DrawableImage> getImages(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         SatRenderable renderable = (SatRenderable) getOrCreateRenderable(paintProps
