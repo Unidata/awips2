@@ -36,7 +36,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2012  1102       djohnson     Initial creation
- * jan 23, 2013   2584     dhladky     Versions
+ * jan 23, 2014   2584     dhladky     Versions
+ * Apr 14, 2014  3012      dhladky     Unneeded method removed.
  * 
  * </pre>
  * 
@@ -48,13 +49,5 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 @RegistryObjectVersion(value = 1.0f)
 @DynamicSerialize
 public class OpenDapGriddedDataSetMetaData extends GriddedDataSetMetaData {
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void accept(IDataSetMetaDataVisitor visitor) {
-        visitor.visit(this);
-    }
 
 }
