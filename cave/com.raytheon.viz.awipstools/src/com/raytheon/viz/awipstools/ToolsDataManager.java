@@ -85,6 +85,7 @@ import com.vividsolutions.jts.geom.LineString;
  * 04-07-10     #4614      randerso    Reworked to use localization files
  * 07-11-12     #875       rferrel     Move points to PointsDataManager.
  * 01-29-14     DR 16351   D. Friedman Fix updates to storm track from preferences.
+ * 04-02-14     DR 16351   D. Friedman Fix updates to storm track from preferences. (backport from 14.2.2)
  * 
  * </pre>
  * 
