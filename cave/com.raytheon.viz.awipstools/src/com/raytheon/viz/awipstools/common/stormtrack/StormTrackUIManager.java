@@ -63,6 +63,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                     needs to update the track because
  *                                     the point has been moved.
  * 08-12-2013   DR 16427   D. Friedman Prevent NPE.
+ * 04-07-2014   DR 17232   D. Friedman Set displayedPivotIndex when needed.
  * 
  * </pre>
  * 
@@ -270,6 +271,17 @@ public class StormTrackUIManager extends InputAdapter {
             state.pointMoved = true;
             FramesInfo info = controller.getDescriptor().getFramesInfo();
             trackUtil.setPivotIndexes(info, state);
+
+            // This code is duplicated from StormTrackDisplay.paint().
+            if (state.displayedPivotIndex == trackUtil.getCurrentFrame(info)) {
+                if (state.displayedPivotIndex == state.pivotIndex &&
+                        state.otherPivotIndex >= 0) {
+                    state.displayedPivotIndex = state.otherPivotIndex;
+                } else if (state.pivotIndex >= 0) {
+                    state.displayedPivotIndex = state.pivotIndex;
+                }
+            }
+
             state.nextPivotIndex = trackUtil.getCurrentFrame(info);
             controller.issueRefresh();
             rval = true;
