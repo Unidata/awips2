@@ -155,6 +155,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * Feb 11, 2014 2771        bgonzale    Use Data Delivery ID instead of Site.
  * 2/13/2014    2769        bphillip    Refactored registry sync. Created quartz tasks to monitor registry uptime as well as subscription integrity
  * 4/11/2014    3011        bphillip    Removed automatic registry sync check on startup
+ * 4/15/2014    3012        dhladky     Merge fixes.
  * </pre>
  * 
  * @author bphillip
@@ -174,7 +175,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     /** Query used for synchronizing registries */
     private static final String SYNC_QUERY = "FROM RegistryObjectType obj where obj.id in (%s) order by obj.id asc";
-
+    
     /** Batch size for registry synchronization queries */
     private static final int SYNC_BATCH_SIZE = Integer.parseInt(System
             .getProperty("ebxml-notification-batch-size"));
@@ -321,6 +322,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                     throw new EbxmlRegistryException(
                             "Error joining federation!!");
                 }
+
             } catch (Exception e1) {
                 throw new EbxmlRegistryException(
                         "Error initializing RegistryReplicationManager", e1);
@@ -590,8 +592,10 @@ public class RegistryFederationManager implements IRegistryFederationManager,
             } finally {
                 SYNC_IN_PROGRESS.set(false);
             }
+
         } else {
             statusHandler.info("Registry sync already in progress.");
+
         }
     }
 
@@ -638,8 +642,9 @@ public class RegistryFederationManager implements IRegistryFederationManager,
             int remainder = remoteIds.size() % SYNC_BATCH_SIZE;
 
             for (int currentBatch = 0; currentBatch < batches; currentBatch++) {
-                statusHandler.info("Processing batch " + (currentBatch + 1)
-                        + "/" + batches);
+
+            	statusHandler.info("Processing batch "+(currentBatch+1)+"/"+batches);
+
                 persistBatch(objectType, remoteRegistryUrl, remoteIds.subList(
                         currentBatch * SYNC_BATCH_SIZE, (currentBatch + 1)
                                 * SYNC_BATCH_SIZE));
@@ -695,6 +700,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
             registryObjectDao.flushAndClearSession();
         }
     }
+
 
     @GET
     @Path("isFederated")
@@ -1139,7 +1145,10 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                                 .error("Error synchronizing registry!", e);
                         throw e;
                     }
+
                 }
+
+
             } else {
                 federatedRegistryMonitor.updateTime();
             }
