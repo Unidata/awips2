@@ -35,7 +35,8 @@ Require-Bundle: com.raytheon.uf.common.status;bundle-version="1.12.1174",
  org.eclipse.jetty.io;bundle-version="8.1.3",
  org.eclipse.jetty.server;bundle-version="8.1.3",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- org.quartz;bundle-version="1.8.6"
+ org.quartz;bundle-version="1.8.6",
+ com.raytheon.uf.edex.datadelivery.registry;bundle-version="1.0.0"
 Export-Package: com.raytheon.uf.edex.datadelivery.bandwidth,
  com.raytheon.uf.edex.datadelivery.bandwidth.dao,
  com.raytheon.uf.edex.datadelivery.bandwidth.hibernate,
