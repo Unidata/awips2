@@ -86,6 +86,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #                                                 Changed WECache to limit the number of cached grids kept in memory
 #    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
 #    02/04/14        17042         ryu            Check in changes for randerso.
+#    04/11/2014      17242         David Gillingham (code checked in by zhao)
 #
 
 BATCH_DELAY = 0.0
@@ -908,8 +909,7 @@ class IscMosaic:
                 destGrid, history = grid
                 self.__dbGrid = (destGrid, history, tr)
             else:
-                self.logProblem("Unable to access grid for ",
-                  self.__printTR(tr), "for ", self.__parmName)
+		logger.error("Unable to access grid for "+self.__printTR(tr) +" for " + self.__parmName) 
                 return None
 
         return (self.__dbGrid[0], self.__dbGrid[1])
