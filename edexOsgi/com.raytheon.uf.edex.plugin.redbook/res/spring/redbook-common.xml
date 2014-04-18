@@ -8,7 +8,7 @@
 
 	<bean id="redbookProperties" class="com.raytheon.uf.common.dataplugin.PluginProperties">
 		<property name="pluginName" ref="redbookPluginName" />
-		<property name="pluginFQN" value="com.raytheon.uf.edex.plugin.redbook" />
+		<property name="pluginFQN" value="com.raytheon.uf.common.dataplugin.redbook" />
 		<property name="dao" value="com.raytheon.uf.edex.plugin.redbook.dao.RedbookDao" />
 		<property name="record" value="com.raytheon.uf.common.dataplugin.redbook.RedbookRecord" />
 	</bean>
