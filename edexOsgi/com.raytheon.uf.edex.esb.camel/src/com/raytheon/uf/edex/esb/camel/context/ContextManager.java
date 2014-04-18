@@ -140,7 +140,7 @@ public class ContextManager implements ApplicationContextAware,
      * Last time dependency mapping was generated. Used to periodically
      * regenerate the dependency mappings.
      */
-    private final long lastDependencyTime = 0;
+    private long lastDependencyTime = 0;
 
     public static ContextManager getInstance() {
         return instance;
@@ -219,7 +219,8 @@ public class ContextManager implements ApplicationContextAware,
         synchronized (this) {
             long millis = System.currentTimeMillis();
             if ((dependencyMapping == null)
-                    || (millis > (lastDependencyTime + TimeUtil.MILLIS_PER_MINUTE))) {
+                    || (millis > (lastDependencyTime + (3 * TimeUtil.MILLIS_PER_MINUTE)))) {
+                lastDependencyTime = millis;
                 dependencyMapping = new ContextDependencyMapping(
                         getContextData(), suppressExceptions);
             }
