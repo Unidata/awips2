@@ -41,8 +41,7 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.utility,
  com.raytheon.viz.aviation.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.edex.plugin.bufrmos.common,
- com.raytheon.uf.common.dataplugin.acarssounding,
+Import-Package: com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.dataplugin.gfe.point,
  com.raytheon.uf.common.dataplugin.gfe.request,
