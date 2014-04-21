@@ -23,7 +23,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -454,7 +454,9 @@ public class DataStoreResource extends
      */
     private TimeRange timeRange;
 
-    private Map<String, Class<?>> attrTypeMap;
+    // Intentionally declaring as a LinkedHashMap
+    // to ensure insertion order is preserved.
+    private LinkedHashMap<String, Class<?>> attrTypeMap;
 
     private Object[][] attributes;
 
@@ -628,12 +630,12 @@ public class DataStoreResource extends
                     .getAttributeDescriptors();
 
             if (attrDesc == null) {
-                attrTypeMap = new HashMap<String, Class<?>>(1);
+                attrTypeMap = new LinkedHashMap<String, Class<?>>(1);
                 attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
             } else {
 
-                attrTypeMap = new HashMap<String, Class<?>>(attrDesc.size(),
-                        1.0f);
+                attrTypeMap = new LinkedHashMap<String, Class<?>>(
+                        attrDesc.size(), 1.0f);
                 attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
                 for (AttributeDescriptor at : attrDesc) {
                     Class<?> atType = at.getType().getBinding();
@@ -707,11 +709,14 @@ public class DataStoreResource extends
                 da.setCentroid((Point) JTS.transform(g.getCentroid(),
                         incomingToLatLon));
 
-                attributes[index][0] = id;
-                int j = 1;
+                int j = 0;
                 for (String attrName : attributeNames) {
-                    Object attr = f.getAttribute(attrName);
-                    attributes[index][j++] = attr;
+                    if (attrName.equals(ID_ATTRIBUTE_NAME)) {
+                        attributes[index][j++] = id;
+                    } else {
+                        Object attr = f.getAttribute(attrName);
+                        attributes[index][j++] = attr;
+                    }
                 }
             }
         } catch (Exception e) {
