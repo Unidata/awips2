@@ -19,21 +19,28 @@
  **/
 package com.raytheon.viz.grid.data;
 
+import java.nio.FloatBuffer;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.media.jai.Interpolation;
+import org.geotools.coverage.grid.GridGeometry2D;
 
-import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
-import com.raytheon.uf.common.inventory.data.AliasRequestableData;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.geospatial.interpolation.BicubicInterpolation;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
+import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.data.AliasRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
@@ -69,6 +76,7 @@ public class ImportRequestableData extends AliasRequestableData {
         this.dataTime = dataTime;
     }
 
+    @Override
     public Object getDataValue(Object arg) throws DataCubeException {
         Request req = Request.ALL;
         if (arg instanceof Request) {
@@ -87,26 +95,26 @@ public class ImportRequestableData extends AliasRequestableData {
             float w2 = (millis2 - dataTime.getValidTime().getTimeInMillis())
                     / w1;
             w1 = 1 - w2;
-            if (rval instanceof FloatDataRecord
-                    && interp2 instanceof FloatDataRecord) {
+            if ((rval instanceof FloatDataRecord)
+                    && (interp2 instanceof FloatDataRecord)) {
                 // multiply in place so rval will hold correct value after
                 // calculation
                 interpolate(((FloatDataRecord) rval).getFloatData(),
                         ((FloatDataRecord) interp2).getFloatData(), w2, w1);
-            } else if (rval instanceof FloatDataRecord[]
-                    && interp2 instanceof FloatDataRecord) {
+            } else if ((rval instanceof FloatDataRecord[])
+                    && (interp2 instanceof FloatDataRecord)) {
                 FloatDataRecord[] recs = (FloatDataRecord[]) rval;
                 FloatDataRecord[] recs2 = (FloatDataRecord[]) interp2;
-                for (int i = 0; i < recs.length && i < recs2.length; i++) {
+                for (int i = 0; (i < recs.length) && (i < recs2.length); i++) {
                     interpolate(recs[i].getFloatData(),
                             recs2[i].getFloatData(), w2, w1);
                 }
             } else if (rval instanceof IDataRecord[]) {
                 IDataRecord[] recs = (IDataRecord[]) rval;
                 IDataRecord[] recs2 = (IDataRecord[]) interp2;
-                for (int i = 0; i < recs.length && i < recs2.length; i++) {
-                    if (recs[i] instanceof FloatDataRecord
-                            && recs2[i] instanceof FloatDataRecord) {
+                for (int i = 0; (i < recs.length) && (i < recs2.length); i++) {
+                    if ((recs[i] instanceof FloatDataRecord)
+                            && (recs2[i] instanceof FloatDataRecord)) {
                         interpolate(((FloatDataRecord) recs[i]).getFloatData(),
                                 ((FloatDataRecord) recs2[i]).getFloatData(),
                                 w2, w1);
@@ -115,32 +123,27 @@ public class ImportRequestableData extends AliasRequestableData {
             }
         }
 
-        CoverageUtils covUtil = CoverageUtils.getInstance();
         GridCoverage sourceGrid = (GridCoverage) sourceRecord.getSpace();
         GridCoverage destGrid = (GridCoverage) getSpace();
-        Interpolation interpolation = Interpolation
-                .getInstance(Interpolation.INTERP_BICUBIC);
+        Interpolation interpolation = new BicubicInterpolation();
         try {
             if (rval instanceof FloatDataRecord) {
-                FloatDataRecord fdr = covUtil.remapGrid(sourceGrid, destGrid,
-                        (FloatDataRecord) rval, interpolation)
-                        .getFloatDataRecord();
+                FloatDataRecord fdr = remapGrid(sourceGrid, destGrid,
+                        (FloatDataRecord) rval, interpolation);
                 rval = SliceUtil.slice(fdr, req);
             } else if (rval instanceof FloatDataRecord[]) {
                 FloatDataRecord[] recs = (FloatDataRecord[]) rval;
                 for (int i = 0; i < recs.length; i++) {
-                    FloatDataRecord fdr = covUtil.remapGrid(sourceGrid,
-                            destGrid, recs[i], interpolation)
-                            .getFloatDataRecord();
+                    FloatDataRecord fdr = remapGrid(sourceGrid, destGrid,
+                            recs[i], interpolation);
                     recs[i] = SliceUtil.slice(fdr, req);
                 }
             } else if (rval instanceof IDataRecord[]) {
                 IDataRecord[] recs = (IDataRecord[]) rval;
                 for (int i = 0; i < recs.length; i++) {
                     if (recs[i] instanceof FloatDataRecord) {
-                        FloatDataRecord fdr = covUtil.remapGrid(sourceGrid,
-                                destGrid, (FloatDataRecord) recs[i],
-                                interpolation).getFloatDataRecord();
+                        FloatDataRecord fdr = remapGrid(sourceGrid, destGrid,
+                                (FloatDataRecord) recs[i], interpolation);
                         recs[i] = SliceUtil.slice(fdr, req);
                     }
                 }
@@ -150,6 +153,50 @@ public class ImportRequestableData extends AliasRequestableData {
         }
 
         return rval;
+    }
+
+    /**
+     * remap gridded data to a new grid coverage
+     * 
+     * @param sourceGrid
+     *            source grid coverage
+     * @param destGrid
+     *            destination grid coverage
+     * @param fdr
+     *            source float data record
+     * @param interpolation
+     *            interpolation algorithm
+     * @return destination float data record
+     * @throws VizException
+     */
+    protected FloatDataRecord remapGrid(GridCoverage sourceGrid,
+            GridCoverage destGrid, FloatDataRecord fdr,
+            Interpolation interpolation) throws VizException {
+
+        try {
+            GridGeometry2D sourceGeometry = sourceGrid.getGridGeometry();
+            GridGeometry2D destGeometry = destGrid.getGridGeometry();
+
+            GridReprojection interp = PrecomputedGridReprojection
+                    .getReprojection(sourceGeometry, destGeometry);
+
+            DataSource source = new GeographicDataSource(FloatBuffer.wrap(fdr
+                    .getFloatData()), sourceGeometry);
+
+            FloatBufferWrapper dest = new FloatBufferWrapper(
+                    destGeometry.getGridRange2D());
+
+            interp.reprojectedGrid(interpolation, source, dest);
+
+            FloatDataRecord rval = new FloatDataRecord(fdr.getName(),
+                    fdr.getGroup(), dest.getArray(),
+                    destGeometry.getDimension(), new long[] { dest.getNx(),
+                            dest.getNy() });
+
+            return rval;
+        } catch (Exception e) {
+            throw new VizException(e.getLocalizedMessage(), e);
+        }
     }
 
     /**
@@ -165,7 +212,7 @@ public class ImportRequestableData extends AliasRequestableData {
             float val2) {
         if (arr1.length == arr2.length) {
             for (int i = 0; i < arr1.length; i++) {
-                arr1[i] = arr1[i] * val1 + arr2[i] * val2;
+                arr1[i] = (arr1[i] * val1) + (arr2[i] * val2);
             }
         } else {
             // world implodes
