@@ -65,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 5, 2013  16437      wkwock      Fix the "HiRes" issue
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * Apr 10, 2014   2675     mpduff      Modified to be called from quartz timer.
+ * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -263,7 +264,6 @@ public class GAFF {
                 .buildThreadLocalSimpleDateFormat("yyyy-MM-dd HH:mm:ss",
                         TimeZone.getTimeZone("GMT"));
         String today = sdf.get().format(cal.getTime());
-        String uri = null;
         IDataRecord dataRec;
         Rectangle rfcExtent = null;
 
@@ -307,22 +307,18 @@ public class GAFF {
             IDataStore dataStore = null;
 
             try {
-                uri = db.getDataURI(rfc, durString, today);
-                if (uri == null) {
-                    uri = db.getDataURI(rfc + "-HiRes", durString, today);
+                GridRecord gr = db.getGridRecord(rfc, durString, today);
+                if (gr == null) {
+                    gr = db.getGridRecord(rfc + "-HiRes", durString, today);
                 }
-                if (uri == null) {
+                if (gr == null) {
                     continue;
                 }
 
-                GridRecord gr = new GridRecord(uri);
                 PluginDao gd = null;
-
                 gd = PluginFactory.getInstance().getPluginDao(
                         gr.getPluginName());
-                gr = (GridRecord) gd.getMetadata(uri);
                 grReftime = gr.getDataTime().getRefTime();
-
                 dataStore = gd.getDataStore(gr);
 
                 int nx = gr.getSpatialObject().getNx();
@@ -341,7 +337,8 @@ public class GAFF {
                         (int) ulRfcNationalScale.y - ny, nx, ny);
                 extentsMap.put(rfc, rfcExtent);
 
-                dataRec = dataStore.retrieve(uri, "Data", Request.ALL);
+                dataRec = dataStore.retrieve(gr.getDataURI(), "Data",
+                        Request.ALL);
 
                 if (dataRec instanceof FloatDataRecord) {
                     gridMap.put(rfc, ((FloatDataRecord) dataRec).getFloatData());
