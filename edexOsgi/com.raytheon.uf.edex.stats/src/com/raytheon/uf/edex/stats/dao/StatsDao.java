@@ -42,6 +42,7 @@ import com.raytheon.uf.edex.database.dao.SessionManagedDao;
  * Aug 21, 2012            jsanchez    Initial creation
  * Mar 18, 2013 1082       bphillip    Modified to extend sessionmanagedDao and use spring injection
  * May 22, 2013 1917       rjpeter     Added reclaimSpace.
+ * Apr 18, 2014 2681       rjpeter     Added retrieveMinTime.
  * </pre>
  * 
  * @author jsanchez
@@ -56,7 +57,29 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
     }
 
     /**
-     * Retrieves stat records that has a date before the limit.
+     * Retrieves the earliest time in the stats table for a given data type.
+     * 
+     * @param eventType
+     * @return
+     * @throws DataAccessLayerException
+     */
+    public Calendar retrieveMinTime(String eventType)
+            throws DataAccessLayerException {
+        String hql = "select min(rec.date) from StatsRecord rec where rec.eventType = :eventType";
+        List<Object> results = this
+                .executeHQLQuery(hql, "eventType", eventType);
+        if ((results != null) && !results.isEmpty()) {
+            Object time = results.get(0);
+            if (time != null) {
+                return (Calendar) time;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves stat records that has a date in the time range.
      * 
      * @param limit
      * @param eventType
@@ -66,11 +89,11 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
      *         size 0 will be returned.
      * @throws DataAccessLayerException
      */
-    public List<StatsRecord> retrieveRecords(Calendar limit, String eventType,
-            int maxResults) throws DataAccessLayerException {
-        String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date < :date order by rec.date asc";
-        return this.query(hql, maxResults, "eventType", eventType, "date",
-                limit);
+    public List<StatsRecord> retrieveRecords(String eventType,
+            Calendar minTime, Calendar maxTime) throws DataAccessLayerException {
+        String hql = "from StatsRecord rec where rec.eventType = :eventType and rec.date >= :minDate and rec.date < :maxDate order by rec.date asc";
+        return this.query(hql, "eventType", eventType, "minDate", minTime,
+                "maxDate", maxTime);
     }
 
     @Override
