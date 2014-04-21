@@ -2,18 +2,18 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ebxml
 Bundle-SymbolicName: com.raytheon.uf.common.registry.schemas.ebxml
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.uf.edex.database;bundle-version="1.0.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.12.1174",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
- org.reflections;bundle-version="0.9.9"
+ org.reflections;bundle-version="0.9.9",
+ org.springframework;bundle-version="3.1.4"
 Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.schemas.ebxml.util,
  com.raytheon.uf.common.registry.schemas.ebxml.util.annotations,
