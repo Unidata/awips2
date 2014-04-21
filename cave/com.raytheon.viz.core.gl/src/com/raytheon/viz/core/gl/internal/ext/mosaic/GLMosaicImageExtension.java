@@ -58,6 +58,7 @@ import com.raytheon.viz.core.gl.images.GLOffscreenColormappedImage;
  * Nov 20, 2013  2492     bsteffen    Mosaic in image units.
  * Apr 08, 2014  2950     bsteffen    Always use float for maximum precision 
  *                                    offscreen so interpolation works.
+ * Apr 18, 2014  2947     bsteffen    Fix mosaicing of datamapped images.
  * 
  * </pre>
  * 
@@ -144,7 +145,7 @@ public abstract class GLMosaicImageExtension extends
 
             GLColormappedImageExtension.setupDataMapping(gl,
                     (AbstractGLColormappedImage) image,
-                    writeToImage.getDataUnit(), 2, 3);
+                    writeToImage.getDataUnit(), GL.GL_TEXTURE2, GL.GL_TEXTURE3);
             return image;
         }
         // Fall through here, no actual rendering will occur
