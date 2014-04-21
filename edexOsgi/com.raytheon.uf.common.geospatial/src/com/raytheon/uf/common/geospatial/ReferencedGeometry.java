@@ -22,7 +22,6 @@ package com.raytheon.uf.common.geospatial;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.geometry.jts.CoordinateSequenceTransformer;
 import org.geotools.geometry.jts.DefaultCoordinateSequenceTransformer;
-import org.geotools.geometry.jts.GeometryCoordinateSequenceTransformer;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
@@ -39,6 +38,7 @@ import com.vividsolutions.jts.geom.impl.PackedCoordinateSequenceFactory;
  * ------------ ---------- ----------- --------------------------
  * Dec 29, 2008            chammack    Initial creation
  * Feb 18, 2014  #2819     randerso    Made transform non-destructive
+ * Apr 16, 2014  #2997     randerso    Changed to use our GeometryTransformer
  * 
  * </pre>
  * 
@@ -100,8 +100,7 @@ public class ReferencedGeometry extends ReferencedObject<Geometry> {
     protected Geometry transform(MathTransform mt) throws TransformException {
         CoordinateSequenceTransformer t1 = new DefaultCoordinateSequenceTransformer(
                 PackedCoordinateSequenceFactory.DOUBLE_FACTORY);
-        final GeometryCoordinateSequenceTransformer transformer = new GeometryCoordinateSequenceTransformer(
-                t1);
+        final GeometryTransformer transformer = new GeometryTransformer(t1);
         transformer.setMathTransform(mt);
 
         return transformer.transform(this.internalObject);
