@@ -23,9 +23,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.client.methods.HttpDelete;
 import org.jivesoftware.smack.XMPPConnection;
@@ -99,6 +97,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                      ensure that subscription is setup before joining room
  * Mar 31, 2014 2899       mpduff      Improve error messages.
  * Apr 15, 2014 2822       bclement    added check for other participants being subscribed to topic
+ * Apr 21, 2014 2822       bclement    removed use of resources in topicSubscribers, added skipCache
  * 
  * </pre>
  * 
@@ -120,7 +119,7 @@ public class SharedDisplaySession extends VenueSession implements
 
     private LeafNode topic;
 
-    private final Map<UserId, Boolean> topicSubscribers = new ConcurrentHashMap<UserId, Boolean>();
+    private final Set<String> topicSubscribers = new HashSet<String>();
 
     private XMPPConnection conn;
 
@@ -631,30 +630,35 @@ public class SharedDisplaySession extends VenueSession implements
     }
 
     /**
+     * may return false positives if skipCache is set to false, won't return a
+     * false negative
+     * 
      * @param user
-     * @return true if user has a subscription to the session topic
+     * @param skipCache
+     *            if true, a list of current subscribers is always retrieved
+     *            from the server
+     * @return return false if user doesn't have a subscription to the session
+     *         topic
      * @throws XMPPException
      */
-    private boolean isSubscribedToTopic(UserId user)
+    private boolean isSubscribedToTopic(UserId user, boolean skipCache)
             throws XMPPException {
-        Boolean rval = topicSubscribers.get(user);
-        if (rval == null) {
-            synchronized (topicSubscribers) {
+        boolean rval;
+        synchronized (topicSubscribers) {
+            rval = topicSubscribers.contains(user.getNormalizedId());
+            if (skipCache || !rval) {
+                topicSubscribers.clear();
                 List<Subscription> subs = PubSubOperations.getAllSubscriptions(
                         conn, topic);
                 for (Subscription sub : subs) {
-                    topicSubscribers.put(IDConverter.convertFrom(sub.getJid()),
-                            true);
+                    /*
+                     * we can't use the resource from the subscription here
+                     * because the room user won't always have a resource
+                     */
+                    UserId subber = IDConverter.convertFrom(sub.getJid());
+                    topicSubscribers.add(subber.getNormalizedId());
                 }
-            }
-            rval = topicSubscribers.get(user);
-            if (rval == null) {
-                /*
-                 * userid object hash includes resource, cache as a client that
-                 * doesn't use topic
-                 */
-                topicSubscribers.put(user, false);
-                rval = false;
+                rval = topicSubscribers.contains(user.getNormalizedId());
             }
         }
         return rval;
@@ -673,6 +677,16 @@ public class SharedDisplaySession extends VenueSession implements
             throw new CollaborationException(
                     "Unable to grant ownership because new leader's actual userid is not known");
         }
+        /*
+         * leadership transfer must be sync'd between room ownership and topic
+         * ownership. If a user is in the room under multiple handles, we can't
+         * know for sure that this handle is associated with the same client
+         * that understands leadership and is subscribed to the pubsub topic
+         */
+        if (hasMultipleHandles(actualId)) {
+            throw new CollaborationException(
+                    "Unable to grant ownership because new leader is in the room under multiple handles");
+        }
 
         final String newLeaderId = actualId.getNormalizedId();
 
@@ -683,9 +697,10 @@ public class SharedDisplaySession extends VenueSession implements
         try {
             /*
              * make sure that the new leader is not just in the room, but also
-             * subscribed to the pubsub topic
+             * subscribed to the pubsub topic. Skip cache to handle participants
+             * who may have switched clients since that last time we cached
              */
-            if (!isSubscribedToTopic(actualId)) {
+            if (!isSubscribedToTopic(actualId, true)) {
                 throw new CollaborationException(
                         "Unable to grant ownership because new leader is not subscribed to session topic");
             }
@@ -774,7 +789,7 @@ public class SharedDisplaySession extends VenueSession implements
         boolean rval = false;
         if (actualId != null) {
             try {
-                rval = isSubscribedToTopic(actualId);
+                rval = isSubscribedToTopic(actualId, false);
             } catch (XMPPException e) {
                 log.error("Error checking if user is a shared display client",
                         e);
