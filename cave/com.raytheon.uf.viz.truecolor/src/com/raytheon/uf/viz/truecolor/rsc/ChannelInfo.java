@@ -37,9 +37,11 @@ import com.raytheon.uf.viz.truecolor.extension.ITrueColorImagingExtension.Channe
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 20, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 20, 2012           mschenke    Initial creation
+ * Apr 18, 2014  2947     bsteffen    Support unitless data.
+ * 
  * 
  * </pre>
  * 
@@ -117,20 +119,22 @@ public class ChannelInfo {
      *            the unit to set
      */
     public void setUnit(Unit<?> unit) {
-        this.unit = unit;
+        if (unit == null) {
+            this.unit = Unit.ONE;
+        } else {
+            this.unit = unit;
+        }
     }
 
     @XmlElement(name = "unit")
     public void setUnitString(String unit) {
         if (unit != null) {
-            this.unit = UnitFormat.getUCUMInstance().parseObject(unit,
-                    new ParsePosition(0));
+            setUnit(UnitFormat.getUCUMInstance().parseObject(unit,
+                    new ParsePosition(0)));
         } else {
-            this.unit = null;
+            setUnit(null);
         }
-        if (this.unit == null) {
-            this.unit = Unit.ONE;
-        }
+
     }
 
     public String getUnitString() {
