@@ -108,6 +108,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  *                                      handle is now set in constructor
  * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
  * Apr 16, 2014 3020       bclement    added check for invited rooms in roomExistsOnServer()
+ * Apr 21, 2014 2822       bclement    added hasMultipleHandles()
  * 
  * 
  * </pre>
@@ -937,6 +938,25 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     e);
         }
         return rval;
+    }
+
+    /**
+     * the return value is only accurate if the actual userIDs of all
+     * participants can be seen by this client
+     * 
+     * @param user
+     * @return true if the user is in the room under multiple handles
+     */
+    protected boolean hasMultipleHandles(UserId user) {
+        int count = 0;
+        IVenue v = getVenue();
+        for (VenueParticipant p : v.getParticipants()) {
+            UserId other = v.getParticipantUserid(p);
+            if (other != null && user.isSameUser(other)) {
+                count += 1;
+            }
+        }
+        return count > 1;
     }
 
     /*
