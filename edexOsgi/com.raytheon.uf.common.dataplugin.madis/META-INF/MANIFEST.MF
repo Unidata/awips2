@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Madis
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.madis
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.uf.common.dataplugin.madis
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
@@ -11,7 +11,6 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0",
- com.raytheon.edex.common;bundle-version="1.12.1174",
  com.raytheon.uf.common.status;bundle-version="1.12.1174"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
