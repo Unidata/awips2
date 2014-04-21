@@ -375,8 +375,14 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                  * track the thread this context is using for proper dependency
                  * management.
                  */
+                CamelContext prev = MessageProducer.this.currentThreadContext
+                        .get();
                 MessageProducer.this.currentThreadContext.set(context);
-                target.process(exchange);
+                try {
+                    target.process(exchange);
+                } finally {
+                    MessageProducer.this.currentThreadContext.set(prev);
+                }
             }
 
             @Override
@@ -385,12 +391,16 @@ public class MessageProducer implements IMessageProducer, InterceptStrategy {
                  * track the thread this context is using for proper dependency
                  * management.
                  */
+                CamelContext prev = MessageProducer.this.currentThreadContext
+                        .get();
                 MessageProducer.this.currentThreadContext.set(context);
 
                 try {
                     target.process(exchange);
                 } catch (Throwable e) {
                     exchange.setException(e);
+                } finally {
+                    MessageProducer.this.currentThreadContext.set(prev);
                 }
                 callback.done(true);
                 return true;
