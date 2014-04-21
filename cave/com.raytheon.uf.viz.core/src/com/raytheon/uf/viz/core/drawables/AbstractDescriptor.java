@@ -78,6 +78,8 @@ import com.raytheon.uf.viz.core.time.TimeMatchingJob;
  *                                         frames
  *    Jul 03, 2013 2154        bsteffen    Ensure all resource groups get
  *                                         removed from the time matcher.
+ *    Apr 09, 2014 2997        randerso    Stopped printing stack trace for 
+ *                                         otherwise ignored exception
  * </pre>
  * 
  * @author chammack
@@ -182,8 +184,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
                 postRemoveListener(rp.getResource());
 
                 TimeMatchingJob.scheduleTimeMatch(AbstractDescriptor.this);
-                if (renderableDisplay != null
-                        && renderableDisplay.getContainer() != null) {
+                if ((renderableDisplay != null)
+                        && (renderableDisplay.getContainer() != null)) {
                     IDisplayPaneContainer container = renderableDisplay
                             .getContainer();
                     for (IDisplayPane pane : container.getDisplayPanes()) {
@@ -198,7 +200,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
     }
 
     protected void postAddListener(ResourcePair rp) {
-        if (rp.getResource() != null && getTimeMatcher() != null) {
+        if ((rp.getResource() != null) && (getTimeMatcher() != null)) {
             // We need to run time matching immediately beacuse order
             // constructed is important for time matching so we must do it now
             // instead of scheduling since another resource could be added by
@@ -251,8 +253,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             }
             ResourceList rl = null;
             if (resource instanceof IResourceGroup) {
-                rl = ((IResourceGroup) resource)
-                        .getResourceList();
+                rl = ((IResourceGroup) resource).getResourceList();
             } else if (resource.getResourceData() instanceof IResourceGroup) {
                 rl = ((IResourceGroup) resource.getResourceData())
                         .getResourceList();
@@ -364,7 +365,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         int frameIndex = info.frameIndex;
         DataTime[] frames = info.frameTimes;
         if (frameCount <= getNumberOfFrames()) {
-            if (frames != null && frameIndex >= 0 && frames.length > frameIndex) {
+            if ((frames != null) && (frameIndex >= 0)
+                    && (frames.length > frameIndex)) {
                 restoredTime = frames[frameIndex];
             }
             limitedNumberOfFrames = frameCount;
@@ -379,7 +381,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
         int frameIndex = info.frameIndex;
         DataTime[] frames = info.frameTimes;
         if (limitedNumberOfFrames <= getNumberOfFrames()) {
-            if (frames != null && frameIndex >= 0 && frames.length > frameIndex) {
+            if ((frames != null) && (frameIndex >= 0)
+                    && (frames.length > frameIndex)) {
                 restoredTime = frames[frameIndex];
             }
             limitedNumberOfFrames = Integer.MAX_VALUE;
@@ -517,7 +520,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
 
     @Override
     public void setRenderableDisplay(IRenderableDisplay display) {
-        if (this.renderableDisplay == null || display.getDescriptor() == this) {
+        if ((this.renderableDisplay == null)
+                || (display.getDescriptor() == this)) {
             this.renderableDisplay = display;
         }
     }
@@ -565,11 +569,11 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             String error = null;
             DataTime[] times = info.frameTimes;
             int idx = info.frameIndex;
-            if (times == null && idx >= 0) {
+            if ((times == null) && (idx >= 0)) {
                 error = "Index should be less than zero when there are no frame times.";
-            } else if (times != null && idx >= times.length) {
+            } else if ((times != null) && (idx >= times.length)) {
                 error = "Index must be less than the number of frames.";
-            } else if (idx < 0 && times != null && times.length > 0) {
+            } else if ((idx < 0) && (times != null) && (times.length > 0)) {
                 error = "Index must be positive when frames are provided";
             }
             if (times != null) {
@@ -612,8 +616,8 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             FramesInfo oldInfo = new FramesInfo(oldTimes, oldIdx);
             oldTime = oldInfo.getCurrentFrame();
             currTime = currInfo.getCurrentFrame();
-            if ((oldTime != null && oldTime.equals(currTime) == false)
-                    || (currTime != null && currTime.equals(oldTime) == false)) {
+            if (((oldTime != null) && (oldTime.equals(currTime) == false))
+                    || ((currTime != null) && (currTime.equals(oldTime) == false))) {
                 frameChanged = true;
             }
         }
@@ -629,7 +633,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             int idx = frameIndex;
             if (frames != null) {
                 frames = Arrays.copyOf(frames, frames.length);
-                if (idx < 0 || idx >= frames.length) {
+                if ((idx < 0) || (idx >= frames.length)) {
                     // This only happens for 4-panels with shared time managers.
                     idx = frames.length - 1;
                 }
@@ -727,7 +731,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
      */
     @Override
     public final CoordinateReferenceSystem getCRS() {
-        if (gridGeometry != null && gridGeometry.getEnvelope() != null) {
+        if ((gridGeometry != null) && (gridGeometry.getEnvelope() != null)) {
             return gridGeometry.getEnvelope().getCoordinateReferenceSystem();
         } else {
             return null;
@@ -779,7 +783,7 @@ public abstract class AbstractDescriptor extends ResourceGroup implements
             try {
                 pixelToWorld.transform(wpixel, 0, output, 0, 1);
             } catch (TransformException e) {
-                e.printStackTrace();
+                // e.printStackTrace();
                 return null;
             }
         } else {
