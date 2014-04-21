@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gfe Common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.gfe
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: ext
 Bundle-Vendor: RAYTHEON
@@ -43,9 +43,7 @@ Export-Package: com.raytheon.uf.common.dataplugin.gfe,
  com.raytheon.uf.common.dataplugin.gfe.util,
  com.raytheon.uf.common.dataplugin.gfe.weather,
  com.raytheon.uf.common.dataplugin.gfe.weatherelement
-Import-Package: com.raytheon.edex.exception,
- com.raytheon.edex.util,
- com.raytheon.uf.common.activetable,
+Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
