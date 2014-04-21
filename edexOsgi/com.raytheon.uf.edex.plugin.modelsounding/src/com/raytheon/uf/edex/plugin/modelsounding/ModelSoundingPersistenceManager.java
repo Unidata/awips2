@@ -43,7 +43,7 @@ import com.raytheon.uf.edex.core.IContextStateProcessor;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 17, 2013 2161       bkowal      Initial creation.
- * Mar 11, 2014 2726       rjpeter     Graceful shutdown.
+ * Mar 11, 2014 2726       rjpeter     Graceful shutdown, don't forward empty pdo lists.
  * </pre>
  * 
  * @author bkowal
@@ -99,14 +99,16 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
 
                 if (container != null) {
                     List<PluginDataObject> pdoList = container.getPdos();
-                    PluginDataObject[] pdos = pdoList
-                            .toArray(new PluginDataObject[pdoList.size()]);
-                    try {
-                        EDEXUtil.getMessageProducer().sendSync(
-                                "modelSoundingPersistIndexAlert", pdos);
-                    } catch (EdexException e) {
-                        logger.error("Failed to persist " + pdos.length
-                                + " PluginDataObject(s)!", e);
+                    if ((pdoList != null) && !pdoList.isEmpty()) {
+                        PluginDataObject[] pdos = pdoList
+                                .toArray(new PluginDataObject[pdoList.size()]);
+                        try {
+                            EDEXUtil.getMessageProducer().sendSync(
+                                    "modelSoundingPersistIndexAlert", pdos);
+                        } catch (EdexException e) {
+                            logger.error("Failed to persist " + pdos.length
+                                    + " PluginDataObject(s)!", e);
+                        }
                     }
                 }
             } catch (Throwable e) {
@@ -125,14 +127,16 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
 
     protected void storeContainer(ModelSoundingStorageContainer container) {
         List<PluginDataObject> pdoList = container.getPdos();
-        PluginDataObject[] pdos = pdoList.toArray(new PluginDataObject[pdoList
-                .size()]);
-        try {
-            EDEXUtil.getMessageProducer().sendSync(
-                    "modelSoundingPersistIndexAlert", pdos);
-        } catch (EdexException e) {
-            logger.error("Failed to persist " + pdos.length
-                    + " PluginDataObject(s)!", e);
+        if ((pdoList != null) && !pdoList.isEmpty()) {
+            PluginDataObject[] pdos = pdoList
+                    .toArray(new PluginDataObject[pdoList.size()]);
+            try {
+                EDEXUtil.getMessageProducer().sendSync(
+                        "modelSoundingPersistIndexAlert", pdos);
+            } catch (EdexException e) {
+                logger.error("Failed to persist " + pdos.length
+                        + " PluginDataObject(s)!", e);
+            }
         }
     }
 
