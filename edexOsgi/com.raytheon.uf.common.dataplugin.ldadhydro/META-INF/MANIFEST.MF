@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ldadhydro
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ldadhydro
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-RegisterBuddy: com.raytheon.edex.common, com.raytheon.uf.common.serialization
+Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
