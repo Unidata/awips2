@@ -25,18 +25,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.viz.grid.data.RadarRequestableData;
 import com.raytheon.viz.grid.util.RadarAdapter;
 
@@ -115,14 +116,19 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<String, RequestConstraint> originalConstraints, Object response)
-            throws VizException {
+            throws DataCubeException {
         Set<TimeAndSpace> resultsSet = RadarUpdater.getInstance()
                 .getTimes(this);
         if (resultsSet != null) {
             return resultsSet;
         }
 
-        DataTime[] results = CatalogQuery.performTimeQuery(rcMap, false, null);
+        DataTime[] results;
+        try {
+            results = CatalogQuery.performTimeQuery(rcMap, false, null);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         if (results != null) {
             resultsSet = new HashSet<TimeAndSpace>(results.length);
             for (int i = 0; i < results.length; i++) {
@@ -158,7 +164,7 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
     public Set<AbstractRequestableData> getData(
             Map<String, RequestConstraint> orignalConstraints,
             Set<TimeAndSpace> availability, Object response)
-            throws VizException {
+            throws DataCubeException {
         List<Map<String, Object>> rows = ((DbQueryResponse) response)
                 .getResults();
         Set<AbstractRequestableData> rval = new HashSet<AbstractRequestableData>(
@@ -167,8 +173,12 @@ public class RadarRequestableLevelNode extends AbstractBaseDataNode {
         // record... won't work because of the get data call, can't be a
         // GribRecord, needs to call getDataValue on Requestable
         for (Map<String, Object> objMap : rows) {
-            rval.add(new RadarRequestableData((RadarRecord) objMap.get(null),
-                    paramAbbrev));
+            try {
+                rval.add(new RadarRequestableData((RadarRecord) objMap
+                        .get(null), paramAbbrev));
+            } catch (VizException e) {
+                throw new DataCubeException(e);
+            }
         }
         return rval;
     }

@@ -21,14 +21,14 @@ package com.raytheon.uf.viz.collaboration.comm.identity.info;
 
 import java.util.Collection;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * Provides information about a venue. In addition implementations will act as a
- * target for participant updates such as
+ * Provides information about a venue.
  * 
  * <pre>
  * 
@@ -36,34 +36,59 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 1, 2012            jkorman     Initial creation
+ * Mar 1, 2012             jkorman     Initial creation
+ * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2751       bclement    added getParticipantUserid()
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-
 public interface IVenue {
 
     /**
-     * 
-     * @return
+     * @return list of users in venue
      */
-    public IVenueInfo getInfo();
-
-    /**
-     * 
-     * @return
-     */
-    public Collection<UserId> getParticipants();
+    public Collection<VenueParticipant> getParticipants();
 
     /**
      * Get the presence for a user in the session.
      * 
-     * @param user
+     * @param participant
      * @return
      */
-    public IPresence getPresence(IUser user);
+    public Presence getPresence(VenueParticipant participant);
+
+    /**
+     * @return id of venue "name@service"
+     */
+    public String getId();
+
+    /**
+     * @return name of venue
+     */
+    public String getName();
+
+    /**
+     * @return number of users in venue
+     */
+    public int getParticipantCount();
+
+    /**
+     * @return venue subject
+     */
+    public String getSubject();
+
+    /**
+     * Attempt to find actual userid for participant. The success of this method
+     * may depend on admin rights in the venue.
+     * 
+     * @param participant
+     * @return null if no userid was found
+     * @throws CollaborationException
+     */
+    public UserId getParticipantUserid(VenueParticipant participant);
 
 }

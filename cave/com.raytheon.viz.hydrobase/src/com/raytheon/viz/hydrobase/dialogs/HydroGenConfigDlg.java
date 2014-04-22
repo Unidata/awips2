@@ -66,6 +66,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Dec 29, 2008 1802        askripsk    Connect to database.
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
+ * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * 
  * </pre>
  * 
@@ -371,6 +372,9 @@ public class HydroGenConfigDlg extends CaveSWTDialog {
 
                     @Override
                     public void run() {
+                        if (isDisposed()) {
+                            return;
+                        }
                         updateDialogDisplay();
                         shell.setCursor(null);
                     }

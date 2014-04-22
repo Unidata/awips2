@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.common.dataaccess.response;
 
+import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,6 +39,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jun 04, 2013           dgilling    Initial creation
+ * Feb 04, 2014  2672     bsteffen    Better handling of odd units.
  * Feb 24, 2014  2762     bsteffen    Format units with UCUM
  * 
  * 
@@ -65,12 +69,36 @@ public class GridResponseData extends AbstractResponseData {
         super(data);
 
         parameter = data.getParameter();
+
+        Unit<?> dataUnit = data.getUnit();
+        FloatBufferWrapper dataGrid = new FloatBufferWrapper(data
+                .getGridGeometry().getGridRange2D());
+        DataDestination dataDest = dataGrid;
         if (data.getUnit() != null) {
-            unit = UnitFormat.getUCUMInstance().format(data.getUnit());
+            try {
+                this.unit = UnitFormat.getUCUMInstance().format(data.getUnit());
+            } catch (IllegalArgumentException e1) {
+                /*
+                 * Not all units are representable as strings, convert to the
+                 * standard unit so that the units can be preserved in string
+                 * form.
+                 */
+                Unit<?> stdUnit = dataUnit.getStandardUnit();
+                try {
+                    this.unit = UnitFormat.getUCUMInstance().format(stdUnit);
+                    dataDest = UnitConvertingDataFilter.apply(dataDest,
+                            dataUnit.toStandardUnit());
+                } catch (IllegalArgumentException e2) {
+                    /*
+                     * The standard unit is also unstringable so treat the data
+                     * as unitless.
+                     */
+                    this.unit = null;
+                }
+            }
         }
-        FloatArrayWrapper dataGrid = new FloatArrayWrapper(
-                data.getGridGeometry());
-        dataGrid = data.populateData(dataGrid);
+
+        data.populateData(dataDest);
         gridData = dataGrid.getArray();
     }
 

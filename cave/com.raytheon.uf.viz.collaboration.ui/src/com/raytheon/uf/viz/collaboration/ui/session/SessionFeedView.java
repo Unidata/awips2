@@ -21,9 +21,8 @@ package com.raytheon.uf.viz.collaboration.ui.session;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -36,19 +35,20 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence;
+import org.osgi.framework.Bundle;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation;
 import com.raytheon.uf.viz.collaboration.ui.SiteColorInformation.SiteColor;
 import com.raytheon.uf.viz.collaboration.ui.SiteConfigurationManager;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Built for the session in which everyone joins
@@ -60,6 +60,20 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 7, 2012            mnash     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 19, 2013 2563       bclement    moved participant filter logic to one method
+ * Jan 08, 2014 2563       bclement    changes to match SiteConfigurationManager user sites config
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 18, 2014 2631       mpduff      Add processJoinAlert()
+ * Feb 19, 2014 2751       bclement    add change color icon, fix NPE when user cancels change color
+ * Mar 05, 2014 2798       mpduff      Changed how messages are processed for the feed view.
+ * Mar 06, 2014 2751       bclement    moved users table refresh logic to refreshParticipantList()
+ * Mar 18, 2014 2798       mpduff      Fixed issue with user changing site and participant list not 
+ *                                         having the color update to reflect the change.
+ * Mar 24, 2014 2936       mpduff      Remove join alerts from feed view.
+ * Mar 25, 2014 2938       mpduff      Show status message for site and role changes.
+ * Apr 01, 2014 2938       mpduff      Update logic for site and role changes.
  * 
  * </pre>
  * 
@@ -81,9 +95,14 @@ public class SessionFeedView extends SessionView {
 
     private List<String> enabledSites;
 
-    private List<String> userEnabledSites;
+    private final List<String> userEnabledSites;
 
     private List<SiteColor> colors;
+
+    /**
+     * Set of users logged in.
+     */
+    private final ConcurrentHashMap<String, Presence> enabledUsers = new ConcurrentHashMap<String, Presence>();
 
     /**
      * 
@@ -91,8 +110,8 @@ public class SessionFeedView extends SessionView {
     public SessionFeedView() {
         super();
         String actingSite = CollaborationConnection.getConnection()
-                .getPresence().getProperties()
-                .get(SiteConfigInformation.SITE_NAME).toString();
+                .getPresence().getProperty(SiteConfigInformation.SITE_NAME)
+                .toString();
         enabledSites = SiteConfigurationManager.getSubscribeList(actingSite);
         userEnabledSites = SiteConfigurationManager.getUserSubscribeList();
     }
@@ -109,7 +128,7 @@ public class SessionFeedView extends SessionView {
         super.initComponents(parent);
         colors = SiteConfigurationManager.getSiteColors();
         if (colors != null) {
-            for (IUser user : session.getVenue().getParticipants()) {
+            for (VenueParticipant user : session.getVenue().getParticipants()) {
                 setColorForSite(user);
             }
         } else {
@@ -132,27 +151,35 @@ public class SessionFeedView extends SessionView {
     @Override
     protected void createActions() {
         super.createActions();
-
-        colorChangeAction = new Action("Change Site Color...") {
+        Bundle bundle = Activator.getDefault().getBundle();
+        colorChangeAction = new Action("Change Site Color...",
+                IconUtil.getImageDescriptor(bundle, "change_color.gif")) {
             @Override
             public void run() {
                 ColorDialog dlg = new ColorDialog(Display.getCurrent()
                         .getActiveShell());
                 RGB rgb = dlg.open();
-                // get the selected entry so we know what site to change the
-                // color for
-                String site = getSelectedSite();
+                if (rgb != null) {
+                    /*
+                     * get the selected entry so we know what site to change the
+                     * color for
+                     */
+                    String site = getSelectedSite();
 
-                replaceSiteColor(site.toString(), rgb);
-                // loop through all the entries in the list so we can set the
-                // color for all sites corresponding to "selectedSite"
-                if (site != null) {
-                    for (IUser user : session.getVenue().getParticipants()) {
-                        setColorForSite(user);
+                    replaceSiteColor(site.toString(), rgb);
+                    /*
+                     * loop through all the entries in the list so we can set
+                     * the color for all sites corresponding to "selectedSite"
+                     */
+                    if (site != null) {
+                        for (VenueParticipant user : session.getVenue()
+                                .getParticipants()) {
+                            setColorForSite(user);
+                        }
                     }
-                }
 
-                usersTable.refresh();
+                    usersTable.refresh();
+                }
             }
         };
 
@@ -180,12 +207,14 @@ public class SessionFeedView extends SessionView {
                 });
 
         userAddSiteAction = new Action("Subscribe") {
+            @Override
             public void run() {
                 userEnabledSites.add(getSelectedSite());
             };
         };
 
         userRemoveSiteAction = new Action("Unsubscribe") {
+            @Override
             public void run() {
                 userEnabledSites.remove(getSelectedSite());
             }
@@ -254,11 +283,10 @@ public class SessionFeedView extends SessionView {
         Object site = null;
         if (isHistory) {
             site = msg.getSubject();
-        } else if (msg.getFrom() instanceof IUser) {
-            IPresence presence = session.getVenue().getPresence(
-                    (IUser) msg.getFrom());
-            site = presence.getProperties()
-                    .get(SiteConfigInformation.SITE_NAME);
+        } else if (msg.getFrom() instanceof VenueParticipant) {
+            Presence presence = session.getVenue().getPresence(
+                    (VenueParticipant) msg.getFrom());
+            site = presence.getProperty(SiteConfigInformation.SITE_NAME);
         }
 
         // should we append?
@@ -270,7 +298,8 @@ public class SessionFeedView extends SessionView {
 
     @Override
     protected void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges) {
+            String name, VenueParticipant userId, String subject,
+            List<StyleRange> ranges) {
         if (subject != null) {
             setColorForSite(userId, subject);
         }
@@ -286,11 +315,11 @@ public class SessionFeedView extends SessionView {
     private String getSelectedSite() {
         IStructuredSelection selection = (IStructuredSelection) usersTable
                 .getSelection();
-        IUser selectedEntry = (IUser) selection.getFirstElement();
-        IPresence pres = session.getVenue().getPresence(selectedEntry);
-        Object selectedSite = pres.getProperties().get(
-                SiteConfigInformation.SITE_NAME);
-        return selectedSite.toString();
+        VenueParticipant selectedEntry = (VenueParticipant) selection
+                .getFirstElement();
+        Presence pres = session.getVenue().getPresence(selectedEntry);
+        Object selectedSite = pres.getProperty(SiteConfigInformation.SITE_NAME);
+        return selectedSite == null ? "" : selectedSite.toString();
     }
 
     /**
@@ -300,10 +329,9 @@ public class SessionFeedView extends SessionView {
      * 
      * @param user
      */
-    private void setColorForSite(IUser user) {
-        UserId id = IDConverter.convertFrom(user);
-        IPresence presence = session.getVenue().getPresence(user);
-        setColorForSite(id, presence);
+    private void setColorForSite(VenueParticipant user) {
+        Presence presence = session.getVenue().getPresence(user);
+        setColorForSite(user, presence);
     }
 
     /**
@@ -312,18 +340,17 @@ public class SessionFeedView extends SessionView {
      * @param id
      * @param presence
      */
-    private void setColorForSite(UserId id, IPresence presence) {
+    private void setColorForSite(VenueParticipant id, Presence presence) {
         if (presence == null) {
             return;
         }
-        Object site = presence.getProperties().get(
-                SiteConfigInformation.SITE_NAME);
+        Object site = presence.getProperty(SiteConfigInformation.SITE_NAME);
         if (site != null) {
             setColorForSite(id, site.toString());
         }
     }
 
-    private void setColorForSite(UserId id, String site) {
+    private void setColorForSite(VenueParticipant id, String site) {
         SiteColor siteColor = new SiteColor();
         siteColor.setSite(site.toString());
         int index = colors.indexOf(siteColor);
@@ -360,57 +387,141 @@ public class SessionFeedView extends SessionView {
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#participantArrived
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     * @see com.raytheon.uf.viz.collaboration.ui.session.SessionView#
+     * sendParticipantSystemMessage
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * java.lang.String)
      */
     @Override
-    protected void participantArrived(UserId participant) {
-        setColorForSite(participant);
-        if (session != null && session.getVenue() != null) {
-            Object siteOb = session.getVenue().getPresence(participant)
-                    .getProperties().get(SiteConfigInformation.SITE_NAME);
-            String site = "";
-            if (siteOb != null) {
-                site = siteOb.toString();
-            }
-            // only show sites you care about, or empty site
-            if ("".equals(site) || enabledSites.contains(site)
-                    || userEnabledSites.contains(site)) {
-                super.participantArrived(participant);
-            } else {
-                usersTable.setInput(session.getVenue().getParticipants());
-                usersTable.refresh();
-            }
-        }
+    protected void sendParticipantSystemMessage(VenueParticipant participant,
+            String message) {
+        super.sendParticipantSystemMessage(participant, message);
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see
-     * com.raytheon.uf.viz.collaboration.ui.session.SessionView#participantDeparted
-     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     * @see com.raytheon.uf.viz.collaboration.ui.session.SessionView#
+     * participantPresenceUpdated
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * org.jivesoftware.smack.packet.Presence)
      */
     @Override
-    protected void participantDeparted(UserId participant) {
-        String site = session.getVenue().getPresence(participant)
-                .getProperties().get(SiteConfigInformation.SITE_NAME)
-                .toString();
-        // only show sites you care about
-        if (enabledSites.contains(site) || userEnabledSites.contains(site)) {
-            super.participantDeparted(participant);
-        } else {
-            usersTable.setInput(session.getVenue().getParticipants());
-            usersTable.refresh();
+    protected void participantPresenceUpdated(VenueParticipant participant,
+            Presence presence) {
+        // Verify we have properties
+        if (!presence.getPropertyNames().contains(
+                SiteConfigInformation.SITE_NAME)) {
+            return;
         }
+
+        String siteName = getSiteName(presence);
+
+        // only show sites you care about
+        if (enabledSites.contains(siteName)
+                || userEnabledSites.contains(siteName)) {
+            String user = participant.getName();
+            Presence prev = enabledUsers.get(user);
+
+            String roleName = getRoleName(presence);
+            if (presence.isAvailable()) {
+                if (prev == null || hasPresenceChanged(prev, presence)) {
+                    StringBuilder message = getMessage(roleName, siteName, user);
+                    sendSystemMessage(message);
+                }
+
+                enabledUsers.put(user, presence);
+            }
+        }
+
+        /*
+         * Presence changed is triggered for participant's site being changed.
+         * Need to set the color to handle this situation.
+         */
+        setColorForSite(participant, presence);
+        refreshParticipantList();
     }
 
+    /**
+     * Determine if the user's presence has changed.
+     * 
+     * @param prev
+     *            The previous Presence object
+     * @param current
+     *            The current Presence object
+     * @return true if the presence has changed
+     */
+    private boolean hasPresenceChanged(Presence prev, Presence current) {
+        if (!getRoleName(prev).equals(getRoleName(current))) {
+            return true;
+        }
+
+        if (!getSiteName(prev).equals(getSiteName(current))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the role name from the presence.
+     * 
+     * @param presence
+     *            The Presence
+     * @return the role name for this presence
+     */
+    private String getRoleName(Presence presence) {
+        Object roleObj = presence.getProperty(SiteConfigInformation.ROLE_NAME);
+        return roleObj == null ? "" : roleObj.toString();
+    }
+
+    /**
+     * Get the site name from the presence.
+     * 
+     * @param presence
+     *            The Presence
+     * @return the site name for this presence
+     */
+    private String getSiteName(Presence presence) {
+        Object siteObj = presence.getProperty(SiteConfigInformation.SITE_NAME);
+        return siteObj == null ? "" : siteObj.toString();
+    }
+
+    /**
+     * Get the status message.
+     * 
+     * @param roleName
+     * @param siteName
+     * @param user
+     * 
+     * @return The StringBuilder instance holding the message
+     */
+    private StringBuilder getMessage(String roleName, String siteName,
+            String user) {
+        StringBuilder message = new StringBuilder();
+        message.append(user);
+        message.append(" ").append(roleName).append(" ").append(siteName);
+        return message;
+    }
+
+    /**
+     * No operation for Session Feed View
+     */
     @Override
-    protected void participantPresenceUpdated(UserId participant,
-            IPresence presence) {
-        setColorForSite(participant, presence);
-        super.participantPresenceUpdated(participant, presence);
+    protected void participantArrived(VenueParticipant participant,
+            String description) {
+        refreshParticipantList();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void participantDeparted(VenueParticipant participant,
+            String description) {
+        if (enabledUsers.remove(participant.getName()) != null) {
+            super.participantDeparted(participant, description);
+        }
     }
 
     /*
@@ -426,13 +537,8 @@ public class SessionFeedView extends SessionView {
         SiteConfigurationManager.writeSiteColorInformation(information);
 
         // write out the user enabled sites information to a file
-        SiteConfigInformation userInformation = new SiteConfigInformation();
-        List<SiteConfig> sites = new ArrayList<SiteConfig>();
-        SiteConfig config = new SiteConfig();
-        config.setSubscribedSites(userEnabledSites.toArray(new String[0]));
-        sites.add(config);
-        userInformation.setConfig(sites);
-        SiteConfigurationManager
-                .writeUserSiteConfigInformation(userInformation);
+        String[] sites = userEnabledSites.toArray(new String[userEnabledSites
+                .size()]);
+        SiteConfigurationManager.writeUserEnabledSites(sites);
     }
 }

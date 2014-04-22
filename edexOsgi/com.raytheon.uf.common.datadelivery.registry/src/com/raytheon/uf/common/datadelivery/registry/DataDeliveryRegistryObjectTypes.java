@@ -41,6 +41,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * Nov 12, 2013 2506       bgonzale     Added is recurring subscription method.
  * Nov 18, 2013 1736       dhladky      Data Set helper method.
  * Dec 08, 2013 2584       dhladky      Registry versions for objects.
+ * Mar 02, 2014 2789       dhladky      XSLT versions done in the encoder.
  * 
  * </pre>
  * 
@@ -103,30 +104,9 @@ public final class DataDeliveryRegistryObjectTypes {
         return DataDeliveryRegistryObjectTypes.DATASETMETADATA
                 .equals(objectType);
     }
-    
+  
     /**
-     * Convert the object if necessary
-     * 
-     * @param content
-     * @param encoder
-     * @return
-     */
-    public static Object convertObject(Object content,
-            IRegistryEncoder encoder) {
-
-        /**
-         * TODO In next step attempt to
-         * do a conversion
-         */
-        throw new IllegalArgumentException(
-                "Can not convert Data Delivery Registry Objects in this release!");
-
-    }
-    
-
-    /**
-     * Gets the object from the encoder, checking to see if conversion is
-     * necessary or not.
+     * Gets the object from the encoder.
      * 
      * @param registryObjectType
      * @param encoder
@@ -136,14 +116,7 @@ public final class DataDeliveryRegistryObjectTypes {
     public static Object getObject(RegistryObjectType registryObjectType,
             IRegistryEncoder encoder) throws SerializationException {
 
-        Object object = encoder.decodeObject(registryObjectType);
-
-        //Returned content. Object is of different version!
-        if (object instanceof String) {
-            object = convertObject(object, encoder);
-        }
-
-        return object;
+        return encoder.decodeObject(registryObjectType);
     }
    
 }

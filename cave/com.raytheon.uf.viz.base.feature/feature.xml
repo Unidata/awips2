@@ -19,6 +19,7 @@
 
    <requires>
       <import feature="com.raytheon.uf.common.base.feature" version="1.0.0.qualifier"/>
+      <import feature="org.eclipse.rcp" version="3.8.2.v20130118-180157-96BuGOZFxwOAeG8Ofmqicz0tPK"/>
    </requires>
 
    <plugin
@@ -34,17 +35,10 @@
          version="0.0.0"/>
 
    <plugin
-         id="com.raytheon.uf.viz.personalities.cave"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.apache.activemq"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="5.3.0"/>
 
    <plugin
          id="com.raytheon.uf.viz.localization"
@@ -61,13 +55,6 @@
 
    <plugin
          id="org.eclipse.core.resources"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.ui.ide"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -159,7 +146,7 @@
          id="net.sf.swtaddons"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
+         version="0.1.1"/>
 
    <plugin
          id="org.eclipse.draw2d"
@@ -185,16 +172,7 @@
          id="javax.media.opengl"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="javax.media.opengl.linux32"
-         os="linux"
-         arch="x86"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         fragment="true"/>
+         version="1.1.1"/>
 
    <plugin
          id="javax.media.opengl.linux64"
@@ -202,13 +180,22 @@
          arch="x86_64"
          download-size="0"
          install-size="0"
-         version="0.0.0"
+         version="1.1.1"
          fragment="true"/>
 
    <plugin
          id="javax.media.opengl.win32"
          os="win32"
          arch="x86"
+         download-size="0"
+         install-size="0"
+         version="1.1.1"
+         fragment="true"/>
+
+   <plugin
+         id="javax.media.opengl.win64"
+         os="win32"
+         arch="x86_64"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -242,6 +229,13 @@
 
    <plugin
          id="org.eclipse.emf.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.datacube"
          download-size="0"
          install-size="0"
          version="0.0.0"

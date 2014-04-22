@@ -22,9 +22,6 @@ package com.raytheon.uf.viz.remote.graphics.events.colormap;
 import java.nio.Buffer;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
-import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
-import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent;
@@ -39,7 +36,8 @@ import com.raytheon.uf.viz.remote.graphics.events.AbstractDispatchingObjectEvent
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 9, 2012            mschenke     Initial creation
+ * Mar 09, 2012            mschenke    Initial creation
+ * Apr 07, 2014 2968       njensen     Improved efficiency
  * 
  * </pre>
  * 
@@ -73,17 +71,8 @@ public class ColorMapDataEvent extends AbstractDispatchingObjectEvent {
         // Copy data via serialization
         this.dimensions = colorMapData.getDimensions();
         this.dataType = colorMapData.getDataType();
-        try {
-            // Copy the buffer since it is the same buffer that will be used for
-            // rendering in a separate thread and serializing Buffer access is
-            // not thread safe
-            this.buffer = (Buffer) SerializationUtil
-                    .transformFromThrift(SerializationUtil
-                            .transformToThrift(colorMapData.getBuffer()));
-        } catch (SerializationException e) {
-            throw new RuntimeException("Error copying data Buffer: "
-                    + e.getLocalizedMessage(), e);
-        }
+        // serializing buffers is thread safe now so just directly use it
+        this.buffer = colorMapData.getBuffer();
     }
 
     /**

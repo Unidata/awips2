@@ -21,10 +21,11 @@ public class ColorBarViewer extends ColorBar {
 		
 		//setSliderText( sliderText );
 		setStartingColors( newColors );		
-		revertColorBar();
+        revertColorBar();
 	}
 	
 	protected void setStartingColors(ArrayList<ColorData> newColors) {
-        startingColors = new ArrayList<ColorData>(newColors);
+        setCurrentColors(new ArrayList<ColorData>(newColors));
+        updateRevertToCurrent();
     }
 }

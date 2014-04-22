@@ -22,24 +22,28 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 import java.util.Collection;
 
 /**
- * TODO Add Description
+ * Property interface for collaboration messages
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 27, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public interface IPropertied {
 
+    /**
+     * Simple key/value type for collaboration
+     * 
+     */
     public static class Property {
         private String value;
         
@@ -132,7 +136,7 @@ public interface IPropertied {
      * @param defaultValue
      * @return
      */
-    void setProperty(String key, String value);
+    public void setProperty(String key, String value);
     
     /**
      * 
@@ -140,14 +144,14 @@ public interface IPropertied {
      * @param defaultValue
      * @return
      */
-    String getProperty(String key, String defaultValue);
+    public String getProperty(String key, String defaultValue);
     
     /**
      * Gets the message properties as a collection of key, value
      * pairs. Always returns a not-null value.
      * @return
      */
-    Collection<Property> getProperties();
+    public Collection<Property> getProperties();
     
 
 }

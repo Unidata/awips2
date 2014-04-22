@@ -207,7 +207,7 @@ public class SocketSrv {
 
             message = getMessage(in);
 
-            if (message.length < 50) {
+            if (!flag.equals("-file")) {
                 String strMessage = new String(message);
                 if (strMessage.equals(MhsUtil.END_TOKEN)) {
                     log("Disconnected from  client: " + client);
@@ -228,6 +228,7 @@ public class SocketSrv {
                 log("File Received of size: " + message.length);
                 files.add(writeToFile(myMHS + "-" + params.get("-MSGID"),
                         message));
+                flag = "";
             }
         }
     }
@@ -271,7 +272,7 @@ public class SocketSrv {
         String fileList = "";
         for (int i = 0; i < files.size(); i++) {
             fileList += files.get(i);
-            if (i != files.size() - 1) {
+            if (i != (files.size() - 1)) {
                 fileList += ",";
             }
         }
