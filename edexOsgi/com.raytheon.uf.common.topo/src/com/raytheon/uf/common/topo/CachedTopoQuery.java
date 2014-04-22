@@ -32,7 +32,7 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.LatLonGridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -165,7 +165,8 @@ public class CachedTopoQuery {
      * @return the topo data array in row major order
      */
     public float[] getHeight(GridGeometry2D targetGeom) {
-        FloatArrayWrapper destination = new FloatArrayWrapper(targetGeom);
+        FloatBufferWrapper destination = new FloatBufferWrapper(
+                targetGeom.getGridRange2D());
         GridReprojection reprojection = new GridReprojection(source.getGridGeometry(), targetGeom);
         try {
             reprojection.reprojectedGrid(new NearestNeighborInterpolation(), source, destination);

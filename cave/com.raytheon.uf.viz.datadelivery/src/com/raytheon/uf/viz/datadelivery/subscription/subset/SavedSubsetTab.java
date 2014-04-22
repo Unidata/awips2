@@ -29,25 +29,27 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.datadelivery.registry.DataType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.viz.datadelivery.subscription.subset.xml.SubsetXML;
 import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
 
 /**
  * The Saved Subsets tab.
- *
+ * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 30, 2012            mpduff     Initial creation.
  * Jun  4, 2012    645     jpiatt     Added tooltips.
  * Nov  1, 2012   1278     mpduff     Formatted to meet coding standard.
- *
+ * Apr 10, 2014   2864     mpduff     Changed how saved subset files are stored.
+ * 
  * </pre>
- *
+ * 
  * @author mpduff
  * @version 1.0
  */
@@ -72,17 +74,23 @@ public class SavedSubsetTab extends SubsetTab {
     /** File extension */
     String extension = ".xml";
 
+    /** The type of data loaded in the dialog */
+    private final DataType dataType;
+
     /**
      * Constructor.
-     *
+     * 
      * @param comp
      *            Composite holding these controls
+     * @param dataType
+     *            The datatype of the loaded data
      * @param callback
      *            The class for callbacks
      */
-    public SavedSubsetTab(Composite comp, ITabAction callback) {
+    public SavedSubsetTab(Composite comp, DataType dataType, ITabAction callback) {
         this.comp = comp;
         this.callback = callback;
+        this.dataType = dataType;
 
         init();
     }
@@ -155,7 +163,7 @@ public class SavedSubsetTab extends SubsetTab {
         subsetList.removeAll();
         // Get the subset data
         for (LocalizationFile locFile : SubsetFileManager.getInstance()
-                .getSubsets()) {
+                .getLocalizationFiles(this.dataType)) {
             String locFileName = locFile.getFile().getName();
             subsetList.add(SubsetXML.getBaseSubsetName(locFileName));
         }
@@ -170,7 +178,8 @@ public class SavedSubsetTab extends SubsetTab {
                     .getSelectionIndex());
             subsetName = subsetName + extension;
             if (response == SWT.YES) {
-                SubsetFileManager.getInstance().deleteSubset(subsetName);
+                SubsetFileManager.getInstance().deleteSubset(subsetName,
+                        this.dataType);
                 loadList();
             }
         } else {
@@ -201,7 +210,7 @@ public class SavedSubsetTab extends SubsetTab {
 
     /**
      * Enable buttons.
-     *
+     * 
      * @param name
      *            subset name
      */

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Swtaddons Plug-in
 Bundle-SymbolicName: net.sf.swtaddons
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.1
 Export-Package: net.sf.swtaddons.autocomplete,
  net.sf.swtaddons.autocomplete.combo,
  net.sf.swtaddons.autocomplete.text

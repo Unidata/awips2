@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Pointdata Plug-in
 Bundle-SymbolicName: com.raytheon.viz.pointdata;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Activator: com.raytheon.viz.pointdata.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.viz.core, com.raytheon.uf.viz.core
@@ -20,7 +20,10 @@ Require-Bundle: org.apache.batik,
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.wxmath
+ com.raytheon.uf.common.wxmath,
+ com.raytheon.uf.common.python.concurrent,
+ com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.drawables,
@@ -28,15 +31,14 @@ Export-Package: com.raytheon.viz.pointdata,
  com.raytheon.viz.pointdata.rsc.retrieve,
  com.raytheon.viz.pointdata.util
 Import-Package: com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.inventory.data,
+ com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.common.inventory,
+ com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.common.dataplugin.grid,
- com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.pointdata.accumulate,
- com.raytheon.uf.viz.derivparam.data,
- com.raytheon.uf.viz.derivparam.inv,
- com.raytheon.uf.viz.derivparam.library,
- com.raytheon.uf.viz.derivparam.tree,
  com.raytheon.uf.viz.productbrowser,
  com.raytheon.viz.alerts,
  com.raytheon.viz.alerts.observers

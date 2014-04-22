@@ -52,8 +52,9 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.statusline.TimeDisplay;
 
 /**
- * Abstract class for cave persepctives, solely for context activation and
- * refreshing, contributes the TimeDisplay to the status line as well
+ * Abstract class for cave perspectives, solely for context activation and
+ * refreshing, contributes the TimeDisplay to the status line as well. Used for
+ * managing perspectives that render to the display.
  * 
  * <pre>
  * 

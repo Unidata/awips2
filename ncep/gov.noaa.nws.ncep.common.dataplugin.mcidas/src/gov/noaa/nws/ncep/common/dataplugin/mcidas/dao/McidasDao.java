@@ -10,6 +10,8 @@
  * 10/2009		144			T. Lee		Created
  * 11/2009		144			T. Lee		Implemented area name DAO
  * Nov 14, 2013 2393        bclement    added in-java interpolation
+ * Mar 07, 2014 2791        bsteffen    Move Data Source/Destination to numeric
+ *                                      plugin.
  * </pre>
  * 
  * @author tlee
@@ -39,8 +41,7 @@ import com.raytheon.uf.common.datastorage.records.AbstractStorageRecord;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.interpolation.GridDownscaler;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataWrapper1D;
-import com.raytheon.uf.edex.database.plugin.DataRecordWrapUtil;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil;
 import com.raytheon.uf.edex.database.plugin.DownscaleStoreUtil.IDataRecordCreator;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
@@ -100,9 +101,8 @@ public class McidasDao extends PluginDao {
             // Store the base record.
             dataStore.addDataRecord(storageRecord);
 
-            DataWrapper1D dataSource = DataRecordWrapUtil.wrap(storageRecord,
-                    xdim,
-                    ydim, true);
+            BufferWrapper dataSource = BufferWrapper.wrapArray(
+                    storageRecord.getDataObject(), xdim, ydim);
             // this way of interpolating does not create the Data-interpolated/0
             // link to the full sized data. This shouldn't be an issue since the
             // retrieval code checks for level 0 and requests the full sized
@@ -130,6 +130,12 @@ public class McidasDao extends PluginDao {
                         public double getFillValue() {
                             return Double.NaN;
                         }
+
+                        @Override
+                        public boolean isSigned() {
+                            return false;
+                        }
+
                     });
         }
         return dataStore;

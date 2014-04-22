@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Display;
@@ -31,8 +30,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
-import com.raytheon.uf.viz.collaboration.ui.CreateSessionData;
 import com.raytheon.uf.viz.collaboration.ui.CreateSessionDialog;
 import com.raytheon.uf.viz.collaboration.ui.IUserSelector;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
@@ -51,6 +51,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
@@ -114,13 +115,14 @@ public class CreateSessionAction extends Action {
 
             try {
                 if (result.isInviteUsers() && userSelection != null) {
-                    IUser[] users = userSelection.getSelectedUsers();
+                    UserId[] users = userSelection.getSelectedUsers();
 
                     if (users.length > 0) {
-                        InviteAction invite = new InviteAction(
-                                (IVenueSession) CollaborationConnection
-                                        .getConnection().getSession(sessionId),
-                                users);
+                        IVenueSession session = (IVenueSession) CollaborationConnection
+                                .getConnection().getSession(sessionId);
+                        String subject = session.getVenue().getSubject();
+                        InviteAction invite = new InviteAction(session,
+                                subject, users);
                         invite.setInviteMessage(result.getInviteMessage());
                         invite.run();
                     }

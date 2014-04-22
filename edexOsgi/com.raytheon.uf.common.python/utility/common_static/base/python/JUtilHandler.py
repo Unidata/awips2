@@ -34,9 +34,12 @@ import JUtil
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    10/14/13         2250         mnash          Initial creation of JUtil handler
+#    02/06/14                      mnash          Fixed fallbacks by using OrderedDict,
+#                                                 fixed exception by declaring a size
 #
 #
 
+from collections import OrderedDict
 
 from java.lang import Integer, Float, Long, Boolean, String, Double, Number
 from java.util import Date
@@ -160,10 +163,10 @@ def _toJavaDate(val):
     return Date(long(delta.total_seconds()) * 1000)
 
 # the dict that registers the Python data type to the method for conversion
-pythonBasics = {int:_toJavaInt, float:_toJavaFloat, long:_toJavaLong, bool:_toJavaBoolean, str:_toJavaString, unicode:_toJavaString, datetime.datetime:_toJavaDate}
+pythonBasics = OrderedDict({int:_toJavaInt, float:_toJavaFloat, long:_toJavaLong, bool:_toJavaBoolean, str:_toJavaString, unicode:_toJavaString, datetime.datetime:_toJavaDate})
 # the dict that registers the Java String of type to the method for conversion
-javaBasics = {'java.lang.Integer':_toPythonInt, 'java.lang.Float':_toPythonFloat, 'java.lang.Double':_toPythonDouble, 'java.lang.Long':_toPythonLong, 'java.lang.Boolean':_toPythonBool, 'java.lang.String':_toPythonString, 'java.util.Date':_toPythonDatetime}
-fallbackBasics = {Number:_toPythonFloat}
+javaBasics = OrderedDict({'java.lang.Integer':_toPythonInt, 'java.lang.Float':_toPythonFloat, 'java.lang.Double':_toPythonDouble, 'java.lang.Long':_toPythonLong, 'java.lang.Boolean':_toPythonBool, 'java.lang.String':_toPythonString, 'java.util.Date':_toPythonDatetime})
+fallbackBasics = OrderedDict({Number:_toPythonFloat})
 '''
 The following methods will handle Python and Java collection conversion.
 '''
@@ -173,7 +176,6 @@ from java.util import Date
 from java.lang.reflect import Array
 from java.util import List, Set, Map
 
-from collections import OrderedDict
 import jep
 
 # make a jarray to find out if we have that
@@ -247,6 +249,7 @@ def _fromJavaArray(obj, customConverter=None):
     Converts from a Java array to a Python list.
     '''
     retVal = []
+    size = Array.getLength(obj)
     for i in range(size):
         retVal.append(JUtil.javaObjToPyVal(Array.get(obj, i), customConverter))
     return retVal
@@ -324,9 +327,9 @@ def __toJavaMap(pyDict, jmap):
         jmap.put(JUtil.pyValToJavaObj(key), JUtil.pyValToJavaObj(pyDict[key]))
     return jmap
 
-javaCollections = {'java.util.ArrayList':_toPythonList, 'java.util.Arrays$ArrayList':_toPythonList, 'java.util.Collections$UnmodifiableRandomAccessList':_toPythonTuple, 'java.util.HashMap':_toPythonDict, 'java.util.LinkedHashMap':_toPythonOrderedDict}
-pythonCollections = { list:_toJavaList, tuple:_toJavaUnmodifiableList, OrderedDict:_toJavaLinkedMap, dict:_toJavaMap }
-fallbackCollections = { List:_toPythonList, Map:_toPythonDict, Set:_toPythonSet }
+javaCollections = OrderedDict({'java.util.ArrayList':_toPythonList, 'java.util.Arrays$ArrayList':_toPythonList, 'java.util.Collections$UnmodifiableRandomAccessList':_toPythonTuple, 'java.util.HashMap':_toPythonDict, 'java.util.LinkedHashMap':_toPythonOrderedDict})
+pythonCollections = OrderedDict({ list:_toJavaList, tuple:_toJavaUnmodifiableList, OrderedDict:_toJavaLinkedMap, dict:_toJavaMap })
+fallbackCollections = OrderedDict({ List:_toPythonList, Map:_toPythonDict, Set:_toPythonSet })
 
 '''
 Handles other types of Java to Python conversion and back.
@@ -359,4 +362,4 @@ def _toJavaClass(val):
     return val.toJavaObj()
 
 # registers the data type for conversion to a Java class.
-pythonClasses = {JUtil.JavaWrapperClass:_toJavaClass}
+pythonClasses = OrderedDict({JUtil.JavaWrapperClass:_toJavaClass})

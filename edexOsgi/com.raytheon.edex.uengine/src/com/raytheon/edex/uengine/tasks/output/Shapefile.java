@@ -26,10 +26,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
 import org.geotools.data.Transaction;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -44,9 +44,10 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date             PR#             Engineer            Description
- * -----------      ----------      ------------        --------------------------
- * Apr 11, 2007                     njensen             Initial Creation
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Apr 11, 2007            njensen     Initial Creation
+ * Mar 11, 2014  #2718     randerso    Changes for GeoTools 10.5
  * </PRE>
  * 
  */
@@ -137,15 +138,15 @@ public class Shapefile extends ScriptTask {
             // Load up the datastore
 
             ShapefileDataStore shpDS = new ShapefileDataStore(theShape.toURI()
-                    .toURL(), null, true);
+                    .toURL());
+            shpDS.setMemoryMapped(true);
 
             // Tell the datastore to create the dbf schema if it does not
             // exist
             shpDS.createSchema(featureType);
 
             // Get the transaction object
-            FeatureStore<SimpleFeatureType, SimpleFeature> fs = (FeatureStore<SimpleFeatureType, SimpleFeature>) shpDS
-                    .getFeatureSource();
+            ContentFeatureSource fs = shpDS.getFeatureSource();
             Transaction trx = fs.getTransaction();
 
             // Open a feature writer with the transaction
@@ -161,8 +162,8 @@ public class Shapefile extends ScriptTask {
                 // iterate through all
                 for (Map.Entry<String, List<?>> entry : shapefileAttributes
                         .entrySet()) {
-                    feature.setAttribute(entry.getKey(), entry.getValue().get(
-                            counter));
+                    feature.setAttribute(entry.getKey(),
+                            entry.getValue().get(counter));
                 }
 
                 feature.setDefaultGeometry(collection.getGeometryN(counter));

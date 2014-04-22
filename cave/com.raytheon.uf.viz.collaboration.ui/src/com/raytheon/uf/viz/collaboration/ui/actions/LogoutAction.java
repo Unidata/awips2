@@ -53,6 +53,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            bsteffen     Initial creation
+ * Dec 19, 2013 2563       bclement     moved close logic to public method
  * 
  * </pre>
  * 
@@ -81,35 +82,44 @@ public class LogoutAction extends Action {
                 + "close all collaboration views\n" + "and editors.");
         int result = messageBox.open();
         if (result == SWT.OK) {
-            for (IViewReference ref : CaveWorkbenchPageManager
-                    .getActiveInstance().getViewReferences()) {
-                IViewPart view = ref.getView(false);
-                if (view instanceof AbstractSessionView
-                        || view instanceof CollaborationGroupView) {
-                    CaveWorkbenchPageManager.getActiveInstance().hideView(ref);
-                }
-            }
-
-            // Close all Collaboration Editors.
-            for (IEditorReference ref : PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage()
-                    .getEditorReferences()) {
-                IEditorPart editor = ref.getEditor(false);
-                if (editor instanceof CollaborationEditor) {
-                    PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-                            .getActivePage().hideEditor(ref);
-                }
-            }
-            try {
-                Activator.getDefault().getPreferenceStore().save();
-            } catch (IOException e) {
-                statusHandler.handle(Priority.WARN,
-                        "Unable to save preferences", e);
-            }
-            CollaborationConnection connection = CollaborationConnection
-                    .getConnection();
-            ConnectionSubscriber.unsubscribe(connection);
-            connection.close();
+            closeCollaboration();
         }
     }
+
+    /**
+     * Close collaboration UI and close connection
+     * 
+     */
+    public void closeCollaboration() {
+        for (IViewReference ref : CaveWorkbenchPageManager.getActiveInstance()
+                .getViewReferences()) {
+            IViewPart view = ref.getView(false);
+            if (view instanceof AbstractSessionView
+                    || view instanceof CollaborationGroupView) {
+                CaveWorkbenchPageManager.getActiveInstance().hideView(ref);
+            }
+        }
+
+        // Close all Collaboration Editors.
+        for (IEditorReference ref : PlatformUI.getWorkbench()
+                .getActiveWorkbenchWindow().getActivePage()
+                .getEditorReferences()) {
+            IEditorPart editor = ref.getEditor(false);
+            if (editor instanceof CollaborationEditor) {
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                        .getActivePage().hideEditor(ref);
+            }
+        }
+        try {
+            Activator.getDefault().getPreferenceStore().save();
+        } catch (IOException e) {
+            statusHandler
+                    .handle(Priority.WARN, "Unable to save preferences", e);
+        }
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        ConnectionSubscriber.unsubscribe(connection);
+        connection.close();
+    }
+
 }

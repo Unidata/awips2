@@ -127,6 +127,7 @@ import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
  * Feb 11, 2014 2771       bgonzale     Use Data Delivery ID instead of Site.
  * Feb 10, 2014 2636       mpduff       Pass Network map to be scheduled.
  * Feb 21, 2014, 2636      dhladky      Try catch to keep MaintTask from dying.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author djohnson
@@ -406,17 +407,17 @@ public abstract class EdexBandwidthManager<T extends Time, C extends Coverage>
                     case UPDATE:
                         subscriptionNotificationService
                                 .sendUpdatedSubscriptionNotification(sub,
-                                        sub.getOwner());
+                                        event.getUsername());
                         break;
                     case INSERT:
                         subscriptionNotificationService
                                 .sendCreatedSubscriptionNotification(sub,
-                                        sub.getOwner());
+                                        event.getUsername());
                         break;
                     case DELETE:
                         subscriptionNotificationService
                                 .sendDeletedSubscriptionNotification(sub,
-                                        sub.getOwner());
+                                        event.getUsername());
                         break;
                     default:
                         statusHandler.handle(

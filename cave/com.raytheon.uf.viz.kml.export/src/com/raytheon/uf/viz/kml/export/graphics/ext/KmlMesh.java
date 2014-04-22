@@ -39,9 +39,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 01, 2012           bsteffen    Initial creation
+ * Feb 21, 2014  2817     bsteffen    Remove Deprecated reproject.
  * 
  * </pre>
  * 
@@ -64,18 +65,15 @@ public class KmlMesh implements IMesh {
 
     @Override
     public void dispose() {
-
+        /*
+         * Nothing to do because no resources are out of reach of the garbage
+         * collector.
+         */
     }
 
     @Override
     public boolean intersects(IExtent extent) {
         return false;
-    }
-
-    @Override
-    public KmlMesh reproject(GeneralGridGeometry targetGeometry)
-            throws VizException {
-        return clone(targetGeometry);
     }
 
     @Override

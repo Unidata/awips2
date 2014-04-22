@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
@@ -47,9 +48,7 @@ import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.map.GeoUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -106,7 +105,7 @@ public class GridSoundingProvider extends
             try {
                 DataCubeContainer.getDataRecords(Arrays.asList(records),
                         Request.ALL, null);
-            } catch (VizDataCubeException e) {
+            } catch (DataCubeException e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,
                         "Error requesting model data for sounding", e);
             }
@@ -188,7 +187,7 @@ public class GridSoundingProvider extends
             Coordinate location) {
         try {
             return DataCubeContainer.getData(constraints, time);
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             throw new RuntimeException("Error querying for sounding records: "
                     + constraints, e);
         }

@@ -37,6 +37,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.wiring.BundleWiring;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -51,9 +53,11 @@ import com.raytheon.viz.ui.UiPlugin;
  * 
  *  SOFTWARE HISTORY
  * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Nov 10, 2006             chammack    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 10, 2006           chammack    Initial Creation.
+ * Jan 20, 2014  2312     bsteffen    Use OSGi to load classes instead of
+ *                                    register buddy.
  * 
  * </pre>
  * 
@@ -96,7 +100,12 @@ public class ContextMenuManager {
                         o = config[j].createExecutableExtension("actionClass");
                         Class<?> c = null;
                         if (capInterface != null) {
-                            c = Class.forName(capInterface);
+                            String bundleName = extensions[i].getContributor()
+                                    .getName();
+                            Bundle bundle = Platform.getBundle(bundleName);
+                            BundleWiring wiring = bundle
+                                    .adapt(BundleWiring.class);
+                            c = wiring.getClassLoader().loadClass(capInterface);
                         } else {
                             // if there's no interface but there is an action,
                             // the action applies to all resources

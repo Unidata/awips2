@@ -27,22 +27,27 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.text.impl.TextSeparatorFactory;
+import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Standard Message Collective Separator.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ * ------------       ---------- ----------- --------------------------
  * Sep 3, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
  * Sep 22, 2010 6932       cjeanbap    Added METAR/SPECI to product.
- * 
+ * Feb 18, 2014 2652       skorolev    Fixed error in the makeCollId.
+ * Mar 06, 2014 2652       skorolev    Corrected rawMsg extraction.
+ * Mar 14, 2014 2652       skorolev    Changed logging for skipped headers.
+ *                                     Fixed calculation of message end.
+ * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
  * </pre>
  * 
  * @author jkorman
@@ -51,7 +56,8 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 public class StdCollectiveSeparator extends WMOMessageSeparator {
     private final Log logger = LogFactory.getLog(getClass());
 
-    private static final Pattern P_TAF = Pattern.compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
+    private static final Pattern P_TAF = Pattern
+            .compile("(TAF +AMD)|(TAF +COR)|(TAF...[\r\n])|(TAF ?)");
 
     private StringBuilder fouHeader = new StringBuilder();
 
@@ -69,21 +75,27 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
     /**
      * 
-     * @param parent
+     * @param traceId
+     * @param siteId
+     * @param wmoHeader
      */
     public StdCollectiveSeparator(String traceId, String siteId,
             WMOHeader wmoHeader) {
         super(traceId, siteId, wmoHeader);
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.edex.plugin.text.impl.separator.WMOMessageSeparator#
+     * createProductId()
      */
     @Override
     protected void createProductId() {
         WMOHeader wmoHeader = getWmoHeader();
         String hdr = wmoHeader.getWmoHeader();
-        String afosId = staticData.matchStdCollective(createDataDes(wmoHeader));
+        String afosId = TextDBStaticData
+                .matchStdCollective(createDataDes(wmoHeader));
 
         if (afosId != null) {
             // String ccc = SiteMap.getInstance().getCCCFromXXXCode(siteId);
@@ -94,7 +106,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                 productId = new AFOSProductId("CCC", "MTR", "XXX");
             } else if ("FR".equals(tt)) {
                 productId = new AFOSProductId("CCC", "TWB", "XXX");
-            } else if (("FT".equals(tt))||("FC".equals(tt))) {
+            } else if (("FT".equals(tt)) || ("FC".equals(tt))) {
                 productId = new AFOSProductId("CCC", "TAF", "XXX");
             } else {
                 productId = NOAFOSPIL;
@@ -102,8 +114,11 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see com.raytheon.edex.plugin.text.impl.separator.WMOMessageSeparator#
+     * identifyReports(byte[], com.raytheon.edex.esb.Headers)
      */
     @Override
     protected void identifyReports(byte[] rawData, Headers headers) {
@@ -123,12 +138,15 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         String productType = null;
         int startIndex = wmoHdr.getMessageDataStart();
         int endIndex = TextSeparatorFactory.findDataEnd(rawData);
+        if (endIndex <= startIndex) {
+            endIndex = rawData.length - 1;
+        }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
+        StringBuilder sb = null;
         if ((rawMsg.indexOf(METAR) == 0) || (rawMsg.indexOf(SPECI) == 0)) {
             productType = (rawMsg.indexOf(METAR) == 0 ? METAR : SPECI);
         }
 
-        StringBuilder sb = null;
         if ("TAF".equals(afos_id.getNnn())) {
             sb = new StringBuilder(rawMsg);
             Matcher m = P_TAF.matcher(sb);
@@ -141,7 +159,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             rawMsg = sb.toString();
         }
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
-        if (nnnxxxMatcher.find()) {
+        if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
             rawMsg = rawMsg.substring(nnnxxxMatcher.end());
         }
         StringBuilder buffer = new StringBuilder(rawMsg);
@@ -228,14 +246,13 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
                     // during the AFOS to AWIPS transition so that products can
                     // still be stored.
                     if (!makeCollId(product_id, XXX_id, afos_id,
-                            wmoHdr.getCccc())) {
+                            wmoHdr.getCccc(), newWmoHdr)) {
                         if (NOAFOSPIL.equals(afos_id)) {
                             logger.info("No AFOS ID found; use TTAAii CCCC to store: "
                                     + dataDes + wmoHdr.getCccc());
                             product_id = NOAFOSPIL;
                         } else {
                             numSkipped++;
-                            subHeadersSkipped.add(newWmoHdr);
 
                             /*
                              * if (moveBadTxt) { logger.error(
@@ -255,8 +272,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
                             // filter out junk characters
                             while (buffer.length() > 0
-                                    && !checkCharNum(buffer.charAt(0)))
+                                    && !checkCharNum(buffer.charAt(0))) {
                                 buffer.deleteCharAt(0);
+                            }
 
                             // again, trash data if it is less than 20 bytes
                             if (buffer.length() < MIN_COLL_DATA_LEN) {
@@ -293,9 +311,15 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         }
     }
 
+    /**
+     * Parses collective message.
+     * 
+     * @param buffer
+     * @param XXX_id
+     * @param parsedMsg
+     */
     private void parseCollMsg(StringBuilder buffer, StringBuilder XXX_id,
             StringBuilder parsedMsg) {
-        StringBuilder tmp = new StringBuilder();
         String msgId = null;
 
         // Check the status of the special case flags and if necessary,
@@ -373,7 +397,7 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             }
             pirFlag = false;
         }
-
+        blank = buffer.toString();
         if (blank.startsWith("AMD") || blank.startsWith("COR")) {
             if (safeStrpbrk(buffer, CSPC)) {
                 buffer.deleteCharAt(0);
@@ -424,8 +448,9 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         } else if (buffer.charAt(0) == (char) 0x1e) {
             parsedMsg.setLength(parsedMsg.length() - 3);
         } else if (buffer.charAt(0) == '=') {
-            if (safeStrpbrk(buffer, CSPL))
+            if (safeStrpbrk(buffer, CSPL)) {
                 buffer.deleteCharAt(0);
+            }
         } else if ((buffer.charAt(0) == EOM)
                 && (parsedMsg.length() > (MIN_COLL_DATA_LEN - 1))) {
             checkFouHeader = true;
@@ -438,23 +463,25 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         if ((reportType != null)
                 && (reportType.equals("METAR") || reportType.equals("SPECI")
                         || reportType.equals("TESTM") || reportType
-                        .equals("TESTS")))
+                            .equals("TESTS"))) {
             parsedMsg.insert(0, reportType + " ");
+        }
     }
 
-    // -- fileScope
-    // --------------------------------------------------------------
-    // makeCollId()
-    //
-    // Gets the CCC from XXX map from national table and combines this with the
-    // NNN that was gotten from the collective table to create the 9 character
-    // AFOS id.
-    //
-    // -- implementation
-    // ---------------------------------------------------------
-    // ---------------------------------------------------------------------------
+    /**
+     * Gets the CCC from XXX map from national table and combines this with the
+     * NNN that was gotten from the collective table to create the 9 character
+     * AFOS id.
+     * 
+     * @param product_id
+     * @param XXX_id
+     * @param afos_id
+     * @param origin
+     * @param newWmoHdr
+     * @return
+     */
     private boolean makeCollId(AFOSProductId product_id, StringBuilder XXX_id,
-            AFOSProductId afos_id, String origin) {
+            AFOSProductId afos_id, String origin, WMOHeader newWmoHdr) {
         // /TextString CCC_id, newId;
         String CCC_id;
         String newId;
@@ -462,22 +489,27 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
 
         // If this is a national bit product, then CCC = CCC of the current
         // site.
-        if ("AAA".equals(afos_id.getCcc()))
+        if ("AAA".equals(afos_id.getCcc())) {
             CCC_id = SiteMap.getInstance().getCCCFromXXXCode(siteId);
-        // Otherwise, use the national category table to get the CCC from the
-        // XXX
-        else if ((CCC_id = staticData.mapICAOToCCC(XXX_id.toString())) == null) {
+        } else if ((CCC_id = TextDBStaticData.mapICAOToCCC(XXX_id.toString())) == null) {
             // We failed to get a CCC from the national_category_table...
 
             // If the XXX is 3 characters, and the origin starts with K, try
             // prepending K or P (the latter for AK, HI products)
-            if ((trimmedXXX.length() == 3) && (origin.startsWith("K"))) {
+            if (trimmedXXX.length() == 3 && origin.startsWith("K")) {
                 newId = "K" + trimmedXXX;
-                if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
+                if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
                     newId = "P" + trimmedXXX;
-                    if ((CCC_id = staticData.mapICAOToCCC(newId)) == null) {
+                    if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
                         // logger.error("NCF_FAIL to map XXX to CCC: " +
                         // XXX_id);
+                        subHeadersSkipped
+                                .put(newWmoHdr,
+                                        "Product "
+                                                + afos_id.toString()
+                                                + " is excluded from storage due to "
+                                                + newId
+                                                + " not present in national_category_table.template");
                         return false;
                     }
                 }
@@ -486,17 +518,37 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
             // character of the origin.
             else if (trimmedXXX.length() == 3) {
                 newId = origin.charAt(0) + trimmedXXX;
-                if ((CCC_id = staticData.mapICAOToCCC(XXX_id.toString())) == null) {
-                    // logger.error("NCF_FAIL to map XXX to CCC: " + XXX_id);
+                if ((CCC_id = TextDBStaticData.mapICAOToCCC(newId)) == null) {
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to "
+                                            + newId
+                                            + " not present in national_category_table.template");
                     return false;
                 }
             } else {
-                // logger.error("NCF_FAIL to map XXX to CCC: " + XXX_id);
                 if (!checkCharNum(XXX_id.charAt(0))) {
-                    // logger.error("bad XXX id");
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to incorrect xxxid"
+                                            + XXX_id);
                     return false;
-                } else
-                    return false;
+                } else {
+                    // If trimmedXXX has 4 characters and not found in
+                    // national_category_table.template.
+                    subHeadersSkipped
+                            .put(newWmoHdr,
+                                    "Product "
+                                            + afos_id.toString()
+                                            + " is excluded from storage due to "
+                                            + trimmedXXX
+                                            + " not present in national_category_table.template");
+                }
+                return false;
             }
         }
 
@@ -507,11 +559,11 @@ public class StdCollectiveSeparator extends WMOMessageSeparator {
         product_id.setNnn(afos_id.getNnn());
 
         // Put all three of the id pieces together.
-        if (trimmedXXX.length() == 3)
+        if (trimmedXXX.length() == 3) {
             product_id.setXxx(trimmedXXX);
-        else
+        } else {
             product_id.setXxx(XXX_id.substring(1, 4));
-
+        }
         return true;
     }
 }

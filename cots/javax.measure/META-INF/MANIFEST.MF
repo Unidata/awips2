@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Measure Plug-in
 Bundle-SymbolicName: javax.measure
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0
 Bundle-ClassPath: jsr-275-1.0-beta-2.jar
 Export-Package: javax.measure,
  javax.measure.converter,

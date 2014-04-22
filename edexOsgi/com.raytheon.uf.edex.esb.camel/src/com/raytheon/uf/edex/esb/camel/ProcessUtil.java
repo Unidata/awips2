@@ -20,11 +20,13 @@
 package com.raytheon.uf.edex.esb.camel;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Header;
 import org.apache.camel.Headers;
 
@@ -34,6 +36,8 @@ import com.raytheon.uf.common.stats.ProcessEvent;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * Provides logging and deletion services for camel
@@ -43,9 +47,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 1, 2008            chammack     Initial creation
- * Feb 05, 2013 1580      mpduff       EventBus refactor.
- * Feb 12, 2013 1615      bgonzale     Changed ProcessEvent pluginName to dataType.
+ * Dec 1, 2008             chammack    Initial creation
+ * Feb 05, 2013 1580       mpduff      EventBus refactor.
+ * Feb 12, 2013 1615       bgonzale    Changed ProcessEvent pluginName to dataType.
+ * Jan 21, 2014 2627       njensen     Added logFailedData() and logFailureAsInfo()
+ * Mar 04, 2014 2627       njensen     Harden static initialization
  * 
  * </pre>
  * 
@@ -68,6 +74,37 @@ public class ProcessUtil {
         }
 
     };
+
+    private static final String FAILED_DIR;
+
+    protected static final boolean RETAIN_FAILED_DATA;
+
+    static {
+        boolean retain = false;
+        String dir = null;
+        try {
+            /*
+             * this will probably only ever be true on a testbed because sites
+             * typically keep multiple days of raw data
+             */
+            retain = Boolean.getBoolean("retain.failed.data");
+            if (retain) {
+                dir = PropertiesFactory.getInstance().getEnvProperties()
+                        .getEnvValue("DEFAULTDATADIR")
+                        + File.separator + "failed";
+                File file = new File(dir);
+                if (!file.exists()) {
+                    file.mkdirs();
+                }
+            }
+        } catch (Throwable t) {
+            dir = null;
+            retain = false;
+            handler.error("Error validating retain.failed.data settings", t);
+        }
+        FAILED_DIR = dir;
+        RETAIN_FAILED_DATA = retain;
+    }
 
     /**
      * Get the value of a specified property if it exists.
@@ -118,11 +155,23 @@ public class ProcessUtil {
     }
 
     /**
+     * Logs the processing and latency time of a file
      * 
      * @param headers
      */
     public void log(@Headers Map<?, ?> headers) {
+        logInternal(headers, true);
+    }
 
+    /**
+     * Logs the processing and latency time of a file
+     * 
+     * @param headers
+     *            the headers associated with the ingest routes
+     * @param successful
+     *            whether or not the file was successfully ingested
+     */
+    protected void logInternal(Map<?, ?> headers, boolean successful) {
         long curTime = System.currentTimeMillis();
 
         StringBuilder sb = new StringBuilder(128);
@@ -168,7 +217,7 @@ public class ProcessUtil {
 
         // processing in less than 0 millis isn't trackable, usually due to an
         // error occurred and statement logged incorrectly
-        if ((processEvent.getProcessingLatency() > 0)
+        if (successful && (processEvent.getProcessingLatency() > 0)
                 && (processEvent.getProcessingTime() > 0)) {
             EventBus.publish(processEvent);
         }
@@ -179,5 +228,66 @@ public class ProcessUtil {
         } else {
             handler.handle(Priority.INFO, "No logging information available");
         }
+
     }
+
+    /**
+     * Logs a failure to ingest a file. Potentially saves off the data that
+     * failed to ingest, based on a system property.
+     * 
+     * @param ex
+     *            the exchange that failed to ingest
+     */
+    public void logFailedData(Exchange ex) {
+        Exception e = ex.getException();
+        if (e == null) {
+            e = ex.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+        }
+        Map<?, ?> headers = ex.getIn().getHeaders();
+        String fullpath = getHeaderProperty(headers, ("ingestFileName"));
+        handler.error("Failed to ingest " + fullpath, e);
+
+        if (RETAIN_FAILED_DATA && FAILED_DIR != null) {
+            File badfile = new File(fullpath);
+            if (badfile.exists()) {
+                String filename = badfile.getName();
+                File keepfile = new File(FAILED_DIR + File.separator + filename);
+                try {
+                    FileUtil.copyFile(badfile, keepfile);
+                    handler.info("Copied failed data to " + keepfile.getPath());
+                } catch (IOException e1) {
+                    handler.error(
+                            "Unable to copy failed data for later analysis", e);
+                }
+            }
+        }
+
+        logInternal(headers, false);
+    }
+
+    /**
+     * Logs a failure to ingest data as an info message. This should only be
+     * used when the failure can be considered as expected given the input, such
+     * as submitting invalid/bad data to a decoder.
+     * 
+     * @param ex
+     *            the exchange that failed to ingest
+     */
+    public void logFailureAsInfo(Exchange ex) {
+        Exception e = ex.getException();
+        if (e == null) {
+            e = ex.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+        }
+        Map<?, ?> headers = ex.getIn().getHeaders();
+        String fullpath = getHeaderProperty(headers, ("ingestFileName"));
+        String msg = "Discarding " + fullpath;
+        if (e != null) {
+            msg += " due to " + e.getClass().getSimpleName() + ": "
+                    + e.getLocalizedMessage();
+        }
+        handler.info(msg);
+
+        logInternal(headers, false);
+    }
+
 }

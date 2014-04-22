@@ -19,27 +19,31 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.info;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.Presence;
-import org.eclipse.ecf.presence.chatroom.IChatRoomContainer;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.muc.Affiliate;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * TODO Add Description
+ * Provides information about a venue.
  * 
  * <pre>
  * 
@@ -48,52 +52,147 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed getInfo, added methods to replace
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant, getSubject never returns null
+ * Feb 13, 2014 2751       bclement    changed to use VenueParticipant handle instead of alias
+ * Mar 05, 2014 2798       mpduff      Get Presence from MUC.
+ * Mar 06, 2014 2751       bclement    added getParticipantUserid()
+ * Mar 07, 2014 2848       bclement    added hasOtherParticipants()
  * 
  * </pre>
  * 
  * @author jkorman
  * @version 1.0
  */
-
 public class Venue implements IVenue {
 
-    private final IChatRoomContainer container;
+    private final static IUFStatusHandler log = UFStatus
+            .getHandler(Venue.class);
 
-    private final IVenueInfo info;
+    private final MultiUserChat muc;
 
-    private Map<String, IPresence> presenceMap = new HashMap<String, IPresence>();;
+    private final Map<String, UserId> participantIdCache = new ConcurrentHashMap<String, UserId>();
 
-    public Venue(IChatRoomContainer container, IChatRoomInfo info) {
-        this.container = container;
-        this.info = new VenueInfo(info);
+    public Venue(XMPPConnection conn, MultiUserChat muc) {
+        this.muc = muc;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getParticipants
+     * ()
+     */
     @Override
-    public IVenueInfo getInfo() {
-        return info;
-    }
-
-    @Override
-    public Collection<UserId> getParticipants() {
-        Set<UserId> participants = new HashSet<UserId>();
-        ID[] ids = container.getChatRoomParticipants();
-        for (ID id : ids) {
-            participants.add(IDConverter.convertFrom(id));
+    public Collection<VenueParticipant> getParticipants() {
+        List<VenueParticipant> participants = new ArrayList<VenueParticipant>();
+        Iterator<String> iter = muc.getOccupants();
+        while (iter.hasNext()) {
+            String id = iter.next();
+            participants.add(IDConverter.convertFromRoom(muc, id));
         }
         return participants;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getPresence
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant)
+     */
     @Override
-    public IPresence getPresence(IUser user) {
-        IPresence presence = presenceMap.get(user.getID().getName());
+    public Presence getPresence(VenueParticipant user) {
+        Presence presence = muc.getOccupantPresence(user.getFQName());
         if (presence == null) {
-            presence = new Presence(Type.UNAVAILABLE);
+            presence = new Presence(Type.unavailable);
+            presence.setMode(Mode.away);
         }
         return presence;
     }
 
-    public void handlePresenceUpdated(ID fromID, IPresence presence) {
-        presenceMap.put(fromID.getName(), presence);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getId()
+     */
+    @Override
+    public String getName() {
+        return StringUtils.parseName(getId());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getId()
+     */
+    @Override
+    public String getId() {
+        return muc.getRoom();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#
+     * getParticipantCount()
+     */
+    @Override
+    public int getParticipantCount() {
+        return muc.getOccupantsCount();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#getSubject()
+     */
+    @Override
+    public String getSubject() {
+        String rval = muc.getSubject();
+        return rval != null ? rval : "";
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue#
+     * getParticipantUserid
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant)
+     */
+    @Override
+    public UserId getParticipantUserid(VenueParticipant participant) {
+        if (participant.hasActualUserId()) {
+            return participant.getUserid();
+        }
+        UserId rval = participantIdCache.get(participant.getHandle());
+        if (rval == null) {
+            try {
+                Collection<Affiliate> members = muc.getMembers();
+                for (Affiliate member : members) {
+                    if (!org.apache.commons.lang.StringUtils.isBlank(member
+                            .getJid())) {
+                        UserId id = IDConverter.convertFrom(member.getJid());
+                        participantIdCache.put(member.getNick(), id);
+                    }
+                }
+            } catch (XMPPException e) {
+                log.error("Unable to get room member list from " + getName(), e);
+            }
+            rval = participantIdCache.get(participant.getHandle());
+        }
+        return rval;
+    }
+
+    /**
+     * @return false if current user is the only participant in the venue
+     */
+    public boolean hasOtherParticipants() {
+        // current user is included in participant count
+        return getParticipantCount() > 1;
     }
 
 }

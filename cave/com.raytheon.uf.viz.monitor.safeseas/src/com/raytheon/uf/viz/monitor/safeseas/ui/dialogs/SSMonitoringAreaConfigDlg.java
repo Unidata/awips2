@@ -31,7 +31,7 @@ import com.raytheon.uf.viz.monitor.safeseas.threshold.SSThresholdMgr;
 import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
 
 /**
- * TODO Add Description
+ * SAFESEAS area configuration dialog.
  * 
  * <pre>
  * 
@@ -40,6 +40,7 @@ import com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg;
  * ------------ ---------- ----------- --------------------------
  * Jan  5, 2010            mpduff      Initial creation
  * Nov 27, 2012 1351       skorolev    Changes for non-blocking dialog.
+ * Jan 29, 2014 2757       skorolev    Changed OK button handler.
  * 
  * </pre>
  * 
@@ -60,6 +61,9 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
         readConfigData();
     }
 
+    private SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
+            .getInstance();
+
     /*
      * (non-Javadoc)
      * 
@@ -68,19 +72,23 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void handleOkBtnSelection() {
-        SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
-                .getInstance();
         // Check for changes in the data
         if (!configManager.getAddedZones().isEmpty()
-                || !configManager.getAddedZones().isEmpty()) {
+                || !configManager.getAddedStations().isEmpty()
+                || this.timeWindowChanged || this.shipDistanceChanged
+                || this.fogChkChanged || this.maZonesRemoved) {
             int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
                     "SAFESEAS Monitor Confirm Changes",
                     "Want to update the SAFESEAS setup files?");
             if (choice == SWT.OK) {
                 // Save the config xml file
-                configManager.setShipDistance(distanceScale.getSelection());
-                configManager.setTimeWindow(timeScale.getSelection());
+                configManager.setTimeWindow(timeWindow.getSelection());
+                this.timeWindowChanged = false;
+                configManager.setShipDistance(shipDistance.getSelection());
+                this.shipDistanceChanged = false;
                 configManager.setUseAlgorithms(fogChk.getSelection());
+                this.fogChkChanged = false;
+                this.maZonesRemoved = false;
                 configManager.saveConfigData();
                 /**
                  * DR#11279: re-initialize threshold manager and the monitor
@@ -88,20 +96,30 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
                  */
                 SSThresholdMgr.reInitialize();
                 SafeSeasMonitor.reInitialize();
-                showMessage(shell, SWT.OK, "SAFESEAS Config Change",
-                        "You're updating the SAFESEAS monitoring settings."
-                                + "\n\nIf SAFESEAS is running anywhere within "
-                                + "the office, please clear it.\n");
-                String message2 = "New zones have been added, and their monitoring thresholds "
-                        + "have been set to default values; would you like to modify "
-                        + "their threshold values now?";
-                int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
-                        | SWT.NO, "Edit Thresholds Now?", message2);
-                if (yesno == SWT.YES) {
-                    SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
-                            shell, CommonConfig.AppName.SAFESEAS,
-                            DataUsageKey.MONITOR);
-                    ssMonitorDlg.open();
+                if ((!configManager.getAddedZones().isEmpty())
+                        || (!configManager.getAddedStations().isEmpty())) {
+
+                    String message = "You're updating the SAFESEAS monitoring settings."
+                            + "\n\nIf SAFESEAS is running anywhere within "
+                            + "the office, please clear it.\n";
+
+                    showMessage(shell, SWT.OK, "SAFESEAS Config Change",
+                            message);
+
+                    String message2 = "New zones have been added, and their monitoring thresholds "
+                            + "have been set to default values; would you like to modify "
+                            + "their threshold values now?";
+
+                    int yesno = showMessage(shell, SWT.ICON_QUESTION | SWT.YES
+                            | SWT.NO, "Edit Thresholds Now?", message2);
+                    if (yesno == SWT.YES) {
+                        SSDispMonThreshDlg ssMonitorDlg = new SSDispMonThreshDlg(
+                                shell, CommonConfig.AppName.SAFESEAS,
+                                DataUsageKey.MONITOR);
+                        ssMonitorDlg.open();
+                    }
+                    configManager.getAddedZones().clear();
+                    configManager.getAddedStations().clear();
                 }
             }
         } else {
@@ -111,9 +129,9 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
             if (yesno == SWT.NO) {
                 return;
             }
+            setReturnValue(true);
+            close();
         }
-        setReturnValue(true);
-        close();
     }
 
     /*
@@ -137,8 +155,22 @@ public class SSMonitoringAreaConfigDlg extends MonitoringAreaConfigDlg {
      */
     @Override
     protected void readConfigData() {
-        SSMonitorConfigurationManager configManager = SSMonitorConfigurationManager
-                .getInstance();
         configManager.readConfigXml(currentSite);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.monitor.ui.dialogs.MonitoringAreaConfigDlg#setValues
+     * ()
+     */
+    @Override
+    protected void setValues() {
+        timeWindow.setSelection(configManager.getTimeWindow());
+        setTimeScaleLabel();
+        shipDistance.setSelection(configManager.getShipDistance());
+        setShipDistScaleLabel();
+        fogChk.setSelection(configManager.isUseAlgorithms());
     }
 }

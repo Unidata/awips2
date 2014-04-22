@@ -28,6 +28,11 @@ import java.util.Map;
 import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
+import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
+import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.TimeRange;
 
 /**
  * 
@@ -44,7 +49,8 @@ import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
  * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
  *                                     single request.
  * Feb 19, 2012 1552       mpduff      Implement IDataFactory.
- * 
+ * Jan 14, 2014 2667       mnash       Change getGridData and getGeometryData methods
+ *                                     to throw exception by default
  * </pre>
  * 
  * @author njensen
@@ -102,6 +108,41 @@ public abstract class AbstractDataFactory implements IDataFactory {
             throw new InvalidIdentifiersException(request.getDatatype(),
                     missing, invalid);
         }
+    }
+
+    /**
+     * Default implementation throws an {@link UnsupportedOutputTypeException}
+     */
+    @Override
+    public IGridData[] getGridData(IDataRequest request, DataTime... times) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
+    }
+
+    /**
+     * Default implementation throws an {@link UnsupportedOutputTypeException}
+     */
+    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
+    }
+
+    /**
+     * Default implementation throws an {@link UnsupportedOutputTypeException}
+     */
+    @Override
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            DataTime... times) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(),
+                "geometry");
+    }
+
+    /**
+     * Default implementation throws an {@link UnsupportedOutputTypeException}
+     */
+    @Override
+    public IGeometryData[] getGeometryData(IDataRequest request,
+            TimeRange timeRange) {
+        throw new UnsupportedOutputTypeException(request.getDatatype(),
+                "geometry");
     }
 
 }

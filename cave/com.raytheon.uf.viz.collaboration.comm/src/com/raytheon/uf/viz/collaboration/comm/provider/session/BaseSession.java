@@ -23,21 +23,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-
 import com.google.common.eventbus.EventBus;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
- * TODO Add Description
+ * Base class for chat and collaboration sessions
  * 
  * <pre>
  * 
@@ -46,6 +38,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed false throws statements
+ * Feb 13, 2014 2751       bclement    changed UserId object to IUser
+ * Feb 17, 2014 2800       bclement    added equals/hashcode
  * 
  * </pre>
  * 
@@ -62,12 +58,6 @@ public abstract class BaseSession implements ISession {
 
     private Map<Object, Object> eventSubscribers;
 
-    private IContainer connectionContainer;
-
-    private IPresenceContainerAdapter connectionPresence = null;
-
-    private Namespace connectionNamespace = null;
-
     private CollaborationConnection connection;
 
     /**
@@ -76,9 +66,8 @@ public abstract class BaseSession implements ISession {
      * @param externalBus
      * @param manager
      */
-    protected BaseSession(IContainer container, EventBus externalBus,
-            CollaborationConnection manager) throws CollaborationException {
-        this(container, externalBus, manager, UUID.randomUUID().toString());
+    protected BaseSession(EventBus externalBus, CollaborationConnection manager) {
+        this(externalBus, manager, UUID.randomUUID().toString());
     }
 
     /**
@@ -88,30 +77,14 @@ public abstract class BaseSession implements ISession {
      * @param manager
      * @param sessionId
      */
-    protected BaseSession(IContainer container, EventBus externalBus,
-            CollaborationConnection manager, String sessionId)
-            throws CollaborationException {
+    protected BaseSession(EventBus externalBus,
+            CollaborationConnection manager, String sessionId) {
         // Set the session identifier.
         this.sessionId = sessionId;
         managerEventBus = externalBus;
         eventBus = new EventBus();
-        connectionContainer = container;
         connection = manager;
         eventSubscribers = new HashMap<Object, Object>();
-        setup();
-    }
-
-    /**
-     * 
-     * @throws ECFException
-     */
-    void setup() {
-        // Check if the container has been set up previously.
-        if (connectionContainer != null) {
-            connectionNamespace = connectionContainer.getConnectNamespace();
-            connectionPresence = (IPresenceContainerAdapter) connectionContainer
-                    .getAdapter(IPresenceContainerAdapter.class);
-        }
     }
 
     /**
@@ -120,7 +93,7 @@ public abstract class BaseSession implements ISession {
      * @return The peer to peer chat session instance.
      * @throws CollaborationException
      */
-    PeerToPeerChat getP2PSession() throws CollaborationException {
+    protected PeerToPeerChat getP2PSession() throws CollaborationException {
         return (PeerToPeerChat) connection.getPeerToPeerSession();
     }
 
@@ -128,31 +101,7 @@ public abstract class BaseSession implements ISession {
      * 
      * @return
      */
-    IContainer getConnectionContainer() {
-        return connectionContainer;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    Namespace getConnectionNamespace() {
-        return connectionNamespace;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    IPresenceContainerAdapter getConnectionPresenceAdapter() {
-        return connectionPresence;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    EventBus getManagerEventPublisher() {
+    protected EventBus getManagerEventPublisher() {
         return managerEventBus;
     }
 
@@ -160,21 +109,8 @@ public abstract class BaseSession implements ISession {
      * 
      * @return
      */
-    CollaborationConnection getSessionManager() {
+    protected CollaborationConnection getSessionManager() {
         return connection;
-    }
-
-    /**
-     * 
-     * @param name
-     * @return
-     */
-    public ID createID(String name) throws IDCreateException {
-        ID id = null;
-        if (connectionNamespace != null) {
-            id = IDFactory.getDefault().createID(connectionNamespace, name);
-        }
-        return id;
     }
 
     // *****************
@@ -185,7 +121,7 @@ public abstract class BaseSession implements ISession {
      * @see com.raytheon.uf.viz.collaboration.comm.identity.ISession#getUserID()
      */
     @Override
-    public UserId getUserID() {
+    public IUser getUserID() {
         return connection.getUser();
     }
 
@@ -195,11 +131,7 @@ public abstract class BaseSession implements ISession {
      */
     @Override
     public boolean isConnected() {
-        boolean connected = false;
-        if (connectionContainer != null) {
-            connected = (connectionContainer.getConnectedID() != null);
-        }
-        return connected;
+        return connection.isConnected();
     }
 
     /**
@@ -267,6 +199,42 @@ public abstract class BaseSession implements ISession {
     @Override
     public CollaborationConnection getConnection() {
         return connection;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((sessionId == null) ? 0 : sessionId.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BaseSession other = (BaseSession) obj;
+        if (sessionId == null) {
+            if (other.sessionId != null)
+                return false;
+        } else if (!sessionId.equals(other.sessionId))
+            return false;
+        return true;
     }
 
 }

@@ -22,10 +22,10 @@ package com.raytheon.uf.edex.ohd;
 import java.io.File;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.CronExpression;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
@@ -40,6 +40,7 @@ import com.raytheon.uf.edex.core.EdexException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 19, 2008            jelkins     Initial creation
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * 
  * </pre>
  * 
@@ -48,6 +49,8 @@ import com.raytheon.uf.edex.core.EdexException;
  */
 
 public class ScriptService implements ServiceInterface {
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(ScriptService.class);
 
     /** A Cron expression representation of the cron line in the legacy system */
     private CronExpression cronExpression;
@@ -58,10 +61,8 @@ public class ScriptService implements ServiceInterface {
     /** Additional environment variables to set before running the script */
     private Map<String, String> environmentVariables;
 
-    private Log logger = LogFactory.getLog(getClass());
-
     /** The last portion of the scriptLocation */
-    private String scriptName;
+    private final String scriptName;
 
     /**
      * Execute the script service.
@@ -73,10 +74,11 @@ public class ScriptService implements ServiceInterface {
      *         wrong.
      * @throws EdexException
      */
+    @Override
     public void execute() throws EdexException {
 
-        MainMethod m = new MainMethod(new ProcessBuilder(script
-                .getAbsolutePath()));
+        MainMethod m = new MainMethod(new ProcessBuilder(
+                script.getAbsolutePath()));
 
         if (environmentVariables != null) {
             m.getProcessBuilder().environment().putAll(environmentVariables);
