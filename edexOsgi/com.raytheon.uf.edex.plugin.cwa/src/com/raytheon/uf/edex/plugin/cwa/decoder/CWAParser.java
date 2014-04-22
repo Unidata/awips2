@@ -32,17 +32,18 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.geotools.referencing.GeodeticCalculator;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.cwa.CWADimension;
 import com.raytheon.uf.common.dataplugin.cwa.CWARecord;
+import com.raytheon.uf.common.dataplugin.exception.MalformedDataException;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.cwa.CWARecordDao;
@@ -52,7 +53,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * The CWA text Parser.
  * 
  * <pre>
  * 
@@ -64,6 +65,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 18, 2012 473        dgilling    Modify parser to set  DataTime based on
  *                                     ingest  file name.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Mar 25, 2014 2930       skorolev    Fixed error in distance.
  * 
  * </pre>
  * 
@@ -72,7 +74,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class CWAParser {
     /** The logger */
-    private final Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(CWAParser.class);
 
     private final PointDataDescription pointDataDescription;
 
@@ -84,8 +86,6 @@ public class CWAParser {
 
     private final GeodeticCalculator gc = new GeodeticCalculator();
 
-    private final String pluginName;
-
     private String eventId;
 
     private String text;
@@ -93,8 +93,6 @@ public class CWAParser {
     private double size;
 
     private DataTime startTime;
-
-    private DataTime endTime;
 
     private CWADimension dimension;
 
@@ -116,6 +114,9 @@ public class CWAParser {
 
     private static UnitConverter nauticalmileToMeter = NonSI.NAUTICAL_MILE
             .getConverterTo(SI.METER);
+
+    // Maximum possible distance between reference points in nautical miles.
+    private static final double MAX_VOR_DIST = 999.0;
 
     private Headers headers;
 
@@ -139,16 +140,15 @@ public class CWAParser {
     }
 
     /**
-     * 
-     * @param message
-     * @param wmoHeader
+     * @param dao
      * @param pdd
+     * @param name
+     * @param pirepTable
      */
     public CWAParser(CWARecordDao dao, PointDataDescription pdd, String name,
             TableLoader pirepTable) {
         pointDataDescription = pdd;
         cwaDao = dao;
-        pluginName = name;
         containerMap = new HashMap<File, PointDataContainer>();
         this.pirepTable = pirepTable;
     }
@@ -244,11 +244,12 @@ public class CWAParser {
     }
 
     /**
-     * 
-     * @param start
-     * @return
+     * @param message
+     * @return reports
+     * @throws MalformedDataException
      */
-    private List<CWARecord> findReports(byte[] message) {
+    private List<CWARecord> findReports(byte[] message)
+            throws MalformedDataException {
 
         List<CWARecord> reports = new ArrayList<CWARecord>();
 
@@ -306,8 +307,11 @@ public class CWAParser {
      *            Raw message data.
      * @param traceId
      *            Trace id for this data.
+     * @param headers
+     * @throws MalformedDataException
      */
-    public void setData(byte[] message, String traceId, Headers headers) {
+    public void setData(byte[] message, String traceId, Headers headers)
+            throws MalformedDataException {
         currentReport = -1;
         this.traceId = traceId;
         this.headers = headers;
@@ -322,6 +326,9 @@ public class CWAParser {
         }
     }
 
+    /**
+     * @param issuanceInfo
+     */
     private void parseIssuanceInfo(String issuanceInfo) {
         String[] parts = issuanceInfo.split(" ");
         if ((parts != null) && (parts[0] != null)) {
@@ -336,15 +343,21 @@ public class CWAParser {
         }
     }
 
+    /**
+     * @param validToInfo
+     */
     private void parseValidToInfo(String validToInfo) {
         Pattern p = Pattern.compile(InternalReport.TIME);
         Matcher m = p.matcher(validToInfo);
         if (m.find()) {
             String time = m.group();
-            endTime = getDataTime(time);
+            getDataTime(time);
         }
     }
 
+    /**
+     * @param vicinityInfo
+     */
     private void parseVicinityInfo(String vicinityInfo) {
         Pattern vicinityPtrn = Pattern.compile(InternalReport.VICINITY);
         Matcher m = vicinityPtrn.matcher(vicinityInfo);
@@ -358,7 +371,12 @@ public class CWAParser {
         }
     }
 
-    private void parseCoordinateInfo(String coordinateInfo) {
+    /**
+     * @param coordinateInfo
+     * @throws MalformedDataException
+     */
+    private void parseCoordinateInfo(String coordinateInfo)
+            throws MalformedDataException {
         String tokens[] = coordinateInfo.replace("-", " - ").split(" ");
 
         boolean getMoreCoords = true;
@@ -401,8 +419,21 @@ public class CWAParser {
                         if (direction > 180) {
                             direction -= 360;
                         }
-                        this.gc.setDirection(direction,
-                                nauticalmileToMeter.convert(distance));
+                        // According to WSOM:
+                        // http://www.nws.noaa.gov/wsom/manual/archives/ND259606.HTML#6.1.2%C2%A0%C2%A0%C2%A0%C2%A0%20CWSU%20Meteorologist%20Responsibilities
+                        // ..."When using a distance in CWSU products all references are in nautical miles (NM). "
+                        // ..."The " (n)nn". is distance and "DD(D)" is a
+                        // 16-point compass direction (e.g., VC IAH or 40NNE
+                        // LBB)."
+                        if (distance > MAX_VOR_DIST) {
+                            throw new MalformedDataException("CWA product "
+                                    + wmoHeader.getWmoHeader()
+                                    + " has a non-valid distance " + distance
+                                    + " NM to " + tok + ".");
+                        }
+                        distance = (float) nauticalmileToMeter
+                                .convert(distance);
+                        this.gc.setDirection(direction, distance);
                         coordinates
                                 .add(new Coordinate(
                                         this.gc.getDestinationGeographicPoint()
@@ -424,6 +455,9 @@ public class CWAParser {
         }
     }
 
+    /**
+     * @param geometryInfo
+     */
     private void parseGeometryInfo(String geometryInfo) {
         boolean found = false;
         Pattern lineGeomPtrn = Pattern.compile(InternalReport.LINE_GEOM);
@@ -459,9 +493,12 @@ public class CWAParser {
         text = "";
         dimension = CWADimension.CANCELED;
         startTime = null;
-        endTime = null;
     }
 
+    /**
+     * @param timeStr
+     * @return DataTime from header
+     */
     private DataTime getDataTime(String timeStr) {
         Calendar cal = TimeTools.findDataTime(timeStr, headers);
         if (cal != null) {
@@ -471,16 +508,14 @@ public class CWAParser {
         }
     }
 
+    /**
+     * @return CWA Record
+     */
     private CWARecord getRecord() {
         CWARecord record = new CWARecord();
         record.setEventId(eventId);
         record.setDimension(dimension);
         record.setMessageData(text);
-        // TimeRange tr = new TimeRange(
-        // startTime.getRefTimeAsCalendar(),
-        // endTime.getRefTimeAsCalendar());
-        // DataTime dataTime = new DataTime(
-        // startTime.getRefTimeAsCalendar(),tr);
         DataTime dataTime = new DataTime(startTime.getRefTimeAsCalendar());
         record.setDataTime(dataTime);
         Coordinate[] coord = null;

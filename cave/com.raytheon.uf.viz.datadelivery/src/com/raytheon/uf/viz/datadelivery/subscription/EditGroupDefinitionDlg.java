@@ -52,6 +52,7 @@ import com.raytheon.viz.ui.presenter.components.ComboBoxConf;
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2013 1441       djohnson     Access GroupDefinitionManager in a static fashion.
  * Jan 08, 2013 1453       djohnson     Split creation and edit dialogs.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -124,10 +125,10 @@ public class EditGroupDefinitionDlg extends BaseGroupDefinitionDlg {
      * {@inheritDoc}
      */
     @Override
-    protected void saveGroupDefinition(GroupDefinition groupDefinition)
+    protected void saveGroupDefinition(String username, GroupDefinition groupDefinition)
             throws RegistryHandlerException {
         DataDeliveryHandlers.getGroupDefinitionHandler()
-                .update(groupDefinition);
+                .update(username, groupDefinition);
     }
 
     /**

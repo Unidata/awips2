@@ -51,6 +51,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * Dec 11, 2013 #2603      rferrel     Selected list changed to a Set.
  * Dec 11, 2013 #2624      rferrel     Clear display variables when recomputing sizes.
+ * Mar 27, 2014 #2879      rferrel     Loading Case no longer changes Start/End times.
  * 
  * </pre>
  * 
@@ -117,12 +118,6 @@ public class SizeJob extends Job {
      * The display data whose size is being computed.
      */
     private DisplayData currentDisplayData;
-
-    /**
-     * Method to call when loading a new selection for retention/case creation
-     * to update times.
-     */
-    private IRetentionHour iRetentionHour;
 
     /**
      * Current start time.
@@ -300,7 +295,6 @@ public class SizeJob extends Job {
             selections = new SelectConfig();
             selections.setName(ArchiveConstants.defaultSelectName);
         }
-        iRetentionHour.setRetentionTimes(selections.getStarRetentionHours());
 
         for (String archiveName : getArchiveNames()) {
             ArchiveInfo archiveInfo = get(archiveName);
@@ -317,8 +311,7 @@ public class SizeJob extends Job {
                     for (DisplayData displayData : categoryInfo
                             .getDisplayDataList()) {
                         String displayLabel = displayData.getDisplayLabel();
-                        boolean selected = selectionsSet
-                                .contains(displayLabel);
+                        boolean selected = selectionsSet.contains(displayLabel);
                         if (selected != displayData.isSelected()) {
                             setSelect(displayData, selected);
                         }
@@ -497,7 +490,6 @@ public class SizeJob extends Job {
     public String initData(ArchiveConstants.Type type, String selectName,
             String displayArchive, String displayCategory,
             IRetentionHour iRetentionHour) {
-        this.iRetentionHour = iRetentionHour;
         ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
         String fileName = ArchiveConstants.selectFileName(type, selectName);
         SelectConfig selections = manager.loadSelection(fileName);

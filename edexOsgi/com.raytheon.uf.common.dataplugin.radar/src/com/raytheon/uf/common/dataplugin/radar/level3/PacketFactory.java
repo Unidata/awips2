@@ -31,7 +31,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
- * TODO Add Description
+ * A factory for creating packets based on the packet ID. In the case of generic
+ * packets, it further uses the product ID to determine the packet to create.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -39,6 +40,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * ------------ ---------- ----------- --------------------------
  * 03/04/2013   DCS51      zwang       Handle GFM product
  * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
+ * 03/04/2014   2870       njensen     Log product ID when no class found for generic packet
  * 
  * </pre>
  * 
@@ -47,6 +49,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  */
 
 public class PacketFactory {
+
     /** The logger */
     private static final IUFStatusHandler handler = UFStatus
             .getHandler(PacketFactory.class);
@@ -96,6 +99,12 @@ public class PacketFactory {
         if (packetClass != null && packetClass.equals(GenericDataPacket.class)) {
             int productId = GenericUtil.getProductID(in);
             packetClass = genericClassMap.get(productId);
+            if (packetClass == null) {
+                handler.handle(Priority.ERROR,
+                        "No class registered for generic packet ID: "
+                                + packetId + " with product ID: " + productId);
+                return packet;
+            }
         }
 
         if (packetClass != null) {

@@ -23,15 +23,18 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.sounding;bundle-version="1.11.17",
  com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.11.17",
  com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0",
+ com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
+ com.raytheon.uf.viz.datacube
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.objectiveanalysis.rsc
 Import-Package: com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.common.inventory.tree,
  com.raytheon.uf.common.dataplugin.radar,
  com.raytheon.uf.common.gridcoverage,
  com.raytheon.uf.common.wxmath,
- com.raytheon.uf.viz.derivparam.library,
- com.raytheon.uf.viz.derivparam.tree,
  com.raytheon.viz.ui,
  com.raytheon.viz.ui.editor

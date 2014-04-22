@@ -24,31 +24,39 @@ import org.opengis.referencing.operation.TransformException;
 /**
  * From AWIPS 1 GridPVDepict.C:
  * 
- *  This method determines whether the mapping between gridded data and the
- *  display space is severe enough to require the gridded data to be remapped
- *  before display.
+ * This method determines whether the mapping between gridded data and the
+ * display space is severe enough to require the gridded data to be remapped
+ * before display.
  * 
  * <pre>
  * 
  *    SOFTWARE HISTORY
  *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    06/19/2012   14988       D. Friedman Initial revision
- *    09/24/2013   DR 15972    D. Friedman Do not require contiguous mapping.
- *
+ * Date          Ticket#   Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 19, 2012  14988    D. Friedman Initial revision
+ * Sep 24, 2013  15972    D. Friedman Do not require contiguous mapping.
+ * Jan 15, 2014  2661     bsteffen    Disable output
+ * 
  * </pre>
  */
 public class ConformalityUtil {
+
+    private static final boolean DEBUG = false;
+
     public static boolean testConformality(GeneralGridGeometry sourceGG, GeneralGridGeometry destGG) {
         ConformalityUtil test = new ConformalityUtil(sourceGG, destGG);
         return test.testConformality();
     }
     
     GeneralGridGeometry sourceGG;
+
     GeneralGridGeometry destGG;
+
     double minRatio;
+
     double maxRatio;
+
     MathTransform lastMT;
     
     private ConformalityUtil(GeneralGridGeometry sourceGG, GeneralGridGeometry destGG) {
@@ -87,15 +95,20 @@ public class ConformalityUtil {
         double rr = maxRatio / minRatio;
         
         if (! evaluated || maxRatio / minRatio > maxRatioRatio) {
-            System.out.format("%s -> %s : not conformal enough (%f)\n", 
-                    sourceGG, destGG, maxRatio / minRatio);
+            if (DEBUG) {
+                System.out.format("%s -> %s : not conformal enough (%f)\n",
+                        sourceGG, destGG, maxRatio / minRatio);
+            }
             return false;
         }
         
         resetRatios();
         
         if (! evaluateNonContig(evaluatedDomain)) {
-            System.out.format("%s -> %s : not contiguous?\n", sourceGG, destGG);
+            if (DEBUG) {
+                System.out.format("%s -> %s : not contiguous?\n", sourceGG,
+                        destGG);
+            }
             return false;
         /*
          * This test is not necessary for AWIPS II because it can cope
@@ -109,8 +122,10 @@ public class ConformalityUtil {
             return false;
         */
         } else {
-            System.out.format("%s -> %s : conformal enough (%f, %f)\n", 
-                    sourceGG, destGG, rr, maxRatio/minRatio);
+            if (DEBUG) {
+                System.out.format("%s -> %s : conformal enough (%f, %f)\n",
+                        sourceGG, destGG, rr, maxRatio / minRatio);
+            }
             return true;
         }
     }

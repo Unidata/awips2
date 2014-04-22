@@ -27,13 +27,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.sounding.VerticalSounding;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.sounding.Activator;
 
 /**
@@ -127,7 +127,7 @@ public class SoundingDataLoadJob extends Job {
                 size = data.length;
                 pdo.setMessageData(data);
             }
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             e.printStackTrace();
         }
         System.out.println("loadData: " + (System.currentTimeMillis() - t0));

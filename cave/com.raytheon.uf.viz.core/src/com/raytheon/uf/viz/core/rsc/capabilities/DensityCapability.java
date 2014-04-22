@@ -27,14 +27,17 @@ import com.raytheon.uf.viz.core.VizConstants;
 import com.raytheon.uf.viz.core.globals.VizGlobalsManager;
 
 /**
- * TODO Add Description
+ * A capability representing density of displayed items
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 26, 2010            bsteffen     Initial creation
+ * Apr 26, 2010            bsteffen    Initial creation
+ * Mar 03, 2014 2792       njensen     Enforce getDensity() will never return
+ *                                        above MAX
+ * 
  * 
  * </pre>
  * 
@@ -83,7 +86,11 @@ public class DensityCapability extends AbstractCapability {
      * @return the density
      */
     public Double getDensity() {
-        return density;
+        if (density < MAX_THRESHOLD) {
+            return density;
+        } else {
+            return MAX_THRESHOLD;
+        }
     }
 
     /**
@@ -91,7 +98,7 @@ public class DensityCapability extends AbstractCapability {
      *            the density to set
      */
     public void setDensity(Double density) {
-        if (this.density != density) {
+        if (!this.density.equals(density)) {
             this.density = density;
             this.capabilityChanged();
         }

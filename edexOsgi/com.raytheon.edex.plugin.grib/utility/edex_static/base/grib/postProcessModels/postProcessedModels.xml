@@ -40,26 +40,12 @@
 		<processorName>FFGGribPostProcessor</processorName>
 	</postProcessedModel>
 
-	<!-- Post processor definitions for models using the lifted index post processor -->
+	<!-- Post processor definitions for models using the temperature correction 
+		post processor. These models may have some parameters which are incorrectly 
+		labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
 	<postProcessedModel>
-		<modelName>ETA218</modelName>
-		<processorName>LiftedIndexPostProcessor</processorName>
-	</postProcessedModel>
-
-	<postProcessedModel>
-		<modelName>GFS212</modelName>
-		<processorName>LiftedIndexPostProcessor</processorName>
-	</postProcessedModel>
-
-	<postProcessedModel>
-		<modelName>GFS213</modelName>
-		<processorName>GFSProcessor</processorName>
-		<processorName>LiftedIndexPostProcessor</processorName>
-	</postProcessedModel>
-
-	<postProcessedModel>
-		<modelName>ETA242</modelName>
-		<processorName>LiftedIndexPostProcessor</processorName>
+		<modelName>ETA218|GFS212|GFS213|ETA242|RTOFS-.*</modelName>
+		<processorName>TemperatureCorrectionPostProcessor</processorName>
 	</postProcessedModel>
 
 	<!-- Post processor definition for the RTMA model -->
@@ -120,7 +106,7 @@
 		<modelName>RUC130</modelName>
 		<processorName>RUC130GribPostProcessor</processorName>
 	</postProcessedModel>
-	
+
 	<!-- Post processor definition for the TPCSurgeProb model -->
 	<postProcessedModel>
 		<modelName>TPCSurgeProb</modelName>

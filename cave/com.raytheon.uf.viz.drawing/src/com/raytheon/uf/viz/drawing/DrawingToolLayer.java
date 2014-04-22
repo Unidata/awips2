@@ -60,9 +60,11 @@ import com.vividsolutions.jts.geom.TopologyException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 23, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 23, 2012           mschenke    Initial creation
+ * May 23, 2012  2646     bsteffen    Fix NPE in project.
+ * Apr 03, 2014  2967     njensen     Fix error when erasing the last part of a line
  * 
  * </pre>
  * 
@@ -265,8 +267,10 @@ public class DrawingToolLayer implements IRenderable {
                                 // To avoid self intersecting lines, this
                                 // will split the difference geometry
                                 Coordinate[] coords = diff.getCoordinates();
-                                diff = diff.union(factory
-                                        .createPoint(coords[0]));
+                                if (coords != null && coords.length > 0) {
+                                    diff = diff.union(factory
+                                            .createPoint(coords[0]));
+                                }
                             }
                             // Add diff to newGeoms
                             flattenGeometry(diff, newGeoms);
@@ -656,8 +660,10 @@ public class DrawingToolLayer implements IRenderable {
                     currentData.geometries = reprojectCollection(
                             currentData.geometries, projectionMap,
                             oldGridToNewGrid);
-                    currentDrawingLine = JTS.transform(currentDrawingLine,
-                            oldGridToNewGrid);
+                    if (currentDrawingLine != null) {
+                        currentDrawingLine = JTS.transform(currentDrawingLine,
+                                oldGridToNewGrid);
+                    }
                 }
             } catch (Exception e) {
                 UFStatus.getHandler().handle(Priority.PROBLEM,

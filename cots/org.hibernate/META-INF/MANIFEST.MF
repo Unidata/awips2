@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hibernate Plug-in
 Bundle-SymbolicName: org.hibernate
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 3.5.6
 Bundle-ClassPath: hibernate-spatial-1.0.jar,
  hibernate-spatial-postgis-1.0.jar,
  hibernate3.5.6-Final.jar,

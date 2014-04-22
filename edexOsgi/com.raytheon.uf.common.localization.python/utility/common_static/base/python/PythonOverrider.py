@@ -31,14 +31,33 @@
 #    11/04/13        2086          bkowal       Updated to merge classes - both legacy and non-legacy.
 #                                               Minimum to Maximum level of retrieval can now be specified.
 #    11/12/13        2540          bkowal       Relocated common methods to PythonOverriderCore.py.
+#    02/13/14        2712          bkowal       The main PythonOverrider module can now determine whether
+#                                               it is running in Jep or not and make the necessary
+#                                               adjustments.
 #
 #
 #
+
+import subprocess
+
+THRIFT_HOST = subprocess.check_output(
+                    'source /awips2/fxa/bin/setup.env; echo $DEFAULT_HOST', 
+                    shell=True).strip()
+THRIFT_PORT = subprocess.check_output(
+                    'source /awips2/fxa/bin/setup.env; echo $DEFAULT_PORT', 
+                    shell=True).strip()
 
 import PythonOverriderCore
-from PathManager import PathManager
 
-def importModule(name, loctype='COMMON_STATIC', level=None):
+JEP_AVAILABLE = True
+try:
+    from PathManager import PathManager
+except ImportError:
+    import PythonOverriderPure
+    JEP_AVAILABLE = False
+
+def importModule(name, loctype='COMMON_STATIC', level=None, localizationHost=None, 
+                localizationPort=None, localizedSite=None, localizationUser=None):
     """
     Takes a name (filename and localization path) and the localization type and finds the 
     file and overrides it, and returns the module
@@ -51,6 +70,16 @@ def importModule(name, loctype='COMMON_STATIC', level=None):
     Returns:
             a module that has all the correct methods after being overridden
     """
+    if not JEP_AVAILABLE:
+        if localizationHost is None:
+            localizationHost = THRIFT_HOST
+        
+        if localizationPort is None:
+            localizationPort = THRIFT_PORT
+        
+        return PythonOverriderPure.importModule(name, localizationHost, localizationPort,
+                localizedSite, localizationUser, loctype, level)
+    
     pathManager = PathManager()
     tieredFiles = pathManager.getTieredLocalizationFile(loctype, name)
     availableLevels = pathManager.getAvailableLevels()

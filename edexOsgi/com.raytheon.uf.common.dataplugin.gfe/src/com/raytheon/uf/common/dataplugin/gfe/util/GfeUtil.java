@@ -422,7 +422,7 @@ public class GfeUtil {
         // check for closed line string
         if (!ls.isClosed()) {
             throw new IllegalArgumentException(
-                    "The coorinate list must be closed (first and last coordinates must be equal)");
+                    "The coordinate list must be closed (first and last coordinates must be equal)");
         }
 
         // node the line string (insert vertices where lines cross)
