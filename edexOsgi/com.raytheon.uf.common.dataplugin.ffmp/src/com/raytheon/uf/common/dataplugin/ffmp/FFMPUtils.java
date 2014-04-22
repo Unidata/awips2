@@ -85,6 +85,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * 03/01/13      DR 13228   G. Zhang    Add state for VGB query and related code
  * 03/18/13      1817       D. Hladky   Fixed issue with BOX where only 1 HUC was showing up.
  * 08/20/13      2250       mnash       Fixed incorrect return types for database queries.
+ * Apr 21, 2014  2060       njensen     Remove dependency on grid dataURI column
  * </pre>
  * 
  * @author dhladky
@@ -943,10 +944,8 @@ public class FFMPUtils {
      */
     public static String getFFGDataURI(String rfc, String parameter,
             String plugin) {
-
         DbQueryRequest request = new DbQueryRequest();
         request.setEntityClass(GridRecord.class.getName());
-        request.addRequestField("dataURI");
         request.addConstraint(GridConstants.PARAMETER_ABBREVIATION,
                 new RequestConstraint(parameter));
         request.addConstraint(GridConstants.DATASET_ID, new RequestConstraint(
@@ -955,10 +954,7 @@ public class FFMPUtils {
         try {
             DbQueryResponse response = (DbQueryResponse) RequestRouter
                     .route(request);
-
-            for (Map<String, Object> map : response.getResults()) {
-                return (String) map.get("dataURI");
-            }
+            return response.getEntityObjects(GridRecord.class)[0].getDataURI();
         } catch (Exception e) {
             e.printStackTrace();
         }
