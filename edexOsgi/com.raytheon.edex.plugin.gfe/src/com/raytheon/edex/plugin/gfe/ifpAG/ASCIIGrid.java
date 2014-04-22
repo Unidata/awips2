@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,6 +35,7 @@ import java.util.Scanner;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.RemapGrid;
@@ -46,6 +48,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
@@ -72,6 +75,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 13, 2011  #8393     dgilling     Initial creation
  * 02/19/13     #1637      randerso    Added exception handling for Discrete and Weather
  * 10/31/2013   #2508      randerso    Change to use DiscreteGridSlice.getKeys()
+ * 04/22/2014   #3050      randerso    Allow exceptions to propagate to caller from readASCIIGridData
  * 
  * </pre>
  * 
@@ -353,12 +357,14 @@ public class ASCIIGrid {
     }
 
     public String readASCIIGridData(File aGridData)
-            throws FileNotFoundException {
+            throws FileNotFoundException, GfeException, ParseException {
         List<IGridSlice> gridSlices = new ArrayList<IGridSlice>();
-        Scanner inputStream = new Scanner(aGridData, "US-ASCII");
 
-        while (true) {
-            try {
+        Scanner inputStream = null;
+        try {
+            inputStream = new Scanner(aGridData, "US-ASCII");
+
+            while (true) {
                 // read the ASCIIGRID keyword
                 // if we have an ASCIIGRID to read
                 if (!inputStream.next().equals("ASCIIGRID")) {
@@ -421,8 +427,12 @@ public class ASCIIGrid {
                 float yExtent = inputStream.nextFloat();
 
                 // make the GridLocation
-                IFPServerConfig config = IFPServerConfigManager
-                        .getServerConfig(dbSiteId);
+                IFPServer ifpServer = IFPServer.getActiveServer(dbSiteId);
+                if (ifpServer == null) {
+                    throw new GfeException("No active IFPServer for site: "
+                            + dbSiteId);
+                }
+                IFPServerConfig config = ifpServer.getConfig();
                 GridLocation baseGLoc = config.dbDomain();
                 ProjectionData projData = config.getProjectionData(projId);
                 GridLocation gLocation = new GridLocation(dbSiteId, projData,
@@ -600,14 +610,12 @@ public class ASCIIGrid {
                 if (!inputStream.hasNext()) {
                     break;
                 }
-
-            } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Caught exception in readASCIIGridData()", e);
-                break;
+            }
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
             }
         }
-        inputStream.close();
         this.gridSlices = gridSlices;
 
         return "";
