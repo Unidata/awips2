@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
 /**
  * A container class used for unmarshalling purge rules. The purge rules are
@@ -41,9 +41,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 2/15/11      #2469       bphillip    Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 15, 2011  2469     bphillip    Initial creation
+ * Apr 22, 2014  2946     bsteffen    Remove ISerializableObject, add jaxbManager
  * 
  * </pre>
  * 
@@ -52,7 +53,10 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  */
 @XmlRootElement(name = "purgeRuleSet")
 @XmlAccessorType(XmlAccessType.NONE)
-public class PurgeRuleSet implements ISerializableObject {
+public class PurgeRuleSet {
+
+    public static final SingleTypeJAXBManager<PurgeRuleSet> jaxbManager = SingleTypeJAXBManager
+            .createWithoutException(PurgeRuleSet.class);
 
     @XmlElements({ @XmlElement(name = "key", type = String.class) })
     private List<String> keys;
