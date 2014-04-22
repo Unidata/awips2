@@ -27,5 +27,4 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.dataquery,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.dataplugin
-Import-Package: com.raytheon.uf.common.util,
- com.raytheon.uf.edex.database.dao
+Import-Package: com.raytheon.uf.common.util
