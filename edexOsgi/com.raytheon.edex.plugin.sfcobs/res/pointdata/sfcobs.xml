@@ -20,9 +20,6 @@
     -->
 <pointDataDescription>
   <dimension name="maxInterWinds" length="6"/>
-  <parameter name="timeObs" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
-  <parameter name="timeNominal" numDims="1" type="LONG" unit="seconds since 1-1-1970" />
-  <parameter name="wmoHeader" numDims="1" type="STRING" />
   <parameter name="rawReport" numDims="1" type="STRING" />
   <parameter name="temperature" numDims="1" type="FLOAT" unit="K" />
   <parameter name="dewpoint" numDims="1" type="FLOAT" unit="K" />
