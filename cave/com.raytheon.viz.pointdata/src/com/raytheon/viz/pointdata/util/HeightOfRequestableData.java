@@ -28,6 +28,8 @@ import javax.measure.unit.SI;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -41,9 +43,8 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.PointUtil;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.wxmath.PToZsa;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -93,7 +94,7 @@ public class HeightOfRequestableData extends AbstractRequestableData {
      * ()
      */
     @Override
-    public Object getDataValue(Object arg) throws VizException {
+    public Object getDataValue(Object arg) throws DataCubeException {
         FloatDataRecord latRec = (FloatDataRecord) latRequest.getDataValue(arg);
         FloatDataRecord lonRec = (FloatDataRecord) lonRequest.getDataValue(arg);
         float[] lats = latRec.getFloatData();
@@ -118,7 +119,7 @@ public class HeightOfRequestableData extends AbstractRequestableData {
         PluginDataObject gribRec;
         try {
             gribRec = getGribRec(time);
-        } catch (VizException e1) {
+        } catch (DataCubeException e1) {
             return PToZsa.ptozsa((float) level.getLevelonevalue());
         }
         if (gribRec == null) {
@@ -147,7 +148,7 @@ public class HeightOfRequestableData extends AbstractRequestableData {
         }
     }
 
-    private PluginDataObject getGribRec(Long time) throws VizException {
+    private PluginDataObject getGribRec(Long time) throws DataCubeException {
         if (gribRecs == null) {
             gribRecs = new HashMap<DataTime, PluginDataObject>();
             if (time != null) {
@@ -208,7 +209,7 @@ public class HeightOfRequestableData extends AbstractRequestableData {
      * @throws VizException
      */
     private PluginDataObject loadPressureLevel(DataTime time)
-            throws VizException {
+            throws DataCubeException {
         PluginDataObject[] pdos = DataCubeContainer.getData(getConstraints(),
                 time);
         if (pdos == null || pdos.length == 0) {

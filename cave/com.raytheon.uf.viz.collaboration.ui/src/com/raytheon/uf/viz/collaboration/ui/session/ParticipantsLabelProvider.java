@@ -23,21 +23,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
 import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
 
@@ -50,7 +50,13 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 24, 2012            mnash     Initial creation
+ * Feb 24, 2012            mnash       Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ *                                     added JID and display name if available
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Feb 13, 2014 2751       njensen     Added leader icons
+ * Feb 18, 2014 2751       bclement    changed tooltip from JID to UserId
  * 
  * </pre>
  * 
@@ -58,7 +64,8 @@ import com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider;
  * @version 1.0
  */
 
-public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
+public class ParticipantsLabelProvider extends
+        AbstractUserLabelProvider<VenueParticipant> {
 
     protected String sessionId = null;
 
@@ -104,48 +111,55 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
 
     @Override
     public Font getFont(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof VenueParticipant)) {
             return null;
         }
-        IUser user = (IUser) element;
-        boolean leader = isSessionLeader(user);
-        boolean provider = isDataProvider(user);
-        if (leader && provider) {
-            if (combinedFont == null) {
-                Font currFont = Display.getCurrent().getSystemFont();
-                combinedFont = new Font(Display.getCurrent(),
-                        currFont.toString(),
-                        currFont.getFontData()[0].getHeight(), SWT.BOLD
-                                | SWT.ITALIC);
-            }
-            return combinedFont;
-        } else if (leader) {
+        VenueParticipant user = (VenueParticipant) element;
+        if (user.isSameUser(getSession().getUserID())) {
             if (boldFont == null) {
                 Font currFont = Display.getCurrent().getSystemFont();
                 boldFont = new Font(Display.getCurrent(), currFont.toString(),
                         currFont.getFontData()[0].getHeight(), SWT.BOLD);
             }
             return boldFont;
-        } else if (provider) {
-            if (underlinedFont == null) {
-                Font currFont = Display.getCurrent().getSystemFont();
-                underlinedFont = new Font(Display.getCurrent(),
-                        currFont.toString(),
-                        currFont.getFontData()[0].getHeight(), SWT.ITALIC);
-            }
-            return underlinedFont;
         }
+        // boolean leader = isSessionLeader(user);
+        // boolean provider = isDataProvider(user);
+        // if (leader && provider) {
+        // if (combinedFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // combinedFont = new Font(Display.getCurrent(),
+        // currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.BOLD
+        // | SWT.ITALIC);
+        // }
+        // return combinedFont;
+        // } else if (leader) {
+        // if (boldFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // boldFont = new Font(Display.getCurrent(), currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.BOLD);
+        // }
+        // return boldFont;
+        // } else if (provider) {
+        // if (underlinedFont == null) {
+        // Font currFont = Display.getCurrent().getSystemFont();
+        // underlinedFont = new Font(Display.getCurrent(),
+        // currFont.toString(),
+        // currFont.getFontData()[0].getHeight(), SWT.ITALIC);
+        // }
+        // return underlinedFont;
+        // }
         return null;
     }
 
     @Override
     public Color getForeground(Object element) {
-        if (!(element instanceof IUser)) {
+        if (!(element instanceof VenueParticipant)) {
             return null;
         }
-        IUser user = ((IUser) element);
-        UserId userId = IDConverter.convertFrom(user);
-        RGB rgb = manager.getColorFromUser(userId);
+        VenueParticipant user = ((VenueParticipant) element);
+        RGB rgb = manager.getColorForUser(user);
         if (rgb == null) {
             rgb = new RGB(0, 0, 0);
         }
@@ -174,24 +188,22 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
         return connection.getSession(sessionId);
     }
 
-    protected boolean isSessionLeader(IUser user) {
+    protected boolean isSessionLeader(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
-            UserId leader = ((SharedDisplaySession) session)
+            VenueParticipant leader = ((SharedDisplaySession) session)
                     .getCurrentSessionLeader();
-            return id.equals(leader);
+            return user.getHandle().equals(leader.getHandle());
         }
         return false;
     }
 
-    protected boolean isDataProvider(IUser user) {
+    protected boolean isDataProvider(VenueParticipant user) {
         ISession session = getSession();
         if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
-            UserId provider = ((SharedDisplaySession) session)
+            VenueParticipant provider = ((SharedDisplaySession) session)
                     .getCurrentDataProvider();
-            return id.equals(provider);
+            return user.getHandle().equals(provider.getHandle());
         }
         return false;
     }
@@ -203,34 +215,22 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
             return null;
         }
         StringBuilder builder = new StringBuilder(toolTip);
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
+        VenueParticipant user = convertObject(element);
+        Presence presence = getPresence(user);
         if (presence != null) {
-            String site = String.valueOf(presence.getProperties().get(
-                    SiteConfigInformation.SITE_NAME));
+            String site = String.valueOf(presence
+                    .getProperty(SiteConfigInformation.SITE_NAME));
             if (enabledSites != null && enabledSites.contains(site)) {
                 builder.append("\n").append("Subscribed");
             }
         }
-        ISession session = getSession();
-        if (session instanceof SharedDisplaySession) {
-            UserId id = IDConverter.convertFrom(user);
-            boolean isSessionLeader = id
-                    .equals(((SharedDisplaySession) session)
-                            .getCurrentSessionLeader());
-            boolean isDataProvider = id.equals(((SharedDisplaySession) session)
-                    .getCurrentDataProvider());
-            if (isSessionLeader || isDataProvider) {
-                // TODO if transferring control is ever desired and implemented
-                // we need to distinguish these. Until then, Leader works fine.
-                builder.append("\nLeader");
-                // if (isSessionLeader) {
-                // builder.append("\nSession Leader");
-                // }
-                // if (isDataProvider) {
-                // builder.append("\nData Provider");
-                // }
-            }
+        if (isSomeKindOfLeader(user)) {
+            builder.append("\nLeader");
+        }
+        if (user.hasActualUserId()) {
+            UserId actual = user.getUserid();
+            builder.append("\nUserId: ").append(actual.getNormalizedId());
+            builder.append("\nDisplay Name: ").append(getLocalAlias(actual));
         }
         return builder.toString();
     }
@@ -248,8 +248,65 @@ public class ParticipantsLabelProvider extends AbstractUserLabelProvider {
     }
 
     @Override
-    protected IPresence getPresence(IUser user) {
+    protected Presence getPresence(VenueParticipant user) {
         IVenueSession session = (IVenueSession) getSession();
         return session.getVenue().getPresence(user);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider#getDisplayName
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String getDisplayName(VenueParticipant user) {
+        return user.getHandle();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.ui.AbstractUserLabelProvider#convertObject
+     * (java.lang.Object)
+     */
+    @Override
+    protected VenueParticipant convertObject(Object element) {
+        if (element instanceof VenueParticipant) {
+            return (VenueParticipant) element;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    protected String getImageName(VenueParticipant user) {
+        String key = super.getImageName(user);
+
+        if (isSomeKindOfLeader(user)) {
+            key = "leader_" + key;
+        }
+
+        return key;
+    }
+
+    /**
+     * Checks if the user is some kind of leader
+     * 
+     * @param user
+     * @return
+     */
+    private boolean isSomeKindOfLeader(VenueParticipant user) {
+        boolean leader = false;
+        ISession session = getSession();
+        if (session instanceof ISharedDisplaySession) {
+            ISharedDisplaySession sdSession = (ISharedDisplaySession) session;
+            leader = sdSession.getCurrentSessionLeader().isSameUser(user)
+                    || sdSession.getCurrentDataProvider().isSameUser(user);
+        }
+
+        return leader;
     }
 }

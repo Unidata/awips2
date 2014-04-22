@@ -107,9 +107,10 @@ import com.raytheon.uf.viz.remote.graphics.objects.DispatchingWireframeShape;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 28, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Feb 28, 2012           mschenke    Initial creation
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -1147,7 +1148,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         DrawableString string = new DrawableString(text, color);
         string.setCoordinates(x, y, z);
         string.font = font;
-        string.textStyle = textStyle;
+        string.addTextStyle(textStyle);
         string.horizontalAlignment = horizontalAlignment;
         string.verticallAlignment = verticalAlignment;
         string.rotation = rotation;
@@ -1180,7 +1181,7 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         DrawableString string = new DrawableString(text, color);
         string.setCoordinates(x, y, z);
         string.font = font;
-        string.textStyle = textStyle;
+        string.addTextStyle(textStyle);
         string.horizontalAlignment = horizontalAlignment;
         string.rotation = rotation;
         drawStrings(string);
@@ -1212,49 +1213,9 @@ public class DispatchGraphicsTarget extends DispatchingObject<IGraphicsTarget>
         DrawableString string = new DrawableString(text, colors);
         string.setCoordinates(x, y, z);
         string.font = font;
-        string.textStyle = textStyle;
+        string.addTextStyle(textStyle);
         string.horizontalAlignment = horizontalAlignment;
         string.verticallAlignment = verticalAlignment;
-        drawStrings(string);
-    }
-
-    /**
-     * @param font
-     * @param string
-     * @param xPos
-     * @param yPos
-     * @param zPos
-     * @param textStyle
-     * @param color
-     * @param horizontalAlignment
-     * @param verticalAlignment
-     * @param rotation
-     * @param alpha
-     * @param magnification
-     * @throws VizException
-     * @deprecated
-     * @see com.raytheon.uf.viz.core.IGraphicsTarget#drawString(com.raytheon.uf.viz.core.drawables.IFont,
-     *      java.lang.String, double, double, double,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle,
-     *      org.eclipse.swt.graphics.RGB,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment,
-     *      com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment,
-     *      java.lang.Double, float, double)
-     */
-    public void drawString(IFont font, String text, double x, double y,
-            double z, TextStyle textStyle, RGB color,
-            HorizontalAlignment horizontalAlignment,
-            VerticalAlignment verticalAlignment, Double rotation, float alpha,
-            double magnification) throws VizException {
-        DrawableString string = new DrawableString(text, color);
-        string.setCoordinates(x, y, z);
-        string.font = font;
-        string.textStyle = textStyle;
-        string.horizontalAlignment = horizontalAlignment;
-        string.verticallAlignment = verticalAlignment;
-        string.rotation = rotation;
-        string.basics.alpha = alpha;
-        string.magnification = magnification;
         drawStrings(string);
     }
 

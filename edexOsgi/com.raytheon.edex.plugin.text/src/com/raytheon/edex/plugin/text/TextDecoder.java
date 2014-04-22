@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * Dec 13, 2010 5805        cjeanbap    Parse Report to get AFOS Product Id
  * Jul 16, 2013 16323       D. Friedman Use concurrent map
  * Aug 30, 2013 2298        rjpeter     Make getPluginName abstract
+ * Mar 14, 2014 2652        skorolev    Changed logging for skipped headers.
  * </pre>
  * 
  * @author
@@ -339,62 +340,32 @@ public class TextDecoder extends AbstractDecoder {
                     msg.append("/");
                     msg.append(stored + separator.getMessagesSkipped());
                     msg.append("]");
-                    List<WMOHeader> skippedSubHeaders = separator
+                    Map<WMOHeader, String> skippedSubHeaders = separator
                             .getSubHeadersSkipped();
 
-                    long curTime = System.currentTimeMillis();
                     if (skippedSubHeaders.size() > 0) {
-                        Iterator<WMOHeader> iter = skippedSubHeaders.iterator();
-                        while (iter.hasNext()) {
-                            WMOHeader header = iter.next();
-                            String key = null;
+                        msg.append("\nSkipped WMO Sub Headers:");
+                        for (WMOHeader header : skippedSubHeaders.keySet()) {
                             if (header.isValid()) {
-                                key = header.getTtaaii() + " "
-                                        + header.getCccc();
-                            } else if (header.getOriginalMessage().length() > 11) {
-                                key = header.getOriginalMessage().substring(0,
-                                        11);
+                                msg.append("\n[");
+                                msg.append(header.getTtaaii());
+                                msg.append(" ");
+                                msg.append(header.getCccc());
+                                msg.append("] - ");
+                                msg.append(skippedSubHeaders.get(header));
                             } else {
-                                key = header.getOriginalMessage();
-                            }
-                            Long time = notMappedHeaders.get(key);
-                            if ((time == null)
-                                    || ((curTime - time) > NOT_FOUND_LOG_PERIOD)) {
-                                notMappedHeaders.put(key, curTime);
-                            } else {
-                                iter.remove();
-                            }
-                        }
-                        if (skippedSubHeaders.size() > 0) {
-                            msg.append("\nSkipped WMO Sub Headers:");
-                            for (WMOHeader header : skippedSubHeaders) {
-                                if (header.isValid()) {
-                                    msg.append("\n[");
-                                    msg.append(header.getTtaaii());
-                                    msg.append(" ");
-                                    msg.append(header.getCccc());
-                                    msg.append("]");
+                                msg.append("\n[");
+                                if (header.getOriginalMessage().length() > 11) {
+                                    msg.append(header.getOriginalMessage()
+                                            .substring(0, 11));
                                 } else {
-                                    msg.append("\n[");
-                                    if (header.getOriginalMessage().length() > 11) {
-                                        msg.append(header.getOriginalMessage()
-                                                .substring(0, 11));
-                                    } else {
-                                        msg.append(header.getOriginalMessage());
-                                    }
-                                    msg.append("]");
+                                    msg.append(header.getOriginalMessage());
                                 }
-                            }
-
-                            if ((curTime - msgHdrLogTime) > MSG_HDR_LOG_PERIOD) {
-                                msg.append("\nMsg for a given header will only be logged once in a "
-                                        + (NOT_FOUND_LOG_PERIOD / MILLIS_PER_HOUR)
-                                        + " hour period");
-                                msgHdrLogTime = curTime;
+                                msg.append("]");
                             }
                         }
 
-                        logger.error(msg.toString());
+                        logger.info(msg.toString());
                         saveFile = moveBadTxt;
                     }
                 }

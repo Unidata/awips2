@@ -48,7 +48,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2010 1783       mpduff      Initial creation.
- * Jan 7, 2013 16578 snaples Updated initInternal line array to handle area where it is wider than tall.
+ * Jan 07, 2014 16578      snaples     Updated initInternal line array to handle area where it is wider than tall.
+ * Mar 31, 2014 2689       mpduff      Fixed error introduced during a previous code change.
  * 
  * </pre>
  * 

@@ -19,28 +19,31 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.Map;
+import java.net.URI;
+import java.net.URL;
 
-import org.eclipse.ecf.presence.IIMMessageEvent;
-import org.eclipse.ecf.presence.IIMMessageListener;
-import org.eclipse.ecf.presence.im.IChatMessage;
-import org.eclipse.ecf.presence.im.IChatMessageEvent;
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Packet;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.xmpp.PacketConstants;
 import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdXmppMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.ChatMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.HttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Listens for peer to peer messages and routes them appropriately.
@@ -52,6 +55,14 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 18, 2013 2562       bclement    added timeout for HTTP config,
+ *                                     data now in packet extension
+ * Dec 19, 2013 2563       bclement    removed wait for HTTP config, added reset
+ * Feb 13, 2014 2751       bclement    changed IQualifiedID objects to IUser
+ * Feb 17, 2014 2756       bclement    null check for message from field
+ *                                      moved url validation from regex to java utility
+ * Feb 24, 2014 2756       bclement    moved xmpp objects to new packages
  * 
  * </pre>
  * 
@@ -59,30 +70,21 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
  * @version 1.0
  */
 
-public class PeerToPeerCommHelper implements IIMMessageListener {
+public class PeerToPeerCommHelper implements PacketListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerCommHelper.class);
 
-    private static Object httpServerLockObj = new Object();
+    private static volatile String httpServer;
 
-    private static String httpServer;
-
+    /**
+     * Get HTTP server address. This value will be updated if the server sends
+     * new HTTP configuration. If this address is null, the server most likely
+     * doesn't support collaborative displays.
+     * 
+     * @return
+     */
     public static String getCollaborationHttpServer() {
-        /**
-         * Wait for initialization of field httpServer.
-         */
-        synchronized (httpServerLockObj) {
-            try {
-                while (httpServer == null) {
-                    httpServerLockObj.wait(500);
-                }
-            } catch (InterruptedException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "PeerToPeerCommHelper unable to resolve server URL. "
-                                + e.getLocalizedMessage(), e);
-            }
-        }
         return httpServer;
     }
 
@@ -97,46 +99,71 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         this.manager = manager;
     }
 
-    /**
+    /*
+     * (non-Javadoc)
      * 
+     * @see
+     * org.jivesoftware.smack.PacketListener#processPacket(org.jivesoftware.
+     * smack.packet.Packet)
      */
     @Override
-    public void handleMessageEvent(IIMMessageEvent messageEvent) {
-        if (messageEvent instanceof IChatMessageEvent) {
-            IChatMessageEvent event = (IChatMessageEvent) messageEvent;
-
-            IChatMessage msg = event.getChatMessage();
+    public void processPacket(Packet packet) {
+        if (packet instanceof Message) {
+            Message msg = (Message) packet;
+            String fromStr = msg.getFrom();
+            if (fromStr == null) {
+                // from server
+                UserId account = CollaborationConnection.getConnection()
+                        .getUser();
+                fromStr = account.getHost();
+            }
+            if (IDConverter.isFromRoom(fromStr)) {
+                // venues will have their own listeners
+                return;
+            }
             String body = msg.getBody();
-            Activator.getDefault().getNetworkStats()
-                    .log(Activator.PEER_TO_PEER, 0, body.length());
             if (body != null) {
-                if (body.startsWith(Tools.CMD_PREAMBLE)) {
-                    routeData(msg);
-                } else if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+                Activator.getDefault().getNetworkStats()
+                        .log(Activator.PEER_TO_PEER, 0, body.length());
+                if (body.startsWith(Tools.CONFIG_PREAMBLE)) {
+                    // TODO Legacy config support
+                    body = body.substring(Tools.CONFIG_PREAMBLE.length(),
+                            body.length() - Tools.DIRECTIVE_SUFFIX.length());
                     this.handleConfiguration(body);
                 } else {
                     // anything else pass to the normal text
                     routeMessage(msg);
                 }
+            } else {
+                SessionPayload payload = (SessionPayload) msg
+                        .getExtension(PacketConstants.COLLAB_XMLNS);
+                if (payload != null) {
+                    switch (payload.getPayloadType()) {
+                    case Command:
+                        routeData(payload,
+                                (String) msg.getProperty(Tools.PROP_SESSION_ID));
+                        break;
+                    case Config:
+                        handleConfiguration(payload.getData().toString());
+                        break;
+                    default:
+                        // do nothing
+                    }
+                }
             }
         }
     }
 
+
     /**
+     * Post data as event either to associated session, or general event bus
      * 
-     * @param message
+     * @param payload
+     * @param sessionId
      */
-    private void routeData(IChatMessage message) {
-        Object object = null;
-        try {
-            object = Tools.unMarshallData(message.getBody());
-        } catch (CollaborationException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error unmarshalling PeerToPeer data", e);
-        }
+    private void routeData(SessionPayload payload, String sessionId) {
+        Object object = payload.getData();
         if (object != null) {
-            String sessionId = (String) message.getProperties().get(
-                    Tools.PROP_SESSION_ID);
             if (sessionId == null) {
                 manager.postEvent(object);
             } else {
@@ -153,30 +180,25 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
     }
 
     /**
+     * Post text message to chat
      * 
      * @param message
      */
-    private void routeMessage(IChatMessage message) {
-        IQualifiedID fromId = IDConverter.convertFrom(message.getFromID());
-        fromId.setResource(Tools.parseResource(message.getFromID().getName()));
+    private void routeMessage(Message message) {
+        IUser fromId = IDConverter.convertFrom(message.getFrom());
         TextMessage textMsg = new TextMessage(fromId, message.getBody());
         textMsg.setFrom(fromId);
         textMsg.setBody(message.getBody());
         textMsg.setSubject(message.getSubject());
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> props = message.getProperties();
-        for (Object o : props.keySet()) {
-            if (o instanceof String) {
-                String key = (String) o;
-                Object v = props.get(key);
-                if (v instanceof String) {
-                    textMsg.setProperty(key, (String) v);
-                }
+        for (String key : message.getPropertyNames()) {
+            Object v = message.getProperty(key);
+            if (v instanceof String) {
+                textMsg.setProperty(key, (String) v);
             }
         }
         ITextMessageEvent chatEvent = new ChatMessageEvent(textMsg);
 
-        String sessionId = (String) message.getProperties().get(
+        String sessionId = (String) message.getProperty(
                 Tools.PROP_SESSION_ID);
         // Now find out who gets the message. If the message doesn't contain
         // a session id then assume its a straight text chat message.
@@ -191,13 +213,18 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         }
     }
 
+    /**
+     * Parse server configuration and notify general event bus of config event
+     * 
+     * @param body
+     */
     private void handleConfiguration(String body) {
         // Determine if an error has occurred.
-        if (IHttpdXmppMessage.configErrorPattern.matcher(body).matches()) {
+        if (IHttpXmppMessage.configErrorPattern.matcher(body).matches()) {
             statusHandler.handle(
                     UFStatus.Priority.ERROR,
                     this.getCollaborationConfigurationParameterValue(body,
-                            IHttpdXmppMessage.ERROR_PARAMETER_NAME)
+                            IHttpXmppMessage.ERROR_PARAMETER_NAME)
                             + ". Shared Display Sessions have been disabled.");
             this.disableSharedDisplaySession();
             // terminate execution
@@ -205,7 +232,7 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         }
 
         // Validate the configuration.
-        if (IHttpdXmppMessage.configURLPattern.matcher(body).matches() == false) {
+        if (IHttpXmppMessage.configURLPattern.matcher(body).matches() == false) {
             statusHandler
                     .handle(UFStatus.Priority.PROBLEM,
                             "Received invalid configuration from openfire. Shared Display Sessions have been disabled.");
@@ -214,46 +241,64 @@ public class PeerToPeerCommHelper implements IIMMessageListener {
         }
 
         // Remove the parameter name.
-        String httpdCollaborationURL = this
+        String httpCollaborationURL = this
                 .getCollaborationConfigurationParameterValue(body,
-                        IHttpdXmppMessage.URL_PARAMETER_NAME);
+                        IHttpXmppMessage.URL_PARAMETER_NAME);
         // validate the url.
-        if (IHttpdXmppMessage.urlPattern.matcher(httpdCollaborationURL)
-                .matches() == false) {
+        try {
+            URL u = new URL(httpCollaborationURL);
+            URI uri = u.toURI();
+            if (!uri.getScheme().equalsIgnoreCase("http")) {
+                throw new CollaborationException(
+                        "Provided URL doesn't use the HTTP scheme");
+            }
+        } catch (Exception e) {
             statusHandler.handle(UFStatus.Priority.PROBLEM,
                     "Received an invalid http url from openfire - "
-                            + httpdCollaborationURL
-                            + ". Shared Display Sessions have been disabled.");
+                            + httpCollaborationURL
+                            + ". Shared Display Sessions have been disabled.",
+                    e);
             this.disableSharedDisplaySession();
             return;
         }
 
-        synchronized (httpServerLockObj) {
-            httpServer = httpdCollaborationURL;
-            httpServerLockObj.notifyAll();
-        }
+
+        httpServer = httpCollaborationURL;
         // configuration is valid; publish it.
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
-                httpdCollaborationURL);
+                httpCollaborationURL);
         manager.postEvent(configurationEvent);
     }
 
+    /**
+     * Parse config parameter value from key:value string
+     * 
+     * @param body
+     * @param parameterName
+     * @return
+     */
     private String getCollaborationConfigurationParameterValue(String body,
             String parameterName) {
-        // Eliminate the preamble.
-        String encodedConfiguration = body.replace(Tools.CONFIG_PREAMBLE, "");
-        // Eliminate the suffix: ]]
-        encodedConfiguration = encodedConfiguration.substring(0,
-                encodedConfiguration.length() - 2);
 
         // Remove the parameter name.
-        return encodedConfiguration.replace(parameterName + " :", "").trim();
+        return body.replace(parameterName + " :", "").trim();
     }
 
+    /**
+     * Notify general event bus that shared display is disabled
+     */
     private void disableSharedDisplaySession() {
         // ensure that the shared session displays will be disabled
         IHttpdCollaborationConfigurationEvent configurationEvent = new HttpdCollaborationConfigurationEvent(
                 null);
         manager.postEvent(configurationEvent);
     }
+
+    /**
+     * reset internal state when client disconnects from server
+     */
+    public static void reset() {
+        httpServer = null;
+    }
+
 }

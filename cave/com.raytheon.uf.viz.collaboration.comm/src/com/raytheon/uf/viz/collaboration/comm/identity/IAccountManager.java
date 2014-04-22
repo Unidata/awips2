@@ -21,12 +21,13 @@ package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import java.util.Map;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionResponder;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Chat server account management interface
  * 
  * 
  * 
@@ -45,6 +46,8 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionRespo
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
+ * Jan 27, 2014 2700       bclement    reworked responder methods
+ *                                     added method to send presence without updating status
  * 
  * </pre>
  * 
@@ -54,32 +57,27 @@ import com.raytheon.uf.viz.collaboration.comm.identity.roster.ISubscriptionRespo
 
 public interface IAccountManager {
 
-    /**
-     * Set whether the account manager will auto subscribe to subscription
-     * requests.
-     * 
-     * @param mode
-     *            The auto subscription mode.
-     */
-    void setAutoSubscriptionMode(boolean mode);
 
     /**
-     * Get the account manager auto subscription mode.
-     * 
-     * @return The auto subscription mode.
+     * @return true if there is a request responder set to handle subscription
+     *         requests and events. If there is not a responder set, the default
+     *         action is to accept all requests.
      */
-    boolean getAutoSubscriptionMode();
+    public boolean isSubscriptionRequestResponderSet();
 
     /**
+     * Set a responder to handle subscription requests and events (ie prompt
+     * user for authorization)
      * 
      * @param responder
      */
-    void setSubscriptionRequestResponder(ISubscriptionResponder responder);
+    public void setSubscriptionRequestResponder(ISubscriptionResponder responder);
 
     /**
-     * Removes the current subscription request responder.
+     * Removes the current subscription request responder. The default action
+     * without a responder is to accept all requests.
      */
-    void removeSubscriptionRequestResponder();
+    public void removeSubscriptionRequestResponder();
 
     /**
      * 
@@ -88,7 +86,7 @@ public interface IAccountManager {
      * @param attributes
      * @throws CollaborationException
      */
-    void createAccount(String name, char[] password,
+    public void createAccount(String name, char[] password,
             Map<String, String> attributes) throws CollaborationException;
 
     /**
@@ -98,7 +96,7 @@ public interface IAccountManager {
      * @param password
      * @throws CollaborationException
      */
-    void changePassword(char[] password) throws CollaborationException;
+    public void changePassword(char[] password) throws CollaborationException;
 
     /**
      * Allows the user to delete this account on the server. An exception will
@@ -108,7 +106,7 @@ public interface IAccountManager {
      * 
      * @throws CollaborationException
      */
-    void deleteAccount() throws CollaborationException;
+    public void deleteAccount() throws CollaborationException;
 
     /**
      * Can an account be created on the server.
@@ -117,7 +115,7 @@ public interface IAccountManager {
      * @throws CollaborationException
      *             The query failed.
      */
-    boolean canCreateAccount() throws CollaborationException;
+    public boolean canCreateAccount() throws CollaborationException;
 
     /**
      * Allow the user to send presence information to the transport provider.
@@ -126,5 +124,16 @@ public interface IAccountManager {
      * @return Return status information.
      * @throws CollaborationException
      */
-    public void sendPresence(IPresence presence) throws CollaborationException;
+    public void sendPresence(Presence presence) throws CollaborationException;
+
+    /**
+     * Send presence packet directly to user. This does not affect the account's
+     * current presence.
+     * 
+     * @param toId
+     * @param userPresence
+     * @throws CollaborationException
+     */
+    public void sendPresence(UserId toId, Presence userPresence)
+            throws CollaborationException;
 }

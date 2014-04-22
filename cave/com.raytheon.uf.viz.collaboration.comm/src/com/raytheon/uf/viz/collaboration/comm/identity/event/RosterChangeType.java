@@ -20,20 +20,20 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 /**
- * TODO Add Description
+ * Type of event for roster changes
  * 
  * <pre>
- *
+ * 
  * SOFTWARE HISTORY
- *
+ * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            jkorman     Initial creation
- *
+ * 
  * </pre>
- *
+ * 
  * @author jkorman
- * @version 1.0	
+ * @version 1.0
  */
 
 public enum RosterChangeType {

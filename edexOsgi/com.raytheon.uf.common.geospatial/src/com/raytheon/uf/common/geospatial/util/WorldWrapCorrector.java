@@ -52,6 +52,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * May 30, 2013  2028     randerso    Changed to return simple geometry or
  *                                    multi-geometry if possible
  * Dec 11, 2013  2619     bsteffen    Fix rare dateline bug in flattenGeometry.
+ * Feb 14, 2013  2804     mschenke    Added function fo checking if correcting
+ *                                    needs to occur.
  * 
  * </pre>
  * 
@@ -79,6 +81,14 @@ public class WorldWrapCorrector {
      */
     public WorldWrapCorrector(Envelope worldEnvelope) {
         checker = new WorldWrapChecker(worldEnvelope);
+    }
+
+    /**
+     * @return True if the corrector needs to do correcting on the
+     *         {@link GeneralGridGeometry} it was created with
+     */
+    public boolean needsCorrecting() {
+        return checker.needsChecking();
     }
 
     /**

@@ -28,7 +28,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.google.guava;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  com.raytheon.uf.common.python.concurrent;bundle-version="1.0.0",
- com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174"
+ com.raytheon.uf.common.dataplugin.level;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.esb.camel;bundle-version="1.12.1174"
 Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.config,
  com.raytheon.edex.plugin.gfe.db.dao,

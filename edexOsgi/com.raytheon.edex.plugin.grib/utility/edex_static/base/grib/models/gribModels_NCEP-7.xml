@@ -363,26 +363,6 @@
 	</model>
 
 	<model>
-		<name>ofsGmex</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>15058391</grid>
-		<process>
-			<id>45</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ofsWatl</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>-26535243</grid>
-		<process>
-			<id>45</id>
-		</process>
-	</model>
-
-	<model>
 		<name>AVN-NorthernHemisphere</name>
 		<center>7</center>
 		<subcenter>0</subcenter>
@@ -2113,26 +2093,6 @@
 		<grid>721336001</grid>
 		<process>
 			<id>11</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ofsWatl</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>500400001</grid>
-		<process>
-			<id>45</id>
-		</process>
-	</model>
-
-	<model>
-		<name>ofsGmex</name>
-		<center>7</center>
-		<subcenter>0</subcenter>
-		<grid>500500001</grid>
-		<process>
-			<id>45</id>
 		</process>
 	</model>
 

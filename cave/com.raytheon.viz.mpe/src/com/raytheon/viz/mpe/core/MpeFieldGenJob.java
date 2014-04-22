@@ -20,23 +20,18 @@
 
 package com.raytheon.viz.mpe.core;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
-import com.raytheon.uf.common.comm.CommunicationException;
-import com.raytheon.uf.common.comm.HttpClient;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager;
-import com.raytheon.uf.common.serialization.DynamicSerializationManager.SerializationType;
-import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.mpe.fieldgen.MpeFieldGenRequest;
+import com.raytheon.uf.common.mpe.fieldgen.MpeFieldGenResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.mpe.Activator;
 
 /**
@@ -48,21 +43,18 @@ import com.raytheon.viz.mpe.Activator;
  * ------------ ---------- ----------- --------------------------
  * 1/08/09      1674       bphillip    Initial creation
  * 08/09/12     15307      snaples     Updated job to use postStreamingByteArray.
+ * 03/28/14      2952      mpduff      Changed to use ThriftSrv.
  * </pre>
  * 
  * @author bphillip
  * @version 1.0
  */
 public class MpeFieldGenJob extends Job {
-
-    private static final IUFStatusHandler handler = UFStatus.getHandler(
-            MpeFieldGenJob.class, "DEFAULT");
-
-    /** The HTTP endpoint of the field gen service */
-    private static final String ENDPOINT_NAME = "/mpeFieldGenHttpService";
+    private final IUFStatusHandler log = UFStatus
+            .getHandler(MpeFieldGenJob.class);
 
     /** The argument to run the MPE Field Gen with */
-    private String fieldGenArg;
+    private final String fieldGenArg;
 
     /**
      * Constructs a new MpeFieldGenJob
@@ -79,50 +71,23 @@ public class MpeFieldGenJob extends Job {
     protected IStatus run(IProgressMonitor monitor) {
         final Integer[] mpeExitValue = new Integer[1];
 
-        String httpAddress = VizApp.getHttpServer() + ENDPOINT_NAME;
-        String args = fieldGenArg;
-        byte[] ba = args.getBytes();
-        
+        MpeFieldGenRequest req = new MpeFieldGenRequest();
+        req.setArgs(fieldGenArg);
+
+        MpeFieldGenResponse response;
         try {
-            HttpClient.getInstance().postStreamingByteArray(httpAddress, ba,
-                    new HttpClient.IStreamHandler() {
+            response = (MpeFieldGenResponse) ThriftClient.sendRequest(req);
+            int exitValue = response.getExitValue();
 
-                        /*
-                         * (non-Javadoc)
-                         * 
-                         * @see
-                         * com.raytheon.viz.core.comm.Connector.IStreamHandler
-                         * #handleStream(java.io.InputStream)
-                         */
-                        @Override
-                        public void handleStream(InputStream is)
-                                throws CommunicationException {
-                            try {
-
-                                DynamicSerializationManager dsm = DynamicSerializationManager
-                                        .getManager(SerializationType.Thrift);
-                                mpeExitValue[0] = (Integer) dsm.deserialize(is);
-                                System.out.println("MPE FieldGen returned: "
-                                        + mpeExitValue[0]);
-                            } catch (SerializationException e) {
-                                throw new CommunicationException(
-                                        "Error deserializing", e);
-                            }
-                        }
-
-                    });
-        } catch (CommunicationException e) {
-            return new Status(Status.ERROR, Activator.PLUGIN_ID,
-                    "MPE Field Gen execution failed with exit code: "
-                            + mpeExitValue[0]);
-        } 
-
-        if (mpeExitValue[0] != null && mpeExitValue[0] == 0) {
-            return Status.OK_STATUS;
+            if (exitValue != 0) {
+                return new Status(Status.ERROR, Activator.PLUGIN_ID,
+                        "MPE Field Gen execution failed with exit code: "
+                                + mpeExitValue[0]);
+            }
+        } catch (VizException e) {
+            log.handle(Priority.ERROR, "Error executing MPE FieldGen", e);
         }
 
-        return new Status(Status.ERROR, Activator.PLUGIN_ID,
-                "MPE Field Gen execution failed with exit code: "
-                        + mpeExitValue[0]);
+        return Status.OK_STATUS;
     }
 }

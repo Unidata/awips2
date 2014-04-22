@@ -61,6 +61,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
  *                                    remove.
  * Apr 24, 2013  1950     bsteffen    Sort resources before instantiation.
  * Oct 22, 2013  2491     bsteffen    Remove ISerializableObject
+ * Jan 17, 2013  2651     bsteffen    Synchronize removeRsc for slightly better
+ *                                    thread safety.
  * 
  * </pre>
  * 
@@ -814,12 +816,14 @@ public class ResourceList extends CopyOnWriteArrayList<ResourcePair> {
     }
 
     public boolean removeRsc(AbstractVizResource<?, ?> rsc) {
-        int idx = indexOfRsc(rsc);
-        if (idx < 0) {
-            return false;
-        }
+        synchronized (this) {
+            int idx = indexOfRsc(rsc);
+            if (idx < 0) {
+                return false;
+            }
 
-        return (this.remove(idx) != null);
+            return (this.remove(idx) != null);
+        }
     }
 
     @Override

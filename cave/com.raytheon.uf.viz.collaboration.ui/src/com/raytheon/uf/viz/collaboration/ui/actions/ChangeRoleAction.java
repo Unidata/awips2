@@ -19,15 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.Map;
-
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -72,10 +70,10 @@ public class ChangeRoleAction extends Action {
     public ChangeRoleAction(String role) {
         super(role, Action.AS_RADIO_BUTTON);
         this.role = role;
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getPresence();
-        String currentRole = (String) presence.getProperties().get(
-                SiteConfigInformation.ROLE_NAME);
+        String currentRole = (String) presence
+                .getProperty(SiteConfigInformation.ROLE_NAME);
         if (role.equals(currentRole)) {
             setChecked(true);
         }
@@ -89,10 +87,8 @@ public class ChangeRoleAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
 
-        IPresence presence = connection.getPresence();
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> props = presence.getProperties();
-        props.put(SiteConfigInformation.ROLE_NAME, role);
+        Presence presence = connection.getPresence();
+        presence.setProperty(SiteConfigInformation.ROLE_NAME, role);
 
         try {
             connection.getAccountManager().sendPresence(presence);
@@ -128,10 +124,10 @@ public class ChangeRoleAction extends Action {
         private void fill() {
             SiteConfigInformation siteInfo = SiteConfigurationManager
                     .getSiteConfigInformation();
-            IPresence presence = CollaborationConnection.getConnection()
+            Presence presence = CollaborationConnection.getConnection()
                     .getPresence();
-            String currentSite = (String) presence.getProperties().get(
-                    SiteConfigInformation.SITE_NAME);
+            String currentSite = (String) presence
+                    .getProperty(SiteConfigInformation.SITE_NAME);
             for (SiteConfig config : siteInfo.getConfig()) {
                 if (config.getSite().equals(currentSite)) {
                     for (String role : config.getRoles()) {

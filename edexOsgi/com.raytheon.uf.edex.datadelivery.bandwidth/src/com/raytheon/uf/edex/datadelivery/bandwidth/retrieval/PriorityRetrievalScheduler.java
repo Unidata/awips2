@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthUtil;
  * Jun 25, 2013 2106       djohnson    Access bandwidth bucket contents through RetrievalPlan.
  * Dec 17, 2013 2636       bgonzale    When adding to buckets, call the constrained method.
  * Feb 14, 2014 2636       mpduff      Clean up logging.
+ * Apr 02, 2014  2810      dhladky     Priority sorting of allocations.
  * </pre>
  * 
  * @version 1.0
@@ -184,14 +185,11 @@ public class PriorityRetrievalScheduler implements IRetrievalScheduler {
             for (BandwidthAllocation o : plan
                     .getBandwidthAllocationsForBucket(bucket)) {
                 long estimatedSizeInBytes = o.getEstimatedSizeInBytes();
-                // This was bad... we just about released giving lower
-                // priority requests the ability to unschedule higher priority
-                // requests....
-                if (request.isHigherPriorityThan(o)) {
+                
+                if (request.compareTo(o) == 1) {
                     total += estimatedSizeInBytes;
                     lowerPriorityRequests.add(o);
-                }
-
+                } 
                 // See if we have found enough room
                 if (total >= estimatedSizeInBytes) {
                     enoughBandwidth = true;

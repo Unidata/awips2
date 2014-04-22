@@ -19,20 +19,16 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.user.IUser;
+import org.apache.commons.lang.builder.EqualsBuilder;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 
 /**
- * TODO Add Description
+ * Parsed user id string
  * 
  * <pre>
  * 
@@ -42,6 +38,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Major refactor
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    removed unneeded isSameUser(string, string)
+ *                                     improved other isSameUser so it won't blow up on nulls
+ * Feb 13, 2014 2751       bclement    changed to implement IUser
  * 
  * </pre>
  * 
@@ -50,7 +50,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  */
 @DynamicSerialize
 @XmlRootElement(name = "userId")
-public class UserId implements IQualifiedID, IUser {
+public class UserId implements IUser {
 
     @DynamicSerializeElement
     protected String name;
@@ -63,8 +63,6 @@ public class UserId implements IQualifiedID, IUser {
 
     @DynamicSerializeElement
     protected String alias;
-
-    private ID id;
 
     public UserId() {
 
@@ -93,7 +91,11 @@ public class UserId implements IQualifiedID, IUser {
             String alias) {
         this.name = userName;
         setHost(hostName);
-        this.resource = resource;
+        if (resource != null && resource.trim().isEmpty()) {
+            resource = null;
+        } else {
+            this.resource = resource;
+        }
         this.alias = alias;
     }
 
@@ -101,14 +103,13 @@ public class UserId implements IQualifiedID, IUser {
      * @param userName
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setUserName(java.lang.String)
      */
-    @Override
     public void setName(String userName) {
         name = userName;
     }
 
     /**
      * @return The user name associated with this id.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getUserName()
+     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getUsers()
      */
     @Override
     public String getName() {
@@ -120,7 +121,6 @@ public class UserId implements IQualifiedID, IUser {
      * @param hostName
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHostName(java.lang.String)
      */
-    @Override
     public void setHost(String hostname) {
         host = IDConverter.normalizeHostname(hostname);
     }
@@ -135,23 +135,18 @@ public class UserId implements IQualifiedID, IUser {
         return host;
     }
 
+
     /**
-     * 
      * @param resourceName
-     *            The resource associated with this id.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResourceName(java.lang.String)
      */
-    @Override
     public void setResource(String resourceName) {
         resource = resourceName;
     }
 
+
     /**
-     * 
-     * @return The resource associated with this id.
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getResource()
+     * @return
      */
-    @Override
     public String getResource() {
         return resource;
     }
@@ -176,6 +171,13 @@ public class UserId implements IQualifiedID, IUser {
         return sb.toString();
     }
 
+    /**
+     * @return username@host.
+     */
+    public String getNormalizedId() {
+        return name + "@" + host;
+    }
+
     public String getAlias() {
         if (alias == null || alias.isEmpty()) {
             return name;
@@ -198,6 +200,8 @@ public class UserId implements IQualifiedID, IUser {
         int result = 1;
         result = prime * result + ((host == null) ? 0 : host.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        // TODO should resource be part of this since it is the same user at a
+        // different location?
         result = prime * result
                 + ((resource == null) ? 0 : resource.hashCode());
         return result;
@@ -223,39 +227,13 @@ public class UserId implements IQualifiedID, IUser {
         } else if (!name.equals(other.name))
             return false;
         if (resource == null) {
+            // TODO should resource be part of this since it is the same user at
+            // a different location?
             if (other.resource != null)
                 return false;
         } else if (!resource.equals(other.resource))
             return false;
         return true;
-    }
-
-    @Override
-    public Object getAdapter(Class adapter) {
-        return null;
-    }
-
-    @Override
-    public String getNickname() {
-        return alias;
-    }
-
-    @Override
-    public Map getProperties() {
-        return null;
-    }
-
-    @Override
-    public ID getID() {
-        return id;
-    }
-
-    /**
-     * @param id
-     *            the id to set
-     */
-    public void setId(ID id) {
-        this.id = id;
     }
 
     /**
@@ -266,14 +244,29 @@ public class UserId implements IQualifiedID, IUser {
      * @return if it is the same user
      */
     public boolean isSameUser(String id) {
-        boolean result = false;
-        String name = Tools.parseName(id);
-        String host = Tools.parseHost(id);
-        if (name != null && host != null) {
-            if (this.name.equals(name) && this.host.equals(host)) {
-                result = true;
-            }
-        }
-        return result;
+        return isSameUser(IDConverter.convertFrom(id));
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.user.IUser#isSameUser
+     * (com.raytheon.uf.viz.collaboration.comm.identity.user.IUser)
+     */
+    @Override
+    public boolean isSameUser(IUser other) {
+        if (other instanceof VenueParticipant) {
+            VenueParticipant vp = (VenueParticipant) other;
+            if (!vp.hasActualUserId()) {
+                return false;
+            }
+            other = vp.getUserid();
+        }
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(this.name, other.getName());
+        builder.append(this.host, other.getHost());
+        return builder.isEquals();
+    }
+
 }

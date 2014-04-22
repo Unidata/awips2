@@ -106,6 +106,8 @@ import com.raytheon.uf.common.util.ByteArrayOutputStreamPool.ByteArrayOutputStre
  *                                           DynamicSerializeStreamHandler
  *    Feb 04, 2014  2704        njensen     Better error message with bad address
  *                                           Https authentication failures notify handler
+ *    Feb 17, 2014  2756        bclement    added content type to response object
+ *    Feb 28, 2014  2756        bclement    added isSuccess() and isNotExists() to response
  * 
  * </pre>
  * 
@@ -118,9 +120,26 @@ public class HttpClient {
 
         public final byte[] data;
 
-        private HttpClientResponse(int code, byte[] data) {
+        public final String contentType;
+
+        private HttpClientResponse(int code, byte[] data, String contentType) {
             this.code = code;
             this.data = data != null ? data : new byte[0];
+            this.contentType = contentType;
+        }
+
+        /**
+         * @return true if code is a 200 level return code
+         */
+        public boolean isSuccess() {
+            return code >= 200 && code < 300;
+        }
+
+        /**
+         * @return true if resource does not exist on server
+         */
+        public boolean isNotExists() {
+            return code == 404 || code == 410;
         }
     }
 
@@ -689,12 +708,30 @@ public class HttpClient {
                 byteResult = ((DefaultInternalStreamHandler) handlerCallback).byteResult;
             }
             return new HttpClientResponse(resp.getStatusLine().getStatusCode(),
-                    byteResult);
+                    byteResult, getContentType(resp));
         } finally {
             if (ongoing != null) {
                 ongoing.decrementAndGet();
             }
         }
+    }
+
+    /**
+     * Get content type of response
+     * 
+     * @param response
+     * @return null if none found
+     */
+    private static String getContentType(HttpResponse response) {
+        String rval = null;
+        HttpEntity entity = response.getEntity();
+        if (entity != null) {
+            Header contentType = entity.getContentType();
+            if (contentType != null) {
+                rval = contentType.getValue();
+            }
+        }
+        return rval;
     }
 
     /**

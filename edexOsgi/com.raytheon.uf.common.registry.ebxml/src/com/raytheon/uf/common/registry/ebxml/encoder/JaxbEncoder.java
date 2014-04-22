@@ -24,6 +24,7 @@ import static com.raytheon.uf.common.registry.ebxml.encoder.RegistryEncoders.Typ
 import javax.xml.bind.JAXBException;
 
 import com.raytheon.uf.common.registry.annotations.RegistryObjectVersion;
+import com.raytheon.uf.common.registry.ebxml.version.VersionTransformer;
 import com.raytheon.uf.common.registry.schemas.ebxml.util.EbxmlJaxbManager;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -46,6 +47,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Oct 31, 2013 2361      njensen      Use specific JAXBManager instead of SerializationUtil
  * Nov 14, 2013 2552      bkowal       EbxmlJaxbManager is now accessed via getInstance
  * Dec 08, 2013 2584      dhladky      Versions for JAXB objects, Only use the JAXb encoder now.
+ * Mar 02, 2014 2789      dhladky      XSLT transformation of other versions to current.
  * 
  * </pre>
  * 
@@ -85,9 +87,21 @@ class JaxbEncoder extends StringBasedEncoder {
             }
         } else {
             statusHandler.handle(Priority.INFO,
-                    "Mismatching class versions, returning content. "
-                            + className + " version: " + version);
-            return content;
+                    "Mismatched versions, attempting version transformation from:\n  "
+                            + version + " to: " + classVersion + " class: "
+                            + className);
+            try {
+                VersionTransformer transformer = VersionTransformer
+                        .getInstance();
+                String transformedXML = transformer.transform(content,
+                        className, classVersion, version);
+
+                return EbxmlJaxbManager.getInstance().getJaxbManager()
+                        .unmarshalFromXml(transformedXML);
+            } catch (Exception e) {
+                throw new SerializationException("Unable to transform object! "
+                        + className + "\n" + content, e);
+            }
         }
     }
 

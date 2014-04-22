@@ -38,8 +38,8 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
-							<mapping key="lightSource">
-                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+							<mapping key="source">
+                                <constraint constraintValue="${source}" constraintType="EQUALS" />
                             </mapping>
 						</metadataMap>
 					</resourceData>
@@ -58,8 +58,8 @@
 								<constraint constraintValue="binlightning"
 									constraintType="EQUALS" />
 							</mapping>
-							<mapping key="lightSource">
-                                <constraint constraintValue="${lightSource}" constraintType="EQUALS" />
+							<mapping key="source">
+                                <constraint constraintValue="${source}" constraintType="EQUALS" />
                             </mapping>
 						</metadataMap>
 					</resourceData>

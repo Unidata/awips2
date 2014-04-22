@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
@@ -49,7 +50,6 @@ import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.viz.core.DrawableString;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -93,6 +93,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
  *    Sep 4, 2012  15335       kshresth    Will now display lightning/wind 
  *                                         fields when magnification set to 0
  *    Feb 27, 2013 DCS 152     jgerth/elau Support for WWLLN and multiple sources
+ *    Jan 21, 2014  2667       bclement    renamed record's lightSource field to source
  * 
  * </pre>
  * 
@@ -487,7 +488,7 @@ public class LightningResource extends
         Map<DataTime, List<BinLightningRecord>> recordMap = new HashMap<DataTime, List<BinLightningRecord>>();
 
         for (BinLightningRecord obj : objs) {
-        	if (obj.getLightSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
+        	if (obj.getSource().equals(this.lightSource) || this.lightSource.isEmpty()) {
         		DataTime time = new DataTime(obj.getStartTime());
         		DataTime end = new DataTime(obj.getStopTime());
         		time = this.getResourceData().getBinOffset()

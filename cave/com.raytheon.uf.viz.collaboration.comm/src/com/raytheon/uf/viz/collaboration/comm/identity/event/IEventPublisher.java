@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 /**
- * TODO Add Description
+ * Interface for components that publish events to the event bus
  * 
  * <pre>
  * 
@@ -39,9 +39,24 @@ package com.raytheon.uf.viz.collaboration.comm.identity.event;
 
 public interface IEventPublisher {
 
+    /**
+     * Register handler to receive events from this publisher
+     * 
+     * @param handler
+     */
     public void registerEventHandler(Object handler);
 
+    /**
+     * Unregister handler to no longer receive events from this publisher
+     * 
+     * @param handler
+     */
     public void unregisterEventHandler(Object handler);
 
+    /**
+     * Send event to all handlers registered to this publisher
+     * 
+     * @param event
+     */
     public void postEvent(Object event);
 }

@@ -21,12 +21,12 @@ package com.raytheon.viz.grid.data;
 
 import javax.measure.unit.SI;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.SliceUtil;
 import com.raytheon.viz.grid.util.TiltUtils;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -69,7 +69,7 @@ public class TiltRequestableData extends AbstractRequestableData {
     }
 
     @Override
-    public FloatDataRecord getDataValue(Object arg) throws VizException {
+    public FloatDataRecord getDataValue(Object arg) throws DataCubeException {
 
         GridCoverage coverage = (GridCoverage) getSpace();
         FloatDataRecord fdr = null;

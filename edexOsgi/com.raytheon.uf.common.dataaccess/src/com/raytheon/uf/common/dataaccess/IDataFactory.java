@@ -49,11 +49,12 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 10, 2012            njensen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Oct 10, 2012           njensen     Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
  *                                     single request.
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -70,10 +71,14 @@ public interface IDataFactory {
      * 
      * @param request
      *            the request to find matching times for
+     * @param refTimeOnly
+     *            true if only unique refTimes should be returned(without a
+     *            forecastHr)
      * @return the times that have data available for this request
      * @throws TimeAgnosticDataException
      */
-    public DataTime[] getAvailableTimes(IDataRequest request)
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            boolean refTimeOnly)
             throws TimeAgnosticDataException;
 
     /**

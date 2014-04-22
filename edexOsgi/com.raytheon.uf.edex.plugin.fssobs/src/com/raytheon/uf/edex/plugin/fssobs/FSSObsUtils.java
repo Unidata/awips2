@@ -55,6 +55,7 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
  * May 15, 2013 1869       bsteffen    Remove DataURI column from ldadmesonet.
  * May 16, 2013 1869       bsteffen    Rewrite dataURI property mappings.
  * Jan 02, 2014 2580       skorolev    Fixed FSSObs error.
+ * Jan 06, 2014 2653       skorolev    Corrected decoding of snincrHourly and snincrTotal.
  * 
  * </pre>
  * 
@@ -65,6 +66,9 @@ import com.raytheon.uf.edex.pointdata.PointDataQuery;
 public class FSSObsUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(FSSObsUtils.class);
+
+    /** Centigrade -> Kelvin */
+    public static final float TMCK = 273.15f;
 
     /**
      * Value of missed data.
@@ -358,6 +362,9 @@ public class FSSObsUtils {
         for (int i = 0; i < 5; i++) {
             retVal[i] = MISSING;
         }
+        float temp = tableRow.getTemperature();
+        float windspd = tableRow.getWindSpeed();
+
         Scanner sc = new Scanner(tableRow.getRawMessage());
         String whatMatched;
         whatMatched = sc.findWithinHorizon("RMK", 0);
@@ -365,11 +372,12 @@ public class FSSObsUtils {
             whatMatched = sc.findWithinHorizon("SNINCR", 0);
             if (whatMatched != null) {
                 sc.useDelimiter("/");
-                if (sc.hasNextInt()) {
+                if (sc.hasNext()) {
                     // last hour snow in inches
-                    retVal[0] = sc.nextInt();
+                    retVal[0] = Float.parseFloat(sc.next());
                 }
                 sc.reset();
+                sc.findWithinHorizon("/", 0);
                 if (sc.hasNextInt()) {
                     // total snow in inches
                     retVal[1] = sc.nextInt();
@@ -378,23 +386,19 @@ public class FSSObsUtils {
             whatMatched = sc.findWithinHorizon("4/", 0);
             if (whatMatched != null) {
                 // snow depth on ground in inches
-                if (retVal.length >= 5) {
-                    retVal[2] = sc.nextInt();
-                }
+                retVal[2] = sc.nextInt();
             }
         }
         sc.close();
-        if ((tableRow.getTemperature() != MISSING)
-                && (tableRow.getTemperature() < 4.4f)
+        if ((temp != MISSING) && (temp < 4.4f)
                 // 277.6 K = 40 F = 4.44444 C
-                && (tableRow.getWindSpeed() != MISSING)
-                && (tableRow.getWindSpeed() <= 43.0f && tableRow.getWindSpeed() >= 14.0f)) {
-            float speedKPH = tableRow.getWindSpeed() * 1.6f;
-            float t = tableRow.getTemperature();
+                && (windspd != MISSING)
+                && (windspd <= 43.0f && windspd >= 14.0f)) {
+            float speedKPH = windspd * 1.6f;
             // in Kelvin
-            retVal[3] = calcWindChill(t, speedKPH) + 273.15f;
+            retVal[3] = calcWindChill(temp, speedKPH) + TMCK;
             // in minutes
-            retVal[4] = calcFrostbiteTime(speedKPH, t);
+            retVal[4] = calcFrostbiteTime(speedKPH, temp);
         }
         return retVal;
     }

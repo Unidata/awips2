@@ -13,7 +13,9 @@ Require-Bundle: com.raytheon.edex.textdb,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.status;bundle-version="1.11.17",
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
- com.raytheon.uf.edex.archive
+ com.raytheon.uf.edex.archive,
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.14.0"
 Export-Package: com.raytheon.edex.plugin.text,
  com.raytheon.edex.plugin.text.dao
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

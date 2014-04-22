@@ -249,8 +249,8 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.xmpp"
       return 0
    fi
-   if [ "${1}" = "awips2-httpd-collaboration" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.httpd-collaboration"
+   if [ "${1}" = "awips2-collab-dataserver" ]; then
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.collab-dataserver"
       return 0
    fi
 
