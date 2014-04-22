@@ -109,6 +109,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
  * Apr 16, 2014 3020       bclement    added check for invited rooms in roomExistsOnServer()
  * Apr 21, 2014 2822       bclement    added hasMultipleHandles()
+ * Apr 22, 2014 2903       bclement    added connection test to close method
  * 
  * 
  * </pre>
@@ -192,7 +193,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
             muc.removeParticipantListener(participantListener);
             participantListener = null;
         }
-        muc.leave();
+        CollaborationConnection conn = getConnection();
+        if (conn != null && conn.isConnected()) {
+            muc.leave();
+        }
         muc = null;
     }
 
