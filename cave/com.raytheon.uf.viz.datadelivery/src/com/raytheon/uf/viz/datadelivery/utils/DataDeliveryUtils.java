@@ -48,6 +48,8 @@ import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.site.SiteData;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.SizeUtil;
@@ -90,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 11, 2013 2386       mpduff       Refactor DD Front end.
  * Nov 07, 2013 2291       skorolev     Added showText() method for messages with many lines.
  * Feb 11, 2014 2771       bgonzale     Added Data Delivery ID, getter, and retrieval method.
+ * Apr 2,  2014 2974       dhladky      DD ID added to list for dropdowns in DD.
  * </pre>
  * 
  * @author mpduff
@@ -856,5 +859,23 @@ public class DataDeliveryUtils {
             throw new RuntimeException(
                     "Unable to retrieve Data Delivery ID from EDEX.", e);
         }
+    }
+    
+    /**
+     * Gets the DD id containing site List.
+     * @return
+     */
+    public static List<String> getDataDeliverySiteList() {
+        
+        Map<String, SiteData> siteData = SiteMap.getInstance().getSiteData();
+        Set<String> sites = siteData.keySet();
+        List<String> siteList = new ArrayList<String>(sites);
+        String DDid = DataDeliveryUtils.getDataDeliveryId();
+        if (!siteList.contains(DDid)) {
+            siteList.add(DDid);
+            Collections.sort(siteList);
+        }
+        
+        return siteList;
     }
 }

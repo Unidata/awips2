@@ -15,4 +15,19 @@
         <constructor-arg value="jms-durable:queue:Ingest.obs" />
     </bean>
   
+    <bean id="mtrListener" class="com.raytheon.edex.plugin.obs.ingest.MTRSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.spi" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.goodness" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="MTR.primary" />
+        <constructor-arg ref="mtrListener" />
+    </bean>
+
 </beans>

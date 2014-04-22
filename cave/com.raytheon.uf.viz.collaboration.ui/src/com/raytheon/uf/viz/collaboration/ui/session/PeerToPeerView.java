@@ -24,9 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -36,21 +33,25 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
 import com.raytheon.uf.viz.collaboration.comm.identity.IPeerToPeer;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.RosterItem;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionItem;
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTask;
+import com.raytheon.uf.viz.collaboration.ui.notifier.NotifierTools;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 
 /**
- * TODO Add Description
+ * UI display for one-on-one chat sessions
  * 
  * <pre>
  * 
@@ -59,13 +60,16 @@ import com.raytheon.uf.viz.collaboration.ui.actions.PrintLogActionContributionIt
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Jan 30, 2014 2698       bclement    added getDisplayName
+ * Feb 13, 2014 2751       bclement   made parent generic
+ * Feb 28, 2014 2632       mpduff      Override appendMessage for notifiers
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-public class PeerToPeerView extends AbstractSessionView implements
+public class PeerToPeerView extends AbstractSessionView<UserId> implements
         IPrintableView {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PeerToPeerView.class);
@@ -80,7 +84,7 @@ public class PeerToPeerView extends AbstractSessionView implements
 
     private static Color black = null;
 
-    private IQualifiedID peer;
+    private UserId peer;
 
     private boolean online = true;
 
@@ -118,6 +122,27 @@ public class PeerToPeerView extends AbstractSessionView implements
     protected void populateSashForm(SashForm sashForm) {
         super.populateSashForm(sashForm);
         sashForm.setWeights(new int[] { 20, 5 });
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * appendMessage(com.raytheon.uf.viz.collaboration.comm.identity.IMessage)
+     */
+    @Override
+    public void appendMessage(IMessage message) {
+        // Check for message notifiers
+        NotifierTask task = NotifierTools.getNotifierTask(message.getFrom()
+                .getName());
+        if (task != null && task.containsSendMessage()) {
+            if (task.isSoundValid()) {
+                SoundUtil.playSound(task.getSoundFilePath());
+                NotifierTools.taskExecuted(task);
+            }
+        }
+
+        super.appendMessage(message);
     }
 
     /*
@@ -219,9 +244,9 @@ public class PeerToPeerView extends AbstractSessionView implements
     protected String getSessionName() {
         if (peer == null) {
             return getViewSite().getSecondaryId();
-        } else if (peer instanceof IUser) {
+        } else if (peer instanceof UserId) {
             return CollaborationConnection.getConnection().getContactsManager()
-                    .getDisplayName((IUser) peer);
+                    .getDisplayName(peer);
         } else {
             return peer.getFQName();
         }
@@ -239,21 +264,21 @@ public class PeerToPeerView extends AbstractSessionView implements
         return new SessionMsgArchive(me.getHost(), me.getName(), peer.getName());
     }
 
-    public void setPeer(IQualifiedID peer) {
+    public void setPeer(UserId peer) {
         this.peer = peer;
         setPartName(getSessionName());
         initMessageArchive();
     }
 
-    public IQualifiedID getPeer() {
+    public UserId getPeer() {
         return peer;
     }
 
     @Subscribe
-    public void handleModifiedPresence(IRosterEntry entry) {
-        UserId id = IDConverter.convertFrom(entry.getUser());
+    public void handleModifiedPresence(RosterItem entry) {
+        UserId id = entry.getId();
         if (id.equals(peer)) {
-            if (entry.getPresence().getType() == Type.UNAVAILABLE) {
+            if (entry.getPresence().getType() == Type.unavailable) {
                 online = false;
             } else {
                 online = true;
@@ -305,5 +330,18 @@ public class PeerToPeerView extends AbstractSessionView implements
         return "Conversation session with user " + getSessionName()
                 + ", Date: "
                 + dateFormatter.format(msgArchive.getCreationTime());
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.collaboration.ui.session.AbstractSessionView#
+     * getDisplayName
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String getDisplayName(UserId userId) {
+        CollaborationConnection conn = CollaborationConnection.getConnection();
+        return conn.getContactsManager().getDisplayName(userId);
     }
 }

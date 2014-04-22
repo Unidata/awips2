@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 									 as the ids in source file.
  * 11/13/2012	14368	 Xiaochuan	 Required to set alarm time in a quiet time period 
  * 									 from the last event to new event (new storm come in).
+ * 03/12/2014   2904     dhladky     Check for occasional Null MesoMap.
  * 
  * </pre>
  * 
@@ -216,114 +217,115 @@ public class MesoCycloneTabularProduct extends RadarProduct {
         String dazm = null;
         String drng = null;
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_CIRC_ID));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            row.setIdent(featureVal);
-        }
+        if (mesoMap != null) {
 
-        featureVal = (mesoMap
-                .get(RadarConstants.MapValues.MESO_AZIMUTH_DIRECTION));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            row.setAzm(new Double(featureVal));
-            dazm = row.getAzm().toString();
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_AZIMUTH_RANGE));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            row.setRng(new Double(featureVal));
-            drng = new Double(row.getRng() * ScanUtils.NMI_TO_KM * 1000)
-                    .toString();
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MOTION_DIR));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            row.setDir(new Double(featureVal));
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MOTION_SPD));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            row.setSpd(new Double(featureVal));
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_STORM_ID));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setStrmID(featureVal);
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MSI));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setMsi(new Integer(featureVal));
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_SR));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setRank(featureVal);
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_TVS_TYPE));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setTvs(featureVal);
-        }
-
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_BASE));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            String base = featureVal;
-            if (base.startsWith("<") || base.startsWith(">")) {
-                base = base.substring(1, base.length()).trim();
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_CIRC_ID));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                row.setIdent(featureVal);
             }
-            ((DMDTableDataRow) row).setBase(new Double(base));
-        }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_DEPTH));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            String depth = featureVal;
-            if (depth.startsWith("<") || depth.startsWith(">")) {
-                depth = depth.substring(1, depth.length()).trim();
+            featureVal = (mesoMap
+                    .get(RadarConstants.MapValues.MESO_AZIMUTH_DIRECTION));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                row.setAzm(new Double(featureVal));
+                dazm = row.getAzm().toString();
             }
-            ((DMDTableDataRow) row).setDepth(new Double(depth));
-        }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_DEPTH_PERCENT));
-        if (((featureVal) != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setRelDepth(new Double(featureVal));
-        }
+            featureVal = (mesoMap
+                    .get(RadarConstants.MapValues.MESO_AZIMUTH_RANGE));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                row.setRng(new Double(featureVal));
+                drng = new Double(row.getRng() * ScanUtils.NMI_TO_KM * 1000)
+                        .toString();
+            }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_RV));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setLlVr(new Double(featureVal));
-        }
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MOTION_DIR));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                row.setDir(new Double(featureVal));
+            }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MAX_RV_SPD));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setMaxVr(new Double(featureVal));
-        }
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MOTION_SPD));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                row.setSpd(new Double(featureVal));
+            }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_DV));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setLlgtg(new Double(featureVal));
-        }
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_STORM_ID));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setStrmID(featureVal);
+            }
 
-        featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MAX_RV));
-        if ((featureVal != null) && !featureVal.equals(BLANK)) {
-            ((DMDTableDataRow) row).setHtMxVr(new Double(featureVal));
-        }
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MSI));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setMsi(new Integer(featureVal));
+            }
 
-        // coor = RadarRecordUtil
-        // .getDMDLonLatFromFeatureID((RadarRecord) rec, key);
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_SR));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setRank(featureVal);
+            }
 
-        if ((dazm != null) && (drng != null)) {
-            coor = RadarRecordUtil
-                    .getAzRangeLatLon((RadarRecord) rec, key,
-                            ((RadarRecord) rec).getSpatialObject().getLat(),
-                            ((RadarRecord) rec).getSpatialObject().getLon(),
-                            dazm, drng);
-        }
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_TVS_TYPE));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setTvs(featureVal);
+            }
 
-        if (coor != null) {
-            row.setLat(coor.y);
-            row.setLon(coor.x);
-            row.setCounty(getCountyBySpatialQuery(coor));
-            row.setCwa(getCWABySpatialQuery(coor));
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_BASE));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                String base = featureVal;
+                if (base.startsWith("<") || base.startsWith(">")) {
+                    base = base.substring(1, base.length()).trim();
+                }
+                ((DMDTableDataRow) row).setBase(new Double(base));
+            }
+
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_DEPTH));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                String depth = featureVal;
+                if (depth.startsWith("<") || depth.startsWith(">")) {
+                    depth = depth.substring(1, depth.length()).trim();
+                }
+                ((DMDTableDataRow) row).setDepth(new Double(depth));
+            }
+
+            featureVal = (mesoMap
+                    .get(RadarConstants.MapValues.MESO_DEPTH_PERCENT));
+            if (((featureVal) != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setRelDepth(new Double(featureVal));
+            }
+
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_RV));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setLlVr(new Double(featureVal));
+            }
+
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MAX_RV_SPD));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setMaxVr(new Double(featureVal));
+            }
+
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_DV));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setLlgtg(new Double(featureVal));
+            }
+
+            featureVal = (mesoMap.get(RadarConstants.MapValues.MESO_MAX_RV));
+            if ((featureVal != null) && !featureVal.equals(BLANK)) {
+                ((DMDTableDataRow) row).setHtMxVr(new Double(featureVal));
+            }
+
+            if ((dazm != null) && (drng != null)) {
+                coor = RadarRecordUtil.getAzRangeLatLon((RadarRecord) rec, key,
+                        ((RadarRecord) rec).getSpatialObject().getLat(),
+                        ((RadarRecord) rec).getSpatialObject().getLon(), dazm,
+                        drng);
+            }
+
+            if (coor != null) {
+                row.setLat(coor.y);
+                row.setLon(coor.x);
+                row.setCounty(getCountyBySpatialQuery(coor));
+                row.setCwa(getCWABySpatialQuery(coor));
+            }
         }
 
         return row;

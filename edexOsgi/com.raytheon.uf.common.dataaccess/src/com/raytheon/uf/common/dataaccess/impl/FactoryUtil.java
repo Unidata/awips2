@@ -33,11 +33,12 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 14, 2012            njensen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 14, 2012           njensen     Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class FactoryUtil {
      */
     public static DataTime[] getAvailableTimes(IDataFactory factory,
             IDataRequest request, BinOffset binOffset) {
-        DataTime[] actualTimes = factory.getAvailableTimes(request);
+        DataTime[] actualTimes = factory.getAvailableTimes(request, false);
         if (binOffset != null) {
             Set<DataTime> normalized = binOffset
                     .getNormalizedTimes(actualTimes);

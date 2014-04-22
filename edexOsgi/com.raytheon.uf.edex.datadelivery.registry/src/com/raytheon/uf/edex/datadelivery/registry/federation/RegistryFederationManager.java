@@ -153,6 +153,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 1/21/2014    2613        bphillip    Changed max down time which requires a sync
  * Feb 11, 2014 2771        bgonzale    Use Data Delivery ID instead of Site.
  * 2/13/2014    2769        bphillip    Refactored registry sync. Created quartz tasks to monitor registry uptime as well as subscription integrity
+ * Mar 31, 2014 2889        dhladky     Added username for notification center tracking.
  * </pre>
  * 
  * @author bphillip
@@ -1077,6 +1078,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                             registryObjectDao.getById(objIds));
                     request.setCheckReferences(false);
                     request.setMode(Mode.CREATE_OR_REPLACE);
+                    request.setUsername(RegistryUtil.registryUser);
                     request.getSlot().add(
                             new SlotType(EbxmlObjectUtil.EVENT_SOURCE_SLOT,
                                     new StringValueType(DataDeliveryIdUtil

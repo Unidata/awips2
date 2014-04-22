@@ -4159,6 +4159,14 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
      </contourLabeling>
   </contourStyle>
 </styleRule>
+<styleRule>
+        <paramLevelMatches>
+            <parameter>TEMPWTR</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>C</displayUnits>
+        </contourStyle>
+    </styleRule>
 
 <styleRule>
     <paramLevelMatches>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+This file is the A2 NDM replacement for redbookCPCMenus.txt.  
+
+Dropping RedbookHazardMenus.xml into the /awips2/edex/data/ndm directory 
+will generate an override of the CPC menu.
+
+RedbookHazardMenus.xml as written here will generate the base version 
+of the CPC menus.
+ -->
+ 
+<redbookMenu>
+    <menuEntry type="submenu" text="Hazard Charts"
+        id="ncepHydro.cpc.hazardCharts">
+        <menuEntry type="title" text="------ 3-7 Day Hazards Outlook ------"
+            id="threeTo7DayHazardsOutlook" />
+        <menuEntry type="productButton" text="3-7 day Precipitation Fcst" 
+            id="threeTo7DayPrecipFcst">
+            <!-- Redbook Key: 5432 -->
+            <menuEntry type="substitute" key="wmo" value="PEIY97" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="3-7 Temperature/Wind Fcst" 
+            id="threeTo7DayTempWindFcst">
+            <!-- Redbook Key: 5434 -->
+            <menuEntry type="substitute" key="wmo" value="PTIY97" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="3-7 day Soil/Wildfire Fcst" 
+            id="threeTo7DaySoilWildfireFcst">
+            <!-- Redbook Key: 5436 -->
+            <menuEntry type="substitute" key="wmo" value="PYIY97" />    
+        </menuEntry>
+        
+        <menuEntry type="title" text="------ 8-14 Day Hazards Outlook ------"
+            id="eightTo14DayHazardOutlook" />
+        <menuEntry type="productButton" text="8-14 day Precipitation Fcst" 
+            id="eightTo14DayPrecipFcst">
+            <!-- Redbook Key: 5433 -->
+            <menuEntry type="substitute" key="wmo" value="PEIY96" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="8-14 Temperature/Wind Fcst" 
+            id="eightTo14DayTempWindFcst">
+            <!-- Redbook Key: 5435 -->
+            <menuEntry type="substitute" key="wmo" value="PTIY96" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="8-14 day Soil/Wildfire Fcst" 
+            id="eightTo14DaySoilWildfireFcst">
+            <!-- Redbook Key: 5437 -->
+            <menuEntry type="substitute" key="wmo" value="PYIY96" />    
+        </menuEntry>
+            
+        <menuEntry type="title" text="------ 6-10 Day Heat Index Fcst ------"
+            id="sixTo10DayHeatIndexFcstLine" />
+        <menuEntry type="productButton" text=">= 85F for 3 days of 5" 
+            id="gt85For3daysOf5">
+            <!-- Redbook Key: 5298 -->
+            <menuEntry type="substitute" key="wmo" value="PTAS90" />    
+        </menuEntry>
+        <menuEntry type="productButton" text=">= 90F for 2 days of 5" 
+            id="gt90For2daysOf5">
+            <!-- Redbook Key: 5299 -->
+            <menuEntry type="substitute" key="wmo" value="PTAS95" />    
+        </menuEntry>
+        <menuEntry type="productButton" text=">= 95F for 1 day of 5" 
+            id="gt95For1dayOf5">
+            <!-- Redbook Key: 5300 -->
+            <menuEntry type="substitute" key="wmo" value="PTAS00" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="6-10 Day Max Heat Index Outlook" 
+            id="maxHeatIndexOutlook">
+            <!-- Redbook Key: 5383 -->
+            <menuEntry type="substitute" key="wmo" value="PTNR98" />    
+        </menuEntry>
+            
+        <menuEntry type="title" text="------ 8-14 Day Heat Index Fcst ------"
+            id="eightTo14DayHeatIndexFcstLine" />
+        <menuEntry type="productButton" text=">= 85F for 3 days of 7" 
+            id="gt85For3daysOf7">
+            <!-- Redbook Key: 5301 -->
+            <menuEntry type="substitute" key="wmo" value="PTAT90" />    
+        </menuEntry>
+        <menuEntry type="productButton" text=">= 90F for 2 days of 7" 
+            id="gt90For2daysOf7">
+            <!-- Redbook Key: 5302 -->
+            <menuEntry type="substitute" key="wmo" value="PTAT95" />    
+        </menuEntry>
+        <menuEntry type="productButton" text=">= 95F for 1 day of 7" 
+            id="gt95For1dayOf7">
+            <!-- Redbook Key: 5303 -->
+            <menuEntry type="substitute" key="wmo" value="PTAT00" />    
+        </menuEntry>
+        <menuEntry type="productButton" text="8-14 Day Max Heat Index Outlook" 
+            id="maxHeatIndexOutlook">
+            <!-- Redbook Key: 5247 -->
+            <menuEntry type="substitute" key="wmo" value="PTNT98" />    
+        </menuEntry>
+    </menuEntry>
+</redbookMenu>

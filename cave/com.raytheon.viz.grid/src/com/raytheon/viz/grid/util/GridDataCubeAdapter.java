@@ -34,6 +34,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridPathProvider;
@@ -44,6 +48,9 @@ import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.inv.MetadataContainer;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterGenerator;
 import com.raytheon.uf.common.geospatial.ISpatialEnabled;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
@@ -51,16 +58,10 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
 import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterGenerator;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
+import com.raytheon.uf.viz.datacube.AbstractDataCubeAdapter;
+import com.raytheon.uf.viz.datacube.CubeUtil;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.inv.GridInventory;
 import com.raytheon.viz.grid.inv.GridMetadataContainer;
@@ -102,7 +103,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 gridInventory.initTree(DerivedParameterGenerator
                         .getDerParLibrary());
                 this.gridInventory = gridInventory;
-            } catch (VizException e) {
+            } catch (DataCubeException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -118,56 +119,56 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         if (obj instanceof RequestableDataRecord) {
             return super.getRecord(obj, req, dataset);
         }
-        try {
-            IDataRecord record = null;
-            if (GridPathProvider.STATIC_PARAMETERS.contains(((GridRecord) obj)
-                    .getParameter().getAbbreviation())) {
-                GridRecord gridRec = (GridRecord) obj;
-                IDataStore ds = DataStoreFactory.getDataStore(HDF5Util
-                        .findHDF5Location(obj));
-                try {
-                    record = ds.retrieve("/" + gridRec.getLocation().getId(),
-                            gridRec.getParameter().getAbbreviation(), req);
-                } catch (Exception e) {
-                    throw new VizException("Error retrieving staticTopo data!",
-                            e);
-                }
-            } else {
-                record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
-                        dataset);
+        IDataRecord record = null;
+        if (GridPathProvider.STATIC_PARAMETERS.contains(((GridRecord) obj)
+                .getParameter().getAbbreviation())) {
+            GridRecord gridRec = (GridRecord) obj;
+            IDataStore ds = DataStoreFactory.getDataStore(HDF5Util
+                    .findHDF5Location(obj));
+            try {
+                record = ds.retrieve("/" + gridRec.getLocation().getId(),
+                        gridRec.getParameter().getAbbreviation(), req);
+            } catch (Exception e) {
+                throw new DataCubeException(
+                        "Error retrieving staticTopo data!", e);
             }
-            return new IDataRecord[] { record };
-
-        } catch (VizException e) {
-            throw new VizDataCubeException("Error retrieving grid record.", e);
+        } else {
+            record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
+                    dataset);
         }
+        return new IDataRecord[] { record };
     }
 
     private IDataRecord[] getRecord(PluginDataObject obj, Request[] requests)
             throws VizException {
-        if (requests == null) {
-            return ((RequestableDataRecord) obj).getDataRecord(Request.ALL);
-        }
-        Request retrieveRequest = requests[0];
-        Request sliceRequest = requests[1];
-
-        IDataRecord[] recs = ((RequestableDataRecord) obj)
-                .getDataRecord(retrieveRequest);
-        IDataRecord[] newRecs = new IDataRecord[recs.length];
-        for (int i = 0; i < recs.length; i++) {
-            if (recs[i] instanceof FloatDataRecord) {
-                newRecs[i] = SliceUtil.slice((FloatDataRecord) recs[i],
-                        sliceRequest);
-            } else {
-                throw new VizDataCubeException("Error processing slab of type"
-                        + recs[i].getClass().getSimpleName());
+        try {
+            if (requests == null) {
+                return ((RequestableDataRecord) obj).getDataRecord(Request.ALL);
             }
+            Request retrieveRequest = requests[0];
+            Request sliceRequest = requests[1];
+
+            IDataRecord[] recs = ((RequestableDataRecord) obj)
+                    .getDataRecord(retrieveRequest);
+            IDataRecord[] newRecs = new IDataRecord[recs.length];
+            for (int i = 0; i < recs.length; i++) {
+                if (recs[i] instanceof FloatDataRecord) {
+                    newRecs[i] = SliceUtil.slice((FloatDataRecord) recs[i],
+                            sliceRequest);
+                } else {
+                    throw new VizDataCubeException(
+                            "Error processing slab of type"
+                                    + recs[i].getClass().getSimpleName());
+                }
+            }
+            return newRecs;
+        } catch (DataCubeException e) {
+            throw new VizException(e);
         }
-        return newRecs;
     }
 
     private Request[] generateRequests(Request req, ISpatialObject area) {
@@ -275,7 +276,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         Set<GridRequestableData> realData = new HashSet<GridRequestableData>();
         ISpatialObject area = null;
         for (PluginDataObject obj : objs) {
@@ -349,7 +350,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                             data.setDataValue(request, value);
                         }
                     } catch (Exception e) {
-                        throw new VizDataCubeException(e);
+                        throw new DataCubeException(e);
                     }
                 }
             }
@@ -367,7 +368,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                         records = getRecord(obj, requests);
                     }
                 } catch (VizException e) {
-                    throw new VizDataCubeException(e.getMessage(), e);
+                    throw new DataCubeException(e.getMessage(), e);
                 }
             } else {
                 records = getRecord(obj, req, dataset);
@@ -400,7 +401,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     protected List<DataTime> timeAgnosticQuery(
-            Map<String, RequestConstraint> queryTerms) throws VizException {
+            Map<String, RequestConstraint> queryTerms) throws DataCubeException {
         return gridInventory.timeAgnosticQuery(queryTerms);
     }
 
@@ -415,72 +416,78 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     protected List<PluginDataObject> getData(
             Map<String, RequestConstraint> constraints,
             DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
-            throws VizException {
-        List<PluginDataObject> results = new ArrayList<PluginDataObject>(
-                requesters.size());
-        for (AbstractRequestableData requester : requesters) {
-            List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
-            if (requester.getDataTime() == null
-                    || requester.getTimeAndSpace().isTimeAgnostic()) {
-                DataTime[] entryTime = selectedTimes;
-                if (entryTime != null && entryTime.length > 0) {
-                    List<DataTime> entryTimes = new ArrayList<DataTime>(
-                            Arrays.asList(entryTime));
-                    for (DataTime time : entryTimes) {
-                        RequestableDataRecord rec = new RequestableDataRecord(
-                                requester);
-                        rec.setDataTime(time.clone());
-                        rec.setDataURI(null);
-                        boolean newRecord = true;
-                        for (PluginDataObject result : results) {
-                            if (result.getDataURI().equals(rec.getDataURI())) {
-                                newRecord = false;
-                                break;
+            throws DataCubeException {
+        try {
+            List<PluginDataObject> results = new ArrayList<PluginDataObject>(
+                    requesters.size());
+            for (AbstractRequestableData requester : requesters) {
+                List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
+                if (requester.getDataTime() == null
+                        || requester.getTimeAndSpace().isTimeAgnostic()) {
+                    DataTime[] entryTime = selectedTimes;
+                    if (entryTime != null && entryTime.length > 0) {
+                        List<DataTime> entryTimes = new ArrayList<DataTime>(
+                                Arrays.asList(entryTime));
+                        for (DataTime time : entryTimes) {
+                            RequestableDataRecord rec = new RequestableDataRecord(
+                                    requester);
+                            rec.setDataTime(time.clone());
+                            rec.setDataURI(null);
+                            boolean newRecord = true;
+                            for (PluginDataObject result : results) {
+                                if (result.getDataURI()
+                                        .equals(rec.getDataURI())) {
+                                    newRecord = false;
+                                    break;
+                                }
+                            }
+                            if (newRecord) {
+                                records.add(rec);
                             }
                         }
-                        if (newRecord) {
-                            records.add(rec);
-                        }
+                    } else {
+                        RequestableDataRecord rec = new RequestableDataRecord(
+                                requester);
+                        rec.setDataTime(new DataTime(Calendar.getInstance()));
+                        records.add(rec);
                     }
                 } else {
                     RequestableDataRecord rec = new RequestableDataRecord(
                             requester);
-                    rec.setDataTime(new DataTime(Calendar.getInstance()));
                     records.add(rec);
                 }
-            } else {
-                RequestableDataRecord rec = new RequestableDataRecord(requester);
-                records.add(rec);
-            }
-            if (requester.getSpace() == null
-                    || requester.getTimeAndSpace().isSpaceAgnostic()) {
-                Collection<GridCoverage> coverages = CoverageUtils
-                        .getInstance().getCoverages(requester.getSource());
-                if (coverages != null && !coverages.isEmpty()) {
-                    List<RequestableDataRecord> spaceRecords = new ArrayList<RequestableDataRecord>();
-                    for (RequestableDataRecord record : records) {
-                        for (GridCoverage coverage : coverages) {
-                            record = new RequestableDataRecord(record);
-                            record.setLocation(coverage);
-                            record.setDataURI(null);
-                            spaceRecords.add(record);
+                if (requester.getSpace() == null
+                        || requester.getTimeAndSpace().isSpaceAgnostic()) {
+                    Collection<GridCoverage> coverages = CoverageUtils
+                            .getInstance().getCoverages(requester.getSource());
+                    if (coverages != null && !coverages.isEmpty()) {
+                        List<RequestableDataRecord> spaceRecords = new ArrayList<RequestableDataRecord>();
+                        for (RequestableDataRecord record : records) {
+                            for (GridCoverage coverage : coverages) {
+                                record = new RequestableDataRecord(record);
+                                record.setLocation(coverage);
+                                record.setDataURI(null);
+                                spaceRecords.add(record);
+                            }
                         }
+                        records = spaceRecords;
                     }
-                    records = spaceRecords;
+                }
+                results.addAll(records);
+            }
+            if (constraints.containsKey(GridInventory.ENSEMBLE_QUERY)) {
+                String ensemble = constraints.get(GridInventory.ENSEMBLE_QUERY)
+                        .getConstraintValue();
+                if (ensemble != null) {
+                    for (Object rec : results) {
+                        ((GridRecord) rec).setEnsembleId(ensemble);
+                    }
                 }
             }
-            results.addAll(records);
+            return results;
+        } catch (VizException e) {
+            throw new DataCubeException(e);
         }
-        if (constraints.containsKey(GridInventory.ENSEMBLE_QUERY)) {
-            String ensemble = constraints.get(GridInventory.ENSEMBLE_QUERY)
-                    .getConstraintValue();
-            if (ensemble != null) {
-                for (Object rec : results) {
-                    ((GridRecord) rec).setEnsembleId(ensemble);
-                }
-            }
-        }
-        return results;
     }
 
     @Override

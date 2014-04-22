@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.core.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * An event to put on a CollaborationConnection event bus when a users nickname
@@ -33,6 +33,7 @@ import org.eclipse.ecf.core.user.IUser;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 25, 2012            bsteffen     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -42,16 +43,16 @@ import org.eclipse.ecf.core.user.IUser;
 
 public class UserNicknameChangedEvent {
 
-    public final IUser user;
+    public final VenueParticipant user;
 
     public final String nickname;
 
-    public UserNicknameChangedEvent(IUser user, String nickname) {
+    public UserNicknameChangedEvent(VenueParticipant user, String nickname) {
         this.user = user;
         this.nickname = nickname;
     }
 
-    public IUser getUser() {
+    public VenueParticipant getUser() {
         return user;
     }
 

@@ -144,7 +144,7 @@ public class GenericGeometryResource extends
 
         OutlineCapability outlineCapability = getCapability(OutlineCapability.class);
         // Finally, draw the shape
-        if (frameData.shape != null && outlineCapability.isOutlineOn()) {
+        if ((frameData.shape != null) && outlineCapability.isOutlineOn()) {
             target.drawWireframeShape(frameData.shape,
                     getCapability(ColorableCapability.class).getColor(),
                     outlineCapability.getOutlineWidth(),
@@ -215,8 +215,7 @@ public class GenericGeometryResource extends
             // add the geometries
             for (IGeometryData geometryData : this.resourceData.getData(time)) {
                 try {
-                    jtsCompiler.handle((Geometry) geometryData.getGeometry()
-                            .clone());
+                    jtsCompiler.handle(geometryData.getGeometry());
                 } catch (VizException e1) {
                     statusHandler.handle(UFStatus.Priority.ERROR,
                             "Failed to handle Geometry "

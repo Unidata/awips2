@@ -61,10 +61,11 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 20, 2009            mpduff     Initial creation
+ * Feb 20, 2009            mpduff      Initial creation
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
+ * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -156,11 +157,15 @@ public class HydroColorBarResource extends
 
         target.clearClippingPlane();
 
-        double yMax = screenExtent.getMaxY();
+        try {
+            double yMax = screenExtent.getMaxY();
 
-        /* Draw the color bar */
-        yMax = drawColorBar(target, screenExtent.getMinX(),
-                screenExtent.getMaxX(), yMax);
+            /* Draw the color bar */
+            yMax = drawColorBar(target, screenExtent.getMinX(),
+                    screenExtent.getMaxX(), yMax);
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
+        }
     }
 
     /**

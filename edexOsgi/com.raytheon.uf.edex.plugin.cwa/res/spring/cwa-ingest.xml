@@ -34,10 +34,14 @@
                     <bean ref="cwaDecoder" method="decode" />
                     <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:cwa?level=ERROR"/>
-                </doCatch>
+                    <doCatch>
+                        <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
+                        <to uri="direct-vm:logFailureAsInfo" />
+                    </doCatch>                    
+                    <doCatch>
+                        <exception>java.lang.Throwable</exception>
+                        <to uri="direct-vm:logFailedData"/>
+                    </doCatch>
             </doTry>
         </route>
     </camelContext>

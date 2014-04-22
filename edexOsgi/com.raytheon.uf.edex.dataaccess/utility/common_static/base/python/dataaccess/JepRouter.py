@@ -29,9 +29,10 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/10/12                      njensen       Initial Creation.
-#    Feb 14, 2013    1614          bsteffen       refactor data access framework
+#    12/10/12                      njensen        Initial Creation.
+#    02/14/13        1614          bsteffen       refactor data access framework
 #                                                 to use single request.
+#    03/03/14        2673          bsteffen       Add ability to query only ref times.
 #    
 # 
 #
@@ -49,8 +50,8 @@ import DataTime
 import JGeometryData, JGridData, JDataRequest
 
 
-def getAvailableTimes(request):
-    javaTimes = JavaDataAccessLayer.getAvailableTimes(request.toJavaObj())
+def getAvailableTimes(request, refTimeOnly):
+    javaTimes = JavaDataAccessLayer.getAvailableTimes(request.toJavaObj(), refTimeOnly)
     times = []
     for jt in javaTimes:
         times.append(DataTime.DataTime(jt))

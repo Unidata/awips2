@@ -24,29 +24,37 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Performs setup operations for OHD services
  * 
- * @author jelkins
+ * <pre>
  * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * 
+ * </pre>
+ * 
+ * @author jelkins
+ * @version 1.0
  */
 public class SetupSrv implements ServiceInterface {
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(SetupSrv.class);
 
     /** set to true when setup service has succeeded */
     private static boolean isSetup = false;
-
-    Log logger = LogFactory.getLog(SetupSrv.class);
 
     AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
