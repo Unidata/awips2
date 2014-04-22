@@ -6,7 +6,6 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
 Export-Package: com.raytheon.uf.common.datadelivery.event,
  com.raytheon.uf.common.datadelivery.event.notification,
  com.raytheon.uf.common.datadelivery.event.retrieval,

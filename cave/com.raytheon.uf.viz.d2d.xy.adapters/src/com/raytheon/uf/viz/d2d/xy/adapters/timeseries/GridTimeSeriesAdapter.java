@@ -28,14 +28,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.datastorage.Request;
+import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -46,9 +47,10 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.datacube.CubeUtil;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
@@ -61,9 +63,10 @@ import com.raytheon.viz.core.graphing.xy.XYWindImageData;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 07, 2010           bsteffen    Initial creation
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -281,53 +284,43 @@ public class GridTimeSeriesAdapter extends
         }
         Request request = Request.buildPointRequest(index);
 
-        boolean isVectorData = false;
-
         boolean isIcon = displayType == DisplayType.ICON;
 
         for (GridRecord rec : gribs) {
-
             IDataRecord[] records = cache.get(rec);
             if (records == null) {
-                records = DataCubeContainer.getDataRecord(rec, request, null);
+                try {
+                    records = DataCubeContainer.getDataRecord(rec, request,
+                            null);
+                } catch (DataCubeException e) {
+                    throw new VizException(e);
+                }
                 cache.put(rec, records);
             }
-            double specificValue = Double.NaN;
-            double vectorDirection = Double.NaN;
-
-            // received a (wind) vector result
-            if (records.length > 1) {
-                float[] vectorDirections = (float[]) records[1].getDataObject();
-                vectorDirection = vectorDirections[0];
-                isVectorData = true;
-            }
-
-            float[] d = (float[]) records[0].getDataObject();
-            specificValue = d[0];
-            if (specificValue <= -999999) {
-                continue;
-            }
+            
+            DataTime time = rec.getDataTime();
             XYData dataPoint = null;
+            
+            if(records.length == 2){
+                double u = getValue(records[0]);
+                double v = getValue(records[1]);
+                double speed = Math.hypot(u, v);
+                double dir = Math.toDegrees(Math.atan2(-u, -v));
 
-            // do I need to convert?
-            if (!rec.getLevel().equals(preferredLevel)) {
-                Unit<?> dataUnit = levelUnitMap.get(rec.getLevel());
-                if (!dataUnit.equals(preferredUnit)) {
-                    // convert
-                    UnitConverter conv = dataUnit.getConverterTo(preferredUnit);
-                    specificValue = conv.convert(specificValue);
+                if (!Double.isNaN(speed)) {
+                    dataPoint = new XYWindImageData(time, speed,
+                        speed, dir);
                 }
-            }
-
-            // create appropriate XYData class
-            if (isVectorData) {
-                dataPoint = new XYWindImageData(rec.getDataTime(),
-                        specificValue, specificValue, vectorDirection);
-            } else if (isIcon) {
-                dataPoint = new XYIconImageData(rec.getDataTime(),
-                        specificValue, (int) specificValue);
-            } else {
-                dataPoint = new XYData(rec.getDataTime(), specificValue);
+            }else{
+                double value = getValue(records[0]);
+                if (Double.isNaN(value)) {
+                    continue;
+                } else if (isIcon) {
+                    dataPoint = new XYIconImageData(time,
+                            value, (int) value);
+                } else {
+                    dataPoint = new XYData(time, value);
+                }
             }
 
             data.add(dataPoint);
@@ -337,6 +330,16 @@ public class GridTimeSeriesAdapter extends
 
         list.setData(data);
         return list;
+    }
+
+    private double getValue(IDataRecord record) {
+        FloatDataRecord floatRecord = (FloatDataRecord) record;
+        float value = floatRecord.getFloatData()[0];
+        if (value < CubeUtil.MISSING) {
+            return Double.NaN;
+        } else {
+            return value;
+        }
     }
 
     @Override

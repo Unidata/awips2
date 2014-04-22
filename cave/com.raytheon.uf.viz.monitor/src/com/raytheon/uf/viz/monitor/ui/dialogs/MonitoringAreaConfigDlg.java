@@ -71,7 +71,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Nov 16, 2012 1297          skorolev     Changes for non-blocking dialog.
  * Feb 06, 2013 1578          skorolev     Fixed a cursor problem for checkboxes.
  * Oct 07, 2013 #2443         lvenable     Fixed image memory leak.
- * 
+ * Jan 29, 2014 2757          skorolev     Added status variables.
  * </pre>
  * 
  * @author lvenable
@@ -125,17 +125,25 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** Edit/Delete button. **/
     private Button editDeleteBtn;
 
-    /** Time scale control. **/
-    protected Scale timeScale;
+    /** Time window control. **/
+    protected Scale timeWindow;
+
+    /** Time window status. */
+    protected boolean timeWindowChanged = false;
 
     /** Time scale label to display the value set by the time scale. **/
-    private Label timeScaleLbl;
+    private Label timeWindowLbl;
 
-    /** Distance scale. **/
-    protected Scale distanceScale;
+    /** Ship Distance scale. **/
+    protected Scale shipDistance;
 
-    /** Distance scale label to display the value set by the distance scale. **/
-    private Label distanceScaleLBl;
+    /** Ship Distance status. */
+    protected boolean shipDistanceChanged = false;
+
+    /**
+     * Ship Distance scale label to display the value set by the distance scale.
+     **/
+    private Label shipDistanceLBl;
 
     /** Monitor area Add button. **/
     private Button monAreaAddBtn;
@@ -158,6 +166,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /** Fog check button. **/
     protected Button fogChk;
 
+    /** Fog check button status. */
+    protected boolean fogChkChanged = false;
+
     /** Control font. **/
     private Font controlFont;
 
@@ -169,6 +180,9 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
 
     /** monitor area zones **/
     private java.util.List<String> maZones = null;
+
+    /** monitor area zones status. */
+    protected boolean maZonesRemoved = false;
 
     /** monitor area stations **/
     private java.util.List<String> maStations = null;
@@ -457,6 +471,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
             @Override
             public void widgetSelected(SelectionEvent event) {
                 removeZoneStn();
+                maZonesRemoved = true;
             }
         });
 
@@ -646,22 +661,23 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         int defaultVal = (int) Math.round((2.00 - 0.25) / .05);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        timeScale = new Scale(scaleComp, SWT.HORIZONTAL);
-        timeScale.setMinimum(0);
-        timeScale.setMaximum(max);
-        timeScale.setSelection(defaultVal);
-        timeScale.setLayoutData(gd);
-        timeScale.addSelectionListener(new SelectionAdapter() {
+        timeWindow = new Scale(scaleComp, SWT.HORIZONTAL);
+        timeWindow.setMinimum(0);
+        timeWindow.setMaximum(max);
+        timeWindow.setSelection(defaultVal);
+        timeWindow.setLayoutData(gd);
+        timeWindow.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 setTimeScaleLabel();
+                timeWindowChanged = true;
             }
         });
 
         gd = new GridData(50, SWT.DEFAULT);
-        timeScaleLbl = new Label(scaleComp, SWT.NONE);
-        timeScaleLbl.setFont(controlFont);
-        timeScaleLbl.setLayoutData(gd);
+        timeWindowLbl = new Label(scaleComp, SWT.NONE);
+        timeWindowLbl.setFont(controlFont);
+        timeWindowLbl.setLayoutData(gd);
 
         setTimeScaleLabel();
 
@@ -682,22 +698,23 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         distanceLbl.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        distanceScale = new Scale(scaleComp, SWT.HORIZONTAL);
-        distanceScale.setMinimum(0);
-        distanceScale.setMaximum(200);
-        distanceScale.setSelection(100);
-        distanceScale.setLayoutData(gd);
-        distanceScale.addSelectionListener(new SelectionAdapter() {
+        shipDistance = new Scale(scaleComp, SWT.HORIZONTAL);
+        shipDistance.setMinimum(0);
+        shipDistance.setMaximum(200);
+        shipDistance.setSelection(100);
+        shipDistance.setLayoutData(gd);
+        shipDistance.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 setShipDistScaleLabel();
+                shipDistanceChanged = true;
             }
         });
 
         gd = new GridData(50, SWT.DEFAULT);
-        distanceScaleLBl = new Label(scaleComp, SWT.NONE);
-        distanceScaleLBl.setFont(controlFont);
-        distanceScaleLBl.setLayoutData(gd);
+        shipDistanceLBl = new Label(scaleComp, SWT.NONE);
+        shipDistanceLBl.setFont(controlFont);
+        shipDistanceLBl.setLayoutData(gd);
 
         setShipDistScaleLabel();
 
@@ -709,6 +726,12 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
         gd = new GridData();
         gd.horizontalSpan = 2;
         fogChk = new Button(scaleComp, SWT.CHECK);
+        fogChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                fogChkChanged = true;
+            }
+        });
         setAlgorithmText();
     }
 
@@ -784,18 +807,18 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /**
      * Set the time scale label.
      */
-    private void setTimeScaleLabel() {
-        double val = timeScale.getSelection() * .05 + .25;
+    protected void setTimeScaleLabel() {
+        double val = timeWindow.getSelection() * .05 + .25;
         val = roundToHundredths(val);
-        timeScaleLbl.setText(String.format("%5.2f", val));
+        timeWindowLbl.setText(String.format("%5.2f", val));
     }
 
     /**
      * Set the ship distance scale label.
      */
-    private void setShipDistScaleLabel() {
-        distanceScaleLBl.setText(String.format("%5d",
-                distanceScale.getSelection()));
+    protected void setShipDistScaleLabel() {
+        shipDistanceLBl.setText(String.format("%5d",
+                shipDistance.getSelection()));
     }
 
     /**
@@ -958,27 +981,7 @@ public abstract class MonitoringAreaConfigDlg extends CaveSWTDialog implements
     /**
      * Set the slider values and the check box.
      */
-    private void setValues() {
-        MonitorConfigurationManager configManager = getConfigManager();
-
-        if (appName == AppName.SAFESEAS) {
-            fogChk.setSelection(((SSMonitorConfigurationManager) configManager)
-                    .isUseAlgorithms());
-            distanceScale
-                    .setSelection(((SSMonitorConfigurationManager) configManager)
-                            .getShipDistance());
-            setShipDistScaleLabel();
-        } else if (appName == AppName.FOG) {
-            fogChk.setSelection(((FogMonitorConfigurationManager) configManager)
-                    .isUseAlgorithms());
-            distanceScale
-                    .setSelection(((FogMonitorConfigurationManager) configManager)
-                            .getShipDistance());
-            setShipDistScaleLabel();
-        }
-        timeScale.setSelection(configManager.getTimeWindow());
-        setTimeScaleLabel();
-    }
+    protected abstract void setValues();
 
     /**
      * Show a dialog message.

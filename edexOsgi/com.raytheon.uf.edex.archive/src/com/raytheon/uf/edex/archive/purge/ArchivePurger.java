@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.archive.purge;
 import java.util.Collection;
 
 import com.raytheon.uf.common.archive.config.ArchiveConfig;
-import com.raytheon.uf.common.archive.config.ArchiveConfigManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -45,6 +44,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Sep 03, 2013 2224       rferrel     Add check to enable/disable purger.
  * Nov 05, 2013 2499       rjpeter     Repackaged
  * Dec 17, 2013 2603       rjpeter     Reload configuration every run of purge.
+ * Apr 01, 2014 2862       rferrel     Refactored to us ArchivePurgeManager.
  * </pre>
  * 
  * @author bgonzale
@@ -67,7 +67,7 @@ public class ArchivePurger {
             ITimer timer = TimeUtil.getTimer();
             timer.start();
             statusHandler.info("Archive Purge started.");
-            ArchiveConfigManager manager = ArchiveConfigManager.getInstance();
+            ArchivePurgeManager manager = ArchivePurgeManager.getInstance();
             manager.reset();
             Collection<ArchiveConfig> archives = manager.getArchives();
             for (ArchiveConfig archive : archives) {

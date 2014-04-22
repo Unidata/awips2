@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.decodertools.core.DecoderTools;
 
 /**
@@ -38,6 +39,9 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * rollBy"X" methods allow changing the date of a calendar by specifying an
  * increment/decrement hours, days, etc. This is useful for some decoded data
  * types that specify the number of "X" units from a given base date/time.
+ * 
+ * When looking for generic Time utilities, please consider
+ * {@link com.raytheon.uf.common.time.util.TimeUtil} first.
  * 
  * <pre>
  * 
@@ -51,6 +55,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 20071019            391 jkorman     Added getSystemCalendar and TimeService.
  * 20130219           1636 rferrel     File timestamp can now be YYMMDD or YYMMDDHH.
  * 20130912           2249 rferrel     Added getWarningTimestamp method.
+ * 20140409           2907 njensen     Deprecated duplicated functionality
  * </pre>
  * 
  * @author jkorman
@@ -88,18 +93,46 @@ public class TimeTools {
     public static final Pattern WMO_TIMESTAMP = Pattern
             .compile("([0-3][0-9])(\\d{2})(\\d{2})[Zz]?");
 
-    public static final int HOURS_DAY = 24;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final int HOURS_DAY = TimeUtil.HOURS_PER_DAY;
 
-    public static final int MINUTES_HOUR = 60;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final int MINUTES_HOUR = TimeUtil.MINUTES_PER_HOUR;
 
-    public static final int SECONDS_HOUR = 3600;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final int SECONDS_HOUR = TimeUtil.SECONDS_PER_HOUR;
 
-    public static final int SECONDS_DAY = HOURS_DAY * SECONDS_HOUR;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final int SECONDS_DAY = TimeUtil.SECONDS_PER_DAY;
 
-    public static final long MILLIS_HOUR = 1000L * SECONDS_HOUR;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final long MILLIS_HOUR = TimeUtil.MILLIS_PER_HOUR;
 
-    public static final long MILLIS_DAY = MILLIS_HOUR * HOURS_DAY;
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
+    public static final long MILLIS_DAY = TimeUtil.MILLIS_PER_DAY;
 
+    /**
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
+     */
+    @Deprecated
     public static final String ZULU_TIMEZONE = "Zulu";
 
     private static ITimeService timeService = null;
@@ -142,7 +175,9 @@ public class TimeTools {
      * provider is registered, the time is retrieved from the service.
      * 
      * @return The current time as a GMT Calendar.
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar getSystemCalendar() {
         Calendar retCal = null;
         if (timeService != null) {
@@ -167,8 +202,13 @@ public class TimeTools {
      * Get a calendar that expresses the current system time. With the month day
      * and year of the file extension.
      * 
+     * Note that the month argument should be 1 based (e.g. January = 1) and the
+     * returned calendar will have the month be 0 based (e.g. January = 0).
+     * 
      * @return The current time as a GMT Calendar.
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar getSystemCalendar(int year, int month, int day) {
         return getSystemCalendar(year, month, day, 0, 0);
     }
@@ -177,6 +217,9 @@ public class TimeTools {
      * Get a calendar that expresses the current system time based on specified
      * date information or the current service time if not allowing archive.
      * 
+     * Note that the month argument should be 1 based (e.g. January = 1) and the
+     * returned calendar will have the month be 0 based (e.g. January = 0).
+     * 
      * @param year
      *            Year to set.
      * @param month
@@ -184,7 +227,9 @@ public class TimeTools {
      * @param hour
      * @param minute
      * @return The current time as a GMT Calendar.
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar getSystemCalendar(int year, int month,
             int day, int hour, int minute) {
         Calendar retCal = getSystemCalendar();
@@ -456,6 +501,9 @@ public class TimeTools {
      * Create a Greenwich Mean Time calendar for a given base date at 0 hours,
      * minutes and seconds on a specified year, month, and day.
      * 
+     * Note that the month argument should be 1 based (e.g. January = 1) and the
+     * returned calendar will have the month be 0 based (e.g. January = 0).
+     * 
      * @param year
      *            Calendar year.
      * @param month
@@ -463,7 +511,9 @@ public class TimeTools {
      * @param day
      *            Day of the month [1..31] varies by month rules.
      * @return
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar getBaseCalendar(int year, int month, int day) {
         Calendar calendar = null;
 
@@ -487,7 +537,9 @@ public class TimeTools {
      * @param timeInMillis
      *            The time to set in milliseconds.
      * @return The new calendar instance.
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar newCalendar(long timeInMillis) {
         Calendar calendar = getSystemCalendar();
 
@@ -502,7 +554,9 @@ public class TimeTools {
      * @param calendar
      *            The calendar to copy.
      * @return The copied calendar.
+     * @deprecated use com.raytheon.uf.common.time.util.TimeUtil instead
      */
+    @Deprecated
     public static final Calendar copy(Calendar calendar) {
         Calendar retValue = null;
         if (calendar != null) {
@@ -559,7 +613,9 @@ public class TimeTools {
      * @param byDays
      *            Number of days to add or subtract.
      * @return The modified calendar.
+     * @deprecated use java.util.Calendar.add(int, int) instead
      */
+    @Deprecated
     public static final Calendar rollByDays(Calendar calendar, int byDays) {
         if (calendar != null) {
             long millis = calendar.getTimeInMillis();
@@ -579,7 +635,9 @@ public class TimeTools {
      * @param byHours
      *            Number of hours to add or subtract.
      * @return The modified calendar.
+     * @deprecated use java.util.Calendar.add(int, int) instead
      */
+    @Deprecated
     public static final Calendar rollByHours(Calendar calendar, int byHours) {
         if (calendar != null) {
             long millis = calendar.getTimeInMillis();

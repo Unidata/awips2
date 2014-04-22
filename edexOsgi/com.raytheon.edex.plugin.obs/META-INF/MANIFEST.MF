@@ -17,7 +17,9 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  org.apache.camel;bundle-version="1.0.0";resolution:=optional,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.7",
- com.raytheon.uf.edex.pointdata;bundle-version="1.11.7"
+ com.raytheon.uf.edex.pointdata;bundle-version="1.11.7",
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0",
+ com.raytheon.uf.common.localization;bundle-version="1.14.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,

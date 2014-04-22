@@ -19,6 +19,8 @@
  **/
 package com.raytheon.uf.viz.core;
 
+import java.util.EnumSet;
+
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -34,9 +36,10 @@ import com.raytheon.uf.viz.core.drawables.IFont;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 14, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 14, 2010           mschenke    Initial creation
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
  * 
  * </pre>
  * 
@@ -71,8 +74,11 @@ public class DrawableString extends AbstractDrawableObject {
     /** The colors to use for the strings */
     private RGB[] colors;
 
-    /** The text style to use when drawing */
+    /** @deprecated use {@link #addTextStyle(TextStyle)} */
+    @Deprecated
     public TextStyle textStyle = TextStyle.NORMAL;
+
+    private EnumSet<TextStyle> textStyles = EnumSet.noneOf(TextStyle.class);
 
     /** The color of the shadow created when using TextStyle.DROP_SHADOW */
     public RGB shadowColor = new RGB(0, 0, 0);
@@ -95,6 +101,7 @@ public class DrawableString extends AbstractDrawableObject {
         this.verticallAlignment = that.verticallAlignment;
         this.magnification = that.magnification;
         this.rotation = that.rotation;
+        this.textStyles = that.textStyles;
         this.textStyle = that.textStyle;
         this.shadowColor = that.shadowColor;
         this.boxColor = that.boxColor;
@@ -182,6 +189,45 @@ public class DrawableString extends AbstractDrawableObject {
      */
     public RGB[] getColors() {
         return colors;
+    }
+
+    public void addTextStyle(TextStyle textStyle) {
+        textStyles.add(textStyle);
+        /*
+         * This check is the best we can do to support targets that don't know
+         * about textStyles yet.
+         */
+        if (this.textStyle == null) {
+            this.textStyle = textStyle;
+        }
+    }
+
+    public void removeTextStyle(TextStyle textStyle) {
+        textStyles.remove(textStyle);
+        /*
+         * This check is the best we can do to support targets that don't know
+         * about textStyles yet.
+         */
+        if (textStyle == this.textStyle) {
+            if (textStyles.isEmpty()) {
+                this.textStyle = null;
+            } else {
+                this.textStyle = textStyles.iterator().next();
+            }
+        }
+    }
+
+    public EnumSet<TextStyle> getTextStyles() {
+        EnumSet<TextStyle> textStyles = this.textStyles.clone();
+        /*
+         * Add in textStyle to support any renderables that don't know about
+         * textStyles yet.
+         */
+        if (textStyle != null) {
+            textStyles.add(textStyle);
+        }
+        return textStyles;
+
     }
 
 }

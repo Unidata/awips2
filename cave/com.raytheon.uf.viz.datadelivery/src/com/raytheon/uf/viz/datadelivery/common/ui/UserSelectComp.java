@@ -98,6 +98,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Jun 13, 2013  2108      mpduff       Refactored DataSizeUtils.
  * Oct 28, 2013  2292      mpduff       Change overlap services.
  * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * </pre>
  * 
  * @author jpiatt
@@ -421,7 +422,7 @@ public class UserSelectComp extends Composite implements IUpdate, IDisplay,
         try {
             final SubscriptionServiceResult result = DataDeliveryServices
                     .getSubscriptionService().updateWithPendingCheck(
-                            new ArrayList<Subscription>(Sets.union(
+                            currentUser, new ArrayList<Subscription>(Sets.union(
                                     groupSubscriptions,
                                     removeFromGroupSubscriptions)), this);
             if (result.hasMessageToDisplay()) {

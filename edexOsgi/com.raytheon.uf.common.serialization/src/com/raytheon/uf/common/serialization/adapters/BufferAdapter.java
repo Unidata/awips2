@@ -31,6 +31,7 @@ import com.raytheon.uf.common.serialization.IDeserializationContext;
 import com.raytheon.uf.common.serialization.ISerializationContext;
 import com.raytheon.uf.common.serialization.ISerializationTypeAdapter;
 import com.raytheon.uf.common.serialization.SerializationException;
+import com.raytheon.uf.common.util.BufferUtil;
 
 /**
  * Serialization adapter that handles java.nio.Buffer objects. Buffers are not
@@ -45,6 +46,7 @@ import com.raytheon.uf.common.serialization.SerializationException;
  * ------------ ---------- ----------- --------------------------
  * May 03, 2012            mschenke    Initial creation
  * Jul 23, 2013 2215       njensen     Updated for thrift 0.9.0
+ * Apr 07, 2014 2968       njensen     Fixed thread safety issues with serialize()
  * 
  * </pre>
  * 
@@ -65,6 +67,7 @@ public class BufferAdapter implements ISerializationTypeAdapter<Buffer> {
     @Override
     public void serialize(ISerializationContext serializer, Buffer buffer)
             throws SerializationException {
+        buffer = BufferUtil.asReadOnly(buffer);
         serializer.writeBool(buffer.isDirect());
         buffer.position(0);
         ByteBuffer bb = null;

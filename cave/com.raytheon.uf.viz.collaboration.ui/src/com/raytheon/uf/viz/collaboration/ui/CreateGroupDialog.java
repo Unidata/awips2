@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * Dialog allowing user to create a new group in the roster. At least one user
+ * must be added to the group afterwards for it to be persisted on the server.
  * 
  * <pre>
  * 
@@ -46,13 +47,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 27, 2012            bsteffen     Initial creation
+ * Jan 24, 2014 2701       bclement     removed local groups
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class CreateGroupDialog extends CaveSWTDialog {
 
     private Text nameText;
@@ -115,7 +116,7 @@ public class CreateGroupDialog extends CaveSWTDialog {
     private void finish() {
         newGroup = nameText.getText();
         CollaborationConnection.getConnection().getContactsManager()
-                .createLocalGroup(newGroup);
+                .createGroup(newGroup);
         close();
     }
 

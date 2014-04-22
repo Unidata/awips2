@@ -495,6 +495,24 @@
 				 indentText="false" />
 			<contribute xsi:type="menuItem" menuText="Ice growth rate"
 				key="ICEG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Salinity"
+				key="SALTY"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Sea Surface Height"
+				key="SSHG"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Water Temperature"
+				key="TEMPWTR"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Vectors"
+				key="OGRD"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Speed"
+				key="SPC"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Current Direction"
+				key="DIRC"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Sea Level Deviation"
+				key="DEVMSL"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Barometric Velocity Vectors"
+				key="BARO"  indentText="false" />
+			<contribute xsi:type="menuItem" menuText="Barometric Velocity"
+				key="SPBARO"  indentText="false" />
 		</contribute>
 
 		<contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Station">

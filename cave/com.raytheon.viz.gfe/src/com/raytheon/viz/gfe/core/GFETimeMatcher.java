@@ -30,6 +30,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlTransient;
+
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
@@ -54,23 +59,29 @@ import com.raytheon.viz.gfe.rsc.GFEResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 14, 2012            mschenke     Initial creation
- * Feb 26, 2013     #1708  randerso     Fixed double notification for time change
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 14, 2012           mschenke    Initial creation
+ * Feb 26, 2013  1708     randerso    Fixed double notification for time change
+ * Jan 23, 2014  2703     bsteffen    Add JAXB Annotations, fix iscMode.
+ * Apr 02, 2014  2961     randerso    Fixed issue where the ISC grid is selected based on the
+ *                                    start time of the Fcst grid not the one that overlaps the
+ * 
  * 
  * </pre>
  * 
  * @author mschenke
  * @version 1.0
  */
-
+@XmlAccessorType(XmlAccessType.NONE)
 public class GFETimeMatcher extends AbstractTimeMatcher {
 
     /** The selected date, added as a extra frame if not null */
+    @XmlAttribute
     private Date selectedDate;
 
     /** Set of resources used in calculating the descriptor times */
+    @XmlTransient
     private Set<GFEResource> tmbResources = new HashSet<GFEResource>();
 
     /*
@@ -99,12 +110,27 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
         if (resource instanceof GFEResource) {
             GFEResource rsc = (GFEResource) resource;
             Parm parm = rsc.getParm();
+            Parm iscParm = getIscParm(parm);
             DataTime[] rscTimes = new DataTime[descriptorTimes.length];
             for (int i = 0; i < descriptorTimes.length; ++i) {
                 IGridData overlapping = parm.overlappingGrid(descriptorTimes[i]
                         .getRefTime());
+                IGridData iscOverlapping = null;
+                if (iscParm != null) {
+                    iscOverlapping = iscParm.overlappingGrid(descriptorTimes[i]
+                            .getRefTime());
+                }
+                TimeRange tr = null;
                 if (overlapping != null) {
-                    TimeRange tr = overlapping.getGridTime();
+                    tr = overlapping.getGridTime();
+                    if (iscOverlapping != null) {
+                        tr = tr.intersection(iscOverlapping.getGridTime());
+                    }
+                } else if (iscOverlapping != null) {
+                    tr = iscOverlapping.getGridTime();
+                }
+
+                if (tr != null) {
                     rscTimes[i] = new DataTime(tr.getStart().getTime(),
                             new TimeRange(tr.getStart(), tr.getEnd()));
                 }
@@ -125,7 +151,12 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
         List<Parm> parms = new ArrayList<Parm>(rscs.size());
         for (GFEResource rsc : rscs) {
             if (rsc.getProperties().isVisible()) {
-                parms.add(rsc.getParm());
+                Parm parm = rsc.getParm();
+                parms.add(parm);
+                Parm iscParm = getIscParm(parm);
+                if (iscParm != null) {
+                    parms.add(iscParm);
+                }
                 tmbResources.add(rsc);
             }
         }
@@ -136,8 +167,8 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
             dateSet.add(new DataTime(stepTime));
         }
 
-        if (currTime != null && selectedDate == null
-                && dateSet.contains(currTime) == false) {
+        if ((currTime != null) && (selectedDate == null)
+                && (dateSet.contains(currTime) == false)) {
             selectedDate = currTime.getRefTime();
         }
 
@@ -257,7 +288,7 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
      * @param parms
      * @return
      */
-    public static List<Date> calcTimeSteps(List<Parm> parms) {
+    private static List<Date> calcTimeSteps(List<Parm> parms) {
         SortedSet<Date> dateSet = new TreeSet<Date>();
         for (Parm pi : parms) {
             IGridData[] inv = pi.getGridInventory();
@@ -266,9 +297,9 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
 
                 if (!dateSet.contains(grid.getGridTime().getEnd())) {
                     for (Parm pk : parms) {
-                        if (pi != pk
-                                && pk.overlappingGrid(grid.getGridTime()
-                                        .getEnd()) != null) {
+                        if ((pi != pk)
+                                && (pk.overlappingGrid(grid.getGridTime()
+                                        .getEnd()) != null)) {
                             dateSet.add(grid.getGridTime().getEnd());
                             break;
                         }
@@ -277,5 +308,13 @@ public class GFETimeMatcher extends AbstractTimeMatcher {
             }
         }
         return new ArrayList<Date>(dateSet);
+    }
+
+    private static Parm getIscParm(Parm parm) {
+        DataManager dataManager = parm.getDataManager();
+        if (dataManager.getParmManager().iscMode()) {
+            return dataManager.getIscDataAccess().getISCParm(parm);
+        }
+        return null;
     }
 }

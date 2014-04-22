@@ -22,16 +22,21 @@ package com.raytheon.uf.viz.collaboration.ui;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.packet.RosterPacket.ItemStatus;
+import org.jivesoftware.smack.packet.RosterPacket.ItemType;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Common code that is used whenever providing labels for users in a tree.
@@ -43,6 +48,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 24, 2012            bsteffen     Initial creation
+ * Jan 27, 2014 2700       bclement     added roster entry support
+ * Feb 13, 2014 2751       bclement     made generic for IUsers
+ * Feb 13, 2014 2751       njensen      Extracted getImageName() to allow overrides
+ * Feb 17, 2014 2751       bclement     moved block image logic to roster specific code
  * 
  * </pre>
  * 
@@ -50,28 +59,27 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * @version 1.0
  */
 
-public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
+public abstract class AbstractUserLabelProvider<T extends IUser> extends
+        ColumnLabelProvider {
 
     protected Map<String, Image> imageMap = new HashMap<String, Image>();
 
     @Override
     public String getText(Object element) {
-        if (!(element instanceof IUser)) {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
-        IUser user = (IUser) element;
         StringBuilder name = new StringBuilder();
         name.append(getDisplayName(user));
-        IPresence presence = getPresence(user);
+        Presence presence = getPresence(user);
         if (presence != null) {
-            Object site = presence.getProperties().get(
-                    SiteConfigInformation.SITE_NAME);
+            Object site = presence.getProperty(SiteConfigInformation.SITE_NAME);
             if (site != null) {
                 name.append(" - ");
                 name.append(site);
             }
-            Object role = presence.getProperties().get(
-                    SiteConfigInformation.ROLE_NAME);
+            Object role = presence.getProperty(SiteConfigInformation.ROLE_NAME);
             if (role != null) {
                 name.append(" - ");
                 name.append(role);
@@ -80,19 +88,22 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         return name.toString();
     }
 
+    /**
+     * Cast object to appropriate type
+     * 
+     * @param element
+     * @return null if object cannot be cast
+     */
+    abstract protected T convertObject(Object element);
+
     @Override
     public Image getImage(Object element) {
-        if (!(element instanceof IUser)) {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
-        String key = "";
-        if (presence != null && presence.getType() == Type.AVAILABLE) {
-            key = presence.getMode().toString().replaceAll("\\s+", "_");
-        } else {
-            key = "contact_disabled";
-        }
+        String key = getImageName(user);
+
         if (imageMap.get(key) == null && !key.equals("")) {
             imageMap.put(key, CollaborationUtils.getNodeImage(key));
         }
@@ -101,16 +112,16 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
 
     @Override
     public String getToolTipText(Object element) {
-        if (!(element instanceof IUser)) {
+        T user = convertObject(element);
+        if (user == null) {
             return null;
         }
-        IUser user = (IUser) element;
-        IPresence presence = getPresence(user);
+        Presence presence = getPresence(user);
         StringBuilder text = new StringBuilder();
         text.append("Name: ").append(getDisplayName(user)).append("\n");
         text.append("Status: ");
-        if (presence == null || presence.getType() != Type.AVAILABLE) {
-            text.append("Offline\n");
+        if (presence == null || presence.getType() != Type.available) {
+            text.append("Offline \n");
         } else {
             text.append(CollaborationUtils.formatMode(presence.getMode()))
                     .append("\n");
@@ -118,11 +129,22 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
                 text.append("Message : \"").append(presence.getStatus())
                         .append("\"\n");
             }
-            for (Object key : presence.getProperties().keySet()) {
-                Object value = presence.getProperties().get(key);
+            for (String key : presence.getPropertyNames()) {
+                Object value = presence.getProperty(key);
                 if (value != null && key != null) {
                     text.append(key).append(" : ").append(value).append("\n");
                 }
+            }
+        }
+        if (element instanceof RosterEntry) {
+            RosterEntry entry = (RosterEntry) element;
+            ItemType type = entry.getType();
+            if (type != null) {
+                text.append("Subscription: ").append(type).append("\n");
+            }
+            ItemStatus status = entry.getStatus();
+            if (status != null) {
+                text.append(status).append(" pending\n");
             }
         }
         // delete trailing newline
@@ -148,11 +170,11 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         imageMap.clear();
     }
 
-    protected String getDisplayName(IUser user) {
+    protected static String getLocalAlias(UserId user) {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         if (connection == null) {
-            String name = user.getNickname();
+            String name = user.getAlias();
             if (name == null) {
                 name = user.getName();
             }
@@ -162,6 +184,37 @@ public abstract class AbstractUserLabelProvider extends ColumnLabelProvider {
         }
     }
 
-    protected abstract IPresence getPresence(IUser user);
+    /**
+     * @param user
+     * @return display text for user name
+     */
+    abstract protected String getDisplayName(T user);
+
+    /**
+     * @param user
+     * @return last known presence for user
+     */
+    abstract protected Presence getPresence(T user);
+
+    /**
+     * Gets the image name for an icon associated with an element
+     * 
+     * @param element
+     * @return
+     */
+    protected String getImageName(T user) {
+        Presence presence = getPresence(user);
+        String key = "";
+        if (presence != null && presence.getType() == Type.available) {
+            Mode mode = presence.getMode();
+            if (mode == null) {
+                mode = Mode.available;
+            }
+            key = mode.toString().replaceAll("\\s+", "_");
+        } else {
+            key = "contact_disabled";
+        }
+        return key;
+    }
 
 }

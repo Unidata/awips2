@@ -20,7 +20,8 @@
 package com.raytheon.uf.viz.collaboration.comm.identity.user;
 
 /**
- * TODO Add Description
+ * Top level interface for objects that represent identified items on the server
+ * (users, rooms, etc)
  * 
  * <pre>
  * 
@@ -29,6 +30,7 @@ package com.raytheon.uf.viz.collaboration.comm.identity.user;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    refactor to remove ID interface
  * 
  * </pre>
  * 
@@ -36,30 +38,24 @@ package com.raytheon.uf.viz.collaboration.comm.identity.user;
  * @version 1.0
  */
 
-public interface IQualifiedID extends ID {
+public interface IQualifiedID {
+
 
     /**
-     * 
-     * @param hostName
+     * @return server name for item
      */
-    void setHost(String hostName);
+    public String getHost();
+
 
     /**
-     * 
-     * @return
+     * @return name of item
      */
-    String getHost();
+    public String getName();
+
 
     /**
-     * 
-     * @param resource
+     * @return fully qualified string addressing item
      */
-    void setResource(String resource);
-
-    /**
-     * 
-     * @return
-     */
-    String getResource();
+    public String getFQName();
 
 }

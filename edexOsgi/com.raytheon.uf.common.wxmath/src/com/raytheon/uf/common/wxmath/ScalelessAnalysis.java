@@ -32,9 +32,10 @@ import java.util.Arrays;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 13, 2013 2262       njensen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Aug 13, 2013  2262     njensen     Initial creation
+ * Feb 27, 2014  2791     bsteffen    Move legacy NaN to constants.
  * 
  * </pre>
  * 
@@ -191,9 +192,9 @@ public class ScalelessAnalysis {
                 binidx[kk] = (short) (bb * 2 - 2);
                 double rat;
                 if (ii == 0) {
-                    rat = (float) (jj) / 0.1;
+                    rat = (jj) / 0.1;
                 } else if (jj == 0) {
-                    rat = 0.1 / (float) (ii);
+                    rat = 0.1 / (ii);
                 } else {
                     rat = (float) (jj) / (float) (ii);
                 }
@@ -536,7 +537,7 @@ public class ScalelessAnalysis {
             for (jj = sxy - 1; jj >= 0; jj--) {
                 int ii = 0;
                 for (int kk = jj * sxy; ii < sxy; ii++, kk++) {
-                    System.err.printf("%d ", (int) (kswath0[kk]));
+                    System.err.printf("%d ", (kswath0[kk]));
                 }
                 System.err.printf("\n");
             }
@@ -676,8 +677,8 @@ public class ScalelessAnalysis {
         float[] grid = new float[nx * ny];
         float[] raw = new float[nnd];
         int[] counts = new int[nnd];
-        Arrays.fill(raw, 1e37f);
-        Arrays.fill(grid, 1e37f);
+        Arrays.fill(raw, Constants.LEGACY_NAN);
+        Arrays.fill(grid, Constants.LEGACY_NAN);
         int raw0 = -ddd;
         int counts0 = -ddd;
 
@@ -743,7 +744,7 @@ public class ScalelessAnalysis {
 
         /* work arrays with info about each grid resolved observation */
         float[] dists = new float[nnd];
-        Arrays.fill(dists, 1e37f);
+        Arrays.fill(dists, Constants.LEGACY_NAN);
         int dists0 = -ddd;
         byte[] octant = new byte[nnd];
         int[] nearest = new int[nnd];

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.ogc.common.OgcBoundingBox;
@@ -30,7 +31,6 @@ import com.raytheon.uf.edex.ogc.common.OgcNamespace;
 import com.raytheon.uf.edex.ogc.common.OgcPrefix;
 import com.raytheon.uf.edex.ogc.common.OgcResponse;
 import com.raytheon.uf.edex.ogc.common.OgcTimeRange;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;
