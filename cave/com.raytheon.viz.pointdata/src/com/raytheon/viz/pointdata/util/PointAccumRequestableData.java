@@ -25,17 +25,17 @@ import java.util.List;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.SI;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
+import com.raytheon.uf.common.derivparam.library.DerivParamConstantField;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.pointdata.accumulate.AccumDataRequestMessage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.library.DerivParamConstantField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 
 /**
  * Carries out the Accum derived parameter method by sending an accum request to
@@ -65,7 +65,7 @@ public class PointAccumRequestableData extends AbstractRequestableData {
     public PointAccumRequestableData(
             List<AbstractRequestableData> idRequesters,
             AbstractRequestableData timeRequester, DerivParamMethod method,
-            String plugin) throws VizException {
+            String plugin) throws DataCubeException {
         this.idRequesters = idRequesters;
         this.timeRequester = timeRequester;
         this.request = new AccumDataRequestMessage();
@@ -91,7 +91,7 @@ public class PointAccumRequestableData extends AbstractRequestableData {
      * ()
      */
     @Override
-    public Object getDataValue(Object arg) throws VizException {
+    public Object getDataValue(Object arg) throws DataCubeException {
         StringBuilder stationParameter = new StringBuilder();
         String[] stations = null;
         for (AbstractRequestableData idRequestor : idRequesters) {
@@ -131,7 +131,12 @@ public class PointAccumRequestableData extends AbstractRequestableData {
             }
         }
         request.setTimes(times);
-        IDataRecord result = (IDataRecord) ThriftClient.sendRequest(request);
+        IDataRecord result;
+        try {
+            result = (IDataRecord) RequestRouter.route(request);
+        } catch (Exception e) {
+            throw new DataCubeException(e);
+        }
         result.setName(parameter);
         return result;
     }

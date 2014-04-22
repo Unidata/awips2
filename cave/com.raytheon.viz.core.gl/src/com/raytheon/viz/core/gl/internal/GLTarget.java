@@ -30,6 +30,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 
+import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.image.ColorMapData;
@@ -58,7 +60,6 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.application.ProgramArguments;
 import com.raytheon.uf.viz.core.AbstractGraphicsTarget;
 import com.raytheon.uf.viz.core.Activator;
 import com.raytheon.uf.viz.core.DrawableCircle;
@@ -68,6 +69,7 @@ import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IView;
+import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
@@ -105,39 +107,45 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * 
  * SOFTWARE HISTORY
  *                
- * Date            Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 7/1/06                   chammack    Initial Creation.
- * 7/24/07                  njensen     Colormaps can reload in drawRaster().
- * 10/01/07         467     brockwoo    Fix for disabling interpolation of plot data textures
- * 10/16/07         468     njensen     drawString() supports rotation.
- * 03/18/08                 chammack    Improve legend rendering
- * 03/12/09        2092     njensen     Added offscreen rendering support
- * 07/01/10        6146     bkowal      The offset that is needed to set the &quot;Y&quot; coordinate 
- *                                      of the legend text that is drawn is now calculated based on 
- *                                      the font size rather than being hard-coded.
- * 07/08/10        6146     bkowal      The font size will now be adjusted automatically by comparing
- *                                      the current size of the pane of interest to the overall
- *                                      size of the screen.
- * 07/19/10        5952     bkowal      GLTarget will now check for the existence of updated extents
- *                                      before drawing. A method has also been added to notify
- *                                      GLTarget of when there are updated extents to load.
- * Feb 14, 2013 1616        bsteffen    Add option for interpolation of colormap
- *                                      parameters, disable colormap
- *                                      interpolation by default.
- * Apr 18, 2013 1638        mschenke    Made string rendering always occur in canvas space so
- *                                      strings are always readable despite extent
- * May 28, 2013 1638        mschenke    Made sure {@link TextStyle#BLANKED} text is drawing correct size
- *                                      box around text
- * Nov  4, 2013 2492        mschenke    Switched colormap drawing to use 1D texture object for alpha mask
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jul 01, 2006           chammack    Initial Creation.
+ * Jul 24, 2007           njensen     Colormaps can reload in drawRaster().
+ * Oct 01, 2007  467      brockwoo    Fix for disabling interpolation of plot
+ *                                    data textures
+ * Oct 16, 2007  468      njensen     drawString() supports rotation.
+ * Mar 18, 2008           chammack    Improve legend rendering
+ * Mar 12, 2009  2092     njensen     Added offscreen rendering support
+ * Jul 01, 2010  6146     bkowal      The offset that is needed to set the 
+ *                                    &quot;Y&quot; coordinate of the legend
+ *                                    text that is drawn is now calculated based
+ *                                    on the font size rather than being
+ *                                    hard-coded.
+ * Jul 08, 2010  6146     bkowal      The font size will now be adjusted
+ *                                    automatically by comparing the current
+ *                                    size of the pane of interest to the
+ *                                    overall size of the screen.
+ * Jul 19, 2010  5952     bkowal      GLTarget will now check for the existence
+ *                                    of updated extents before drawing. A
+ *                                    method has also been added to notify
+ *                                    GLTarget of when there are updated extents
+ *                                    to load.
+ * Feb 14, 2013  1616     bsteffen    Add option for interpolation of colormap
+ *                                    parameters, disable colormap interpolation
+ *                                    by default.
+ * Apr 18, 2013  1638     mschenke    Made string rendering always occur in
+ *                                    canvas space so strings are always
+ *                                    readable despite extent
+ * May 28, 2013  1638     mschenke    Made sure {@link TextStyle#BLANKED} text
+ *                                    is drawing correct size box around text
+ * Nov 04, 2013  2492     mschenke    Switched colormap drawing to use 1D
+ *                                    texture object for alpha mask
+ * Mar 03, 2014  2804     mschenke    Added clipping pane field to only setup
+ *                                    if changed
+ * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * Apr 08, 2014  2950     bsteffen    Reduce oversized colormaps.
  * 
  * </pre>
- * 
- * TODO The current code draws "flat" objects (circles, arcs, strings, etc...)
- * on the plane z = the given z argument. Eventually, these objects should be
- * oriented on a plane parallel to the camera's plane at the time they are
- * drawn. For strings, we may want the plane they are drawn on to follow the
- * camera plane as it moves, so that they are always readable to the user.
  * 
  * @author chammack
  * @version 1
@@ -249,6 +257,8 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
     protected FontFactory fontFactory;
 
     protected Rectangle monitorBounds;
+
+    protected IExtent clippingPane;
 
     /**
      * Construct a GL target using a canvas (inherited from IGraphicsTarget)
@@ -406,6 +416,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
         gl.glDisable(GL.GL_CLIP_PLANE1);
         gl.glDisable(GL.GL_CLIP_PLANE2);
         gl.glDisable(GL.GL_CLIP_PLANE3);
+        this.clippingPane = null;
     }
 
     /*
@@ -1248,6 +1259,25 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
     }
 
     protected GLTextureObject loadColormapIntoTexture(ColorMap glColorMap) {
+        if (glColorMap.getSize() > capabilities.maxTextureSize) {
+            double ratio = (glColorMap.getSize() - 1)
+                    / (capabilities.maxTextureSize - 1.0);
+            List<Color> colors = glColorMap.getColors();
+            List<Color> lessColors = new ArrayList<Color>(
+                    capabilities.maxTextureSize);
+            for (int i = 0; i < capabilities.maxTextureSize; i += 1) {
+                lessColors.add(colors.get((int) (i * ratio)));
+            }
+            statusHandler.info("Reducing colormap to " + lessColors.size()
+                    + " colors because this graphics card only supports "
+                            + capabilities.maxTextureSize
+                    + " colors and the colormap contains "
+                            + glColorMap.getSize() + " colors.");
+            glColorMap = new ColorMap(lessColors.size());
+            for (int i = 0; i < lessColors.size(); i += 1) {
+                glColorMap.setColor(i, lessColors.get(i));
+            }
+        }
         Buffer bb = glColorMap.getColorMap();
         GLContextBridge.makeMasterContextCurrent();
         GLTextureObject t = new GLTextureObject();
@@ -1267,11 +1297,6 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                 GL.GL_NEAREST);
         gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
                 GL.GL_NEAREST);
-
-        // gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MAG_FILTER,
-        // GL.GL_NEAREST);
-        // gl.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER,
-        // GL.GL_NEAREST);
 
         gl.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA, glColorMap.getSize(),
                 0, GL.GL_RGBA, GL.GL_FLOAT, bb);
@@ -1394,9 +1419,19 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
      */
     @Override
     public void setupClippingPlane(IExtent extent) {
-        if (extent == null) {
+        if (this.clippingPane == extent
+                || (this.clippingPane != null && extent != null && this.clippingPane
+                        .equals(extent))) {
+            // Clipping pane already set to this
             return;
         }
+        this.clippingPane = extent;
+        if (clippingPane == null) {
+            clearClippingPlane();
+            return;
+        }
+        // Clone to preserve clipping pane extent
+        this.clippingPane = clippingPane.clone();
 
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glPushMatrix();
@@ -1857,12 +1892,14 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
 
             // This loop just draws the box or a blank rectangle.
             for (DrawableString dString : parameters) {
-                switch (dString.textStyle) {
-                case BOXED:
-                case BLANKED:
-                case UNDERLINE:
-                case OVERLINE:
-                case STRIKETHROUGH:
+                EnumSet<TextStyle> textStyles = dString.getTextStyles();
+                boolean boxed = textStyles.contains(TextStyle.BOXED);
+                boolean blanked = textStyles.contains(TextStyle.BLANKED);
+                boolean underline = textStyles.contains(TextStyle.UNDERLINE);
+                boolean overline = textStyles.contains(TextStyle.OVERLINE);
+                boolean strikethrough = textStyles
+                        .contains(TextStyle.STRIKETHROUGH);
+                if (boxed || blanked || underline || overline || strikethrough) {
                     double yPos = dString.basics.y;
                     VerticalAlignment verticalAlignment = dString.verticallAlignment;
                     double fontPercentage = this
@@ -1913,15 +1950,14 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         double x2 = xy[0] + width + scaleX;
                         double y2 = (xy[1] - diff) + height + scaleY;
 
-                        if (dString.textStyle == TextStyle.BOXED
-                                || dString.textStyle == TextStyle.BLANKED) {
+                        if (boxed || blanked) {
                             gl.glPolygonMode(GL.GL_BACK, GL.GL_FILL);
-                            if (dString.textStyle == TextStyle.BOXED
-                                    && dString.boxColor != null) {
+                            if (boxed && dString.boxColor != null) {
                                 gl.glColor4d(dString.boxColor.red / 255.0,
                                         dString.boxColor.green / 255.0,
                                         dString.boxColor.blue / 255.0, alpha);
-                            } else {
+                            }
+                            if (blanked) {
                                 gl.glColor4d(backgroundColor.red / 255.0,
                                         backgroundColor.green / 255.0,
                                         backgroundColor.blue / 255.0, alpha);
@@ -1930,10 +1966,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                             gl.glRectd(x1, y2, x2, y1);
                         }
 
-                        if (dString.textStyle == TextStyle.BOXED
-                                || dString.textStyle == TextStyle.UNDERLINE
-                                || dString.textStyle == TextStyle.OVERLINE
-                                || dString.textStyle == TextStyle.STRIKETHROUGH) {
+                        if (boxed || underline || overline || strikethrough) {
                             gl.glPolygonMode(GL.GL_BACK, GL.GL_LINE);
 
                             RGB color = dString.getColors()[c];
@@ -1944,20 +1977,29 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                                     color.green / 255.0, color.blue / 255.0,
                                     alpha);
 
-                            if (dString.textStyle == TextStyle.BOXED) {
+                            if (boxed) {
                                 gl.glLineWidth(2);
                                 gl.glRectd(x1, y2, x2, y1);
-                            } else {
+                            }
+                            if (underline) {
                                 gl.glLineWidth(1);
-                                double percent;
-                                if (dString.textStyle == TextStyle.UNDERLINE) {
-                                    percent = .2;
-                                } else if (dString.textStyle == TextStyle.OVERLINE) {
-                                    percent = 1.;
-                                } else { // TextStyle.STRIKETHROUGH
-                                    percent = .5;
-                                }
-                                double lineY = y1 + (y2 - y1) * percent;
+                                double lineY = y1 + (y2 - y1) * .2;
+                                gl.glBegin(GL.GL_LINES);
+                                gl.glVertex2d(x1, lineY);
+                                gl.glVertex2d(x2, lineY);
+                                gl.glEnd();
+                            }
+                            if (overline) {
+                                gl.glLineWidth(1);
+                                double lineY = y1 + (y2 - y1);
+                                gl.glBegin(GL.GL_LINES);
+                                gl.glVertex2d(x1, lineY);
+                                gl.glVertex2d(x2, lineY);
+                                gl.glEnd();
+                            }
+                            if (strikethrough) {
+                                gl.glLineWidth(1);
+                                double lineY = y1 + (y2 - y1) * .5;
                                 gl.glBegin(GL.GL_LINES);
                                 gl.glVertex2d(x1, lineY);
                                 gl.glVertex2d(x2, lineY);
@@ -1977,9 +2019,6 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         gl.glRotated(-dString.rotation, 0.0, 0.0, 1.0);
                         gl.glTranslated(-rotatedPoint[0], -rotatedPoint[1], 0.0);
                     }
-                    break;
-                default:
-                    break;
                 }
             }
 
@@ -2002,7 +2041,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                             "Font was not prepared using GLTarget");
                 }
 
-                if (dString.rotation != 0.0 && rotatedPoint == null) {
+                if (dString.rotation != 0.0) {
                     if (textRenderer != null) {
                         textRenderer.flush();
                     }
@@ -2083,7 +2122,7 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                                 color.green / 255.0f, color.blue / 255.0f,
                                 alpha);
                     }
-                    if (dString.textStyle == TextStyle.WORD_WRAP) {
+                    if (dString.getTextStyles().contains(TextStyle.WORD_WRAP)) {
                         int i = 0;
                         int j = -1;
                         float y = xy[1];
@@ -2105,7 +2144,8 @@ public class GLTarget extends AbstractGraphicsTarget implements IGLTarget {
                         textRenderer.draw3D(string.substring(i), x, y, 0.0f,
                                 scaleY);
 
-                    } else if (dString.textStyle == TextStyle.DROP_SHADOW) {
+                    } else if (dString.getTextStyles().contains(
+                            TextStyle.DROP_SHADOW)) {
                         RGB shadowColor = dString.shadowColor;
                         textRenderer.setColor(shadowColor.red / 255.0f,
                                 shadowColor.green / 255.0f,

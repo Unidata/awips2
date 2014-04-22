@@ -35,6 +35,9 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 26, 2012            njensen     Initial creation
+ * Feb 12, 2014 2751       njensen     Renamed container to displayContainer
+ * Mar 07, 2014 2848       bclement    moved event handler registration to constructor
+ * Mar 18, 2014 2895       njensen     Fixed shutdown order
  * 
  * </pre>
  * 
@@ -47,25 +50,38 @@ public abstract class AbstractRoleEventController<T extends IRemoteDisplayContai
 
     protected ISharedDisplaySession session;
 
-    protected T container;
+    protected T displayContainer;
 
     protected AbstractRoleEventController(ISharedDisplaySession session) {
         this.session = session;
+        session.registerEventHandler(this);
     }
 
     @Override
     public void startup() {
-        session.registerEventHandler(this);
         SessionContainer sc = SharedDisplaySessionMgr
                 .getSessionContainer(session.getSessionId());
-        container = createDisplayContainer();
-        sc.setDisplayContainer(container);
+        displayContainer = createDisplayContainer();
+        sc.setDisplayContainer(displayContainer);
     }
 
     @Override
     public void shutdown() {
         session.unregisterEventHandler(this);
-        container.disposeContainer();
+        SessionContainer sc = SharedDisplaySessionMgr
+                .getSessionContainer(session.getSessionId());
+        if (displayContainer != null) {
+            displayContainer.disposeContainer();
+            displayContainer = null;
+        }
+
+        /*
+         * We need to set the session's display container to null to properly
+         * fire listeners on the container, but this needs to occur after the
+         * displayContainer has been disposed. Otherwise we potentially leak
+         * memory and get displayIds wrong in the future.
+         */
+        sc.setDisplayContainer(null);
     }
 
     protected abstract T createDisplayContainer();

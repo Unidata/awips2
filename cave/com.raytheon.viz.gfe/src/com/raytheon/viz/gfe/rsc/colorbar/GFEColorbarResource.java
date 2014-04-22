@@ -35,8 +35,6 @@ import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
-import com.raytheon.uf.viz.core.GraphicsFactory;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IExtent;
@@ -103,6 +101,7 @@ import com.raytheon.viz.ui.input.InputAdapter;
  * 01/23/2013   #1524      randerso    Fix error when clicking on discrete color bar when 
  *                                     no grid exists
  * 08/27/2013   #2287      randerso    Fixed fitToDataColorTable for Single Grids
+ * Mar  3, 2014 #2804      mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -240,8 +239,6 @@ public class GFEColorbarResource extends
     protected static RGB seColorBarFgWxPickupColor = new RGB(255, 255, 255);
 
     protected static RGB seColorBarBgWxPickupColor = new RGB(255, 0, 255);
-
-    AbstractGraphicsFactoryAdapter graphicsAdapter = null;
 
     protected Set<ParmID> fittedParms;
 
@@ -430,12 +427,7 @@ public class GFEColorbarResource extends
             colorbarDisplay.paint(target, paintProps);
         }
 
-        if (graphicsAdapter == null) {
-            graphicsAdapter = GraphicsFactory.getGraphicsAdapter();
-        }
-
-        target.setupClippingPlane(graphicsAdapter.constructExtent(descriptor
-                .getGridGeometry().getGridRange()));
+        target.setupClippingPlane(paintProps.getClippingPane());
 
         // this.lastIndex = curIndex;
 

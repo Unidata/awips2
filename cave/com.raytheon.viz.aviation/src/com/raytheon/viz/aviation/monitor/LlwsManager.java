@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
@@ -32,7 +33,6 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.MapValues;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.viz.core.HDF5Util;
 
 /**
  * TODO Add Description

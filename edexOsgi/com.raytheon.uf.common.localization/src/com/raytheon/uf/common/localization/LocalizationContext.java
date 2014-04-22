@@ -63,6 +63,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeTypeAdap
  * Apr 19, 2007            chammack    Initial Creation.
  * Jul 14, 2008 1250       jelkins     EDEX LocalizationAdapter additions.
  * Oct 01, 2013 2361       njensen     Removed XML annotations and methods
+ * Feb 06, 2014 2761       mnash       Add region localization level
  * 
  * </pre>
  * 
@@ -272,6 +273,8 @@ public class LocalizationContext implements Cloneable {
 
         public static LocalizationLevel BASE = createLevel("BASE", 0, true);
 
+        public static LocalizationLevel REGION = createLevel("REGION", 150);
+
         public static LocalizationLevel CONFIGURED = createLevel("CONFIGURED",
                 250, true);
 
@@ -408,13 +411,6 @@ public class LocalizationContext implements Cloneable {
         }
 
     }
-
-    /** Defines localization function constants. */
-    public static enum LocalizationFunction {
-        UNKNOWN,
-        // --- Regular Functions ---------------------------------------------
-        BUNDLE, PLUGIN, COLORMAPS, CONFIG, PYTHON, SMARTINIT, GRID, SHAPEFILES, TEXTPRODUCTS
-    };
 
     @DynamicSerializeElement
     private LocalizationType localizationType;

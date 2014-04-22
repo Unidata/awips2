@@ -20,8 +20,18 @@
 # NOTE: THIS FILE SHOULD NOT BE USER_MODIFIED.  INSTEAD, REFER TO THE
 # DOCUMENTATION ON HOW ENTRIES IN THIS FILE MAY BE OVERRIDDEN.  REFER TO
 # LOCALMAPS DOCUMENTATION.
-
+#
 # Maps.py - map background definitions for ifpServer
+#
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/20/2014          #2824     randerso       Added log message when no localMaps file is found
+#
+########################################################################
 
 from ShapeTable import ShapeTable
 
@@ -311,7 +321,8 @@ if not BASELINE:
     try:
         from localMaps import *
     except ImportError:
-        pass
+        import LogStream
+        LogStream.logEvent("No localMaps file found, using baseline settings.");
 
 def getMaps():
     from java.util import ArrayList

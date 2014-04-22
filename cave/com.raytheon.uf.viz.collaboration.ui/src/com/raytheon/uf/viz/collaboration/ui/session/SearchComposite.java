@@ -52,6 +52,8 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 31, 2012            bgonzale     Initial creation
+ * Mar 31, 2014 2937       bgonzale     Fix error where text was continually appended
+ *                                      during search.
  * 
  * </pre>
  * 
@@ -422,10 +424,7 @@ public class SearchComposite extends Composite {
      *            the text to set
      */
     private void setText(String text) {
-        if (this.text == null) {
-            this.text = new StringBuilder();
-        }
-        this.text.append(text);
+        this.text = new StringBuilder(text);
     }
 
     /**

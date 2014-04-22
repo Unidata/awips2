@@ -30,7 +30,7 @@ import java.util.List;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.ui.actions.SaveScreenAction;
+import com.raytheon.uf.viz.image.export.handler.ExportImageHandler;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 
 /**
@@ -47,7 +47,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * @author chammack
  * @version 1
  */
-public class NSharpSaveScreenAction extends SaveScreenAction {
+public class NSharpSaveScreenAction extends ExportImageHandler {
 
     @Override
     protected BufferedImage captureCurrentFrames(AbstractEditor editor) {

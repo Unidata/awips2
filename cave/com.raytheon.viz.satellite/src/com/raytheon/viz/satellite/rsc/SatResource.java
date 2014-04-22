@@ -66,7 +66,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractPluginDataObjectResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.satellite.SatelliteConstants;
 import com.raytheon.viz.satellite.tileset.SatDataRetriever;
 import com.raytheon.viz.satellite.tileset.SatTileSetRenderable;

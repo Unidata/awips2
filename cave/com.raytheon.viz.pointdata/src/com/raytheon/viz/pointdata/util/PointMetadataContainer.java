@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 
 /**
  * A MetadataContainer that is optimized for point data. This container ensures
@@ -92,7 +92,7 @@ public class PointMetadataContainer extends MetadataContainer {
      * point data API at one time.
      */
     @Override
-    protected void processRequests() throws VizException {
+    protected void processRequests() throws DataCubeException {
         List<PointDataLevelNode> nodes = new ArrayList<PointDataLevelNode>();
         List<String> baseParams = new ArrayList<String>();
         for (AbstractRequestableNode node : availCache.keySet()) {

@@ -27,14 +27,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.PlotData;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.rsc.retrieve.AbstractPlotInfoRetriever;
@@ -61,9 +62,14 @@ public class CoopPrecipPlotInfoRetriever extends AbstractPlotInfoRetriever {
     @Override
     public void getStations(IResourceDataChanged listener, DataTime time,
             HashMap<String, RequestConstraint> metadataMap) throws VizException {
-        PointDataContainer pdc = DataCubeContainer.getPointData(metadataMap
-                .get("pluginName").getConstraintValue(), new String[] {
-                "latitude", "longitude", "time" }, metadataMap);
+        PointDataContainer pdc;
+        try {
+            pdc = DataCubeContainer.getPointData(metadataMap.get("pluginName")
+                    .getConstraintValue(), new String[] { "latitude",
+                    "longitude", "time" }, metadataMap);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         List<PlotInfo> info = new ArrayList<PlotInfo>();
         if (pdc != null) {
             for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {

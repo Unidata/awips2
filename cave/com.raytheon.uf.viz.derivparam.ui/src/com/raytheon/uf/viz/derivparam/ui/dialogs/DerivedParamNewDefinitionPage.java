@@ -41,16 +41,16 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.derivparam.library.DerivParamConstantField;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.library.IDerivParamField;
 import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.derivparam.library.DerivParamConstantField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.library.IDerivParamField;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTWizardPage;
 

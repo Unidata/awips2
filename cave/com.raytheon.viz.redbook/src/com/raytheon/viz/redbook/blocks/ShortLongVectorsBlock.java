@@ -25,8 +25,8 @@ import java.util.List;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.raytheon.viz.redbook.rsc.RedbookLegend;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -40,8 +40,10 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * May 22, 2008 #1162       chammack    Initial creation
+ * May 22, 2008 1162        chammack    Initial creation
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
  * 
  * </pre>
  * 
@@ -54,8 +56,8 @@ public class ShortLongVectorsBlock extends RedbookBlock {
     protected Geometry geometry;
 
     public ShortLongVectorsBlock(RedbookBlockHeader header,
-            java.nio.ByteBuffer data, MathTransform mt,
-            int maxX, int maxY, RedbookLegend legend) {
+            java.nio.ByteBuffer data, MathTransform mt, int maxX, int maxY,
+            RedbookLegend legend) {
         super(header, data);
 
         List<Geometry> geometries = new ArrayList<Geometry>();

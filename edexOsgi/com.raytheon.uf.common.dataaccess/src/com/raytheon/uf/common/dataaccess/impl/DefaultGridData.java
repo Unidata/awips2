@@ -28,8 +28,8 @@ import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.time.DataTime;
 
 /**

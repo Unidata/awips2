@@ -34,6 +34,7 @@ import com.raytheon.uf.common.serialization.comm.IServerRequest;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 18, 2010            mschenke     Initial creation
+ * Mar 06, 2014 2885       bgonzale     Fix code that is now an error in Java 1.7.
  * 
  * </pre>
  * 
@@ -70,7 +71,7 @@ public abstract class AbstractPrivilegedRequest implements IServerRequest {
             Class<T> clazz, IUser user) throws AuthException {
         try {
             T request = clazz.newInstance();
-            request.user = user;
+            request.setUser(user);
             return request;
         } catch (Exception e) {
             throw new AuthException("Error instantiating privileged request: "

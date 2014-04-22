@@ -62,6 +62,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Mar 27, 2008		#1053	randerso	Initial creation
  * 02/14/2013       #1506   mnash       Use the new Python concurrency for QueryScript
  * 02/26/2013       #1708   randerso    Changed to not evaluate the ref set
+ * 02/19/2014       #2819   randerso    Removed unnecessary .clone() call
  * 
  * </pre>
  * 
@@ -162,8 +163,7 @@ public class GFEReferenceSetResource extends
 
         refData.setGrid(refData.getGrid());
 
-        MultiPolygon mp = (MultiPolygon) refData.getPolygons(
-                CoordinateType.GRID).clone();
+        MultiPolygon mp = refData.getPolygons(CoordinateType.GRID);
 
         ReferencedGeometry rc = new ReferencedGeometry(mp,
                 MapUtil.getGridGeometry(refData.getGloc()), Type.GRID_CENTER);
@@ -196,12 +196,12 @@ public class GFEReferenceSetResource extends
 
         float alpha = paintProps.getAlpha();
 
-        if (shadedShape != null && shadedShape.isDrawable()) {
+        if ((shadedShape != null) && shadedShape.isDrawable()) {
             aTarget.drawShadedShape(shadedShape, alpha);
         }
 
         OutlineCapability outlineCapability = getCapability(OutlineCapability.class);
-        if (outlineCapability.isOutlineOn() && outlineShape != null
+        if (outlineCapability.isOutlineOn() && (outlineShape != null)
                 && outlineShape.isDrawable()) {
             aTarget.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),

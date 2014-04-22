@@ -24,7 +24,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.personalities.cave;bundle-version="1.0.0";visibility:=reexport,
  com.raytheon.uf.viz.spring.dm
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: .
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.viz.ui.personalities.awips
 Import-Package: com.raytheon.uf.common.pypies,

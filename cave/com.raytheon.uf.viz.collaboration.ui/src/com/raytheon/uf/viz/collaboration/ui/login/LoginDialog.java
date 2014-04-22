@@ -21,10 +21,10 @@ package com.raytheon.uf.viz.collaboration.ui.login;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,12 +41,17 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
+import org.jivesoftware.smack.packet.Presence.Type;
 
+import com.google.common.collect.Iterators;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.HostConfig;
 import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformation.SiteConfig;
+import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnectionData;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -65,6 +70,11 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2012            mschenke     Initial creation
+ * Dec 19, 2013 2563       bclement     added option to connect to server not in list
+ * Jan 06, 2014 2563       bclement     moved server text parsing to ServerInput class
+ * Jan 08, 2014 2563       bclement     added Add/Remove buttons for server list
+ * Jan 15, 2014 2630       bclement     connection data stores status as Mode object
+ * Apr 07, 2014 2785       mpduff       Implemented change to CollaborationConnection
  * 
  * </pre>
  * 
@@ -74,17 +84,17 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 
 public class LoginDialog extends Dialog {
 
-    private static final String SERVER_ENABLED = "OK";
+    private final IPreferenceStore preferences;
 
-    private static final String SERVER_DISABLED = "Edit";
-
-    private IPreferenceStore preferences;
-
-    private CollaborationConnectionData loginData;
+    private final CollaborationConnectionData loginData;
 
     private Text userText;
 
     private Combo serverText;
+
+    private Button addServerButton;
+
+    private Button removeServerButton;
 
     private Text passwordText;
 
@@ -148,37 +158,54 @@ public class LoginDialog extends Dialog {
 
         // Server setting
         new Label(body, SWT.NONE).setText("Server: ");
+
         serverText = new Combo(body, SWT.BORDER | SWT.READ_ONLY | SWT.DROP_DOWN);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.minimumWidth = 200;
-        gd.horizontalSpan = 2;
         serverText.setLayoutData(gd);
+
         // retrieve the servers
         SiteConfigInformation information = SiteConfigurationManager
                 .getSiteConfigInformation();
-        if (information.getServer() == null
-                || information.getServer().size() == 0) {
-            String[] text = new String[1];
-            text[0] = "Server not configured.";
-            serverText.setData("configured", false);
-            serverText.setItems(text);
-            serverText.setText(text[0]);
-        } else {
-            // put configured as true so we don't disable the login button
-            serverText.setData("configured", true);
-            List<HostConfig> servers = information.getServer();
-            String[] names = new String[servers.size()];
-            int index = 0;
-            for (int i = 0; i < names.length; i++) {
-                names[i] = servers.get(i).getPrettyName() + " : "
-                        + servers.get(i).getHostname();
-                if (loginData.getServer().equals(names[i])) {
-                    index = i;
-                }
-            }
-            serverText.setItems(names);
-            serverText.select(index);
+        List<HostConfig> siteServers = information.getServer();
+        if (siteServers == null) {
+            siteServers = new ArrayList<SiteConfigInformation.HostConfig>(0);
         }
+        List<HostConfig> userServers = SiteConfigurationManager
+                .getUserHostConfig();
+        // put configured as true so we don't disable the login button
+        serverText.setData("configured", true);
+        String[] names = new String[siteServers.size() + userServers.size()];
+        Iterator<HostConfig> iter = Iterators.concat(siteServers.iterator(),
+                userServers.iterator());
+        int index = 0;
+        for (int i = 0; iter.hasNext() && i < names.length; i++) {
+            HostConfig config = iter.next();
+            names[i] = config.toString();
+            if (loginData.getServer().equals(names[i])) {
+                index = i;
+            }
+        }
+        serverText.setItems(names);
+        serverText.select(index);
+
+        // add remove server buttons
+        Composite serverButtons = new Composite(body, SWT.NONE);
+        serverButtons.setLayout(new GridLayout(2, false));
+        serverButtons.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
+                false));
+
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        addServerButton = new Button(serverButtons, SWT.PUSH);
+        addServerButton.setText(ServerListListener.addButtonText);
+        addServerButton.setLayoutData(gd);
+        addServerButton.addListener(SWT.Selection, new ServerListListener(
+                serverText));
+        removeServerButton = new Button(serverButtons, SWT.PUSH);
+        removeServerButton.setText(ServerListListener.removeButtonText);
+        removeServerButton.setLayoutData(gd);
+        removeServerButton.addListener(SWT.Selection, new ServerListListener(
+                serverText));
 
         // Password setting
         new Label(body, SWT.NONE).setText("Password: ");
@@ -193,12 +220,12 @@ public class LoginDialog extends Dialog {
         statusCombo = new Combo(body, SWT.DEFAULT);
 
         // TODO get possible status options from config file?
-        for (IPresence.Mode mode : CollaborationUtils.statusModes) {
+        for (Presence.Mode mode : CollaborationUtils.statusModes) {
             statusCombo.add(CollaborationUtils.formatMode(mode));
         }
-        String status = loginData.getStatus();
-        if (status != null && status.isEmpty() == false) {
-            statusCombo.setText(status);
+        Mode status = loginData.getStatus();
+        if (status != null) {
+            statusCombo.setText(CollaborationUtils.formatMode(status));
         } else {
             statusCombo.select(0);
         }
@@ -294,8 +321,10 @@ public class LoginDialog extends Dialog {
             public void widgetSelected(SelectionEvent event) {
                 loginData.setUserName(userText.getText().trim());
                 loginData.setPassword(passwordText.getText().trim());
-                loginData.setServer(serverText.getText().split(":")[1].trim());
-                loginData.setStatus(statusCombo.getText());
+                loginData.setServer(HostConfig.removeDescription(serverText
+                        .getText()));
+                loginData.setStatus(CollaborationUtils.parseMode(statusCombo
+                        .getText()));
                 loginData.setMessage(messageText.getText().trim());
                 Map<String, String> attributes = new HashMap<String, String>();
                 for (String attribKey : attributeCombos.keySet()) {
@@ -312,10 +341,11 @@ public class LoginDialog extends Dialog {
                     loginData
                             .setUserName(loginData.getUserName().toLowerCase());
                 }
-
-                if (loginData.getServer().isEmpty()) {
+                String server = loginData.getServer();
+                if (server.isEmpty()) {
                     errorMessages.add("Must have a server.");
                 }
+                loginData.setServer(server);
 
                 if (loginData.getPassword().isEmpty()) {
                     errorMessages.add("Must enter a password.");
@@ -336,11 +366,33 @@ public class LoginDialog extends Dialog {
                     messageBox.open();
                 } else {
                     try {
-                        CollaborationConnection connection = CollaborationConnection
-                                .connect(loginData);
-                        ConnectionSubscriber.subscribe(connection);
+                        // Create the connection
+                        CollaborationConnection collabConnection = CollaborationConnection
+                                .createConnection(loginData);
+
+                        // Subscribe to the collaboration connection
+                        ConnectionSubscriber.subscribe(collabConnection);
+
+                        // Connect to the XMPP server
+                        collabConnection.connect();
+
                         storeLoginData();
                         shell.dispose();
+
+                        // send initial presence
+                        Mode mode = loginData.getStatus();
+                        if (mode == null) {
+                            mode = Mode.available;
+                        }
+
+                        Presence initialPresence = new Presence(Type.available,
+                                loginData.getMessage(), 0, mode);
+                        Tools.setProperties(initialPresence,
+                                loginData.getAttributes());
+
+                        collabConnection.getAccountManager().sendPresence(
+                                initialPresence);
+
                     } catch (CollaborationException e) {
                         Activator.statusHandler.handle(Priority.PROBLEM,
                                 "Error connecting to collaboration server: "
@@ -370,7 +422,7 @@ public class LoginDialog extends Dialog {
         preferences.setValue(CollabPrefConstants.P_MESSAGE,
                 loginData.getMessage());
         preferences.setValue(CollabPrefConstants.P_STATUS,
-                loginData.getStatus());
+                CollaborationUtils.formatMode(loginData.getStatus()));
     }
 
     private void readLoginData() {
@@ -378,8 +430,8 @@ public class LoginDialog extends Dialog {
                 .getString(CollabPrefConstants.P_USERNAME));
         loginData
                 .setServer(preferences.getString(CollabPrefConstants.P_SERVER));
-        loginData
-                .setStatus(preferences.getString(CollabPrefConstants.P_STATUS));
+        loginData.setStatus(CollaborationUtils.parseMode(preferences
+                .getString(CollabPrefConstants.P_STATUS)));
         loginData.setMessage(preferences
                 .getString(CollabPrefConstants.P_MESSAGE));
     }

@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
@@ -28,7 +27,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -45,7 +43,9 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 5, 2012            bsteffen     Initial creation
+ * Jul  5, 2012            bsteffen    Initial creation
+ * Jan 28, 2014 2698       bclement    changed sessionName to sessionId
+ * Mar 31, 2014 2937       bgonzale    Use session name for log retrieval.
  * 
  * </pre>
  * 
@@ -58,32 +58,32 @@ public class ArchiveViewerAction extends Action {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ArchiveViewerAction.class);
 
-    private final String sessionName;
+    private final String sessionId;
 
     public ArchiveViewerAction() {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = null;
+        sessionId = null;
         setEnabled(CollaborationConnection.getConnection() != null);
     }
 
-    public ArchiveViewerAction(IUser user) {
+    public ArchiveViewerAction(UserId user) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = Tools.parseName(user.getID().getName());
+        sessionId = user.getName();
     }
 
     public ArchiveViewerAction(IVenueSession session) {
         super("View Log...", IconUtil.getImageDescriptor(Activator.getDefault()
                 .getBundle(), "log.gif"));
-        sessionName = session.getVenue().getInfo().getVenueDescription();
+        sessionId = session.getVenue().getName();
     }
 
     @Override
     public void run() {
         UserId user = CollaborationConnection.getConnection().getUser();
         String logDir = SessionMsgArchive.getLogFilePath(user.getHost(),
-                user.getName(), sessionName);
+                user.getName(), sessionId);
 
         try {
             CaveWorkbenchPageManager

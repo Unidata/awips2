@@ -24,22 +24,22 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterGroup;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.SharedGroup;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.data.CollaborationGroupContainer;
 import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
 
 /**
- * TODO Add Description
+ * Provides access to contacts list tree
  * 
  * <pre>
  * 
@@ -48,6 +48,9 @@ import com.raytheon.uf.viz.collaboration.ui.data.SessionGroupContainer;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 1, 2012            rferrel     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 24, 2014 2701       bclement    removed local groups, added shared groups
+ * Jan 27, 2014 2700       bclement    added support roster entries
  * 
  * </pre>
  * 
@@ -115,37 +118,35 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
         if (parentElement instanceof SessionGroupContainer) {
             SessionGroupContainer cont = (SessionGroupContainer) parentElement;
             return cont.getObjects().toArray();
-        } else if (parentElement instanceof IRosterGroup) {
-            IRosterGroup group = (IRosterGroup) parentElement;
-            List<IUser> result = new ArrayList<IUser>();
-            UserId localUser = CollaborationConnection.getConnection()
-                    .getUser();
-            Collection<?> entries = group.getEntries();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object obj : entries) {
-                if (obj instanceof IRosterEntry) {
-                    IUser user = ((IRosterEntry) obj).getUser();
-                    if (!localUser.isSameUser(user.getID().getName())) {
-                        result.add(user);
-                    }
-                }
-            }
-            return result.toArray();
-        } else if (parentElement instanceof LocalGroup) {
-            List<IUser> result = new ArrayList<IUser>();
-            LocalGroup group = (LocalGroup) parentElement;
-            UserId localUser = CollaborationConnection.getConnection()
-                    .getUser();
-            for (IUser user : group.getUsers()) {
-                if (!localUser.isSameUser(user.getID().getName())) {
-                    result.add(user);
-                }
-            }
-            return result.toArray();
+        } else if (parentElement instanceof RosterGroup) {
+            RosterGroup group = (RosterGroup) parentElement;
+            return getRosterChildren(group.getEntries());
+        } else if (parentElement instanceof SharedGroup) {
+            SharedGroup group = (SharedGroup) parentElement;
+            return getRosterChildren(group.getEntries());
         }
         return null;
+    }
+
+    /**
+     * Get child objects of roster groups
+     * 
+     * @param entries
+     *            entries in group
+     * @return
+     */
+    private Object[] getRosterChildren(Collection<RosterEntry> entries) {
+        List<RosterEntry> result = new ArrayList<RosterEntry>();
+        CollaborationConnection connection = CollaborationConnection.getConnection();
+        UserId localUser = connection.getUser();
+        for (RosterEntry entry : entries) {
+            String user = entry.getUser();
+            if (!localUser.isSameUser(user)
+                    && ContactsManager.hasInteraction(entry)) {
+                result.add(entry);
+            }
+        }
+        return result.toArray();
     }
 
     /*
@@ -171,39 +172,18 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
     @Override
     public boolean hasChildren(Object element) {
         boolean hasChildren = false;
-        if (element instanceof IRosterGroup) {
-            IRosterGroup group = (IRosterGroup) element;
-            UserId localUser = CollaborationConnection.getConnection()
-                    .getUser();
-            Collection<?> entries = group.getEntries();
-            synchronized (entries) {
-                entries = new ArrayList<Object>(entries);
-            }
-            for (Object obj : entries) {
-                if (obj instanceof IRosterEntry) {
-                    IUser user = ((IRosterEntry) obj).getUser();
-                    if (!localUser.isSameUser(user.getID().getName())) {
-                        hasChildren = true;
-                        break;
-                    }
-                }
-            }
+        if (element instanceof RosterGroup) {
+            RosterGroup group = (RosterGroup) element;
+            hasChildren = rosterHasChildren(group.getEntries());
+        } else if (element instanceof SharedGroup) {
+            SharedGroup group = (SharedGroup) element;
+            hasChildren = rosterHasChildren(group.getEntries());
         } else if (element instanceof SessionGroupContainer) {
             SessionGroupContainer cont = (SessionGroupContainer) element;
             if (cont.getObjects() != null && cont.getObjects().size() > 0) {
                 hasChildren = true;
             } else {
                 hasChildren = false;
-            }
-        } else if (element instanceof LocalGroup) {
-            UserId localUser = CollaborationConnection.getConnection()
-                    .getUser();
-            List<String> userNames = ((LocalGroup) element).getUserNames();
-            for (String userName : userNames) {
-                if (!localUser.isSameUser(userName)) {
-                    hasChildren = true;
-                    break;
-                }
             }
         }
 
@@ -219,6 +199,24 @@ public class UsersTreeContentProvider implements ITreeContentProvider {
                 }
             }
             return children.length > 0;
+        }
+        return hasChildren;
+    }
+
+    /**
+     * @param entries
+     * @return true if entries has at least one entry that isn't the users
+     *         account
+     */
+    private boolean rosterHasChildren(Collection<RosterEntry> entries) {
+        UserId localUser = CollaborationConnection.getConnection().getUser();
+        boolean hasChildren = false;
+        for (RosterEntry entry : entries) {
+            String user = entry.getUser();
+            if (!localUser.isSameUser(user)) {
+                hasChildren = true;
+                break;
+            }
         }
         return hasChildren;
     }

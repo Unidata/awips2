@@ -67,6 +67,7 @@ import org.w3.xmlschema.Schema;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.ogc.common.OgcException;
 import com.raytheon.uf.edex.ogc.common.OgcOperationInfo;
@@ -77,7 +78,6 @@ import com.raytheon.uf.edex.ogc.common.OgcServiceInfo;
 import com.raytheon.uf.edex.ogc.common.feature.GmlUtils;
 import com.raytheon.uf.edex.ogc.common.feature.SimpleFeatureFormatter;
 import com.raytheon.uf.edex.ogc.common.http.EndpointInfo;
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
 import com.raytheon.uf.edex.ogc.common.http.OgcHttpHandler;
 import com.raytheon.uf.edex.ogc.common.output.IOgcHttpResponse;
 import com.raytheon.uf.edex.ogc.common.output.OgcResponseOutput;

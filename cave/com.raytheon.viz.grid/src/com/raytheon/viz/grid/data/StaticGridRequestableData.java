@@ -22,6 +22,9 @@ package com.raytheon.viz.grid.data;
 import javax.measure.unit.SI;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
@@ -33,9 +36,6 @@ import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
@@ -87,7 +87,7 @@ public class StaticGridRequestableData extends AbstractRequestableData {
      * @see com.raytheon.viz.grid.util.AbstractRequestableData#getDataValue()
      */
     @Override
-    public Object getDataValue(Object arg) throws VizException {
+    public Object getDataValue(Object arg) throws DataCubeException {
         FloatDataRecord rval = null;
 
         if (StaticGridDataType._dt.equals(dataType)) {

@@ -25,23 +25,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.CubeUtil;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
+import com.raytheon.uf.viz.datacube.AbstractDataCubeAdapter;
+import com.raytheon.uf.viz.datacube.CubeUtil;
 import com.raytheon.uf.viz.npp.viirs.Activator;
 import com.raytheon.uf.viz.npp.viirs.data.VIIRSRequestableData.VIIRSRequest;
 
@@ -113,41 +112,36 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     public IDataRecord[] getRecord(PluginDataObject pdo, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         if (dataset == null) {
             dataset = VIIRSDataRecord.getDataSet(0);
         }
-        try {
-            IDataRecord[] dataRecords = null;
-            if (pdo instanceof VIIRSRequestableDataRecord) {
-                VIIRSRequestableDataRecord vrdr = (VIIRSRequestableDataRecord) pdo;
-                // Put VIIRSSpatialCoverage from pdo in VIIRSRequest and make
-                // sure data records out of getData are in same coverage
-                VIIRSRequest request = new VIIRSRequest(req, dataset,
-                        vrdr.getCoverage());
-                AbstractRequestableData requestable = vrdr.getRequestableData();
-                if (requestable instanceof VIIRSRequestableData) {
-                    dataRecords = ((VIIRSRequestableData) requestable)
-                            .getRawDataValue(request);
-                } else {
-                    dataRecords = (IDataRecord[]) requestable
-                            .getDataValue(request);
-                }
-            } else if (pdo instanceof VIIRSDataRecord) {
-                VIIRSDataRecord vdr = (VIIRSDataRecord) pdo;
-                VIIRSRequestableData requester = new VIIRSRequestableData(vdr,
-                        inventory.getParameterLevel(vdr.getParameter()));
-                dataRecords = getRecord(new VIIRSRequestableDataRecord(
-                        requester, Arrays.asList(vdr)), req, dataset);
+
+        IDataRecord[] dataRecords = null;
+        if (pdo instanceof VIIRSRequestableDataRecord) {
+            VIIRSRequestableDataRecord vrdr = (VIIRSRequestableDataRecord) pdo;
+            // Put VIIRSSpatialCoverage from pdo in VIIRSRequest and make
+            // sure data records out of getData are in same coverage
+            VIIRSRequest request = new VIIRSRequest(req, dataset,
+                    vrdr.getCoverage());
+            AbstractRequestableData requestable = vrdr.getRequestableData();
+            if (requestable instanceof VIIRSRequestableData) {
+                dataRecords = ((VIIRSRequestableData) requestable)
+                        .getRawDataValue(request);
             } else {
-                dataRecords = new IDataRecord[] { CubeUtil.retrieveData(pdo,
-                        pdo.getPluginName(), req, dataset) };
+                dataRecords = (IDataRecord[]) requestable.getDataValue(request);
             }
-            return dataRecords;
-        } catch (VizException e) {
-            throw new VizDataCubeException("Error requesting viirs data: "
-                    + e.getLocalizedMessage(), e);
+        } else if (pdo instanceof VIIRSDataRecord) {
+            VIIRSDataRecord vdr = (VIIRSDataRecord) pdo;
+            VIIRSRequestableData requester = new VIIRSRequestableData(vdr,
+                    inventory.getParameterLevel(vdr.getParameter()));
+            dataRecords = getRecord(new VIIRSRequestableDataRecord(requester,
+                    Arrays.asList(vdr)), req, dataset);
+        } else {
+            dataRecords = new IDataRecord[] { CubeUtil.retrieveData(pdo,
+                    pdo.getPluginName(), req, dataset) };
         }
+        return dataRecords;
     }
 
     /*
@@ -159,7 +153,7 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         // TODO: Need more advanced synchronizing for derived parameters
         for (PluginDataObject pdo : objs) {
             pdo.setMessageData(getRecord(pdo, req, dataset));
@@ -187,7 +181,7 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     protected List<DataTime> timeAgnosticQuery(
-            Map<String, RequestConstraint> queryTerms) throws VizException {
+            Map<String, RequestConstraint> queryTerms) throws DataCubeException {
         return inventory.timeAgnosticQuery(queryTerms);
     }
 
@@ -202,7 +196,7 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
     protected List<PluginDataObject> getData(
             Map<String, RequestConstraint> constraints,
             DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
-            throws VizException {
+            throws DataCubeException {
         List<PluginDataObject> results = new ArrayList<PluginDataObject>(
                 requesters.size());
         for (AbstractRequestableData requester : requesters) {
@@ -278,7 +272,8 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
      */
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         throw new UnsupportedOperationException(
                 "getPoints is not supported by viirs");
     }
@@ -293,7 +288,7 @@ public class VIIRSDataCubeAdapter extends AbstractDataCubeAdapter {
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
             String levelKey, Map<String, RequestConstraint> queryParams)
-            throws VizException {
+            throws DataCubeException {
         throw new UnsupportedOperationException(
                 "getPoints is not supported by viirs");
     }

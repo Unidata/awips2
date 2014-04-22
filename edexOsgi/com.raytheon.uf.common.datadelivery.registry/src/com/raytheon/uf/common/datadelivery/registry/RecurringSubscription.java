@@ -70,6 +70,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                      to check day of year.  removed now unused active period methods.
  * Jan 28, 2014 2636       mpduff       Changed to use GMT calendar.
  * Feb 12, 2014 2636       mpduff       Return new instance of calculated start and end.
+ * Apr 02, 2014 2810       dhladky      Priority sorting of subscriptions.
  * 
  * </pre>
  * 
@@ -81,7 +82,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
         AdhocSubscription.class, SiteSubscription.class,
         SharedSubscription.class })
 public abstract class RecurringSubscription<T extends Time, C extends Coverage>
-        implements Serializable, Subscription<T, C> {
+        implements Serializable, Subscription<T, C>, Comparable<Subscription<T, C>> {
 
     private static final long serialVersionUID = -6422673887457060034L;
 
@@ -1110,5 +1111,14 @@ public abstract class RecurringSubscription<T extends Time, C extends Coverage>
      */
     public boolean shouldUpdate() {
         return shouldUpdate;
+    }
+
+    @Override
+    public int compareTo(Subscription<T, C> o) {
+
+        SubscriptionPriority oPriority = o.getPriority();
+        SubscriptionPriority myPriority = this.getPriority();
+
+        return myPriority.compareTo(oPriority);
     }
 }

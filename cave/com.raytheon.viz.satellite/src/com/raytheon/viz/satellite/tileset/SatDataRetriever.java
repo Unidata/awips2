@@ -32,6 +32,7 @@ import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.counts.DerivedWVPixel;
 import com.raytheon.uf.common.dataplugin.satellite.units.generic.GenericPixel;
@@ -46,9 +47,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
-import com.raytheon.uf.viz.derivparam.library.DerivedParameterRequest;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.uf.common.derivparam.library.DerivedParameterRequest;
 import com.raytheon.viz.satellite.SatelliteConstants;
 
 /**
@@ -117,7 +117,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
                 signed = recordUnit instanceof GenericPixel;
                 dataUnit = getDataUnit(recordUnit, record);
             }
-        } catch (VizDataCubeException e) {
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Error retrieving satellite data", e);
         }
