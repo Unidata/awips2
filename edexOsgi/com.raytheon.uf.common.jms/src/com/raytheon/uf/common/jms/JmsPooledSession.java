@@ -111,7 +111,9 @@ public class JmsPooledSession {
         this.conn = conn;
         this.sess = sess;
         this.thread = conn.getThread();
-        statusHandler.info("Opening session: " + this.toString());
+        if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+            statusHandler.debug("Opening session: " + this.toString());
+        }
     }
 
     public long getCreateTime() {
