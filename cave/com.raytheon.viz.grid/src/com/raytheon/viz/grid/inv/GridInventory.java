@@ -33,6 +33,16 @@ import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.Set;
 
+import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
+import com.raytheon.uf.common.inventory.tree.CubeLevel;
+import com.raytheon.uf.common.inventory.tree.DataTree;
+import com.raytheon.uf.common.inventory.tree.LevelNode;
+import com.raytheon.uf.common.inventory.tree.ParameterNode;
+import com.raytheon.uf.common.inventory.tree.SourceNode;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
@@ -41,14 +51,18 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.Level;
+import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
-import com.raytheon.uf.common.derivparam.tree.LevelNode;
-import com.raytheon.uf.common.derivparam.tree.ParameterNode;
-import com.raytheon.uf.common.derivparam.tree.SourceNode;
+import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
+import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
+import com.raytheon.uf.common.derivparam.library.DerivParamField;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.library.DerivParamMethod.MethodType;
+import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -58,19 +72,7 @@ import com.raytheon.uf.viz.core.catalog.CatalogQuery;
 import com.raytheon.uf.viz.core.catalog.DbQuery;
 import com.raytheon.uf.viz.core.exception.VizCommunicationException;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.level.LevelUtilities;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AbstractInventory;
-import com.raytheon.uf.viz.derivparam.library.DerivParamDesc;
-import com.raytheon.uf.viz.derivparam.library.DerivParamField;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod;
-import com.raytheon.uf.viz.derivparam.library.DerivParamMethod.MethodType;
-import com.raytheon.uf.viz.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode.Dependency;
-import com.raytheon.uf.viz.derivparam.tree.CubeLevel;
-import com.raytheon.uf.viz.derivparam.tree.StaticDataLevelNode;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.grid.data.ImportRequestableData;
@@ -91,6 +93,8 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Nov 21, 2009 #3576      rjpeter     Refactored use of DerivParamDesc.
  * Feb 26, 2013 1659       bsteffen    Add time agnostic caching to grid derived
  *                                     parameters.
+ * Jan 30, 2014  #2725     ekladstrup  updated exception handling during move of derived
+ *                                     parameters to common
  * 
  * </pre>
  * 
@@ -131,7 +135,7 @@ public class GridInventory extends AbstractInventory implements
 
     @Override
     public void initTree(Map<String, DerivParamDesc> derParLibrary)
-            throws VizException {
+            throws DataCubeException {
         super.initTree(derParLibrary);
         if (updater == null) {
             updater = new GridUpdater(this);
@@ -157,7 +161,7 @@ public class GridInventory extends AbstractInventory implements
             for (Map<String, RequestConstraint> constraints : constraintsToTry) {
                 evaluateRequestConstraints(constraints);
             }
-        } catch (VizException e) {
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -271,7 +275,7 @@ public class GridInventory extends AbstractInventory implements
         return null;
     }
 
-    protected DataTree createBaseTree() throws VizException {
+    protected DataTree createBaseTree() throws DataCubeException {
         DataTree newTree = getTreeFromEdex();
         if (newTree == null) {
             return newTree;
@@ -313,7 +317,7 @@ public class GridInventory extends AbstractInventory implements
 
     @Override
     public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query)
-            throws VizException {
+            throws DataCubeException {
         List<DataTime> rval = null;
         List<String> sources = getSourcesToProcess(query);
         boolean processRadar = sources != null && sources.contains("radar");
@@ -343,8 +347,13 @@ public class GridInventory extends AbstractInventory implements
             }
             if (times == null) {
                 // This should query all times for this model.
-                DataTime[] timesArray = CatalogQuery.performTimeQuery(newQuery,
-                        false, null);
+                DataTime[] timesArray;
+                try {
+                    timesArray = CatalogQuery.performTimeQuery(newQuery,
+                            false, null);
+                } catch (VizException e) {
+                    throw new DataCubeException(e);
+                }
                 times = Arrays.asList(timesArray);
                 if (modelName != null) {
                     GridTimeCache.getInstance().setModelTimes(modelName,
@@ -356,8 +365,12 @@ public class GridInventory extends AbstractInventory implements
             }
         }
         if (processRadar) {
-            Set<DataTime> times = RadarAdapter.getInstance()
-                    .timeInvariantQuery();
+            Set<DataTime> times;
+            try {
+                times = RadarAdapter.getInstance().timeInvariantQuery();
+            } catch (VizException e) {
+                throw new DataCubeException(e);
+            }
             if (rval == null && times != null) {
                 rval = new ArrayList<DataTime>(times.size());
             }
@@ -682,7 +695,7 @@ public class GridInventory extends AbstractInventory implements
     @Override
     protected LevelNode getCubeNode(SourceNode sNode, DerivParamField field,
             Deque<StackEntry> stack, Set<StackEntry> nodata)
-            throws VizCommunicationException {
+            throws CommunicationException {
         StackEntry se = new StackEntry(sNode.getValue(), field.getParam(),
                 Long.MIN_VALUE);
         if (stack.contains(se)) {
@@ -697,8 +710,8 @@ public class GridInventory extends AbstractInventory implements
         String masterLevelName = get3DMasterLevel(sNode.getValue());
         boolean isRadar = sNode.getValue().equals(RadarAdapter.RADAR_SOURCE);
 
-        NavigableSet<Level> levels = LevelUtilities
-                .getOrderedSetOfStandardLevels(masterLevelName);
+        NavigableSet<Level> levels;
+        levels = LevelUtilities.getOrderedSetOfStandardLevels(masterLevelName);
         List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels = new ArrayList<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>>(
                 levels.size());
 

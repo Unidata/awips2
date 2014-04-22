@@ -20,6 +20,7 @@
 package com.raytheon.uf.viz.core.drawables.ext;
 
 import com.raytheon.uf.viz.core.DrawableColorMap;
+import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -35,9 +36,11 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 26, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 26, 2012           bsteffen    Initial creation
+ * Jan 14, 2014  2313     bsteffen    Add method to draw images.
+ * 
  * 
  * </pre>
  * 
@@ -48,33 +51,59 @@ import com.raytheon.uf.viz.core.exception.VizException;
 public interface ICanvasRenderingExtension extends IGraphicsExtensionInterface {
 
     /**
-     * Draw the DrawableString object to the screen, the location of the
+     * Draw the DrawableString objects to the screen, the location of the
      * draqwable strings should be in canvas pixels which start at 0,0 in the
      * upper left.
      * 
-     * @param parameters
+     * @param paintProps
+     *            the current frame paint properties
+     * @param strings
+     *            the strings to draw.
      * @throws VizException
      */
     public abstract void drawStrings(PaintProperties paintProps,
-            DrawableString... parameters) throws VizException;
+            DrawableString... strings) throws VizException;
 
     /**
-     * Draw the DrawableLine object to the screen. The points in the line should
-     * be in canvas pixels which start at 0,0 in the upper left.
+     * Draw the DrawableLine objects to the screen. The points in the line
+     * should be in canvas pixels which start at 0,0 in the upper left.
      * 
-     * @param parameters
+     * @param paintProps
+     *            the current frame paint properties
+     * 
+     * @param lines
+     *            the lines to draw.
+     * 
      * @throws VizException
      */
     public abstract void drawLines(PaintProperties paintProps,
-            DrawableLine... parameters) throws VizException;
+            DrawableLine... lines) throws VizException;
 
     /**
      * Draw the drawable colormap to the screen, the extent of the colormap
      * should be in canvas pixels.
      * 
+     * @param paintProps
+     *            the current frame paint properties
      * @param colorMap
      *            the colorMap to draw
+     * @throws VizException
      */
     public abstract void drawColorRamp(PaintProperties paintProps,
             DrawableColorMap colorMap) throws VizException;
+
+    /**
+     * Draw the drawable images to the screen. the coordinates in the pixel
+     * coverage should be specified in canvas pixels.
+     * 
+     * @param paintProps
+     *            the current frame paint properties
+     * @param images
+     *            the images to draw
+     * @throws VizException
+     * 
+     * @since 1.14.0
+     */
+    public abstract void drawImages(PaintProperties paintProps,
+            DrawableImage... images) throws VizException;
 }

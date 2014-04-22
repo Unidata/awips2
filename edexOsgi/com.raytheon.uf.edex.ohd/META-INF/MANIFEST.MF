@@ -17,7 +17,6 @@ Import-Package: com.raytheon.edex.util,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.dao,
  com.raytheon.uf.edex.database.plugin,
- org.apache.commons.logging,
  org.quartz
 Export-Package: com.raytheon.uf.edex.ohd,
  com.raytheon.uf.edex.ohd.reportalarm,

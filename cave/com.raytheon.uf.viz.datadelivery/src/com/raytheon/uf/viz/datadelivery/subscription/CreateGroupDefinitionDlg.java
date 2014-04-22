@@ -44,6 +44,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- -------------------------
  * Jan 08, 2013 1453       djohnson     Split creation and edit dialogs.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -112,9 +113,9 @@ public class CreateGroupDefinitionDlg extends BaseGroupDefinitionDlg {
      * {@inheritDoc}
      */
     @Override
-    protected void saveGroupDefinition(GroupDefinition groupDefinition)
+    protected void saveGroupDefinition(String username, GroupDefinition groupDefinition)
             throws RegistryHandlerException {
-        DataDeliveryHandlers.getGroupDefinitionHandler().store(groupDefinition);
+        DataDeliveryHandlers.getGroupDefinitionHandler().store(username, groupDefinition);
     }
 
     /**

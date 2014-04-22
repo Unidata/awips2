@@ -23,13 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.ecf.presence.roster.IRosterGroup;
-
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 
 /**
- * TODO Add Description
+ * Container for collaboration information window. Includes current user,
+ * sessions and contacts
  * 
  * <pre>
  * 
@@ -38,6 +37,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGro
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 23, 2012            mnash     Initial creation
+ * Dec 20, 2013 2563       bclement  added items from server roster not in groups
+ * Jan 24, 2014 2701       bclement  removed local groups, added shared groups
  * 
  * </pre>
  * 
@@ -52,6 +53,11 @@ public class CollaborationGroupContainer {
     public CollaborationGroupContainer() {
     }
 
+    /**
+     * Get objects for UI items including current user, sessions and contacts
+     * 
+     * @return
+     */
     public List<Object> getObjects() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
@@ -61,18 +67,18 @@ public class CollaborationGroupContainer {
         List<Object> result = new ArrayList<Object>();
         result.add(connection.getUser());
         result.add(sessionGroup);
-        for (Object obj : connection.getRosterManager().getRoster().getItems()) {
-            if (obj instanceof IRosterGroup) {
-                result.add(obj);
-            }
-        }
-        for (LocalGroup group : connection.getContactsManager()
-                .getLocalGroups()) {
-            result.add(group);
-        }
+        ContactsManager contactsManager = connection.getContactsManager();
+        result.addAll(contactsManager.getSharedGroups());
+        result.addAll(contactsManager.getGroups());
+        result.addAll(contactsManager.getNonGroupedContacts());
         return result;
     }
 
+    /**
+     * Get container for session UI objects
+     * 
+     * @return
+     */
     public SessionGroupContainer getSessionGroup() {
         return sessionGroup;
     }

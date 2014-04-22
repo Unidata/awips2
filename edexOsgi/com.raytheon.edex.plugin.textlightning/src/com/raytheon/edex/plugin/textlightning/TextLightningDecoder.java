@@ -22,23 +22,21 @@ package com.raytheon.edex.plugin.textlightning;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.edex.plugin.IBinaryDecoder;
 import com.raytheon.edex.plugin.textlightning.impl.TextLightningParser;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LightningStrikePoint;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
- * TODO Add Description
+ * Decoder for text lightning data
  * 
  * <pre>
  * 
@@ -48,6 +46,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2010            jsanchez    Initial creation
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
+ * Feb 12, 2014 2655       njensen     Set source
  * 
  * </pre>
  * 
@@ -57,7 +56,9 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 public class TextLightningDecoder extends AbstractDecoder implements
         IBinaryDecoder {
-    private final Log logger = LogFactory.getLog(getClass());
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(TextLightningDecoder.class);
 
     private String traceId = null;
 
@@ -66,6 +67,7 @@ public class TextLightningDecoder extends AbstractDecoder implements
      * will return false, decode() will return a null.
      */
     public TextLightningDecoder() {
+
     }
 
     /**
@@ -116,11 +118,10 @@ public class TextLightningDecoder extends AbstractDecoder implements
 
         if (report != null) {
             report.setTraceId(traceId);
-            try {
-                report.constructDataURI();
-            } catch (PluginException e) {
-                throw new DecoderException("Error constructing datauri", e);
-            }
+
+            // TODO anyone have any idea what the source should actually be
+            // named?
+            report.setSource("text");
         }
 
         return new PluginDataObject[] { report };

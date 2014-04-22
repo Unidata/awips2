@@ -4,11 +4,11 @@ import java.io.File;
 
 import com.raytheon.edex.rpgenvdata.RcmClient;
 import com.raytheon.rcm.mqsrvr.ReqObj.SendConfigFile;
-import com.raytheon.uf.common.site.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
  * Sends NDM configuration files to the RadarServer.
@@ -52,8 +52,9 @@ public class RadarServerNdmSubscriber implements INationalDatasetSubscriber {
                         "Error initializing RadarServer connection", e);
             }
         } finally {
-            if (rcmClient != null)
+            if (rcmClient != null) {
                 rcmClient.close();
+            }
         }
     }
 }

@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 
 /**
- * TODO Add Description
+ * Retrieve session objects from contacts list
  * 
  * <pre>
  * 
@@ -38,13 +38,13 @@ import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConn
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2012            rferrel     Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
  * 
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
-
 public class SessionGroupContainer {
 
     public List<Object> getObjects() {
@@ -57,12 +57,10 @@ public class SessionGroupContainer {
         List<Object> result = new ArrayList<Object>();
         for (ISession session : sessions) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenue().getInfo()
-                        .isPersistent() == false) {
-                    result.add(session);
-                }
+                result.add(session);
             }
         }
         return result;
     }
+
 }

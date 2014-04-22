@@ -22,9 +22,9 @@ package com.raytheon.edex.plugin.redbook.dao;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.persist.IPersistable;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
@@ -43,7 +43,9 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * </pre>
  * 
  * @author jkorman

@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 
 /**
  * A base implementation of resource data and metadata. This class is used by
@@ -112,7 +113,10 @@ public abstract class AbstractResourceData {
      * 
      * This class is typically implemented and provides any transformations
      * necessary to go between the raw data form and the input of the renderable
-     * AbstractVizResource.
+     * AbstractVizResource. Default calls
+     * {@link #fireChangeListeners(com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType, Object)}
+     * with {@link ChangeType#DATA_UPDATE} and the updateData with no
+     * transformations
      * 
      * 
      * @param updateData

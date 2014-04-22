@@ -45,6 +45,7 @@ import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
  * ------------ ---------- ----------- --------------------------
  * Jan 18, 2013 1441       djohnson     Initial creation
  * Nov 12, 2013 2506       bgonzale     Refactored out notification service.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -99,7 +100,7 @@ public class GroupDefinitionServiceHandler extends
         if (!CollectionUtil.isNullOrEmpty(subsForGroup)) {
             for (Subscription sub : subsForGroup) {
                 sub.setGroupName(GroupDefinition.NO_GROUP);
-                handler.update(sub);
+                handler.update(user.uniqueId().toString(), sub);
             }
         }
 

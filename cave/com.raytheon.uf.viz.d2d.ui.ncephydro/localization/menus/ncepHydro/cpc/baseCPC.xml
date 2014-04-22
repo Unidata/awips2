@@ -19,11 +19,8 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">	
-	<contribute xsi:type="subMenu" menuText="Threat Charts"
-	            id="ncepHydro.cpc.threatCharts">
-	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/cpc/threatCharts.xml"/>
-	</contribute>
-	
+    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/cpc/cpcMenus.xml"/>
+    
 	<contribute xsi:type="subMenu" menuText="Outlook Grids"
 	            id="ncepHydro.cpc.outlookGrids">
 	    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/cpc/outlookGrids.xml"/>

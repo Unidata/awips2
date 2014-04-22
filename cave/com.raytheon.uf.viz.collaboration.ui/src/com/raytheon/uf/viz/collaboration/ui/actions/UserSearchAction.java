@@ -23,7 +23,9 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
 
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.UserSearchDialog;
+import com.raytheon.uf.viz.core.icon.IconUtil;
 
 /**
  * Open the User Search Dialog
@@ -35,6 +37,7 @@ import com.raytheon.uf.viz.collaboration.ui.UserSearchDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 5, 2012            bsteffen     Initial creation
+ * Feb 19, 2014 2751       bclement    added icon
  * 
  * </pre>
  * 
@@ -45,7 +48,8 @@ import com.raytheon.uf.viz.collaboration.ui.UserSearchDialog;
 public class UserSearchAction extends Action {
 
     public UserSearchAction() {
-        super("User Search...");
+        super("User Search...", IconUtil.getImageDescriptor(Activator
+                .getDefault().getBundle(), "spyglass.gif"));
         setEnabled(CollaborationConnection.getConnection() != null);
     }
 

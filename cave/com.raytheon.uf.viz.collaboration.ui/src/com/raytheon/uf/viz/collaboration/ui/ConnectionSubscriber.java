@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import org.eclipse.ecf.core.user.IUser;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
@@ -34,20 +34,18 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IHttpdCollaborationConfigurationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.ITextMessageEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.display.data.SessionColorManager;
-import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.actions.PeerToPeerChatAction;
+import com.raytheon.uf.viz.collaboration.ui.jobs.AwayTimeOut;
 import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
+import com.raytheon.uf.viz.collaboration.ui.prefs.SubscriptionResponderImpl;
 import com.raytheon.uf.viz.collaboration.ui.session.CollaborationSessionView;
 import com.raytheon.uf.viz.collaboration.ui.session.PeerToPeerView;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionView;
@@ -65,6 +63,13 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 8, 2012            njensen     Initial creation
+ * Dec 18, 2013 2562      bclement    fixed venue invite
+ * Jan 14, 2014 2630      bclement    added away timeout
+ * Jan 27, 2014 2700      bclement    added auto subscribe property listener
+ * Jan 30, 2014 2698      bclement    moved xmpp join logic to dialog so we can reprompt user on failure
+ * Feb 13, 2014 2751      bclement    messages return IUser instead of IQualifiedID
+ * Mar 06, 2014 2848      bclement    moved SharedDisplaySessionMgr.joinSession call to InviteDialog
+ * Apr 08, 2014 2785      mpduff      removed preference listener
  * 
  * </pre>
  * 
@@ -81,8 +86,9 @@ public class ConnectionSubscriber {
 
     private IWorkbenchListener wbListener;
 
-    private ConnectionSubscriber() {
+    private final AwayTimeOut awayTimeOut = new AwayTimeOut();
 
+    private ConnectionSubscriber() {
     }
 
     /**
@@ -114,6 +120,8 @@ public class ConnectionSubscriber {
 
     private void setup(final CollaborationConnection connection) {
         if (connection != null) {
+            connection.getAccountManager().setSubscriptionRequestResponder(
+                    new SubscriptionResponderImpl(connection));
             // Register handlers and events for the new sessionManager.
             connection.registerEventHandler(this);
             try {
@@ -140,12 +148,15 @@ public class ConnectionSubscriber {
                 }
             };
             PlatformUI.getWorkbench().addWorkbenchListener(wbListener);
+            awayTimeOut.setSystem(true);
+            awayTimeOut.setPriority(Job.LONG);
+            awayTimeOut.schedule();
         }
-
     }
 
     private void dispose(CollaborationConnection connection) {
         if (connection != null) {
+            awayTimeOut.cancel();
             try {
                 ISession p2pSession = connection.getPeerToPeerSession();
                 p2pSession.unregisterEventHandler(this);
@@ -159,60 +170,31 @@ public class ConnectionSubscriber {
     }
 
     @Subscribe
-    public void handleInvitationEvent(IVenueInvitationEvent event) {
-        final IVenueInvitationEvent invitation = event;
+    public void handleInvitationEvent(final IVenueInvitationEvent event) {
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                IQualifiedID inviter = invitation.getInviter();
-                IQualifiedID room = invitation.getRoomId();
                 Shell shell = new Shell(Display.getCurrent());
-                StringBuilder sb = new StringBuilder();
-                boolean sharedDisplay = invitation.getInvite() instanceof SharedDisplayVenueInvite;
-                sb.append("You are invited to a ");
-                if (sharedDisplay) {
-                    sb.append("collaboration session.");
-                } else {
-                    sb.append("chat room.");
-                }
-                InviteDialog inviteBox = new InviteDialog(shell, inviter
-                        .getName(), invitation.getSubject(), room.getName(), sb
-                        .toString(), invitation.getInvite().getMessage());
+                InviteDialog inviteBox = new InviteDialog(shell, event);
                 if (!(Boolean) inviteBox.open()) {
                     return;
                 }
 
-                CollaborationConnection connection = CollaborationConnection
-                        .getConnection();
                 try {
-                    IVenueSession session = connection
-                            .joinCollaborationVenue(invitation);
-                    String sessionId = session.getSessionId();
-                    if (sharedDisplay) {
-                        ISharedDisplaySession displaySession = (ISharedDisplaySession) session;
-                        SessionColorManager man = new SessionColorManager();
-                        SharedDisplaySessionMgr.joinSession(displaySession,
-                                SharedDisplayRole.PARTICIPANT, man);
-
+                    IVenueSession session = inviteBox.getSession();
+                    if (inviteBox.isSharedDisplay()) {
                         CaveWorkbenchPageManager.getActiveInstance().showView(
-                                CollaborationSessionView.ID, sessionId,
+                                CollaborationSessionView.ID,
+                                session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     } else {
                         CaveWorkbenchPageManager.getActiveInstance().showView(
-                                SessionView.ID, sessionId,
+                                SessionView.ID, session.getSessionId(),
                                 IWorkbenchPage.VIEW_ACTIVATE);
                     }
-                } catch (CollaborationException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
                 } catch (PartInitException e) {
-                    // TODO Auto-generated catch block. Please revise as
-                    // appropriate.
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
+                    statusHandler.error("Unable to display session view", e);
                 }
             }
         });
@@ -230,11 +212,11 @@ public class ConnectionSubscriber {
 
             @Override
             public void run() {
-                IQualifiedID peer = message.getFrom();
+                IUser peer = message.getFrom();
 
-                IUser user = null;
-                if (peer instanceof IUser) {
-                    user = (IUser) peer;
+                UserId user = null;
+                if (peer instanceof UserId) {
+                    user = (UserId) peer;
                 } else {
                     user = CollaborationConnection.getConnection()
                             .getContactsManager().getUser(peer.getFQName());
@@ -259,7 +241,7 @@ public class ConnectionSubscriber {
                 .getBoolean(
                         CollabPrefConstants.HttpCollaborationConfiguration.P_SESSION_CONFIGURED);
         boolean configured = false;
-        if ((configurationEvent.getHttpdCollaborationURL() == null) == false) {
+        if (configurationEvent.getHttpdCollaborationURL() != null) {
             // Add the httpd collaboration url to the CAVE configuration.
             Activator
                     .getDefault()

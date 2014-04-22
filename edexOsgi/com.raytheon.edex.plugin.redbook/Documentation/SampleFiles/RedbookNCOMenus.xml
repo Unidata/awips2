@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 
+This file is the A2 NDM replacement for redbookNCOMenus.txt.  
+
+Dropping RedbookNCOMenus.xml into the /awips2/edex/data/ndm directory 
+will generate an override of the NCO menu.
+
+RedbookNCOMenus.xml as written here will generate the base version 
+of the NCO menus.
+ -->
+<redbookMenu>
+    <!-- Precip & Stability -->
+    <menuEntry type="submenu" text="Precip &amp;&amp; Stability"
+        id="ncepHydro.nco.precipStability">
+        <menuEntry type="productButton" 
+               text="Daily Precipitation" id="ncepHydro.nco.dailyPrecipitation">
+            <!-- Redbook Key: 5056 -->
+            <menuEntry type="substitute" key="wmo" value="PEWA31"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Snow Cover Plot" id="ncepHydro.nco.snowCoverPlot">
+            <!-- Redbook Key: 5057 -->
+            <menuEntry type="substitute" key="wmo" value="PEWA32"/>
+        </menuEntry>
+
+        <menuEntry type="submenu" text="Snow Images"
+            id="ncepHydro.nco.snowImages">
+            <menuEntry type="title" text="------ NOHRSC ------"
+                id="ncepHydro.nco.nohrsc.title" />
+            <menuEntry type="productButton" file="bundles/ncepHydro/NOHRSC-SNOW.xml"
+                text="Snow Cover" id="ncepHydro.nco.snowCover">
+                <!-- Redbook Key: 25500 -->
+                <menuEntry type="substitute" key="param" value="MSTAV"/>
+                <menuEntry type="substitute" key="customLegend" value="Snow Cover"/>
+                <menuEntry type="substitute" key="sampleFormat" value="0.00"/>
+            </menuEntry>
+            <menuEntry type="productButton" file="bundles/ncepHydro/NOHRSC-SNOW.xml"
+                text="Snow Cover Elev" id="ncepHydro.nco.snowCoverElev">
+                <!-- Redbook Key: 25501 -->
+                <menuEntry type="substitute" key="param" value="sce"/>
+                <menuEntry type="substitute" key="customLegend" value="Snow Cover by elevation (kft)"/>
+                <menuEntry type="substitute" key="sampleFormat" value="0.00"/>
+            </menuEntry>
+            <menuEntry type="productButton" file="bundles/ncepHydro/NOHRSC-SNOW.xml"
+                text="Snow Water equiv" id="ncepHydro.nco.snowWaterEquiv">
+                <!-- Redbook Key: 25502 -->
+                <menuEntry type="substitute" key="param" value="swe"/>
+                <menuEntry type="substitute" key="customLegend" value="Snow Water Equivalent (in)"/>
+                <menuEntry type="substitute" key="sampleFormat" value="0.00"/>
+            </menuEntry>
+		    <menuEntry type="productButton" file="bundles/ncepHydro/NOHRSC-SNOW.xml"
+		        text="Snow Water % nrml" id="ncepHydro.nco.snowWaterPercent"> 
+                <!-- Redbook Key: 25503 -->
+		        <menuEntry type="substitute" key="param" value="SWEPN"/>
+		        <menuEntry type="substitute" key="customLegend" value="Snow Water Equivalent % of normal (%)"/>
+		        <menuEntry type="substitute" key="sampleFormat" value="0.00"/>
+		    </menuEntry>
+        </menuEntry>
+
+        <menuEntry type="productButton" 
+            text="Radar Summary" id="ncepHydro.nco.radarSummary">
+            <!-- Redbook Key: 5013 -->
+            <menuEntry type="substitute" key="wmo" value="PAWO82"/>
+            <menuEntry type="substitute" key="posOff" value="3600"/>
+            <menuEntry type="substitute" key="virtOff" value="-2100"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Radar Legends" id="ncepHydro.nco.radarLegends">
+            <!-- Redbook Key: 5014 -->
+            <menuEntry type="substitute" key="wmo" value="PAWO83"/>
+            <menuEntry type="substitute" key="posOff" value="3600"/>
+            <menuEntry type="substitute" key="virtOff" value="-2100"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Precip H20 Plot" id="ncepHydro.nco.precipH20Plot">
+            <!-- Redbook Key: 5058 -->
+            <menuEntry type="substitute" key="wmo" value="PEWA33"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Precip H20 Analysis" id="ncepHydro.nco.precipH20Analysis">
+            <!-- Redbook Key: 5059 -->
+            <menuEntry type="substitute" key="wmo" value="PEWA34"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Sfc-500 RH Plot" id="ncepHydro.nco.sfc500RHPlot">
+            <!-- Redbook Key: 5134 -->
+            <menuEntry type="substitute" key="wmo" value="PRWA51"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Lifted-K Index Plot" id="ncepHydro.nco.liftedKIndexPlot">
+            <!-- Redbook Key: 5147 -->
+            <menuEntry type="substitute" key="wmo" value="PXWA50"/>
+        </menuEntry>
+    </menuEntry>
+    
+    <!-- Temps & Weather -->
+    <menuEntry type="submenu" text="Temps &amp;&amp; Weather"
+                id="ncepHydro.nco.tempsWeather">
+        
+        <menuEntry type="productButton" 
+               text="Observed Max/Min Temps" id="ncepHydro.nco.observedMaxMinTemps"> 
+            <!-- Redbook Key: 5140 -->
+            <menuEntry type="substitute" key="wmo" value="PTWA31, PTWA32"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Normal Max/Min Temps" id="ncepHydro.nco.normalMaxMinTemps">  
+            <!-- Redbook Key: 5143 -->
+            <menuEntry type="substitute" key="wmo" value="PTWO33, PTWO34"/>
+        </menuEntry>
+        <menuEntry type="separator" id="separator1"/>
+        <menuEntry type="productButton" 
+               text="Frzg Lvl Plot" id="ncepHydro.nco.frzgLvlPlot">
+            <!-- Redbook Key: 5142 -->
+            <menuEntry type="substitute" key="wmo" value="PTWA94"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Frzg Lvl Analysis" id="ncepHydro.nco.frzgLvlAnalysis">
+            <!-- Redbook Key: 5145 -->
+            <menuEntry type="substitute" key="wmo" value="PTWA93"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Frzg Lvl/Turbulence Fcst" id="ncepHydro.nco.frzgLvlTurbulenceFcst">
+            <!-- Redbook Key: 5136 -->
+            <menuEntry type="substitute" key="wmo" value="PTIC94, PTIE94"/>
+        </menuEntry>
+        <menuEntry type="separator" id="separator2"/>
+        <menuEntry type="productButton" 
+               text="Wx Depiction Plot" id="ncepHydro.nco.wxDepictionPlot">
+            <!-- Redbook Key: 5064 -->
+            <menuEntry type="substitute" key="wmo" value="PGWA31"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Wx Depiction Analysis" id="ncepHydro.nco.wxDepictionAnalysis">
+            <!-- Redbook Key: 5065 -->
+            <menuEntry type="substitute" key="wmo" value="PGWA32"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Wx Depiction Fcst" id="ncepHydro.nco.wxDepictionFcst"> 
+            <!-- Redbook Key: 5062 -->
+            <menuEntry type="substitute" key="wmo" value="PGIC42, PGIE43"/>
+        </menuEntry>
+        <menuEntry type="separator" id="separator3"/>
+        <menuEntry type="productButton" 
+               text="Sfc Geo Wind Plot" id="ncepHydro.nco.sfcGeoWindPlot">
+            <!-- Redbook Key: 5154 -->
+            <menuEntry type="substitute" key="wmo" value="PYWA31"/>
+        </menuEntry>
+        <menuEntry type="productButton" 
+               text="Sfc Geo Relative Vort" id="ncepHydro.nco.sfcGeoRelativeVort">
+            <!-- Redbook Key: 5155 -->
+            <menuEntry type="substitute" key="wmo" value="PYWA32"/>
+        </menuEntry>
+    </menuEntry>
+    
+    <!-- National Centers model -->
+    <menuEntry type="submenu" text="National Centers model"
+                id="ncepHydro.nco.nationalCentersModel">        
+        <menuEntry type="productButton" 
+                text="UKMO MSLP" id="ncepHydro.nco.UKMOMSLP">
+            <menuEntry type="substitute" key="wmo" value="PPZA50,PPZM50,PPZO50,PPZQ50"/>             
+        </menuEntry>
+    </menuEntry>
+</redbookMenu>
