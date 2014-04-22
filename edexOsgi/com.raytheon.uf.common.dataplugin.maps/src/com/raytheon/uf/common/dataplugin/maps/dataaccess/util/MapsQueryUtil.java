@@ -80,8 +80,11 @@ public class MapsQueryUtil {
             List<String> columns, List<String> additionalConstraints,
             String table, String geomField) {
 
-        String geospatialConstraint = "ST_Intersects(the_geom, ST_GeometryFromText('"
-                + boundingGeom.toText() + "', " + WGS84_SRID + "))";
+        String geospatialConstraint = null;
+        if (boundingGeom != null) {
+            geospatialConstraint = "ST_Intersects(the_geom, ST_GeometryFromText('"
+                    + boundingGeom.toText() + "', " + WGS84_SRID + "))";
+        }
 
         return assembleMapsTableQuery(geospatialConstraint, columns,
                 additionalConstraints, table, geomField);
@@ -110,10 +113,13 @@ public class MapsQueryUtil {
             List<String> columns, List<String> additionalConstraints,
             String table, String geomField) {
 
-        String geospatialConstraint = String.format(
-                "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d," + WGS84_SRID
-                        + ")", geomField, env.getMinX(), env.getMinY(),
-                env.getMaxX(), env.getMaxY());
+        String geospatialConstraint = null;
+        if (env != null) {
+            geospatialConstraint = String.format(
+                    "%s && ST_SetSrid('BOX3D(%f %f, %f %f)'::box3d,"
+                            + WGS84_SRID + ")", geomField, env.getMinX(),
+                    env.getMinY(), env.getMaxX(), env.getMaxY());
+        }
         return assembleMapsTableQuery(geospatialConstraint, columns,
                 additionalConstraints, table, geomField);
     }
