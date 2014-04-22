@@ -28,10 +28,9 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -42,7 +41,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 2, 2010             jsanchez    Initial creation
+ * Feb 02, 2010             jsanchez    Initial creation
+ * Mar 26, 2014             skorolev    Updated logger.
  * 
  * </pre>
  * 
@@ -54,7 +54,7 @@ public class TableLoader {
     private static HashMap<String, Coordinate> pirepTable = new HashMap<String, Coordinate>();
 
     /** The logger */
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(TableLoader.class);
 
     private static final String KEY = "\\w{3,3}";
 
@@ -117,10 +117,18 @@ public class TableLoader {
         }
     }
 
+    /**
+     * @param key
+     * @return
+     */
     public Coordinate get(String key) {
         return pirepTable.get(key);
     }
 
+    /**
+     * @param key
+     * @return
+     */
     public boolean contains(String key) {
         return pirepTable.containsKey(key);
     }

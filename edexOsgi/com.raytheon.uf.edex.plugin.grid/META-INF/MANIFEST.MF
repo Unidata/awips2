@@ -5,12 +5,12 @@ Bundle-SymbolicName: com.raytheon.uf.edex.plugin.grid
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.inventory.tree,
+ com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataquery.db,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.datastorage.records,
- com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.core.dataplugin,
  com.raytheon.uf.edex.database,

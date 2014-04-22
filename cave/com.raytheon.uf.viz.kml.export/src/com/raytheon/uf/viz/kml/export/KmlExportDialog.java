@@ -54,9 +54,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 5, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jun 05, 2012           bsteffen    Initial creation
+ * Jan 23, 2014  2703     bsteffen    Enable subclasses to add custom frame
+ *                                    selection options.
+ * Apr 03, 2014  2847     dgilling    Add some additional methods for
+ *                                    use by sub-classes.
  * 
  * </pre>
  * 
@@ -66,7 +70,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 public class KmlExportDialog extends CaveSWTDialog {
 
-    private final KmlExportOptions options;
+    protected final KmlExportOptions options;
 
     private Text locationText;
 
@@ -167,6 +171,7 @@ public class KmlExportDialog extends CaveSWTDialog {
         Button button = new Button(group, SWT.PUSH);
         button.setText("Browse ...");
         button.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
                 selectDestinationFile();
             }
@@ -381,7 +386,7 @@ public class KmlExportDialog extends CaveSWTDialog {
         }
     }
 
-    private void populateProductSubTree(List<ResourcePair> rscList,
+    protected void populateProductSubTree(List<ResourcePair> rscList,
             final TreeItem parent) {
         TreeItem[] items = parent != null ? parent.getItems() : productTree
                 .getItems();
@@ -477,7 +482,7 @@ public class KmlExportDialog extends CaveSWTDialog {
                 options.setFirstFrameIndex(frame);
                 options.setLastFrameIndex(frame + 1);
             }
-        } else {
+        } else if (selectedFramesButton.getSelection()) {
             try {
                 int from = Integer.parseInt(framesFromText.getText()) - 1;
                 options.setFirstFrameIndex(from);
@@ -603,4 +608,11 @@ public class KmlExportDialog extends CaveSWTDialog {
         return true;
     }
 
+    public boolean isExportHiddenSelected() {
+        return exportHiddenButton.getSelection();
+    }
+
+    public boolean isExportMapsSelected() {
+        return exportMapsButton.getSelection();
+    }
 }

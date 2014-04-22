@@ -94,6 +94,7 @@ import com.vividsolutions.jts.io.WKBReader;
  *                                     polygons in map resource.
  * Nov 06, 2013 2361       njensen     Prepopulate fields in initInternal
  *                                     instead of constructor for speed
+ * Feb 18, 2014 2819       randerso    Removed unnecessary clones of geometries
  * 
  * </pre>
  * 
@@ -279,11 +280,11 @@ public class DbMapResource extends
                     }
                     List<String> fields = new ArrayList<String>();
                     fields.add(GID);
-                    if (req.labelField != null
+                    if ((req.labelField != null)
                             && !fields.contains(req.labelField)) {
                         fields.add(req.labelField);
                     }
-                    if (req.shadingField != null
+                    if ((req.shadingField != null)
                             && !fields.contains(req.shadingField)) {
                         fields.add(req.shadingField);
                     }
@@ -318,7 +319,7 @@ public class DbMapResource extends
                         Geometry geom = GeometryCache.getGeometry(table, ""
                                 + gid, req.geomField);
                         if (geom != null) {
-                            gidMap.put(gid, (Geometry) geom.clone());
+                            gidMap.put(gid, geom);
                         } else {
                             toRequest.add(gid);
                         }
@@ -371,7 +372,7 @@ public class DbMapResource extends
                             }
                             gidMap.put(gid, g);
                             GeometryCache.putGeometry(table, "" + gid,
-                                    req.geomField, (Geometry) g.clone());
+                                    req.geomField, g);
                         }
                     }
 
@@ -411,7 +412,7 @@ public class DbMapResource extends
                                     req.labelField.toLowerCase());
                         }
 
-                        if (obj != null && g != null) {
+                        if ((obj != null) && (g != null)) {
                             String label;
                             if (obj instanceof BigDecimal) {
                                 label = Double.toString(((Number) obj)
@@ -447,8 +448,7 @@ public class DbMapResource extends
                                 } catch (TopologyException e) {
                                     statusHandler.handle(Priority.VERBOSE,
                                             "Invalid geometry cannot be labeled: "
-                                                    + label,
-                                                    e);
+                                                    + label, e);
                                     unlabelablePoints.add(label);
                                 }
                             }
@@ -645,12 +645,12 @@ public class DbMapResource extends
         String shadingField = getCapability(ShadeableCapability.class)
                 .getShadingField();
         // System.out.println("shadingField: " + shadingField);
-        boolean isShaded = isPolygonal() && shadingField != null;
+        boolean isShaded = isPolygonal() && (shadingField != null);
 
-        if (simpLev < lastSimpLev
+        if ((simpLev < lastSimpLev)
                 || (isLabeled && !labelField.equals(lastLabelField))
                 || (isShaded && !shadingField.equals(lastShadingField))
-                || lastExtent == null
+                || (lastExtent == null)
                 || !lastExtent.getEnvelope().contains(
                         clipToProjExtent(screenExtent).getEnvelope())) {
             if (!paintProps.isZooming()) {
@@ -688,20 +688,20 @@ public class DbMapResource extends
 
         float alpha = paintProps.getAlpha();
 
-        if (shadedShape != null && shadedShape.isDrawable() && isShaded) {
+        if ((shadedShape != null) && shadedShape.isDrawable() && isShaded) {
             float opacity = getCapability(ShadeableCapability.class)
                     .getOpacity();
             aTarget.drawShadedShape(shadedShape, alpha * opacity);
         }
 
-        if (outlineShape != null && outlineShape.isDrawable()
+        if ((outlineShape != null) && outlineShape.isDrawable()
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             aTarget.drawWireframeShape(outlineShape,
                     getCapability(ColorableCapability.class).getColor(),
                     getCapability(OutlineCapability.class).getOutlineWidth(),
                     getCapability(OutlineCapability.class).getLineStyle(),
                     alpha);
-        } else if (outlineShape == null
+        } else if ((outlineShape == null)
                 && getCapability(OutlineCapability.class).isOutlineOn()) {
             issueRefresh();
         }
@@ -709,7 +709,7 @@ public class DbMapResource extends
         double labelMagnification = getCapability(MagnificationCapability.class)
                 .getMagnification();
 
-        if (labels != null && isLabeled && labelMagnification != 0) {
+        if ((labels != null) && isLabeled && (labelMagnification != 0)) {
             if (font == null) {
                 font = aTarget
                         .initializeFont(aTarget.getDefaultFont().getFontName(),
@@ -737,7 +737,7 @@ public class DbMapResource extends
                     .getDensity();
             double minScreenDistance = Double.MAX_VALUE;
             if (density > 0) {
-                minScreenDistance = screenToWorldRatio * BASE_DENSITY_MULT
+                minScreenDistance = (screenToWorldRatio * BASE_DENSITY_MULT)
                         / density;
             }
 
@@ -768,7 +768,7 @@ public class DbMapResource extends
                         node.location[1]
                                 + ((node.rect.getHeight() - node.rect.getY()) * screenToWorldRatio));
 
-                if (lastLabel != null && lastLabel.equals(node.label)) {
+                if ((lastLabel != null) && lastLabel.equals(node.label)) {
                     // check intersection of extents
                     for (IExtent ext : extents) {
                         if (ext.intersects(strExtent)) {

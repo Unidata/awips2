@@ -33,7 +33,6 @@ import org.eclipse.swt.widgets.Menu;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.display.data.SessionContainer;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 import com.raytheon.uf.viz.collaboration.display.roles.dataprovider.SharedEditorsManager;
@@ -51,7 +50,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 21, 2012            mnash     Initial creation
+ * Mar 21, 2012            mnash       Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 11, 2014 2751       njensen     Fixed scary ==
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -142,9 +144,9 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
         if (editor != null) {
             List<ISharedDisplaySession> sessions = getSessions();
             for (final ISharedDisplaySession session : sessions) {
-                IVenueInfo sessionInfo = session.getVenue().getInfo();
+                String sessionName = session.getVenueName();
                 ActionContributionItem aci = new ActionContributionItem(
-                        new Action(sessionInfo.getVenueDescription()) {
+                        new Action(sessionName) {
                             @Override
                             public void run() {
                                 try {
@@ -182,8 +184,8 @@ public class ShareEditorAction extends ContributedEditorMenuAction implements
             if (container != null) {
                 ISharedDisplaySession session = container.getSession();
                 if (session != null
-                        && session.getUserID() == session
-                                .getCurrentDataProvider()) {
+                        && session.getUserID().isSameUser(
+                                session.getCurrentDataProvider())) {
                     sessions.add(container.getSession());
                 }
             }

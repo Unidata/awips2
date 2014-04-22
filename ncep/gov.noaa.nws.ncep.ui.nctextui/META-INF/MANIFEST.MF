@@ -13,11 +13,13 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core;bundle-version="1.11.17",
  gov.noaa.nws.ncep.ui.pgen,
  gov.noaa.nws.ncep.viz.common;bundle-version="1.0.0",
- com.raytheon.uf.common.pointdata
+ com.raytheon.uf.common.pointdata,
+ com.raytheon.uf.viz.datacube
 Eclipse-LazyStart: true
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: SIB
-Import-Package: com.raytheon.uf.common.dataplugin,
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.viz.core,

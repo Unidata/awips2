@@ -144,6 +144,12 @@
 		<!-- We Need To Build The p2 Repos In A Certain Order Due To
 		     Dependencies. -->
 
+		<!-- copy the com.raytheon.uf.viz.application.feature feature.
+		     Used by the com.raytheon.viz.feature.awips feature. -->
+                <copy todir="${basedir}/cave/p2/features" verbose="true">
+                	<fileset dir="${workspace.dir}"
+                		includes="com.raytheon.uf.viz.application.feature/**" />
+                </copy>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.feature.awips" />
@@ -169,10 +175,10 @@
 			<param name="feature"
 				value="com.raytheon.uf.viz.common.core.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.localization.perspective.feature" />
-                </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.localization.perspective.feature" />
+        </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.core.feature" />
@@ -213,6 +219,10 @@
 			<param name="feature"
 				value="com.raytheon.viz.grib.feature" />
 		</antcall>
+        	<antcall target="p2.build.repo">
+                     <param name="feature"
+                                value="com.raytheon.uf.viz.kml.export.feature" />
+                </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.viz.gfe.feature" />
@@ -276,10 +286,6 @@
         <antcall target="p2.build.repo">
              <param name="feature"
                   value="com.raytheon.uf.viz.useradmin.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature"
-                  value="com.raytheon.uf.viz.kml.export.feature" />
         </antcall>		
         <antcall target="p2.build.repo">
              <param name="feature"
@@ -293,18 +299,18 @@
 			<param name="feature"
 				value="com.raytheon.viz.volumebrowser.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.acarssounding.feature" />
-                </antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.viz.avnfps.feature" />
-                </antcall>
-                <antcall target="p2.build.repo">
-                        <param name="feature"
-                                value="com.raytheon.uf.viz.dat.feature" />
-                </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.acarssounding.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.viz.avnfps.feature" />
+        </antcall>
+        <antcall target="p2.build.repo">
+            <param name="feature"
+                    value="com.raytheon.uf.viz.dat.feature" />
+        </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature"
 				value="com.raytheon.uf.viz.d2d.gfe.feature" />

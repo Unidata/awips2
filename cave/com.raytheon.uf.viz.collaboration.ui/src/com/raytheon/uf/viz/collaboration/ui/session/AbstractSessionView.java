@@ -19,11 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.session;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,16 +53,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
-import sun.audio.AudioData;
-import sun.audio.AudioDataStream;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
-
 import com.google.common.eventbus.Subscribe;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.collaboration.comm.identity.IMessage;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
@@ -77,8 +66,10 @@ import com.raytheon.uf.viz.collaboration.ui.actions.CutTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PasteTextAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.PopupNotifier;
 import com.raytheon.uf.viz.collaboration.ui.data.AlertWord;
+import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
+import com.raytheon.uf.viz.core.sounds.SoundUtil;
 import com.raytheon.viz.ui.views.CaveFloatingView;
 
 /**
@@ -92,20 +83,27 @@ import com.raytheon.viz.ui.views.CaveFloatingView;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012 244        rferrel     Initial creation
- * 
+ * Dec 19, 2013 2563       bclement    moved color lookup into runAsync block
+ * Jan 30, 2014 2698       bclement    get display name from child class
+ * Feb 13, 2014 2751       bclement    made generic
+ * Feb 18, 2014 2631       mpduff      Add ability to play sounds on join actions
+ * Feb 24, 2014 2632       mpduff      Moved sound generation code to CollaborationUtils
+ * Mar 06, 2014 #2865      lvenable    Fixed font memory leaks added SWT dispose checks when
+ *                                     running in an asynchronous thread.
+ * Mar 11, 2014 #2865      lvenable    Added null checks for msgArchive.
  * </pre>
  * 
  * @author rferrel
  * @version 1.0
  */
 
-public abstract class AbstractSessionView extends CaveFloatingView {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(AbstractSessionView.class);
-
+public abstract class AbstractSessionView<T extends IUser> extends
+        CaveFloatingView {
     private static final String SESSION_IMAGE_KEY = "sessionId.key";
 
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss");
+    private static ThreadLocal<SimpleDateFormat> dateFormatter = TimeUtil
+            .buildThreadLocalSimpleDateFormat("HH:mm:ss",
+                    TimeZone.getTimeZone("GMT"));
 
     /**
      * Mapping of images used in the view so they are not constantly created and
@@ -119,15 +117,14 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     protected StyledText messagesText;
 
-    private StyledText composeText;
+    /** Font used with the messagesText control. */
+    private Font messagesTextFont;
 
-    private UserId[] userIds = null;
+    private StyledText composeText;
 
     protected SessionMsgArchive msgArchive;
 
     private List<AlertWord> alertWords = null;
-
-    private AudioDataStream ads = null;
 
     private Map<String, Font> fonts = null;
 
@@ -147,10 +144,8 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     public AbstractSessionView() {
         imageMap = new HashMap<String, Image>();
-        userIds = CollaborationUtils.getIds();
         fonts = new HashMap<String, Font>();
         colors = new HashMap<RGB, Color>();
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     protected void initComponents(Composite parent) {
@@ -215,9 +210,10 @@ public abstract class AbstractSessionView extends CaveFloatingView {
             }
         });
         // here need to grab the font from preferences and use that font
-        messagesText.setFont(new Font(Display.getCurrent(), PreferenceConverter
-                .getFontData(Activator.getDefault().getPreferenceStore(),
-                        "font")));
+        messagesTextFont = new Font(Display.getCurrent(),
+                PreferenceConverter.getFontData(Activator.getDefault()
+                        .getPreferenceStore(), "font"));
+        messagesText.setFont(messagesTextFont);
 
         searchComp.setSearchText(messagesText);
 
@@ -309,15 +305,18 @@ public abstract class AbstractSessionView extends CaveFloatingView {
      * 
      * @param message
      */
+    @SuppressWarnings("unchecked")
     public void appendMessage(IMessage message) {
-        UserId userId = (UserId) message.getFrom();
+        T userId = (T) message.getFrom();
         long timestamp = message.getTimeStamp();
         String body = message.getBody();
         String subject = message.getSubject();
         appendMessage(userId, timestamp, body, subject);
     }
 
-    public void appendMessage(final UserId userId, final long timestamp,
+    protected abstract String getDisplayName(T userId);
+
+    public void appendMessage(final T userId, final long timestamp,
             final String body, final String subject) {
         VizApp.runAsync(new Runnable() {
             @Override
@@ -336,117 +335,137 @@ public abstract class AbstractSessionView extends CaveFloatingView {
                 service.warnOfContentChange();
 
                 Date date = new Date(timestamp);
-                String time = dateFormatter.format(date);
+                String time = dateFormatter.get().format(date);
 
-                String name = connection.getContactsManager().getDisplayName(
-                        userId);
+                String name = getDisplayName(userId);
 
                 UserId myUser = connection.getUser();
-                if (!myUser.equals(userId)
+                if (!myUser.isSameUser(userId)
                         && Activator.getDefault().getPreferenceStore()
                                 .getBoolean("notifications")) {
                     createNotifier(name, time, body);
                 }
 
                 StringBuilder sb = new StringBuilder();
-                if (messagesText.getCharCount() != 0) {
+
+                if (messagesText.isDisposed() == false
+                        && messagesText.getCharCount() != 0) {
                     sb.append("\n");
                 }
+
                 sb.append("(").append(time).append(") ");
                 int offset = sb.length();
 
                 sb.append(name).append(": ").append(body);
+
                 // here is the place to put the font and color changes for
                 // keywords
                 // read in localization file once and then don't read in again,
                 // per
                 // chat room?
-                List<AlertWord> alertWords = retrieveAlertWords();
-                List<StyleRange> ranges = new ArrayList<StyleRange>();
-                if (alertWords != null) {
-                    for (AlertWord keyword : alertWords) {
-                        String text = keyword.getText().toLowerCase();
-                        if (sb.toString().toLowerCase().contains(text)) {
-                            String lowerCase = sb.toString().toLowerCase();
-                            // getting the current length of the text
-                            int currentLength = messagesText.getCharCount();
-                            int index = lowerCase.indexOf(text);
-                            while (index >= 0) {
-                                Font font = null;
-                                // storing off fonts so we don't leak
-                                if (fonts.containsKey(keyword.getFont())) {
-                                    font = fonts.get(keyword.getFont());
-                                } else {
-                                    FontData fd = StringConverter
-                                            .asFontData(keyword.getFont());
-                                    font = new Font(Display.getCurrent(), fd);
-                                    fonts.put(keyword.getFont(), font);
-                                }
+                if (messagesText.isDisposed() == false) {
+                    List<AlertWord> alertWords = retrieveAlertWords();
+                    List<StyleRange> ranges = new ArrayList<StyleRange>();
+                    if (alertWords != null) {
+                        for (AlertWord keyword : alertWords) {
+                            String text = keyword.getText().toLowerCase();
+                            if (sb.toString().toLowerCase().contains(text)) {
+                                String lowerCase = sb.toString().toLowerCase();
+                                // getting the current length of the text
+                                int currentLength = messagesText.getCharCount();
+                                int index = lowerCase.indexOf(text);
+                                while (index >= 0) {
+                                    Font font = null;
+                                    // storing off fonts so we don't leak
+                                    if (fonts.containsKey(keyword.getFont())) {
+                                        font = fonts.get(keyword.getFont());
+                                    } else {
+                                        FontData fd = StringConverter
+                                                .asFontData(keyword.getFont());
+                                        font = new Font(Display.getCurrent(),
+                                                fd);
+                                        fonts.put(keyword.getFont(), font);
+                                    }
 
-                                RGB rgb = new RGB(keyword.getRed(), keyword
-                                        .getGreen(), keyword.getBlue());
-                                Color color = null;
-                                // using the stored colors so we don't leak
-                                if (colors.containsKey(rgb)) {
-                                    color = colors.get(rgb);
-                                } else {
-                                    color = new Color(Display.getCurrent(), rgb);
-                                    colors.put(rgb, color);
-                                }
-                                TextStyle style = new TextStyle(font, color,
-                                        null);
-                                StyleRange keywordRange = new StyleRange(style);
-                                keywordRange.start = currentLength + index;
-                                keywordRange.length = keyword.getText()
-                                        .length();
+                                    RGB rgb = new RGB(keyword.getRed(), keyword
+                                            .getGreen(), keyword.getBlue());
+                                    Color color = null;
+                                    // using the stored colors so we don't leak
+                                    if (colors.containsKey(rgb)) {
+                                        color = colors.get(rgb);
+                                    } else {
+                                        color = new Color(Display.getCurrent(),
+                                                rgb);
+                                        colors.put(rgb, color);
+                                    }
+                                    TextStyle style = new TextStyle(font,
+                                            color, null);
+                                    StyleRange keywordRange = new StyleRange(
+                                            style);
+                                    keywordRange.start = currentLength + index;
+                                    keywordRange.length = keyword.getText()
+                                            .length();
 
-                                ranges.add(keywordRange);
-                                // compare to see if this position is already
-                                // styled
-                                List<StyleRange> rnges = new ArrayList<StyleRange>();
-                                rnges.addAll(ranges);
-                                for (StyleRange range : rnges) {
-                                    if (range.start <= keywordRange.start
-                                            && (range.start + range.length) >= keywordRange.start) {
-                                        if (keywordRange != range) {
-                                            if (range.length < keywordRange.length) {
-                                                ranges.remove(range);
-                                            } else {
-                                                ranges.remove(keywordRange);
+                                    ranges.add(keywordRange);
+                                    // compare to see if this position is
+                                    // already
+                                    // styled
+                                    List<StyleRange> rnges = new ArrayList<StyleRange>();
+                                    rnges.addAll(ranges);
+                                    for (StyleRange range : rnges) {
+                                        if (range.start <= keywordRange.start
+                                                && (range.start + range.length) >= keywordRange.start) {
+                                            if (keywordRange != range) {
+                                                if (range.length < keywordRange.length) {
+                                                    ranges.remove(range);
+                                                } else {
+                                                    ranges.remove(keywordRange);
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                // only execute things if the same user didn't
-                                // type it
-                                if (!myUser.equals(userId)) {
-                                    executeSightsSounds(keyword);
+                                    // only execute things if the same user
+                                    // didn't
+                                    // type it
+                                    if (!myUser.equals(userId)) {
+                                        executeSightsSounds(keyword);
+                                    }
+                                    // need to handle all instances of the
+                                    // keyword
+                                    // within the chat
+                                    index = lowerCase.indexOf(text,
+                                            text.length() + index);
                                 }
-                                // need to handle all instances of the keyword
-                                // within the chat
-                                index = lowerCase.indexOf(text, text.length()
-                                        + index);
                             }
                         }
                     }
+
+                    styleAndAppendText(sb, offset, name, userId, subject,
+                            ranges);
                 }
 
-                styleAndAppendText(sb, offset, name, userId, subject, ranges);
-                msgArchive.archive(sb.toString());
-                searchComp.appendText(sb.toString());
+                // Archive the message
+                if (msgArchive != null) {
+                    msgArchive.archive(sb.toString());
+                }
+
+                // Append the text to the search control.
+                if (searchComp.isDisposed() == false) {
+                    searchComp.appendText(sb.toString());
+                }
             }
         });
     }
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, String subject, List<StyleRange> ranges);
+            String name, T userId, String subject, List<StyleRange> ranges);
 
     protected abstract void styleAndAppendText(StringBuilder sb, int offset,
-            String name, UserId userId, List<StyleRange> ranges, Color color);
+            String name, T userId, List<StyleRange> ranges, Color color);
 
     /**
-     * Find keys words in body of message starting at offset. /**
+     * Find keys words in body of message starting at offset.
      * 
      * @param builder
      * @param offset
@@ -464,29 +483,16 @@ public abstract class AbstractSessionView extends CaveFloatingView {
      */
     protected void executeSightsSounds(AlertWord word) {
         String filename = word.getSoundPath();
-        if (filename == null || filename.isEmpty()) {
-            return;
-        }
-        File soundFile = new File(filename);
-        InputStream in;
-        AudioStream as = null;
-        AudioData data = null;
-        try {
-            if (ads != null) {
-                AudioPlayer.player.stop(ads);
-            }
-            in = new FileInputStream(soundFile);
-            as = new AudioStream(in);
-            data = as.getData();
-            ads = new AudioDataStream(data);
-            AudioPlayer.player.start(ads);
-        } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to find sound file",
-                    e);
-        } catch (IOException e) {
-            statusHandler.handle(Priority.PROBLEM, "Unable to read sound file",
-                    e);
-        }
+        playSound(filename);
+    }
+
+    protected void playSound(String filename) {
+        SoundUtil.playSound(filename);
+    }
+
+    protected String getJoinFile() {
+        return Activator.getDefault().getPreferenceStore()
+                .getString(CollabPrefConstants.JOIN_FILE_FIELD_EDITOR_ID);
     }
 
     /*
@@ -521,6 +527,10 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     @Override
     public void dispose() {
+        if (messagesTextFont != null) {
+            messagesTextFont.dispose();
+        }
+
         for (Image im : imageMap.values()) {
             im.dispose();
         }
@@ -561,22 +571,11 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     @Subscribe
     public void changeFont(FontData data) {
-        messagesText.setFont(new Font(Display.getCurrent(), data));
-    }
-
-    /**
-     * @return the userIds
-     */
-    public UserId[] getUserIds() {
-        return userIds;
-    }
-
-    /**
-     * @param userIds
-     *            the userIds to set
-     */
-    public void setUserIds(UserId[] userIds) {
-        this.userIds = userIds;
+        if (messagesTextFont != null) {
+            messagesTextFont.dispose();
+        }
+        messagesTextFont = new Font(Display.getCurrent(), data);
+        messagesText.setFont(messagesTextFont);
     }
 
     public void setAlertWords(List<AlertWord> words) {
@@ -585,35 +584,68 @@ public abstract class AbstractSessionView extends CaveFloatingView {
 
     protected abstract SessionMsgArchive createMessageArchive();
 
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param sb
+     *            builder containing message
+     */
     protected void sendErrorMessage(StringBuilder sb) {
-        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_RED);
-        sendGenericMessage(sb, color);
+        sendGenericMessage(sb, SWT.COLOR_RED);
     }
 
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param sb
+     *            builder containing message
+     */
     protected void sendSystemMessage(StringBuilder sb) {
-        Color color = Display.getCurrent().getSystemColor(SWT.COLOR_BLACK);
-        sendGenericMessage(sb, color);
+        sendGenericMessage(sb, SWT.COLOR_BLACK);
     }
 
-    private void sendGenericMessage(final StringBuilder string,
-            final Color color) {
+    /**
+     * display formatted error message on chat window
+     * 
+     * @param builder
+     *            builder containing message
+     * @param swtColor
+     *            text color for message
+     */
+    private void sendGenericMessage(final StringBuilder builder,
+            final int swtColor) {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
                 Date date = new Date();
-                String time = dateFormatter.format(date);
-                string.insert(0, "(" + time + ") : ");
-                if (messagesText.getCharCount() != 0) {
-                    string.insert(0, "\n");
+                String time = dateFormatter.get().format(date);
+                builder.insert(0, "(" + time + ") : ");
+
+                // Update the messagesText with the StyleRange highlights
+                if (messagesText.isDisposed() == false) {
+                    if (messagesText.getCharCount() != 0) {
+                        builder.insert(0, "\n");
+                    }
+
+                    Color color = Display.getCurrent().getSystemColor(swtColor);
+                    StyleRange range = new StyleRange(messagesText
+                            .getCharCount(), builder.length(), color, null,
+                            SWT.BOLD);
+                    List<StyleRange> ranges = new ArrayList<StyleRange>();
+                    ranges.add(range);
+                    styleAndAppendText(builder, 0, builder.toString(), null,
+                            ranges, color);
                 }
-                StyleRange range = new StyleRange(messagesText.getCharCount(),
-                        string.length(), color, null, SWT.BOLD);
-                List<StyleRange> ranges = new ArrayList<StyleRange>();
-                ranges.add(range);
-                styleAndAppendText(string, 0, string.toString(), null, ranges,
-                        color);
-                msgArchive.archiveLine(string.toString());
-                searchComp.appendText(string.toString());
+
+                // Archive the message
+                if (msgArchive != null) {
+                    msgArchive.archiveLine(builder.toString());
+                }
+
+                // Append the text to the search control.
+                if (searchComp.isDisposed() == false) {
+                    searchComp.appendText(builder.toString());
+                }
             }
         });
     }

@@ -19,10 +19,6 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.eclipse.ecf.core.user.IUser;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
@@ -30,10 +26,15 @@ import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterGroup;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.LocalGroups.LocalGroup;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CreateGroupDialog;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -48,25 +49,28 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Dec 20, 2013 2563       bclement    added support for ungrouped roster entries
+ * Jan 24, 2014 2701       bclement    removed local groups
  * 
  * </pre>
  * 
  * @author bsteffen
  * @version 1.0
  */
-
 public class AddToGroupAction extends Action {
 
     private final String group;
 
-    private final IUser[] users;
+    private final UserId[] users;
+
+    private RosterEntry entry;
 
     /**
      * This action will create a menu of groups to which the users will be added
      * 
      * @param users
      */
-    public AddToGroupAction(IUser... users) {
+    public AddToGroupAction(UserId... users) {
         super("Add To Group...", IconUtil.getImageDescriptor(Activator
                 .getDefault().getBundle(), "add_group.gif"));
         this.users = users;
@@ -74,11 +78,21 @@ public class AddToGroupAction extends Action {
         this.setMenuCreator(new MenuCreator());
     }
 
-    public AddToGroupAction(String group, IUser... users) {
+    public AddToGroupAction(String group, UserId... users) {
         super(group, IconUtil.getImageDescriptor(Activator.getDefault()
-                .getBundle(), "local_group.gif"));
+                .getBundle(), "roster_group.gif"));
         this.group = group;
         this.users = users;
+    }
+
+    /**
+     * Action for roster entry not currently in a group.
+     * 
+     * @param entry
+     */
+    public AddToGroupAction(RosterEntry entry) {
+        this(IDConverter.convertFrom(entry));
+        this.entry = entry;
     }
 
     @Override
@@ -93,9 +107,15 @@ public class AddToGroupAction extends Action {
                 return;
             }
         }
-        for (IUser user : users) {
-            CollaborationConnection.getConnection().getContactsManager()
-                    .addToLocalGroup(group, user);
+        CollaborationConnection connection = CollaborationConnection.getConnection();
+        for (UserId user : users) {
+            connection.getContactsManager().addToGroup(group, user);
+        }
+        if (entry != null) {
+            // the entry wasn't in a group, so the entire tree needs to be
+            // refreshed
+            connection.postEvent(new RosterChangeEvent(RosterChangeType.MODIFY,
+                    entry));
         }
     }
 
@@ -125,14 +145,10 @@ public class AddToGroupAction extends Action {
         private void fill() {
             ContactsManager contactsMgr = CollaborationConnection
                     .getConnection().getContactsManager();
-            List<LocalGroup> groups = contactsMgr.getLocalGroups();
-            List<LocalGroup> usedGroups = new ArrayList<LocalGroup>(groups);
-            for (IUser user : users) {
-                usedGroups.retainAll(contactsMgr.getLocalGroups(user));
-            }
-            groups.removeAll(usedGroups);
-            for (LocalGroup group : groups) {
-                Action action = new AddToGroupAction(group.getName(), users);
+            for (RosterGroup group : contactsMgr.getGroups()) {
+                AddToGroupAction action = new AddToGroupAction(group.getName(),
+                        users);
+                action.setEntry(entry);
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
             }
@@ -141,4 +157,20 @@ public class AddToGroupAction extends Action {
             contrib.fill(menu, -1);
         }
     }
+
+    /**
+     * @return the entry
+     */
+    public RosterEntry getEntry() {
+        return entry;
+    }
+
+    /**
+     * @param entry
+     *            the entry to set
+     */
+    public void setEntry(RosterEntry entry) {
+        this.entry = entry;
+    }
+
 }

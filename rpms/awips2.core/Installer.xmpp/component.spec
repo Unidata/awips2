@@ -5,7 +5,7 @@
 # Variables
 # -----------------------------------------------------------------------------
 %define _xmpp_server           openfire
-%define _xmpp_software_version 3.7.1
+%define _xmpp_software_version 3.9.1
 %define _xmpp_software_url     http://www.igniterealtime.org/projects/openfire
 %define _xmpp_software_license Apache License Version 2.0
 # -----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Packager: Bryan Kowal
 
 AutoReq: no
 requires: awips2-java
-requires: awips2-httpd-collaboration
+requires: awips2-collab-dataserver
 provides: awips2-%{_xmpp_server}
 
 %description

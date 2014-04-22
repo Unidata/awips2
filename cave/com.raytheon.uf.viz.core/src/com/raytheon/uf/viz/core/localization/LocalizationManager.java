@@ -64,12 +64,13 @@ import com.raytheon.uf.common.localization.msgs.ListUtilityResponse;
 import com.raytheon.uf.common.localization.msgs.PrivilegedUtilityRequestMessage;
 import com.raytheon.uf.common.localization.msgs.UtilityRequestMessage;
 import com.raytheon.uf.common.localization.msgs.UtilityResponseMessage;
+import com.raytheon.uf.common.localization.region.RegionLookup;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamGetRequest;
 import com.raytheon.uf.common.localization.stream.LocalizationStreamPutRequest;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.application.ProgramArguments;
+import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.VizServers;
 import com.raytheon.uf.viz.core.comm.ConnectivityManager;
@@ -96,6 +97,7 @@ import com.raytheon.uf.viz.core.requests.ThriftClient;
  * Aug 27, 2013 2295       bkowal      The entire jms connection string is now
  *                                     provided by EDEX.
  * Feb 04, 2014 2704       njensen     Allow setting server without saving
+ * Feb 06, 2014 2761       mnash       Add region localization level
  * 
  * </pre>
  * 
@@ -161,12 +163,25 @@ public class LocalizationManager implements IPropertyChangeListener {
             statusHandler.handle(Priority.CRITICAL,
                     "Error initializing localization store", e);
         }
-
         registerContextName(LocalizationLevel.USER, getCurrentUser());
         registerContextName(LocalizationLevel.WORKSTATION, VizApp.getHostName());
-        registerContextName(LocalizationLevel.SITE, getCurrentSite());
-        registerContextName(LocalizationLevel.CONFIGURED, getCurrentSite());
         registerContextName(LocalizationLevel.BASE, null);
+        /*
+         * look for current site, only do site/region/configured if current site
+         * is available
+         */
+        String currentSite = getCurrentSite();
+        if (currentSite != null && currentSite.isEmpty() == false) {
+            registerContextName(LocalizationLevel.SITE, currentSite);
+            registerContextName(LocalizationLevel.CONFIGURED, currentSite);
+            String region = RegionLookup.getWfoRegion(getCurrentSite());
+            if (region != null) {
+                registerContextName(LocalizationLevel.REGION, region);
+            } else {
+                statusHandler.warn("Unable to find " + getCurrentSite()
+                        + " in regions.xml file.");
+            }
+        }
     }
 
     /**
@@ -202,6 +217,14 @@ public class LocalizationManager implements IPropertyChangeListener {
             this.currentSite = currentSite;
             registerContextName(LocalizationLevel.SITE, this.currentSite);
             registerContextName(LocalizationLevel.CONFIGURED, this.currentSite);
+            String region = RegionLookup.getWfoRegion(this.currentSite);
+            if (region != null) {
+                registerContextName(LocalizationLevel.REGION, region);
+            } else {
+                statusHandler.warn("Unable to find " + this.currentSite
+                        + " in regions.xml file");
+                contextMap.remove(LocalizationLevel.REGION);
+            }
             if (!overrideSite) {
                 localizationStore.putValue(
                         LocalizationConstants.P_LOCALIZATION_SITE_NAME,

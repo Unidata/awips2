@@ -22,6 +22,7 @@ package com.raytheon.uf.edex.datadelivery.retrieval;
 import com.raytheon.uf.common.datadelivery.event.INotifiableEvent;
 import com.raytheon.uf.common.datadelivery.event.notification.NotificationRecord;
 import com.raytheon.uf.common.event.Event;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
@@ -36,6 +37,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Jul 31, 2012            djohnson     Initial creation
  * Dec 07, 2012 1104       djohnson     Simplify event type hierarchy.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -68,7 +70,7 @@ public class RetrievalEvent extends Event implements
     public NotificationRecord generateNotification() {
         NotificationRecord record = new NotificationRecord();
         record.setCategory("Retrieval");
-        record.setUsername("N/A");
+        record.setUsername(RegistryUtil.registryUser);
         record.setPriority(1);
         record.setMessage(toString());
         record.setDate(getDate());

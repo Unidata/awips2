@@ -27,21 +27,21 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * 
- * TODO Add Description
+ * Container for holding multiple master levels during serialization.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 4, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 04, 201            bsteffen    Initial creation.
+ * Jan 23, 2014  2711     bsteffen    Remove ISerializableObject
  * 
  * </pre>
  * 
@@ -51,7 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @DynamicSerialize
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "masterLevelContainer")
-public class MasterLevelContainer implements ISerializableObject {
+public class MasterLevelContainer {
 
     @XmlElement(name = "masterLevel")
     @DynamicSerializeElement

@@ -21,7 +21,8 @@ Require-Bundle: com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
  com.raytheon.uf.common.util,
  org.slf4j;bundle-version="1.7.5",
- org.reflections;bundle-version="0.9.9"
+ org.reflections;bundle-version="0.9.9",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.database.cluster,
  com.raytheon.uf.edex.database.cluster.handler,

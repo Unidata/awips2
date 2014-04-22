@@ -27,6 +27,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -65,6 +66,7 @@ import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
  * 3/18/2013    1802       bphillip    Modified to insert provider object after database is initialized
  * Jun 24, 2013 2106       djohnson    Accepts ProviderHandler as a constructor argument.
  * Oct 28, 2013 2361       dhladky     Fixed up JAXBManager.
+ * Mar 31, 2014 2889       dhladky     Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -169,7 +171,7 @@ public class CrawlMetaDataHandler implements RegistryInitializedListener {
                     statusHandler.info("Inserting/Updating Provider: "
                             + provider.getName() + ": "
                             + provider.getServiceType());
-                    providerHandler.update(provider);
+                    providerHandler.update(RegistryUtil.registryUser, provider);
 
                 } catch (Exception e) {
                     statusHandler.error("Error inserting/updating Provider! ",

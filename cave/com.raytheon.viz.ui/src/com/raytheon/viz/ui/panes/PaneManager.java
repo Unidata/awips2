@@ -68,9 +68,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  *      
- * Date            Ticket#     Engineer    Description
- * ------------    ----------  ----------- --------------------------
- * 07/07/09                      bgonzale    Initial Creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jul 07, 2009            bgonzale    Initial Creation.
+ * Jan 09, 2014  2647      bsteffen    Do not change active editor on focus
+ *                                     because that causes problems when
+ *                                     switching windows.
  * </pre>
  * 
  * @author bgonzale
@@ -165,13 +168,6 @@ public class PaneManager extends InputAdapter implements IMultiPaneEditor {
         pane.addListener(SWT.MenuDetect, inputManager);
         pane.addListener(SWT.MouseExit, inputManager);
         pane.addListener(SWT.MouseEnter, inputManager);
-
-        pane.addListener(SWT.FocusIn, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                activatedPane = pane;
-            }
-        });
 
         pane.addListener(SWT.MouseEnter, new Listener() {
             @Override

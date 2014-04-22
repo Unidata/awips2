@@ -38,12 +38,16 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.geospatial.data.GeographicDataSource;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
+import com.raytheon.uf.common.geospatial.interpolation.GridReprojectionDataSource;
 import com.raytheon.uf.common.geospatial.interpolation.GridSampler;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.PrecomputedGridReprojection;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
+import com.raytheon.uf.common.numeric.source.OffsetDataSource;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -55,17 +59,22 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- -----------------------------------------
  * Mar 09, 2011           bsteffen    Initial creation
  * Jul 17, 2013  2185     bsteffen    Cache computed grid reprojections.
- * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by error
- *                                    in Maputil.rotation
+ * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
+ *                                    error in Maputil.rotation
  * Dec 09, 2013  2617     bsteffen    Added 180 degree rotation into reproject
  *                                    so wind direction is calculated as
  *                                    direction wind is coming from.
- * Feb 03, 2013  2764     bsteffen    Ensure that internal buffers are array
+ * Jan 14, 2014  2661     bsteffen    For vectors only keep uComponent and
+ *                                    vComponent, calculate magnitude and
+ *                                    direction on demand.
+ * Feb 03, 2014  2764     bsteffen    Ensure that internal buffers are array
  *                                    backed heap buffers.
+ * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
+ *                                    for data access
  * 
  * </pre>
  * 
@@ -76,18 +85,16 @@ public class GeneralGridData {
 
     private GridGeometry2D gridGeometry;
 
-    private FloatBuffer scalarData;
+    private GeographicDataSource scalarData;
 
-    private FloatBuffer direction = null;
+    private GeographicDataSource uComponent = null;
 
-    private FloatBuffer uComponent = null;
-
-    private FloatBuffer vComponent = null;
+    private GeographicDataSource vComponent = null;
 
     private Unit<?> dataUnit;
 
     /**
-     * Create a scalar grid Data object.
+     * Create a scalar grid data object from float data.
      * 
      * @param scalarData
      * @param dataUnit
@@ -96,33 +103,27 @@ public class GeneralGridData {
     public static GeneralGridData createScalarData(
             GeneralGridGeometry gridGeometry, FloatBuffer scalarData,
             Unit<?> dataUnit) {
+        DataSource scalarSource = new GeographicDataSource(scalarData,
+                gridGeometry);
+        return createScalarData(gridGeometry, scalarSource, dataUnit);
+    }
+
+    /**
+     * Create a scalar grid data object from any data source
+     * 
+     * @param scalarData
+     * @param dataUnit
+     * @return
+     */
+    public static GeneralGridData createScalarData(
+            GeneralGridGeometry gridGeometry, DataSource scalarData,
+            Unit<?> dataUnit) {
         return new GeneralGridData(gridGeometry, scalarData, dataUnit);
     }
 
     /**
-     * Create GridData for a vector. Providing (u,v) and (mag,dir) is redundant
-     * and it will be assumed that these are equivalent. This should only be
-     * used when both these representations are readily available to save time
-     * if one or the other is needed later.
-     * 
-     * @param magnitude
-     * @param direction
-     * @param uComponent
-     * @param vComponent
-     * @param dataUnit
-     * @return
-     */
-    public static GeneralGridData createVectorData(
-            GeneralGridGeometry gridGeometry, FloatBuffer magnitude,
-            FloatBuffer direction, FloatBuffer uComponent,
-            FloatBuffer vComponent, Unit<?> dataUnit) {
-        return new GeneralGridData(gridGeometry, magnitude, direction,
-                uComponent, vComponent, dataUnit);
-    }
-
-    /**
      * Create gridData for a vector by providing the magnitude and direction of
-     * the vector.
+     * the vector as floats.
      * 
      * @param magnitude
      * @param direction
@@ -132,13 +133,23 @@ public class GeneralGridData {
     public static GeneralGridData createVectorData(
             GeneralGridGeometry gridGeometry, FloatBuffer magnitude,
             FloatBuffer direction, Unit<?> dataUnit) {
-        return new GeneralGridData(gridGeometry, magnitude, direction, null,
-                null, dataUnit);
+        magnitude.rewind();
+        direction.rewind();
+        FloatBuffer vComponent = FloatBuffer.allocate(magnitude.capacity());
+        FloatBuffer uComponent = FloatBuffer.allocate(magnitude.capacity());
+        while (magnitude.hasRemaining()) {
+            double angle = Math.toRadians(direction.get());
+            double mag = magnitude.get();
+            vComponent.put((float) (Math.cos(angle) * mag));
+            uComponent.put((float) (Math.sin(angle) * mag));
+        }
+        return createVectorDataUV(gridGeometry, uComponent, vComponent,
+                dataUnit);
     }
 
     /**
      * Create gridData for a vector by providing the u and v components of the
-     * vector
+     * vector as floats.
      * 
      * @param uComponent
      * @param vComponent
@@ -148,33 +159,42 @@ public class GeneralGridData {
     public static GeneralGridData createVectorDataUV(
             GeneralGridGeometry gridGeometry, FloatBuffer uComponent,
             FloatBuffer vComponent, Unit<?> dataUnit) {
-        return new GeneralGridData(gridGeometry, null, null, uComponent,
-                vComponent, dataUnit);
+        DataSource uSource = new GeographicDataSource(uComponent, gridGeometry);
+        DataSource vSource = new GeographicDataSource(vComponent, gridGeometry);
+        return createVectorDataUV(gridGeometry, uSource, vSource, dataUnit);
+    }
+
+    /**
+     * Create gridData for a vector by providing the u and v components of the
+     * vector as any data source.
+     * 
+     * @param uComponent
+     * @param vComponent
+     * @param dataUnit
+     * @return
+     */
+    public static GeneralGridData createVectorDataUV(
+            GeneralGridGeometry gridGeometry, DataSource uComponent,
+            DataSource vComponent, Unit<?> dataUnit) {
+        return new GeneralGridData(gridGeometry, uComponent, vComponent,
+                dataUnit);
     }
 
     private GeneralGridData(GeneralGridGeometry gridGeometry,
-            FloatBuffer scalarData, Unit<?> dataUnit) {
-        this(gridGeometry, scalarData, null, null, null, dataUnit);
-    }
-
-    private GeneralGridData(GeneralGridGeometry gridGeometry,
-            FloatBuffer magnitude, FloatBuffer direction,
-            FloatBuffer uComponent, FloatBuffer vComponent, Unit<?> dataUnit) {
+            DataSource scalarData, Unit<?> dataUnit) {
         this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
-        if (magnitude != null && !magnitude.hasArray()) {
-            /*
-             * TODO refactor dispaly code so it doesn't need array instead of
-             * copying data.
-             */
-            FloatBuffer copy = FloatBuffer.allocate(magnitude.capacity());
-            magnitude.rewind();
-            copy.put(magnitude);
-            magnitude = copy;
-        }
-        this.scalarData = magnitude;
-        this.direction = direction;
-        this.uComponent = uComponent;
-        this.vComponent = vComponent;
+        this.scalarData = GeographicDataSource.wrap(scalarData,
+                this.gridGeometry);
+        this.dataUnit = dataUnit;
+    }
+
+    private GeneralGridData(GeneralGridGeometry gridGeometry,
+            DataSource uComponent, DataSource vComponent, Unit<?> dataUnit) {
+        this.gridGeometry = GridGeometry2D.wrap(gridGeometry);
+        this.uComponent = GeographicDataSource.wrap(uComponent,
+                this.gridGeometry);
+        this.vComponent = GeographicDataSource.wrap(vComponent,
+                this.gridGeometry);
         this.dataUnit = dataUnit;
     }
 
@@ -199,37 +219,31 @@ public class GeneralGridData {
             // no need to actually convert if they are the same.
             return true;
         }
+        UnitConvertingDataFilter filter = new UnitConvertingDataFilter(
+                converter);
         if (scalarData != null) {
-            scalarData.rewind();
-            FloatBuffer newData = FloatBuffer.allocate(scalarData.capacity());
-            while (scalarData.hasRemaining()) {
-                newData.put((float) converter.convert(scalarData.get()));
-            }
-            newData.rewind();
-            scalarData = newData;
+            scalarData = scalarData.applyFilters(filter);
         }
         if (uComponent != null) {
-            uComponent.rewind();
-            FloatBuffer newData = FloatBuffer.allocate(uComponent.capacity());
-            while (uComponent.hasRemaining()) {
-                newData.put((float) converter.convert(uComponent.get()));
-            }
-            newData.rewind();
-            uComponent = newData;
+            uComponent = uComponent.applyFilters(filter);
+
         }
         if (vComponent != null) {
-            vComponent.rewind();
-            FloatBuffer newData = FloatBuffer.allocate(vComponent.capacity());
-            while (vComponent.hasRemaining()) {
-                newData.put((float) converter.convert(vComponent.get()));
-            }
-            newData.rewind();
-            vComponent = newData;
+            vComponent = vComponent.applyFilters(filter);
         }
         dataUnit = unit;
         return true;
     }
 
+    /**
+     * Create a new GeneralGridData that is a reprojected version of this data.
+     * 
+     * @param newGridGeometry
+     * @param interpolation
+     * @return
+     * @throws FactoryException
+     * @throws TransformException
+     */
     public GeneralGridData reproject(GeneralGridGeometry newGridGeometry,
             Interpolation interpolation) throws FactoryException,
             TransformException {
@@ -238,14 +252,14 @@ public class GeneralGridData {
                 gridGeometry, newGeom);
         GridSampler sampler = new GridSampler(interpolation);
         if (isVector()) {
-            sampler.setSource(new FloatBufferWrapper(getUComponent(),
-                    gridGeometry));
+            sampler.setSource(getUComponent());
             float[] udata = reproj.reprojectedGrid(sampler,
-                    new FloatArrayWrapper(newGeom)).getArray();
-            sampler.setSource(new FloatBufferWrapper(getVComponent(),
-                    gridGeometry));
+                    new FloatBufferWrapper(newGeom.getGridRange2D()))
+                    .getArray();
+            sampler.setSource(getVComponent());
             float[] vdata = reproj.reprojectedGrid(sampler,
-                    new FloatArrayWrapper(newGeom)).getArray();
+                    new FloatBufferWrapper(newGeom.getGridRange2D()))
+                    .getArray();
             // When reprojecting it is necessary to recalculate the
             // direction of vectors based off the change in the "up"
             // direction
@@ -265,29 +279,8 @@ public class GeneralGridData {
                         Coordinate ll = new Coordinate(dp.x, dp.y);
                         double rot = MapUtil.rotation(ll, newGeom);
                         double rot2 = MapUtil.rotation(ll, gridGeometry);
-                        /* 
-                         * When code calls into this method, the observed state
-                         * of things is that u and v represent the direction
-                         * the vector is going while mag and dir represent
-                         * the direction the vector is coming from. The extra
-                         * 180 here makes everything consistently represent the
-                         * direction the vector is coming from so that when the
-                         * barbs or arrows are rendered the mag and dir are 
-                         * calculated as expected. Overall this is a completely 
-                         * rediculous way of doing things. During construction
-                         * everything should be forced to represent the vector
-                         * consistently and we should only be keeping either
-                         * u/v or mag/dir to minimize memory consumption.
-                         * Unfortunately that is a significant change which is
-                         * made high risk by the fact no one documents which 
-                         * areas are expecting vectors oriented to vs from. So
-                         * for now I(bsteffen) have chosen to simply add in 180
-                         * so that the behavior will be exactly as it was before
-                         * 2287 because even though it is rediculous it is a well
-                         * tested rediculous(theoretically).
-                         */ 
-                        double cos = Math.cos(Math.toRadians(rot - rot2 + 180));
-                        double sin = Math.sin(Math.toRadians(rot - rot2 + 180));
+                        double cos = Math.cos(Math.toRadians(rot - rot2));
+                        double sin = Math.sin(Math.toRadians(rot - rot2));
                         double u = udata[index];
                         double v = vdata[index];
                         udata[index] = (float) (cos * u - sin * v);
@@ -298,11 +291,9 @@ public class GeneralGridData {
             return createVectorDataUV(newGridGeometry, FloatBuffer.wrap(udata),
                     FloatBuffer.wrap(vdata), dataUnit);
         } else {
-            sampler.setSource(new FloatBufferWrapper(getScalarData(),
-                    gridGeometry));
-            FloatBuffer data = reproj.reprojectedGrid(sampler,
-                    new FloatBufferWrapper(newGeom)).getBuffer();
-            return createScalarData(newGridGeometry, data, dataUnit);
+            sampler.setSource(getScalarData());
+            return createScalarData(newGridGeometry,
+                    new GridReprojectionDataSource(reproj, sampler), dataUnit);
         }
 
     }
@@ -312,75 +303,50 @@ public class GeneralGridData {
     }
 
     public boolean isVector() {
-        return (scalarData != null && direction != null)
-                || (uComponent != null && vComponent != null);
+        return (uComponent != null && vComponent != null);
     }
 
-    public FloatBuffer getMagnitude() {
-        if (scalarData == null && uComponent != null && vComponent != null) {
-            uComponent.rewind();
-            vComponent.rewind();
-            scalarData = FloatBuffer.allocate(uComponent.capacity());
-            while (vComponent.hasRemaining()) {
-                scalarData.put((float) Math.hypot(uComponent.get(),
-                        vComponent.get()));
-            }
-            uComponent.rewind();
-            vComponent.rewind();
-            scalarData.rewind();
+    public GeographicDataSource getMagnitude() {
+        DataSource rawSource = new MagnitudeDataSource(uComponent, vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
+    }
+
+    public GeographicDataSource getScalarData() {
+        if (isVector()) {
+            return getMagnitude();
+        } else {
+            return scalarData;
         }
-        return scalarData;
     }
 
-    public FloatBuffer getScalarData() {
-        return getMagnitude();
+    /**
+     * @return the direction from which the vector originates. This is commonly
+     *         used in meteorology, espesially for winds. For example if a
+     *         meteorologist says "The wind direction is North" it means the
+     *         wind is coming from the north and moving to the south.
+     * @see #getDirectionTo()
+     */
+    public GeographicDataSource getDirectionFrom() {
+        DataSource rawSource = new DirectionFromDataSource(uComponent,
+                vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
     }
 
-    public FloatBuffer getDirection() {
-        if (direction == null && uComponent != null && vComponent != null) {
-            uComponent.rewind();
-            vComponent.rewind();
-            direction = FloatBuffer.allocate(uComponent.capacity());
-            while (vComponent.hasRemaining()) {
-                direction.put((float) Math.toDegrees(Math.atan2(
-                        uComponent.get(), vComponent.get())));
-            }
-            uComponent.rewind();
-            vComponent.rewind();
-            direction.rewind();
-        }
-        return direction;
+    /**
+     * @return the direction a vector is going towards. This is the common
+     *         mathematical deffinition of a vector.
+     * @see #getDirectionFrom()
+     */
+    public GeographicDataSource getDirectionTo() {
+        DataSource rawSource = new DirectionToDataSource(uComponent, vComponent);
+        return new GeographicDataSource(rawSource, this.gridGeometry);
     }
 
-    public FloatBuffer getUComponent() {
-        if (uComponent == null && scalarData != null && direction != null) {
-            scalarData.rewind();
-            direction.rewind();
-            uComponent = FloatBuffer.allocate(scalarData.capacity());
-            while (scalarData.hasRemaining()) {
-                double angle = Math.toRadians(direction.get());
-                uComponent.put((float) (Math.sin(angle) * scalarData.get()));
-            }
-            scalarData.rewind();
-            direction.rewind();
-            uComponent.rewind();
-        }
+    public GeographicDataSource getUComponent() {
         return uComponent;
     }
 
-    public FloatBuffer getVComponent() {
-        if (vComponent == null && scalarData != null && direction != null) {
-            scalarData.rewind();
-            direction.rewind();
-            vComponent = FloatBuffer.allocate(scalarData.capacity());
-            while (scalarData.hasRemaining()) {
-                double angle = Math.toRadians(direction.get());
-                vComponent.put((float) (Math.cos(angle) * scalarData.get()));
-            }
-            scalarData.rewind();
-            direction.rewind();
-            vComponent.rewind();
-        }
+    public GeographicDataSource getVComponent() {
         return vComponent;
     }
 
@@ -461,46 +427,106 @@ public class GeneralGridData {
         range2.y = (int) Math.round((envelope.getMaxY() - envelope2.getMaxY())
                 / dy);
         if (data1.isVector() && data2.isVector()) {
-            FloatBuffer newU = FloatBuffer.allocate(nx * ny);
-            mergeData(data1.getUComponent(), range1, data2.getUComponent(),
-                    range2, newU, range);
-            FloatBuffer newV = FloatBuffer.allocate(nx * ny);
-            mergeData(data1.getVComponent(), range1, data2.getVComponent(),
-                    range2, newV, range);
+            DataSource newU = mergeData(data1.getUComponent(), range1,
+                    data2.getUComponent(), range2);
+            DataSource newV = mergeData(data1.getVComponent(), range1,
+                    data2.getVComponent(), range2);
             return createVectorDataUV(geometry, newU, newV, data1.getDataUnit());
         } else {
-            FloatBuffer newData = FloatBuffer.allocate(nx * ny);
-            mergeData(data1.getScalarData(), range1, data2.getScalarData(),
-                    range2, newData, range);
+            DataSource newData = mergeData(data1.getScalarData(), range1,
+                    data2.getScalarData(), range2);
             return createScalarData(geometry, newData, data1.getDataUnit());
         }
     }
 
-    private static void mergeData(FloatBuffer data1, GridEnvelope2D env1,
-            FloatBuffer data2, GridEnvelope2D env2, FloatBuffer destData,
-            GridEnvelope2D destEnv) {
-        data1.rewind();
-        data2.rewind();
-        destData.rewind();
-        for (int y = 0; y < destEnv.height; y++) {
-            for (int x = 0; x < destEnv.width; x++) {
-                float v1 = Float.NaN;
-                float v2 = Float.NaN;
-                if (env1.contains(x, y)) {
-                    v1 = data1.get();
+    private static DataSource mergeData(DataSource data1, GridEnvelope2D env1,
+            DataSource data2, GridEnvelope2D env2) {
+        if (env1.x != 0 || env1.y != 0) {
+            data1 = new OffsetDataSource(data1, -env1.x, -env1.y);
+        }
+        if (env2.x != 0 || env2.y != 0) {
+            data2 = new OffsetDataSource(data2, -env2.x, -env2.y);
+        }
+        return new MergedDataSource(data1, data2);
+    }
+
+    private static abstract class VectorDataSource implements DataSource {
+
+        protected final DataSource uComponent;
+
+        protected final DataSource vComponent;
+
+        public VectorDataSource(DataSource uComponent, DataSource vComponent) {
+            this.uComponent = uComponent;
+            this.vComponent = vComponent;
+        }
+
+    }
+
+    private static final class MagnitudeDataSource extends VectorDataSource {
+
+        public MagnitudeDataSource(DataSource uComponent, DataSource vComponent) {
+            super(uComponent, vComponent);
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            return Math.hypot(uComponent.getDataValue(x, y),
+                    vComponent.getDataValue(x, y));
+        }
+    }
+
+    private static final class DirectionFromDataSource extends VectorDataSource {
+
+        public DirectionFromDataSource(DataSource uComponent,
+                DataSource vComponent) {
+            super(uComponent, vComponent);
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            return Math.toDegrees(Math.atan2(-uComponent.getDataValue(x, y),
+                    -vComponent.getDataValue(x, y)));
+        }
+    }
+
+    private static final class DirectionToDataSource extends VectorDataSource {
+
+        public DirectionToDataSource(DataSource uComponent,
+                DataSource vComponent) {
+            super(uComponent, vComponent);
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            return Math.toDegrees(Math.atan2(uComponent.getDataValue(x, y),
+                    vComponent.getDataValue(x, y)));
+        }
+    }
+
+    private static final class MergedDataSource implements DataSource {
+
+        DataSource[] sources;
+
+        public MergedDataSource(DataSource... sources) {
+            this.sources = sources;
+        }
+
+        @Override
+        public double getDataValue(int x, int y) {
+            int count = 0;
+            double total = 0;
+            for (DataSource source : sources) {
+                double val = source.getDataValue(x, y);
+                if (Double.isNaN(val) == false) {
+                    total += val;
+                    count += 1;
                 }
-                if (env2.contains(x, y)) {
-                    v2 = data2.get();
-                }
-                if (Float.isNaN(v1) && Float.isNaN(v2)) {
-                    destData.put(Float.NaN);
-                } else if (Float.isNaN(v1)) {
-                    destData.put(v2);
-                } else if (Float.isNaN(v2)) {
-                    destData.put(v1);
-                } else {
-                    destData.put((v1 + v2) / 2);
-                }
+            }
+            if (count == 0) {
+                return Double.NaN;
+            } else {
+                return total / count;
             }
         }
     }

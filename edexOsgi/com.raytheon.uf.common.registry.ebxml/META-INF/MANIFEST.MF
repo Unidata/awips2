@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: com.raytheon.uf.common.registry.ebxml
 Bundle-SymbolicName: com.raytheon.uf.common.registry.ebxml
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.registry,
@@ -11,6 +11,7 @@ Export-Package: com.raytheon.uf.common.registry,
  com.raytheon.uf.common.registry.ebxml,
  com.raytheon.uf.common.registry.ebxml.encoder,
  com.raytheon.uf.common.registry.ebxml.slots,
+ com.raytheon.uf.common.registry.ebxml.version,
  com.raytheon.uf.common.registry.handler,
  com.raytheon.uf.common.registry.services,
  com.raytheon.uf.common.registry.services.rest,
@@ -31,5 +32,6 @@ Require-Bundle: org.apache.commons.codec;bundle-version="1.4.0",
  org.apache.commons.lang;bundle-version="2.3.0",
  org.apache.commons.cxf;bundle-version="1.0.0",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174"
-Import-Package: com.sun.xml.bind.marshaller,
+Import-Package: com.raytheon.uf.common.registry.ebxml.version,
+ com.sun.xml.bind.marshaller,
  com.vividsolutions.jts.geom

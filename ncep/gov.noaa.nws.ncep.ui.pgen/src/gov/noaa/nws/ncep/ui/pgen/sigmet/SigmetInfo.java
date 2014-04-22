@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.shapefile.indexed.IndexedShapefileDataStore;
+import org.geotools.data.Query;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.referencing.GeodeticCalculator;
 import org.geotools.referencing.datum.DefaultEllipsoid;
@@ -60,6 +60,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * 02/2012      #597        S. Gurung   Moved snap functionalities to SnapUtil. Removed GUI snapping for Non ConvSigmet.
  * 02/2012                  S. Gurung   Moved back isSnapADC() and getNumOfCompassPts() to SigmetInfo from SnapUtil
  * 11/12		#893		J. Wu		TTR635 - Fix volcano in alphabetical breakdown order.
+ * Mar 11, 2014 #2718       randerso    Changes for GeoTools 10.5
  * </pre>
  * 
  * @author	gzhang
@@ -535,13 +536,13 @@ public class SigmetInfo {
 				
 		FeatureIterator<SimpleFeature> featureIterator = null;	        
         HashMap<String,Coordinate[]> firGeoMap = new HashMap<String,Coordinate[]>();
-        IndexedShapefileDataStore shapefileDataStore=null;
+        ShapefileDataStore shapefileDataStore=null;
         String shapeField=null;
         
         try{
         	File file = PgenStaticDataProvider.getProvider().getFirBoundsFile();          
-            shapefileDataStore = new IndexedShapefileDataStore(file.toURI()
-                    .toURL(), null, false, true, org.geotools.data.shapefile.indexed.IndexType.QIX);            
+            shapefileDataStore = new ShapefileDataStore(file.toURI()
+                    .toURL());
             
             shapeField = shapefileDataStore.getFeatureSource().getSchema().getGeometryDescriptor().getLocalName();   
         }catch(Exception e){
@@ -553,7 +554,7 @@ public class SigmetInfo {
         try {	        	
             
             String[] types = shapefileDataStore.getTypeNames();
-            DefaultQuery query = new DefaultQuery();
+            Query query = new Query();
             query.setTypeName(types[0]);
 
             String[] fields = new String[labelFields.length+1];
