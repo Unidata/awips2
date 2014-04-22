@@ -29,12 +29,13 @@ import org.apache.commons.logging.LogFactory;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.plugin.text.impl.TextSeparatorFactory;
+import com.raytheon.edex.textdb.dbapi.impl.TextDBStaticData;
 import com.raytheon.edex.textdb.dbapi.impl.WMOReportData;
 import com.raytheon.uf.edex.wmo.message.AFOSProductId;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
 
 /**
- * TODO Add Description
+ * Upper Air Collective text Separator.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -42,6 +43,9 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * ------------ ---------- ----------- --------------------------
  * Sep 3, 2008             jkorman     Initial creation
  * Jul 10, 2009 2191       rjpeter     Reimplemented.
+ * Mar 13, 2014 2652       skorolev    Fixed calculation of message end.
+ * Apr 01, 2014 2915       dgilling    Support re-factored TextDBStaticData.
+ * Apr 02, 2014 2652       skorolev    Corrected a removing of excess control characters.
  * </pre>
  * 
  * @author jkorman
@@ -87,7 +91,8 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
     protected void createProductId() {
         WMOHeader wmoHeader = getWmoHeader();
         String hdr = wmoHeader.getWmoHeader();
-        String afosId = staticData.matchUACollective(createDataDes(wmoHeader));
+        String afosId = TextDBStaticData
+                .matchUACollective(createDataDes(wmoHeader));
 
         if (afosId != null) {
             productId = new AFOSProductId(afosId);
@@ -113,9 +118,12 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         WMOHeader wmoHdr = getWmoHeader();
         int startIndex = wmoHdr.getMessageDataStart();
         int endIndex = TextSeparatorFactory.findDataEnd(rawData);
+        if (endIndex <= startIndex) {
+            endIndex = rawData.length - 1;
+        }
         String rawMsg = new String(rawData, startIndex, endIndex - startIndex);
         Matcher nnnxxxMatcher = NNNXXX.matcher(rawMsg);
-        if (nnnxxxMatcher.find()) {
+        if (nnnxxxMatcher.find() && nnnxxxMatcher.start() == 0) {
             rawMsg = rawMsg.substring(nnnxxxMatcher.end());
         }
         StringBuilder buffer = new StringBuilder(rawMsg);
@@ -158,7 +166,8 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 }
                 // Get the XXX from the station number, using station_table.dat
                 else {
-                    XXX_id = staticData.mapWMOToICAO(stationNum.toString());
+                    XXX_id = TextDBStaticData.mapWMOToICAO(stationNum
+                            .toString());
                     if (XXX_id == null) {
                         logger.debug("NCF_FAIL to map station number to XXX: "
                                 + stationNum);
@@ -335,11 +344,11 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 uaNNN = "SGL";
             }
 
-            String icao = staticData.mapWMOToICAO(wmoId);
+            String icao = TextDBStaticData.mapWMOToICAO(wmoId);
             if (icao != null) {
 
                 // get the associated CCC
-                String cccId = staticData.mapICAOToCCC(icao);
+                String cccId = TextDBStaticData.mapICAOToCCC(icao);
 
                 AFOSProductId prodId = data.getAfosProdId();
                 if (prodId != null) {
@@ -390,7 +399,6 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
     // ---------------------------------------------------------------------------
     private void parseUpairMsg(StringBuilder buffer, StringBuilder stationNum,
             StringBuilder parsedMsg, String dataDes) {
-        StringBuilder temp = new StringBuilder();
         stationNum.setLength(0);
 
         // Check each message for the \036 record separator and increment past
@@ -407,18 +415,18 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         }
         // Check for USUS80 or 90 formatted messages and decode
         else if (dataDes.endsWith("80") || dataDes.endsWith("90")) {
-            if (checkCharNum(buffer.charAt(0)))
+            if (checkCharNum(buffer.charAt(0))) {
                 buffer.deleteCharAt(0);
-            else {
+            } else {
                 stationNum.append(assignTextSegment(buffer.toString(), CSPC));
             }
 
             getTextSegment(buffer, parsedMsg, CSEP);
         } else {
             // Otherwise it's standard format so decode
-            if (!checkCharNum(buffer.charAt(0)))
+            if (!checkCharNum(buffer.charAt(0))) {
                 buffer.deleteCharAt(0);
-            else {
+            } else {
 
                 // Move to the third field of the message to get the station
                 // number.
@@ -445,14 +453,21 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
 
         // Remove excess control characters
         if (buffer.length() == 0) {
-            if (parsedMsg.length() < MIN_COLL_DATA_LEN)
+            if (parsedMsg.length() < MIN_COLL_DATA_LEN) {
                 stationNum.setLength(0);
-            else {
+            } else {
                 trim_message(parsedMsg);
             }
         } else if (buffer.charAt(0) == '=') {
-            safeStrpbrk(temp, CSPL);
             buffer.deleteCharAt(0);
+            while (buffer.length() > 0) {
+                char c = buffer.charAt(0);
+                if ((c == '\n') || (c == '\r')) {
+                    buffer.deleteCharAt(0);
+                } else {
+                    break;
+                }
+            }
         } else if ((buffer.charAt(0) == EOM)
                 && (parsedMsg.length() > (MIN_COLL_DATA_LEN - 1))) {
             trim_message(parsedMsg);
@@ -485,7 +500,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
         // Otherwise, use the national category table to get the CCC from the
         // XXX
         else {
-            CCC_id = staticData.mapICAOToCCC(XXX_id);
+            CCC_id = TextDBStaticData.mapICAOToCCC(XXX_id);
             if (CCC_id == null) {
                 // We failed to get a CCC from the national_category_table...
 
@@ -493,10 +508,10 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 // prepending K or P (the latter for AK, HI products)
                 if ((XXX_id.length() == 3) && (origin.charAt(0) == 'K')) {
                     newId = "K" + XXX_id;
-                    CCC_id = staticData.mapICAOToCCC(newId);
+                    CCC_id = TextDBStaticData.mapICAOToCCC(newId);
                     if (CCC_id == null) {
                         newId = "P" + XXX_id;
-                        CCC_id = staticData.mapICAOToCCC(newId);
+                        CCC_id = TextDBStaticData.mapICAOToCCC(newId);
                         if (CCC_id == null) {
                             // logger.error("NCF_FAIL to map XXX to CCC: "
                             // + XXX_id);
@@ -509,7 +524,7 @@ public class UACollectiveSeparator extends WMOMessageSeparator {
                 // character of the origin.
                 else if (XXX_id.length() == 3) {
                     newId = origin.charAt(0) + XXX_id;
-                    CCC_id = staticData.mapICAOToCCC(newId);
+                    CCC_id = TextDBStaticData.mapICAOToCCC(newId);
                     if (CCC_id == null) {
                         // logger.error("NCF_FAIL to map XXX to CCC: " +
                         // XXX_id);

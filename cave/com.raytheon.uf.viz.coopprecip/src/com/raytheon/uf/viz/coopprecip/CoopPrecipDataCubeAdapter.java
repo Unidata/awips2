@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
@@ -43,10 +44,9 @@ import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
-import com.raytheon.uf.viz.core.datastructure.IDataCubeAdapter;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.datacube.IDataCubeAdapter;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV;
 import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -127,7 +127,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
-            throws VizException {
+            throws DataCubeException {
         List<List<DataTime>> results = new ArrayList<List<DataTime>>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
@@ -143,7 +143,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     public DataTime[] timeQuery(Map<String, RequestConstraint> queryParams,
-            boolean latestOnly, BinOffset binOffset) throws VizException {
+            boolean latestOnly, BinOffset binOffset) throws DataCubeException {
 
         String nnnid = getNNNid(queryParams);
 
@@ -177,10 +177,16 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         return nnnid;
     }
 
-    private PointDataContainer getData(String nnnid) throws VizException {
-        List<Object[]> queryResult = DirectDbQuery.executeQuery(
-                "select refTime, product from stdtextproducts where nnnid = '"
-                        + nnnid + "'", "fxa", DirectDbQuery.QueryLanguage.SQL);
+    private PointDataContainer getData(String nnnid) throws DataCubeException {
+        List<Object[]> queryResult;
+        try {
+            queryResult = DirectDbQuery.executeQuery(
+                    "select refTime, product from stdtextproducts where nnnid = '"
+                            + nnnid + "'", "fxa",
+                    DirectDbQuery.QueryLanguage.SQL);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         List<Long> times = new ArrayList<Long>(queryResult.size());
         List<String> products = new ArrayList<String>(queryResult.size());
         for (Object[] objArr : queryResult) {
@@ -197,7 +203,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     private PointDataContainer getFfgData(List<Long> times,
-            List<String> products) throws VizException {
+            List<String> products) throws DataCubeException {
         Map<String, Coordinate> stationCoordMap = getFfgCoords();
 
         PointDataContainer pdc = PointDataContainer.build(ffgDescription);
@@ -257,7 +263,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     private PointDataContainer getRtpData(List<Long> times,
-            List<String> products) throws VizException {
+            List<String> products) throws DataCubeException {
         Map<String, SPIEntry> stationCoordMap = getRtpSpi();
 
         PointDataContainer pdc = PointDataContainer.build(rtpDescription);
@@ -335,12 +341,18 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         return pdc;
     }
 
-    private Map<String, Coordinate> getFfgCoords() throws VizException {
+    private Map<String, Coordinate> getFfgCoords() throws DataCubeException {
         Map<String, Coordinate> result = new HashMap<String, Coordinate>();
         String cwa = LocalizationManager.getInstance().getCurrentSite();
-        List<Object[]> queryResult = DirectDbQuery.executeQuery(
-                "select lat, lon, fips, state from mapdata.county where cwa = '"
-                        + cwa + "'", "maps", DirectDbQuery.QueryLanguage.SQL);
+        List<Object[]> queryResult;
+        try {
+            queryResult = DirectDbQuery.executeQuery(
+                    "select lat, lon, fips, state from mapdata.county where cwa = '"
+                            + cwa + "'", "maps",
+                    DirectDbQuery.QueryLanguage.SQL);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         for (Object[] arr : queryResult) {
             Number lat = (Number) arr[0];
             Number lon = (Number) arr[1];
@@ -350,9 +362,14 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
             result.put(stationId,
                     new Coordinate(lon.doubleValue(), lat.doubleValue()));
         }
-        queryResult = DirectDbQuery.executeQuery(
-                "select lat, lon, zone, state from mapdata.zone where cwa = '"
-                        + cwa + "'", "maps", DirectDbQuery.QueryLanguage.SQL);
+        try {
+            queryResult = DirectDbQuery.executeQuery(
+                    "select lat, lon, zone, state from mapdata.zone where cwa = '"
+                            + cwa + "'", "maps",
+                    DirectDbQuery.QueryLanguage.SQL);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
         for (Object[] arr : queryResult) {
             Number lat = (Number) arr[0];
             Number lon = (Number) arr[1];
@@ -372,7 +389,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         return getPoints(plugin, parameters, null, queryParams);
 
     }
@@ -380,33 +398,33 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public PointDataContainer getPoints(String plugin, String[] parameters,
             String levelKey, Map<String, RequestConstraint> queryParams)
-            throws VizException {
+            throws DataCubeException {
         String nnnid = getNNNid(queryParams);
         return getData(nnnid);
     }
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj)
-            throws VizDataCubeException {
+            throws DataCubeException {
         return null;
     }
 
     @Override
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
         return null;
     }
 
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws VizDataCubeException {
+            String dataset) throws DataCubeException {
 
     }
 
     @Override
     public PluginDataObject[] getData(
             Map<String, RequestConstraint> constraints, DataTime[] selectedTimes)
-            throws VizException {
+            throws DataCubeException {
         return null;
     }
 

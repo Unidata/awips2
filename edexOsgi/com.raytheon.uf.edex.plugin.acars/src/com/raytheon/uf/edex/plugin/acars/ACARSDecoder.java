@@ -19,26 +19,25 @@
  **/
 package com.raytheon.uf.edex.plugin.acars;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
-import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.acars.ACARSRecord;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.decodertools.core.IDecoderInput;
 import com.raytheon.uf.edex.plugin.acars.decoder.ACARSDataAdapter;
 
 /**
- * 
+ * ACARS Decoder.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
+ * Date          Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 21, 2009       1939 jkorman     Initial creation
+ * Jan 21, 2009  1939       jkorman     Initial creation
+ * Mar 27, 2014  2811       skorolev    Updated logger.
  * 
  * </pre>
  * 
@@ -48,7 +47,7 @@ import com.raytheon.uf.edex.plugin.acars.decoder.ACARSDataAdapter;
 
 public class ACARSDecoder extends AbstractDecoder {
 
-    private Log logger = LogFactory.getLog(getClass());
+    private IUFStatusHandler logger = UFStatus.getHandler(ACARSDecoder.class);
 
     private String pluginName = "acars";
 
@@ -63,9 +62,9 @@ public class ACARSDecoder extends AbstractDecoder {
     /**
      * Get the next decoded data record.
      * 
+     * @param data
+     * @param headers
      * @return One record of decoded data.
-     * @throws DecoderException
-     *             Thrown if no data is available.
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
 
@@ -98,7 +97,7 @@ public class ACARSDecoder extends AbstractDecoder {
 
     /**
      * @param input
-     * @param decodeProperties
+     * @return
      */
     public PluginDataObject[] decodeInput(IDecoderInput input) {
         logger.error("decodeInput method not supported");
@@ -112,11 +111,12 @@ public class ACARSDecoder extends AbstractDecoder {
         return pluginName;
     }
 
-    public static final void main(String [] args) {
-        
+    public static final void main(String[] args) {
+
         com.raytheon.uf.common.util.StringUtil.isEmptyString(" ");
-        
-        ACARSRecord r = new ACARSRecord("/acars/2011-03-21_17:58:32.0/2TPYR4JA/null/42.85/-84.92/9754");
+
+        ACARSRecord r = new ACARSRecord(
+                "/acars/2011-03-21_17:58:32.0/2TPYR4JA/null/42.85/-84.92/9754");
         System.out.println(r.getLatitude());
     }
 

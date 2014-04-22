@@ -64,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     PluginDataObject.
  * Aug 30, 2013 2298       rjpeter     Make getPluginName abstract
  * Oct 22, 2013 2361       njensen     Remove XML annotations and IDecoderGettable
+ * Feb 27, 2014 2638       njensen     Remove bad dataURI annotation
  * 
  * </pre>
  * 
@@ -89,12 +90,11 @@ public class ACARSSoundingRecord extends PluginDataObject implements
 
     // Time of the observation.
     @Column
-    @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
     private Calendar timeObs;
 
     @Embedded
-    @DataURI(position = 2, embedded = true)
+    @DataURI(position = 1, embedded = true)
     @DynamicSerializeElement
     private SurfaceObsLocation location;
 

@@ -24,12 +24,13 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.viz.core.ColorUtil;
 
 /**
  * 
- * Manages colors of different users for a session
+ * Manages colors of different users for a session. Participants have different
+ * colors for text and telestration.
  * 
  * <pre>
  * 
@@ -37,7 +38,9 @@ import com.raytheon.viz.core.ColorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 3, 2012            mnash     Initial creation
+ * Apr 03, 2012            mnash       Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2848       bclement    synchronized color access
  * 
  * </pre>
  * 
@@ -47,56 +50,75 @@ import com.raytheon.viz.core.ColorUtil;
 
 public class SessionColorManager {
 
-    private Map<UserId, RGB> colors;
+    private final Map<VenueParticipant, RGB> colors = new HashMap<VenueParticipant, RGB>();
 
-    private static RGB[] rgbPresets = null;
+    private static final RGB[] rgbPresets = ColorUtil.getResourceColorPresets();
 
     /**
+     * Get a map of venue participants to their assigned colors used for
      * 
+     * @return
      */
-    public SessionColorManager() {
-        if (colors == null) {
-            colors = new HashMap<UserId, RGB>();
-            rgbPresets = ColorUtil.getResourceColorPresets();
+    public Map<VenueParticipant, RGB> getColors() {
+        Map<VenueParticipant, RGB> rval;
+        synchronized (colors) {
+            rval = new HashMap<VenueParticipant, RGB>(colors);
+        }
+        return rval;
+    }
+
+    /**
+     * Clear color assignments and repopulate with supplied map
+     * 
+     * @param map
+     */
+    public void setColors(Map<VenueParticipant, RGB> map) {
+        synchronized (colors) {
+            colors.clear();
+            colors.putAll(map);
         }
     }
 
     /**
-     * @return the colors
-     */
-    public Map<UserId, RGB> getColors() {
-        return colors;
-    }
-
-    public void setColors(Map<UserId, RGB> map) {
-        colors = map;
-    }
-
-    public RGB getColorFromUser(UserId user) {
-        if (colors.get(user) == null) {
-            addUser(user);
-        }
-        return colors.get(user);
-    }
-
-    public void setColorForUser(UserId id, RGB rgb) {
-        colors.put(id, rgb);
-    }
-
-    /**
-     * Add a user with a new color value
+     * Get participant's assigned color
      * 
      * @param user
+     * @return
      */
-    public void addUser(UserId user) {
-        int count = colors.size();
-        if (rgbPresets.length <= count) {
-            count = count % rgbPresets.length;
+    public RGB getColorForUser(VenueParticipant user) {
+        RGB rval;
+        synchronized (colors) {
+            rval = colors.get(user);
+            if (rval == null) {
+                int count = colors.size();
+                if (rgbPresets.length <= count) {
+                    count = count % rgbPresets.length;
+                }
+                rval = rgbPresets[count];
+                colors.put(user, rval);
+            }
         }
-        colors.put(user, rgbPresets[count]);
+        return rval;
     }
 
+    /**
+     * Assign color to participant
+     * 
+     * @param id
+     * @param rgb
+     */
+    public void setColorForUser(VenueParticipant id, RGB rgb) {
+        synchronized (colors) {
+            colors.put(id, rgb);
+        }
+    }
+
+    /**
+     * Clear color assignments
+     */
     public void clearColors() {
-        colors.clear();
+        synchronized (colors) {
+            colors.clear();
+        }
     }
 }

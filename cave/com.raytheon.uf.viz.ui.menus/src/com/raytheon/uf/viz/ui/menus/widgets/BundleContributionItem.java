@@ -86,6 +86,8 @@ import com.raytheon.viz.ui.actions.LoadBundleHandler;
  * Jan 14, 2013  1442     rferrel     Add Simulated Time Change Listener.
  * Aug 30, 2013  2310     bsteffen    Move loading of bundle to
  *                                    LoadBundleHandler.
+ * Mar 25, 2014  2857     mpduff      In the case of missing menu text throw exception
+ *                                      stating the id of the missing text.
  * 
  * 
  * </pre>
@@ -164,7 +166,13 @@ public class BundleContributionItem extends ContributionItem {
                     .get(contribution.suppressErrors.substring(2,
                             contribution.suppressErrors.length() - 1)));
         }
+
         // Substitute the menu text
+        if (menuContribution.xml.text == null) {
+            throw new IllegalStateException("Missing menu text for menu id: "
+                    + menuContribution.xml.id);
+        }
+
         this.menuText = VariableSubstitutionUtil.processVariables(
                 menuContribution.xml.text, this.substitutions);
         if (contribution.dataURIs != null) {
@@ -455,7 +463,7 @@ public class BundleContributionItem extends ContributionItem {
 
     private class BundleRefreshCallback implements IURIRefreshCallback {
 
-        private BinOffset offset;
+        private final BinOffset offset;
 
         /**
          * @param optional2

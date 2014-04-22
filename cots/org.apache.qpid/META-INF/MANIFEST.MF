@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Qpid
 Bundle-SymbolicName: org.apache.qpid
-Bundle-Version: 1.0.0.18
+Bundle-Version: 0.18.0
 Require-Bundle: javax.jms;bundle-version="1.0.0",
  org.slf4j
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

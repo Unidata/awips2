@@ -56,6 +56,7 @@ import com.raytheon.uf.common.dataplugin.warning.config.PointSourceConfiguration
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialFactory;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.FileUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.geospatial.DestinationGeodeticCalculator;
@@ -114,7 +115,7 @@ import com.vividsolutions.jts.geom.Point;
  *                                        points that are in the past.
  *    Jun 24, 2013 DR 16317   D. Friedman Handle "motionless" track.
  *    Jun 25, 2013 16224      Qinglu Lin  Resolved the issue with "Date start" for pathcast in CON.
- * 
+ *    Dec  4, 2013 2604       jsanchez    Refactored GisUtil.
  * </pre>
  * 
  * @author chammack
@@ -255,7 +256,7 @@ public class Wx {
 
         GeometryFactory gf = new GeometryFactory();
 
-        boolean flag = true; 
+        boolean flag = true;
         List<ClosestPoint> pointsToBeRemoved = null;
         try {
             Abbreviation areaTypeAbbrev = null;
@@ -279,8 +280,8 @@ public class Wx {
             if (stormTrackState.isNonstationary()) {
                 List<Coordinate> coordinates = new ArrayList<Coordinate>();
                 Date stormTime = new Date();
-                Date start = DateUtil.roundDate(new Date(stormTime.getTime() + delta),
-                        pathcastConfiguration.getInterval());                
+                Date start = DateUtil.roundDate(new Date(stormTime.getTime()
+                        + delta), pathcastConfiguration.getInterval());
                 DestinationGeodeticCalculator gc = new DestinationGeodeticCalculator();
                 while (start.getTime() <= wwaStopTime) {
                     PathCast cast = new PathCast();
@@ -449,16 +450,20 @@ public class Wx {
                     points = new ArrayList<ClosestPoint>(0);
                 }
                 if (flag) {
-                    pointsToBeRemoved = findPointsToBeRemoved(centroid, points, stormTrackState.angle);
+                    pointsToBeRemoved = findPointsToBeRemoved(centroid, points,
+                            stormTrackState.angle);
                     flag = false;
                 }
 
                 if (pointsToBeRemoved != null) {
-                    for (int i=0; i<pointsToBeRemoved.size(); i++) {
-                        for (int j=0; j<points.size(); j++) {
-                            // double comparison below can be replaced by gid comparison when bug in getGid() is fixed.
-                            if (pointsToBeRemoved.get(i).getPoint().x == points.get(j).getPoint().x &&
-                                    pointsToBeRemoved.get(i).getPoint().y == points.get(j).getPoint().y) {
+                    for (int i = 0; i < pointsToBeRemoved.size(); i++) {
+                        for (int j = 0; j < points.size(); j++) {
+                            // double comparison below can be replaced by gid
+                            // comparison when bug in getGid() is fixed.
+                            if (pointsToBeRemoved.get(i).getPoint().x == points
+                                    .get(j).getPoint().x
+                                    && pointsToBeRemoved.get(i).getPoint().y == points
+                                            .get(j).getPoint().y) {
                                 points.remove(j);
                                 break;
                             }
@@ -482,7 +487,8 @@ public class Wx {
                     for (PathCast pc2 : tmp) {
                         if (pc2 != pc) {
                             List<ClosestPoint> points2 = pcPoints.get(pc2);
-                            ClosestPoint found = find(cp, points2, Integer.MAX_VALUE);
+                            ClosestPoint found = find(cp, points2,
+                                    Integer.MAX_VALUE);
                             if (found != null) {
                                 // We found a point within maxCount in this
                                 // list.
@@ -958,7 +964,8 @@ public class Wx {
         return new Date(this.wwaStartTime);
     }
 
-    private List<ClosestPoint> findPointsToBeRemoved(Point centroid, List<ClosestPoint> points, double stormtrackAngle) {
+    private List<ClosestPoint> findPointsToBeRemoved(Point centroid,
+            List<ClosestPoint> points, double stormtrackAngle) {
         // convert storm track angle to geometry angle in range of (0,360)
         double convertedAngle = 90.0 - stormtrackAngle;
         if (convertedAngle < 0.0)
@@ -968,17 +975,19 @@ public class Wx {
         List<ClosestPoint> removedPoints = new ArrayList<ClosestPoint>();
         while (iter.hasNext()) {
             ClosestPoint cp = iter.next();
-            double d = Math.abs(convertedAngle - computeAngle(centroid, cp.point));
+            double d = Math.abs(convertedAngle
+                    - computeAngle(centroid, cp.point));
             if (d > 180.0)
                 d = 360.0 - d;
             if (d > 90.0)
                 removedPoints.add(cp);
         }
-        return removedPoints; 
+        return removedPoints;
     }
 
     private double computeAngle(Point p, Coordinate c) {
-        double angle = Math.atan2(c.y - p.getY(), c.x - p.getX()) * 180 / Math.PI;
+        double angle = Math.atan2(c.y - p.getY(), c.x - p.getX()) * 180
+                / Math.PI;
         if (angle < 0)
             angle += 360;
         return angle;

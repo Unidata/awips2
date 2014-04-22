@@ -24,8 +24,8 @@ import javax.measure.unit.Unit;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.dataaccess.IData;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDestination;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
 
 /**
  * An IGridData represents data that is gridded, ie rectangular (when not
@@ -33,7 +33,7 @@ import com.raytheon.uf.common.geospatial.interpolation.data.UnitConvertingDataDe
  * 
  * To get the data values out of the IGridData, use
  * populateData(DataDestination) with a DataDestination in the format you are
- * looking for. You can also use a {@link UnitConvertingDataDestination} to
+ * looking for. You can also use a {@link UnitConvertingDataFilter} to
  * obtain the data in a specific unit.
  * 
  * 
@@ -78,7 +78,7 @@ public interface IGridData extends IData {
      * Populates the DataDestination argument with the raw data converted to the
      * type to match the DataDestination. The destination must not be null. If
      * unit conversions are desired, use the
-     * {@link UnitConvertingDataDestination} to specify what unit conversion
+     * {@link UnitConvertingDataFilter} to specify what unit conversion
      * should be applied to the data.
      * 
      * @param destination

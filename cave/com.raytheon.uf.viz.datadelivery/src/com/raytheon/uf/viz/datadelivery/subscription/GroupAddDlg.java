@@ -69,6 +69,7 @@ import com.raytheon.viz.ui.presenter.components.WidgetConf;
  * May 21, 2013  2020      mpduff      Rename UserSubscription to SiteSubscription.
  * Nov 08, 2013  2506      bgonzale    Removed send notification when a subscription is created.
  * Feb 11, 2014  2771      bgonzale    Use Data Delivery ID instead of Site.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -273,7 +274,7 @@ public class GroupAddDlg extends CaveSWTDialog {
         }
 
         try {
-            DataDeliveryHandlers.getSubscriptionHandler().store(subscription);
+            DataDeliveryHandlers.getSubscriptionHandler().store(username, subscription);
         } catch (RegistryHandlerException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving subscription data to the registry.", e);

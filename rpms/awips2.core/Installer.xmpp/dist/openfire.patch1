@@ -1,26 +1,6 @@
-diff -crB openfire-a/bin/openfire openfire-b/bin/openfire
-*** openfire-a/bin/openfire	2011-10-01 16:52:44.000000000 -0500
---- openfire-b/bin/openfire	2012-05-17 10:54:53.000000000 -0500
-***************
-*** 259,265 ****
-      start)
-          echo "Starting openfire"
-  
-! nohup "$app_java_home/bin/java" -server -Dinstall4j.jvmDir="$app_java_home" -Dexe4j.moduleName="$prg_dir/$progname"  $INSTALL4J_ADD_VM_PARAMS -classpath "$local_classpath" com.install4j.runtime.Launcher start org.jivesoftware.openfire.starter.ServerStarter false false "$prg_dir/../logs/stderror.log" "$prg_dir/../logs/stdoutt.log" true true false "" true true 0 0 "" 20 20 "Arial" "0,0,0" 8 500 "version 3.7.1" 20 40 "Arial" "0,0,0" 8 500 -1 -DopenfireHome="$prg_dir/../" -Dopenfire.lib.dir="$app_home/lib" &
-  
-  
-      ;;
---- 259,265 ----
-      start)
-          echo "Starting openfire"
-  
-! nohup "$app_java_home/bin/java" -server -Dinstall4j.jvmDir="$app_java_home" -Dexe4j.moduleName="$prg_dir/$progname"  $INSTALL4J_ADD_VM_PARAMS -classpath "$local_classpath" com.install4j.runtime.Launcher start org.jivesoftware.openfire.starter.ServerStarter false false "$prg_dir/../logs/stderror.log" "$prg_dir/../logs/stdoutt.log" true true false "" true true 0 0 "" 20 20 "Arial" "0,0,0" 8 500 "version 3.7.1" 20 40 "Arial" "0,0,0" 8 500 -1 -DopenfireHome="$prg_dir/../" -Dopenfire.lib.dir="$app_home/lib" > /dev/null 2>&1 &
-  
-  
-      ;;
 diff -crB openfire-a/lib/log4j.xml openfire-b/lib/log4j.xml
-*** openfire-a/lib/log4j.xml	2011-10-01 16:51:23.000000000 -0500
---- openfire-b/lib/log4j.xml	2012-05-17 10:48:34.000000000 -0500
+*** openfire-a/lib/log4j.xml	2014-02-06 15:39:44.000000000 -0500
+--- openfire-b/lib/log4j.xml	2014-02-07 10:48:34.000000000 -0500
 ***************
 *** 3,9 ****
   <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">

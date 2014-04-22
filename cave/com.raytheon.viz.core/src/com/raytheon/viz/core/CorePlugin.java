@@ -22,13 +22,9 @@ package com.raytheon.viz.core;
 
 import javax.media.jai.ParameterBlockJAI;
 
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
@@ -41,6 +37,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  *    Date          Ticket#     Engineer    Description
  *    ------------	----------	-----------	--------------------------
  *    7/1/06                    chammack    Initial Creation.
+ *    Mar 3, 2014   2861        mschenke    Create preference store immediately
  * 
  * </pre>
  * 
@@ -54,7 +51,8 @@ public class CorePlugin extends AbstractUIPlugin {
     // The shared instance.
     private static CorePlugin plugin;
 
-    private IPersistentPreferenceStore prefs;
+    private HierarchicalPreferenceStore prefs = new HierarchicalPreferenceStore(
+            this);
 
     private BundleContext ctx;
 
@@ -109,18 +107,7 @@ public class CorePlugin extends AbstractUIPlugin {
      */
     @Override
     public HierarchicalPreferenceStore getPreferenceStore() {
-        try {
-            if (prefs == null) {
-                prefs = new HierarchicalPreferenceStore(this);
-            }
-        } catch (LocalizationException e) {
-            UFStatus.getHandler().handle(
-                    Priority.PROBLEM,
-                    "Error reading preference store: "
-                            + e.getLocalizedMessage(), e);
-        }
-
-        return (HierarchicalPreferenceStore) prefs;
+        return prefs;
     }
 
 }

@@ -30,6 +30,21 @@
 		<constructor-arg ref="modelsounding-camel"/>
   	</bean>
 
+    <bean id="modelBufrListener" class="com.raytheon.uf.edex.plugin.modelsounding.ingest.ModelBufrSubscriber" />
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufr.spi" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufrStationInfo.txt" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="modelBufrStationList.txt" />
+        <constructor-arg ref="modelBufrListener" />
+    </bean>
+
 	<camelContext id="modelsounding-camel"
 		xmlns="http://camel.apache.org/schema/spring"
 		errorHandlerRef="errorHandler"

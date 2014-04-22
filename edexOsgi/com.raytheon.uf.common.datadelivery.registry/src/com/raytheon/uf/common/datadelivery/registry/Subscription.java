@@ -49,6 +49,7 @@ import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
  * Jan 14, 2014 2459       mpduff       Change Subscription status code
  * Jan 24, 2013 2709       bgonzale     Added method inActivePeriodWindow.
  * Feb 05, 2014 2677       mpduff       Add subscription state getter/setter.
+ * Apr 02, 2014  2810      dhladky      Priority sorting of subscriptions.
  * 
  * </pre>
  * 
@@ -56,7 +57,7 @@ import com.raytheon.uf.common.datadelivery.registry.Utils.SubscriptionStatus;
  * @version 1.0
  */
 
-public interface Subscription<T extends Time, C extends Coverage> {
+public interface Subscription<T extends Time, C extends Coverage> extends Comparable<Subscription<T, C>> {
 
     @XmlEnum
     public enum SubscriptionType {
@@ -78,7 +79,15 @@ public interface Subscription<T extends Time, C extends Coverage> {
 
     /** Enumeration to use for subscription priorities */
     @XmlEnum
-    public static enum SubscriptionPriority {
+    public static enum SubscriptionPriority implements Comparable<SubscriptionPriority>{
+        
+        /* 
+         These are in the order in which priorities would 
+         appear for comparator purposes.  BE SURE that 
+         if you add any new state enum it is inserted in the order
+         you wish it to be in for logical ordering in comparison to others. 
+         */
+        
         /** High Priority */
         @XmlEnumValue("High")
         HIGH("High", 1),

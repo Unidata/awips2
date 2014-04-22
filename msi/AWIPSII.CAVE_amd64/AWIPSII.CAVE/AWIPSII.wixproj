@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+    <Version Condition=" '$(Version)' == '' ">1.0.0.0</Version>
+    <StagingDirectory Condition=" '${StagingDirectory}' == '' ">C:\A2Staging\AWIPS II\</StagingDirectory>
+    <ProductVersion>3.5</ProductVersion>
+    <ProjectGuid>9F9450DE-A24F-412D-8E34-69BEEA3043DA</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputType>Package</OutputType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <DefineConstants>Debug;ProductVersion=$(Version)</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\$(Configuration)</OutputPath>
+    <DefineConstants>ProductVersion=$(Version)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="AWIPSII.wxs" />
+    <Compile Include="AWIPSII_CAVE.wxs" />
+    <Compile Include="AWIPSII_ALERTVIZ.wxs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <OutputName>AWIPS II CAVE</OutputName>
+    <LinkerAdditionalOptions>-ext WixUIExtension -b "$(StagingDirectory)" -dWixUIBannerBmp=cave_msi_banner.bmp -dWixUIDialogBmp=cave_msi_dialog.bmp</LinkerAdditionalOptions>
+    <WixToolPath>C:\Users\Public\Documents\wix35-binaries\</WixToolPath>
+    <WixTargetsPath>$(WixToolPath)Wix.targets</WixTargetsPath>
+    <WixTasksPath>$(WixToolPath)wixtasks.dll</WixTasksPath>
+    <DefineSolutionProperties>false</DefineSolutionProperties>
+  </PropertyGroup>
+  <Import Project="$(WixTargetsPath)"/>
+</Project>

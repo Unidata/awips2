@@ -22,8 +22,8 @@ Require-Bundle: org.python.pydev,
  org.eclipse.wst.xml.ui;bundle-version="1.1.102",
  com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
  com.raytheon.uf.viz.localization;bundle-version="1.12.1174",
- org.eclipse.equinox.p2.director.app;bundle-version="1.0.201",
  com.raytheon.uf.common.util;bundle-version="1.12.1174",
  com.python.pydev.analysis;bundle-version="2.7.3"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: com.raytheon.uf.viz.localization.perspective.editor

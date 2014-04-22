@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.ui.IEditorPart;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.display.roles.DataProviderEventController;
@@ -43,6 +40,9 @@ import com.raytheon.uf.viz.collaboration.display.roles.ParticipantEventControlle
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 16, 2012            njensen     Initial creation
+ * Jan 28, 2014 2698       bclement    removed false throws statement
+ * Feb 12, 2014 2751       njensen     Register session containers to session event bus
+ * Mar 07, 2014 2848       bclement    split event handler registration from joinSession() to registerSession()
  * 
  * </pre>
  * 
@@ -62,9 +62,15 @@ public class SharedDisplaySessionMgr {
         return sharedDisplaySessionMap.keySet();
     }
 
-    public static void joinSession(ISharedDisplaySession session,
-            SharedDisplayRole initialRole, SessionColorManager colors)
-            throws CollaborationException {
+    /**
+     * Add a session to the manager and register listeners with session event
+     * bus.
+     * 
+     * @param session
+     * @param initialRole
+     */
+    public static void registerSession(ISharedDisplaySession session,
+            SharedDisplayRole initialRole) {
         SessionContainer container = new SessionContainer();
         container.setSessionId(session.getSessionId());
         container.setSession(session);
@@ -82,12 +88,20 @@ public class SharedDisplaySessionMgr {
                     "ParticipantRole must be DataProvider or Participant for initialization");
         }
         container.setRoleEventController(rec);
-        if (colors != null) {
-            container.setColorManager(colors);
-        }
         sharedDisplaySessionMap.put(session.getSessionId(), container);
+        session.registerEventHandler(container);
+    }
 
-        rec.startup();
+    /**
+     * Join a session registered in the manager
+     * 
+     * @param sessionId
+     */
+    public static void joinSession(String sessionId) {
+        SessionContainer container = sharedDisplaySessionMap.get(sessionId);
+        if (container != null) {
+            container.getRoleEventController().startup();
+        }
     }
 
     /**
@@ -98,10 +112,11 @@ public class SharedDisplaySessionMgr {
     public static void exitSession(String sessionId) {
         SessionContainer container = sharedDisplaySessionMap.get(sessionId);
         if (container != null) {
+            container.getSession().unregisterEventHandler(container);
             container.getRoleEventController().shutdown();
-
-            // remove after shutting down event controller
-            sharedDisplaySessionMap.remove(sessionId);
         }
+
+        // remove after shutting down event controller
+        sharedDisplaySessionMap.remove(sessionId);
     }
 }

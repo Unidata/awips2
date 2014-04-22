@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
@@ -45,7 +47,7 @@ import com.raytheon.uf.common.datastorage.records.IntegerDataRecord;
 import com.raytheon.uf.common.datastorage.records.LongDataRecord;
 import com.raytheon.uf.common.datastorage.records.StringDataRecord;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.viz.core.HDF5Util;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.pointdata.util.AbstractPointDataInventory;
@@ -149,7 +151,8 @@ public class VwpInventory extends AbstractPointDataInventory {
 
     protected PointDataContainer getBaseRecords(
             Collection<String> baseParameters,
-            Map<String, RequestConstraint> queryParams) throws VizException {
+            Map<String, RequestConstraint> queryParams)
+            throws DataCubeException {
         List<String> baseParams = new ArrayList<String>(baseParameters);
         baseParams.remove(LATITUDE);
         baseParams.remove(LONGITUDE);
@@ -158,8 +161,13 @@ public class VwpInventory extends AbstractPointDataInventory {
         queryParams.put("productCode", new RequestConstraint(ProductCode));
 
         queryParams.remove("type");
-        DbQueryResponse response = (DbQueryResponse) ThriftClient
-                .sendRequest(new DbQueryRequest(queryParams));
+        DbQueryResponse response;
+        try {
+            response = (DbQueryResponse) RequestRouter
+                    .route(new DbQueryRequest(queryParams));
+        } catch (Exception e1) {
+            throw new DataCubeException(e1);
+        }
         RadarRecord[] records = response.getEntityObjects(RadarRecord.class);
         for (RadarRecord record : records) {
             File loc = HDF5Util.findHDF5Location(record);
@@ -167,10 +175,10 @@ public class VwpInventory extends AbstractPointDataInventory {
             try {
                 RadarDataRetriever.populateRadarRecord(dataStore, record);
             } catch (FileNotFoundException e) {
-                throw new VizException(
+                throw new DataCubeException(
                         "Error Retrieving VWP Data from Radar Record", e);
             } catch (StorageException e) {
-                throw new VizException(
+                throw new DataCubeException(
                         "Error Retrieving VWP Data from Radar Record", e);
             }
         }

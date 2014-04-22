@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.TimeAndSpace;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.TimeAndSpace;
-import com.raytheon.uf.viz.derivparam.tree.AbstractBaseDataNode;
 
 /**
  * VIIRS Requestable level node
@@ -158,7 +158,7 @@ public class VIIRSRequestableLevelNode extends AbstractBaseDataNode {
     @Override
     public Set<TimeAndSpace> getAvailability(
             Map<String, RequestConstraint> originalConstraints, Object response)
-            throws VizException {
+            throws DataCubeException {
         Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
         DbQueryResponse dbresponse = (DbQueryResponse) response;
         for (Map<String, Object> map : dbresponse.getResults()) {
@@ -180,7 +180,7 @@ public class VIIRSRequestableLevelNode extends AbstractBaseDataNode {
     public Set<AbstractRequestableData> getData(
             Map<String, RequestConstraint> orignalConstraints,
             Set<TimeAndSpace> availability, Object response)
-            throws VizException {
+            throws DataCubeException {
         DbQueryResponse queryResponse = (DbQueryResponse) response;
         List<Map<String, Object>> results = queryResponse.getResults();
         Set<AbstractRequestableData> data = new HashSet<AbstractRequestableData>(

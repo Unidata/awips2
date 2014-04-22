@@ -11,7 +11,6 @@ Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.12.1130",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
  com.raytheon.uf.common.pointdata;bundle-version="1.12.1174"
 Export-Package: com.raytheon.uf.common.site,
- com.raytheon.uf.common.site.ingest,
  com.raytheon.uf.common.site.notify,
  com.raytheon.uf.common.site.requests,
  com.raytheon.uf.common.site.xml

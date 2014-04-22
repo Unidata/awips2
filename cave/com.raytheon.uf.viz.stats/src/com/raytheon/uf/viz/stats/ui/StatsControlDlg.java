@@ -76,6 +76,7 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
  * Feb 26, 2013   1667     mpduff      Sort categories.
  * Sep 27, 2013  #2419     lvenable    Changed code so the dual list will
  *                                     function correctly on start up.
+ * Feb 19, 2014   2734     mpduff      Default time range to 24 hours.
  * 
  * </pre>
  * 
@@ -262,7 +263,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         timeRangeCombo.setLayoutData(gd);
         timeRangeCombo.setToolTipText("Choose a Time Range");
         timeRangeCombo.setItems(this.TIME_RANGE_ITEMS);
-        timeRangeCombo.select(0);
+        timeRangeCombo.select(4); // default to 24 hrs
 
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
         gl = new GridLayout(2, false);

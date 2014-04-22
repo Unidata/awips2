@@ -706,3 +706,11 @@ HDS	^(JUTX(([2-4]1)|53)) (.{4}) (..)(..)(..)
 #example to show P and T radrs (AK, HI, and PR)
 #IDPS|DDPLUS	^(NXUS6.) (P|T)(...) (..)(..)(..) /p(GSM)(...)
 #	FILE	-overwrite -log -close -edex	/data_store/radar/(\4:yyyy)(\4:mm)\4/\5/\2\8/\7/\2\8_\7_\4\5\6-\1_\2\3_(seq).rad.%Y%m%d%H
+
+# RTOFS Global
+# The 3rd letter specifies region
+# A = Alaska      D = Arctic    I = Gulf Alaska    S = Samoa
+# B = Bering      G = Guam      J = Hudson Baffin  T = Trop Paci Lowres
+# C = West Conus  H = Honolulu  K = West Atl
+NGRID	^(E[HS-V][A-DG-KST][B-T]01) (KWBW) (..)(..)(..)
+	FILE	-overwrite -log -close -edex	/data_store/grib2/(\3:yyyy)(\3:mm)\3/\4/RTOFS/\1_\2_\3\4\5_(seq).grib2.%Y%m%d%H

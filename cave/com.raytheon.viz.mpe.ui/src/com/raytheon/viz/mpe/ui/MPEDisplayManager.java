@@ -102,9 +102,10 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 14, 2013   1457     mpduff       Reset the gages on the resource.
  * Apr 18, 2013   1920     mpduff       Added updateGages method to reload the gage data, 
  *                                      fix formatting of legend for Base field Height.
- * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.  
- * Feb 2, 2014  16201      snaples      Added saved data flag support
+ * Jul 02, 2013   2160     mpduff       Initialize newly displayed resources.
+ * Feb 02, 2014  16201     snaples      Added saved data flag support
  * Feb 04, 2014   16410    lbousaidi    changed the first letter of the month to lower case.
+ * Feb 19, 2014   2628     mpduff       Change cast from short to int when creating color bar.
  * 
  * </pre>
  * 
@@ -761,7 +762,7 @@ public class MPEDisplayManager {
                     listener.displayFieldChanged(oldField, fieldToDisplay);
                 }
             }
-            }
+        }
 
         displayedFieldResource.issueRefresh();
     }
@@ -1032,13 +1033,12 @@ public class MPEDisplayManager {
                 entry.setOperator("<");
                 entry.setLabel("");
             } else {
-                // Convert display to data, cast to short, convert back to
-                // display
-                entry.setDisplayValue(dataToDisplay
-                        .convert((short) displayToData.convert(threshold)));
+                // Convert display to data, cast to int, convert back to display
+                entry.setDisplayValue(dataToDisplay.convert((int) displayToData
+                        .convert(threshold)));
                 if (displayField != DisplayFieldData.Index) {
                     entry.setLabel(format.format(threshold));
-            }
+                }
             }
             entry.setPixelValue((double) i);
 

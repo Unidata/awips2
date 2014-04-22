@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<regionSites>
+	<!-- Pacific Region PBP -->
+    <region regionId="PR">
+        <wfo>PBP</wfo>
+        <wfo>SAM</wfo>
+        <wfo>GUM</wfo>
+        <wfo>HNL</wfo>
+    </region>
+    <!-- Eastern Region VUY -->
+    <region regionId="ER">
+        <wfo>VUY</wfo>
+        <wfo>CAR</wfo>
+        <wfo>GYX</wfo>
+        <wfo>LWX</wfo>
+        <wfo>PHI</wfo>
+        <wfo>ALY</wfo>
+        <wfo>BGM</wfo>
+        <wfo>BUF</wfo>
+        <wfo>OKX</wfo>
+        <wfo>MHX</wfo>
+        <wfo>RAH</wfo>
+        <wfo>ILM</wfo>
+        <wfo>ILN</wfo>
+        <wfo>CLE</wfo>
+        <wfo>CTP</wfo>
+        <wfo>PBZ</wfo>
+        <wfo>CHS</wfo>
+        <wfo>CAE</wfo>
+        <wfo>GSP</wfo>
+        <wfo>BTV</wfo>
+        <wfo>RNK</wfo>
+        <wfo>AKQ</wfo>
+        <wfo>RLX</wfo>
+    </region>
+    <!-- Southern Region EHU -->
+    <region regionId="SR">
+        <wfo>EHU</wfo>
+        <wfo>BMX</wfo>
+        <wfo>HUN</wfo>
+        <wfo>MOB</wfo>
+        <wfo>LZK</wfo>
+        <wfo>JAX</wfo>
+        <wfo>EYW</wfo>
+        <wfo>MLB</wfo>
+        <wfo>MFL</wfo>
+        <wfo>TLH</wfo>
+        <wfo>TBW</wfo>
+        <wfo>FFC</wfo>
+        <wfo>LCH</wfo>
+        <wfo>LIX</wfo>
+        <wfo>SHV</wfo>
+        <wfo>JAN</wfo>
+        <wfo>ABQ</wfo>
+        <wfo>OUN</wfo>
+        <wfo>TSA</wfo>
+        <wfo>SJU</wfo>
+        <wfo>MRX</wfo>
+        <wfo>MEG</wfo>
+        <wfo>BNA</wfo>
+        <wfo>AMA</wfo>
+        <wfo>EWX</wfo>
+        <wfo>BRO</wfo>
+        <wfo>CRP</wfo>
+        <wfo>FWD</wfo>
+        <wfo>ELP</wfo>
+        <wfo>HGX</wfo>
+        <wfo>LUB</wfo>
+        <wfo>MAF</wfo>
+        <wfo>SJT</wfo>
+    </region>
+    <!-- Western Region VHW -->
+    <region regionId="WR">
+        <wfo>VHW</wfo>
+        <wfo>FGZ</wfo>
+        <wfo>PSR</wfo>
+        <wfo>TWC</wfo>
+        <wfo>EKA</wfo>
+        <wfo>LOX</wfo>
+        <wfo>STO</wfo>
+        <wfo>SGX</wfo>
+        <wfo>MTR</wfo>
+        <wfo>HNX</wfo>
+        <wfo>BOI</wfo>
+        <wfo>PIH</wfo>
+        <wfo>BYZ</wfo>
+        <wfo>GGW</wfo>
+        <wfo>TFX</wfo>
+        <wfo>MSO</wfo>
+        <wfo>LKN</wfo>
+        <wfo>VEF</wfo>
+        <wfo>REV</wfo>
+        <wfo>MFR</wfo>
+        <wfo>PDT</wfo>
+        <wfo>PQR</wfo>
+        <wfo>SLC</wfo>
+        <wfo>SEW</wfo>
+        <wfo>OTX</wfo>
+    </region>
+    <!-- Central region BCQ -->
+    <region regionId="CR">
+        <wfo>BCQ</wfo>
+        <wfo>DEN</wfo>
+        <wfo>GJT</wfo>
+        <wfo>PUB</wfo>
+        <wfo>ILX</wfo>
+        <wfo>LOT</wfo>
+        <wfo>IND</wfo>
+        <wfo>IWX</wfo>
+        <wfo>DMX</wfo>
+        <wfo>DVN</wfo>
+        <wfo>DDC</wfo>
+        <wfo>GLD</wfo>
+        <wfo>TOP</wfo>
+        <wfo>ICT</wfo>
+        <wfo>JKL</wfo>
+        <wfo>LMK</wfo>
+        <wfo>PAH</wfo>
+        <wfo>DTX</wfo>
+        <wfo>GRR</wfo>
+        <wfo>MQT</wfo>
+        <wfo>APX</wfo>
+        <wfo>DLH</wfo>
+        <wfo>MPX</wfo>
+        <wfo>EAX</wfo>
+        <wfo>SGF</wfo>
+        <wfo>LSX</wfo>
+        <wfo>GID</wfo>
+        <wfo>LBF</wfo>
+        <wfo>OAX</wfo>
+        <wfo>BIS</wfo>
+        <wfo>FGF</wfo>
+        <wfo>ABR</wfo>
+        <wfo>UNR</wfo>
+        <wfo>FSD</wfo>
+        <wfo>GRB</wfo>
+        <wfo>ARX</wfo>
+        <wfo>MKX</wfo>
+        <wfo>CYS</wfo>
+        <wfo>RIW</wfo>
+    </region>
+    <!-- Alaska Region VRH-->
+    <region regionId="AR">
+        <wfo>VRH</wfo>
+        <wfo>AFC</wfo>
+        <wfo>AFG</wfo>
+        <wfo>AJK</wfo>
+    </region>
+</regionSites>

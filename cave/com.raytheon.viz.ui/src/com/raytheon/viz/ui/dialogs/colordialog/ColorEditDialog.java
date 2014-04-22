@@ -69,20 +69,21 @@ import com.raytheon.viz.ui.editor.ISelectedPanesChangedListener;
 
 /**
  * This is the main dialog for the Color Edit Dialog.
- *
+ * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                         lvenable    Initial Creation.
- * Jul 24, 2007            njensen     Hooked into backend.
- * Oct 17, 2012 1229       rferrel     Changes for non-blocking SaveColorMapDialog.
- * Jan 10, 2013 15648      ryu         Editing GFE discrete colormap: a check button
- *                                     is added and duplicate entries in the colormap
- *                                     are removed when it is selected.
- *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ *                        lvenable    Initial Creation.
+ * Jul 24, 2007           njensen     Hooked into backend.
+ * Oct 17, 2012  1229     rferrel     Changes for non-blocking SaveColorMapDialog.
+ * Jan 10, 2013  15648    ryu         Editing GFE discrete colormap: a check button
+ *                                    is added and duplicate entries in the colormap
+ *                                    are removed when it is selected.
+ * Apr 08, 2014  2950     bsteffen    Support dynamic color counts.
+ * 
  * </pre>
- *
+ * 
  * @author lvenable
  * @version 1.0
  */
@@ -333,10 +334,11 @@ public class ColorEditDialog extends CaveSWTDialog implements
             this.container = container;
             this.rightImages = rightImages;
 
-            if (cap != null && cap.getColorMapParameters() != null
+            if (cap.getColorMapParameters() != null
                     && cap.getColorMapParameters().getColorMap() != null) {
                 colorEditComp.getColorBar().updateColorMap(
                         cap.getColorMapParameters());
+                colorEditComp.updateColorCount();
             }
             setText(currentColormapName != null ? currentColormapName
                     : "Untitled Colormap");
@@ -347,12 +349,7 @@ public class ColorEditDialog extends CaveSWTDialog implements
             setText(NO_COLOR_TABLE);
         }
 
-        colorEditComp.getUpperColorWheel().setEnabled(enabled);
-        colorEditComp.getLowerColorWheel().setEnabled(enabled);
-        colorEditComp.getColorBar().setEnabled(enabled);
-        colorEditComp.getRgbRdo().setEnabled(enabled);
-        colorEditComp.getHsbRdo().setEnabled(enabled);
-        colorEditComp.getColorBar().setEnabled(enabled);
+        colorEditComp.setEnabled(enabled);
         interpolateBtn.setEnabled(enabled);
         undoBtn.setEnabled(enabled);
         redoBtn.setEnabled(enabled);
