@@ -70,6 +70,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.Capabilities;
  * Jun 24, 2013  2140     randerso    Added getSafeName method
  * Nov 18, 2013  2544     bsteffen    Add recycleInternal so IResourceGroups
  *                                    can recycle better.
+ * Mar 05, 2014  2843     bsteffen    Set status to disposed during recycle and
+ *                                    when recycle fails.
+ * 
  * 
  * </pre>
  * 
@@ -756,6 +759,7 @@ public abstract class AbstractVizResource<T extends AbstractResourceData, D exte
      */
     public final void recycle() {
         if (status == ResourceStatus.INITIALIZED) {
+            status = ResourceStatus.DISPOSED;
             recycleInternal();
         }
         status = ResourceStatus.NEW;

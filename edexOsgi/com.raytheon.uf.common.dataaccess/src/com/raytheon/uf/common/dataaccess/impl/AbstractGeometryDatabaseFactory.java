@@ -29,9 +29,7 @@ import com.raytheon.uf.common.dataaccess.IDataFactory;
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil.QUERY_MODE;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -49,11 +47,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2013            bkowal     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2013           bkowal      Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Jan 14, 2014  2667     mnash       Remove getGridData methods
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -99,10 +99,12 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * raytheon.uf.common.dataaccess.IDataRequest)
      */
     @Override
-    public DataTime[] getAvailableTimes(IDataRequest request)
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            boolean refTimeOnly)
             throws TimeAgnosticDataException {
         this.validateRequest(request);
-        return this.executeTimeQuery(this.assembleGetTimes(request), request);
+        return this.executeTimeQuery(
+                this.assembleGetTimes(request, refTimeOnly), request);
     }
 
     /*
@@ -149,16 +151,6 @@ public abstract class AbstractGeometryDatabaseFactory extends
         this.validateRequest(request);
         return this.executeDataQuery(this.assembleGetData(request, timeRange),
                 request);
-    }
-
-    @Override
-    public IGridData[] getGridData(IDataRequest request, DataTime... times) {
-        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
-    }
-
-    @Override
-    public IGridData[] getGridData(IDataRequest request, TimeRange timeRange) {
-        throw new UnsupportedOutputTypeException(request.getDatatype(), "grid");
     }
 
     /**
@@ -266,9 +258,14 @@ public abstract class AbstractGeometryDatabaseFactory extends
      * 
      * @param request
      *            the original request that we are processing
+     * @param refTimeOnly
+     *            true if only unique refTimes should be returned(without a
+     *            forecastHr)
+     * 
      * @return the query
      */
-    protected abstract String assembleGetTimes(IDataRequest request);
+    protected abstract String assembleGetTimes(IDataRequest request,
+            boolean refTimeOnly);
 
     /**
      * Builds a query that will be used to retrieve time from the database based

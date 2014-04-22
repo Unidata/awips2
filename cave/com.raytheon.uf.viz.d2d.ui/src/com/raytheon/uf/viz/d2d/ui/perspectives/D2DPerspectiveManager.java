@@ -88,6 +88,7 @@ import com.raytheon.viz.ui.statusline.FrameCountDisplay;
  * 04/27/2010              mschenke    Initial Creation.
  * Mar 21, 2013       1638 mschenke    Changed map scales not tied to d2d
  * Oct 10, 2013       2104 mschenke    Switched to use MapScalesManager
+ * Jan 14, 2014       2594 bclement    added low memory notification
  * </pre>
  * 
  * @author mschenke
@@ -415,6 +416,18 @@ public class D2DPerspectiveManager extends AbstractCAVEPerspectiveManager {
     private ChangeLegendModeAction getLegendAction(LegendMode mode,
             D2DLegendResource rsc) {
         return new ChangeLegendModeAction(mode, rsc);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
+     * getLowMemoryMessage(long)
+     */
+    @Override
+    protected String getLowMemoryMessage(long availMemory) {
+        return super.getLowMemoryMessage(availMemory)
+                + "\n\nConsider closing tabs, clearing panes, or reducing the frame count to free up memory.";
     }
 
 }

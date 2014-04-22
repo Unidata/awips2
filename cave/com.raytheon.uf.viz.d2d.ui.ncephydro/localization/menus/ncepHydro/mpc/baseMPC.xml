@@ -19,8 +19,5 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Marine Guidance"
-		id="ncepHydro.mpc.marineGuidance">
-		<contribute xsi:type="subinclude" fileName="menus/ncepHydro/mpc/marineGuidance.xml"/>
-	</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/ncepHydro/mpc/mpcMenus.xml"/>
 </menuTemplate>

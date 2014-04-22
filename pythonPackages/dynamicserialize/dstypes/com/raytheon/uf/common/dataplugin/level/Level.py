@@ -27,7 +27,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    05/29/13         2023         dgilling       Initial Creation.
-#
+#    02/12/14         2672         bsteffen       Allow String constructor to parse floats.
 #
 
 
@@ -37,7 +37,7 @@ import re
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.level import MasterLevel
 
 
-LEVEL_NAMING_REGEX = re.compile("(\d*)((_(\d*))??([a-zA-Z]+))")
+LEVEL_NAMING_REGEX = re.compile("^(\d*(?:\.\d*)?)(?:_(\d*(?:\.\d*)?))?([a-zA-Z]+)$")
 INVALID_VALUE = numpy.float64(-999999)
 
 class Level(object):
@@ -53,8 +53,8 @@ class Level(object):
             matcher = LEVEL_NAMING_REGEX.match(str(levelString))
             if matcher is not None:
                self.levelonevalue = numpy.float64(matcher.group(1))
-               self.masterLevel = MasterLevel.MasterLevel(matcher.group(5))
-               levelTwo = matcher.group(4)
+               self.masterLevel = MasterLevel.MasterLevel(matcher.group(3))
+               levelTwo = matcher.group(2)
                if levelTwo:
                    self.leveltwovalue = numpy.float64(levelTwo)
 

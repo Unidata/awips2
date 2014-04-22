@@ -21,6 +21,8 @@ package com.raytheon.uf.common.dataplugin.level;
 
 import java.io.File;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -54,10 +56,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
- * Jul 01, 2013 2142       njensen     Remove apache.commons.logging
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2009           rjpeter     Initial creation.
+ * Jul 01, 2013  2142     njensen     Remove apache.commons.logging
+ * Jan 23, 2014  2711     bsteffen    Add getAllLevels.
+ * 
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -107,22 +112,25 @@ public class LevelFactory {
                 retrievalAdapter = iter.next();
             }
         } catch (ServiceConfigurationError e) {
-            // TODO Log error
-            e.printStackTrace();
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
 
         try {
             loadAllMasterLevels();
         } catch (CommunicationException e) {
-            ; // This is non-fatal, master levels should still be retrieved
-              // individually
+            /*
+             * This is non-fatal, master levels should still be retrieved
+             * individually
+             */
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         try {
             loadAllLevels();
         } catch (CommunicationException e) {
-            ; // This is non-fatal, master levels should still be retrieved
-              // individually
+            /*
+             * This is non-fatal, master levels should still be retrieved
+             * individually
+             */
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
@@ -198,17 +206,25 @@ public class LevelFactory {
 
                 rval = loadLevel(requestedLevel);
             } catch (ParseException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             } catch (ConversionException e) {
-                e.printStackTrace();
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         } else {
             statusHandler.warn("Requested level name [" + name
                     + "] does not map to a defined level");
-            // TODO throw level exception
         }
 
         return rval;
+    }
+
+    public Collection<Level> getAllLevels() throws CommunicationException {
+        if (hasRequestedAllLevels) {
+            loadAllLevels();
+        }
+        return new ArrayList<Level>(levelCacheById.values());
     }
 
     private MasterLevel loadMasterLevel(MasterLevel level, boolean createFlag)

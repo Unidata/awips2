@@ -50,7 +50,8 @@ import com.raytheon.openfire.plugin.detailedfeedlog.LogEntry;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 25, 2012            mnash     Initial creation
+ * Jul 25, 2012            mnash       Initial creation
+ * Apr 07, 2014 2937       bgonzale    Handle errors processing room events.
  * 
  * </pre>
  * 
@@ -91,28 +92,33 @@ public class DetailedFeedLogEventListener implements MUCEventListener {
                         Message message = new Message();
                         message.setTo(roomJID + "/" + nickname);
                         String usr = entry.getUsername();
-                        String[] info = usr.split("\\|");
-                        User sendUser = null;
                         try {
-                            sendUser = userManager
-                                    .getUser(info[0].split("@")[0]);
+                            User sendUser = userManager
+                                    .getUser(entry.getUser());
+                            // set all the necessary values in the message to be
+                            // sent out
+                            message.setTo(user);
+                            message.setFrom(roomJID + "/" + nickname);
+                            String body = HISTORY_START
+                                    + entry.getDate().getTime() + "|"
+                                    + sendUser + "|" + entry.getSite() + "|"
+                                    + entry.getMessage();
+                            message.setBody(body);
+                            message.setType(Type.groupchat);
+
+                            router.route(message);
+                            logger.info("Routed message : " + message.getBody()
+                                    + " from " + sendUser + " to " + user);
                         } catch (UserNotFoundException e) {
                             logger.error(usr + " not found", e);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            logger.error(
+                                    "Failed to parse log history for Routing.  Bad Entry was date: "
+                                            + entry.getDate() + " username: "
+                                            + entry.getUsername()
+                                            + " message: " + entry.getMessage(),
+                                    e);
                         }
-                        String site = info[1];
-                        // set all the necessary values in the message to be
-                        // sent out
-                        message.setTo(user);
-                        message.setFrom(roomJID + "/" + nickname);
-                        String body = HISTORY_START + entry.getDate().getTime()
-                                + "|" + sendUser + "|" + site + "|"
-                                + entry.getMessage();
-                        message.setBody(body);
-                        message.setType(Type.groupchat);
-
-                        router.route(message);
-                        logger.info("Routed message : " + message.getBody()
-                                + " from " + sendUser + " to " + user);
                     }
                 }
             };

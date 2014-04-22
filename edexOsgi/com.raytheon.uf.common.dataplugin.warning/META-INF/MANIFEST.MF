@@ -8,6 +8,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.common.dataplugin.warning,
  com.raytheon.uf.common.dataplugin.warning.config,
  com.raytheon.uf.common.dataplugin.warning.gis,
+ com.raytheon.uf.common.dataplugin.warning.portions,
  com.raytheon.uf.common.dataplugin.warning.util
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization, com.raytheon.uf.common.serialization.comm
 Import-Package: com.raytheon.uf.common.time,

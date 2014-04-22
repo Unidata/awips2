@@ -39,11 +39,12 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Base interface for sessions in which the client is interacting with others on
+ * the server
  * 
  * 
  * Implementations of ISession do not support polling for messages but instead
@@ -57,6 +58,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed user object to IUser
  * 
  * </pre>
  * 
@@ -76,7 +78,7 @@ public interface ISession extends IEventPublisher {
      * 
      * @return
      */
-    public UserId getUserID();
+    public IUser getUserID();
 
     /**
      * Gets the connection status of the session.
@@ -92,5 +94,8 @@ public interface ISession extends IEventPublisher {
      */
     public String getSessionId();
 
+    /**
+     * @return underlying communication connection
+     */
     public CollaborationConnection getConnection();
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<translationTable bufrTable="0 10 063" description="Characteristic of pressure tendency">
+    <!-- mapped value for 'pressChangeChar' comes from the Synoptic Code table 0200 -->
+    <entry indexRange="0" description="Increasing, then decreasing; atmospheric pressure the same or higher than 3 hours ago">
+        <mappedValue parameter="pressChangeChar" value="0"/>
+    </entry>
+    <entry indexRange="1" description="Increasing, then steady; or increasing, then increasing more slowly">
+        <mappedValue parameter="pressChangeChar" value="1"/>
+    </entry>
+    <entry indexRange="2" description="Increasing (steadily or unsteadily)">
+        <mappedValue parameter="pressChangeChar" value="2"/>
+    </entry>
+    <entry indexRange="3" description="Decreasing or steady, then increasing; or increasing, then increasing more rapidly">
+        <mappedValue parameter="pressChangeChar" value="3"/>
+    </entry>
+    <entry indexRange="4" description="Steady; atmospheric pressure the same as 3 hours ago">
+        <mappedValue parameter="pressChangeChar" value="4"/>
+    </entry>
+    <entry indexRange="5" description="Decreasing, then increasing; atmospheric pressure the same or lower than 3 hours ago">
+        <mappedValue parameter="pressChangeChar" value="5"/>
+    </entry>
+    <entry indexRange="6" description="Decreasing, then steady; or decreasing, then decreasing more slowly">
+        <mappedValue parameter="pressChangeChar" value="6"/>
+    </entry>
+    <entry indexRange="7" description="Decreasing (steadily or unsteadily)">
+        <mappedValue parameter="pressChangeChar" value="7"/>
+    </entry>
+    <entry indexRange="8" description="Steady or increasing, then decreasing; or decreasing, then decreasing more rapidly">
+        <mappedValue parameter="pressChangeChar" value="8"/>
+    </entry>
+    <entry indexRange="9-14" description="Reserved">
+        <mappedValue parameter="pressChangeChar"/>
+    </entry>
+    <entry indexRange="15" description="Missing value">
+        <mappedValue parameter="pressChangeChar"/>
+    </entry>
+</translationTable>

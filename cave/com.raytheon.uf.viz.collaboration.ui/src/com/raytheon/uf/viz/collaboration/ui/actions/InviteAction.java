@@ -24,15 +24,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Type;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Type;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -41,12 +40,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
 
 /**
@@ -59,6 +57,10 @@ import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 3, 2012            bsteffen     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 28, 2014 2698       bclement    removed venue info
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Mar 06, 2014 2848       bclement    get venueName directly from session
  * 
  * </pre>
  * 
@@ -71,13 +73,13 @@ public class InviteAction extends Action {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(InviteAction.class);
 
-    private final IUser[] users;
+    private final UserId[] users;
 
     private final IVenueSession session;
 
     private String inviteMessage;
 
-    public InviteAction(IUser... users) {
+    public InviteAction(UserId... users) {
         super("Invite...");
         this.users = users;
         this.session = null;
@@ -87,8 +89,9 @@ public class InviteAction extends Action {
         setMenuCreator(new MenuCreator());
     }
 
-    public InviteAction(IVenueSession session, IUser... users) {
-        super(session.getVenue().getInfo().getVenueDescription());
+    public InviteAction(IVenueSession session, String description,
+            UserId... users) {
+        super(description);
         this.users = users;
         this.session = session;
         this.setToolTipText("Invite selected user(s) to join a session.");
@@ -114,15 +117,14 @@ public class InviteAction extends Action {
             }
             invite.setMessage(inviteMessage);
             invite.setSessionId(session.getSessionId());
-            invite.setSubject(session.getVenue().getInfo().getVenueSubject());
+            invite.setSubject(session.getVenue().getSubject());
             List<UserId> inviteList = new ArrayList<UserId>();
             UserId inviter = CollaborationConnection.getConnection().getUser();
-            for (IUser user : users) {
-                UserId userId = IDConverter.convertFrom(user);
+            for (UserId user : users) {
 
                 // don't invite the user sending the invite
-                if (!inviter.equals(userId)) {
-                    inviteList.add(userId);
+                if (!inviter.equals(user)) {
+                    inviteList.add(user);
                 }
             }
             session.sendInvitation(inviteList, invite);
@@ -148,7 +150,7 @@ public class InviteAction extends Action {
 
     private List<IVenueSession> getNewSessions() {
         List<IVenueSession> result = new ArrayList<IVenueSession>();
-        for (IUser user : users) {
+        for (UserId user : users) {
             for (IVenueSession session : getNewSessions(user)) {
                 if (!result.contains(session)) {
                     result.add(session);
@@ -158,10 +160,10 @@ public class InviteAction extends Action {
         return result;
     }
 
-    private List<IVenueSession> getNewSessions(IUser user) {
-        IPresence presence = CollaborationConnection.getConnection()
+    private List<IVenueSession> getNewSessions(UserId user) {
+        Presence presence = CollaborationConnection.getConnection()
                 .getContactsManager().getPresence(user);
-        if (presence.getType() == Type.UNAVAILABLE) {
+        if (presence.getType() == Type.unavailable) {
             return Collections.emptyList();
         }
         List<IVenueSession> result = new ArrayList<IVenueSession>();
@@ -169,19 +171,16 @@ public class InviteAction extends Action {
                 .getSessions();
         for (ISession session : sessions) {
             if (session != null && session instanceof IVenueSession) {
-                final IVenueInfo info = ((IVenueSession) session).getVenue()
-                        .getInfo();
-                Collection<UserId> participants = ((IVenueSession) session)
+                Collection<VenueParticipant> participants = ((IVenueSession) session)
                         .getVenue().getParticipants();
                 boolean notInRoom = true;
-                String id = user.getID().getName();
-                for (UserId pa : participants) {
-                    if (pa.isSameUser(id)) {
+                for (VenueParticipant pa : participants) {
+                    if (pa.isSameUser(user)) {
                         notInRoom = false;
                         break;
                     }
                 }
-                if (info != null && notInRoom) {
+                if (notInRoom) {
                     result.add((IVenueSession) session);
                 }
             }
@@ -214,7 +213,8 @@ public class InviteAction extends Action {
 
         private void fill() {
             for (IVenueSession session : getNewSessions()) {
-                Action action = new InviteAction(session, users);
+                String name = session.getVenueName();
+                Action action = new InviteAction(session, name, users);
                 IContributionItem contrib = new ActionContributionItem(action);
                 contrib.fill(menu, -1);
             }

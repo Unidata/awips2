@@ -24,19 +24,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.postgis.PostgisDataStoreFactory;
+import org.geotools.data.Query;
+import org.geotools.data.postgis.PostgisNGDataStoreFactory;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
-import org.geotools.feature.FeatureCollection;
 import org.hibernate.engine.SessionFactoryImplementor;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
@@ -70,6 +70,7 @@ import com.vividsolutions.jts.geom.Polygon;
  * Sep 18, 2012		 #1091  randerso	Initial creation
  * Mar 28, 2013      #1837  dgilling    Change error handling in 
  *                                      getLastUpdated().
+ * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -107,9 +108,9 @@ public class DbShapeSource {
 
     private List<String> attributeNames;
 
-    private FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection;
+    private SimpleFeatureCollection featureCollection;
 
-    private Iterator<SimpleFeature> featureIterator;
+    private SimpleFeatureIterator featureIterator;
 
     private String shapeField;
 
@@ -119,7 +120,7 @@ public class DbShapeSource {
 
     private BoundingBox boundingBox;
 
-    private DefaultQuery query;
+    private Query query;
 
     private SimpleFeatureType schema;
 
@@ -156,7 +157,7 @@ public class DbShapeSource {
             String port = props.getProperty("db.port");
             String user = props.getProperty("connection.username");
             String passwd = props.getProperty("connection.password");
-            PostgisDataStoreFactory factory = new PostgisDataStoreFactory();
+            PostgisNGDataStoreFactory factory = new PostgisNGDataStoreFactory();
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("host", host);
             params.put("port", port);
@@ -189,7 +190,7 @@ public class DbShapeSource {
         featureCollection = null;
         featureIterator = null;
 
-        query = new DefaultQuery();
+        query = new Query();
         query.setTypeName(this.tableName);
         List<String> propNames = new ArrayList<String>(getAttributeNames());
         propNames.add(shapeField);
@@ -212,10 +213,10 @@ public class DbShapeSource {
             query.setFilter(filter);
         }
 
-        FeatureSource<SimpleFeatureType, SimpleFeature> featureSource = dataStore
+        SimpleFeatureSource featureSource = dataStore
                 .getFeatureSource(this.tableName);
         featureCollection = featureSource.getFeatures(query);
-        featureIterator = featureCollection.iterator();
+        featureIterator = featureCollection.features();
     }
 
     /**
@@ -233,7 +234,7 @@ public class DbShapeSource {
      */
     public void close() throws IOException {
         if (featureIterator != null) {
-            featureCollection.close(featureIterator);
+            featureIterator.close();
             featureIterator = null;
             featureCollection = null;
         }
@@ -266,13 +267,14 @@ public class DbShapeSource {
             Class<?> geometryType = schema.getGeometryDescriptor().getType()
                     .getBinding();
 
-            if (geometryType == Point.class || geometryType == MultiPoint.class) {
+            if ((geometryType == Point.class)
+                    || (geometryType == MultiPoint.class)) {
                 this.type = ShapeType.POINT;
-            } else if (geometryType == LineString.class
-                    || geometryType == MultiLineString.class) {
+            } else if ((geometryType == LineString.class)
+                    || (geometryType == MultiLineString.class)) {
                 this.type = ShapeType.POLYLINE;
-            } else if (geometryType == Polygon.class
-                    || geometryType == MultiPolygon.class) {
+            } else if ((geometryType == Polygon.class)
+                    || (geometryType == MultiPolygon.class)) {
                 this.type = ShapeType.POLYGON;
             } else {
                 this.type = ShapeType.NONE;
@@ -289,7 +291,7 @@ public class DbShapeSource {
         if (attributeNames == null) {
             List<AttributeDescriptor> attrDesc = schema
                     .getAttributeDescriptors();
-            if (attrDesc == null || attrDesc.size() == 0) {
+            if ((attrDesc == null) || (attrDesc.size() == 0)) {
                 return null;
             }
 

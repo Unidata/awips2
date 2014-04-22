@@ -27,9 +27,10 @@ package com.raytheon.uf.common.colormap;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 7, 2013  2492      mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Nov 07, 2013  2492     mschenke    Initial creation
+ * Feb 28, 2013  2791     bsteffen    Make EFFECTIVE_ZERO consistent with gl version.
  * 
  * </pre>
  * 
@@ -39,7 +40,7 @@ package com.raytheon.uf.common.colormap;
 
 public class LogConverter {
 
-    private static double EFFECTIVE_ZERO = Double.MIN_VALUE;
+    private static double EFFECTIVE_ZERO = 0.0000001;
 
     public static double valueToIndex(double value, double rangeMin,
             double rangeMax) {

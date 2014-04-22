@@ -32,9 +32,10 @@ import com.raytheon.uf.common.time.DataTime;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 23, 2013            dgilling     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May 23, 2013           dgilling    Initial creation
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -56,7 +57,8 @@ public final class GetAvailableTimesHandler implements
     public DataTime[] handleRequest(final GetAvailableTimesRequest request)
             throws Exception {
         return DataAccessLayer
-                .getAvailableTimes(request.getRequestParameters());
+.getAvailableTimes(
+                request.getRequestParameters(), request.isRefTimeOnly());
     }
 
 }

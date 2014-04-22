@@ -36,6 +36,7 @@
 #    10/03/2013          #2424     randerso       Change localTC to use dateutil instead of pytz
 #                                                 to get correct offsets for Alaska
 #    01/17/2014          #2719     randerso       Added NHA domain
+#    02/20/2014          #2824     randerso       Added log message when local override files are not found
 #
 ########################################################################
 
@@ -58,6 +59,8 @@ def siteImport(modName):
         if fp:
             fp.close()
     except ImportError:
+        import LogStream
+        LogStream.logEvent("No " + modName + " file found, using baseline settings.");
         return 0
     globals()[modName] = __import__(modName)
     return 1
@@ -1056,6 +1059,11 @@ if SID in ALASKA_SITES:
                  ('HiResW-NMM-AK', 'HIRESWnmm'),
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Alaska',
+                 'RTOFS-Arctic',
+                 'RTOFS-Bering',
+                 'RTOFS-GulfAlaska',
+                 'RTOFS-HudsonBaffin'
                ]
 
 # Hawaii OCONUS
@@ -1073,6 +1081,7 @@ elif SID == "HFO":
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Honolulu',
                ]
 
 # San Juan OCONUS
@@ -1095,6 +1104,7 @@ elif SID == "SJU":
                  ('SPCGuide', 'SPC'),
                  ('TPCWindProb', 'TPCProb'),
                  ('ECMWF-HiRes','ECMWFHiRes'),
+                 'RTOFS-Atlantic',
                ]
 
 # Guam OCONUS
@@ -1104,6 +1114,7 @@ elif SID == "GUM":
                  'GWW233',
                  'GlobalWave',
                  ('TPCWindProb', 'TPCProb'),
+                 'RTOFS-Guam'
                ]
 
 #CONUS sites

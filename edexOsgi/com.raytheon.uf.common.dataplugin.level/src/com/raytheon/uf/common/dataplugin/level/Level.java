@@ -43,7 +43,6 @@ import javax.xml.bind.annotation.XmlType;
 import com.raytheon.uf.common.comm.CommunicationException;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -56,10 +55,12 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
- * Dec 20, 2012           njensen   Added Level(String)
+ * Date          Ticket#    Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2009           rjpeter     Initial creation.
+ * Dec 20, 2012           njensen     Added Level(String)
+ * Feb 12, 2014  2672     bsteffen    Allow String constructor to parse floats.
+ * 
  * </pre>
  * 
  * @author rjpeter
@@ -73,7 +74,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 @XmlType(namespace = "dataplugin-level")
-public class Level extends PersistableDataObject implements ISerializableObject {
+public class Level extends PersistableDataObject {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(Level.class);
 
@@ -84,7 +85,7 @@ public class Level extends PersistableDataObject implements ISerializableObject 
     private static final long serialVersionUID = 1L;
 
     private static final Pattern PATTERN = Pattern
-            .compile("([0-9]*)((_([0-9]*))??([a-zA-Z]+))");
+            .compile("^(\\d*(?:\\.\\d*)?)(?:_(\\d*(?:\\.\\d*)?))?([a-zA-Z]+)$");
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LEVEL_GENERATOR")
@@ -133,8 +134,8 @@ public class Level extends PersistableDataObject implements ISerializableObject 
         Matcher m = PATTERN.matcher(level);
         if (m.matches()) {
             String levelOne = m.group(1);
-            String levelTwo = m.group(4);
-            String name = m.group(5);
+            String levelTwo = m.group(2);
+            String name = m.group(3);
 
             levelonevalue = Double.parseDouble(levelOne);
             if (levelTwo != null) {

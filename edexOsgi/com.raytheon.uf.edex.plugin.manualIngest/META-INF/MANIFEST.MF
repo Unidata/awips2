@@ -12,4 +12,3 @@ Require-Bundle: org.apache.camel;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.edex.distribution,
  org.apache.commons.io
-Import-Package: com.raytheon.uf.edex.site.ingest

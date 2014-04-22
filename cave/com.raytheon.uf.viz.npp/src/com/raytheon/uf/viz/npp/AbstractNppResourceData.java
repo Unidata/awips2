@@ -33,14 +33,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 
 /**
  * Abstract resource data for all NPP data. Groups frame times close together
@@ -104,7 +105,12 @@ public abstract class AbstractNppResourceData extends
                         .getValidPeriod().getStart()), TimeUtil
                         .formatToSqlTimestamp(last.getValidPeriod().getEnd())));
 
-        PluginDataObject[] pdos = DataCubeContainer.getData(requestMap);
+        PluginDataObject[] pdos;
+        try {
+            pdos = DataCubeContainer.getData(requestMap);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         List<PluginDataObject> finalList = new ArrayList<PluginDataObject>(
                 pdos != null ? pdos.length : 0);
 
