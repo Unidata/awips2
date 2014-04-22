@@ -28,4 +28,6 @@
   <parameter name="dataURI" queryName="dataURI" type="STRING" />
   <parameter name="refTime" queryName="dataTime.refTime" numDims="1" type="LONG" unit="ms"/>
   <parameter name="forecastHr" queryName="dataTime.fcstTime" numDims="1" type="INT" unit="h" dbunit="s"/>
+  <parameter name="timeObs" queryName="timeObs" numDims="1" type="LONG" dbunit="ms" unit="s" />
+  <parameter name="timeNominal" queryName="refHour" numDims="1" type="LONG" dbunit="ms" unit="s" />
 </pointDataDbDescription>
