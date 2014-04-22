@@ -22,9 +22,6 @@ package com.raytheon.uf.common.dataplugin.grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
@@ -68,6 +65,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  *                                    PluginDataObject.
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Dec 16, 2013  2574     bsteffen    Remove getDecoderGettable.
+ * Apr 15, 2014  2060     njensen     Remove dataURI column
  * 
  * </pre>
  * 
@@ -76,7 +74,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Entity
 @SequenceGenerator(initialValue = 1, name = PluginDataObject.ID_GEN, sequenceName = "gridseq")
-@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataURI" }) })
+@Table(name = "grid", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "refTime", "forecastTime", "rangestart", "rangeend", "info_id" }) })
 /*
  * Both refTime and forecastTime are included in the refTimeIndex since
  * forecastTime is unlikely to be used.
@@ -252,13 +251,6 @@ public class GridRecord extends PersistablePluginDataObject implements
             return false;
         }
         return true;
-    }
-
-    @Override
-    @Column
-    @Access(AccessType.PROPERTY)
-    public String getDataURI() {
-        return super.getDataURI();
     }
 
     @Override
