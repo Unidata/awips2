@@ -98,6 +98,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 31, 2014 2899       mpduff      Improve error messages.
  * Apr 15, 2014 2822       bclement    added check for other participants being subscribed to topic
  * Apr 21, 2014 2822       bclement    removed use of resources in topicSubscribers, added skipCache
+ * Apr 22, 2014 2903       bclement    added connection test to closePubSub() method
  * 
  * </pre>
  * 
@@ -511,21 +512,24 @@ public class SharedDisplaySession extends VenueSession implements
         closePubSub();
     }
 
+    /**
+     * clean up pub sub subscription and objects
+     */
     private void closePubSub() {
         try {
-            if (pubsubMgr == null || topic == null || !topicExists()) {
-                return;
-            }
-            Subscription sub = findSubscription(getAccount());
-            if (sub == null) {
-                return;
-            }
-            topic.unsubscribe(sub.getJid(), sub.getId());
-            topic.removeItemDeleteListener(this);
-            topic.removeItemEventListener(this);
-            if (hasRole(SharedDisplayRole.SESSION_LEADER)) {
-                cleanUpHttpStorage(topic.getId());
-                pubsubMgr.deleteNode(topic.getId());
+            if (conn != null && conn.isConnected() && pubsubMgr != null
+                    && topic != null && topicExists()) {
+                Subscription sub = findSubscription(getAccount());
+                if (sub == null) {
+                    return;
+                }
+                topic.unsubscribe(sub.getJid(), sub.getId());
+                topic.removeItemDeleteListener(this);
+                topic.removeItemEventListener(this);
+                if (hasRole(SharedDisplayRole.SESSION_LEADER)) {
+                    cleanUpHttpStorage(topic.getId());
+                    pubsubMgr.deleteNode(topic.getId());
+                }
             }
             topic = null;
             pubsubMgr = null;
