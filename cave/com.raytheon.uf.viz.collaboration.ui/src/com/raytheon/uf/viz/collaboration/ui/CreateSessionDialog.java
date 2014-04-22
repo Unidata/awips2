@@ -94,6 +94,7 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb 11, 2014 2699       bclement    require non-blank handle
  * Mar 06, 2014 2848       bclement    moved session creation logic to separate method
  * Apr 16, 2014 3021       bclement    increased width of dialog
+ * Apr 22, 2014 3056       bclement    made room name lowercase to match xmpp server
  * 
  * </pre>
  * 
@@ -452,7 +453,11 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     List<String> errorMessages = new ArrayList<String>();
                     String subject = subjectTF.getText().trim();
                     String err = validateVenueName();
-                    String name = nameTF.getText();
+                    /*
+                     * xmpp server lowercases all room names, lowercase here to
+                     * match when we get names back from the server
+                     */
+                    String name = nameTF.getText().toLowerCase();
                     if (err != null) {
                         focusField = nameTF;
                         errorMessages.add(err);
