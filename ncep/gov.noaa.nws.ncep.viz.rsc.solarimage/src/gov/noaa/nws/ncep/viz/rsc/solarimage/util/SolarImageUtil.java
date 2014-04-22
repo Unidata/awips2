@@ -9,10 +9,10 @@ import java.io.FileNotFoundException;
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.Fits;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 
 /**

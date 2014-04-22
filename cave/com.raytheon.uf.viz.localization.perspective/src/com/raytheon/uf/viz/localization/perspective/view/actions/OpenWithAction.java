@@ -33,10 +33,10 @@ import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.IWorkbenchPage;
 
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
-import com.raytheon.uf.viz.localization.LocalizationPerspectiveUtils;
 import com.raytheon.uf.viz.localization.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.filetreeview.LocalizationFileEntryData;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorUtils;
 
 /**
  * Action to open a localization file in a specified editor, lists available
@@ -136,11 +136,11 @@ public class OpenWithAction extends Action implements IMenuCreator {
         LocalizationEditorInput input = new LocalizationEditorInput(file,
                 this.file.getResource());
         IEditorDescriptor[] adapterDescriptors = adapter.getLoadableEditors(
-                LocalizationPerspectiveUtils.getEditorRegistry(), file);
-        IEditorDescriptor[] descriptors = LocalizationPerspectiveUtils
+                LocalizationEditorUtils.getEditorRegistry(), file);
+        IEditorDescriptor[] descriptors = LocalizationEditorUtils
                 .getEditorsForInput(input);
 
-        IEditorDescriptor defaultEditor = LocalizationPerspectiveUtils
+        IEditorDescriptor defaultEditor = LocalizationEditorUtils
                 .getDefaultEditorForInput(input);
         IEditorDescriptor systemEditor = new SystemEditorDescriptor(
                 "System Editor");
@@ -148,7 +148,7 @@ public class OpenWithAction extends Action implements IMenuCreator {
             defaultEditor = new SystemEditorDescriptor("Default Editor");
         }
         if (descriptors.length == 0) {
-            descriptors = new IEditorDescriptor[] { LocalizationPerspectiveUtils
+            descriptors = new IEditorDescriptor[] { LocalizationEditorUtils
                     .getTextEditorDescriptor() };
         }
 

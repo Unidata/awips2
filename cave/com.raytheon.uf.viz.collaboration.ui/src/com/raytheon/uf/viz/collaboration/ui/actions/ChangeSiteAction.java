@@ -19,15 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui.actions;
 
-import java.util.Map;
-
-import org.eclipse.ecf.presence.IPresence;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
+import org.jivesoftware.smack.packet.Presence;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -73,9 +71,10 @@ public class ChangeSiteAction extends Action {
     public ChangeSiteAction(String site) {
         super(site, Action.AS_RADIO_BUTTON);
         this.site = site;
-        IPresence presence = CollaborationConnection.getConnection()
+        Presence presence = CollaborationConnection.getConnection()
                 .getPresence();
-        String currentSite = (String) presence.getProperties().get(
+        String currentSite = (String) presence
+                .getProperty(
                 SiteConfigInformation.SITE_NAME);
         if (site.equals(currentSite)) {
             setChecked(true);
@@ -90,10 +89,8 @@ public class ChangeSiteAction extends Action {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
 
-        IPresence presence = connection.getPresence();
-        @SuppressWarnings("unchecked")
-        Map<Object, Object> props = presence.getProperties();
-        props.put(SiteConfigInformation.SITE_NAME, site);
+        Presence presence = connection.getPresence();
+        presence.setProperty(SiteConfigInformation.SITE_NAME, site);
         // now need to send the new subscribe list out to those who are
         // listening for it
         SubscribeList list = new SubscribeList();

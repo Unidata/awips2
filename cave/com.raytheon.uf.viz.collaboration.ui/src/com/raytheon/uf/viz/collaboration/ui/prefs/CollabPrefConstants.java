@@ -20,7 +20,7 @@
 package com.raytheon.uf.viz.collaboration.ui.prefs;
 
 /**
- * TODO Add Description
+ * Collaboration preferences constants used to interact with preference store
  * 
  * <pre>
  * 
@@ -29,13 +29,17 @@ package com.raytheon.uf.viz.collaboration.ui.prefs;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 24, 2012            njensen     Initial creation
+ * Jan 14, 2014 2630       bclement    added away on idle constants
+ * Jan 27, 2014 2700       bclement    added auto accept subscribe
+ * Feb  3, 2014 2699       bclement    added handle preferences
+ * Feb 18, 2014 2631       mpduff      Add constants for room change events.
+ * Mar 24, 2014 2936       mpduff      Remove INCLUDE_NWS_FEED_FIELD_EDITOR_ID.
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
 public class CollabPrefConstants {
 
     public static final String P_SERVER = "collaborationServer";
@@ -48,9 +52,48 @@ public class CollabPrefConstants {
 
     public static final String AUTO_JOIN = "autojoin";
 
+    public static final String AWAY_ON_IDLE = "awayOnIdle";
+
+    public static final String AWAY_TIMEOUT = "awayTimeOut";
+
+    public static final String AUTO_ACCEPT_SUBSCRIBE = "autoAcceptSubscribe";
+
+    public static final String DEFAULT_HANDLE = "defaultHandle";
+
+    public static final String CUSTOM_HANDLE = "customHandle";
+
+    public static final int AWAY_TIMEOUT_DEFAULT = 10; // ten minutes
+
+    /** Enable join events field editor id */
+    public static final String ENABLE_JOIN_EVENTS_FIELD_EDITOR_ID = "enableJoinAlerts";
+
+    /** Join file field editor id */
+    public static final String JOIN_FILE_FIELD_EDITOR_ID = "roomJoinSoundFile";
+
     public class HttpCollaborationConfiguration {
         public static final String P_SESSION_CONFIGURED = "http.sessionConfigured";
 
         public static final String P_HTTP_SESSION_URL = "http.sessionURL";
+    }
+
+    public static enum HandleOption {
+        BLANK("Blank"), USERNAME("User Name"), FULLNAME("Full Name"), ROLE(
+                "Role"), CUSTOM("Custom");
+
+        public final String display;
+
+        private HandleOption(String display) {
+            this.display = display;
+        }
+
+        public static String[][] displayValues() {
+            HandleOption[] values = values();
+            String[][] rval = new String[values.length][2];
+            for (int i = 0; i < rval.length; ++i) {
+                HandleOption op = values[i];
+                rval[i] = new String[] { op.display, op.name() };
+            }
+            return rval;
+        }
     }
 }

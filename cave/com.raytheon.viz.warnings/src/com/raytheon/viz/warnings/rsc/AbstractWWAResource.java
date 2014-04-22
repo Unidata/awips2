@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.swt.graphics.RGB;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
@@ -35,7 +36,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
@@ -49,6 +49,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -84,6 +85,8 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Sep  4, 2013   2176   jsanchez       Made the polygon line width thicker and made regular text not bold.
  * Nov 11, 2013   2439   rferrel        Changes to prevent getting future warning when in DRT mode.
  * Dec  3, 2013   2576   jsanchez       Increased the font size of EMER.
+ * Mar 10, 2014   2832   njensen        Moved duplicated subclass's disposeInternal() logic here
+ * 
  * </pre>
  * 
  * @author jsanchez
@@ -587,7 +590,12 @@ public abstract class AbstractWWAResource extends
 
         earliestRequested = earliest;
 
-        PluginDataObject[] pdos = DataCubeContainer.getData(map);
+        PluginDataObject[] pdos;
+        try {
+            pdos = DataCubeContainer.getData(map);
+        } catch (DataCubeException e) {
+            throw new VizException(e);
+        }
         addRecord(sort(pdos));
     }
 
@@ -694,5 +702,35 @@ public abstract class AbstractWWAResource extends
             timeRange = new TimeRange(baseTime, cal.getTime());
         }
         return timeRange;
+    }
+
+    @Override
+    protected void disposeInternal() {
+        for (WarningEntry entry : entryMap.values()) {
+            if (entry.shadedShape != null) {
+                entry.shadedShape.dispose();
+            }
+            if (entry.wireframeShape != null) {
+                entry.wireframeShape.dispose();
+            }
+
+            /*
+             * we set this to true and keep the entries around solely in case
+             * this resource is being recycled
+             */
+            entry.project = true;
+        }
+
+        if (warningsFont != null) {
+            warningsFont.dispose();
+            // set font to null for recycle safety
+            warningsFont = null;
+        }
+
+        if (emergencyFont != null) {
+            emergencyFont.dispose();
+            // set font to null for recycle safety
+            emergencyFont = null;
+        }
     }
 }

@@ -19,32 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
- * 
- * 
- * <ul>
- * <li>EventBus subscription events. Implementors may to post the following
- * events.</li>
- * <ul>
- * <li><strong>IVenueParticipantEvent</strong> : This event is posted when a
- * venue participant enters, leaves a venue, or updates their status in the
- * venue.</li>
- * <li><strong>TextMessage</strong> : Text messages send between users. Meant to
- * be displayed as conversation.</li>
- * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE events</li>
- * <li><strong>IRenderable</strong> : These messages are CAVE to CAVE
- * display......</li>
- * <li><strong>IInitData</strong> : These messages are CAVE to CAVE
- * initialization data......</li>
- * <li><strong>IDisplayEvent</strong> : These messages are CAVE to CAVE
- * display......</li>
- * 
- * </ul>
- * </ul>
+ * Interface for sessions that have displays shared between clients
  * 
  * <pre>
  * 
@@ -53,6 +32,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
+ * Feb 13, 2014 2751       bclement    changed sendObjectToPeer id to VenueParticipant
+ * Feb 13, 2014 2751       njensen     Added changeLeader()
+ * Feb 19, 2014 2751       bclement    Added isClosed()
  * 
  * </pre>
  * 
@@ -84,7 +67,7 @@ public interface ISharedDisplaySession extends IVenueSession {
      *            the serializable object to send
      * @throws CollaborationException
      */
-    public void sendObjectToPeer(IQualifiedID id, Object obj)
+    public void sendObjectToPeer(VenueParticipant id, Object obj)
             throws CollaborationException;
 
     /**
@@ -92,28 +75,28 @@ public interface ISharedDisplaySession extends IVenueSession {
      * 
      * @return
      */
-    public UserId getCurrentDataProvider();
+    public VenueParticipant getCurrentDataProvider();
 
     /**
      * Returns the current Session Leader for the session
      * 
      * @return
      */
-    public UserId getCurrentSessionLeader();
+    public VenueParticipant getCurrentSessionLeader();
 
     /**
      * Sets the current Data Provider for the session
      * 
      * @param participant
      */
-    public void setCurrentDataProvider(UserId participant);
+    public void setCurrentDataProvider(VenueParticipant participant);
 
     /**
      * Sets the current Session Leader for the session
      * 
      * @param participant
      */
-    public void setCurrentSessionLeader(UserId participant);
+    public void setCurrentSessionLeader(VenueParticipant participant);
 
     /**
      * Checks if the currently logged in user has the role on this session
@@ -124,10 +107,21 @@ public interface ISharedDisplaySession extends IVenueSession {
     public boolean hasRole(SharedDisplayRole role);
 
     /**
-     * Gets the connection status of the session.
+     * Changes the leader (both Data Provider and Session Leader) of the
+     * session. Throws an exception if the change fails or if this is called by
+     * a non-leader.
      * 
-     * @return The connection status.
+     * @param newLeader
+     * @throws CollaborationException
      */
-    public boolean isConnected();
+    public void changeLeader(VenueParticipant newLeader)
+            throws CollaborationException;
+
+    /**
+     * Returns true if the session has been closed
+     * 
+     * @return
+     */
+    public boolean isClosed();
 
 }

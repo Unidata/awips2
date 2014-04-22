@@ -213,34 +213,37 @@ public class BandwidthDaoUtil<T extends Time, C extends Coverage> {
         }
 
         while (!start.after(subscriptionCalculatedEnd)) {
-            for (Integer cycle : hours) {
-                start.set(Calendar.HOUR_OF_DAY, cycle);
-                for (Integer minute : minutes) {
-                    start.set(Calendar.MINUTE, minute);
-                    Calendar retrievalTime = TimeUtil.newGmtCalendar();
-                    retrievalTime.setTimeInMillis(start.getTimeInMillis());
-                    retrievalTime.add(Calendar.MINUTE, availabilityOffset);
+            if (!hours.isEmpty()) {
+                for (Integer cycle : hours) {
+                    start.set(Calendar.HOUR_OF_DAY, cycle);
+                    for (Integer minute : minutes) {
+                        start.set(Calendar.MINUTE, minute);
+                        Calendar retrievalTime = TimeUtil.newGmtCalendar();
+                        retrievalTime.setTimeInMillis(start.getTimeInMillis());
+                        retrievalTime.add(Calendar.MINUTE, availabilityOffset);
 
-                    if (retrievalTime.after(planStart)
-                            && retrievalTime.before(planEnd)) {
-                        // Check for nonsense
-                        /*
-                         * Fine grain check by hour and minute, for
-                         * subscription(start/end), activePeriod(start/end)
-                         */
-                        if (!subscription.inActivePeriodWindow(retrievalTime)) {
-                            // don't schedule this retrieval time,
-                            // outside subscription window
-                            continue;
+                        if (retrievalTime.after(planStart)
+                                && retrievalTime.before(planEnd)) {
+                            // Check for nonsense
+                            /*
+                             * Fine grain check by hour and minute, for
+                             * subscription(start/end), activePeriod(start/end)
+                             */
+                            if (!subscription
+                                    .inActivePeriodWindow(retrievalTime)) {
+                                // don't schedule this retrieval time,
+                                // outside subscription window
+                                continue;
+                            }
+                            subscriptionTimes.add(retrievalTime);
                         }
-                        subscriptionTimes.add(retrievalTime);
                     }
                 }
-            }
 
-            // Start the next day..
-            start.add(Calendar.DAY_OF_YEAR, 1);
-            start.set(Calendar.HOUR_OF_DAY, hours.first());
+                // Start the next day..
+                start.add(Calendar.DAY_OF_YEAR, 1);
+                start.set(Calendar.HOUR_OF_DAY, hours.first());
+            }
         }
 
         return subscriptionTimes;

@@ -19,12 +19,11 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.identity.roster;
 
-import org.eclipse.ecf.presence.IPresence;
-
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.ISubscriptionRequestCompleteAction;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Interface for handling subscription invitation events from other users
  * 
  * <pre>
  * 
@@ -33,6 +32,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jkorman     Initial creation
+ * Jan 27, 2014 2700       bclement    handle subscribe request returns a boolean
+ *                                     all methods take user id instead of qualified id
+ * Feb 13, 2014 2755       bclement    handleSubscribeRequest now returns SubscriptionResponse
+ * Apr 07, 2014 2785       mpduff      Remove return type from and add parameter to handleSubscribeRequest
+ *                                        Removed unused methods
  * 
  * </pre>
  * 
@@ -43,22 +47,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 public interface ISubscriptionResponder {
 
     /**
+     * Triggered when a contact requests a presence subscription
      * 
      * @param fromID
-     * @return The response that should be returned to the subscriber.
+     * @param action
      */
-    IPresence.Type handleSubscribeRequest(IQualifiedID fromID);
-
-    /**
-     * 
-     * @param fromID
-     */
-    void handleSubscribed(IQualifiedID fromID);
-
-    /**
-     * 
-     * @param fromID
-     */
-    void handleUnsubscribed(IQualifiedID fromID);
-
+    public void handleSubscribeRequest(UserId fromID,
+            ISubscriptionRequestCompleteAction action);
 }

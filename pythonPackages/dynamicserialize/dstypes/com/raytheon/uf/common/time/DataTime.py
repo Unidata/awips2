@@ -28,6 +28,8 @@
 #    ------------    ----------    -----------    --------------------------
 #    ??/??/??                      xxxxxxxx       Initial Creation.
 #    05/28/13         2023         dgilling       Implement __str__().
+#    01/22/14         2667         bclement       preserved milliseconds in string representation 
+#    03/03/14         2673         bsteffen       allow construction using a Date for refTime
 #
 #
 
@@ -39,8 +41,8 @@ import StringIO
 
 from dynamicserialize.dstypes.java.util import Date
 from dynamicserialize.dstypes.java.util import EnumSet
-from dynamicserialize.dstypes.com.raytheon.uf.common.time import TimeRange
 
+from TimeRange import TimeRange
 
 class DataTime(object):
 
@@ -58,6 +60,10 @@ class DataTime(object):
                 self.refTime = long(calendar.timegm(self.refTime.utctimetuple()) * 1000) 
             elif isinstance(self.refTime, time.struct_time):
                 self.refTime = long(calendar.timegm(self.refTime) * 1000)
+            elif hasattr(self.refTime, 'getTime'):
+                # getTime should be returning ms, there is no way to check this
+                # This is expected for java Date 
+                self.refTime = long(self.refTime.getTime())
             else:
                 self.refTime = long(refTime)
             dateObj = Date()
@@ -65,10 +71,10 @@ class DataTime(object):
             self.refTime = dateObj
             
             if self.validPeriod is None:
-                validTimeMillis = self.refTime + long(fcstTime * 1000)
+                validTimeMillis = self.refTime.getTime() + long(self.fcstTime * 1000)
                 self.validPeriod = TimeRange()
-                self.validPeriod.setStart(validTimeMills/1000)
-                self.validPeriod.setEnd(validTimeMills/1000)
+                self.validPeriod.setStart(validTimeMillis/1000)
+                self.validPeriod.setEnd(validTimeMillis/1000)
                 
         # figure out utility flags
         if fcstTime:
@@ -81,7 +87,9 @@ class DataTime(object):
         
         if self.refTime is not None:
             refTimeInSecs = self.refTime.getTime() / 1000
+            micros = (self.refTime.getTime() % 1000) * 1000
             dtObj = datetime.datetime.utcfromtimestamp(refTimeInSecs)
+            dtObj = dtObj.replace(microsecond=micros)
             buffer.write(dtObj.isoformat(' '))
         
         if "FCST_USED" in self.utilityFlags:
@@ -94,13 +102,9 @@ class DataTime(object):
         
         if "PERIOD_USED" in self.utilityFlags:
             buffer.write("[")
-            startTimeInSecs = self.validPeriod.getStartInMillis() / 1000
-            dtObj = datetime.datetime.utcfromtimestamp(startTimeInSecs)
-            buffer.write(dtObj.isoformat(' '))
+            buffer.write(self.validPeriod.start.isoformat(' '))
             buffer.write("--")
-            endTimeInSecs = self.validPeriod.getEndInMillis() / 1000
-            dtObj = datetime.datetime.utcfromtimestamp(endTimeInSecs)
-            buffer.write(dtObj.isoformat(' '))
+            buffer.write(self.validPeriod.end.isoformat(' '))
             buffer.write("]")
         
         strVal = buffer.getvalue()

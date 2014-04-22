@@ -26,13 +26,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
-import com.raytheon.edex.plugin.redbook.common.blocks.ProductIdBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockBuilder;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.ProductIdBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.wmo.message.WMOHeader;
@@ -47,11 +46,13 @@ import com.raytheon.uf.edex.wmo.message.WMOHeader;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 20080512           1131 jkorman     Initial implementation.
- * 20080529           1131 jkorman     Added traceId, implemented in logger.
- * 20101022           6424 kshrestha   Added fcsttime
- * 20110516           8296 mhuang      fixed fcsttime problem
+ * May 12, 2008 1131       jkorman     Initial implementation.
+ * May 29, 2008 1131       jkorman     Added traceId, implemented in logger.
+ * Oct 22, 2010 6424       kshrestha   Added fcsttime
+ * May 16, 2011 8296       mhuang      fixed fcsttime problem
  * Apr 29, 2013 1958       bgonzale    Refactored to improve performance.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * </pre>
  * 
  * @author jkorman
@@ -61,7 +62,8 @@ public class RedbookParser {
 
     private static final RedbookBlockBuilder blockBuilder = new RedbookBlockBuilder();
 
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(RedbookParser.class);
 
     // private Calendar issueDate = null;
 
@@ -89,7 +91,7 @@ public class RedbookParser {
             int min = hdr.getMinute();
 
             int fcstTime = rRecord.getFcstHours() * 3600;
-            
+
             Calendar wmoTime = TimeTools.copy(rRecord.getTimeObs());
 
             if (day - wmoTime.get(Calendar.DAY_OF_MONTH) < 0) {
@@ -99,15 +101,16 @@ public class RedbookParser {
             wmoTime.set(Calendar.HOUR_OF_DAY, hour);
             wmoTime.set(Calendar.MINUTE, min);
 
-            long binnedTime = getBinnedTime(traceId, hdr, wmoTime.getTimeInMillis());
+            long binnedTime = getBinnedTime(traceId, hdr,
+                    wmoTime.getTimeInMillis());
 
             DataTime dt = null;
-            
-            if ( fcstTime > 0 )
+
+            if (fcstTime > 0)
                 dt = new DataTime(new Date(binnedTime), fcstTime);
             else
-            	dt = new DataTime(new Date(binnedTime));
-            
+                dt = new DataTime(new Date(binnedTime));
+
             rRecord.setDataTime(dt);
 
             String cor = hdr.getBBBIndicator();
@@ -129,10 +132,11 @@ public class RedbookParser {
 
     /**
      * 
-     * @param hdr 
+     * @param hdr
      * @param separator
      */
-    private RedbookRecord internalParse(String traceId, byte[] redbookMsg, WMOHeader hdr) {
+    private RedbookRecord internalParse(String traceId, byte[] redbookMsg,
+            WMOHeader hdr) {
 
         RedbookRecord record = null;
 
@@ -205,7 +209,7 @@ public class RedbookParser {
 
         return record;
     }
-    
+
     public int getForecastTime(String traceId, WMOHeader hdr) {
         RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap.get(hdr.getTtaaii());
 
@@ -215,8 +219,8 @@ public class RedbookParser {
         }
         return 0;
     }
-	
-	public long getBinnedTime(String traceId, WMOHeader hdr, long timeMillis) {
+
+    public long getBinnedTime(String traceId, WMOHeader hdr, long timeMillis) {
         try {
             long period = 43200 * 1000; // default period is 12 hours
             long offset = 0;
@@ -239,6 +243,6 @@ public class RedbookParser {
             logger.error(traceId + " - Error in parser - mappingFCST: ", e);
         }
         return timeMillis;
-	}	
-	
+    }
+
 }

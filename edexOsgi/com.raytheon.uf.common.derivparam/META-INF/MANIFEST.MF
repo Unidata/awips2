@@ -2,15 +2,43 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Derived Parameter Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.derivparam
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Eclipse-BuddyPolicy: registered, ext, global
 Import-Package: com.raytheon.uf.common.comm,
+ com.raytheon.uf.common.inventory.data,
+ com.raytheon.uf.common.inventory.exception,
+ com.raytheon.uf.common.inventory,
+ com.raytheon.uf.common.inventory.tree,
+ com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.level,
+ com.raytheon.uf.common.dataplugin.level.mapping,
+ com.raytheon.uf.common.dataplugin.level.util,
+ com.raytheon.uf.common.dataplugin.persist,
+ com.raytheon.uf.common.dataquery.requests,
+ com.raytheon.uf.common.dataquery.responses,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.datastorage.records,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.serialization.adapters,
  com.raytheon.uf.common.serialization.annotations,
+ com.raytheon.uf.common.serialization.comm,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.util.mapping,
+ javax.measure,
+ javax.measure.converter,
+ javax.measure.unit,
  javax.persistence
-Export-Package: com.raytheon.uf.common.derivparam.tree
+Export-Package: com.raytheon.uf.common.derivparam,
+ com.raytheon.uf.common.derivparam.data,
+ com.raytheon.uf.common.derivparam.inv,
+ com.raytheon.uf.common.derivparam.library,
+ com.raytheon.uf.common.derivparam.tree
+Require-Bundle: org.geotools;bundle-version="10.5.0"

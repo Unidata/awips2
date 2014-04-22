@@ -27,6 +27,8 @@ import javax.measure.unit.SI;
 import org.geotools.coverage.grid.GridGeometry2D;
 
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
@@ -35,8 +37,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.topo.TopoQuery;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
 import com.raytheon.viz.grid.util.SliceUtil;
 
 /**
@@ -83,7 +83,7 @@ public class TopoRequestableData extends AbstractRequestableData {
      * @see com.raytheon.viz.grid.util.AbstractRequestableData#getDataValue()
      */
     @Override
-    public FloatDataRecord getDataValue(Object arg) throws VizException {
+    public FloatDataRecord getDataValue(Object arg) throws DataCubeException {
         GridCoverage coverage = (GridCoverage) this.getSpace();
         FloatDataRecord rval = topoCache.get(coverage);
 

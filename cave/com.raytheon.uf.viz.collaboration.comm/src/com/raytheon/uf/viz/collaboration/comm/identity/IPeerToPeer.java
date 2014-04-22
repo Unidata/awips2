@@ -20,10 +20,10 @@
 package com.raytheon.uf.viz.collaboration.comm.identity;
 
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
- * TODO Add Description
+ * Peer to peer chat messaging interface
  * 
  * <pre>
  * 
@@ -32,6 +32,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    changed 'to' object to UserId
  * 
  * </pre>
  * 
@@ -47,7 +48,7 @@ public interface IPeerToPeer extends ISession, IEventPublisher {
      * 
      * @param message
      */
-    void sendPeerToPeer(IMessage message) throws CollaborationException;
+    public void sendPeerToPeer(IMessage message) throws CollaborationException;
 
     /**
      * Send a Text message to a specific receiver.
@@ -57,7 +58,7 @@ public interface IPeerToPeer extends ISession, IEventPublisher {
      * @param message
      *            The message to send.
      */
-    void sendPeerToPeer(IQualifiedID to, String message)
+    public void sendPeerToPeer(UserId to, String message)
             throws CollaborationException;
 
 }

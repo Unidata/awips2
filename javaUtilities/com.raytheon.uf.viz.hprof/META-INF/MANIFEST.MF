@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Main-Class: com.raytheon.uf.viz.hprof.CaveExporter
+Bundle-ManifestVersion: 2
+Bundle-Name: Viz Hprof Analysis
+Bundle-SymbolicName: com.raytheon.uf.viz.hprof
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Export-Package: com.raytheon.hprof,
+ com.raytheon.hprof.data,
+ com.raytheon.hprof.data.heap,
+ com.raytheon.hprof.data.heap.dump,
+ com.raytheon.hprof.data.heap.root,
+ com.raytheon.uf.viz.hprof

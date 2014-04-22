@@ -51,9 +51,10 @@ import com.raytheon.viz.core.gl.SharedCoordMap.SharedCoordinates;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 1, 2010            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 01, 2010           mschenke    Initial creation
+ * Feb 21, 2014  2817     bsteffen    Remove Deprecated reproject.
  * 
  * </pre>
  * 
@@ -233,18 +234,6 @@ public abstract class AbstractGLMesh implements IMesh {
             }
             internalState = State.INVALID;
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.IMesh#reproject(org.geotools.coverage.grid.
-     * GeneralGridGeometry)
-     */
-    @Override
-    public final IMesh reproject(GeneralGridGeometry targetGeometry)
-            throws VizException {
-        return clone(targetGeometry);
     }
 
     private boolean calculateMesh() {

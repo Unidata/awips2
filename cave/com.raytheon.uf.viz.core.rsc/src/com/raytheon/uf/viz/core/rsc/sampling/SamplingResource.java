@@ -66,6 +66,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Dec 22, 2010            mschenke     Initial creation
  * Jan 31, 2012   14306    kshresth     Cursor readout as you sample the dispays
+ * Mar  3, 2014    2804    mschenke     Set back up clipping pane
  * 
  * </pre>
  * 
@@ -352,6 +353,8 @@ public class SamplingResource extends
                                 + e.getLocalizedMessage(), e);
             }
             errorInHovering = true;
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 

@@ -24,11 +24,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.raytheon.uf.common.inventory.tree.DataTree;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.derivparam.tree.DataTree;
 import com.raytheon.uf.common.pointdata.GetPointDataTreeRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;

@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
-import org.eclipse.ecf.core.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 
 /**
  * Defines method for retrieving selected users.
@@ -40,6 +40,6 @@ import org.eclipse.ecf.core.user.IUser;
 
 public interface IUserSelector {
 
-    public IUser[] getSelectedUsers();
+    public UserId[] getSelectedUsers();
 
 }

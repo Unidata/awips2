@@ -30,8 +30,6 @@ import java.util.Map;
 import javax.measure.converter.UnitConverter;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
@@ -43,8 +41,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
@@ -55,11 +51,14 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
-import com.raytheon.uf.common.colormap.ColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 
 /**
+ * A Composite that renders a colorbar and also arrows and buttons to
+ * manipulate/edit it.
  * 
  * <pre>
  * 
@@ -67,193 +66,45 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 11, 2014 DR 15811   Qinglu Lin  Added decimalPlaceMap and logic to have 4 decimal places
+ * Apr 08, 2014 2950       bsteffen    Support dynamic color counts and resizing.
  *                                     for color editor's color bar for radar correlation coefficient.
+ * Apr 11, 2014 DR 15811   Qinglu Lin  Added decimalPlaceMap and logic to have 4 decimal places
  * 
  * </pre>
  * 
+ * @version 1.0
  */
 public class ColorBar extends Composite implements MouseListener,
         MouseMoveListener {
-    /**
-     * Parent shell (composite).
-     */
-    protected Composite parent;
 
-    /**
-     * Callback used to update the color wheel.
-     */
+    /** Size of the navigation navButtons. */
+    protected final Point NAV_BTN_SIZE = new Point(33, 25);
+
+    /** Size of the slider arrows. */
+    protected final Point ARROW_SIZE = new Point(10, 28);
+
+    /** Size of the margin. */
+    protected final Point MARGIN_SIZE = new Point(6, 6);
+
+    /** Size of the margin. */
+    protected final Point BAR_SIZE = new Point(343, 50);
+
+    /** Callback used to update the color wheel. */
     protected IColorBarAction callBack;
 
-    /**
-     * Canvas where the color bar is drawn.
-     */
+    /** Canvas where the color bar is drawn. */
     protected Canvas colorBarCanvas;
 
-    /**
-     * Palette information.
-     */
-    protected PaletteData palette;
+    /** Font of arrow labels */
+    protected Font font;
 
-    /**
-     * Image data for the color bar.
-     */
-    protected ImageData colorBarImageData;
+    /** Navigation Buttons */
+    protected List<Button> navButtons = new ArrayList<Button>();
 
-    /**
-     * Width of the navigation buttons.
-     */
-    protected final int NAV_BTN_WIDTH = 33;
-
-    /**
-     * Height of the navigation buttons.
-     */
-    protected final int NAV_BTN_HEIGHT = 25;
-
-    /**
-     * Height of the slider arrows.
-     */
-    protected final int ARROW_HEIGHT = 28;
-
-    /**
-     * Width of the slider arrows.
-     */
-    protected final int ARROW_WIDTH = 10;
-
-    /**
-     * Horizontal margin - pixels from the left edge of the color bar canvas.
-     */
-    protected final int HORIZ_MARGIN = ARROW_WIDTH + 6;
-
-    /**
-     * Vertical margin - pixels from the top edge of the color bar to the top of
-     * the arrow canvas.
-     */
-    protected final int VERT_MARGIN = 6;
-
-    /**
-     * Number of pixels between the top of the canvas to the top edge of the
-     * color bar.
-     */
-    protected final int BAR_TOP = ARROW_HEIGHT + VERT_MARGIN;
-
-    /**
-     * The number of pixels per each color in a 256 color map. The color bar is
-     * wider that 256 pixels so there is not a 1 to 1 mapping between colors and
-     * pixels across the color bar.
-     */
-    protected final float PIXELS_PER_CELL = 1.34f;
-
-    /**
-     * Width of the color bar.
-     */
-    protected final int BAR_WIDTH = (int) (256 * PIXELS_PER_CELL);
-
-    /**
-     * Height of the color bar.
-     */
-    protected final int BAR_HEIGHT = 50;
-
-    /**
-     * Number of pixels between the bottom of the canvas to the bottom edge of
-     * the color bar.
-     */
-    protected final int BAR_BOTTOM = BAR_TOP + BAR_HEIGHT;
-
-    /**
-     * Canvas width.
-     */
-    protected final int CANVAS_WIDTH = HORIZ_MARGIN * 2 + BAR_WIDTH;
-
-    /**
-     * Canvas height.
-     */
-    protected final int CANVAS_HEIGHT = BAR_BOTTOM + ARROW_HEIGHT + VERT_MARGIN;
-
-    /**
-     * Left bound limit for the X coordinate of the mouse.
-     */
-    protected final int LEFT_MOUSE_BOUNDS = HORIZ_MARGIN;
-
-    /**
-     * Right bound limit for the X coordinate of the mouse.
-     */
-    protected final int RIGHT_MOUSE_BOUNDS = HORIZ_MARGIN + BAR_WIDTH;
-
-    /**
-     * Middle of the color bar.
-     */
-    protected final int BAR_HORIZ_MID = RIGHT_MOUSE_BOUNDS / 2;
-
-    protected Button topSkipLeft;
-
-    protected Button topMoveLeft;
-
-    protected Button bottomMoveLeft;
-
-    protected Button bottomSkipLeft;
-
-    protected Button topSkipRight;
-
-    protected Button topMoveRight;
-
-    protected Button bottomMoveRight;
-
-    protected Button bottomSkipRight;
-
-    /**
-     * Point variable.
-     */
-    protected Point p;
-
-    /**
-     * Temporary RGB object.
-     */
-    protected RGB tmpRGB;
-
-    /**
-     * Current color.
-     */
-    protected Color currentColor;
-
-    /**
-     * Color bar image.
-     */
-    protected Image colorBarImage;
-
-    /**
-     * Rectangle area of the top slider.
-     */
-    protected Rectangle topSliderRect;
-
-    /**
-     * Rectangle area of the bottom slider.
-     */
-    protected Rectangle bottomSliderRect;
-
-    /**
-     * Rectangle area of the top color area of the color bar.
-     */
-    protected Rectangle topColorRect;
-
-    /**
-     * Rectangle area of the bottom color area of the color bar.
-     */
-    protected Rectangle bottomColorRect;
-
-    /**
-     * Mouse is down flag.
-     */
-    protected boolean mouseIsDown = false;
-
-    /**
-     * Move top slider flag.
-     */
+    /** Set on mouse down to move top slider when mouse is moved. */
     protected boolean moveTopSlider = false;
 
-    /**
-     * Move bottom slider flag.
-     */
+    /** Set on mouse down to move bottom slider when mouse is moved. */
     protected boolean moveBottomSlider = false;
 
     /**
@@ -268,46 +119,26 @@ public class ColorBar extends Composite implements MouseListener,
      */
     protected boolean queryBottomColorBar = false;
 
-    /**
-     * Top slider X coordinate.
-     */
-    protected int topSliderX = 0;
+    /** Top slider index into current color list. */
+    protected int topSliderIndex = 0;
+
+    /** Bottom slider index into current color list. */
+    protected int bottomSliderIndex = 0;
 
     /**
-     * Bottom slider X coordinate.
-     */
-    protected int bottomSliderX = BAR_WIDTH;
-
-    /**
-     * Array of starting colors (original color map).
-     */
-    protected List<ColorData> startingColors;
-
-    /**
-     * Array of current colors. Reflects any current changes that have been
-     * made.
-     */
-    protected List<ColorData> currentColors;
-
-    /**
-     * Index into the undo/redo color array.
+     * Index into the history list. This must be kept consistent with
+     * colorHistory.
      */
     protected int currentColorIndex = 0;
 
     /**
-     * Array of text that will be displayed next to the top and bottom color bar
-     * sliders.
+     * List of color arrays to keep track of changes made to the color bar.
+     * There must always be at least one item in this list representing the
+     * current colors
      */
-    protected String[] sliderText;
+    protected List<List<ColorData>> colorHistory;
 
-    /**
-     * Array of color arrays to keep track of changes made to the color bar.
-     */
-    protected List<List<ColorData>> undoRedoArray;
-
-    /**
-     * The colormap parameters to use to initialize the bar
-     */
+    /** The colormap parameters to use to initialize the bar */
     protected ColorMapParameters cmapParams;
 
     /**
@@ -316,22 +147,18 @@ public class ColorBar extends Composite implements MouseListener,
      */
     protected boolean enabledColorMask = false;
 
-    /**
-     * The color bar image
-     */
+    /** The color bar image */
     protected Image colorBar;
 
-    /**
-     * The color bar image with mask applied
-     */
+    /** The color bar image with mask applied */
     protected Image colorBarWithMask;
 
     private final Map<String, String> decimalPlaceMap = new HashMap<String, String>() {
         private static final long serialVersionUID = 1L;
         {
-            // keys are the last portion of the title in the color table editor for 
-            // a specific radar product, in lower case and value is the decimals expected 
-            // to be displayed in color bar. 
+            // keys are the last portion of the title in the color table editor for
+            // a specific radar product, in lower case and value is the decimals expected
+            // to be displayed in color bar.
             put("correlation coeff", "0000");
         }
     };
@@ -368,7 +195,6 @@ public class ColorBar extends Composite implements MouseListener,
     public ColorBar(Composite parent, IColorBarAction callback,
             ColorMapParameters cmapParams, boolean enableColorMask) {
         super(parent, SWT.NONE);
-        this.parent = parent;
         this.enabledColorMask = enableColorMask;
         this.cmapParams = cmapParams;
 
@@ -379,11 +205,15 @@ public class ColorBar extends Composite implements MouseListener,
             }
         }
 
-        initializeColorData();
+        colorHistory = new ArrayList<List<ColorData>>();
+        colorHistory.add(ColorUtil.buildColorData(cmapParams.getColorMap()));
+
+        topSliderIndex = 0;
+        bottomSliderIndex = getColorCount() - 1;
 
         this.callBack = callback;
 
-        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         GridLayout gl = new GridLayout(3, false);
         this.setLayout(gl);
         this.setLayoutData(gd);
@@ -391,127 +221,124 @@ public class ColorBar extends Composite implements MouseListener,
         initComponents();
     }
 
-    private void initializeColorData() {
-        List<ColorData> colors = createSliderData();
-
-        this.startingColors = colors;
-
-        // Create the undo/redo array and put the initial colors
-        // at the beginning of the array.
-        undoRedoArray = new ArrayList<List<ColorData>>();
-        currentColors = new ArrayList<ColorData>(colors);
-        undoRedoArray.add(startingColors);
-    }
-
-    /**
-     * Initialize the components for the color bar.
-     */
+    /** Initialize the components for the color bar. */
     private void initComponents() {
-        // Create the palette and the initial color car image.
-        palette = new PaletteData(0xff, 0xff00, 0xff0000);
-        colorBarImageData = new ImageData(CANVAS_WIDTH, CANVAS_HEIGHT, 24,
-                palette);
-
-        // Create the starting color (white).
-        currentColor = new Color(parent.getDisplay(), 255, 255, 255);
-
-        initalizeColobars();
-
-        // Create the slider navigation button on the left
-        // side of the color bar.
         createLeftButtons();
-
-        // Create the color bar canvas when the colors and
-        // sliders are displayed.
         createColorBarArea();
-
-        // Create the slider navigation button on the right
-        // side of the color bar.
         createRightButtons();
+
+        initalizeColorbarImages();
     }
 
-    public void updateColorMap(ColorMapParameters newParams) {
-        this.cmapParams = newParams;
-        this.currentColors = createSliderData();
-        if (undoRedoArray.get(undoRedoArray.size() - 1).equals(currentColors) == false) {
-            undoRedoArray.add(this.currentColors);
-        }
-        repaintColorbars();
-    }
-
-    /**
-     * Create the slider navigation buttons on the left side of the color bar.
-     */
+    /** Create the slider navigation buttons on the left side of the color bar. */
     private void createLeftButtons() {
-        // Create a composite to hold the buttons.
+        // Create a composite to hold the navButtons.
         Composite leftButtonsComp = new Composite(this, SWT.NONE);
         RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
         rowLayout.spacing = 5;
         leftButtonsComp.setLayout(rowLayout);
 
-        // Create the single step left navigation button for
-        // the top slider.
-        RowData rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        topMoveLeft = new Button(leftButtonsComp, SWT.PUSH);
-        topMoveLeft.setText("<");
-        topMoveLeft.setLayoutData(rd);
-        topMoveLeft.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                // Move the top slider to the left 1 cell.
-                int x = getXcoord(topSliderX);
-                int y = topSliderX - 1;
+        createNavButton(leftButtonsComp, true, true, false);
+        createNavButton(leftButtonsComp, true, true, true);
+        createNavButton(leftButtonsComp, false, true, true);
+        createNavButton(leftButtonsComp, false, true, false);
+    }
 
-                if (x == getXcoord(y)) {
-                    --y;
+    /** Create the slider navigation buttons on the right side of the color bar. */
+    private void createRightButtons() {
+        // Create a composite that will hold the navButtons.
+        Composite rightButtonsComp = new Composite(this, SWT.NONE);
+        RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
+        rowLayout.spacing = 5;
+        rightButtonsComp.setLayout(rowLayout);
+
+        createNavButton(rightButtonsComp, true, false, false);
+        createNavButton(rightButtonsComp, true, false, true);
+        createNavButton(rightButtonsComp, false, false, true);
+        createNavButton(rightButtonsComp, false, false, false);
+    }
+
+    /**
+     * Create a single navigation button
+     * 
+     * @param parent
+     *            Button parent
+     * @param top
+     *            true for top slider, false for bottom slider
+     * @param left
+     *            true for left navigation, false for right navigation
+     * @param skip
+     *            true to skip to the next unique color, false to shift only one
+     *            color even if it is identical.
+     */
+    protected void createNavButton(Composite parent, final boolean top,
+            final boolean left, final boolean skip) {
+        String label;
+        if (left) {
+            label = "<";
+        } else {
+            label = ">";
+        }
+        ;
+        if (skip) {
+            label = label + label;
+        }
+        Button button = new Button(parent, SWT.PUSH);
+        button.setText(label);
+        button.setLayoutData(new RowData(NAV_BTN_SIZE));
+        button.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                shiftSlider(top, left, skip);
+            }
+        });
+        navButtons.add(button);
+    }
+
+    /**
+     * Shift one of the sliders to a new index.
+     * 
+     * @param top
+     *            true for top slider, false for bottom slider
+     * @param left
+     *            true for left navigation, false for right navigation
+     * @param skip
+     *            true to skip to the next unique color, false to shift only one
+     *            color even if it is identical.
+     */
+    protected void shiftSlider(boolean top, boolean left, boolean skip) {
+        int startIndex;
+        int direction;
+        int endIndex;
+        if (top) {
+            startIndex = topSliderIndex;
+        } else {
+            startIndex = bottomSliderIndex;
+        }
+        if (left) {
+            direction = -1;
+            endIndex = -1;
+        } else {
+            direction = 1;
+            endIndex = getColorCount();
+        }
+        RGB start = getCurrentColor(startIndex).rgbColor;
+        for (int i = startIndex; i != endIndex; i += direction) {
+            if (!getCurrentColor(i).rgbColor.equals(start)
+                    || (!skip && i != startIndex)) {
+                if (top) {
+                    topSliderIndex = i;
+                    bottomSliderIndex = Math.max(topSliderIndex,
+                            bottomSliderIndex);
+                } else {
+                    bottomSliderIndex = i;
+                    topSliderIndex = Math
+                            .min(topSliderIndex, bottomSliderIndex);
                 }
-
-                drawTopSlider(y + HORIZ_MARGIN);
+                repaint();
+                break;
             }
-        });
-
-        // Create the skip color left navigation button for
-        // the top slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        topSkipLeft = new Button(leftButtonsComp, SWT.PUSH);
-        topSkipLeft.setText("<<");
-        topSkipLeft.setLayoutData(rd);
-        topSkipLeft.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                skipTopSliderToLeft();
-            }
-        });
-
-        // Create the skip color left navigation button for
-        // the bottom slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        bottomSkipLeft = new Button(leftButtonsComp, SWT.PUSH);
-        bottomSkipLeft.setText("<<");
-        bottomSkipLeft.setLayoutData(rd);
-        bottomSkipLeft.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                skipBottomSliderToLeft();
-            }
-        });
-
-        // Create the single step left navigation button for
-        // the bottom slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        bottomMoveLeft = new Button(leftButtonsComp, SWT.PUSH);
-        bottomMoveLeft.setText("<");
-        bottomMoveLeft.setLayoutData(rd);
-        bottomMoveLeft.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                // Move the bottom slider to the left 1 cell.
-                int x = getXcoord(bottomSliderX);
-                int y = bottomSliderX - 1;
-
-                if (x == getXcoord(y)) {
-                    --y;
-                }
-
-                drawBottomSlider(y + HORIZ_MARGIN);
-            }
-        });
+        }
     }
 
     /**
@@ -519,152 +346,148 @@ public class ColorBar extends Composite implements MouseListener,
      * and bottom sliders.
      */
     private void createColorBarArea() {
-        // Do the initial calculation for the color bar.
-        calculateColorBarAreas();
+        /* Set the font used for the top and bottom sliders. */
+        font = new Font(getDisplay(), "Courier", 10, SWT.NORMAL);
 
-        // Set the font used for the top and bottom sliders.
-        final Font font = new Font(parent.getDisplay(), "Courier", 10,
-                SWT.NORMAL);
-
-        // Create the composite that will hold the color bar canvas.
+        /* Create the composite that will hold the color bar canvas. */
         Composite colorBarComp = new Composite(this, SWT.NONE);
+        colorBarComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
+                false));
         colorBarComp.setLayout(new GridLayout(1, false));
 
-        // Create a new color bar canvas and set the mouse
-        // and paint listeners.
+        /*
+         * Create a new color bar canvas and add listeners for the mouse, paint,
+         * and resize events.
+         */
         colorBarCanvas = new Canvas(colorBarComp, SWT.DOUBLE_BUFFERED);
-        colorBarCanvas.setLayoutData(new GridData(CANVAS_WIDTH, CANVAS_HEIGHT));
+        int width = 2 * (ARROW_SIZE.x + MARGIN_SIZE.x) + BAR_SIZE.x;
+        int height = 2 * (ARROW_SIZE.y + MARGIN_SIZE.y) + BAR_SIZE.y;
+        GridData gd = new GridData(width, height);
+        gd.grabExcessHorizontalSpace = true;
+        gd.horizontalAlignment = SWT.FILL;
+        colorBarCanvas.setLayoutData(gd);
         colorBarCanvas.addMouseListener(this);
         colorBarCanvas.addMouseMoveListener(this);
         colorBarCanvas.addPaintListener(new PaintListener() {
+            @Override
             public void paintControl(PaintEvent event) {
-                if (isEnabled()) {
+                paintCanvas(event.gc);
+            }
 
-                    ColorData colorData;
+        });
+        colorBarCanvas.addListener(SWT.Resize, new Listener() {
 
-                    // Set the font to be used.
-                    event.gc.setFont(font);
+            @Override
+            public void handleEvent(Event event) {
+                initalizeColorbarImages();
+            }
+        });
+    }
 
-                    // Draw the color bar background image.
-                    if (colorBarImage != null) {
-                        colorBarImage.dispose();
-                    }
+    /** Get the area within the colorBarCanvas where the bar is painted. */
+    protected Rectangle getBarBounds() {
+        int totalMarginX = MARGIN_SIZE.x + ARROW_SIZE.x;
+        int totalMarginY = MARGIN_SIZE.y + ARROW_SIZE.y;
+        Point canvasSize = colorBarCanvas.getSize();
+        return new Rectangle(totalMarginX, totalMarginY, canvasSize.x - 2
+                * totalMarginX, canvasSize.y - 2 * totalMarginY);
+    }
 
-                    colorBarImage = new Image(parent.getDisplay(),
-                            colorBarImageData);
+    /**
+     * Paint the colorbar, arrows, and decorations on the colorbar canvas.
+     * 
+     * @param gc
+     */
+    public void paintCanvas(GC gc) {
+        Point canvasSize = colorBarCanvas.getSize();
+        Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+        gc.setBackground(black);
+        gc.fillRectangle(0, 0, canvasSize.x, canvasSize.y);
+        if (isEnabled()) {
+            Rectangle bar = getBarBounds();
 
-                    event.gc.drawImage(colorBarImage, 0, 0);
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_WHITE));
+            /* Draw the white color bar outline rectangle. */
+            Color white = getDisplay().getSystemColor(SWT.COLOR_WHITE);
+            gc.setForeground(white);
+            gc.drawRectangle(bar);
 
-                    // Draw the white color bar outline rectangle.
-                    event.gc.drawRectangle(HORIZ_MARGIN, BAR_TOP, BAR_WIDTH,
-                            BAR_HEIGHT);
-
-                    // Draw colorbar image
-                    synchronized (ColorBar.this) {
-                        if (enabledColorMask && cmapParams.isUseMask()) {
-                            event.gc.drawImage(colorBarWithMask,
-                                    HORIZ_MARGIN + 1, BAR_TOP + 1);
-                        } else {
-                            event.gc.drawImage(colorBar, HORIZ_MARGIN + 1,
-                                    BAR_TOP + 1);
-                        }
-                    }
-
-                    // Reset the alpha to 255 (solid color).
-                    event.gc.setAlpha(255);
-
-                    // Draw a black line down the middle of the color bar.
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_BLACK));
-                    event.gc.drawLine(HORIZ_MARGIN, BAR_HEIGHT / 2 + BAR_TOP,
-                            BAR_WIDTH + HORIZ_MARGIN, BAR_HEIGHT / 2 + BAR_TOP);
-
-                    // Draw a dashed white line down the middle of
-                    // the color bar ( over the top of the black line).
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_WHITE));
-                    event.gc.setLineStyle(SWT.LINE_DOT);
-                    event.gc.drawLine(HORIZ_MARGIN, BAR_HEIGHT / 2 + BAR_TOP,
-                            BAR_WIDTH + HORIZ_MARGIN, BAR_HEIGHT / 2 + BAR_TOP);
-
-                    // Draw top slider arrow. The arrow will be filled with
-                    // the color it is pointing to on the color bar.
-                    event.gc.setLineStyle(SWT.LINE_SOLID);
-                    currentColor.dispose();
-                    colorData = currentColors.get(getXcoord(topSliderX));
-                    currentColor = new Color(parent.getDisplay(),
-                            colorData.rgbColor);
-                    event.gc.setBackground(currentColor);
-                    event.gc.setAlpha(colorData.alphaValue);
-                    event.gc.fillPolygon(calcTopArrow(topSliderX));
-                    event.gc.setAlpha(255);
-                    event.gc.drawPolygon(calcTopArrow(topSliderX));
-
-                    // Draw text that is displayed next to the top
-                    // slider arrow.
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_WHITE));
-                    if (topSliderX < BAR_HORIZ_MID) {
-                        event.gc.drawString(sliderText[getXcoord(topSliderX)],
-                                (HORIZ_MARGIN + topSliderX + 5),
-                                ((int) (BAR_TOP - ARROW_HEIGHT)), true);
-                    } else {
-                        p = event.gc
-                                .textExtent(sliderText[getXcoord(topSliderX)]);
-                        event.gc.drawString(
-                                sliderText[getXcoord(topSliderX)],
-                                (HORIZ_MARGIN + topSliderX - ARROW_WIDTH - 5 - p.x),
-                                ((int) (BAR_TOP - ARROW_HEIGHT)), true);
-                    }
-
-                    // Draw bottom slider arrow. The arrow will be filled with
-                    // the color it is pointing to on the color bar.
-                    currentColor.dispose();
-                    colorData = currentColors.get(getXcoord(bottomSliderX));
-                    currentColor = new Color(parent.getDisplay(),
-                            colorData.rgbColor);
-                    event.gc.setBackground(currentColor);
-                    event.gc.setAlpha(colorData.alphaValue);
-                    event.gc.fillPolygon(calcBottomArrow(bottomSliderX));
-                    event.gc.setAlpha(255);
-                    event.gc.drawPolygon(calcBottomArrow(bottomSliderX));
-
-                    // Draw text that is displayed next to the bottom
-                    // slider arrow.
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_WHITE));
-                    if (bottomSliderX < BAR_HORIZ_MID) {
-                        event.gc.drawString(
-                                sliderText[getXcoord(bottomSliderX)],
-                                (HORIZ_MARGIN + bottomSliderX + 13),
-                                ((BAR_BOTTOM + 13)), true);
-                    } else {
-                        p = event.gc
-                                .textExtent(sliderText[getXcoord(bottomSliderX)]);
-                        event.gc.drawString(
-                                sliderText[getXcoord(bottomSliderX)],
-                                (HORIZ_MARGIN + bottomSliderX - ARROW_WIDTH - p.x),
-                                ((BAR_BOTTOM + 13)), true);
-                    }
-                } else {
-                    event.gc.setBackground(getDisplay().getSystemColor(
-                            SWT.COLOR_BLACK));
-                    event.gc.fillRectangle(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            /* Draw colorbar image */
+            synchronized (this) {
+                gc.drawImage(colorBar, bar.x + 1, bar.y + 1);
+                if (enabledColorMask && cmapParams.isUseMask()) {
+                    gc.drawImage(colorBarWithMask, bar.x + 1, bar.y + 1);
                 }
             }
-        });
 
-        // Add a dispose listener to the color bar canvas so we can clean up SWT
-        // objects when the canvas is disposed.
-        colorBarCanvas.addDisposeListener(new DisposeListener() {
-            // @Override
-            public void widgetDisposed(DisposeEvent arg0) {
-                currentColor.dispose();
-                font.dispose();
+            /*
+             * Draw a black line with a white dotted line on top down the middle
+             * of the color bar.
+             */
+            int midY = bar.y + bar.height / 2;
+            gc.setForeground(black);
+            gc.drawLine(bar.x, midY, bar.x + bar.width, midY);
+            gc.setForeground(white);
+            gc.setLineStyle(SWT.LINE_DOT);
+            gc.drawLine(bar.x, midY, bar.x + bar.width, midY);
+
+            /*
+             * Draw top slider arrow. The arrow will be filled with the color it
+             * is pointing to on the color bar.
+             */
+            gc.setLineStyle(SWT.LINE_SOLID);
+            ColorData colorData = getTopColor();
+            Color currentColor = new Color(getDisplay(), colorData.rgbColor);
+            gc.setBackground(currentColor);
+            gc.setAlpha(colorData.alphaValue);
+            int topSliderX = reIndex(getColorCount(), bar.width, topSliderIndex);
+            int[] topArrowPolygon = calcTopArrow(topSliderX);
+            gc.fillPolygon(topArrowPolygon);
+            gc.setAlpha(255);
+            gc.drawPolygon(topArrowPolygon);
+            currentColor.dispose();
+
+
+            /* Draw text that is displayed next to the top slider arrow. */
+            gc.setForeground(white);
+            gc.setFont(font);
+            String text = getSliderText(topSliderIndex);
+            int x = topSliderX + MARGIN_SIZE.x + ARROW_SIZE.x;
+            if (topSliderIndex < getColorCount() / 2) {
+                x += ARROW_SIZE.x + 5;
+            } else {
+                Point p = gc.textExtent(text);
+                x -= ARROW_SIZE.x + 5 + p.x;
             }
-        });
+            gc.drawString(text, x, MARGIN_SIZE.y, true);
+
+            /*
+             * Draw bottom slider arrow. The arrow will be filled with the color
+             * it is pointing to on the color bar.
+             */
+            colorData = getBottomColor();
+            currentColor = new Color(getDisplay(), colorData.rgbColor);
+            gc.setBackground(currentColor);
+            gc.setAlpha(colorData.alphaValue);
+            int bottomSliderX = reIndex(getColorCount(), bar.width,
+                    bottomSliderIndex);
+            int[] bottomArrowPolygon = calcBottomArrow(bottomSliderX);
+            gc.fillPolygon(bottomArrowPolygon);
+            gc.setAlpha(255);
+            gc.drawPolygon(bottomArrowPolygon);
+            currentColor.dispose();
+
+            /* Draw text that is displayed next to the bottom slider arrow. */
+            gc.setForeground(white);
+            text = getSliderText(bottomSliderIndex);
+            x = bottomSliderX + MARGIN_SIZE.x + ARROW_SIZE.x;
+            if (bottomSliderIndex < getColorCount() / 2) {
+                x += ARROW_SIZE.x + 5;
+            } else {
+                Point p = gc.textExtent(text);
+                x -= ARROW_SIZE.x + 5 + p.x;
+            }
+            gc.drawString(text, x, canvasSize.y - MARGIN_SIZE.y - 15, true);
+        }
     }
 
     /**
@@ -675,16 +498,16 @@ public class ColorBar extends Composite implements MouseListener,
      * @return Array of points outlining the top slider arrow.
      */
     private int[] calcTopArrow(int xCoord) {
-        int[] topArrow = { (HORIZ_MARGIN + xCoord), (BAR_TOP - 2),
-                (HORIZ_MARGIN + xCoord), (BAR_TOP - ARROW_HEIGHT),
-                (HORIZ_MARGIN + xCoord - ARROW_WIDTH / 2),
-                (BAR_TOP - ARROW_HEIGHT),
-                (HORIZ_MARGIN + xCoord - ARROW_WIDTH / 2),
-                (BAR_TOP - ARROW_HEIGHT / 2),
-                (HORIZ_MARGIN + xCoord - ARROW_WIDTH),
-                (BAR_TOP - ARROW_HEIGHT / 2) };
+        int left = xCoord + MARGIN_SIZE.x;
+        int midX = left + ARROW_SIZE.x / 2;
+        int right = left + ARROW_SIZE.x;
 
-        return topArrow;
+        int top = MARGIN_SIZE.y;
+        int midY = top + ARROW_SIZE.y / 2;
+        int bottom = top + ARROW_SIZE.y;
+
+        return new int[] { right, bottom - 2, right, top, midX, top, midX,
+                midY, left, midY };
     }
 
     /**
@@ -695,102 +518,79 @@ public class ColorBar extends Composite implements MouseListener,
      * @return Array of points outlining the bottom slider arrow.
      */
     private int[] calcBottomArrow(int xCoord) {
-        int[] bottomArrow = { (HORIZ_MARGIN + xCoord), (BAR_BOTTOM + 2),
-                (HORIZ_MARGIN + xCoord), (BAR_BOTTOM + ARROW_HEIGHT),
-                (HORIZ_MARGIN + xCoord + ARROW_WIDTH / 2),
-                (BAR_BOTTOM + ARROW_HEIGHT),
-                (HORIZ_MARGIN + xCoord + ARROW_WIDTH / 2),
-                (BAR_BOTTOM + ARROW_HEIGHT / 2),
-                (HORIZ_MARGIN + xCoord + ARROW_WIDTH),
-                (BAR_BOTTOM + ARROW_HEIGHT / 2) };
+        int left = xCoord + MARGIN_SIZE.x + ARROW_SIZE.x;
+        int midX = left + ARROW_SIZE.x / 2;
+        int right = left + ARROW_SIZE.x;
 
-        return bottomArrow;
+        Rectangle bar = getBarBounds();
+        int top = bar.y + bar.height + 2;
+        int midY = top + ARROW_SIZE.y / 2;
+        int bottom = top + ARROW_SIZE.y;
+
+        return new int[] { left, top + 2, left, bottom, midX, bottom, midX,
+                midY, right, midY };
     }
 
     /**
-     * Calculate the areas of the color bar.
+     * @return The currently displayed list of colors.
      */
-    private void calculateColorBarAreas() {
-        topSliderRect = new Rectangle(0, 0, CANVAS_WIDTH, BAR_TOP);
-        bottomSliderRect = new Rectangle(0, BAR_BOTTOM, CANVAS_WIDTH, BAR_TOP);
-        topColorRect = new Rectangle((HORIZ_MARGIN + 1), (BAR_TOP + 1),
-                (BAR_WIDTH - 1), ((int) (BAR_HEIGHT / 2)));
-        bottomColorRect = new Rectangle((HORIZ_MARGIN + 1),
-                (BAR_TOP + 1 + ((int) (BAR_HEIGHT / 2))), (BAR_WIDTH - 1),
-                ((int) (BAR_HEIGHT / 2)));
+    public List<ColorData> getCurrentColors() {
+        return colorHistory.get(currentColorIndex);
     }
 
     /**
-     * Create the slider navigation buttons on the right side of the color bar.
+     * @return A copy of the currently displayed list of colors(for
+     *         modification).
      */
-    private void createRightButtons() {
-        // Create a composite that will hold the buttons.
-        Composite rightButtonsComp = new Composite(this, SWT.NONE);
-        RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
-        rowLayout.spacing = 5;
-        rightButtonsComp.setLayout(rowLayout);
+    protected List<ColorData> getCurrentColorsCopy() {
+        return new ArrayList<ColorData>(getCurrentColors());
+    }
 
-        // Create the single step right button for the top slider.
-        RowData rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        topMoveRight = new Button(rightButtonsComp, SWT.PUSH);
-        topMoveRight.setText(">");
-        topMoveRight.setLayoutData(rd);
-        topMoveRight.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                // Move the top slider to the right 1 cell.
-                int x = getXcoord(topSliderX + HORIZ_MARGIN);
-                int y = topSliderX + 1 + HORIZ_MARGIN;
+    /**
+     * Set the current colors as the last item on the color history.
+     * 
+     * @param colors
+     */
+    protected void setCurrentColors(List<ColorData> colors) {
+        if (colors.equals(getCurrentColors()) == false) {
+            int oldCount = getColorCount();
+            colorHistory.subList(currentColorIndex + 1, colorHistory.size())
+                    .clear();
+            colorHistory.add(colors);
+            currentColorIndex += 1;
+            int newCount = getColorCount();
+            topSliderIndex = reIndex(oldCount, newCount, topSliderIndex);
+            bottomSliderIndex = reIndex(oldCount, newCount, bottomSliderIndex);
+            repaintColorbars();
+        }
+    }
 
-                if (x == getXcoord(y)) {
-                    ++y;
-                }
+    /**
+     * @param index
+     * @return the current {@link ColorData} at the specified index of the
+     *         current color list.
+     */
+    protected ColorData getCurrentColor(int index) {
+        return colorHistory.get(currentColorIndex).get(index);
+    }
 
-                drawTopSlider(y);
-            }
-        });
+    /**
+     * @return The colorData the top arrow is pointing to.
+     */
+    protected ColorData getTopColor() {
+        return getCurrentColors().get(topSliderIndex);
+    }
 
-        // Create the skip color right navigation button for
-        // the top slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        topSkipRight = new Button(rightButtonsComp, SWT.PUSH);
-        topSkipRight.setText(">>");
-        topSkipRight.setLayoutData(rd);
-        topSkipRight.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                skipTopSliderToRight();
-            }
-        });
+    /**
+     * @return The colorData the bottom arrow is pointing to.
+     */
+    protected ColorData getBottomColor() {
+        return getCurrentColors().get(bottomSliderIndex);
+    }
 
-        // Create the skip color right navigation button for
-        // the bottom slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        bottomSkipRight = new Button(rightButtonsComp, SWT.PUSH);
-        bottomSkipRight.setText(">>");
-        bottomSkipRight.setLayoutData(rd);
-        bottomSkipRight.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                skipBottomSliderToRight();
-            }
-        });
-
-        // Create the single step right button for the bottom slider.
-        rd = new RowData(NAV_BTN_WIDTH, NAV_BTN_HEIGHT);
-        bottomMoveRight = new Button(rightButtonsComp, SWT.PUSH);
-        bottomMoveRight.setText(">");
-        bottomMoveRight.setLayoutData(rd);
-        bottomMoveRight.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent event) {
-                // Move the bottom slider to the right 1 cell.
-                int x = getXcoord(bottomSliderX + HORIZ_MARGIN);
-                int y = bottomSliderX + 1 + HORIZ_MARGIN;
-
-                if (x == getXcoord(y)) {
-                    ++y;
-                }
-
-                drawBottomSlider(y);
-            }
-        });
+    public void updateColorMap(ColorMapParameters newParams) {
+        cmapParams = newParams;
+        setCurrentColors(ColorUtil.buildColorData(cmapParams.getColorMap()));
     }
 
     /**
@@ -799,154 +599,66 @@ public class ColorBar extends Composite implements MouseListener,
      * @param e
      *            Mouse event.
      */
+    @Override
     public void mouseMove(MouseEvent e) {
-        // Check if the mouse button is held down.
-        if (mouseIsDown) {
+        if (moveTopSlider || moveBottomSlider || queryTopColorBar
+                || queryBottomColorBar) {
+            Rectangle bar = getBarBounds();
+            int index = reIndex(bar.width, getColorCount(), e.x - bar.x);
             if (moveTopSlider) {
-                // Move the top slider arrow.
-                drawTopSlider(e.x);
+                topSliderIndex = index;
+                bottomSliderIndex = Math.max(topSliderIndex, bottomSliderIndex);
+                repaint();
             } else if (moveBottomSlider) {
-                // Move the bottom slider arrow.
-                drawBottomSlider(e.x);
-            } else if (queryTopColorBar) {
-                // Update the upper color wheel with the color
-                // the mouse is over on the top part of the color bar.
-                callBack.updateColor(
-                        currentColors.get(getXcoord(e.x - HORIZ_MARGIN)), true);
-            } else if (queryBottomColorBar) {
-                // Update the lower color wheel with the color
-                // the mouse is over on the bottom part of the color bar.
-                callBack.updateColor(
-                        currentColors.get(getXcoord(e.x - HORIZ_MARGIN)), false);
+                bottomSliderIndex = index;
+                topSliderIndex = Math.min(topSliderIndex, bottomSliderIndex);
+                repaint();
+
+            } else {
+                callBack.updateColor(getCurrentColor(index), queryTopColorBar);
+
             }
         }
     }
 
-    /**
-     * Mouse double click method -- NOT USED
-     */
+    @Override
     public void mouseDoubleClick(MouseEvent e) {
+        /* NOT USED */
     }
 
-    /**
-     * Method that is called when the mouse button is
-     */
+    @Override
     public void mouseDown(MouseEvent e) {
-        // If the left mouse button was not pressed then return.
+        /* If the left mouse button was not pressed then return. */
         if (e.button != 1) {
             return;
         }
 
-        mouseIsDown = true;
+        Rectangle bar = getBarBounds();
 
-        // Check when the mouse is at in the color bar canvas. This
-        // will determine what action is taken.
-        if (topSliderRect.contains(e.x, e.y) == true) {
+        /* Determine action to take based off location. */
+        if (e.y < bar.y) {
             moveTopSlider = true;
-            drawTopSlider(e.x);
-        } else if (bottomSliderRect.contains(e.x, e.y) == true) {
+        } else if (e.y > bar.y + bar.height) {
             moveBottomSlider = true;
-            drawBottomSlider(e.x);
-        } else if (topColorRect.contains(e.x, e.y) == true) {
-            queryTopColorBar = true;
-            callBack.updateColor(
-                    currentColors.get(getXcoord(e.x - HORIZ_MARGIN)), true);
-        } else if (bottomColorRect.contains(e.x, e.y) == true) {
-            queryBottomColorBar = true;
-            callBack.updateColor(
-                    currentColors.get(getXcoord(e.x - HORIZ_MARGIN)), false);
+        } else if (bar.contains(e.x, e.y)) {
+            if (e.y < bar.y + bar.height / 2) {
+                queryTopColorBar = true;
+            } else {
+                queryBottomColorBar = true;
+
+            }
         }
+        /* Use mouse move to perform action, avoid duplicate code. */
+        mouseMove(e);
     }
 
-    /**
-     * Method called when the mouse button is released.
-     * 
-     * @param e
-     *            Mouse event.
-     */
+    @Override
     public void mouseUp(MouseEvent e) {
-        mouseIsDown = false;
+        /* Reset any action flags that might have been set on mouseDown */
         moveBottomSlider = false;
         moveTopSlider = false;
         queryTopColorBar = false;
         queryBottomColorBar = false;
-    }
-
-    /**
-     * Draw the top slider in the color bar. The actual "drawing" is done when
-     * the redraw method on the color bar canvas is called.
-     * 
-     * @param mouseXcoord
-     *            Mouse's X coordinate.
-     */
-    private void drawTopSlider(int mouseXcoord) {
-        // Get the top slider position minus the horizontal offset.
-        topSliderX = mouseXcoord - HORIZ_MARGIN;
-
-        // Check to see if the mouse's X coordinate is out side
-        // the range of the top slider.
-        if (mouseXcoord > LEFT_MOUSE_BOUNDS && mouseXcoord < RIGHT_MOUSE_BOUNDS) {
-            // If the top slider position is right of the bottom
-            // slider then we need to move the bottom slider to
-            // the same position as the top slider.
-            if (topSliderX > bottomSliderX) {
-                bottomSliderX = topSliderX;
-                drawBottomSlider(mouseXcoord);
-            }
-        } else {
-            // If the mouse's X coordinate is less than the mouse left bounds
-            // limit then set the top slider and bottom slider to 0
-            // (all the way to the left).
-            // If the mouse's X coordinate is greater than the mouse right
-            // bounds
-            // limit then set the top slider to the width of the color bar
-            // (all the way to the right).
-            if (mouseXcoord <= LEFT_MOUSE_BOUNDS) {
-                topSliderX = 0;
-            } else if (mouseXcoord >= RIGHT_MOUSE_BOUNDS) {
-                topSliderX = BAR_WIDTH;
-                bottomSliderX = BAR_WIDTH;
-                drawBottomSlider(mouseXcoord);
-            }
-        }
-
-        // Redraw the color bar canvas.
-        repaint();
-    }
-
-    /**
-     * Draw the bottom slider in the color bar. The actual "drawing" is done
-     * when the redraw method on the color bar canvas is called.
-     * 
-     * @param mouseXcoord
-     *            Mouse's X coordinate.
-     */
-    private void drawBottomSlider(int mouseXcoord) {
-        bottomSliderX = mouseXcoord - HORIZ_MARGIN;
-
-        if (mouseXcoord > LEFT_MOUSE_BOUNDS && mouseXcoord < RIGHT_MOUSE_BOUNDS) {
-            if (bottomSliderX < topSliderX) {
-                topSliderX = bottomSliderX;
-                drawTopSlider(mouseXcoord);
-            }
-        } else {
-            // If the mouse's X coordinate is less than the mouse left bounds
-            // limit then set the bottom slider and top slider to 0
-            // (all the way to the left).
-            // If the mouse's X coordinate is greater than the mouse right
-            // bounds
-            // limit then set the bottom slider to the width of the color bar
-            // (all the way to the right).
-            if (mouseXcoord <= LEFT_MOUSE_BOUNDS) {
-                bottomSliderX = 0;
-                topSliderX = 0;
-                drawTopSlider(mouseXcoord);
-            } else if (mouseXcoord >= RIGHT_MOUSE_BOUNDS) {
-                bottomSliderX = BAR_WIDTH;
-            }
-        }
-
-        repaint();
     }
 
     /**
@@ -961,36 +673,13 @@ public class ColorBar extends Composite implements MouseListener,
      *            will be updated.
      */
     public void setColorBarColor(ColorData colorData, boolean upperFlag) {
-        int xCoord = 0;
-
-        // Create a new array of colors using the current list of colors.
-        // This list will be modified and put in the undo/redo array.
-        ArrayList<ColorData> newColors = new ArrayList<ColorData>(currentColors);
-
-        // Check if the top or bottom slider X coordinate
-        // will be used.
+        List<ColorData> newColors = getCurrentColorsCopy();
         if (upperFlag) {
-            xCoord = getXcoord(topSliderX);
+            newColors.set(topSliderIndex, colorData);
         } else {
-            xCoord = getXcoord(bottomSliderX);
+            newColors.set(bottomSliderIndex, colorData);
         }
-
-        // Change the necessary color.
-        newColors.set(xCoord, colorData);
-
-        // Add the changed color array to the undo/redo array.
-        if (currentColorIndex == (undoRedoArray.size() - 1)) {
-            ++currentColorIndex;
-            undoRedoArray.add(newColors);
-        } else {
-            ++currentColorIndex;
-            undoRedoArray.add(currentColorIndex, newColors);
-        }
-
-        // Update the current colors array with the changed colors.
-        currentColors = new ArrayList<ColorData>(newColors);
-
-        repaintColorbars();
+        setCurrentColors(newColors);
     }
 
     /**
@@ -1002,29 +691,17 @@ public class ColorBar extends Composite implements MouseListener,
      *            The color to fill the color bar area with.
      */
     public void fillColorBarColor(ColorData colorData) {
-        int topXCoord = getXcoord(topSliderX);
-        int bottomXCoord = getXcoord(bottomSliderX);
-        ArrayList<ColorData> newColors = new ArrayList<ColorData>(currentColors);
+        List<ColorData> newColors = getCurrentColorsCopy();
 
-        // Fill the cells between the top slider and the bottom
-        // slider with the fill color.
-        for (int i = topXCoord; i <= bottomXCoord; ++i) {
+        /*
+         * Fill the cells between the top slider and the bottom slider with the
+         * fill color.
+         */
+        for (int i = topSliderIndex; i <= bottomSliderIndex; ++i) {
             newColors.set(i, colorData);
         }
 
-        // Update the undo/redo array.
-        if (currentColorIndex == 0) {
-            ++currentColorIndex;
-            undoRedoArray.add(newColors);
-        } else {
-            ++currentColorIndex;
-            undoRedoArray.add(currentColorIndex, newColors);
-        }
-
-        // Update the current colors array with the changed colors.
-        currentColors = new ArrayList<ColorData>(newColors);
-
-        repaintColorbars();
+        setCurrentColors(newColors);
     }
 
     /**
@@ -1034,23 +711,17 @@ public class ColorBar extends Composite implements MouseListener,
      *         return false.
      */
     public boolean undoColorBar() {
-        boolean rv = true;
-
-        // Decrement the color index.
-        --currentColorIndex;
-
-        // If the color index is less than or equal zero set it to
-        // zero and return false.
         if (currentColorIndex <= 0) {
-            currentColorIndex = 0;
-            rv = false;
+            return false;
+        } else {
+            int oldCount = getColorCount();
+            currentColorIndex -= 1;
+            int newCount = getColorCount();
+            topSliderIndex = reIndex(oldCount, newCount, topSliderIndex);
+            bottomSliderIndex = reIndex(oldCount, newCount, bottomSliderIndex);
+            repaintColorbars();
+            return true;
         }
-
-        // Update the current array of colors and redraw the color bar.
-        currentColors = undoRedoArray.get(currentColorIndex);
-        repaintColorbars();
-
-        return rv;
     }
 
     /**
@@ -1060,23 +731,17 @@ public class ColorBar extends Composite implements MouseListener,
      *         return false.
      */
     public boolean redoColorBar() {
-        boolean rv = true;
-
-        // Increment the color index.
-        ++currentColorIndex;
-
-        // Check if the color index is at the last element
-        // of the undo/redo array.
-        if (currentColorIndex == undoRedoArray.size() - 1) {
-            currentColorIndex = undoRedoArray.size() - 1;
-            rv = false;
+        if (currentColorIndex >= colorHistory.size()) {
+            return false;
+        } else {
+            int oldCount = getColorCount();
+            currentColorIndex += 1;
+            int newCount = getColorCount();
+            topSliderIndex = reIndex(oldCount, newCount, topSliderIndex);
+            bottomSliderIndex = reIndex(oldCount, newCount, bottomSliderIndex);
+            repaintColorbars();
+            return true;
         }
-
-        // Update the current array of colors and redraw the color bar.
-        currentColors = undoRedoArray.get(currentColorIndex);
-        repaintColorbars();
-
-        return rv;
     }
 
     /**
@@ -1084,133 +749,13 @@ public class ColorBar extends Composite implements MouseListener,
      * in the color bar.
      */
     public void revertColorBar() {
-        undoRedoArray.clear();
-        currentColors = new ArrayList<ColorData>(startingColors);
-        undoRedoArray.add(currentColors);
-        repaintColorbars();
+        int oldCount = getColorCount();
         currentColorIndex = 0;
-    }
-
-    /**
-     * The top slider will skip left to the next color in the color bar that is
-     * not the same as the current color the slider is pointing at.
-     */
-    private void skipTopSliderToLeft() {
-        // Get the X coordinate of the slider.
-        int topXCoord = getXcoord(topSliderX);
-
-        // Get the current color the top slider is "pointing" to.
-        RGB currentRGB = currentColors.get(topXCoord).rgbColor;
-
-        // Loop until a new color is found.
-        for (int i = topXCoord - 1; i >= 0; i--) {
-            tmpRGB = currentColors.get(i).rgbColor;
-
-            // If a new color is found then move the slider
-            // to the new color.
-            if (currentRGB.red != tmpRGB.red
-                    || currentRGB.green != tmpRGB.green
-                    || currentRGB.blue != tmpRGB.blue) {
-                int skipXCoord = Math.round(i * PIXELS_PER_CELL);
-
-                drawTopSlider(skipXCoord + HORIZ_MARGIN);
-                break;
-            }
-        }
-    }
-
-    /**
-     * The bottom slider will skip left to the next color in the color bar that
-     * is not the same as the current color the slider is pointing at.
-     */
-    private void skipBottomSliderToLeft() {
-        // Get the X coordinate of the slider.
-        int bottomXCoord = getXcoord(bottomSliderX);
-
-        // Get the current color.
-        RGB currentRGB = currentColors.get(bottomXCoord).rgbColor;
-
-        // Loop until a new color is found.
-        for (int i = bottomXCoord - 1; i >= 0; i--) {
-            tmpRGB = currentColors.get(i).rgbColor;
-
-            // If a new color is found then move the slider
-            // to the new color.
-            if (currentRGB.red != tmpRGB.red
-                    || currentRGB.green != tmpRGB.green
-                    || currentRGB.blue != tmpRGB.blue) {
-                int skipXCoord = Math.round(i * PIXELS_PER_CELL);
-
-                drawBottomSlider(skipXCoord + HORIZ_MARGIN);
-                break;
-            }
-        }
-    }
-
-    /**
-     * The top slider will skip right to the next color in the color bar that is
-     * not the same as the current color the slider is pointing at.
-     */
-    private void skipTopSliderToRight() {
-        // Get the X coordinate of the slider.
-        int topXCoord = getXcoord(topSliderX);
-
-        // Get the current color.
-        RGB currentRGB = currentColors.get(topXCoord).rgbColor;
-
-        // Loop until a new color is found.
-        for (int i = topXCoord + 1; i < currentColors.size(); i++) {
-            tmpRGB = currentColors.get(i).rgbColor;
-
-            // If a new color is found then move the slider
-            // to the new color.
-            if (currentRGB.red != tmpRGB.red
-                    || currentRGB.green != tmpRGB.green
-                    || currentRGB.blue != tmpRGB.blue) {
-                int skipXCoord = Math.round(i * PIXELS_PER_CELL);
-                int newSliderCoord = topSliderX + 1;
-
-                while ((getXcoord(newSliderCoord) < getXcoord(skipXCoord)) == true) {
-                    ++newSliderCoord;
-                }
-
-                drawTopSlider(newSliderCoord + HORIZ_MARGIN);
-                break;
-            }
-        }
-    }
-
-    /**
-     * The bottom slider will skip right to the next color in the color bar that
-     * is not the same as the current color the slider is pointing at.
-     */
-    private void skipBottomSliderToRight() {
-        // Get the X coordinate of the slider.
-        int bottomXCoord = getXcoord(bottomSliderX);
-
-        // Get the current color.
-        RGB currentRGB = currentColors.get(bottomXCoord).rgbColor;
-
-        // Loop until a new color is found.
-        for (int i = bottomXCoord + 1; i < currentColors.size(); i++) {
-            tmpRGB = currentColors.get(i).rgbColor;
-
-            // If a new color is found then move the slider
-            // to the new color.
-            if (currentRGB.red != tmpRGB.red
-                    || currentRGB.green != tmpRGB.green
-                    || currentRGB.blue != tmpRGB.blue) {
-                int skipXCoord = Math.round(i * PIXELS_PER_CELL);
-                int newSliderCoord = bottomSliderX + 1;
-
-                while ((getXcoord(newSliderCoord) < getXcoord(skipXCoord)) == true) {
-                    ++newSliderCoord;
-                }
-
-                drawBottomSlider(newSliderCoord + HORIZ_MARGIN);
-                break;
-            }
-        }
+        colorHistory.subList(1, colorHistory.size()).clear();
+        int newCount = getColorCount();
+        topSliderIndex = reIndex(oldCount, newCount, topSliderIndex);
+        bottomSliderIndex = reIndex(oldCount, newCount, bottomSliderIndex);
+        repaintColorbars();
     }
 
     /**
@@ -1235,84 +780,44 @@ public class ColorBar extends Composite implements MouseListener,
      */
     public void interpolate(ColorData startColorData, ColorData endColorData,
             boolean isRGB) {
-        float numOfCells = (bottomSliderX - topSliderX) / PIXELS_PER_CELL;
-
-        // Check if the interpolation should be RGB or HSB.
-        if (isRGB) {
-            // Get the delta between the starting and ending colors for
-            // red, green, blue, as well as the alpha.
-            float deltaRed = (endColorData.rgbColor.red - startColorData.rgbColor.red)
-                    / numOfCells;
-            float deltaGreen = (endColorData.rgbColor.green - startColorData.rgbColor.green)
-                    / numOfCells;
-            float deltaBlue = (endColorData.rgbColor.blue - startColorData.rgbColor.blue)
-                    / numOfCells;
+        float numOfCells = bottomSliderIndex - topSliderIndex;
+        // Create a new color array using the current set of colors.
+        List<ColorData> newColors = getCurrentColorsCopy();
+        if (topSliderIndex == bottomSliderIndex) {
+            newColors.set(topSliderIndex, startColorData);
+        } else if (isRGB) {
+            RGB startRGB = startColorData.rgbColor;
+            RGB endRGB = endColorData.rgbColor;
+            /*
+             * Get the delta between the starting and ending colors for red,
+             * green, blue, as well as the alpha.
+             */
+            float deltaRed = (endRGB.red - startRGB.red) / numOfCells;
+            float deltaGreen = (endRGB.green - startRGB.green) / numOfCells;
+            float deltaBlue = (endRGB.blue - startRGB.blue) / numOfCells;
             float deltaAlpha = (endColorData.alphaValue - startColorData.alphaValue)
                     / numOfCells;
 
-            // Create an array of new colors using the current colors.
-            ArrayList<ColorData> newColors = new ArrayList<ColorData>(
-                    currentColors);
+            /*
+             * Loop through all of the cells and fill them with the interpolated
+             * colors.
+             */
+            for (int i = 0; i < numOfCells; i += 1) {
+                float newRed = (deltaRed * i) + startRGB.red;
+                float newGreen = (deltaGreen * i) + startRGB.green;
+                float newBlue = (deltaBlue * i) + startRGB.blue;
+                float newAlpha = (deltaAlpha * i) + startColorData.alphaValue;
 
-            // Initialize local variables.
-            ColorData colorData;
-            RGB tmpRGB;
-            int newRed = 0;
-            int newGreen = 0;
-            int newBlue = 0;
-            int newAlpha = 255;
-            int topXCoord = getXcoord(topSliderX);
-            int bottomXCoord = getXcoord(bottomSliderX);
-            int i = 0;
+                RGB tmpRGB = new RGB(checkRgbColor(newRed),
+                        checkRgbColor(newGreen), checkRgbColor(newBlue));
+                ColorData colorData = new ColorData(tmpRGB,
+                        checkRgbColor(newAlpha));
 
-            // If the top and bottom sliders are in the same position then
-            // only one cell color can be changed. We will fill the cell
-            // using the starting color.
-            if (topXCoord == bottomXCoord) {
-                newColors.set(topXCoord, startColorData);
-            } else {
-                // Loop through all of the cells and fill them with the
-                // interpolated colors.
-                for (int x = topXCoord; x <= bottomXCoord; ++x) {
-                    newRed = Math.round((deltaRed * i)
-                            + startColorData.rgbColor.red);
-                    newGreen = Math.round((deltaGreen * i)
-                            + startColorData.rgbColor.green);
-                    newBlue = Math.round((deltaBlue * i)
-                            + startColorData.rgbColor.blue);
-                    newAlpha = Math.round((deltaAlpha * i)
-                            + startColorData.alphaValue);
+                newColors.set(topSliderIndex + i, colorData);
 
-                    tmpRGB = new RGB(checkRgbColor(newRed),
-                            checkRgbColor(newGreen), checkRgbColor(newBlue));
-                    colorData = new ColorData(tmpRGB, newAlpha);
-
-                    // If we are at the last cell to be changed then set the
-                    // last
-                    // color to the ending color.
-                    if (x == bottomXCoord) {
-                        newColors.set(x, endColorData);
-                    } else {
-                        newColors.set(x, colorData);
-                    }
-                    ++i;
-                }
             }
+            newColors.set(bottomSliderIndex, endColorData);
 
-            // Put the new color array into the undo/redo list.
-            if (currentColorIndex == 0) {
-                ++currentColorIndex;
-                undoRedoArray.add(newColors);
-            } else {
-                ++currentColorIndex;
-                undoRedoArray.add(currentColorIndex, newColors);
-            }
-
-            // Set the current colors to the changed set of colors.
-            currentColors = new ArrayList<ColorData>(newColors);
-
-            // Redraw the color bar canvas.
-            repaintColorbars();
         } else {
             // Get the starting and ending HSB colors.
             float[] startHSB = startColorData.rgbColor.getHSB();
@@ -1325,66 +830,261 @@ public class ColorBar extends Composite implements MouseListener,
 
             float deltaAlpha = (endColorData.alphaValue - startColorData.alphaValue)
                     / numOfCells;
+            /*
+             * Loop through all of the cells and fill them with the interpolated
+             * colors.
+             */
+            for (int i = 0; i < numOfCells; i += 1) {
+                float newHue = (deltaHue * i) + startHSB[0];
+                float newSaturation = (deltaSaturation * i) + startHSB[1];
+                float newBrightness = (deltaBrightness * i) + startHSB[2];
+                int newAlpha = Math.round((deltaAlpha * i)
+                        + startColorData.alphaValue);
 
-            // Create a new color array using the current set of colors.
-            ArrayList<ColorData> newColors = new ArrayList<ColorData>(
-                    currentColors);
+                RGB tmpRGB = new RGB(checkHue(newHue), newSaturation,
+                        newBrightness);
+                ColorData colorData = new ColorData(tmpRGB, newAlpha);
 
-            // Initialize local variables.
-            ColorData colorData;
-            RGB tmpRGB;
-            float newHue = 0;
-            float newSaturation = 0;
-            float newBrightness = 0;
-            int newAlpha = 255;
-            int topXCoord = getXcoord(topSliderX);
-            int bottomXCoord = getXcoord(bottomSliderX);
-            int i = 0;
+                newColors.set(topSliderIndex + i, colorData);
+            }
+            newColors.set(bottomSliderIndex, endColorData);
+        }
 
-            // If the top slider and the bottom slider are at the same position
-            // then set the cell to the starting color.
-            if (topXCoord == bottomXCoord) {
-                newColors.set(topXCoord, startColorData);
-            } else {
-                // Loop through all of the cells and fill them with the
-                // interpolated colors.
-                for (int x = topXCoord; x <= bottomXCoord; ++x) {
-                    newHue = (float) (deltaHue * i) + startHSB[0];
-                    newSaturation = (float) (deltaSaturation * i) + startHSB[1];
-                    newBrightness = (float) (deltaBrightness * i) + startHSB[2];
-                    newAlpha = Math.round((deltaAlpha * i)
-                            + startColorData.alphaValue);
+        setCurrentColors(newColors);
+    }
 
-                    tmpRGB = new RGB(checkHue(newHue), newSaturation,
-                            newBrightness);
-                    colorData = new ColorData(tmpRGB, newAlpha);
+    /**
+     * Clear the color history so that a revert operation in the future will
+     * revert to the current colors.
+     */
+    public void updateRevertToCurrent() {
+        colorHistory.subList(0, colorHistory.size() - 1).clear();
+        currentColorIndex = 0;
+    }
 
-                    // If we are at the last cell to be changed then
-                    // set the last color to the ending color.
-                    if (x == bottomXCoord) {
-                        newColors.set(x, endColorData);
-                    } else {
-                        newColors.set(x, colorData);
-                    }
-                    ++i;
+    /**
+     * Get the text to display for a slider arrow at the specified index.
+     * 
+     * @param index
+     * @return
+     */
+    protected String getSliderText(int index) {
+        int size = getColorCount();
+        UnitConverter unitConv = cmapParams.getColorMapToDisplayConverter();
+
+        float max = cmapParams.getColorMapMax();
+        float min = cmapParams.getColorMapMin();
+        float range = max - min;
+        double lastVal = Double.NaN;
+        float increment = range / (size - 1);
+        double value = cmapParams.getColorMapMin() + (increment * index);
+        if (index > 0) {
+            lastVal = value - increment;
+        }
+        if (cmapParams.isLogarithmic()) {
+            if (max >= 0 && min >= 0) {
+                double i = (float) index / size;
+                double logMin = Math.log(min);
+                double logMax = Math.log(max);
+                value = Math.exp(logMin + i * (logMax - logMin));
+                if (index > 0) {
+                    i = (float) (index - 1) / size;
+                    lastVal = Math.exp(logMin + i * (logMax - logMin));
                 }
             }
 
-            // Put the new color array into the undo/redo list.
-            if (currentColorIndex == 0) {
-                ++currentColorIndex;
-                undoRedoArray.add(newColors);
-            } else {
-                ++currentColorIndex;
-                undoRedoArray.add(currentColorIndex, newColors);
+        }
+
+        if (unitConv != null) {
+            value = unitConv.convert(value);
+            lastVal = unitConv.convert(lastVal);
+
+            /* Check if the last value is non a number. */
+            if (Double.isNaN(value)) {
+                if (Double.isNaN(lastVal)) {
+                    return "NO DATA";
+                } else if (((Double) value).isNaN()) {
+                    if (numberFormat != null)
+                        return "> " + numberFormat.format(lastVal);
+                    else
+                        return "> " + lastVal;
+                }
             }
 
-            // Set the current colors to the changed set of colors.
-            currentColors = new ArrayList<ColorData>(newColors);
-
-            // Redraw the color bar canvas.
-            repaintColorbars();
         }
+        if (cmapParams.getDataMapping() != null) {
+            String dmLabel = cmapParams.getDataMapping()
+                    .getLabelValueForDataValue(value);
+            if (dmLabel != null && !"".equals(dmLabel.trim())) {
+                return dmLabel;
+            }
+        }
+        NumberFormat format = numberFormat != null ?
+                numberFormat : new DecimalFormat("0.0##");
+        return format.format(value);
+    }
+
+    public Point getSliderRange() {
+        return new Point(topSliderIndex, bottomSliderIndex);
+    }
+
+    /** Repaint the colobar's canvas because if alpha mask state has changed */
+    public void repaint() {
+        colorBarCanvas.redraw();
+    }
+
+    /** Paint the color bar images */
+    public void repaintColorbars() {
+        // Don't do this if I am disposed;
+        if (isDisposed()) {
+            return;
+        }
+        // initialize the color bars
+        initalizeColorbarImages();
+
+        // repaint the canvas
+        repaint();
+    }
+
+    private void initalizeColorbarImages() {
+        Rectangle bar = getBarBounds();
+        if (bar.isEmpty()) {
+            return;
+        }
+        List<ColorData> currentColors = getCurrentColors();
+        Image colorBar = paintColorBar(currentColors, false);
+        Image colorBarWithMask = null;
+        if (enabledColorMask) {
+            colorBarWithMask = paintColorBar(currentColors, true);
+        }
+        synchronized (this) {
+            if (this.colorBar != null) {
+                this.colorBar.dispose();
+            }
+            this.colorBar = colorBar;
+
+            if (colorBarWithMask != null) {
+                if (this.colorBarWithMask != null) {
+                    this.colorBarWithMask.dispose();
+                }
+                this.colorBarWithMask = colorBarWithMask;
+            }
+        }
+    }
+
+    private Image paintColorBar(List<ColorData> colors, boolean useMask) {
+        Rectangle bar = getBarBounds();
+        int colorCount = getColorCount();
+        Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
+        Color white = getDisplay().getSystemColor(SWT.COLOR_WHITE);
+
+        Image colorBar = new Image(getDisplay(), bar.width - 1, bar.height - 1);
+        GC gc = new GC(colorBar);
+
+        gc.setBackground(black);
+        gc.fillRectangle(0, 0, bar.width - 1, bar.height - 1);
+        /*
+         * Draw 2 filled rectangles. One for the top and one for the bottom of
+         * the color bar. These rectangles will show up when the alpha channel
+         * is set.
+         */
+        gc.setBackground(white);
+        gc.fillRectangle(0, 10, bar.width, Math.round(bar.height / 6));
+        gc.fillRectangle(0, (bar.height / 2) + 10, bar.width,
+                Math.round(bar.height / 6));
+
+        byte[] mask = cmapParams.getAlphaMask();
+
+        for (int x = 0; x < bar.width - 1; ++x) {
+            int idx = reIndex(bar.width, colorCount, x);
+
+            if (useMask && mask[idx] != 0) {
+                gc.setAlpha(255);
+                gc.setForeground(black);
+                gc.drawLine(x, 0, x, bar.height);
+            } else {
+                ColorData colorData = colors.get(idx);
+                Color color = new Color(getDisplay(), colorData.rgbColor);
+                gc.setAlpha(colorData.alphaValue);
+                gc.setForeground(color);
+                gc.drawLine(x, 0, x, bar.height);
+                color.dispose();
+            }
+        }
+        gc.dispose();
+        return colorBar;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        if (!enabled) {
+            revertColorBar();
+        }
+        for (Button button : navButtons) {
+            button.setEnabled(enabled);
+        }
+        colorBarCanvas.setEnabled(enabled);
+        colorBarCanvas.redraw();
+    }
+
+    public boolean canUndo() {
+        return currentColorIndex > 0;
+    }
+
+    public boolean canRedo() {
+        return currentColorIndex < (colorHistory.size() - 1);
+    }
+
+    /**
+     * Adjust the number of colors in the current color list. If more colors
+     * than the current list then interpolated colors will be added.
+     * 
+     * @param count
+     */
+    public void setColorCount(int count) {
+        List<ColorData> currentColors = getCurrentColors();
+        int oldCount = currentColors.size();
+        if (count == oldCount) {
+            return;
+        }
+        List<ColorData> newColors = new ArrayList<ColorData>(count);
+        for (int i = 0; i < count; i += 1) {
+            double percentage = i / (double) (count - 1);
+            double index = (oldCount - 1) * percentage;
+            int prev = (int) Math.floor(index);
+            int next = (int) Math.ceil(index);
+            if (prev == next) {
+                newColors.add(currentColors.get(prev));
+            } else {
+                double prevWeight = next - index;
+                double nextWeight = index - prev;
+                ColorData prevData = currentColors.get(prev);
+                ColorData nextData = currentColors.get(next);
+                int r = (int) (prevData.rgbColor.red * prevWeight + nextData.rgbColor.red
+                        * nextWeight);
+                int g = (int) (prevData.rgbColor.green * prevWeight + nextData.rgbColor.green
+                        * nextWeight);
+                int b = (int) (prevData.rgbColor.blue * prevWeight + nextData.rgbColor.blue
+                        * nextWeight);
+                int a = (int) (prevData.alphaValue * prevWeight + nextData.alphaValue
+                        * nextWeight);
+                RGB rgb = new RGB(r, g, b);
+                newColors.add(new ColorData(rgb, a));
+            }
+
+        }
+        setCurrentColors(newColors);
+    }
+
+    public int getColorCount() {
+        return getCurrentColors().size();
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        font.dispose();
     }
 
     /**
@@ -1403,7 +1103,7 @@ public class ColorBar extends Composite implements MouseListener,
      *            Ending hue value.
      * @return The minimum difference between the hue values.
      */
-    private float getMinHueDiff(float startHue, float endHue) {
+    private static float getMinHueDiff(float startHue, float endHue) {
         float diff = endHue - startHue;
 
         if (Math.abs(diff) > 180) {
@@ -1420,7 +1120,7 @@ public class ColorBar extends Composite implements MouseListener,
      *            Hue value.
      * @return Either the original hue value or the corrected hue value.
      */
-    private float checkHue(float hue) {
+    private static float checkHue(float hue) {
         if (hue > 360f) {
             hue = hue - 360f;
         } else if (hue < 0f) {
@@ -1437,339 +1137,25 @@ public class ColorBar extends Composite implements MouseListener,
      *            R/G/B color to validate.
      * @return Existing R/G/B color value or the adjusted color value.
      */
-    private int checkRgbColor(int color) {
-        if (color > 255) {
+    private static int checkRgbColor(float color) {
+        int icolol = Math.round(color);
+        if (icolol > 255) {
             return 255;
-        } else if (color < 0) {
+        } else if (icolol < 0) {
             return 0;
         }
 
-        return color;
+        return icolol;
     }
 
-    /**
-     * The adjust X coordinate relative to the slider or mouse position.
-     * 
-     * @param xCoord
-     * @return The converted X coordinate.
-     */
-    private int getXcoord(int xCoord) {
-        int rv;
-
-        if (xCoord < 0) {
-            return 0;
-        } else if (xCoord > BAR_WIDTH) {
-            return 255;
+    private static int reIndex(int currentWidth, int newWidth, int currentIndex) {
+        if (newWidth == currentWidth) {
+            return currentIndex;
         }
-
-        rv = Math.round((xCoord / PIXELS_PER_CELL));
-
-        if (rv < 0) {
-            return 0;
-        } else if (rv > 255) {
-            return 255;
-        }
-
-        return rv;
-    }
-
-    public List<ColorData> getCurrentColors() {
-        return currentColors;
-    }
-
-    public void updateRevertToCurrent() {
-        startingColors = new ArrayList<ColorData>(currentColors);
-    }
-
-    private List<ColorData> createSliderData() {
-        sliderText = new String[256];
-        List<ColorData> colorArray = new ArrayList<ColorData>();
-
-        DecimalFormat format = null;
-
-        float difference = cmapParams.getColorMapMax()
-                - cmapParams.getColorMapMin();
-        float increment = difference / ColorUtil.MAX_VALUE;
-        float start = cmapParams.getColorMapMin();
-        String units = "";
-
-        UnitConverter unitConv = cmapParams.getImageToDisplayConverter();
-
-        Double lastVal = Double.NaN;
-
-        // TODO: Handle piecewise pixel converts to show ranges (for radar)
-        for (int i = 0; i < sliderText.length; ++i) {
-            double value = start;
-
-            String textStr = "";
-
-            if (cmapParams.isLogarithmic()) {
-                // TODO: Handle case where min/max go from neg to pos
-                if (cmapParams.getColorMapMax() >= 0
-                        && cmapParams.getColorMapMin() >= 0) {
-                    double index = ((float) i) / ColorUtil.MAX_VALUE;
-                    value = Math
-                            .pow(Math.E,
-                                    (Math.log(cmapParams.getColorMapMin()) + (index * (Math
-                                            .log(cmapParams.getColorMapMax()) - Math
-                                            .log(cmapParams.getColorMapMin())))));
-                }
-                if (format == null) {
-                    format = new DecimalFormat("0.000");
-                }
-            }
-
-            if (unitConv != null) {
-                value = unitConv.convert(value);
-
-                /*
-                 * Check if the last value is non a number.
-                 */
-                if (lastVal.isNaN()) {
-                    // If value is not a number then set the text to
-                    // "NO DATA".
-                    if (((Double) value).isNaN()) {
-                        textStr = "NO DATA";
-                    }
-                    lastVal = value;
-                } else {
-                    // If value is not a number then prepend ">"
-                    // to the value.
-                    if (((Double) value).isNaN()) {
-                        if (numberFormat != null) {
-                            textStr = "> " + numberFormat.format(lastVal);
-                        } else {
-                            textStr = "> " + lastVal;
-                        }
-                    } else {
-                        lastVal = value;
-                    }
-                }
-            }
-
-            if (format == null && new Double(value).isNaN() == false) {
-                int zeros = 0;
-                String val = "" + value;
-                char[] vals = val.substring(val.indexOf(".") + 1).toCharArray();
-                for (int j = 0; j < vals.length; ++j) {
-                    if (vals[j] == '0') {
-                        ++zeros;
-                    } else {
-                        ++zeros;
-                        break;
-                    }
-                }
-                zeros = Math.min(3, zeros);
-
-                String f = "0.";
-                for (int j = 0; j < zeros; ++j) {
-                    f += "0";
-                }
-                format = new DecimalFormat(f);
-            }
-
-            String txt;
-
-            /*
-             * If textStr doesn't have any text then set txt to the value in the
-             * value variable.
-             */
-            if (textStr.length() == 0) {
-                if (numberFormat != null ) {
-                    txt = numberFormat.format(value);
-                } else {
-                    txt = format.format(value);
-                }
-            } else {
-                txt = textStr;
-            }
-
-            if (units != null) {
-                txt += " " + units;
-            }
-
-            sliderText[i] = txt;
-            start += increment;
-        }
-
-        start = cmapParams.getColorMapMin();
-        for (int i = 0; i < sliderText.length; ++i) {
-            double value = start;
-
-            if ( cmapParams.getDataMapping() != null ) {
-                String dmLabel = cmapParams
-                        .getDataMapping().getLabelValueForDataValue(value);
-                if ( dmLabel != null && !"".equals(dmLabel.trim()) ) {
-                    sliderText[i] = dmLabel;
-                }
-            }
-            start += increment;
-        }
-            
-        colorArray = ColorUtil.buildColorData((ColorMap) cmapParams
-                .getColorMap());
-
-        /*
-         * If the colorArray is less then 256, then we spread all of the
-         * elements of the colorArray out to fill a 256 element array.
-         */
-        if (colorArray.size() < 256) {
-            ArrayList<ColorData> tmpColorArray = new ArrayList<ColorData>(256);
-            double adjustNum = (colorArray.size() - 1) / 255.0;
-
-            ColorData colorData;
-
-            for (int j = 0; j < 256; j++) {
-
-                int index = (int) Math.round(j * adjustNum);
-
-                colorData = new ColorData(colorArray.get(index).rgbColor,
-                        colorArray.get(index).alphaValue);
-                tmpColorArray.add(colorData);
-            }
-
-            colorArray = new ArrayList<ColorData>(tmpColorArray);
-        }
-        return colorArray;
-    }
-
-    public Point getSliderRange() {
-        return new Point(getXcoord(topSliderX), getXcoord(bottomSliderX));
-    }
-
-    /**
-     * Repaint the colobar's canvas because if alpha mask state has changed
-     */
-    public void repaint() {
-        colorBarCanvas.redraw();
-    }
-
-    /**
-     * Paint the color bar images
-     */
-    public void repaintColorbars() {
-        // Don't do this if I am disposed;
-        if (isDisposed()) {
-            return;
-        }
-        // initialize the color bars
-        initalizeColobars();
-
-        // repaint the canvas
-        repaint();
-    }
-
-    private void initalizeColobars() {
-        Image colorBar = new Image(getDisplay(), BAR_WIDTH - 1, BAR_HEIGHT - 1);
-        Color black = getDisplay().getSystemColor(SWT.COLOR_BLACK);
-        Color white = getDisplay().getSystemColor(SWT.COLOR_WHITE);
-        GC gc = new GC(colorBar);
-
-        gc.setBackground(black);
-        gc.fillRectangle(0, 0, BAR_WIDTH - 1, BAR_HEIGHT - 1);
-        // Draw 2 filled rectangles. One for the top and one for the
-        // bottom of the color bar. These rectangles will show up when
-        // the alpha
-        // channel is set.
-        gc.setBackground(white);
-        gc.fillRectangle(0, 10, BAR_WIDTH, Math.round(BAR_HEIGHT / 6));
-        gc.fillRectangle(0, (BAR_HEIGHT / 2) + 10, BAR_WIDTH,
-                Math.round(BAR_HEIGHT / 6));
-
-        ColorData colorData;
-        for (int x = 0; x < BAR_WIDTH - 1; ++x) {
-            currentColor.dispose();
-            int idx = getXcoord(x);
-            colorData = currentColors.get(idx);
-            currentColor = new Color(parent.getDisplay(), colorData.rgbColor);
-
-            gc.setAlpha(colorData.alphaValue);
-            gc.setForeground(currentColor);
-
-            gc.drawLine(x, 0, x, BAR_HEIGHT);
-        }
-
-        gc.dispose();
-
-        Image colorBarWithMask = null;
-
-        if (enabledColorMask) {
-            colorBarWithMask = new Image(getDisplay(), BAR_WIDTH - 1,
-                    BAR_HEIGHT - 1);
-            gc = new GC(colorBarWithMask);
-
-            gc.setBackground(black);
-            gc.fillRectangle(0, 0, BAR_WIDTH - 1, BAR_HEIGHT - 1);
-            // Draw 2 filled rectangles. One for the top and one for the
-            // bottom of the color bar. These rectangles will show up when
-            // the alpha
-            // channel is set.
-            gc.setBackground(white);
-            gc.fillRectangle(0, 10, BAR_WIDTH, Math.round(BAR_HEIGHT / 6));
-            gc.fillRectangle(0, (BAR_HEIGHT / 2) + 10, BAR_WIDTH,
-                    Math.round(BAR_HEIGHT / 6));
-
-            byte[] mask = cmapParams.getAlphaMask();
-
-            for (int x = 0; x < BAR_WIDTH - 1; ++x) {
-                currentColor.dispose();
-                int idx = getXcoord(x);
-                colorData = currentColors.get(idx);
-                currentColor = new Color(parent.getDisplay(),
-                        colorData.rgbColor);
-                if (mask[idx] == 0) {
-                    gc.setAlpha(colorData.alphaValue);
-                    gc.setForeground(currentColor);
-                } else {
-                    gc.setAlpha(255);
-                    gc.setForeground(black);
-                }
-
-                gc.drawLine(x, 0, x, BAR_HEIGHT);
-            }
-
-            gc.dispose();
-        }
-
-        synchronized (this) {
-            if (this.colorBar != null) {
-                this.colorBar.dispose();
-            }
-            this.colorBar = colorBar;
-
-            if (colorBarWithMask != null) {
-                if (this.colorBarWithMask != null) {
-                    this.colorBarWithMask.dispose();
-                }
-                this.colorBarWithMask = colorBarWithMask;
-            }
-        }
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (!enabled) {
-            revertColorBar();
-        }
-        topSkipLeft.setEnabled(enabled);
-        bottomSkipLeft.setEnabled(enabled);
-        topMoveLeft.setEnabled(enabled);
-        bottomMoveLeft.setEnabled(enabled);
-        topSkipRight.setEnabled(enabled);
-        bottomSkipRight.setEnabled(enabled);
-        topMoveRight.setEnabled(enabled);
-        bottomMoveRight.setEnabled(enabled);
-        colorBarCanvas.setEnabled(enabled);
-        colorBarCanvas.redraw();
-    }
-
-    public boolean canUndo() {
-        return undoRedoArray.size() > 1 && currentColorIndex > 0;
-    }
-
-    public boolean canRedo() {
-        return undoRedoArray.size() > 1
-                && currentColorIndex < (undoRedoArray.size() - 1);
+        float pct = (currentIndex + 0.5f) / currentWidth;
+        int index = (int) (newWidth * pct);
+        index = Math.max(index, 0);
+        index = Math.min(newWidth - 1, index);
+        return index;
     }
 }
