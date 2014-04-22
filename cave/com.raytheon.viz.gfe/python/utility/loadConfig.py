@@ -26,8 +26,8 @@
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
-#    12/11/09                      njensen       Initial Creation.
-#    
+#    12/11/09                      njensen        Initial Creation.
+#    04/02/2014        #2729       randerso       Fixed error handling in loadPreferences
 # 
 #
 
@@ -38,18 +38,23 @@ from java.lang import String, Float, Integer, Boolean
 def loadPreferences(config):
     try:
         # import the config file
-        if type(config) is types.StringType:            
-            globals = loadConfig(config)
-        elif type(config) is types.ModuleType:            
-            globals = getGlobals(config)
+        if type(config) is types.StringType:
+            configName = config
+            mod = __import__(config)
+        elif type(config) is types.ModuleType:
+            configName = config.__name__            
+            mod = config
+
+        globals = getGlobals(mod)
 
         from com.raytheon.viz.gfe import Activator, PythonPreferenceStore
         prefs = PythonPreferenceStore(globals)
         Activator.getDefault().setPreferenceStore(prefs)
         return prefs
     except Exception, e:
-        LogStream.logProblem("Unknown or improper config file: ",
-          configFile, " for user: ", userName)
+        import LogStream
+        import traceback
+        LogStream.logProblem("Unknown or invalid config file: %s\n%s" % (configName, traceback.format_exc()))
         raise Exception, e
         
 

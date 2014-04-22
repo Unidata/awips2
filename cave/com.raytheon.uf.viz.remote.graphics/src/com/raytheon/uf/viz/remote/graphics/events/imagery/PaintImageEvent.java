@@ -27,15 +27,16 @@ import com.raytheon.uf.viz.remote.graphics.events.rendering.IRenderEvent;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Event to indicate an image should be painted.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 8, 2012            mschenke     Initial creation
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 08, 2012           mschenke     Initial creation
+ * Feb 21, 2014  2817     bsteffen     Fix equals.
  * 
  * </pre>
  * 
@@ -213,10 +214,10 @@ public class PaintImageEvent extends AbstractDispatchingObjectEvent implements
         if (getClass() != obj.getClass())
             return false;
         PaintImageEvent other = (PaintImageEvent) obj;
-        if (meshId == other.meshId && meshId != -1) {
+        if (meshId != other.meshId) {
             // If meshes are set, compare them only
-            return true;
-        } else if (meshId == other.meshId) {
+            return false;
+        } else if (meshId == -1 && meshId == other.meshId) {
             // Compare extents if no meshes set (-1)
             if (ll == null) {
                 if (other.ll != null)

@@ -19,10 +19,13 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.Occupant;
 
 /**
- * TODO Add Description
+ * Utility to parse id strings
  * 
  * <pre>
  * 
@@ -31,6 +34,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 28, 2012            jkorman     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Jan 30, 2014 2698       bclement    reworked convertFromRoom for venue participants
+ * Feb  3, 2014 2699       bclement    fixed room id parsing when handle has special characters
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
  * 
  * </pre>
  * 
@@ -42,42 +49,46 @@ public class IDConverter {
 
     private static final String CONF_ID = "conference.";
 
-    /**
-     * 
-     * @param user
-     * @return
-     */
-    public static UserId convertFrom(org.eclipse.ecf.core.identity.ID id) {
-        String name = Tools.parseName(id.getName());
-        String host = Tools.parseHost(id.getName());
-        String rsc = Tools.parseResource(id.getName());
-
+    public static UserId convertFrom(String id) {
+        String name = StringUtils.parseName(id);
+        String host = StringUtils.parseServer(id);
+        String rsc = StringUtils.parseResource(id);
         UserId uid = new UserId(name, host, rsc);
-        uid.setId(id);
         return uid;
     }
 
+    public static UserId convertFrom(RosterEntry entry) {
+        UserId rval = convertFrom(entry.getUser());
+        rval.setAlias(entry.getName());
+        return rval;
+    }
+
     /**
+     * Parse userId from room id string "room@host/handle". Name field on
+     * returned id may be null.
      * 
-     * @param user
+     * @param room
+     * @param id
      * @return
      */
-    public static UserId convertFrom(org.eclipse.ecf.core.user.IUser user) {
-        UserId retVal = null;
-        if (user instanceof UserId) {
-            retVal = (UserId) user;
-        } else {
-            String name = Tools.parseName(user.getID().getName());
-            String host = Tools.parseHost(user.getID().getName());
-            retVal = new UserId(name, host);
-            retVal.setId(user.getID());
-            if (user.getNickname() != null) {
-                retVal.setAlias(user.getNickname());
-            } else {
-                retVal.setAlias(user.getName());
+    public static VenueParticipant convertFromRoom(MultiUserChat room, String id) {
+        String handle = StringUtils.parseResource(id);
+        if (handle == null || handle.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Room participant ids must have handle in resource");
+        }
+        String cleanId = id.substring(0, id.length() - handle.length());
+        String host = StringUtils.parseServer(cleanId);
+        String roomName = StringUtils.parseName(id);
+        VenueParticipant rval = new VenueParticipant(roomName, host, handle);
+        Occupant occupant;
+        if (room != null && (occupant = room.getOccupant(id)) != null) {
+            if (occupant.getJid() != null) {
+                // get actual user name
+                rval.setUserid(convertFrom(occupant.getJid()));
             }
         }
-        return retVal;
+        return rval;
     }
 
     public static String normalizeHostname(String hostname) {
@@ -85,6 +96,18 @@ public class IDConverter {
             return hostname.substring(CONF_ID.length());
         }
         return hostname;
+    }
+
+    public static boolean isFromRoom(String id) {
+        String host = StringUtils.parseServer(id);
+        return host.startsWith(CONF_ID);
+    }
+
+    public static boolean isRoomSystemMessage(String id) {
+        String handle = StringUtils.parseResource(id);
+        // system messages look like participant IDs, just without a handle
+        return isFromRoom(id)
+                && org.apache.commons.lang.StringUtils.isBlank(handle);
     }
 
 }

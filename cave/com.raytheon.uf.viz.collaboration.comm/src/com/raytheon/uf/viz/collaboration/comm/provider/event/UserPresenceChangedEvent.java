@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.event;
 
-import org.eclipse.ecf.presence.IPresence;
+import org.jivesoftware.smack.packet.Presence;
 
 /**
- * Event that is posted when the local uses changes properties of the presence.
+ * Event that is posted when the local user changes properties of the presence.
  * 
  * <pre>
  * 
@@ -40,14 +40,14 @@ import org.eclipse.ecf.presence.IPresence;
 
 public class UserPresenceChangedEvent {
 
-    private final IPresence newPresence;
+    private final Presence newPresence;
 
-    public UserPresenceChangedEvent(IPresence newPresence) {
+    public UserPresenceChangedEvent(Presence newPresence) {
         super();
         this.newPresence = newPresence;
     }
 
-    public IPresence getNewPresence() {
+    public Presence getNewPresence() {
         return newPresence;
     }
 

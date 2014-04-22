@@ -12,5 +12,4 @@ Require-Bundle: com.raytheon.edex.common,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.site,
- com.raytheon.uf.edex.site.ingest,
  com.raytheon.uf.edex.site.notify

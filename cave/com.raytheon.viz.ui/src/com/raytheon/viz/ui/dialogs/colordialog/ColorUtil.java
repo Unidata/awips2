@@ -31,6 +31,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.Color;
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -47,13 +48,15 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 18, 2007            njensen     Initial creation	
- * Aug 20, 2008			   dglazesk    Updated for the new ColorMap interface
- * 									   and for the JiBX to JaXB transition
- * Aug 06, 2013    2210    njensen     Moved colormaps to common_static
- * Nov 11, 2013    2361    njensen     Use ColorMap.JAXB for XML processing
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jul 18, 2007           njensen     Initial creation	
+ * Aug 20, 2008           dglazesk    Updated for the new ColorMap interface
+ *                                    and for the JiBX to JaXB transition
+ * Aug 06, 2013  2210     njensen     Moved colormaps to common_static
+ * Nov 11, 2013  2361     njensen     Use ColorMap.JAXB for XML processing
+ * Apr 08, 2014  2950     bsteffen    Allow buildColorData to take an IColorMap
+ * 
  * 
  * </pre>
  * 
@@ -131,7 +134,7 @@ public class ColorUtil {
      *            the ColorMap to extract ColorData from
      * @return
      */
-    public static ArrayList<ColorData> buildColorData(ColorMap aColorMap) {
+    public static ArrayList<ColorData> buildColorData(IColorMap aColorMap) {
         ArrayList<ColorData> colors = new ArrayList<ColorData>();
 
         if (aColorMap != null) {

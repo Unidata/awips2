@@ -21,7 +21,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.dataplugin,
- com.raytheon.uf.common.util
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.viz.datacube
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.capabilities,
@@ -32,7 +33,8 @@ Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.ui.display,
  com.raytheon.viz.awipstools.ui.layer
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: com.raytheon.viz.core,
+Import-Package: com.raytheon.uf.common.inventory.exception,
+ com.raytheon.viz.core,
  com.raytheon.viz.core.interval,
  com.raytheon.viz.core.rsc,
  com.raytheon.viz.core.rsc.jts

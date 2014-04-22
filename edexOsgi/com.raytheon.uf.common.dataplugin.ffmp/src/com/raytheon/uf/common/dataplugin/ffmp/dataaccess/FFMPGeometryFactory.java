@@ -28,9 +28,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
-import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataaccess.util.DatabaseQueryUtil;
@@ -67,6 +65,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 16, 2013 1912       bsteffen    Initial bulk hdf5 access for ffmp
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * Aug,20, 2013 2250       mnash       Change some methods that were not working in all cases
+ * Jan,14, 2014 2667       mnash       Remove getGridData method
  * 
  * </pre>
  * 
@@ -103,17 +102,6 @@ public class FFMPGeometryFactory extends AbstractDataPluginFactory {
      * Constructor.
      */
     public FFMPGeometryFactory() {
-    }
-
-    /**
-     * Not Supported.
-     */
-    @Override
-    protected IGridData[] getGridData(IDataRequest request,
-            DbQueryResponse dbQueryResponse) {
-        // Not currently handled
-        throw new UnsupportedOutputTypeException(request.getDatatype(),
-                PLUGIN_NAME);
     }
 
     /**

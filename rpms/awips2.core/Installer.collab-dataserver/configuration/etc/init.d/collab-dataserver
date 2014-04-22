@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# Startup script for the HTTP Collaboration Dataserver servlet
+#
+# chkconfig: - 85 15
+# description: Servlet for storing and retrieving collaboration data objects.
+# processname: collabserver
+# pidfile: /var/run/collabserver.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+COLLAB_BIN=/awips2/collab-dataserver/bin
+PROG=`basename $0`
+
+start() {
+  echo -n $"Starting HTTP Collaboration Dataserver"
+    # start.sh script starts the service using nohup. 
+  ${COLLAB_BIN}/start.sh
+  return $?
+}
+
+status() {
+  ${COLLAB_BIN}/status.sh
+  return $?
+}
+
+stop() {
+  echo -n $"Stopping HTTP Collaboration Dataserver"
+  ${COLLAB_BIN}/stop.sh
+  return
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    RETVAL=$?
+    ;;
+  stop)
+    stop
+    RETVAL=$?
+    ;;
+  status)
+    status $httpd
+    RETVAL=$?
+    ;;
+  restart)
+    stop
+    start
+    RETVAL=$?
+    ;;
+    echo $"Usage: $PROG {start|stop|restart|status}"
+    exit 1
+esac
+
+exit $RETVAL

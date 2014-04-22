@@ -21,12 +21,12 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<contribute xsi:type="subMenu" menuText="NLDN" id="NLDNSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/lightning/nldnLightningBundleItems.xml">
-			<substitute key="lightSource" value="NLDN"/>
+			<substitute key="source" value="NLDN"/>
 		</contribute>
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="GLD" id="GLDSubMenu">
 		<contribute xsi:type="subinclude" fileName="menus/lightning/gldLightningBundleItems.xml">
-			<substitute key="lightSource" value="GLD"/>
+			<substitute key="source" value="GLD"/>
 		</contribute>
 	</contribute>	
 </menuTemplate>

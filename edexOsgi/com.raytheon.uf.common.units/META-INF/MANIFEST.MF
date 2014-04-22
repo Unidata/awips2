@@ -5,7 +5,9 @@ Bundle-SymbolicName: com.raytheon.uf.common.units
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: javax.measure;bundle-version="1.0.0";visibility:=reexport,
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
- org.apache.commons.beanutils;bundle-version="1.8.3"
+Require-Bundle: javax.measure;visibility:=reexport,
+ com.raytheon.uf.common.util,
+ org.apache.commons.beanutils,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status
 Export-Package: com.raytheon.uf.common.units

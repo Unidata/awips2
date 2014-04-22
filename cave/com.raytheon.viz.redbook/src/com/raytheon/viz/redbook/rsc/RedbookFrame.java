@@ -36,10 +36,10 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.Block_004_016;
-import com.raytheon.edex.plugin.redbook.common.blocks.DefaultBlock;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockBuilder;
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.Block_004_016;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.DefaultBlock;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -88,11 +88,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * May 29, 2008 1162        chammack    Initial creation
- * Jan 28, 2010 4224        M. Huang    Added Line Style, Line Width
- *                                       menu choice
+ * Jan 28, 2010 4224        M. Huang    Added Line Style, Line Width menu choice
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
  * May 21, 2013 2001        njensen     Fixed error handling
- * Jul 19, 2013 DR 16401    D. Friedman Fix unknown block processing.
+ * Jul 19, 2013 16401       D. Friedman Fix unknown block processing.
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
+ * Apr 10, 2014 1803        njensen     Fix dispose() for collaboration
  * 
  * </pre>
  * 
@@ -140,7 +142,7 @@ public class RedbookFrame implements IRenderable {
         return (this.compiler != null);
     }
 
-    public void deInit() {
+    protected void deInit() {
         if (this.wireframeShape != null) {
             this.wireframeShape.dispose();
         }
@@ -328,20 +330,19 @@ public class RedbookFrame implements IRenderable {
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-
-        target.drawWireframeShape(
-                this.wireframeShape,
-                this.redbookResource.getCapability(ColorableCapability.class)
-                        .getColor(),
-                (float) this.redbookResource.getCapability(
-                        OutlineCapability.class).getOutlineWidth(),
+        RGB color = this.redbookResource.getCapability(
+                ColorableCapability.class).getColor();
+        target.drawWireframeShape(this.wireframeShape, color,
+                this.redbookResource.getCapability(OutlineCapability.class)
+                        .getOutlineWidth(),
                 this.redbookResource.getCapability(OutlineCapability.class)
                         .getLineStyle());
 
         synchronized (this) {
             IExtent pe = paintProps.getView().getExtent();
-            IFont font = this.redbookResource.getRenderingFont();
-            Rectangle2D cellSize = target.getStringBounds(font, "M");
+            DrawableString m = new DrawableString("M", color);
+            m.font = this.redbookResource.getRenderingFont();
+            Rectangle2D cellSize = target.getStringsBounds(m);
             boolean clipped = true;
             double xRatio = paintProps.getView().getExtent().getWidth()
                     / paintProps.getCanvasBounds().width;
@@ -557,7 +558,7 @@ public class RedbookFrame implements IRenderable {
                     : VerticalAlignment.BOTTOM;
             Rectangle2D bounds = target.getStringsBounds(dstring);
             if (blanked) {
-                dstring.textStyle = TextStyle.BLANKED;
+                dstring.addTextStyle(TextStyle.BLANKED);
             }
             if (isLegend) {
                 target.getExtension(ICanvasRenderingExtension.class)
@@ -609,9 +610,7 @@ public class RedbookFrame implements IRenderable {
     }
 
     public void dispose() {
-        if (this.wireframeShape != null) {
-            this.wireframeShape.dispose();
-        }
+        deInit();
     }
 
     public DataTime getDataTime() {

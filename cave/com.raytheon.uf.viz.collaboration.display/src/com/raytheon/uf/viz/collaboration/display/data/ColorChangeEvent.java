@@ -23,7 +23,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * Event for when a new user enters and a color is added
@@ -35,6 +35,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 11, 2012            mnash     Initial creation
+ * Jan 30, 2014 2698       bclement    changed UserId to VenueParticipant
  * 
  * </pre>
  * 
@@ -45,7 +46,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 @DynamicSerialize
 public class ColorChangeEvent {
     @DynamicSerializeElement
-    private UserId userName;
+    private VenueParticipant userName;
 
     @DynamicSerializeElement
     private Integer red;
@@ -59,7 +60,7 @@ public class ColorChangeEvent {
     public ColorChangeEvent() {
     }
 
-    public ColorChangeEvent(UserId user, RGB color) {
+    public ColorChangeEvent(VenueParticipant user, RGB color) {
         this.userName = user;
         if (color != null) {
             red = color.red;
@@ -72,14 +73,14 @@ public class ColorChangeEvent {
      * @param userName
      *            the userName to set
      */
-    public void setUserName(UserId userName) {
+    public void setUserName(VenueParticipant userName) {
         this.userName = userName;
     }
 
     /**
      * @return the userName
      */
-    public UserId getUserName() {
+    public VenueParticipant getUserName() {
         return userName;
     }
 

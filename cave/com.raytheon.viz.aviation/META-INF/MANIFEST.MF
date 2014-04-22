@@ -26,7 +26,8 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.uf.common.tafqueue;bundle-version="1.0.0",
  org.apache.commons.lang;bundle-version="2.3.0",
- com.raytheon.uf.common.auth;bundle-version="1.12.1174"
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.datacube
 Bundle-ActivationPolicy: lazy
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Export-Package: com.raytheon.viz.aviation,
@@ -41,6 +42,7 @@ Export-Package: com.raytheon.viz.aviation,
  com.raytheon.viz.aviation.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.raytheon.edex.plugin.bufrmos.common,
+ com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.common.dataplugin.acarssounding,
  com.raytheon.uf.common.dataplugin.gfe.point,
  com.raytheon.uf.common.dataplugin.gfe.request,

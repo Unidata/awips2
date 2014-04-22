@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataquery.DecisionTree;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
@@ -33,13 +36,11 @@ import com.raytheon.uf.common.dataquery.requests.DbQueryRequestSet;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponseSet;
+import com.raytheon.uf.common.derivparam.inv.AvailabilityContainer;
+import com.raytheon.uf.common.derivparam.inv.MetadataContainer;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.inv.AvailabilityContainer;
-import com.raytheon.uf.viz.derivparam.inv.MetadataContainer;
-import com.raytheon.uf.viz.derivparam.tree.AbstractRequestableNode;
 import com.raytheon.viz.grid.data.GridRequestableData;
 import com.raytheon.viz.grid.data.GridRequestableDataFactory;
 
@@ -72,7 +73,7 @@ public class GridMetadataContainer extends MetadataContainer {
     }
 
     @Override
-    protected void processRequests() throws VizException {
+    protected void processRequests() throws DataCubeException {
         DecisionTree<GridRequestableNode> tree = new DecisionTree<GridRequestableNode>();
         List<Map<String, RequestConstraint>> constraintMaps = new ArrayList<Map<String, RequestConstraint>>();
         for (AbstractRequestableNode node : availCache.keySet()) {
@@ -106,8 +107,13 @@ public class GridMetadataContainer extends MetadataContainer {
         }
         DbQueryRequestSet requestSet = new DbQueryRequestSet();
         requestSet.setQueries(requests.toArray(new DbQueryRequest[0]));
-        DbQueryResponseSet responseSet = (DbQueryResponseSet) ThriftClient
-                .sendRequest(requestSet);
+        DbQueryResponseSet responseSet;
+        try {
+            responseSet = (DbQueryResponseSet) ThriftClient
+                    .sendRequest(requestSet);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
+        }
 
         Map<AbstractRequestableNode, Set<AbstractRequestableData>> dataCache = new HashMap<AbstractRequestableNode, Set<AbstractRequestableData>>();
         GridRequestableDataFactory grdf = GridRequestableDataFactory
@@ -116,8 +122,13 @@ public class GridMetadataContainer extends MetadataContainer {
         for (DbQueryResponse response : responseSet.getResults()) {
             for (Map<String, Object> result : response.getResults()) {
                 GridRecord record = (GridRecord) result.get(null);
-                Map<String, Object> recordMap = RecordFactory.getInstance()
-                        .loadMapFromUri(record.getDataURI());
+                Map<String, Object> recordMap;
+                try {
+                    recordMap = RecordFactory.getInstance().loadMapFromUri(
+                            record.getDataURI());
+                } catch (VizException e) {
+                    throw new DataCubeException(e);
+                }
                 GridRequestableData data = grdf.getGridRequestableData(record);
                 for (GridRequestableNode node : tree.searchTree(recordMap)) {
                     Set<AbstractRequestableData> set = dataCache.get(node);

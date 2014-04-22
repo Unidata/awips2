@@ -148,10 +148,6 @@
       </editorMenuAddition>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer class="com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefInitializer"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationPreferencePage"
@@ -161,6 +157,16 @@
             class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationAlertWordsPreferencePage"
             id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationalertwordspreferencepage"
             name="Significant Words"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.CollaborationRoomChangePreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationroomchangepreferencepage"
+            name="Room Alerts"
+            category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
+      <page
+            class="com.raytheon.uf.viz.collaboration.ui.prefs.ContactNotifierPreferencePage"
+            id="com.raytheon.uf.viz.collaboration.ui.contactnotifierprefs"
+            name="Contact Notifiers"
             category="com.raytheon.uf.viz.collaboration.ui.prefs.collaborationpreferencepage"/>
    </extension>
 	<extension

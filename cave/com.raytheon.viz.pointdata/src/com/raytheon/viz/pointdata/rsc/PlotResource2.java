@@ -60,7 +60,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
 import com.raytheon.viz.pointdata.PlotAlertParser;
-import com.raytheon.viz.pointdata.PlotDataThreadPool;
 import com.raytheon.viz.pointdata.PlotInfo;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension;
 import com.raytheon.viz.pointdata.drawables.IPointImageExtension.PointImage;
@@ -70,6 +69,7 @@ import com.raytheon.viz.pointdata.rsc.progdisc.DynamicProgDisclosure;
 import com.raytheon.viz.pointdata.rsc.progdisc.SpiProgDisclosure;
 import com.raytheon.viz.pointdata.thread.GetDataTask;
 import com.raytheon.viz.pointdata.thread.GetDataTask.Params;
+import com.raytheon.viz.pointdata.thread.PlotThreadOverseer;
 import com.raytheon.viz.pointdata.units.PlotUnits;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -98,6 +98,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 25, 2013 1869       bsteffen    Fix plot sampling.
  * Sep 04, 2013 16519      kshresth    Fix Metar Display Problem
  * Dec 02, 2013 2473       njensen     Prog Disclose paint frames at high priority
+ * Mar 21, 2014 2868       njensen     Use PlotThreadOverseer for increased efficiency
  * 
  * </pre>
  * 
@@ -116,7 +117,7 @@ public class PlotResource2 extends
 
     private AbstractProgDisclosure progressiveDisclosure;
 
-    private PlotDataThreadPool generator;
+    private PlotThreadOverseer generator;
 
     private double plotWidth;
 
@@ -265,7 +266,7 @@ public class PlotResource2 extends
         Map<String, RequestConstraint> request = resourceData.getMetadataMap();
         RequestConstraint plugin = request.get("pluginName");
         PlotUnits.register();
-        generator = new PlotDataThreadPool(aTarget, descriptor,
+        generator = new PlotThreadOverseer(aTarget, descriptor,
                 this.resourceData.getPlotModelFile(),
                 this.resourceData.getLevelKey(), plugin.getConstraintValue(),
                 this.resourceData.getMetadataMap(), this);
@@ -279,7 +280,7 @@ public class PlotResource2 extends
         this.generator.setPlotMissingData(resourceData.isPlotMissingData());
         this.generator.setLowerLimit(resourceData.getLowerLimit());
         this.generator.setUpperLimit(resourceData.getUpperLimit());
-        this.plotWidth = generator.getPlotModelWidth();
+        this.plotWidth = generator.getOriginalPlotModelWidth();
         this.plotWidth *= getCapability(MagnificationCapability.class)
                 .getMagnification();
         generator.setPlotModelSize(Math.round(plotWidth));
@@ -431,7 +432,7 @@ public class PlotResource2 extends
             list.add(samplePlot);
             Params params = Params.PLOT_AND_SAMPLE;
             GetDataTask task = new GetDataTask(list, params);
-            generator.queueStation(task);
+            generator.enqueueDataRetrieval(task);
             // End DR14996
         }
         boolean dup = false;
@@ -575,7 +576,7 @@ public class PlotResource2 extends
                         params = Params.SAMPLE_ONLY;
                     }
                     GetDataTask task = new GetDataTask(list, params);
-                    generator.queueStation(task);
+                    generator.enqueueDataRetrieval(task);
                 }
             }
 
@@ -616,7 +617,7 @@ public class PlotResource2 extends
                 }
             } else if (object instanceof MagnificationCapability) {
                 if (generator != null) {
-                    this.plotWidth = generator.getPlotModelWidth();
+                    this.plotWidth = generator.getOriginalPlotModelWidth();
                     this.plotWidth *= getCapability(
                             MagnificationCapability.class).getMagnification();
                     generator.setPlotModelSize(Math.round(plotWidth));
@@ -758,7 +759,7 @@ public class PlotResource2 extends
             }
             if (toQueue.size() > 0) {
                 GetDataTask task = new GetDataTask(toQueue, Params.PLOT_ONLY);
-                generator.queueStation(task);
+                generator.enqueueDataRetrieval(task);
             }
         } else {
             issueRefresh();

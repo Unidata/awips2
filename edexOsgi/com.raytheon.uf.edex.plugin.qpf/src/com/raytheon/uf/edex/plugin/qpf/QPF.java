@@ -22,9 +22,6 @@ package com.raytheon.uf.edex.plugin.qpf;
 
 import java.util.HashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.uf.common.dataplugin.qpf.QPFRecord;
 import com.raytheon.uf.common.dataplugin.qpf.QPFUtils;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
@@ -32,6 +29,9 @@ import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.xml.SCANModelParameterXML;
 import com.raytheon.uf.common.monitor.xml.SCANSiteXML;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.dat.utils.ScanDataCache;
 import com.raytheon.uf.edex.plugin.qpf.common.QPFConfig;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -100,14 +100,25 @@ import com.vividsolutions.jts.geom.Coordinate;
  *            objects. December 2007 Lingyan Xin (SAIC/MDL) - changed the
  *            interface of writeNetcdf() to output more attributes in netCDF
  *            file for standard file reading.
- *            
- *            Translated to Java by D Hladky 16Feb2009
+ *
+ * QPF algorithm
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * 02/17/2009   1981       dhladky    Initial Creation.
+ * 02/26/2014   2836       dhladky      Added diagnostic information.
+ * </pre>
+ * 
+ * @author dhladky
+ * @version 1.0
  */
 
 public class QPF {
 
-    /** logger **/
-    private final Log logger = LogFactory.getLog(getClass());
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(QPF.class);
 
     /** QPFConfig object */
     private QPFConfig qpf_config = null;
@@ -218,7 +229,7 @@ public class QPF {
 
         // use STI to get the speed and direction data for cells
         if (qpf_config.isSTI()) {
-            logger.info(qpf_config.getIcao() + ": Processing STI: "
+            statusHandler.info(qpf_config.getIcao() + ": Processing STI: "
                     + qpf_config.getSTI().getDataURI());
             // extract the avg speed and direction
             avg_spd = new Float(qpf_config.getSTI().getRecordVals(
@@ -239,8 +250,8 @@ public class QPF {
         }
         // use the model data
         else if (qpf_config.isModel()) {
-            if (logger.isDebugEnabled()) {
-                logger.info(qpf_config.getIcao() + ": Processing Model Data");
+            if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
+                statusHandler.debug(qpf_config.getIcao() + ": Processing Model Data");
             }
 
             try {
@@ -291,13 +302,13 @@ public class QPF {
                             rns_velocity = - (float) (vwind * (60.0 / 4000.0));
                             use_env_winds = true;
     
-                            logger.info(qpf_config.getIcao()
+                            statusHandler.info(qpf_config.getIcao()
                                     + ": Environmental data to be used to determine upper level winds.");
                         }
                     }
                 }
             } catch (Exception e) {
-                logger.error(qpf_config.getIcao()
+                statusHandler.error(qpf_config.getIcao()
                         + ": Failed to extract U & V wind data. ", e);
             }
         }
@@ -318,7 +329,7 @@ public class QPF {
                 rns_velocity = - (float) (model_vwind * (60.0 / 4000.0));
                 use_env_winds = true;
             } else {
-                logger.info(qpf_config.getIcao()
+                statusHandler.info(qpf_config.getIcao()
                         + ": Processing BINCOR Direct for UV wind.");
                 int currTime = (int) QPFURIFilter.getTime(
                         qpf_config.getCurrentCZ().getDataURI(),
@@ -471,7 +482,7 @@ public class QPF {
         floats = QPFUtils.prob_fcst(irain_0_30, irain_0_60, vil_0_60,
                 maxvil_7x7, nvil10_3x3, n24dbz);
         floats.put(QPFRecord.DATA_TYPE.AV_VIL.name(), itime_avg_vil);
-        logger.debug("QPF: " + qpf_config.getIcao() + " Generation success...");
+        statusHandler.debug("QPF: " + qpf_config.getIcao() + " Generation success...");
 
     }
 
@@ -585,9 +596,18 @@ public class QPF {
         while (doSearch) {
             for (id = imove_last - 2; id <= imove_last + 2; id++) {
                 for (jd = jmove_last - 2; jd <= jmove_last + 2; jd++) {
-                    if (binc[id + 10][jd + 10] >= 0.0) {
-                        continue;
+
+                    try {
+                        if (binc[id + 10][jd + 10] >= 0.0) {
+                            continue;
+                        }
+                    } catch (ArrayIndexOutOfBoundsException aioe) {
+                        statusHandler.error("jd = "+jd+" id = "+id +"\n"
+                        +"jd + 10 = "+(jd+10)+" id + 10 = "+(id + 10) +"\n"
+                        +"imove_last = "+imove_last+" jmove_last = "+jmove_last +"\n"
+                        +"binc[][] size = "+binc.length, aioe);
                     }
+
                     // Displace the portion of grid1 that lies between JMIN to
                     // JMAX
                     // and IMIN to IMAX by jd in the j direction and by id in

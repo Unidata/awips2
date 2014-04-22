@@ -24,14 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.core.util.ECFException;
-import org.eclipse.ecf.presence.search.ICriteria;
-import org.eclipse.ecf.presence.search.ICriterion;
-import org.eclipse.ecf.presence.search.IResult;
-import org.eclipse.ecf.presence.search.ISearch;
-import org.eclipse.ecf.presence.search.IUserSearchManager;
-import org.eclipse.ecf.presence.search.UserSearchException;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -57,11 +49,14 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.jivesoftware.smack.XMPPException;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
 import com.raytheon.uf.viz.collaboration.ui.actions.AddToGroupAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.CreateSessionAction;
 import com.raytheon.uf.viz.collaboration.ui.actions.InviteAction;
@@ -78,6 +73,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 27, 2012            bsteffen     Initial creation
+ * Dec  6, 2013 2561       bclement    removed ECF
  * 
  * </pre>
  * 
@@ -129,16 +125,16 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
 
         });
 
-        IUserSearchManager manager = CollaborationConnection.getConnection()
-                .getPresenceContainerAdapter().getUserSearchManager();
+         UserSearch search = CollaborationConnection.getConnection()
+                .createSearch();
         fieldCombo = new Combo(entryComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         fieldCombo.add("All");
         try {
-            for (String field : manager.getUserPropertiesFields()) {
+            for (String field : search.getUserPropertiesFields()) {
                 fieldCombo.add(field);
             }
             fieldCombo.select(0);
-        } catch (ECFException e1) {
+        } catch (XMPPException e1) {
             statusHandler
                     .handle(Priority.PROBLEM, e1.getLocalizedMessage(), e1);
         }
@@ -216,9 +212,9 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
         if (selection == null || selection.length == 0) {
             return;
         }
-        IUser[] users = new IUser[selection.length];
+        UserId[] users = new UserId[selection.length];
         for (int i = 0; i < users.length; i += 1) {
-            users[i] = (IUser) selection[i].getData();
+            users[i] = (UserId) selection[i].getData();
         }
         if (users.length == 1) {
             Action p2pAction = new PeerToPeerChatAction(users[0]);
@@ -239,7 +235,7 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
     }
 
     private void search() {
-        List<IUser> results = new ArrayList<IUser>();
+        List<UserId> results = new ArrayList<UserId>();
         List<String> keys = new ArrayList<String>();
         if (fieldCombo.getText().equals("All")) {
             for (String string : fieldCombo.getItems()) {
@@ -251,22 +247,13 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
             keys.add(fieldCombo.getText());
         }
         for (String key : keys) {
-            IUserSearchManager manager = CollaborationConnection
-                    .getConnection().getPresenceContainerAdapter()
-                    .getUserSearchManager();
-            ICriterion criterion = manager.createRestriction().eq(key,
-                    searchText.getText(), true);
-            ICriteria criteria = manager.createCriteria();
-            criteria.add(criterion);
+            UserSearch search = CollaborationConnection.getConnection()
+                    .createSearch();
             try {
-                ISearch search = manager.search(criteria);
-                for (Object result : search.getResultList().getResults()) {
-                    if (result instanceof IResult) {
-                        IUser user = ((IResult) result).getUser();
-                        results.add(user);
-                    }
-                }
-            } catch (UserSearchException e) {
+                List<UserId> users = search.byCriteria(key,
+                        searchText.getText());
+                results.addAll(users);
+            } catch (XMPPException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -274,11 +261,15 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
         Set<String> uniqueIds = new HashSet<String>();
         resultTable.removeAll();
         if (results.size() > 0) {
-            for (IUser user : results) {
-                String id = user.getID().getName();
+            for (UserId user : results) {
+                String id = user.getNormalizedId();
                 if (!uniqueIds.contains(id)) {
                     TableItem ti = new TableItem(resultTable, SWT.NONE);
-                    ti.setText(0, user.getName());
+                    String fullName = user.getAlias();
+                    if (fullName == null || fullName.isEmpty()) {
+                        fullName = user.getName();
+                    }
+                    ti.setText(0, fullName);
                     ti.setText(1, id);
                     ti.setData(user);
                     uniqueIds.add(id);
@@ -293,18 +284,18 @@ public class UserSearchDialog extends CaveSWTDialog implements IUserSelector {
     }
 
     @Override
-    public IUser[] getSelectedUsers() {
-        Set<IUser> selectedUsers = new HashSet<IUser>();
+    public UserId[] getSelectedUsers() {
+        Set<UserId> selectedUsers = new HashSet<UserId>();
         TableItem[] selection = resultTable.getSelection();
 
         if (selection != null && selection.length > 0) {
-            IUser[] users = new IUser[selection.length];
+            UserId[] users = new UserId[selection.length];
             for (int i = 0; i < users.length; i += 1) {
-                IUser user = (IUser) selection[i].getData();
+                UserId user = (UserId) selection[i].getData();
                 selectedUsers.add(user);
             }
         }
-        return selectedUsers.toArray(new IUser[selectedUsers.size()]);
+        return selectedUsers.toArray(new UserId[selectedUsers.size()]);
     }
 
 }
