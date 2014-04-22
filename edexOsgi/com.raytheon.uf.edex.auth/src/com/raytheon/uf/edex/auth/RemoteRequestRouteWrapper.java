@@ -67,7 +67,8 @@ public class RemoteRequestRouteWrapper {
 
     private RemoteRequestServer server;
 
-    private int byteLimitInMB;
+    // default to 100MB
+    private int byteLimitInMB = 100;
 
     public byte[] executeThrift(InputStream data) {
         /*
