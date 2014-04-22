@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Satellite Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.satellite
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.edex.plugin.satellite,
@@ -13,7 +13,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.dataplugin.satellite;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization.comm;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
+ com.raytheon.uf.common.geospatial;bundle-version="1.14.0",
  com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
  com.raytheon.uf.common.localization;bundle-version="1.12.1174",
@@ -22,6 +22,7 @@ Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.awipstools;bundle-version="1.12.1174",
  com.raytheon.uf.edex.core;bundle-version="1.12.1174",
  com.raytheon.uf.edex.database;bundle-version="1.0.0",
- com.raytheon.uf.edex.menus;bundle-version="1.0.0"
+ com.raytheon.uf.edex.menus;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Import-Package: com.raytheon.edex.exception,
  org.apache.commons.logging

@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
+import com.raytheon.uf.common.activetable.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
@@ -41,7 +42,6 @@ import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
 import com.raytheon.uf.common.dataplugin.gfe.request.AbstractGfeRequest;
-import com.raytheon.uf.common.dataplugin.gfe.request.ClearPracticeVTECTableRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CommitGridsRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.CreateNewDbRequest;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetActiveTableRequest;
@@ -118,6 +118,8 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * 06/06/13     #2073      dgilling    Make getGridInventory() better match A1,
  *                                     fix warnings.
  * 11/20/2013   #2331      randerso    Added getTopoData method
+ * 04/03/2014   #2737      randerso    Moved clientISCSendStatus to SaveGFEGridRequest
+ * 04/09/2014   #3004      dgilling    Support moved ClearPracticeVTECTableRequest.
  * 
  * </pre>
  * 
@@ -421,8 +423,8 @@ public class IFPClient {
             throws GFEServerException {
         ServerResponse<?> response = null;
         if (!requests.isEmpty()) {
-            SaveGfeGridRequest request = new SaveGfeGridRequest();
-            request.setSaveRequest(requests);
+            SaveGfeGridRequest request = new SaveGfeGridRequest(
+                    dataManager.clientISCSendStatus(), requests);
             response = makeRequest(request);
         }
         logResponse(response);
@@ -751,10 +753,15 @@ public class IFPClient {
     }
 
     public void clearPracticeTable(String siteId) throws VizException {
-        ClearPracticeVTECTableRequest request = new ClearPracticeVTECTableRequest();
-        request.setRequestedSiteId(SiteMap.getInstance().getSite4LetterId(
-                siteId));
-        makeRequest(request);
+        try {
+            ClearPracticeVTECTableRequest request = new ClearPracticeVTECTableRequest(
+                    SiteMap.getInstance().getSite4LetterId(siteId),
+                    workstationID);
+            ThriftClient.sendRequest(request);
+        } catch (VizException e) {
+            throw new GFEServerException(
+                    "Could not clear practice active table.", e);
+        }
     }
 
     public ServerResponse<?> getGridHistory(ParmID parmID,

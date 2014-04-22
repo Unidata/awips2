@@ -4892,6 +4892,14 @@
         </imageStyle>
     </styleRule>
 <!-- </sourceTag>ER-sportsst -->
+	<styleRule>
+        <paramLevelMatches>
+            <parameter>TEMPWTR</parameter>
+        </paramLevelMatches>
+        <imageStyle>
+            <displayUnits>C</displayUnits>
+        </imageStyle>
+    </styleRule>
 
  <styleRule>
     <paramLevelMatches>

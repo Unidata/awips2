@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Model Graphics" id="modelGraphics">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="UKMO 500 hgt" timeQuery="true" id="uaUKMO500hgt">
+            <substitute value="PHZM50, PHZO50, PHZQ50" key="wmo"/>
+        </contribute>
+    </contribute>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="CPC Charts" id="cpcCharts">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="6-10 day mean 500 Hgt" timeQuery="true" id="ua610daymean500Hgt">
+            <substitute value="PHBV50" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day Mean 500 Hgt" timeQuery="true" id="ua814dayMean500Hgt">
+            <substitute value="PHTT50" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="6-10 day 500 Hgt Anomaly" timeQuery="true" id="ua610day500HgtAnomaly">
+            <substitute value="PHNT50" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day 500 Anom" timeQuery="true" id="ua814day500Anom">
+            <substitute value="PHTT51" key="wmo"/>
+        </contribute>
+    </contribute>
+</menuTemplate>

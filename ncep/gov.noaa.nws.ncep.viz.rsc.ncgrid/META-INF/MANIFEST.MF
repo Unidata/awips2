@@ -31,21 +31,17 @@ Require-Bundle: org.eclipse.ui,
  gov.noaa.nws.ncep.common.log;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.gempak;bundle-version="1.0.0",
  gov.noaa.nws.ncep.viz.gempak.nativelib;bundle-version="1.0.0",
- com.raytheon.uf.common.style;bundle-version="1.0.0"
+ com.raytheon.uf.common.style;bundle-version="1.0.0",
+ com.raytheon.uf.common.numeric;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: gov.noaa.nws.ncep.viz.rsc.ncgrid,
  gov.noaa.nws.ncep.viz.rsc.ncgrid.contours,
  gov.noaa.nws.ncep.viz.rsc.ncgrid.rsc
-Import-Package: com.raytheon.viz.core.contours.util,
- com.raytheon.uf.common.comm,
+Import-Package: com.raytheon.uf.common.comm,
  com.raytheon.uf.common.dataplugin.level,
- com.raytheon.uf.common.derivparam.tree,
  com.raytheon.uf.common.pointdata,
- com.raytheon.uf.viz.derivparam.data,
- com.raytheon.uf.viz.derivparam.inv,
- com.raytheon.uf.viz.derivparam.library,
- com.raytheon.uf.viz.derivparam.tree,
+ com.raytheon.viz.core.contours.util,
  com.raytheon.viz.grid.inv,
  com.sun.jna,
  com.sun.jna.ptr,

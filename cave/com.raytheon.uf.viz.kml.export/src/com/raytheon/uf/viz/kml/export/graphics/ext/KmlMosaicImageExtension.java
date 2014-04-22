@@ -33,10 +33,10 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.interpolation.Interpolation;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
-import com.raytheon.uf.common.geospatial.interpolation.data.AbstractDataWrapper;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataDestination;
-import com.raytheon.uf.common.geospatial.interpolation.data.DataSource;
-import com.raytheon.uf.common.geospatial.interpolation.data.FloatArrayWrapper;
+import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.FloatBufferWrapper;
+import com.raytheon.uf.common.numeric.dest.DataDestination;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -161,7 +161,7 @@ public class KmlMosaicImageExtension extends
             }
             GridGeometry2D geom = new GridGeometry2D(range, bigenv);
             // fullDest is the end location of reprojected data values
-            FloatArrayWrapper fullDest = new FloatArrayWrapper(geom);
+            FloatBufferWrapper fullDest = new FloatBufferWrapper(range);
             Arrays.fill(fullDest.getArray(), Float.NaN);
             Interpolation interp = new NearestNeighborInterpolation();
             for (DrawableImage image : images) {
@@ -223,12 +223,12 @@ public class KmlMosaicImageExtension extends
 
         private final Comparator<Double> mosaicComparator;
 
-        private final AbstractDataWrapper fullDest;
+        private final BufferWrapper fullDest;
 
         private final GridEnvelope2D envelope;
 
         public MosaicDataDestination(Comparator<Double> mosaicComparator,
-                AbstractDataWrapper fullDest, GridEnvelope2D envelope) {
+                BufferWrapper fullDest, GridEnvelope2D envelope) {
             this.mosaicComparator = mosaicComparator;
             this.fullDest = fullDest;
             this.envelope = envelope;

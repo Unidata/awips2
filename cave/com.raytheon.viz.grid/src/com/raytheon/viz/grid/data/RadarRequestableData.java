@@ -27,6 +27,8 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.comm.CommunicationException;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -42,7 +44,6 @@ import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.grid.util.RadarAdapter;
 import com.raytheon.viz.grid.util.SliceUtil;
@@ -116,7 +117,7 @@ public class RadarRequestableData extends GridRequestableData {
     }
 
     @Override
-    public IDataRecord[] getDataValue(Object arg) throws VizException {
+    public IDataRecord[] getDataValue(Object arg) throws DataCubeException {
         FloatDataRecord fdr = null;
         if (cache != null) {
             fdr = cache.get();
@@ -127,13 +128,17 @@ public class RadarRequestableData extends GridRequestableData {
             try {
                 RadarDataRetriever.populateRadarRecord(dataStore, radarSource);
             } catch (Exception e) {
-                throw new VizException(
+                throw new DataCubeException(
                         "Error Retrieving Data from Radar Record", e);
             }
             // Call radar tiler to get tile data, look up color map to translate
             // to float
-            ColorMapParameters cMapParams = RadarAdapter
-                    .getColorMap(radarSource);
+            ColorMapParameters cMapParams;
+            try {
+                cMapParams = RadarAdapter.getColorMap(radarSource);
+            } catch (VizException e) {
+                throw new DataCubeException(e);
+            }
             cMapParams.setDataUnit(radarSource.getDataUnit());
             /*
              * UnitConverter dataToImage =

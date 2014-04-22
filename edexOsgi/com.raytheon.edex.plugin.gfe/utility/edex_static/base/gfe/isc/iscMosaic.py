@@ -86,6 +86,7 @@ from com.raytheon.uf.edex.database.cluster import ClusterTask
 #                                                 Changed WECache to limit the number of cached grids kept in memory
 #    01/09/14        16952         randerso       Fix regression made in #2517 which caused errors with overlapping grids
 #    02/04/14        17042         ryu            Check in changes for randerso.
+#    04/03/2014      2737          randerso       Allow iscMosaic to blankOtherPeriods even when no grids received
 #
 
 BATCH_DELAY = 0.0
@@ -677,7 +678,7 @@ class IscMosaic:
         inTimes = self.__getIncomingValidTimes(vars[0])
         logger.info("Processing %s #Grids=%d Site=%s", parmName, len(inTimes), self.__siteID)
 
-        if self.__eraseFirst or len(inTimes) > 0:
+        if self.__blankOtherPeriods or self.__eraseFirst or len(inTimes) > 0:
             while retryAttempt != retries:
                 logger.debug("iscMosaic: Attempting to acquire cluster lock for: %s", parmName)
                 startTime = time.time()

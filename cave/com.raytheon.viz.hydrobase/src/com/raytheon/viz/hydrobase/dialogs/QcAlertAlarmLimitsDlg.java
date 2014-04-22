@@ -83,6 +83,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * Nov 26, 2013 15800       wkwock      Fix unhandled event loop 
  * Jan 07, 2013 16643       snaples     Fixed changeFormat to use string formatting instead of converting to Date.
+ * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
  * </pre>
  * 
  * @author lvenable
@@ -836,6 +837,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             for (String currPE : peList) {
                                 physElemList.add(currPE);
                                 physElemSelItemList.add(currPE);
@@ -851,6 +855,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             durationCbo.setItems(durList.toArray(new String[0]));
                             updateDialogState(DialogStates.DEFAULT_LIMITS);
                             loadData();
@@ -865,6 +872,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             setBusy(false);
                         }
                     });

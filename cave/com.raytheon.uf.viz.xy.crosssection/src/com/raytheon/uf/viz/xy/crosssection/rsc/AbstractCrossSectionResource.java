@@ -93,6 +93,7 @@ import com.vividsolutions.jts.geom.LineString;
  * Dec 4, 2007             njensen     Initial creation
  * 02/17/09                njensen     Refactored to new rsc architecture
  * 02/27/12	    14490      kshresth    Fixed cross sections not loading as images
+ * 02/19/2014    2819      randerso    Removed unnecessary .clone() call
  * 
  * </pre>
  * 
@@ -179,7 +180,7 @@ public abstract class AbstractCrossSectionResource extends
             DataTime time = dataTimes.get(numTimes - 1);
             sliceMap.put(time, null);
             dataRetrievalJob.times.add(time);
-            for (int i = 0; i < numTimes - 1; i++) {
+            for (int i = 0; i < (numTimes - 1); i++) {
                 time = dataTimes.get(i);
                 sliceMap.put(time, null);
                 dataRetrievalJob.times.add(time);
@@ -205,7 +206,7 @@ public abstract class AbstractCrossSectionResource extends
             IExtent extent = descriptor.getGraph(this).getExtent().clone();
             // To be numerically accurate the grid geometry should be 1 grid
             // cell larger than the graph
-            extent.scale(1.0 + 1.0 / GRID_SIZE);
+            extent.scale(1.0 + (1.0 / GRID_SIZE));
             GeneralEnvelope env = new GeneralEnvelope(new double[] {
                     extent.getMinX(), extent.getMinY() }, new double[] {
                     extent.getMaxX(), extent.getMaxY() });
@@ -283,12 +284,11 @@ public abstract class AbstractCrossSectionResource extends
                     GRID_SIZE);
             // filter below topo
             for (int i = 0; i < GRID_SIZE; i++) {
-                double height = GRID_SIZE
-                        * (graph.getExtent().getMaxY() - topoData[i])
+                double height = (GRID_SIZE * (graph.getExtent().getMaxY() - topoData[i]))
                         / graph.getExtent().getHeight();
                 for (int j = 0; j < height; j++) {
                     for (float[] floatArr : floatData) {
-                        floatArr[j * GRID_SIZE + i] = -999999;
+                        floatArr[(j * GRID_SIZE) + i] = -999999;
                     }
                 }
             }
@@ -324,7 +324,7 @@ public abstract class AbstractCrossSectionResource extends
             pdoTime = resourceData.getBinOffset().getNormalizedTime(pdoTime);
         }
 
-        if (dataTimes == null || dataTimes.isEmpty()) {
+        if ((dataTimes == null) || dataTimes.isEmpty()) {
             dataTimes = new ArrayList<DataTime>();
         }
         adapter.addRecord(pdo);
@@ -415,7 +415,7 @@ public abstract class AbstractCrossSectionResource extends
             shape = target.createWireframeShape(false, insetMapDescriptor);
             JTSCompiler compiler = new JTSCompiler(null, shape,
                     insetMapDescriptor);
-            compiler.handle((LineString) line.clone());
+            compiler.handle(line);
             shape.compile();
             lines.put(line, shape);
         }
@@ -437,8 +437,9 @@ public abstract class AbstractCrossSectionResource extends
 
             stnID = resourceData.getMetadataMap().get("location.stationId")
                     .getConstraintValue();
-            if (stnID == null)
+            if (stnID == null) {
                 stnID = "";
+            }
         }
         if (stnID != "") {
             if (stnID.contains(",")) { // ID may be formatted point1,point2 to
@@ -446,8 +447,9 @@ public abstract class AbstractCrossSectionResource extends
                 String stn = stnID.replace(",", "-"); // For display, need
                 // point1-point2
                 completeName += " " + stn;
-            } else
+            } else {
                 completeName += " " + stnID;
+            }
         }
         String parameterName = resourceData.getParameterName();
         completeName += " " + parameterName;
@@ -464,7 +466,7 @@ public abstract class AbstractCrossSectionResource extends
 
     public String getUnitString() {
         String unitString = "?";
-        if (prefs != null && prefs.getDisplayUnitLabel() != null) {
+        if ((prefs != null) && (prefs.getDisplayUnitLabel() != null)) {
             unitString = prefs.getDisplayUnitLabel();
         } else if (adapter.getUnit() == Unit.ONE) {
             return "";
@@ -477,11 +479,11 @@ public abstract class AbstractCrossSectionResource extends
 
     public Unit<?> getUnit() {
         Unit<?> xPrefUnit = prefs == null ? null : prefs.getDisplayUnits();
-        if (xPrefUnit != null && xPrefUnit != Unit.ONE) {
+        if ((xPrefUnit != null) && (xPrefUnit != Unit.ONE)) {
             return xPrefUnit;
         }
         Unit<?> xDataUnit = adapter.getUnit();
-        if (xDataUnit != null && xDataUnit != Unit.ONE) {
+        if ((xDataUnit != null) && (xDataUnit != Unit.ONE)) {
             return xDataUnit;
         }
         return Unit.ONE;
@@ -501,7 +503,7 @@ public abstract class AbstractCrossSectionResource extends
         Coordinate[] coords = descriptor.getLine(myTime).getCoordinates();
         double totalDistance = 0.0;
 
-        for (int j = 0; j < coords.length - 1; j++) {
+        for (int j = 0; j < (coords.length - 1); j++) {
             try {
                 totalDistance += JTS.orthodromicDistance(coords[j],
                         coords[j + 1], MapUtil.getLatLonProjection());
@@ -550,7 +552,7 @@ public abstract class AbstractCrossSectionResource extends
         protected IStatus run(IProgressMonitor monitor) {
             DataTime time = null;
 
-            while (run && (time = times.poll()) != null) {
+            while (run && ((time = times.poll()) != null)) {
                 try {
                     AbstractCrossSectionResource.this.loadSlice(time);
                     AbstractCrossSectionResource.this.issueRefresh();

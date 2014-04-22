@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bufrsplitter
+Bundle-SymbolicName: ucar.nc2.bufrsplitter
+Bundle-Version: 4.2
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: ucar.nc2,
+ org.slf4j
+Bundle-ClassPath: bufr-splitter-4.2.jar
+Export-Package: ucar.nc2.iosp.bufr.writer

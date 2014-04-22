@@ -113,54 +113,8 @@
         	<substitute key="plotModelFile" value="raobLowerDesign"/>
 	    </contribute>
 	</contribute>
-	<contribute xsi:type="subMenu" menuText="Model Graphics">
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="UKMO 500 hgt" id="uaUKMO500hgt">
-	    	<substitute key="wmo" value="PHZM50, PHZO50, PHZQ50"/>   	
-	    </contribute>
-		<contribute xsi:type="separator" id="MySeparatorId"/>
-		<contribute xsi:type="titleItem" titleText="------ Trajectories ------" />
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="NGM Sfc Parcel" id="uaNGMSfcParcel">
-	    	<dataURI>/redbook/%/PMNE98/%</dataURI>
-	    	<substitute key="wmo" value="PMNE98"/>   	
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="NGM 850 Parcel" id="uaNGM850Parcel">
-	    	<dataURI>/redbook/%/PMNE85/%</dataURI>
-	    	<substitute key="wmo" value="PMNE85"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="NGM 700 Parcel" id="uaNGM700Parcel">
-	    	<dataURI>/redbook/%/PMNE70/%</dataURI>
-	    	<substitute key="wmo" value="PMNE70"/>     	
-	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="12hr Vert Displacement" id="ua12hrVertDisplacement">
-	    	<substitute key="wmo" value="PJME07, PJMG07, PJMI07"/>   	
-	    </contribute>
-	</contribute>
-	<contribute xsi:type="subMenu" menuText="CPC Charts">
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="6-10 day mean 500 Hgt" id="ua610daymean500Hgt">
-	    	<dataURI>/redbook/%/PHBV50/%</dataURI>
-	    	<substitute key="wmo" value="PHBV50"/>       	
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="8-14 day Mean 500 Hgt" id="ua814dayMean500Hgt">
-	    	<dataURI>/redbook/%/PHTT50/%</dataURI>
-	    	<substitute key="wmo" value="PHTT50"/>       	
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="6-10 day 500 Hgt Anomaly" id="ua610day500HgtAnomaly">
-	    	<dataURI>/redbook/%/PHNT50/%</dataURI>
-	    	<substitute key="wmo" value="PHNT50"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
-	                menuText="8-14 day 500 Anom" id="ua814day500Anom">
-	    	<dataURI>/redbook/%/PHTT51/%</dataURI>
-	    	<substitute key="wmo" value="PHTT51"/>
-	    </contribute>
-	</contribute>
+
+	<contribute xsi:type="subinclude" fileName="menus/upperair/uaMenus.xml"/>
+	
 	<contribute xsi:type="separator" id="MySeparatorId"/>
 </menuTemplate>

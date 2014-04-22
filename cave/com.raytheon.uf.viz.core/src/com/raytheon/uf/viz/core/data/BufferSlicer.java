@@ -26,6 +26,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import com.raytheon.uf.common.util.BufferUtil;
+
 /**
  * Slices a subset of a Buffer object
  * 
@@ -38,6 +40,7 @@ import java.nio.ShortBuffer;
  * Nov 22, 2011            mschenke    Initial creation
  * Jun 20, 2013     2122   mschenke    Made work with slicing from data with
  *                                     bounds not starting at 0,0
+ * Apr 08, 2014     2968   njensen     Use BufferUtil for duplicate()
  * 
  * </pre>
  * 
@@ -67,7 +70,7 @@ public class BufferSlicer {
                     "Data bounds defines region outside of buffer's total bounds");
         }
 
-        data = duplicate(data);
+        data = BufferUtil.duplicate(data);
         int dataSize = dataBounds.width * dataBounds.height;
         if (dataSize == totalBounds.width * totalBounds.height) {
             return data;
@@ -80,22 +83,6 @@ public class BufferSlicer {
             return slice((IntBuffer) data, dataBounds, totalBounds, dataSize);
         } else if (data instanceof FloatBuffer) {
             return slice((FloatBuffer) data, dataBounds, totalBounds, dataSize);
-        } else {
-            throw new RuntimeException(
-                    "Unhandled buffer passed in: " + data != null ? data
-                            .getClass().getSimpleName() : null);
-        }
-    }
-
-    private static Buffer duplicate(Buffer data) {
-        if (data instanceof ByteBuffer) {
-            return ((ByteBuffer) data).duplicate();
-        } else if (data instanceof ShortBuffer) {
-            return ((ShortBuffer) data).duplicate();
-        } else if (data instanceof IntBuffer) {
-            return ((IntBuffer) data).duplicate();
-        } else if (data instanceof FloatBuffer) {
-            return ((FloatBuffer) data).duplicate();
         } else {
             throw new RuntimeException(
                     "Unhandled buffer passed in: " + data != null ? data

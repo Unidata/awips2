@@ -38,9 +38,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
@@ -69,18 +69,18 @@ import com.vividsolutions.jts.geom.Envelope;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 4, 2007             njensen     Initial creation
- * 02/17/09                njensen     Refactored to new rsc architecture
- * Feb 9, 2011  8244       bkowal      Enabled the magnification capability.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Dec 04, 2007           njensen     Initial creation
+ * Feb 17, 2009           njensen     Refactored to new rsc architecture
+ * Feb 09, 2011  8244     bkowal      Enabled the magnification capability.
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
  * @author njensen
  * @version 1.0
  */
-
 public class CrossSectionContourResource extends AbstractCrossSectionResource
         implements IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -214,7 +214,7 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
                 }
             }
             List<float[]> dataList = sliceMap.get(currentTime);
-            GeneralGridGeometry geometry = (GeneralGridGeometry) this.geometry;
+            GeneralGridGeometry geometry = this.geometry;
             try {
                 // Prepare math transforms
                 MathTransform grid2crs = geometry
@@ -292,7 +292,7 @@ public class CrossSectionContourResource extends AbstractCrossSectionResource
             }
             // worry about the viewed pane? Reduce data etc?
             if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.STREAMLINE) {
-                dataList = Arrays.asList(dataList.get(2), dataList.get(3));
+                dataList = Arrays.asList(dataList.get(0), dataList.get(1));
                 cgs[level] = ContourSupport.createContours(dataList, level,
                         extent, density, geometry, target, contourPrefs);
             } else {

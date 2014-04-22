@@ -10,7 +10,7 @@
 		<property name="pluginName" ref="redbookPluginName" />
 		<property name="pluginFQN" value="com.raytheon.edex.plugin.redbook" />
 		<property name="dao" value="com.raytheon.edex.plugin.redbook.dao.RedbookDao" />
-		<property name="record" value="com.raytheon.edex.plugin.redbook.common.RedbookRecord" />
+		<property name="record" value="com.raytheon.uf.common.dataplugin.redbook.RedbookRecord" />
 	</bean>
 	
 	<bean factory-bean="pluginRegistry" factory-method="register">

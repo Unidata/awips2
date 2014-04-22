@@ -86,6 +86,7 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Jul  8, 2009	 2589		snaples 	Initial creation
+ * Mar  3, 2014  2804       mschenke    Set back up clipping pane
  * 
  * </pre>
  * 
@@ -528,6 +529,7 @@ public class PointFreezePlotResource extends
             }
             target.clearClippingPlane();
             drawQCLegend();
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
 

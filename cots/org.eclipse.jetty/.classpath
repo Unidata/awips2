@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry exported="true" kind="lib" path="javax.servlet.jsp-2.1.0.v201105211820.jar"/>
-	<classpathentry exported="true" kind="lib" path="javax.el-2.1.0.v201105211819.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="jetty-client-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-continuation-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-http-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-io-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-jmx-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-security-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-server-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-servlet-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-servlets-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-util-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-webapp-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="jetty-xml-7.6.14.v20131031.jar"/>
-	<classpathentry kind="lib" path="servlet-api-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="javax.el-2.1.0.v201105211819.jar"/>
+	<classpathentry exported="true" kind="lib" path="javax.servlet.jsp-2.1.0.v201105211820.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-client-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-continuation-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-http-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-io-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-jmx-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-security-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-server-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-servlet-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-servlets-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-util-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-webapp-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="jetty-xml-7.6.14.v20131031.jar"/>
+	<classpathentry exported="true" kind="lib" path="servlet-api-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

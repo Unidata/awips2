@@ -24,14 +24,15 @@ import java.util.List;
 
 import javax.media.jai.Interpolation;
 
+import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
+import com.raytheon.uf.common.inventory.data.AliasRequestableData;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.derivparam.data.AbstractRequestableData;
-import com.raytheon.uf.viz.derivparam.data.AliasRequestableData;
 import com.raytheon.viz.grid.util.CoverageUtils;
 import com.raytheon.viz.grid.util.SliceUtil;
 
@@ -68,7 +69,7 @@ public class ImportRequestableData extends AliasRequestableData {
         this.dataTime = dataTime;
     }
 
-    public Object getDataValue(Object arg) throws VizException {
+    public Object getDataValue(Object arg) throws DataCubeException {
         Request req = Request.ALL;
         if (arg instanceof Request) {
             req = (Request) arg;
@@ -119,27 +120,33 @@ public class ImportRequestableData extends AliasRequestableData {
         GridCoverage destGrid = (GridCoverage) getSpace();
         Interpolation interpolation = Interpolation
                 .getInstance(Interpolation.INTERP_BICUBIC);
-        if (rval instanceof FloatDataRecord) {
-            FloatDataRecord fdr = covUtil.remapGrid(sourceGrid, destGrid,
-                    (FloatDataRecord) rval, interpolation).getFloatDataRecord();
-            rval = SliceUtil.slice(fdr, req);
-        } else if (rval instanceof FloatDataRecord[]) {
-            FloatDataRecord[] recs = (FloatDataRecord[]) rval;
-            for (int i = 0; i < recs.length; i++) {
+        try {
+            if (rval instanceof FloatDataRecord) {
                 FloatDataRecord fdr = covUtil.remapGrid(sourceGrid, destGrid,
-                        recs[i], interpolation).getFloatDataRecord();
-                recs[i] = SliceUtil.slice(fdr, req);
-            }
-        } else if (rval instanceof IDataRecord[]) {
-            IDataRecord[] recs = (IDataRecord[]) rval;
-            for (int i = 0; i < recs.length; i++) {
-                if (recs[i] instanceof FloatDataRecord) {
+                        (FloatDataRecord) rval, interpolation)
+                        .getFloatDataRecord();
+                rval = SliceUtil.slice(fdr, req);
+            } else if (rval instanceof FloatDataRecord[]) {
+                FloatDataRecord[] recs = (FloatDataRecord[]) rval;
+                for (int i = 0; i < recs.length; i++) {
                     FloatDataRecord fdr = covUtil.remapGrid(sourceGrid,
-                            destGrid, (FloatDataRecord) recs[i], interpolation)
+                            destGrid, recs[i], interpolation)
                             .getFloatDataRecord();
                     recs[i] = SliceUtil.slice(fdr, req);
                 }
+            } else if (rval instanceof IDataRecord[]) {
+                IDataRecord[] recs = (IDataRecord[]) rval;
+                for (int i = 0; i < recs.length; i++) {
+                    if (recs[i] instanceof FloatDataRecord) {
+                        FloatDataRecord fdr = covUtil.remapGrid(sourceGrid,
+                                destGrid, (FloatDataRecord) recs[i],
+                                interpolation).getFloatDataRecord();
+                        recs[i] = SliceUtil.slice(fdr, req);
+                    }
+                }
             }
+        } catch (VizException e) {
+            throw new DataCubeException(e);
         }
 
         return rval;

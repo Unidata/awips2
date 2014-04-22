@@ -18,12 +18,14 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.pointdata,
  com.raytheon.uf.common.message,
  com.raytheon.uf.viz.productbrowser,
- com.raytheon.uf.viz.derivparam,
+ com.raytheon.uf.common.derivparam;bundle-version="1.14.0",
  com.raytheon.uf.viz.ui.menus,
  com.raytheon.uf.common.style,
  com.raytheon.viz.ui,
  com.raytheon.viz.core,
- javax.measure
+ javax.measure,
+ com.raytheon.uf.common.inventory;bundle-version="1.14.0",
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.satellite,
  com.raytheon.viz.satellite.rsc

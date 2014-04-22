@@ -22,7 +22,6 @@
 
 __all__ = [
             'AbstractGfeRequest',
-            'ClearPracticeVTECTableRequest',
             'CommitGridsRequest',
             'ConfigureTextProductsRequest',
             'ExecuteIfpNetCDFGridRequest',
@@ -52,7 +51,6 @@ __all__ = [
           ]
 
 from AbstractGfeRequest import AbstractGfeRequest
-from ClearPracticeVTECTableRequest import ClearPracticeVTECTableRequest
 from CommitGridsRequest import CommitGridsRequest
 from ConfigureTextProductsRequest import ConfigureTextProductsRequest
 from ExecuteIfpNetCDFGridRequest import ExecuteIfpNetCDFGridRequest

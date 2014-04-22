@@ -31,4 +31,3 @@ Export-Package: gov.noaa.nws.ncep.gempak.parameters,
  gov.noaa.nws.ncep.gempak.parameters.line,
  gov.noaa.nws.ncep.gempak.parameters.marker,
  gov.noaa.nws.ncep.gempak.parameters.title
-Bundle-ClassPath: ., jna.jar

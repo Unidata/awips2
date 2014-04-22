@@ -456,4 +456,7 @@
     <Level key="WBZ0">
         <DatabaseLevel levelName="WBZ" levelOneValue="0.0"/>
     </Level>
+    <Level key="BSS">
+        <DatabaseLevel levelName="BSS" levelOneValue="0.0"/>
+    </Level>
 </LevelMappings>

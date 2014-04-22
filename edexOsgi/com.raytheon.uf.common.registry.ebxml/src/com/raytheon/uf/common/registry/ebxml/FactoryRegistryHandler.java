@@ -80,6 +80,7 @@ import com.raytheon.uf.common.util.ReflectionException;
  * 4/9/2013     1802       bphillip    Modified to use constants in constants package instead of RegistryUtil
  * Apr 24, 2013 1910       djohnson    RegistryResponseStatus is now an enum.
  * Jun 24, 2013 2106       djohnson    Requires a transaction to already be active.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -629,7 +630,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * 
      */
     @Override
-    public RegistryResponse<Object> storeObject(final Object object) {
+    public RegistryResponse<Object> storeObject(final String username, final Object object) {
         final RegistryResponse<Object> response = new RegistryResponse<Object>();
         final Callable<RegistryResponse<Object>> request = new Callable<RegistryResponse<Object>>() {
             @Override
@@ -637,7 +638,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                 LifecycleManager lcm = lifecycleManagerFactory
                         .getLifeCycleManager();
                 QueryManager qm = queryManagerFactory.getQueryManager();
-                List<Object> a = store(lcm, qm, object, Mode.CREATE_ONLY);
+                List<Object> a = store(lcm, qm, username, object, Mode.CREATE_ONLY);
                 response.setRegistryObjects(a);
 
                 return response;
@@ -652,7 +653,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * {@inheritDoc}
      */
     @Override
-    public RegistryResponse<Object> storeOrReplaceObject(final Object object) {
+    public RegistryResponse<Object> storeOrReplaceObject(final String username, final Object object) {
         final RegistryResponse<Object> response = new RegistryResponse<Object>();
         final Callable<RegistryResponse<Object>> request = new Callable<RegistryResponse<Object>>() {
             @Override
@@ -660,7 +661,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                 LifecycleManager lcm = lifecycleManagerFactory
                         .getLifeCycleManager();
                 QueryManager qm = queryManagerFactory.getQueryManager();
-                List<Object> a = store(lcm, qm, object, Mode.CREATE_OR_REPLACE);
+                List<Object> a = store(lcm, qm, username, object, Mode.CREATE_OR_REPLACE);
                 response.setRegistryObjects(a);
 
                 return response;
@@ -698,7 +699,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
      * 
      */
     @SuppressWarnings("unchecked")
-    private <T> List<T> store(LifecycleManager lcm, QueryManager qm, T object,
+    private <T> List<T> store(LifecycleManager lcm, QueryManager qm, String username, T object,
             Mode mode) throws MsgRegistryException, JAXBException,
             IllegalArgumentException, ReflectionException,
             SerializationException {
@@ -780,13 +781,13 @@ public class FactoryRegistryHandler implements RegistryHandler {
             idQuery.setID(classificationNode.getId());
             objects = getRawObjects(qm, idQuery);
             if (objects.isEmpty()) {
-                rt = submitObjects(lcm, Arrays.asList(classificationNode));
+                rt = submitObjects(lcm, Arrays.asList(classificationNode), username);
                 if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                     throwUnsuccessfulResponseException(rt);
                 }
             }
 
-            rt = submitObjects(lcm, Arrays.asList(registryObject));
+            rt = submitObjects(lcm, Arrays.asList(registryObject), username);
             if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
                 throwUnsuccessfulResponseException(rt);
             }
@@ -801,7 +802,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                 association.setOwner(registryObject.getOwner());
             }
             if (!associations.isEmpty()) {
-                rt = submitObjects(lcm, associations, mode);
+                rt = submitObjects(lcm, associations, username, mode);
             }
 
             if (!RegistryResponseStatus.SUCCESS.equals(rt.getStatus())) {
@@ -874,14 +875,14 @@ public class FactoryRegistryHandler implements RegistryHandler {
                                     dependentObjects);
 
                     if (!associationsToAdd.isEmpty()) {
-                        rt = submitObjects(lcm, associationsToAdd, mode);
+                        rt = submitObjects(lcm, associationsToAdd, username, mode);
                     }
                 }
             }
 
             // Now that the association are worked out, try again with replace
             // mode set..
-            rt = submitObjects(lcm, Arrays.asList(registryObject), mode);
+            rt = submitObjects(lcm, Arrays.asList(registryObject), username, mode);
         } else {
             throw new IllegalArgumentException("Mode [" + mode
                     + "] is not currently supported!");
@@ -930,9 +931,9 @@ public class FactoryRegistryHandler implements RegistryHandler {
      */
     private RegistryResponseType submitObjects(
             LifecycleManager lifecycleManager,
-            List<RegistryObjectType> registryObjects)
+            List<RegistryObjectType> registryObjects, String username)
             throws MsgRegistryException, JAXBException {
-        return submitObjects(lifecycleManager, registryObjects,
+        return submitObjects(lifecycleManager, registryObjects, username,
                 Mode.CREATE_ONLY);
     }
 
@@ -957,7 +958,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
      */
     private RegistryResponseType submitObjects(
             LifecycleManager lifecycleManager,
-            List<RegistryObjectType> registryObjects, Mode mode)
+            List<RegistryObjectType> registryObjects, String username, Mode mode)
             throws MsgRegistryException, JAXBException {
 
         RegistryResponseType response = new RegistryResponseType();
@@ -976,7 +977,7 @@ public class FactoryRegistryHandler implements RegistryHandler {
                 List<RegistryObjectType> batch = registryObjects.subList(count,
                         (count = Math.min(count + batchSize, lastIndex)));
 
-                SubmitObjectsRequest a = RegistryUtil.newSubmitObjects(batch,
+                SubmitObjectsRequest a = RegistryUtil.newSubmitObjects(batch, username, 
                         mode);
 
                 RegistryResponseType rt = lifecycleManager.submitObjects(a);

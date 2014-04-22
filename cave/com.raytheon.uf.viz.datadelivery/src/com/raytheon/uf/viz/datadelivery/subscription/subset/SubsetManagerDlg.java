@@ -146,6 +146,9 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 26, 2014   #2833    lvenable     Added code to prevent the Subset (this) dialog from
  *                                      disappearing when the Subscription button is double clicked.
  *                                      Added dispose check for subscription button.
+ * Mar 31, 2014   2889     dhladky      Added username for notification center tracking.
+ * Apr 10, 2014   2864     mpduff       Changed how saved subset files are stored.
+ * 
  * </pre>
  * 
  * @author mpduff
@@ -381,7 +384,8 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         savedSetsTab.setText("Saved Subsets");
         Composite savedSetsComp = new Composite(tabFolder, SWT.NONE);
         savedSetsTab.setControl(savedSetsComp);
-        subsetTab = new SavedSubsetTab(savedSetsComp, this);
+        subsetTab = new SavedSubsetTab(savedSetsComp, dataSet.getDataSetType(),
+                this);
     }
 
     /** Create the information composite */
@@ -553,7 +557,8 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
             try {
                 as.setSubscriptionType(SubscriptionType.QUERY);
                 SubscriptionServiceResult result = subscriptionService.store(
-                        as, this);
+                        LocalizationManager.getInstance().getCurrentUser(), as,
+                        this);
 
                 if (result.hasMessageToDisplay()) {
                     DataDeliveryUtils.showMessage(getShell(), SWT.OK,
@@ -744,7 +749,8 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
         populateSubsetXML(subset);
 
         // Have all the info, now save the file
-        SubsetFileManager.getInstance().saveSubset(subset, this.shell);
+        SubsetFileManager.getInstance().saveSubset(subset,
+                this.dataSet.getDataSetType(), this.shell);
         setClean();
         subsetTab.enableButtons(nameText);
     }
@@ -833,7 +839,7 @@ public abstract class SubsetManagerDlg extends CaveSWTDialog implements
     @Override
     public void handleLoadSubset(String subsetName) {
         SubsetXML loadedSubsetXml = SubsetFileManager.getInstance().loadSubset(
-                subsetName);
+                subsetName, dataSet.getDataSetType());
 
         loadFromSubsetXML(loadedSubsetXml);
     }
