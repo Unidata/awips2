@@ -20,83 +20,71 @@
 
 package gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels;
 
-import java.awt.image.BufferedImage;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.IllegalFormatConversionException;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
-import javax.sound.midi.MidiDevice.Info;
-
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.swt.graphics.RGB;
-
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
-import com.raytheon.uf.common.pointdata.ParameterDescription;
-import com.raytheon.uf.common.pointdata.PointDataContainer;
-import com.raytheon.uf.common.pointdata.PointDataDescription;
-import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
-import com.raytheon.uf.viz.core.drawables.IImage;
-import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.map.IMapDescriptor;
-import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
-import com.raytheon.viz.pointdata.PlotInfo;
-import com.raytheon.viz.pointdata.PointDataRequest;
-
-import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery2;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.PlotModelFactory2.PlotElement;
-import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 import gov.noaa.nws.ncep.edex.common.metparameters.AbstractMetParameter;
-//import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
-import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory;
 //import gov.noaa.nws.ncep.edex.common.metparameters.PressureLevel;
 //import gov.noaa.nws.ncep.edex.common.metparameters.RelativeHumidity;
 //import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
 //import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
 import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+//import gov.noaa.nws.ncep.edex.common.metparameters.Amount;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory;
+//import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
+import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationElevation;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationID;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLatitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationLongitude;
 import gov.noaa.nws.ncep.edex.common.metparameters.StationNumber;
-//import gov.noaa.nws.ncep.edex.common.metparameters.StationName;
-import gov.noaa.nws.ncep.edex.common.metparameters.MetParameterFactory.NotDerivableException;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube;
+import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
 //import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer;
 //import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer.DataType;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingLayer2;
 import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingProfile;
-import gov.noaa.nws.ncep.edex.common.sounding.NcSoundingCube.QueryStatus;
+import gov.noaa.nws.ncep.viz.common.soundingQuery.NcSoundingQuery2;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.conditionalfilter.ConditionalFilter;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefn;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefns;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.parameters.PlotParameterDefnsMngr;
+import gov.noaa.nws.ncep.viz.rsc.plotdata.plotModels.elements.PlotModel;
 
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.pointdata.ParameterDescription;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
+import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.serialization.adapters.UnitAdapter;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
-import com.vividsolutions.jts.geom.Coordinate;
+import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.data.prep.IODataPreparer;
+import com.raytheon.uf.viz.core.drawables.IImage;
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.viz.pointdata.IPlotModelGeneratorCaller;
+import com.raytheon.viz.pointdata.PlotInfo;
+import com.raytheon.viz.pointdata.PointDataRequest;
 /**
  * A Eclipse Job thread that will listen for new stations on a queue and request
  * the data to create the plots.
@@ -590,6 +578,9 @@ public class PlotModelGenerator2 extends Job {
                     }
                 } catch (VizException e1) {
                     e1.printStackTrace();
+                    return Status.OK_STATUS;
+                } catch (DataCubeException e) {
+                    e.printStackTrace();
                     return Status.OK_STATUS;
                 }
                 

@@ -41,9 +41,9 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.pointdata.PlotModelFactory2.PlotModelElement;
 import com.raytheon.viz.pointdata.util.PointDataInventory;
 

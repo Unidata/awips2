@@ -28,8 +28,9 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
@@ -40,7 +41,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
@@ -66,6 +66,8 @@ import com.raytheon.viz.redbook.rsc.RedbookFrame.RedbookStatus;
  * ------------ ----------  ----------- --------------------------
  * May 28, 2008 1162        chammack    Initial creation
  * May 21, 2013 2001        njensen     Fixed display of messages
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
  * 
  * </pre>
  * 

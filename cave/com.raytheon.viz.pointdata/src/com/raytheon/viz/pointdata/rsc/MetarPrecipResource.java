@@ -41,6 +41,7 @@ import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.Envelope2D;
+import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
@@ -94,6 +95,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 19, 2011            bsteffen    Initial creation
  * Jun 07, 2013 2070       bsteffen    Add geospatial constraints to metar
  *                                     precip requests.
+ * Mar 11, 2014 #2718      randerso    Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -197,8 +199,8 @@ public class MetarPrecipResource extends
 
         IExtent extent = paintProps.getView().getExtent();
 
-        double threshold = PLOT_PIXEL_SIZE * magnification / density;
-        threshold = threshold * extent.getWidth()
+        double threshold = (PLOT_PIXEL_SIZE * magnification) / density;
+        threshold = (threshold * extent.getWidth())
                 / paintProps.getCanvasBounds().width;
 
         for (RenderablePrecipData data : precips) {
@@ -294,7 +296,7 @@ public class MetarPrecipResource extends
         List<RenderablePrecipData> precips = getPrecipData(descriptor
                 .getTimeForResource(this));
 
-        if (precips == null || precips.isEmpty()) {
+        if ((precips == null) || precips.isEmpty()) {
             return null;
         }
 
@@ -401,7 +403,7 @@ public class MetarPrecipResource extends
                         .doubleValue();
                 DirectPosition2D dp = new DirectPosition2D(lon, lat);
                 toDescriptor.transform(dp, dp);
-                if (envelope.contains(dp)) {
+                if (envelope.contains((DirectPosition) dp)) {
                     newStations.add(map.get("location.stationId").toString());
                     long validTime = pdo.getDataTime().getMatchValid();
                     if (validTime < earliestTime) {
@@ -481,7 +483,7 @@ public class MetarPrecipResource extends
             int curIndex = frameInfo.getFrameIndex();
             int count = frameInfo.getFrameCount();
             // This will generate the number series 0, -1, 1, -2, 2, -3, 3...
-            for (int i = 0; i < count / 2 + 1; i = i < 0 ? -i : -i - 1) {
+            for (int i = 0; i < ((count / 2) + 1); i = i < 0 ? -i : -i - 1) {
                 int index = (count + curIndex + i) % count;
                 DataTime next = times[index];
                 if (next != null) {

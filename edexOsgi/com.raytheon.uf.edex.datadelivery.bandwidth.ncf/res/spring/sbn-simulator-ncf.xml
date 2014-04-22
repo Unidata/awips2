@@ -3,14 +3,19 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <bean id="sbnSimulator"
-        class="com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator" />
+	<bean id="sbnSimulator"
+		class="com.raytheon.uf.edex.datadelivery.bandwidth.sbn.SbnSimulator">
+		<property name="fileExpirationInMilliseconds" value="${sbnSimulator-fileExpirationInMilliseconds}" />
+	</bean>
 
     <camelContext id="SbnSimulator-context"
         xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
         <endpoint id="checkForSbnDataCron"
             uri="quartz://datadelivery/sbnSimulator?cron=${sbnSimulator-checkForSbnData.cron}" />
+
+        <endpoint id="sbnSimulatorPurgeCron"
+            uri="quartz://datadelivery/sbnSimulatorPurge?cron=${sbnSimulator-sbnDataPurge.cron}" />
 
         <route id="distributeToSiteDirs">
             <from uri="checkForSbnDataCron" />
@@ -25,6 +30,21 @@
                 </doCatch>
             </doTry>
         </route>
+
+        <route id="purgeSbnSimulatorFiles">
+            <from uri="sbnSimulatorPurgeCron" />
+            <doTry>
+                <pipeline>
+                    <bean ref="sbnSimulator" method="purgeSbnSimulatorFiles" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:SbnSimulator" />
+                </doCatch>
+            </doTry>
+        </route>
+
     </camelContext>
 
 </beans>

@@ -69,7 +69,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 21 Feb 2010  2915       mpduff      Fixed Time Zone problem.
  * 23 Feb 2010  4303       mpduff      Changed the &quot;missing&quot; date display to be N/A.
  * 16 Apr 2013  1790       rferrel     Make dialog non-blocking.
- * 09 Sep 2013  #2349      lvenable   Fixed Font memory leak.
+ * 09 Sep 2013  #2349      lvenable    Fixed Font memory leak.
+ * Mar 31, 2014 #2970      lvenable    Put dispose checks in the runAsync calls.
  * 
  * </pre>
  * 
@@ -877,9 +878,11 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
 
                 if (currObs.isEmpty()) {
                     VizApp.runAsync(new Runnable() {
-
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             setBusy(false);
                             String showErrorMsg = "No latest obs found. ";
                             MessageBox mb = new MessageBox(shell,
@@ -892,9 +895,11 @@ public class StationReportingStatusDlg extends CaveSWTDialog {
                 } else {
                     latestObs = currObs;
                     VizApp.runAsync(new Runnable() {
-
                         @Override
                         public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
                             loadRecords();
                         }
                     });

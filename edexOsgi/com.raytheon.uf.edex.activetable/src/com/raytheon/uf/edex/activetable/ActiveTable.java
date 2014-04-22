@@ -81,6 +81,8 @@ import com.raytheon.uf.edex.database.query.DatabaseQuery;
  * Aug 29, 2013    1843    dgilling    Move ETN related methods to 
  *                                     GetNextEtnUtil.
  * Mar 06, 2014    2883    randerso    Pass siteId into python code
+ * Apr 10, 2014    3004    dgilling    Remove ActiveTableMode parameter from
+ *                                     clearPracticeTable().
  * 
  * </pre>
  * 
@@ -530,8 +532,8 @@ public class ActiveTable {
         python.dispose();
     }
 
-    public static void clearPracticeTable(String requestedSiteId,
-            ActiveTableMode mode) throws DataAccessLayerException {
+    public static void clearPracticeTable(String requestedSiteId)
+            throws DataAccessLayerException {
         CoreDao dao = practiceDao;
         String sql = "delete from practice_activetable;";
         dao.executeNativeSql(sql);

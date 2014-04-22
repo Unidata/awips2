@@ -36,6 +36,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * ------------ ---------- ----------- --------------------------
  * Mar 16, 2012            jsanchez     Initial creation
  * Nov 08, 2013 2506       bgonzale     Added constructors.
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -65,10 +66,11 @@ public abstract class RegistryEvent extends Event {
      * @param objectType
      * @param action
      */
-    public RegistryEvent(String id, String lid, String objectType, Action action) {
+    public RegistryEvent(String id, String lid, String objectType, String username, Action action) {
         super(id);
         this.lid = lid;
         this.objectType = objectType;
+        this.username = username;
         this.action = action;
     }
 
@@ -80,6 +82,9 @@ public abstract class RegistryEvent extends Event {
 
     @DynamicSerializeElement
     private Action action;
+    
+    @DynamicSerializeElement
+    private String username;
 
     public void setObjectType(String objectType) {
         this.objectType = objectType;
@@ -110,4 +115,13 @@ public abstract class RegistryEvent extends Event {
     public void setAction(Action action) {
         this.action = action;
     }
+    
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
 }

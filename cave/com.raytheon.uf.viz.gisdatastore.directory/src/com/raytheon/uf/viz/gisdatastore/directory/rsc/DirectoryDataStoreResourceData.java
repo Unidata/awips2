@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.geotools.data.DataStore;
-import org.geotools.data.directory.DirectoryDataStoreFactory;
+import org.geotools.data.shapefile.ShapefileDirectoryFactory;
 
 import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResourceData;
 
@@ -43,6 +43,7 @@ import com.raytheon.uf.viz.gisdatastore.rsc.DataStoreResourceData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 31, 2012      #1326 randerso     Initial creation
+ * Mar 11, 2014      #2718 randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -62,7 +63,7 @@ public class DirectoryDataStoreResourceData extends DataStoreResourceData {
 
     @Override
     protected DataStore constructDataStore() throws IOException {
-        DirectoryDataStoreFactory factory = new DirectoryDataStoreFactory();
+        ShapefileDirectoryFactory factory = new ShapefileDirectoryFactory();
         Map<String, Serializable> params = new HashMap<String, Serializable>();
         for (Entry<String, Object> entry : getConnectionParameters().entrySet()) {
             if (entry.getValue() instanceof Serializable) {

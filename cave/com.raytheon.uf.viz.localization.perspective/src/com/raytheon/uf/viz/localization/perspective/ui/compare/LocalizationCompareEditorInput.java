@@ -27,7 +27,7 @@ import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.structuremergeviewer.DiffNode;
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import com.raytheon.uf.viz.localization.LocalizationEditorInput;
+import com.raytheon.uf.viz.localization.perspective.editor.LocalizationEditorInput;
 
 /**
  * Comparing editor input for localization files

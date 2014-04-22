@@ -19,7 +19,7 @@
  **/
 package com.raytheon.uf.edex.ogc.common;
 
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
+import com.raytheon.uf.common.http.MimeType;
 
 /**
  * Response wrapper for OGC web services

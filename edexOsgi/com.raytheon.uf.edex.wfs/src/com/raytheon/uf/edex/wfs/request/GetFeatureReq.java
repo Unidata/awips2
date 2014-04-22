@@ -36,7 +36,7 @@ import net.opengis.wfs.v_1_1_0.ResultTypeType;
 import net.opengis.wfs.v_2_0_0.GetPropertyValueType;
 import net.opengis.wfs.v_2_0_0.StoredQueryType;
 
-import com.raytheon.uf.edex.ogc.common.http.MimeType;
+import com.raytheon.uf.common.http.MimeType;
 import com.raytheon.uf.edex.wfs.WfsException;
 import com.raytheon.uf.edex.wfs.WfsException.Code;
 import com.raytheon.uf.edex.wfs.querystore.IStoredQueryCallback;

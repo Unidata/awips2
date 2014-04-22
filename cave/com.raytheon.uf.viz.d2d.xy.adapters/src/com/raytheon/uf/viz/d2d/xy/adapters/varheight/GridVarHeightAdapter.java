@@ -33,6 +33,7 @@ import javax.measure.unit.Unit;
 
 import org.geotools.geometry.DirectPosition2D;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -46,8 +47,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.xy.XYData;
@@ -62,10 +63,11 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May  7, 2010            bsteffen    Initial creation
- * Sep  9, 2013  2277      mschenke    Got rid of ScriptCreator references
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * May  7, 2010           bsteffen    Initial creation
+ * Sep  9, 2013  2277     mschenke    Got rid of ScriptCreator references
+ * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
  * 
  * </pre>
  * 
@@ -89,10 +91,10 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
     @Override
     public String getParameterName() {
         synchronized (records) {
-            String name = ((GridRecord) records.iterator().next())
+            String name = records.iterator().next()
                     .getParameter().getName();
             if (name == null || name.isEmpty()) {
-                name = ((GridRecord) records.iterator().next()).getParameter()
+                name = records.iterator().next().getParameter()
                         .getAbbreviation();
             }
             return name;
@@ -112,7 +114,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             if (records == null || records.size() == 0) {
                 return null;
             }
-            return ((GridRecord) records.iterator().next()).getParameter()
+            return records.iterator().next().getParameter()
                     .getUnit();
 
         }
@@ -134,7 +136,7 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
         for (DataTime key : keys) {
             Set<GridRecord> aRecord = yRecordMap.get(key);
             if (!aRecord.isEmpty()) {
-                return ((GridRecord) aRecord.iterator().next()).getParameter()
+                return aRecord.iterator().next().getParameter()
                         .getUnit();
             }
         }
@@ -226,7 +228,12 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             if (request == null) {
                 continue;
             }
-            DataCubeContainer.getDataRecords(entry.getValue(), request, null);
+            try {
+                DataCubeContainer.getDataRecords(entry.getValue(), request,
+                        null);
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
 
         }
 
@@ -248,13 +255,17 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             IDataRecord[] results = ((IDataRecord[]) xRecord.getMessageData());
             if (results == null) {
                 continue;
-            } else if (results.length == 4) {
-                FloatDataRecord speedRec = (FloatDataRecord) results[0];
-                FloatDataRecord dirRec = (FloatDataRecord) results[1];
-                float speed = InterpUtils.getInterpolatedData(xRect, xPoint.x,
-                        xPoint.y, speedRec.getFloatData());
-                float dir = InterpUtils.getInterpolatedData(xRect, xPoint.x,
-                        xPoint.y, dirRec.getFloatData());
+            } else if (results.length == 2) {
+                FloatDataRecord uRec = (FloatDataRecord) results[0];
+                FloatDataRecord vRec = (FloatDataRecord) results[1];
+                float u = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, uRec.getFloatData());
+                float v = InterpUtils.getInterpolatedData(xRect, xPoint.x,
+                        xPoint.y, vRec.getFloatData());
+
+                double speed = Math.hypot(u, v);
+                double dir = Math.toDegrees(Math.atan2(-u, -v));
+
                 dataList.add(new XYWindImageData(speed, yVal, speed, dir));
             } else {
                 FloatDataRecord xRec = (FloatDataRecord) results[0];
@@ -378,8 +389,13 @@ public class GridVarHeightAdapter extends AbstractVarHeightAdapter<GridRecord> {
             metadataMap.put(GridInventory.PARAMETER_QUERY,
                     new RequestConstraint(heightScale.getParameter()));
 
-            PluginDataObject[] pdos = DataCubeContainer.getData(metadataMap,
-                    times.toArray(new DataTime[0]));
+            PluginDataObject[] pdos;
+            try {
+                pdos = DataCubeContainer.getData(metadataMap,
+                        times.toArray(new DataTime[0]));
+            } catch (DataCubeException e) {
+                throw new VizException(e);
+            }
             for (PluginDataObject pdo : pdos) {
                 GridRecord gRecord = (GridRecord) pdo;
                 Set<GridRecord> recordSet = yRecordMap.get(gRecord

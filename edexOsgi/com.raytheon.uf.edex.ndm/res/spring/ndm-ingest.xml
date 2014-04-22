@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <camelContext id="clusteredNdmProc"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler" autoStartup="false">
+        <endpoint id="ndmFileEndpoint"
+            uri="file:${edex.home}/data/ndm?delete=true&amp;delay=5000&amp;maxMessagesPerPoll=1000&amp;exclusiveReadLockStrategy=#ndmFileChangedStrategy" />
+
+        <route id="ndmFileScan">
+            <from ref="ndmFileEndpoint" />
+            <bean ref="ndmProc" method="processEvent" />
+        </route>
+    </camelContext>
+    
+    <bean factory-bean="clusteredCamelContextMgr"
+        factory-method="register">
+        <constructor-arg ref="clusteredNdmProc" />
+    </bean>
+    
+    <bean id="ndmProc" class="com.raytheon.uf.edex.ndm.ingest.NationalDatasetIngester"/>
+    <bean id="ndmFileChangedStrategy" class="com.raytheon.uf.edex.esb.camel.FileChangedExclusiveReadLockStrategy"/>
+    
+</beans>

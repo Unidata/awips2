@@ -39,7 +39,7 @@ import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 import com.raytheon.uf.viz.collaboration.display.Activator;
 import com.raytheon.uf.viz.collaboration.display.IRemoteDisplayContainer;
 import com.raytheon.uf.viz.collaboration.display.editor.ActivateRemoteDisplay;
@@ -80,7 +80,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 8, 2012            mschenke     Initial creation
+ * Jun 08, 2012            mschenke    Initial creation
+ * Jan 28, 2014 2698       bclement    removed venue info
+ * Feb 13, 2014 2751       bclement    VenueParticipant refactor
+ * Mar 06, 2014 2848       bclement    only send to venue if non empty
  * 
  * </pre>
  * 
@@ -94,8 +97,8 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
         @Subscribe
         public void remoteDisplayRequested(RemoteDisplayRequested event) {
             String userId = event.getUserId();
-            UserId user = null;
-            for (UserId uid : session.getVenue().getParticipants()) {
+            VenueParticipant user = null;
+            for (VenueParticipant uid : session.getVenue().getParticipants()) {
                 if (uid.getFQName().equals(userId)) {
                     user = uid;
                     break;
@@ -443,8 +446,8 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
     private SharedEditorsManager(ISharedDisplaySession session) {
         this.session = session;
         session.registerEventHandler(eventHandler);
-        editorTitleSuffix = " ("
-                + session.getVenue().getInfo().getVenueDescription() + ")";
+        String title = session.getVenueName();
+        editorTitleSuffix = " (" + title + ")";
     }
 
     public int getDisplayId(IRenderableDisplay display) {
@@ -852,7 +855,13 @@ public class SharedEditorsManager implements IRemoteDisplayContainer {
      */
     private void sendEvent(Object event) {
         try {
-            session.sendObjectToVenue(event);
+            if (session.hasOtherParticipants()) {
+                session.sendObjectToVenue(event);
+            } else {
+                Activator.statusHandler
+                        .debug("Skipping sending event to empty room: "
+                                + event.getClass());
+            }
         } catch (CollaborationException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
                     e.getLocalizedMessage(), e);

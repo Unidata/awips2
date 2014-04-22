@@ -10,12 +10,12 @@ import java.util.regex.Pattern;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
+import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
-import com.raytheon.viz.warngen.gis.GisUtil;
-import com.raytheon.viz.warngen.gis.GisUtil.Direction;
 import com.raytheon.viz.warngen.text.ICommonPatterns;
 
 /**
@@ -33,7 +33,7 @@ import com.raytheon.viz.warngen.text.ICommonPatterns;
  * Aug  6, 2013 2243        jsanchez     Updated the time ranges to be removed from the follow up list correctly.
  * Aug 13, 2013 2243        jsanchez     Removed calendar object.
  * Aug 15, 2013 2243        jsanchez     Reset the time ranges to the correct values.
- * 
+ * Dec  4, 2013 2604        jsanchez     Refactored GisUtil.
  * </pre>
  * 
  * @author bwoodle

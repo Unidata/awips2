@@ -39,6 +39,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2012            njensen     Initial creation
+ * Mar 19, 2014  2882      dgilling    Create a new Type for null data.
  * 
  * </pre>
  * 
@@ -49,7 +50,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public interface IGeometryData extends IData {
 
     public static enum Type {
-        STRING, INT, LONG, FLOAT, DOUBLE;
+        STRING, INT, LONG, FLOAT, DOUBLE, NULL;
     };
 
     /**
@@ -117,6 +118,5 @@ public interface IGeometryData extends IData {
      * @return the type as specified in IGeometryData.type
      */
     public Type getType(String param);
-
 
 }

@@ -39,9 +39,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.StyleManager;
 import com.raytheon.uf.common.style.StyleRule;
-import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.common.style.image.ImagePreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -68,8 +68,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *   
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
- *    11Nov2009    2037        dhladky    Initial Creation.
- * 
+ *    11Nov2009    2037        dhladky     Initial Creation.
+ *    Mar  3, 2014 2804        mschenke    Set back up clipping pane
  * </pre>
  * 
  * @author dhladky
@@ -196,76 +196,81 @@ public class VILResource extends
             PaintProperties paintProps) throws VizException {
 
         target.clearClippingPlane();
-        this.displayedDataTime = paintProps.getDataTime();
+        try {
+            this.displayedDataTime = paintProps.getDataTime();
 
-        if (this.font == null) {
-            this.font = target.initializeFont("Dialog", 11, null);
-        }
-
-        // Pull the record out
-        this.record = resourceData.dataObjectMap.get(this.displayedDataTime);
-
-        if (record == null) {
-            // Don't have data for this frame
-            return;
-        }
-
-        GriddedImageDisplay2 gridDisplay = null;
-
-        if (record.getDataArray() == null) {
-            record = resourceData.populateRecord(record);
-        }
-
-        gridDisplay = griddedDisplayMap.get(displayedDataTime);
-        if (gridDisplay == null) {
-            gridDisplay = new GriddedImageDisplay2(FloatBuffer.wrap(record
-                    .getDataArray()), record.getGridGeometry(), this);
-            this.previousDataTime = displayedDataTime;
-            griddedDisplayMap.put(displayedDataTime, gridDisplay);
-        }
-
-        if (record.getDataArray() == null) {
-            // this should never happen, but just to be sure
-            System.err.println("record.getDataArray() returned null");
-            return;
-        }
-
-        ColorMapParameters colorMapParameters = getCapability(
-                ColorMapCapability.class).getColorMapParameters();
-
-        if (record != null && init) {
-            // Get default colormap
-            StyleRule sr;
-            try {
-                sr = StyleManager.getInstance().getStyleRule(
-                        StyleManager.StyleType.IMAGERY, getMatchCriteria());
-            } catch (StyleException e) {
-                throw new VizException(e.getLocalizedMessage(), e);
+            if (this.font == null) {
+                this.font = target.initializeFont("Dialog", 11, null);
             }
-            this.colormapfile = ((ImagePreferences) sr.getPreferences())
-                    .getDefaultColormap();
 
-            IColorMap cxml = ColorMapLoader.loadColorMap(colormapfile);
-            ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
-            colorMapParameters.setColorMap(colorMap);
+            // Pull the record out
+            this.record = resourceData.dataObjectMap
+                    .get(this.displayedDataTime);
 
-            colorMapParameters.setDataMapping(((ImagePreferences) sr
-                    .getPreferences()).getDataMapping());
+            if (record == null) {
+                // Don't have data for this frame
+                return;
+            }
 
-            vilmax = colorMapParameters
-                    .getDataMapping()
-                    .getEntries()
-                    .get(colorMapParameters.getDataMapping().getEntries()
-                            .size() - 1).getDisplayValue().floatValue();
-            vilmin = colorMapParameters.getDataMapping().getEntries().get(0)
-                    .getDisplayValue().floatValue();
-            colorMapParameters.setColorMapMax(vilmax);
-            colorMapParameters.setColorMapMin(vilmin);
+            GriddedImageDisplay2 gridDisplay = null;
 
-            init = false;
+            if (record.getDataArray() == null) {
+                record = resourceData.populateRecord(record);
+            }
+
+            gridDisplay = griddedDisplayMap.get(displayedDataTime);
+            if (gridDisplay == null) {
+                gridDisplay = new GriddedImageDisplay2(FloatBuffer.wrap(record
+                        .getDataArray()), record.getGridGeometry(), this);
+                this.previousDataTime = displayedDataTime;
+                griddedDisplayMap.put(displayedDataTime, gridDisplay);
+            }
+
+            if (record.getDataArray() == null) {
+                // this should never happen, but just to be sure
+                System.err.println("record.getDataArray() returned null");
+                return;
+            }
+
+            ColorMapParameters colorMapParameters = getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
+
+            if (record != null && init) {
+                // Get default colormap
+                StyleRule sr;
+                try {
+                    sr = StyleManager.getInstance().getStyleRule(
+                            StyleManager.StyleType.IMAGERY, getMatchCriteria());
+                } catch (StyleException e) {
+                    throw new VizException(e.getLocalizedMessage(), e);
+                }
+                this.colormapfile = ((ImagePreferences) sr.getPreferences())
+                        .getDefaultColormap();
+
+                IColorMap cxml = ColorMapLoader.loadColorMap(colormapfile);
+                ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
+                colorMapParameters.setColorMap(colorMap);
+
+                colorMapParameters.setDataMapping(((ImagePreferences) sr
+                        .getPreferences()).getDataMapping());
+
+                vilmax = colorMapParameters
+                        .getDataMapping()
+                        .getEntries()
+                        .get(colorMapParameters.getDataMapping().getEntries()
+                                .size() - 1).getDisplayValue().floatValue();
+                vilmin = colorMapParameters.getDataMapping().getEntries()
+                        .get(0).getDisplayValue().floatValue();
+                colorMapParameters.setColorMapMax(vilmax);
+                colorMapParameters.setColorMapMin(vilmin);
+
+                init = false;
+            }
+
+            gridDisplay.paint(target, paintProps);
+        } finally {
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
-
-        gridDisplay.paint(target, paintProps);
     }
 
     /*

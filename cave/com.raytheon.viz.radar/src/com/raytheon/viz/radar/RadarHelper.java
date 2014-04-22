@@ -30,6 +30,7 @@ import java.util.TimeZone;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.CorrelatedShearPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.HdaHailPacket;
@@ -54,7 +55,6 @@ import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.viz.core.HDF5Util;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.awipstools.common.StormTrackData;

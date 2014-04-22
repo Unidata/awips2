@@ -43,8 +43,8 @@ import org.junit.Test;
 
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.redbook.common.RedbookRecord;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.redbook.RedbookRecord;
 import com.raytheon.uf.common.localization.PathManagerFactoryTest;
 import com.raytheon.uf.common.util.FileUtil;
 
@@ -58,8 +58,10 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 22, 2013 1958       bgonzale     Initial creation
- * May 08, 2013 2000       djohnson     Ignore broken test.
+ * Apr 22, 2013 1958       bgonzale    Initial creation
+ * May 08, 2013 2000       djohnson    Ignore broken test.
+ * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
+ *                                     edex redbook plugins
  * 
  * </pre>
  * 

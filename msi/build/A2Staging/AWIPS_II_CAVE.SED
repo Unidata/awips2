@@ -32,6 +32,6 @@ AdminQuietInstCmd=
 UserQuietInstCmd=
 FILE0="AWIPS_II_CAVE.msi"
 [SourceFiles]
-SourceFiles0=C:\Users\Bryan Kowal\Documents\Visual Studio 2010\Projects\AWIPSII.CAVE\AWIPSII.CAVE\bin\Debug\
+SourceFiles0=C:\A2Staging
 [SourceFiles0]
 %FILE0%=

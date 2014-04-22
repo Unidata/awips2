@@ -15,5 +15,6 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.decodertools;bundle-version="1.0.0",
  com.raytheon.uf.common.site;bundle-version="1.12.1174",
  com.raytheon.uf.edex.site;bundle-version="1.0.0",
- com.raytheon.uf.common.monitor;bundle-version="1.12.1174"
+ com.raytheon.uf.common.monitor;bundle-version="1.12.1174",
+ com.raytheon.uf.edex.ndm;bundle-version="1.0.0"
 Import-Package: org.apache.commons.logging

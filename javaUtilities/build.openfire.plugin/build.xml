@@ -1,7 +1,7 @@
 <project default="build" basedir=".">
 	<!-- private static variables -->
 	<property name="openfire.src"
-		value="openfire_src_3_7_1.tar.gz" />
+		value="openfire_src_3_9_1.tar.gz" />
 	<property name="openfire.src.dir"
 		value="${basedir}/tmp/build/openfire_src" />	
 	<property name="baseline.dir"
@@ -10,6 +10,10 @@
 	<!-- optional command-line parameters -->
 	<property name="destination.directory"
 		value="" />
+	<property name="awipscm.dir" 
+		value="/awipscm" />
+	<property name="openfire.tar.dir" 
+        value="${awipscm.dir}/awips2-static/foss/openfire" />
 	
 	<target name="clean">
 		<!-- Remove artifacts from a previous build, if they exist. -->
@@ -26,10 +30,21 @@
 	<target name="init" depends="clean">
 		<!-- Unpack the source in a temporary directory. -->
 		<mkdir dir="${basedir}/tmp/build" />
+		<if>
+			<not>
+			<available file="/tmp/openfire-build/${openfire.src}" 
+				type="file" />
+			</not>
+			<then>
+				<copy file="${openfire.tar.dir}/${openfire.src}" 
+					todir="/tmp/openfire-build" />
+			</then>
+			
+		</if>
 		<!-- since untar is not working in this version of ant. -->
 		<exec executable="/bin/tar">
 			<arg value="-xf" />
-			<arg value="${basedir}/src/${openfire.src}" />
+			<arg value="/tmp/openfire-build/${openfire.src}" />
 			<arg value="-C" />
 			<arg value="${basedir}/tmp/build" />
 		</exec>

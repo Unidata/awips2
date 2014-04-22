@@ -22,26 +22,27 @@ package com.raytheon.uf.common.dataplugin.level;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Level
+ * Container for holding multiple levels during serialization.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 03, 2009            rjpeter     Initial creation.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Sep 03, 2009           rjpeter     Initial creation.
+ * Jan 23, 2014  2711     bsteffen    Remove ISerializableObject
+ * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
 @DynamicSerialize
-public class LevelContainer implements ISerializableObject {
+public class LevelContainer {
     @DynamicSerializeElement
     private List<Level> levels;
 

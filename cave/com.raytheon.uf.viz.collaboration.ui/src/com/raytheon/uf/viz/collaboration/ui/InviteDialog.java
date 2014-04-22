@@ -33,7 +33,21 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
+import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
+import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
+import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
 
 /**
@@ -47,6 +61,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 14, 2012            lvenable     Initial creation.
+ * Jan 30, 2014 2698       bclement    added logic to join room and reprompt if failed
+ * Feb  3, 2014 2699       bclement    added default handle preference
+ * Feb 11, 2014 2699       bclement    require non-blank handle
+ * Feb 13, 2014 2751       bclement    better types for roomid and inviter
+ * Mar 06, 2014 2848       bclement    moved join logic to separate method
+ * Mar 27, 2014 2632       mpduff      Set the OK button as the default button.
  * 
  * </pre>
  * 
@@ -58,17 +78,27 @@ public class InviteDialog extends CaveSWTDialogBase {
     /** Main composite. */
     private Composite mainComp;
 
-    private String inviter;
+    private final String inviter;
 
-    private String subject;
+    private final String subject;
 
-    private String room;
+    private final String room;
 
-    private String inviteText;
+    private final String inviteText;
 
-    private String message;
+    private final String message;
 
     private Font font;
+
+    private Text handleText;
+
+    private VenueSession session;
+
+    private final boolean sharedDisplay;
+
+    private final IVenueInvitationEvent event;
+
+    private Text errorMessage;
 
     /**
      * Constructor.
@@ -84,18 +114,27 @@ public class InviteDialog extends CaveSWTDialogBase {
      * @param iconStyle
      *            Icon style to be displayed.
      */
-    public InviteDialog(Shell parentShell, String inviter, String subject,
-            String room, String inviteText, String message) {
+    public InviteDialog(Shell parentShell, IVenueInvitationEvent event) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL
                 | SWT.PRIMARY_MODAL | SWT.SYSTEM_MODAL, CAVE.NONE);
         setText("Session Invitation");
-
-        this.inviter = inviter;
-        this.subject = subject;
-        this.room = room;
-        this.inviteText = inviteText;
-        this.message = message;
-
+        IUser inviter = event.getInviter();
+        VenueId room = event.getRoomId();
+        StringBuilder sb = new StringBuilder();
+        VenueInvite invite = event.getInvite();
+        this.sharedDisplay = invite instanceof SharedDisplayVenueInvite;
+        sb.append("You are invited to a ");
+        if (sharedDisplay) {
+            sb.append("collaboration session.");
+        } else {
+            sb.append("chat room.");
+        }
+        this.event = event;
+        this.inviter = inviter.getName();
+        this.subject = invite.getSubject();
+        this.room = room.getName();
+        this.inviteText = sb.toString();
+        this.message = invite.getMessage();
         setReturnValue(Boolean.FALSE);
     }
 
@@ -156,6 +195,22 @@ public class InviteDialog extends CaveSWTDialogBase {
             gd.horizontalSpan = 2;
             text.setLayoutData(gd);
         }
+        addLabel(labelTextComp, "Join With Handle:", true);
+        handleText = new Text(labelTextComp, SWT.BORDER);
+        handleText.setText(HandleUtil.getDefaultHandle());
+        handleText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        handleText
+                .setToolTipText("Default handle configuration available in preferences.");
+
+        GridData gd = new GridData(GridData.GRAB_HORIZONTAL
+                | GridData.HORIZONTAL_ALIGN_FILL);
+        gd.horizontalSpan = 2;
+        errorMessage = new Text(labelTextComp, SWT.READ_ONLY | SWT.WRAP);
+        errorMessage.setLayoutData(gd);
+        Display display = errorMessage.getDisplay();
+        errorMessage.setBackground(display
+                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
+        errorMessage.setForeground(display.getSystemColor(SWT.COLOR_RED));
         font.dispose();
     }
 
@@ -206,9 +261,23 @@ public class InviteDialog extends CaveSWTDialogBase {
         okBtn.setLayoutData(gd);
         okBtn.addSelectionListener(new SelectionAdapter() {
             @Override
-            public void widgetSelected(SelectionEvent e) {
-                setReturnValue(Boolean.TRUE);
-                close();
+            public void widgetSelected(SelectionEvent se) {
+                String handle = handleText.getText().trim();
+                try {
+                    if (handle.isEmpty()) {
+                        throw new CollaborationException(
+                                "Handle cannot be empty.");
+                    }
+                    join(event, handle);
+                    setReturnValue(Boolean.TRUE);
+                    se.doit = true;
+                    close();
+                } catch (CollaborationException ex) {
+                    se.doit = false;
+                    setReturnValue(Boolean.FALSE);
+                    errorMessage.setText(ex.getLocalizedMessage());
+                    errorMessage.setVisible(true);
+                }
             }
         });
 
@@ -224,5 +293,62 @@ public class InviteDialog extends CaveSWTDialogBase {
                 close();
             }
         });
+
+        this.getShell().setDefaultButton(okBtn);
     }
+
+    /**
+     * Create session object, register listeners and join.
+     * 
+     * @param invitation
+     * @param handle
+     * @throws CollaborationException
+     */
+    public void join(IVenueInvitationEvent invitation, String handle)
+            throws CollaborationException {
+        String venueName = invitation.getRoomId().getName();
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        // create session object
+        if (sharedDisplay) {
+            SharedDisplaySession displaySession = connection
+                    .createCollaborationVenue(invitation, handle);
+            /*
+             * this will register event bus listeners, needs to be done before
+             * connecting to venue
+             */
+            SharedDisplaySessionMgr.registerSession(displaySession,
+                    SharedDisplayRole.PARTICIPANT);
+            session = displaySession;
+        } else {
+            session = connection.createTextOnlyVenue(venueName, handle);
+        }
+        try {
+            // join session
+            session.configureVenue();
+            session.connectToRoom();
+            if (sharedDisplay) {
+                SharedDisplaySessionMgr.joinSession(session.getSessionId());
+            }
+            connection.postEvent(session);
+        } catch (CollaborationException e) {
+            if (sharedDisplay) {
+                SharedDisplaySessionMgr.exitSession(session.getSessionId());
+            }
+            connection.removeSession(session);
+            throw e;
+        }
+    }
+
+    public IVenueSession getSession() {
+        return session;
+    }
+
+    /**
+     * @return the sharedDisplay
+     */
+    public boolean isSharedDisplay() {
+        return sharedDisplay;
+    }
+
 }

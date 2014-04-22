@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ehcache Plug-in
 Bundle-SymbolicName: net.sf.ehcache
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.3.0
 Bundle-ClassPath: ehcache-1.3.0.jar
 Export-Package: net.sf.ehcache,
  net.sf.ehcache.bootstrap,
