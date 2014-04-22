@@ -73,6 +73,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 26, 2011            snaples     Initial creation
  * Jan 10, 2013 1448       bgonzale    Added app context check in processArealQpe().
  * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
+ * Apr 21, 2014   2060     njensen     Remove dependency on grid dataURI column
  * 
  * </pre>
  * 
@@ -151,11 +152,6 @@ public class ArealQpeGenSrv {
     private HRAPSubGrid subGrid;
 
     private Rectangle wfoExtent;
-
-    /**
-     * The reference time
-     */
-    private Date grReftime = null;
 
     /**
      * The previous Duration
@@ -588,7 +584,7 @@ public class ArealQpeGenSrv {
     }
 
     /**
-     * Get the data URI
+     * Get the grid record
      * 
      * @param rfc
      *            The RFC
@@ -599,13 +595,12 @@ public class ArealQpeGenSrv {
      * @return The database uri, or null if no data
      * @throws DataAccessLayerException
      */
-    private String getDataURI(String rfc, String duration, String today)
+    private GridRecord getGridRecord(String rfc, String duration, String today)
             throws DataAccessLayerException {
-        String uri = null;
+        GridRecord rec = null;
 
         // Query for uri
         DatabaseQuery query = new DatabaseQuery(GridRecord.class);
-        query.addReturnedField("dataURI");
         query.addQueryParam(GridConstants.DATASET_ID, "QPE-" + rfc);
         query.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, "QPE"
                 + duration + "%", "like");
@@ -615,13 +610,12 @@ public class ArealQpeGenSrv {
         dao = new CoreDao(DaoConfig.forDatabase("metadata"));
         List<?> rs = dao.queryByCriteria(query);
         if ((rs != null) && (!rs.isEmpty())) {
-            if ((rs.get(0) != null) && (rs.get(0) instanceof String)) {
-                uri = (String) rs.get(0);
+            Object result = rs.get(0);
+            if (result != null && result instanceof GridRecord) {
+                rec = ((GridRecord) result);
             }
-        } else {
-            uri = null;
         }
-        return uri;
+        return rec;
     }
 
     /**
@@ -656,19 +650,13 @@ public class ArealQpeGenSrv {
         IDataStore dataStore = null;
 
         try {
-            uri = getDataURI(rfc, durString, today);
-            if (uri == null) {
-                grReftime = cal.getTime();
+            GridRecord gr = getGridRecord(rfc, durString, today);
+            if (gr == null) {
                 return false;
             }
 
-            GridRecord gr = new GridRecord(uri);
             PluginDao gd = null;
-
             gd = PluginFactory.getInstance().getPluginDao(gr.getPluginName());
-            gr = (GridRecord) gd.getMetadata(uri);
-            grReftime = gr.getDataTime().getRefTime();
-
             dataStore = gd.getDataStore(gr);
 
             int nx = gr.getSpatialObject().getNx();
