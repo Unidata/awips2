@@ -28,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 21, 2012           bsteffen    Initial creation
  * Nov 25, 2013  2574     bsteffen    Add converter to location dataURI
  *                                    annotation.
+ * Apr 15, 2014  2060     njensen     Added unique constraint annotation
  * 
  * </pre>
  * 
@@ -60,7 +62,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * @version 1.0
  */
 @Entity
-@Table(name = "grid_info")
+@Table(name = "grid_info", uniqueConstraints = { @UniqueConstraint(columnNames = {
+        "datasetid", "secondaryid", "ensembleid", "location_id",
+        "parameter_abbreviation", "level_id" }) })
 @SequenceGenerator(name = "GRIDINFO_GENERATOR", sequenceName = "gridinfo_seq", allocationSize = 1)
 @DynamicSerialize
 public class GridInfoRecord extends PersistableDataObject<Integer> {
