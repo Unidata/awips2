@@ -39,7 +39,6 @@ import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.serialization.SerializationException;
-import com.raytheon.uf.edex.decodertools.time.TimeTools;
 
 /**
  * Populates point data views from fields in obs common records.
@@ -53,6 +52,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  * Oct 1, 2009             jkorman     Initial creation
  * Feb 15,2011  5705       cjeanbap    Added wmoHeader to HDR_PARAMS_LIST.
  * Apr 04,2014  2906       bclement    made getDescription() and static constants public
+ * Apr 22,2014  2906       bclement    removed WMO header, timeObs and timeNominal from HDF5 (times still in DB)
  * 
  * </pre>
  * 
@@ -217,7 +217,6 @@ public class SfcObsPointDataTransform {
         sb.append("reportType,");
         sb.append("dataURI,");
         sb.append("rawReport,");
-        sb.append("wmoHeader,");
 
         HDR_PARAMS_LIST = sb.toString();
     }
@@ -371,11 +370,8 @@ public class SfcObsPointDataTransform {
 
         PointDataView pdv = container.append();
         if (pdv != null) {
-            pdv.setLong(TIME_OBS, record.getTimeObs().getTimeInMillis());
-            pdv.setLong(TIME_NOMINAL, record.getRefHour().getTimeInMillis());
 
             pdv.setString(RAW_REPORT, record.getObsText());
-            pdv.setString(WMO_HEADER, record.getWmoHeader());
 
             pdv.setFloat(TEMPERATURE, getFloat(record.getTemp()));
             pdv.setFloat(DEWPOINT, getFloat(record.getDwpt()));
@@ -621,40 +617,12 @@ public class SfcObsPointDataTransform {
             SurfaceObsLocation loc = obs.getLocation();
             loc.setElevation(elev);
 
-            long tt = pdv.getNumber(TIME_OBS).longValue();
-            obs.setTimeObs(TimeTools.newCalendar(tt));
-
-            tt = pdv.getNumber(TIME_NOMINAL).longValue();
-            obs.setRefHour(TimeTools.newCalendar(tt));
-
             obs.setObsText(pdv.getString(RAW_REPORT));
-            obs.setWmoHeader(pdv.getString(WMO_HEADER));
         }
         return obs;
     }
 
-    /**
-     * 
-     * @param value
-     * @return
-     */
-    private static int getInt(Double value) {
-        int retValue = INT_DEFAULT;
-        if (value != null) {
-            retValue = value.intValue();
-        }
-        return retValue;
-    }
-
     private static int getInt(Integer value) {
-        int retValue = INT_DEFAULT;
-        if (value != null) {
-            retValue = value.intValue();
-        }
-        return retValue;
-    }
-
-    private static int getInt(Float value) {
         int retValue = INT_DEFAULT;
         if (value != null) {
             retValue = value.intValue();
