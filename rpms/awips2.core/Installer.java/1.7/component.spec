@@ -169,6 +169,10 @@ rm -fv changeit.txt
 if [ $? -ne 0 ]; then
    exit 1
 fi
+# Remove jrockit missioncontrol
+rm -rf %{_build_root}/awips2/java/lib/missioncontrol
+rm -f %{_build_root}/awips2/java/bin/jmc.ini
+rm -f %{_build_root}/awips2/java/bin/jmc
 
 # The licenses
 mkdir -p %{_build_root}/awips2/java/licenses
