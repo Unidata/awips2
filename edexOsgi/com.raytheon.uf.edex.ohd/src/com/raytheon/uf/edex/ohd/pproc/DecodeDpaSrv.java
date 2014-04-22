@@ -30,11 +30,10 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.raytheon.edex.esb.Headers;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -51,6 +50,7 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Nov 14, 2008            bphillip    Initial creation
  * Mar 20, 2013 1804       bsteffen    Switch all radar decompressing to be in
  *                                     memory.
+ * Mar 28, 2014   2952     mpduff      Changed to use UFStatus for logging.
  * 
  * </pre>
  * 
@@ -65,9 +65,10 @@ public class DecodeDpaSrv {
 
     private static final Pattern dpaPat = Pattern.compile("DPA...");
 
-    private Log logger = LogFactory.getLog(getClass());
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(DecodeDpaSrv.class);
 
-    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
+    private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     private File outFile;
 

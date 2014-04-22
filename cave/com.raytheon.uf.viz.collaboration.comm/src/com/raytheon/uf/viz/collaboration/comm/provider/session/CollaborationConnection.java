@@ -19,64 +19,60 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.session;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.eclipse.ecf.core.ContainerConnectException;
-import org.eclipse.ecf.core.ContainerCreateException;
-import org.eclipse.ecf.core.ContainerFactory;
-import org.eclipse.ecf.core.IContainer;
-import org.eclipse.ecf.core.identity.ID;
-import org.eclipse.ecf.core.identity.IDCreateException;
-import org.eclipse.ecf.core.identity.IDFactory;
-import org.eclipse.ecf.core.identity.Namespace;
-import org.eclipse.ecf.core.security.ConnectContextFactory;
-import org.eclipse.ecf.core.user.IUser;
-import org.eclipse.ecf.presence.IPresence;
-import org.eclipse.ecf.presence.IPresence.Mode;
-import org.eclipse.ecf.presence.IPresence.Type;
-import org.eclipse.ecf.presence.IPresenceContainerAdapter;
-import org.eclipse.ecf.presence.IPresenceListener;
-import org.eclipse.ecf.presence.Presence;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInfo;
-import org.eclipse.ecf.presence.chatroom.IChatRoomInvitationListener;
-import org.eclipse.ecf.presence.chatroom.IChatRoomManager;
-import org.eclipse.ecf.presence.roster.IRoster;
-import org.eclipse.ecf.presence.roster.IRosterEntry;
-import org.eclipse.ecf.presence.roster.IRosterItem;
-import org.eclipse.ecf.presence.roster.IRosterListener;
-import org.eclipse.ecf.presence.roster.IRosterManager;
-import org.eclipse.ecf.provider.xmpp.identity.XMPPRoomID;
+import org.apache.commons.lang.StringUtils;
+import org.jivesoftware.smack.Connection;
+import org.jivesoftware.smack.ConnectionConfiguration;
+import org.jivesoftware.smack.ConnectionListener;
+import org.jivesoftware.smack.Roster;
+import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.filter.PacketTypeFilter;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.StreamError;
+import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.muc.InvitationListener;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.net.HostAndPort;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.xmpp.PacketConstants;
+import com.raytheon.uf.common.xmpp.iq.AuthInfo;
+import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
-import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
-import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
-import com.raytheon.uf.viz.collaboration.comm.identity.MultipleLoginException;
-import com.raytheon.uf.viz.collaboration.comm.identity.UsernamePasswordException;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IEventPublisher;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.IVenueInvitationEvent;
 import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
-import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenueInfo;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
+import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayloadProvider;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.ServerDisconnectEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueInvitationEvent;
-import com.raytheon.uf.viz.collaboration.comm.provider.info.VenueInfo;
+import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.UserSearch;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
 /**
  * 
@@ -103,6 +99,26 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            jkorman     Initial creation
  * Apr 18, 2012            njensen      Major cleanup
+ * Dec  6, 2013 2561       bclement    removed ECF
+ * Dec 18, 2013 2562       bclement    added smack compression, fixed invite parsing
+ * Dec 19, 2013 2563       bclement    added connection listener, 
+ *                                     added better error message on failed connection
+ * Jan 07, 2013 2563       bclement    use getServiceName instead of getHost when creating room id
+ * Jan 08, 2014 2563       bclement    fixed custom port and service name in user id
+ * Jan 15, 2014 2630       bclement    connection data stores status as Mode object
+ * Jan 24, 2014 2701       bclement    removed roster manager
+ * Jan 28, 2014 2698       bclement    fixed compression default
+ *                                     cleaned up createCollaborationVenue, removed getVenueInfo
+ * Jan 30, 2014 2698       bclement    changed arguments to create sessions, moved room connection from SessionView
+ * Feb  3, 2014 2699       bclement    removed unneeded catch in joinTextOnlyVenue
+ * Feb 13, 2014 2751       bclement    better types for venueid and invitor
+ * Feb 18, 2014 2793       bclement    improved disconnection notification and handling
+ * Feb 24, 2014 2632       mpduff      Fix roster change type for presence change.
+ * Feb 28, 2014 2756       bclement    added authManager
+ * Mar 07, 2014 2848       bclement    removed join*Venue methods, now only creates venue objects
+ *                                      changed session map to a concurrent hash map
+ * Apr 07, 2014 2785       mpduff      Changed the order of startup, sets up listeners before actually connecting.
+ * Apr 09, 2014 2785       mpduff      Throw error when not connected and the connection should exist.
  * 
  * </pre>
  * 
@@ -113,10 +129,16 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
 
 public class CollaborationConnection implements IEventPublisher {
 
+    static {
+        ProviderManager pm = ProviderManager.getInstance();
+        pm.addExtensionProvider(SessionPayload.ELEMENT_NAME,
+                PacketConstants.COLLAB_XMLNS, new SessionPayloadProvider());
+        pm.addIQProvider(PacketConstants.QUERY_ELEMENT_NAME,
+                AuthInfo.AUTH_QUERY_XMLNS, new AuthInfoProvider());
+    }
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationConnection.class);
-
-    private static final String PROVIDER = "com.raytheon.uf.viz.collaboration.comm.xmpp";// "ecf.xmpp.smack";
 
     private static CollaborationConnection instance = null;
 
@@ -124,121 +146,112 @@ public class CollaborationConnection implements IEventPublisher {
 
     private Map<String, ISession> sessions;
 
-    private UserId account;
-
-    private String password;
-
     private UserId user;
 
-    private IPresence userPresence;
-
-    private IChatRoomInvitationListener intInvitationListener;
-
-    private IPresenceContainerAdapter presenceAdapter;
-
-    private Namespace connectionNamespace = null;
+    private Presence userPresence;
 
     private PeerToPeerChat chatInstance = null;
 
     private IAccountManager accountManager = null;
 
-    private IRosterManager rosterManager = null;
-
-    private IContainer container = null;
-
     private EventBus eventBus;
 
     private ContactsManager contactsMgr;
 
-    private CollaborationConnectionData connectionData;
+    private final CollaborationConnectionData connectionData;
+
+    private XMPPConnection connection;
+
+    private ClientAuthManager authManager;
+
+    private static boolean COMPRESS = true;
+
+    static {
+        try {
+            final String compressionProperty = "collaboration.compression";
+            if (System.getProperty(compressionProperty) != null) {
+                COMPRESS = Boolean.getBoolean(compressionProperty);
+            }
+        } catch (Exception e) {
+            // must not have permission to access system properties. ignore and
+            // use default.
+        }
+    }
 
     private CollaborationConnection(CollaborationConnectionData connectionData)
             throws CollaborationException {
         this.connectionData = connectionData;
-        UserId account = new UserId(connectionData.getUserName(),
-                connectionData.getServer());
-        String password = connectionData.getPassword();
-        IPresence initialPresence = new Presence(Type.AVAILABLE,
-                connectionData.getMessage(), Mode.fromString(connectionData
-                        .getStatus().toLowerCase()),
-                connectionData.getAttributes());
+        init();
+    }
 
+    /**
+     * Initialize this object.
+     */
+    private void init() throws CollaborationException {
         eventBus = new EventBus();
-        sessions = new HashMap<String, ISession>();
+        sessions = new ConcurrentHashMap<String, ISession>();
 
-        try {
-            container = ContainerFactory.getDefault().createContainer(PROVIDER);
-
-            if (container != null) {
-                // add the listeners before we connect so we don't potentially
-                // miss something
-                presenceAdapter = Tools.getPresenceContainerAdapter(container,
-                        IPresenceContainerAdapter.class);
-                this.setupInternalConnectionListeners();
-            }
-
-        } catch (ContainerCreateException cce) {
-            closeInternals();
-            throw new CollaborationException(String.format(
-                    "Could not create container for provider [%s]", PROVIDER));
-        }
-        this.account = account;
-        this.password = password;
-        try {
-            connectToContainer();
-        } catch (ContainerConnectException e) {
-            closeInternals();
-            // ECF does a very good job of wrapping up login exceptions so it is
-            // hard to tell why the login failed. This code will attempt to
-            // analyze the cause of the failure and in some circumstances
-            // produce a helpful error. Since this is relying on string
-            // comparison of exception messages it is very likely that if the
-            // ECF provider is changed or updated that this will stop producing
-            // helpful messages. Unfortunately ECF does not provide any other
-            // mechanism for figuring out why login failed.
-            for (Throwable t = e; t != null && t != t.getCause(); t = t
-                    .getCause()) {
-                if (t.getMessage().contains("authentication failed")) {
-                    throw new UsernamePasswordException(
-                            "Login failed.  Invalid username or password", e);
-                } else if (t.getMessage().equals("conflict(409)")) {
-                    throw new MultipleLoginException(
-                            "Login failed.  User already logged in elsewhere",
-                            e);
-                }
-            }
-            // In cases where we can't produce anything helpful, at least let
-            // the user know that it failed and hopeful something in the stack
-            // trace will be useful in the DR.
-            throw new CollaborationException("Login failed.", e);
-
-        }
-        ID id = container.getConnectedID();
-        if (id != null) {
-            String name = Tools.parseName(id.getName());
-            String host = Tools.parseHost(id.getName());
-            String resource = Tools.parseResource(id.getName());
-            user = new UserId(name, host, resource);
-            user.setId(id);
+        HostAndPort hnp = HostAndPort.fromString(connectionData.getServer());
+        ConnectionConfiguration conConfig;
+        if (hnp.hasPort()) {
+            conConfig = new ConnectionConfiguration(hnp.getHostText(),
+                    hnp.getPort());
+        } else {
+            conConfig = new ConnectionConfiguration(hnp.getHostText());
         }
 
-        setupAccountManager();
+        conConfig.setCompressionEnabled(COMPRESS);
 
-        setupInternalVenueInvitationListener();
-        setupP2PComm(presenceAdapter);
+        connection = new XMPPConnection(conConfig);
+        accountManager = new AccountManager(this);
+
+        this.user = new UserId(connectionData.getUserName(),
+                connection.getServiceName());
+
+        setupInternalConnectionListeners();
         getPeerToPeerSession();
-
-        userPresence = initialPresence;
-        if (accountManager != null && initialPresence != null) {
-            accountManager.sendPresence(initialPresence);
-        }
-
-        contactsMgr = new ContactsManager(this);
-        this.registerEventHandler(contactsMgr);
 
         instanceMap.put(connectionData, this);
         if (instance == null) {
             instance = this;
+        }
+    }
+
+    /**
+     * connect to XMPP server and login
+     * 
+     * @param username
+     * @param password
+     * @throws CollaborationException
+     */
+    private void connectInternal(String username, String password)
+            throws CollaborationException {
+        try {
+            connection.connect();
+            connection.login(username, password);
+        } catch (XMPPException e) {
+            closeInternals();
+            // get a nice reason for the user
+            String msg;
+            XMPPError xmppErr = e.getXMPPError();
+            if (xmppErr != null) {
+                switch (xmppErr.getCode()) {
+                case 401:
+                    msg = "Bad username or password";
+                    break;
+                case 403:
+                    msg = "User not allowed to connect to server";
+                    break;
+                case 409:
+                    msg = "User account already in use by another client";
+                    break;
+                default:
+                    msg = e.getLocalizedMessage();
+                }
+            } else {
+                msg = e.getLocalizedMessage();
+            }
+            throw new CollaborationException("Login failed: " + msg, e);
         }
     }
 
@@ -248,7 +261,6 @@ public class CollaborationConnection implements IEventPublisher {
 
     /**
      * @return
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.roster.IRoster#getUser()
      */
     public UserId getUser() {
         return user;
@@ -258,46 +270,16 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      * @return
      */
-    public IPresence getPresence() {
+    public Presence getPresence() {
         return userPresence;
     }
 
     /**
      * 
-     * @return
+     * @param presence
      */
-    public void setPresence(IPresence presence) {
+    public void setPresence(Presence presence) {
         userPresence = presence;
-    }
-
-    /**
-     * @throws CollaborationException
-     * @throws ContainerConnectException
-     * 
-     */
-    private void connectToContainer() throws CollaborationException,
-            ContainerConnectException {
-        if (container.getConnectedID() == null) {
-            connectionNamespace = container.getConnectNamespace();
-
-            // Now connect
-            ID targetID = createID(account);
-            presenceAdapter = Tools.getPresenceContainerAdapter(container,
-                    IPresenceContainerAdapter.class);
-            container.connect(targetID, ConnectContextFactory
-                    .createPasswordConnectContext(password));
-        }
-    }
-
-    /**
-     * 
-     */
-    private void setupAccountManager() {
-        if (accountManager == null) {
-            if (isConnected() && (presenceAdapter != null)) {
-                accountManager = new AccountManager(presenceAdapter, this);
-            }
-        }
     }
 
     /**
@@ -306,36 +288,7 @@ public class CollaborationConnection implements IEventPublisher {
      * @return The account manager for this connection.
      */
     public IAccountManager getAccountManager() {
-        if (accountManager == null) {
-            setupAccountManager();
-        }
         return accountManager;
-    }
-
-    /**
-     * 
-     */
-    private void setupRosterManager() {
-        rosterManager = presenceAdapter.getRosterManager();
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public IPresenceContainerAdapter getPresenceContainerAdapter() {
-        return presenceAdapter;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public IRosterManager getRosterManager() {
-        if (rosterManager == null) {
-            setupRosterManager();
-        }
-        return rosterManager;
     }
 
     /**
@@ -344,18 +297,20 @@ public class CollaborationConnection implements IEventPublisher {
      * @return Is this SessionManager currently connected?
      */
     public boolean isConnected() {
-        return ((container != null) && (container.getConnectedID() != null));
+        return ((connection != null) && (connection.getConnectionID() != null));
     }
 
     private void closeInternals() {
-        if (container != null) {
+        if (connection != null) {
 
             chatInstance = null;
             // Get rid of the account and roster managers
-            container.disconnect();
-            container.dispose();
-            container = null;
+            if (connection.isConnected()) {
+                connection.disconnect();
+            }
+            connection = null;
         }
+        PeerToPeerCommHelper.reset();
         instanceMap.remove(connectionData);
         if (this == instance) {
             instance = null;
@@ -366,7 +321,7 @@ public class CollaborationConnection implements IEventPublisher {
      *  
      */
     public void close() {
-        if (container != null) {
+        if (connection != null) {
             // Close any created sessions.
             Collection<ISession> toRemove = sessions.values();
             sessions.clear();
@@ -387,141 +342,120 @@ public class CollaborationConnection implements IEventPublisher {
      * Get the PeerToPeerChat session instance.
      * 
      * @return
+     * @throws CollaborationException
      */
     public ISession getPeerToPeerSession() throws CollaborationException {
         if (chatInstance == null) {
-            chatInstance = new PeerToPeerChat(container, eventBus, this);
+            chatInstance = new PeerToPeerChat(eventBus, this);
             sessions.put(chatInstance.getSessionId(), chatInstance);
             postEvent(chatInstance);
         }
         return chatInstance;
     }
 
-    public ISharedDisplaySession joinCollaborationVenue(
-            IVenueInvitationEvent invitation) throws CollaborationException {
-        SharedDisplaySession session = null;
-        String venueName = invitation.getRoomId().getName();
+    /**
+     * Create shared display venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
+     * 
+     * @param invitation
+     * @param handle
+     * @return
+     */
+    public SharedDisplaySession createCollaborationVenue(
+            IVenueInvitationEvent invitation, String handle) {
+        SharedDisplayVenueInvite sdvInvite = (SharedDisplayVenueInvite) invitation
+                .getInvite();
         String sessionId = invitation.getInvite().getSessionId();
-        session = new SharedDisplaySession(container, eventBus, this, sessionId);
-        if (session != null) {
-            session.joinVenue(venueName);
+        String venueName = invitation.getRoomId().getName();
+        SharedDisplaySession rval = new SharedDisplaySession(eventBus, this,
+                venueName, handle, sessionId);
+        setupCollaborationVenue(rval, sdvInvite.getSessionLeader(),
+                sdvInvite.getDataProvider());
+        return rval;
+    }
 
-            if (invitation.getInvite() instanceof SharedDisplayVenueInvite) {
-                SharedDisplayVenueInvite invite = (SharedDisplayVenueInvite) invitation
-                        .getInvite();
-                session.setCurrentDataProvider(invite.getDataProvider());
-                session.setCurrentSessionLeader(invite.getSessionLeader());
-            }
+    /**
+     * Configure shared display venue object and register with session map
+     * 
+     * @param session
+     * @param leader
+     * @param provider
+     */
+    private void setupCollaborationVenue(SharedDisplaySession session,
+            VenueParticipant leader, VenueParticipant provider) {
+        session.setCurrentSessionLeader(leader);
+        session.setCurrentDataProvider(provider);
+        sessions.put(session.getSessionId(), session);
+    }
 
-            sessions.put(session.getSessionId(), session);
-            postEvent(session);
-        }
+    /**
+     * Create shared display venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
+     * 
+     * @param data
+     * @return
+     */
+    public SharedDisplaySession createCollaborationVenue(CreateSessionData data) {
+        SharedDisplaySession session = new SharedDisplaySession(eventBus, this,
+                data);
+        VenueParticipant leader = session.getUserID();
+        setupCollaborationVenue(session, leader, leader);
         return session;
     }
 
     /**
+     * Create text only venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
      * 
      * @param venueName
+     * @param handle
      * @return
-     * @throws CollaborationException
      */
-    public ISharedDisplaySession createCollaborationVenue(String venueName,
-            String subject) throws CollaborationException {
-        SharedDisplaySession session = null;
-        try {
-            session = new SharedDisplaySession(container, eventBus, this);
-
-            session.createVenue(venueName, subject);
-            session.setCurrentSessionLeader(user);
-            session.setCurrentDataProvider(user);
-
-            sessions.put(session.getSessionId(), session);
-            postEvent(session);
-            return session;
-        } catch (Exception e) {
-            throw new CollaborationException(
-                    "Error creating collaboration venue " + venueName, e);
-        }
+    public VenueSession createTextOnlyVenue(String venueName, String handle) {
+        return createTextOnlyVenue(new CreateSessionData(venueName, handle));
     }
 
     /**
+     * Create text only venue object. This does not create the venue on the
+     * server. The session should be unregistered when no longer active using
+     * {@link CollaborationConnection#removeSession(ISession)}
      * 
-     * @param venueName
+     * @param data
      * @return
-     * @throws CollaborationException
      */
-    public IVenueSession joinTextOnlyVenue(String venueName)
-            throws CollaborationException {
-        VenueSession session = null;
-        try {
-            session = new VenueSession(container, eventBus, this);
-            if (session != null) {
-                session.joinVenue(venueName);
-                sessions.put(session.getSessionId(), session);
-                postEvent(session);
-            }
-        } catch (Exception e) {
-            throw new CollaborationException(
-                    "Error joining venue " + venueName, e);
-        }
+    public VenueSession createTextOnlyVenue(CreateSessionData data) {
+        VenueSession session = new VenueSession(eventBus, this, data);
+        sessions.put(session.getSessionId(), session);
         return session;
     }
 
     /**
+     * Check if venue exists on server
      * 
      * @param venueName
-     * @return
-     * @throws CollaborationException
+     * @return false on error
      */
-    public IVenueSession createTextOnlyVenue(String venueName, String subject)
-            throws CollaborationException {
-        VenueSession session = null;
+    public boolean venueExistsOnServer(String venueName) {
+        String roomId = VenueSession.getRoomId(connection.getServiceName(),
+                venueName);
         try {
-            session = new VenueSession(container, eventBus, this);
-            if (session != null) {
-                session.createVenue(venueName, subject);
-                sessions.put(session.getSessionId(), session);
-                postEvent(session);
-            }
-        } catch (Exception e) {
-            throw new CollaborationException("Error creating venue "
-                    + venueName, e);
+            return VenueSession.roomExistsOnServer(connection, roomId);
+        } catch (XMPPException e) {
+            statusHandler.error("Unable to check for room on server", e);
+            return false;
         }
-        return session;
     }
 
     /**
      * 
      * @param session
      */
-    protected void removeSession(ISession session) {
+    public void removeSession(ISession session) {
         sessions.remove(session.getSessionId());
         postEvent(session);
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public Collection<IVenueInfo> getVenueInfo() {
-        // Check to see if the container has been connected.
-        Collection<IVenueInfo> info = new ArrayList<IVenueInfo>();
-        if (isConnected()) {
-            IPresenceContainerAdapter presenceAdapter = Tools
-                    .getPresenceContainerAdapter(container,
-                            IPresenceContainerAdapter.class);
-            IChatRoomManager venueManager = presenceAdapter
-                    .getChatRoomManager();
-            if (venueManager != null) {
-                IChatRoomInfo[] roomInfo = venueManager.getChatRoomInfos();
-                for (IChatRoomInfo rInfo : roomInfo) {
-                    IVenueInfo vi = new VenueInfo(rInfo);
-                    info.add(vi);
-                }
-            }
-        }
-
-        return info;
     }
 
     // ***************************
@@ -532,62 +466,137 @@ public class CollaborationConnection implements IEventPublisher {
      * 
      */
     private void setupInternalConnectionListeners() {
+        final Roster roster = connection.getRoster();
+        roster.addRosterListener(new RosterListener() {
 
-        presenceAdapter.getRosterManager().addPresenceListener(
-                new IPresenceListener() {
-
-                    @Override
-                    public void handlePresence(ID fromId,
-                            org.eclipse.ecf.presence.IPresence presence) {
-
-                        if (rosterManager != null) {
-                            if (contactsMgr != null) {
-                                IUser u = contactsMgr.getUser(fromId);
-                                if (u != null) {
-                                    IRosterEntry entry = contactsMgr
-                                            .getRosterEntry(u);
-                                    eventBus.post(entry);
-                                }
-                            }
-                        }
-                    }
-                });
-
-        presenceAdapter.getRosterManager().addRosterListener(
-                new IRosterListener() {
-
-                    @Override
-                    public void handleRosterEntryAdd(IRosterEntry entry) {
+            @Override
+            public void presenceChanged(Presence presence) {
+                String fromId = presence.getFrom();
+                if (contactsMgr != null) {
+                    UserId u = IDConverter.convertFrom(fromId);
+                    if (u != null) {
+                        RosterEntry entry = contactsMgr.getRosterEntry(u);
+                        eventBus.post(entry);
                         IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.ADD, entry);
+                                RosterChangeType.PRESENCE, entry, presence);
                         eventBus.post(event);
                     }
+                }
+            }
 
-                    @Override
-                    public void handleRosterUpdate(IRoster roster,
-                            IRosterItem item) {
-                        IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.MODIFY, item);
+            @Override
+            public void entriesUpdated(Collection<String> addresses) {
+                send(addresses, RosterChangeType.MODIFY);
+            }
+
+            @Override
+            public void entriesDeleted(Collection<String> addresses) {
+                send(addresses, RosterChangeType.DELETE);
+            }
+
+            @Override
+            public void entriesAdded(Collection<String> addresses) {
+                send(addresses, RosterChangeType.ADD);
+            }
+
+            /**
+             * Send event bus notification for roster
+             * 
+             * @param addresses
+             * @param type
+             */
+            private void send(Collection<String> addresses,
+                    RosterChangeType type) {
+                for (String addy : addresses) {
+                    RosterEntry entry = roster.getEntry(addy);
+                    if (entry != null) {
+                        IRosterChangeEvent event = new RosterChangeEvent(type,
+                                entry);
                         eventBus.post(event);
                     }
-
-                    @Override
-                    public void handleRosterEntryRemove(IRosterEntry entry) {
-                        IRosterChangeEvent event = new RosterChangeEvent(
-                                RosterChangeType.DELETE, entry);
-                        eventBus.post(event);
-                    }
-                });
+                }
+            }
+        });
     }
 
     public ISession getSession(String sessionId) {
         return sessions.get(sessionId);
     }
 
-    private void setupP2PComm(IPresenceContainerAdapter presenceAdapter) {
-        if (isConnected() && (presenceAdapter != null)) {
+    private void setupP2PComm() throws CollaborationException {
+        if (isConnected()) {
             PeerToPeerCommHelper helper = new PeerToPeerCommHelper(this);
-            presenceAdapter.getChatManager().addMessageListener(helper);
+            connection.addPacketListener(helper, new PacketTypeFilter(
+                    Message.class));
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
+        }
+    }
+
+    private void setupConnectionListener() throws CollaborationException {
+        if (isConnected()) {
+            connection.addConnectionListener(new ConnectionListener() {
+
+                @Override
+                public void reconnectionSuccessful() {
+                    statusHandler
+                            .debug("Client successfully reconnected to server");
+                    postSystemMessageToVenues("Connection to collaboration server reestablished.");
+                }
+
+                @Override
+                public void reconnectionFailed(Exception e) {
+                    String reason = getErrorReason(e);
+                    statusHandler.error("Client can't reconnect to server: "
+                            + reason, e);
+                    sendDisconnectNotice(reason);
+                }
+
+                @Override
+                public void reconnectingIn(int seconds) {
+                    statusHandler.debug("Client reconnecting to server in "
+                            + seconds + " seconds");
+                }
+
+                @Override
+                public void connectionClosedOnError(Exception e) {
+                    String reason = getErrorReason(e);
+                    statusHandler.error("Server closed on error: " + reason, e);
+                    // don't shutdown yet, we might be able to reconnect
+                    postSystemMessageToVenues("Not currently connected to collaboration server.");
+                }
+
+                private String getErrorReason(Exception e) {
+                    String msg = null;
+                    if (e instanceof XMPPException) {
+                        StreamError streamError = ((XMPPException) e)
+                                .getStreamError();
+                        if (streamError != null) {
+                            if ("conflict".equalsIgnoreCase(streamError
+                                    .getCode())) {
+                                msg = "User account in use on another client";
+                            }
+                        }
+                    }
+                    return msg == null ? e.getLocalizedMessage() : msg;
+                }
+
+                @Override
+                public void connectionClosed() {
+                    statusHandler.info("Server closed connection");
+                    sendDisconnectNotice("Normal termination");
+                }
+
+                private void sendDisconnectNotice(String reason) {
+                    ServerDisconnectEvent event = new ServerDisconnectEvent(
+                            reason);
+                    eventBus.post(event);
+                }
+            });
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
         }
     }
 
@@ -596,63 +605,78 @@ public class CollaborationConnection implements IEventPublisher {
     // ***************************
 
     /**
+     * Set up the invitation listener.
      * 
+     * @throws CollaborationException
      */
-    private void setupInternalVenueInvitationListener() {
-        if (isConnected() && (presenceAdapter != null)) {
-            IChatRoomManager venueManager = presenceAdapter
-                    .getChatRoomManager();
-            if (venueManager != null) {
-                intInvitationListener = new IChatRoomInvitationListener() {
-                    @Override
-                    public void handleInvitationReceived(ID roomID, ID from,
-                            String subject, String body) {
+    private void setupInternalVenueInvitationListener()
+            throws CollaborationException {
+        if (isConnected()) {
+            MultiUserChat.addInvitationListener(connection,
+                    new InvitationListener() {
+                        @Override
+                        public void invitationReceived(Connection conn,
+                                String room, String inviter, String reason,
+                                String password, Message message) {
+                            // TODO handle password protected rooms
+                            VenueId venueId = new VenueId();
+                            venueId.setName(Tools.parseName(room));
+                            venueId.setHost(Tools.parseHost(room));
+                            UserId invitor = IDConverter.convertFrom(inviter);
 
-                        IQualifiedID venueId = null;
-                        if (roomID instanceof XMPPRoomID) {
-                            XMPPRoomID room = (XMPPRoomID) roomID;
-                            venueId = new VenueId();
-                            venueId.setName(room.getLongName());
-
-                        }
-                        if (venueId != null) {
-                            IQualifiedID id = IDConverter.convertFrom(from);
-
-                            UserId invitor = new UserId(id.getName(),
-                                    id.getHost(), id.getResource());
-
-                            VenueInvite received;
-                            try {
-                                received = (VenueInvite) Tools
-                                        .unMarshallData(body);
-
-                                if (subject == null) {
-                                    subject = received.getSubject();
-                                    if (subject == null) {
-                                        subject = presenceAdapter
-                                                .getChatRoomManager()
-                                                .getChatRoomInfo(
-                                                        roomID.getName())
-                                                .getSubject();
-                                    }
+                            if (message != null) {
+                                SessionPayload payload = (SessionPayload) message
+                                        .getExtension(PacketConstants.COLLAB_XMLNS);
+                                if (payload != null) {
+                                    handleCollabInvite(venueId, invitor,
+                                            payload);
+                                    return;
                                 }
-
-                                IVenueInvitationEvent invite = new VenueInvitationEvent(
-                                        venueId, invitor, subject, received);
-                                eventBus.post(invite);
-                            } catch (CollaborationException e) {
-                                statusHandler
-                                        .handle(Priority.PROBLEM,
-                                                "Error handling received invite message",
-                                                e);
                             }
-
+                            if (reason != null
+                                    && reason.startsWith(Tools.CMD_PREAMBLE)) {
+                                reason = "Shared display invitation from incompatible version of CAVE. "
+                                        + "Session will be chat-only if invitation is accepted";
+                            }
+                            handleChatRoomInvite(venueId, invitor, reason,
+                                    message);
                         }
-                    }
-                };
-                venueManager.addInvitationListener(intInvitationListener);
-            }
+                    });
+        } else {
+            throw new CollaborationException(
+                    "The Collaboration XMPP connection has not been established.");
         }
+    }
+
+    private void handleChatRoomInvite(VenueId venueId, UserId invitor,
+            String reason, Message message) {
+        VenueInvite invite = new VenueInvite();
+        if (!StringUtils.isBlank(reason)) {
+            invite.setMessage(reason);
+        } else if (!StringUtils.isBlank(message.getBody())) {
+            invite.setMessage(message.getBody());
+        } else {
+            invite.setMessage("");
+        }
+        invite.setSubject(message.getSubject());
+        IVenueInvitationEvent event = new VenueInvitationEvent(venueId,
+                invitor, invite);
+        eventBus.post(event);
+    }
+
+    private void handleCollabInvite(VenueId venueId, UserId invitor,
+            SessionPayload payload) {
+        Object obj = payload.getData();
+        if (obj == null
+                || !payload.getPayloadType().equals(PayloadType.Invitation)
+                || !(obj instanceof VenueInvite)) {
+            statusHandler.warn("Received unsupported invite payload");
+            return;
+        }
+        VenueInvite invite = (VenueInvite) obj;
+        IVenueInvitationEvent event = new VenueInvitationEvent(venueId,
+                invitor, invite);
+        eventBus.post(event);
     }
 
     /**
@@ -684,24 +708,6 @@ public class CollaborationConnection implements IEventPublisher {
         return contactsMgr;
     }
 
-    /**
-     * 
-     * @param name
-     * @return
-     */
-    public ID createID(UserId name) throws CollaborationException {
-        ID id = null;
-        try {
-            if (connectionNamespace != null) {
-                id = IDFactory.getDefault().createID(connectionNamespace,
-                        name.getFQName());
-            }
-        } catch (IDCreateException idce) {
-            throw new CollaborationException("Could not create id");
-        }
-        return id;
-    }
-
     public Collection<ISession> getSessions() {
         return sessions.values();
     }
@@ -723,14 +729,70 @@ public class CollaborationConnection implements IEventPublisher {
      * @return
      * @throws CollaborationException
      */
-    public static CollaborationConnection connect(
+    public static CollaborationConnection createConnection(
             CollaborationConnectionData userData) throws CollaborationException {
         if (instance != null) {
             throw new CollaborationException("Already connected");
-        } else {
-            instance = new CollaborationConnection(userData);
-            return getConnection();
+        }
+
+        instance = new CollaborationConnection(userData);
+
+        return getConnection();
+    }
+
+    /**
+     * @return Smack connection object
+     */
+    protected XMPPConnection getXmppConnection() {
+        return connection;
+    }
+
+    /**
+     * Construct a new UserSearch object
+     * 
+     * @return
+     */
+    public UserSearch createSearch() {
+        return new UserSearch(connection);
+    }
+
+    /**
+     * Post a system message to all venue windows this client has. This is for
+     * local system messages, it does not go out to the server.
+     * 
+     * @param message
+     */
+    public void postSystemMessageToVenues(String message) {
+        for (Entry<String, ISession> entry : sessions.entrySet()) {
+            entry.getValue().postEvent(new VenueUserEvent(message));
         }
     }
 
+    /**
+     * @return the authManager
+     */
+    public ClientAuthManager getAuthManager() {
+        return authManager;
+    }
+
+    /**
+     * Connect to the XMPP server. This needs to be called after the
+     * CollaborationConnection has been created and initialized.
+     * 
+     * @throws CollaborationException
+     */
+    public void connect() throws CollaborationException {
+        contactsMgr = new ContactsManager(this, this.getXmppConnection());
+        registerEventHandler(instance.getContactsManager());
+
+        connectInternal(connectionData.getUserName(),
+                connectionData.getPassword());
+
+        authManager = new ClientAuthManager(getXmppConnection());
+
+        // Finish setup
+        setupInternalVenueInvitationListener();
+        setupP2PComm();
+        setupConnectionListener();
+    }
 }

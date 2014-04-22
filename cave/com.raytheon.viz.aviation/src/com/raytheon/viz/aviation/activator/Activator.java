@@ -23,9 +23,6 @@ package com.raytheon.viz.aviation.activator;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
@@ -38,6 +35,7 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 1/21/2008    817         grichard    Initial creation.
+ * Mar 3, 2014  2861        mschenke    Create preference store immediately
  * 
  * </pre>
  * 
@@ -54,7 +52,8 @@ public class Activator extends AbstractUIPlugin {
     private static Activator plugin;
 
     /** preference store to read in the config XML */
-    private HierarchicalPreferenceStore prefs;
+    private HierarchicalPreferenceStore prefs = new HierarchicalPreferenceStore(
+            this);
 
     /**
      * The constructor
@@ -102,17 +101,6 @@ public class Activator extends AbstractUIPlugin {
      */
     @Override
     public HierarchicalPreferenceStore getPreferenceStore() {
-        try {
-            if (prefs == null) {
-                prefs = new HierarchicalPreferenceStore(this);
-            }
-        } catch (LocalizationException e) {
-            UFStatus.getHandler().handle(
-                    Priority.PROBLEM,
-                    "Error reading preference store: "
-                            + e.getLocalizedMessage(), e);
-        }
-
         return prefs;
     }
 

@@ -27,7 +27,6 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.common.colormap;bundle-version="1.0.0",
  com.raytheon.uf.common.serialization.comm,
  org.eclipse.core.expressions,
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
  com.raytheon.uf.common.topo;bundle-version="1.12.1174",
  com.raytheon.uf.common.style;bundle-version="1.0.0"
 Eclipse-BuddyPolicy: ext, registered, global

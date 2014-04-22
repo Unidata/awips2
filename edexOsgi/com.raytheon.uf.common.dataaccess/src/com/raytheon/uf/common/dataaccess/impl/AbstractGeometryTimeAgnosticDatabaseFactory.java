@@ -34,11 +34,12 @@ import com.raytheon.uf.common.time.TimeRange;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 29, 2013            bkowal     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Jan 29, 2013           bkowal      Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Mar 03, 2014  2673     bsteffen    Add ability to query only ref times.
  * 
  * </pre>
  * 
@@ -71,7 +72,8 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * raytheon.uf.common.dataaccess.IDataRequest)
      */
     @Override
-    public DataTime[] getAvailableTimes(IDataRequest request)
+    public DataTime[] getAvailableTimes(IDataRequest request,
+            boolean refTimeOnly)
             throws TimeAgnosticDataException {
         throw new TimeAgnosticDataException(this.buildExceptionMessage(request));
     }
@@ -154,7 +156,7 @@ public abstract class AbstractGeometryTimeAgnosticDatabaseFactory extends
      * Should we be throwing an exception
      */
     @Override
-    protected String assembleGetTimes(IDataRequest request) {
+    protected String assembleGetTimes(IDataRequest request, boolean refTimeOnly) {
         return null;
     }
 

@@ -19,10 +19,10 @@
  **/
 package com.raytheon.uf.viz.collaboration.comm.provider.user;
 
-import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
+import com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID;
 
 /**
- * TODO Add Description
+ * Qualified id for a venue
  * 
  * <pre>
  * 
@@ -31,6 +31,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 29, 2012            jkorman     Initial creation
+ * Feb 13, 2014 2751       bclement    removed resource, fixed getFQN
  * 
  * </pre>
  * 
@@ -38,20 +39,15 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId;
  * @version 1.0
  */
 
-public class VenueId implements IVenueId {
+public class VenueId implements IQualifiedID {
 
     private String host;
-
-    private String resource;
-
-    private String venueName;
 
     private String name;
 
     /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setHost(java.lang.String)
      */
-    @Override
     public void setHost(String hostName) {
         host = hostName;
     }
@@ -65,28 +61,10 @@ public class VenueId implements IVenueId {
     }
 
     /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#setResource(java.lang.String)
-     */
-    @Override
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IQualifiedID#getResource()
-     */
-    @Override
-    public String getResource() {
-        return resource;
-    }
-
-    /**
      * @see com.raytheon.uf.viz.collaboration.comm.identity.user.ID#setName(java.lang.String)
      */
-    @Override
-    public void setName(String userName) {
-        name = userName;
-        venueName = name;
+    public void setName(String venueName) {
+        name = venueName;
     }
 
     /**
@@ -102,15 +80,7 @@ public class VenueId implements IVenueId {
      */
     @Override
     public String getFQName() {
-        return null;
-    }
-
-    /**
-     * @see com.raytheon.uf.viz.collaboration.comm.identity.user.IVenueId#getVenueName()
-     */
-    @Override
-    public String getVenueName() {
-        return venueName;
+        return name + "@" + host;
     }
 
 }

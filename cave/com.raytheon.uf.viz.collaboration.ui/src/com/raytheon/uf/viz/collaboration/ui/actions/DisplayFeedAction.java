@@ -23,7 +23,10 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -38,8 +41,11 @@ import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
+import com.raytheon.uf.viz.collaboration.ui.prefs.HandleUtil;
 import com.raytheon.uf.viz.collaboration.ui.session.SessionFeedView;
+import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.icon.IconUtil;
 import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
 
@@ -52,7 +58,14 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 5, 2012            bsteffen     Initial creation
+ * Jul  5, 2012            bsteffen    Initial creation
+ * Dec 19, 2013 2563       bclement    added check for feed venue existence
+ * Jan 28, 2014 2698       bclement    changed feed venue filter to match whole name
+ * Jan 30, 2014 2698       bclement    added default handle of username
+ * Feb  3, 2014 2699       bclement    use preference handle default, display error if handle taken
+ * Mar 06, 2014 2848       bclement    removed CollaborationConnection.joinTextOnlyVenue()
+ * Apr 10, 2014 2937       bgonzale    Connect to the venue after the feed view is available
+ *                                     to display messages.
  * 
  * </pre>
  * 
@@ -77,7 +90,7 @@ public class DisplayFeedAction extends Action {
                 .getActiveWorkbenchWindow().getActivePage();
         page.addPartListener(new PartListener(this));
         if (isEnabled()) {
-            String sessionId = getSessionId(false);
+            String sessionId = getSessionId();
             if (sessionId != null) {
                 IViewReference ref = page.findViewReference(SessionFeedView.ID,
                         sessionId);
@@ -86,51 +99,101 @@ public class DisplayFeedAction extends Action {
         }
     }
 
-    private static String getSessionId(boolean create) {
+    /**
+     * @return session ID of feed venue session or null if not found
+     */
+    private static String getSessionId() {
         CollaborationConnection connection = CollaborationConnection
                 .getConnection();
         String sessionId = null;
         for (ISession session : connection.getSessions()) {
             if (session instanceof IVenueSession) {
-                if (((IVenueSession) session).getVenue().getInfo()
-                        .getVenueName().startsWith(FEED_VENUE)) {
+                if (((IVenueSession) session).getVenueName()
+                        .equalsIgnoreCase(FEED_VENUE)) {
                     sessionId = session.getSessionId();
                 }
-            }
-        }
-        if (sessionId == null && create) {
-            try {
-                IVenueSession session = connection
-                        .joinTextOnlyVenue(FEED_VENUE);
-                sessionId = session.getSessionId();
-            } catch (CollaborationException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to join the collaboration feed", e);
             }
         }
         return sessionId;
     }
 
+    /**
+     * Attempt to join the feed venue on server using the handle set in
+     * preferences. Displays an error and returns null if the join wasn't
+     * successful.
+     * 
+     * @return the joined VenueSession; null if failed to join
+     */
+    private VenueSession joinFeedVenue() {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        String defaultHandle = HandleUtil.getDefaultHandle();
+        VenueSession session = connection.createTextOnlyVenue(FEED_VENUE,
+                defaultHandle);
+        try {
+            session.configureVenue();
+            connection.postEvent(session);
+            return session;
+        } catch (CollaborationException e) {
+            connection.removeSession(session);
+            final String msg = e.getLocalizedMessage()
+                    + "\n\nDefault handle options can be set in the Collaboration Preferences page.";
+            VizApp.runAsync(new Runnable() {
+                @Override
+                public void run() {
+                    Shell shell = new Shell(Display.getCurrent());
+                    MessageDialog.openError(shell,
+                            "Unable to join collaboration feed", msg);
+                }
+            });
+            return null;
+        }
+    }
+
     @Override
     public void run() {
-        // handle if it is clicked to close or open the view as
-        // necessary
-        CaveWorkbenchPageManager page = CaveWorkbenchPageManager
-                .getActiveInstance();
-        String sessionId = getSessionId(isChecked());
-        if (!isChecked()) {
+        CollaborationConnection connection = CollaborationConnection
+                .getConnection();
+        if (!connection.venueExistsOnServer(FEED_VENUE)) {
+            statusHandler.info("Feed venue doesn't exist on server: "
+                    + FEED_VENUE);
+            setChecked(false);
+            return;
+        }
+
+        if (isChecked()) {
+            VenueSession session = joinFeedVenue();
+            if (session == null) {
+                // we couldn't join, stop action
+                setChecked(false);
+                return;
+            }
+            // handle if it is clicked to close or open the view as
+            // necessary
+            CaveWorkbenchPageManager page = CaveWorkbenchPageManager
+                    .getActiveInstance();
+            try {
+                page.showView(SessionFeedView.ID, session.getSessionId(),
+                        IWorkbenchPage.VIEW_ACTIVATE);
+                // Connect to the room after opening the feed view.
+                session.connectToRoom();
+            } catch (PartInitException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to join collaboration feed", e);
+            } catch (CollaborationException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Unable to join collaboration feed", e);
+            }
+        } else {
+            String sessionId = getSessionId();
+            // handle if it is clicked to close or open the view as
+            // necessary
+            CaveWorkbenchPageManager page = CaveWorkbenchPageManager
+                    .getActiveInstance();
             IViewReference ref = page.findViewReference(SessionFeedView.ID,
                     sessionId);
             if (ref != null) {
                 page.hideView(ref);
-            }
-        } else {
-            try {
-                page.showView(SessionFeedView.ID, sessionId,
-                        IWorkbenchPage.VIEW_ACTIVATE);
-            } catch (PartInitException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Unable to join collaboration feed", e);
             }
         }
     }
@@ -171,7 +234,7 @@ public class DisplayFeedAction extends Action {
             clean(part);
             if (part instanceof SessionFeedView) {
                 SessionFeedView view = (SessionFeedView) part;
-                if (view.getRoom().equals(getSessionId(false))) {
+                if (view.getRoom().equals(getSessionId())) {
                     setChecked(false);
                 }
             }
@@ -187,7 +250,7 @@ public class DisplayFeedAction extends Action {
             clean(part);
             if (part instanceof SessionFeedView) {
                 SessionFeedView view = (SessionFeedView) part;
-                if (view.getRoom().equals(getSessionId(false))) {
+                if (view.getRoom().equals(getSessionId())) {
                     setChecked(true);
                 }
             }

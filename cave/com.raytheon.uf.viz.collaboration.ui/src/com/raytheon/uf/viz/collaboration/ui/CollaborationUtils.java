@@ -21,12 +21,16 @@ package com.raytheon.uf.viz.collaboration.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXB;
 
-import org.eclipse.ecf.presence.IPresence.Mode;
 import org.eclipse.swt.graphics.Image;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Presence.Mode;
 
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -54,6 +58,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 24, 2012            mnash     Initial creation
+ * Jan 15, 2014 2630       bclement    added mode map
  * 
  * </pre>
  * 
@@ -63,13 +68,22 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
 
 public class CollaborationUtils {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationUtils.class);
 
-    public static final org.eclipse.ecf.presence.IPresence.Mode[] statusModes = {
-            Mode.AVAILABLE, Mode.DND, Mode.AWAY };
+    public static final Presence.Mode[] statusModes = { Mode.available,
+            Mode.dnd, Mode.away };
 
-    private static final String PREFIX_CONFERENCE = "conference.";
+    private static final Map<String, Mode> modeMap;
+
+    static {
+        Mode[] modes = Mode.values();
+        HashMap<String, Mode> map = new HashMap<String, Mode>(modes.length);
+        for (Mode m : modes) {
+            map.put(formatMode(m), m);
+        }
+        modeMap = Collections.unmodifiableMap(map);
+    }
 
     /**
      * Get an image associated with the node.
@@ -92,7 +106,7 @@ public class CollaborationUtils {
                         "collaboration" + File.separator
                                 + "collaborationAliases.xml");
         if (file.exists()) {
-            UserIdWrapper ids = (UserIdWrapper) JAXB.unmarshal(file.getFile(),
+            UserIdWrapper ids = JAXB.unmarshal(file.getFile(),
                     UserIdWrapper.class);
             if (ids.getUserIds() == null) {
                 return new UserId[0];
@@ -102,20 +116,39 @@ public class CollaborationUtils {
         return new UserId[0];
     }
 
+    /**
+     * Format mode into user readable string
+     * 
+     * @param mode
+     * @return
+     */
     public static String formatMode(Mode mode) {
-        String name = mode.toString();
-
-        StringBuilder result = new StringBuilder(name.length());
-        String[] words = name.split("\\s");
-        for (int i = 0, l = words.length; i < l; ++i) {
-            if (i > 0)
-                result.append(" ");
-            result.append(Character.toUpperCase(words[i].charAt(0))).append(
-                    words[i].substring(1));
-
+        if (mode == null) {
+            mode = Mode.available;
         }
+        switch (mode) {
+        case available:
+            return "Available";
+        case away:
+            return "Away";
+        case chat:
+            return "Chat";
+        case dnd:
+            return "Do Not Disturb";
+        case xa:
+            return "Extended Away";
+        default:
+            return mode.toString();
+        }
+    }
 
-        return result.toString();
+    /**
+     * @param status
+     *            user entered mode string
+     * @return null if status string isn't bound to a Mode
+     */
+    public static Mode parseMode(String status) {
+        return modeMap.get(status);
     }
 
     public static List<AlertWord> getAlertWords() {
@@ -126,20 +159,21 @@ public class CollaborationUtils {
         file = PathManagerFactory.getPathManager().getLocalizationFile(context,
                 "collaboration" + File.separator + "alertWords.xml");
         if (file.exists() || file.getFile().exists()) {
-            AlertWordWrapper words = (AlertWordWrapper) JAXB.unmarshal(
-                    file.getFile(), AlertWordWrapper.class);
+            AlertWordWrapper words = JAXB.unmarshal(file.getFile(),
+                    AlertWordWrapper.class);
             if (words.getAlertWords() == null) {
                 return new ArrayList<AlertWord>();
-            } else {
-                List<AlertWord> alertWords = new ArrayList<AlertWord>();
-                for (int i = 0; i < words.getAlertWords().length; i++) {
-                    alertWords.add(words.getAlertWords()[i]);
-                }
-                return alertWords;
             }
-        } else {
-            return new ArrayList<AlertWord>();
+
+            List<AlertWord> alertWords = new ArrayList<AlertWord>();
+            for (int i = 0; i < words.getAlertWords().length; i++) {
+                alertWords.add(words.getAlertWords()[i]);
+            }
+
+            return alertWords;
         }
+
+        return new ArrayList<AlertWord>();
     }
 
     public static void saveAlertWords(List<AlertWord> words) {

@@ -44,6 +44,7 @@ import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
  * ------------ ---------- ----------- --------------------------
  * Nov 04, 2013  2545      bgonzale    Initial creation
  * Jan 29, 2014  2636      mpduff      Scheduling refactor.
+ * Mar 31, 2014 2889      dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -234,7 +235,7 @@ public class EmptySiteSubscriptionHandler implements ISiteSubscriptionHandler {
      * java.lang.Object)
      */
     @Override
-    public void store(SiteSubscription obj) throws RegistryHandlerException {
+    public void store(String username, SiteSubscription obj) throws RegistryHandlerException {
     }
 
     /*
@@ -245,7 +246,7 @@ public class EmptySiteSubscriptionHandler implements ISiteSubscriptionHandler {
      * (java.lang.Object)
      */
     @Override
-    public void update(SiteSubscription obj) throws RegistryHandlerException {
+    public void update(String username, SiteSubscription obj) throws RegistryHandlerException {
     }
 
     /*

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -40,12 +41,12 @@ import com.raytheon.uf.common.time.msgs.GetServerTimeRequest;
 import com.raytheon.uf.common.time.msgs.GetServerTimeResponse;
 import com.raytheon.uf.viz.core.RecordFactory;
 import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.uf.viz.core.datastructure.DataCubeContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
+import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.inv.RadarUpdater;
 import com.raytheon.viz.grid.util.RadarAdapter;
 
@@ -119,6 +120,9 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
+            } catch (DataCubeException e) {
+                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
+                        e);
             }
         }
         getRadarUpdates(time, messages);
@@ -156,6 +160,8 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                 messages.add(am);
             }
         } catch (VizException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        } catch (DataCubeException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }

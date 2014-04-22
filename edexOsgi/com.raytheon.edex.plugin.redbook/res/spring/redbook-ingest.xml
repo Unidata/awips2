@@ -13,6 +13,38 @@
 		<constructor-arg value="jms-durable:queue:Ingest.redbook"/>
 	</bean>
 
+    <bean id="spcMenuListener" class="com.raytheon.edex.plugin.redbook.ingest.RedbookMenuSubscriber"/>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookHazardMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookHPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookCPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookMPCMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookNCOMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
+    <bean factory-bean="ndmProc" factory-method="registerListener">
+        <constructor-arg value="RedbookUAMenus.xml" />
+        <constructor-arg ref="spcMenuListener" />
+    </bean>
+    
 	<!-- 
     <bean id="redbookCamelRegistered" factory-bean="contextManager"
 		factory-method="register" depends-on="persistCamelRegistered">

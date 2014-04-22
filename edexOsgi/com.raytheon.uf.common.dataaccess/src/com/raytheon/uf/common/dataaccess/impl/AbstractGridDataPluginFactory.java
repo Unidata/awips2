@@ -24,17 +24,23 @@ import java.util.List;
 import java.util.Map;
 
 import org.geotools.coverage.grid.GridGeometry2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataaccess.IDataRequest;
 import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
-import com.raytheon.uf.common.dataaccess.exception.UnsupportedOutputTypeException;
-import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
+import com.raytheon.uf.common.dataaccess.exception.EnvelopeProjectionException;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
+import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataaccess.util.PDOUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
+import com.raytheon.uf.common.numeric.source.DataSource;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * An abstract factory for getting grid data from plugins that use
@@ -44,11 +50,14 @@ import com.raytheon.uf.common.datastorage.records.IDataRecord;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 17, 2013            bsteffen     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- -----------------------------------------
+ * Jan 17, 2013           bsteffen    Initial creation
+ * Feb 14, 2013  1614     bsteffen    Refactor data access framework to use
+ *                                    single request.
+ * Jan 14, 2014  2667     mnash       Remove getGeometryData methods
+ * Feb 04, 2014  2672     bsteffen    Enable subgridding when envelopes are
+ *                                    requested
  * 
  * </pre>
  * 
@@ -82,39 +91,88 @@ public abstract class AbstractGridDataPluginFactory extends
                         "The objects returned by the DbQueryRequest are not of type PluginDataObject as expected.");
             }
 
-            PluginDataObject pdo = (PluginDataObject) resultMap
-                    .get(null);
-
-            IDataRecord dataRecord = getDataRecord(pdo);
+            PluginDataObject pdo = (PluginDataObject) resultMap.get(null);
 
             /*
              * Extract the grid geometry.
              */
             GridGeometry2D gridGeometry = getGridGeometry(pdo);
 
-            IGridData defaultGridData = null;
-            defaultGridData = this.constructGridDataResponse(request, pdo,
-                    gridGeometry, dataRecord);
+            DataSource dataSource = null;
 
-            gridData.add(defaultGridData);
+            Envelope envelope = request.getEnvelope();
+            if (envelope != null) {
+                ReferencedEnvelope requestEnv = new ReferencedEnvelope(
+                        envelope, DefaultGeographicCRS.WGS84);
+                SubGridGeometryCalculator subGrid = calculateSubGrid(
+                        requestEnv, gridGeometry);
+                if (subGrid == null || !subGrid.isEmpty()) {
+                    dataSource = getDataSource(pdo, subGrid);
+                    if (subGrid != null) {
+                        gridGeometry = subGrid.getZeroedSubGridGeometry();
+                    }
+                }
+            } else {
+                dataSource = getDataSource(pdo, null);
+            }
+
+            if (dataSource != null) {
+                gridData.add(this.constructGridDataResponse(request, pdo,
+                        gridGeometry, dataSource));
+            }
         }
 
         return gridData.toArray(new IGridData[gridData.size()]);
     }
 
-    protected IGeometryData[] getGeometryData(IDataRequest request,
-            DbQueryResponse dbQueryResponse) {
-        // Subtypes can optionally support geometry by overriding this, default
-        // is to not support geometry data.
-        throw new UnsupportedOutputTypeException(request.getDatatype(),
-                "geometry");
+    /**
+     * Generate a SubGridGeometryCalculator appropriate for determining what
+     * area of data to request for this dataType. A return type of null can be
+     * used to indicate the entire gridGeometry should be used.
+     * 
+     * @param envelope
+     *            The requested envelope in WGS84
+     * @param gridGeometry
+     *            The gridGeometry.
+     * @return a SubGridGeometryCalculator.
+     * @throws EnvelopeProjectionException
+     */
+    protected SubGridGeometryCalculator calculateSubGrid(
+            ReferencedEnvelope envelope, GridGeometry2D gridGeometry)
+            throws EnvelopeProjectionException {
+        try {
+            return new SubGridGeometryCalculator(envelope, gridGeometry);
+        } catch (TransformException e) {
+            throw new EnvelopeProjectionException(
+                    "Error determining subgrid from envelope: " + envelope, e);
+        }
     }
 
-    protected IDataRecord getDataRecord(PluginDataObject pdo) {
+    /**
+     * Request the raw data for a pdo.
+     * 
+     * @param pdo
+     *            the pdo with metadata popualted
+     * @param subGrid
+     *            object describing area requested.
+     * @return a DataSource holding the raw data.
+     */
+    protected DataSource getDataSource(PluginDataObject pdo,
+            SubGridGeometryCalculator subGrid) {
         try {
-            return PDOUtil.getDataRecord(pdo, "Data", Request.ALL);
+            IDataRecord dataRecord = null;
+            if (subGrid == null || subGrid.isFull()) {
+                dataRecord = PDOUtil.getDataRecord(pdo, "Data", Request.ALL);
+            } else if (!subGrid.isEmpty()) {
+                Request dataStoreReq = Request.buildSlab(
+                        subGrid.getGridRangeLow(true),
+                        subGrid.getGridRangeHigh(false));
+                dataRecord = PDOUtil.getDataRecord(pdo, "Data", dataStoreReq);
+            } else {
+                return null;
+            }
+            return DataWrapperUtil.constructArrayWrapper(dataRecord, false);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new DataRetrievalException(
                     "Failed to retrieve the IDataRecord for PluginDataObject: "
                             + pdo.toString(), e);
@@ -140,7 +198,6 @@ public abstract class AbstractGridDataPluginFactory extends
      */
     protected abstract IGridData constructGridDataResponse(
             IDataRequest request, PluginDataObject pdo,
-            GridGeometry2D gridGeometry, IDataRecord dataRecord);
-
+            GridGeometry2D gridGeometry, DataSource dataSource);
 
 }

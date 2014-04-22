@@ -29,11 +29,11 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.junit.Test;
 
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
+import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataSet;
+import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSet;
 import com.raytheon.uf.common.datadelivery.registry.Parameter;
-import com.raytheon.uf.common.datadelivery.registry.DataLevelType.LevelType;
-import com.raytheon.uf.common.datadelivery.registry.GriddedCoverage;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.gridcoverage.Corner;
 import com.raytheon.uf.common.gridcoverage.LatLonGridCoverage;
@@ -56,6 +56,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * Nov 19, 2012 1166       djohnson     Clean up JAXB representation of registry objects.
  * Dec 10, 2012 1259       bsteffen     Switch Data Delivery from LatLon to referenced envelopes.
  * Jan 02, 2012 1345       djohnson     Fix broken code from referenced envelope switch.
+ * Mar 11, 2014 2718       randerso     Changes for GeoTools 10.5
  * 
  * </pre>
  * 
@@ -75,7 +76,7 @@ public class DataSetWithFiltersQueryTest {
     @Test
     public void testSatisfiesFilterCriteriaReturnsTrueWhenOnlySatisfiableLevelsSpecified() {
         DataLevelType dataLevelType = new DataLevelType(LevelType.SFC);
-        
+
         Parameter parameter = new Parameter();
         parameter.setLevelType(java.util.Arrays.asList(dataLevelType));
 
@@ -131,8 +132,8 @@ public class DataSetWithFiltersQueryTest {
         dataSet.setCoverage(coverage);
 
         // Choose a smaller bounding box inside the dataset's
-        ReferencedEnvelope selectedAreaCoordinates = new ReferencedEnvelope(
-                MapUtil.LATLON_PROJECTION);
+        ReferencedEnvelope selectedAreaCoordinates = ReferencedEnvelope
+                .create(MapUtil.LATLON_PROJECTION);
         final Coordinate upperLeft = coverage.getUpperLeft();
         final Coordinate lowerRight = coverage.getLowerRight();
         selectedAreaCoordinates.expandToInclude(upperLeft.x + 1,
@@ -169,7 +170,7 @@ public class DataSetWithFiltersQueryTest {
         // Choose a bounding box lying outside of the dataset's
         ReferencedEnvelope selectedAreaCoordinates = new ReferencedEnvelope(
                 new Envelope(new Coordinate(-15, -14), new Coordinate(-14, -13)),
-                        MapUtil.LATLON_PROJECTION);
+                MapUtil.LATLON_PROJECTION);
 
         assertFalse(
                 "Should return false when unsatisfiable area is specified!",

@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.ui;bundle-version="3.4.1",
  com.raytheon.uf.viz.core,
  javax.persistence;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
- net.sf.swtaddons;bundle-version="1.0.0"
+ net.sf.swtaddons;bundle-version="0.0.0"
 Export-Package: com.raytheon.uf.viz.productbrowser;
   uses:="org.eclipse.jface.action,
    com.raytheon.uf.viz.core.rsc,

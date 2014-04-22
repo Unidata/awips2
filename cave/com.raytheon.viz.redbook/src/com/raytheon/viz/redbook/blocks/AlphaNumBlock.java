@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
-import com.raytheon.edex.plugin.redbook.common.blocks.RedbookBlockHeader;
+import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockHeader;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -34,8 +34,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * May 22, 2008 #1162       chammack    Initial creation
+ * May 22, 2008 1162        chammack    Initial creation
  * Apr 29, 2013 1958        bgonzale    New class RedbookBlockHeader.
+ * Mar 13, 2014 2907        njensen     split edex.redbook plugin into common
+ *                                      and edex redbook plugins
  * 
  * </pre>
  * 
@@ -44,7 +46,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 
 public class AlphaNumBlock extends AbstractTextBlock {
-    
+
     private final TextBlock textBlock;
 
     public AlphaNumBlock(RedbookBlockHeader header, ByteBuffer data,
@@ -55,7 +57,7 @@ public class AlphaNumBlock extends AbstractTextBlock {
 
         int posX = (data.getShort() & 0xFFFF);
         int posY = maxY - (data.getShort() & 0xFFFF);
-        
+
         origXPos = posX;
         origYPos = posY;
 
@@ -93,6 +95,7 @@ public class AlphaNumBlock extends AbstractTextBlock {
     /**
      * @return the textBlock
      */
+    @Override
     public TextBlock getTextBlock() {
         return this.textBlock;
     }

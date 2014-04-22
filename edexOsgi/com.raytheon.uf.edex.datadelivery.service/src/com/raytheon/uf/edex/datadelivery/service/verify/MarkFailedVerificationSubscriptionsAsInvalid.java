@@ -21,6 +21,7 @@ package com.raytheon.uf.edex.datadelivery.service.verify;
 
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -40,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.service.verify.SubscriptionIntegrityVer
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 10, 2012 1104       djohnson     Initial creation
+ * Mar 31, 2014 2889       dhladky      Added username for notification center tracking.
  * 
  * </pre>
  * 
@@ -61,7 +63,7 @@ class MarkFailedVerificationSubscriptionsAsInvalid implements
         subscription.setValid(false);
 
         try {
-            DataDeliveryHandlers.getSubscriptionHandler().update(subscription);
+            DataDeliveryHandlers.getSubscriptionHandler().update(RegistryUtil.registryUser, subscription);
         } catch (RegistryHandlerException e) {
             statusHandler
                     .handle(Priority.ERROR,

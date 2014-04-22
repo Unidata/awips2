@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import jep.JepException;
 
@@ -59,6 +60,9 @@ import com.raytheon.uf.common.python.PythonInterpreter;
  * Jan 31, 2013            mnash       Initial creation
  * Jun 04, 2013 2041       bsteffen    Improve exception handling for concurrent
  *                                     python.
+ * Mar 21, 2014 2868       njensen     Changed getInstance() from throwing
+ *                                     RuntimeException to IllegalArgumentException
+ *                                     Added refCount
  * 
  * </pre>
  * 
@@ -71,10 +75,17 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
 
     private ThreadLocal<P> threadLocal = null;
 
+    /**
+     * Tracks the number of times newInstance() vs shutdown() is called for an
+     * instance of a PythonJobCoordinator
+     */
+    private AtomicInteger refCount;
+
     private static Map<String, PythonJobCoordinator<? extends PythonInterpreter>> pools = new ConcurrentHashMap<String, PythonJobCoordinator<? extends PythonInterpreter>>();
 
     private PythonJobCoordinator(final AbstractPythonScriptFactory<P> factory) {
         threadLocal = new ThreadLocal<P>() {
+            @Override
             protected P initialValue() {
                 try {
                     return factory.createPythonScript();
@@ -85,10 +96,11 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
         };
         execService = Executors.newFixedThreadPool(factory.getMaxThreads(),
                 new PythonThreadFactory(threadLocal, factory.getName()));
+        refCount = new AtomicInteger();
     }
 
     /**
-     * Gets the instance by name, or throw a {@link RuntimeException}.
+     * Gets the instance by name, or throw a {@link IllegalArgumentException}.
      * 
      * @param name
      * @return
@@ -99,7 +111,7 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
             if (pools.containsKey(name)) {
                 return (PythonJobCoordinator<S>) pools.get(name);
             } else {
-                throw new RuntimeException(
+                throw new IllegalArgumentException(
                         "Unable to find instance of PythonJobCoordinator named "
                                 + name
                                 + ", please call newInstance(AbstractPythonScriptFactory)");
@@ -110,7 +122,10 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
     /**
      * Creates a new instance of this class for a new application. If the same
      * name already exists, it assumes that it is the same application and
-     * returns the existing instance.
+     * returns the existing instance. Also increments the reference count of
+     * applications using this PythonJobCoordinator. For each time that
+     * newInstance() is called, a corresponding call to shutdown() will be
+     * needed if you truly want to shut the job coordinator down.
      * 
      * @param name
      * @param numThreads
@@ -119,14 +134,15 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
     public static <S extends PythonInterpreter> PythonJobCoordinator<S> newInstance(
             AbstractPythonScriptFactory<S> factory) {
         synchronized (pools) {
+            PythonJobCoordinator<S> pool = null;
             if (pools.containsKey(factory.getName())) {
-                return (PythonJobCoordinator<S>) pools.get(factory.getName());
+                pool = (PythonJobCoordinator<S>) pools.get(factory.getName());
             } else {
-                PythonJobCoordinator<S> pool = new PythonJobCoordinator<S>(
-                        factory);
+                pool = new PythonJobCoordinator<S>(factory);
                 pools.put(factory.getName(), pool);
-                return pool;
             }
+            pool.refCount.getAndIncrement();
+            return pool;
         }
     }
 
@@ -171,15 +187,20 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
     /**
      * This function should take the {@link PythonInterpreter} on each thread in
      * the thread pool and dispose of it and then shutdown the
-     * {@link ExecutorService}
+     * {@link ExecutorService}. This will reduce the reference count by 1, and
+     * will only shut down the underlying executor service and python
+     * interpreters if the refCount is less than 1.
      * 
      * @param name
      */
     public void shutdown() {
         synchronized (pools) {
-            pools.values().remove(this);
+            int count = refCount.decrementAndGet();
+            if (count < 1) {
+                pools.values().remove(this);
+                execService.shutdown();
+            }
         }
-        execService.shutdown();
     }
 
     /**
@@ -191,7 +212,9 @@ public class PythonJobCoordinator<P extends PythonInterpreter> {
      */
     public void shutdownTask(String name) {
         /*
-         * TODO need to add for future functionality
+         * TODO need to add for future functionality, arg should probably be an
+         * IPythonExecutor, not a String
          */
     }
+
 }
