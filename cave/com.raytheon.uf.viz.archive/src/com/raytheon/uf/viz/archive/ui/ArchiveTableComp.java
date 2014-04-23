@@ -19,6 +19,7 @@
  **/
 package com.raytheon.uf.viz.archive.ui;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -63,6 +64,7 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  * Aug 06, 2013 #2222      rferrel      Changes to display all selected data.
  * Aug 14, 2013 #2220      rferrel      Add refresh method.
  * Aug 26, 2013 #2225      rferrel      Add missing updates.
+ * Apr 23, 2014 #3045      rferrel      Added clearTable method.
  * 
  * </pre>
  * 
@@ -466,6 +468,13 @@ public class ArchiveTableComp extends Composite {
         showSelectAll = false;
         table.getColumn(0).setText("Label");
         populateTable(displayDatas);
+    }
+
+    /**
+     * Clear table entries.
+     */
+    protected void clearTable() {
+        populateTable(new ArrayList<DisplayData>(0));
     }
 
     /**
