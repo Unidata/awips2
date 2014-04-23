@@ -104,7 +104,6 @@ import com.raytheon.uf.edex.registry.ebxml.dao.DbInit;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
-import com.raytheon.uf.edex.registry.ebxml.exception.NoReplicationServersAvailableException;
 import com.raytheon.uf.edex.registry.ebxml.init.RegistryInitializedListener;
 import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 import com.raytheon.uf.edex.registry.ebxml.services.query.RegistryQueryUtil;
@@ -153,6 +152,7 @@ import com.raytheon.uf.edex.registry.events.CreateAuditTrailEvent;
  * 1/21/2014    2613        bphillip    Changed max down time which requires a sync
  * Feb 11, 2014 2771        bgonzale    Use Data Delivery ID instead of Site.
  * 2/13/2014    2769        bphillip    Refactored registry sync. Created quartz tasks to monitor registry uptime as well as subscription integrity
+ * 4/11/2014    3011        bphillip    Removed automatic registry sync check on startup
  * </pre>
  * 
  * @author bphillip
@@ -166,6 +166,9 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     /** The logger instance */
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(RegistryFederationManager.class);
+
+    private static final transient IUFStatusHandler monitorHandler = UFStatus
+            .getMonitorHandler(RegistryFederationManager.class);
 
     /** Query used for synchronizing registries */
     private static final String SYNC_QUERY = "FROM RegistryObjectType obj where obj.id in (%s) order by obj.id asc";
@@ -196,7 +199,16 @@ public class RegistryFederationManager implements IRegistryFederationManager,
      * The maximum time a registry can be down before a full synchronization is
      * performed
      */
-    private static final long MAX_DOWN_TIME_DURATION = TimeUtil.MILLIS_PER_HOUR * 6;
+    private static final long MAX_DOWN_TIME_DURATION = TimeUtil.MILLIS_PER_HOUR * 48;
+
+    private static final String SYNC_WARNING_MSG = "Registry is out of sync with federation. Registry Synchronization required. Go to: ["
+            + RegistryUtil.LOCAL_REGISTRY_ADDRESS
+            + "/registry/federation/status.html] to synchronize.";
+
+    private static volatile boolean SYNC_NECESSARY = false;
+
+    public static AtomicBoolean SYNC_IN_PROGRESS = new AtomicBoolean(
+            false);
 
     /** Cutoff parameter for the query to get the expired events */
     private static final String GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER = "cutoff";
@@ -204,9 +216,6 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     /** Query to get Expired AuditableEvents */
     private static final String GET_EXPIRED_EVENTS_QUERY = "FROM ReplicationEvent event where event.eventTime < :"
             + GET_EXPIRED_EVENTS_QUERY_CUTOFF_PARAMETER;
-
-    /** Maximum times this registry will try to sync data before failure */
-    private int maxSyncRetries = 3;
 
     /**
      * Denotes if initialization has already occurred for this class. It is a
@@ -320,8 +329,6 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 if (!centralRegistry) {
                     checkDownTime();
                 }
-                federatedRegistryMonitor.updateTime();
-
             } catch (Exception e1) {
                 throw new EbxmlRegistryException(
                         "Error initializing RegistryReplicationManager", e1);
@@ -345,96 +352,24 @@ public class RegistryFederationManager implements IRegistryFederationManager,
 
     /**
      * Checks how long a registry has been down. If the registry has been down
-     * for over 2 days, the registry is synchronized with one of the federation
-     * members
+     * longer than the MAX_DOWN_TIME_DURATION, then a sync is necessary
      * 
+     * @see RegistryFederationManager.MAX_DOWN_TIME_DURATION
      * @throws Exception
      */
     private void checkDownTime() throws Exception {
         long currentTime = TimeUtil.currentTimeMillis();
         long lastKnownUp = federatedRegistryMonitor.getLastKnownUptime();
         long downTime = currentTime - lastKnownUp;
-        statusHandler
-                .info("Registry has been down since: "
-                        + new Date(currentTime - downTime)
-                        + ". Checking if synchronization with the federation is necessary...");
-
-        // The registry has been down for ~2 days, this requires a
-        // synchronization of the
-        // data from the federation
+        statusHandler.info("Registry has been down since: "
+                + new Date(currentTime - downTime));
+        /*
+         * The registry has been down for ~2 days, this requires a
+         * synchronization of the data from the federation
+         */
         if (currentTime - lastKnownUp > MAX_DOWN_TIME_DURATION) {
-            int syncAttempt = 1;
-            for (; syncAttempt <= maxSyncRetries; syncAttempt++) {
-                try {
-                    statusHandler
-                            .warn("Registry has been down for more than "
-                                    + (MAX_DOWN_TIME_DURATION / TimeUtil.MILLIS_PER_HOUR)
-                                    + " hours. Initiating federated registry data synchronization attempt #"
-                                    + syncAttempt + "/" + maxSyncRetries
-                                    + "...");
-                    if (CollectionUtil.isNullOrEmpty(servers
-                            .getRegistryReplicationServers())) {
-                        statusHandler
-                                .error("No servers configured for replication. Unable to synchronize registry data with federation!");
-                        break;
-                    } else {
-                        RegistryType registryToSyncFrom = null;
-                        for (String remoteRegistryId : servers
-                                .getRegistryReplicationServers()) {
-                            statusHandler.info("Checking availability of ["
-                                    + remoteRegistryId + "]...");
-                            RegistryType remoteRegistry = dataDeliveryRestClient
-                                    .getRegistryObject(
-                                            ncfAddress,
-                                            remoteRegistryId
-                                                    + FederationProperties.REGISTRY_SUFFIX);
-                            if (remoteRegistry == null) {
-                                statusHandler
-                                        .warn("Registry at ["
-                                                + remoteRegistryId
-                                                + "] not found in federation. Unable to use as synchronization source.");
-                            } else if (dataDeliveryRestClient
-                                    .isRegistryAvailable(remoteRegistry
-                                            .getBaseURL())) {
-                                registryToSyncFrom = remoteRegistry;
-                                break;
-                            } else {
-                                statusHandler
-                                        .info("Registry at ["
-                                                + remoteRegistryId
-                                                + "] is not available.  Unable to use as synchronization source.");
-                            }
-                        }
-
-                        // No available registry was found!
-                        if (registryToSyncFrom == null) {
-                            throw new NoReplicationServersAvailableException(
-                                    "No available registries found! Registry data will not be synchronized with the federation!");
-                        } else {
-                            synchronizeWithRegistry(registryToSyncFrom.getId());
-
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    // If no servers are found, don't retry, just throw the
-                    // exception
-                    if (e instanceof NoReplicationServersAvailableException) {
-                        throw e;
-                    }
-                    if (syncAttempt < maxSyncRetries) {
-                        statusHandler.error(
-                                "Federation registry data synchronization attempt #"
-                                        + syncAttempt + "/" + maxSyncRetries
-                                        + " failed! Retrying...", e);
-                    } else {
-                        statusHandler
-                                .fatal("Federation registry data synchronization has failed",
-                                        e);
-                        throw e;
-                    }
-                }
-            }
+            SYNC_NECESSARY = true;
+            sendSyncMessage();
         }
     }
 
@@ -586,33 +521,51 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @Transactional
     @GET
     @Path("synchronizeWithRegistry/{registryId}")
-    public void synchronizeWithRegistry(
-            @PathParam("registryId") String registryId) throws Exception {
-        long start = TimeUtil.currentTimeMillis();
-        RegistryType remoteRegistry = null;
-        try {
-            if (!registryId.endsWith(FederationProperties.REGISTRY_SUFFIX)) {
-                registryId += FederationProperties.REGISTRY_SUFFIX;
-            }
-            remoteRegistry = dataDeliveryRestClient.getRegistryObject(
-                    ncfAddress, registryId);
-        } catch (Exception e) {
-            throw new EbxmlRegistryException(
-                    "Error retrieving info for remote registry [" + registryId
-                            + "] ", e);
-        }
-        if (remoteRegistry == null) {
-            throw new EbxmlRegistryException("Unable to synchronize with ["
-                    + registryId + "]. Registry not found in federation");
-        }
-        String remoteRegistryUrl = remoteRegistry.getBaseURL();
+    public void synchronizeWithRegistry(@PathParam("registryId")
+    String registryId) throws Exception {
+        if (SYNC_IN_PROGRESS.compareAndSet(false, true)) {
+            try {
+                monitorHandler.handle(Priority.WARN,
+                        "Synchronizing registry with [" + registryId + "]...");
+                long start = TimeUtil.currentTimeMillis();
+                RegistryType remoteRegistry = null;
+                try {
+                    if (!registryId
+                            .endsWith(FederationProperties.REGISTRY_SUFFIX)) {
+                        registryId += FederationProperties.REGISTRY_SUFFIX;
+                    }
+                    remoteRegistry = dataDeliveryRestClient.getRegistryObject(
+                            ncfAddress, registryId);
+                } catch (Exception e) {
+                    throw new EbxmlRegistryException(
+                            "Error retrieving info for remote registry ["
+                                    + registryId + "] ", e);
+                }
+                if (remoteRegistry == null) {
+                    throw new EbxmlRegistryException(
+                            "Unable to synchronize with [" + registryId
+                                    + "]. Registry not found in federation");
+                }
+                String remoteRegistryUrl = remoteRegistry.getBaseURL();
 
-        for (final String objectType : replicatedObjectTypes) {
-            syncObjectType(objectType, remoteRegistryUrl);
+                for (final String objectType : replicatedObjectTypes) {
+                    syncObjectType(objectType, remoteRegistryUrl);
+                }
+                SYNC_NECESSARY = false;
+                federatedRegistryMonitor.updateTime();
+                StringBuilder syncMsg = new StringBuilder();
+
+                syncMsg.append("Registry synchronization using [")
+                        .append(remoteRegistryUrl)
+                        .append("] completed successfully in ")
+                        .append((TimeUtil.currentTimeMillis() - start))
+                        .append(" ms");
+                statusHandler.info(syncMsg.toString());
+                monitorHandler.handle(Priority.WARN, syncMsg.toString());
+            } finally {
+                SYNC_IN_PROGRESS.set(false);
+            }
         }
-        statusHandler.info("Registry synchronization using ["
-                + remoteRegistryUrl + "] completed successfully in "
-                + (TimeUtil.currentTimeMillis() - start) + " ms");
     }
 
     /**
@@ -658,6 +611,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
             int remainder = remoteIds.size() % SYNC_BATCH_SIZE;
 
             for (int currentBatch = 0; currentBatch < batches; currentBatch++) {
+                statusHandler.info("Processing batch " + (currentBatch + 1)
+                        + "/" + batches);
                 persistBatch(objectType, remoteRegistryUrl, remoteIds.subList(
                         currentBatch * SYNC_BATCH_SIZE, (currentBatch + 1)
                                 * SYNC_BATCH_SIZE));
@@ -711,6 +666,13 @@ public class RegistryFederationManager implements IRegistryFederationManager,
         if (!CollectionUtil.isNullOrEmpty(queryResult)) {
             registryObjectDao.persistAll(queryResult);
             registryObjectDao.flushAndClearSession();
+        }
+    }
+
+    private void sendSyncMessage() {
+        if (!SYNC_IN_PROGRESS.get()) {
+            statusHandler.warn(SYNC_WARNING_MSG);
+            monitorHandler.handle(Priority.WARN, SYNC_WARNING_MSG);
         }
     }
 
@@ -795,8 +757,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @GET
     @Path("subscribeToRegistry/{registryId}")
     @Transactional
-    public void subscribeToRegistry(@PathParam("registryId") String registryId)
-            throws Exception {
+    public void subscribeToRegistry(@PathParam("registryId")
+    String registryId) throws Exception {
         statusHandler.info("Establishing replication with [" + registryId
                 + "]...");
         RegistryType remoteRegistry = getRegistry(registryId);
@@ -809,8 +771,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @GET
     @Path("unsubscribeFromRegistry/{registryId}")
     @Transactional
-    public void unsubscribeFromRegistry(
-            @PathParam("registryId") String registryId) throws Exception {
+    public void unsubscribeFromRegistry(@PathParam("registryId")
+    String registryId) throws Exception {
         statusHandler.info("Disconnecting replication with [" + registryId
                 + "]...");
         RegistryType remoteRegistry = getRegistry(registryId);
@@ -824,8 +786,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @GET
     @Path("addReplicationServer/{registryId}")
     @Transactional
-    public void addReplicationServer(@PathParam("registryId") String registryId)
-            throws Exception {
+    public void addReplicationServer(@PathParam("registryId")
+    String registryId) throws Exception {
         getRegistry(registryId);
         servers.addReplicationServer(registryId);
         saveNotificationServers();
@@ -834,8 +796,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @GET
     @Path("removeReplicationServer/{registryId}")
     @Transactional
-    public void removeReplicationServer(
-            @PathParam("registryId") String registryId) throws Exception {
+    public void removeReplicationServer(@PathParam("registryId")
+    String registryId) throws Exception {
         getRegistry(registryId);
         servers.removeReplicationServer(registryId);
         saveNotificationServers();
@@ -978,7 +940,8 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     }
 
     public void processReplicationEvents() {
-        if (federationEnabled && DbInit.isDbInitialized() && initialized.get()) {
+        if (federationEnabled && DbInit.isDbInitialized() && initialized.get()
+                && !SYNC_IN_PROGRESS.get()) {
             if (!running.getAndSet(true)) {
                 try {
                     for (final String remoteRegistryId : servers
@@ -1029,7 +992,7 @@ public class RegistryFederationManager implements IRegistryFederationManager,
                 .getBaseURL())) {
 
             List<ReplicationEvent> events = replicationEventDao
-                    .getReplicationEvents(remoteRegistryId);
+                    .getReplicationEvents(remoteRegistryId, SYNC_BATCH_SIZE);
 
             List<SimpleEntry<String, List<ReplicationEvent>>> orderedBatchedEvents = new ArrayList<SimpleEntry<String, List<ReplicationEvent>>>();
             SimpleEntry<String, List<ReplicationEvent>> lastEntry = null;
@@ -1135,7 +1098,14 @@ public class RegistryFederationManager implements IRegistryFederationManager,
     @Transactional
     public void updateUpTime() {
         if (initialized.get()) {
-            federatedRegistryMonitor.updateTime();
+            if (SYNC_NECESSARY) {
+                if (!SYNC_IN_PROGRESS.get()
+                        && TimeUtil.newGmtCalendar().get(Calendar.MINUTE) % 15 == 0) {
+                    sendSyncMessage();
+                }
+            } else {
+                federatedRegistryMonitor.updateTime();
+            }
         }
     }
 
