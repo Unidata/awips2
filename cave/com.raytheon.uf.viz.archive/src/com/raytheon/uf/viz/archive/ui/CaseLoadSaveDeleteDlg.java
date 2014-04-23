@@ -116,7 +116,7 @@ public class CaseLoadSaveDeleteDlg extends CaveSWTDialog {
     private void init() {
         createCaseControls();
         GuiUtil.addSeparator(shell, SWT.HORIZONTAL);
-        createBottomAcitonButtons();
+        createBottomActionButtons();
     }
 
     /**
@@ -151,7 +151,7 @@ public class CaseLoadSaveDeleteDlg extends CaveSWTDialog {
     /**
      * Button layout at the bottom of the dialog.
      */
-    private void createBottomAcitonButtons() {
+    private void createBottomActionButtons() {
         Composite actionControlComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(2, false);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
