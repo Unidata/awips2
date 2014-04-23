@@ -54,6 +54,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.info.SiteConfigInformatio
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnectionData;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ResourceInfo;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.CollaborationUtils;
 import com.raytheon.uf.viz.collaboration.ui.ConnectionSubscriber;
@@ -77,6 +78,7 @@ import com.raytheon.uf.viz.collaboration.ui.prefs.CollabPrefConstants;
  * Apr 07, 2014 2785       mpduff       Implemented change to CollaborationConnection
  * Apr 11, 2014 2903       bclement     added success flag, moved login logic to static method
  *                                       fixed populating server with previous, removed password from heap
+ * Apr 23, 2014 2822       bclement     added version to initial presence
  * 
  * </pre>
  * 
@@ -427,7 +429,8 @@ public class LoginDialog extends Dialog {
             Presence initialPresence = new Presence(Type.available,
                     loginData.getMessage(), 0, mode);
             Tools.setProperties(initialPresence, loginData.getAttributes());
-
+            initialPresence.setProperty(ResourceInfo.VERSION_KEY,
+                    CollaborationConnection.getCollaborationVersion());
             collabConnection.getAccountManager().sendPresence(initialPresence);
 
         } catch (CollaborationException e) {
