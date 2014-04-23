@@ -33,9 +33,9 @@ function dropAndAddConstraint {
 
 echo "INFO: Dropping dataURI columns."
 
-dropDatauri
 dropAndAddConstraint grid grid_reftime_forecasttime_rangestart_rangeend_info_id "(refTime, forecastTime, rangestart, rangeend, info_id)"
 dropAndAddConstraint grid_info grid_info_datasetid_secondaryid_ensembleid_location_id_parameter_abbreviation_level_id "(datasetid, secondaryid, ensembleid, location_id, parameter_abbreviation, level_id)"
+dropDatauri
 
 
 echo "INFO: grid dataURI column dropped successfully"
