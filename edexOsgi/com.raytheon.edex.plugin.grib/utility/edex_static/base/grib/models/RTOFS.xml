@@ -27,10 +27,10 @@
 			<id>RTOFS-Alaska</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-Arctic</name>
 		<center>7</center>
@@ -39,10 +39,10 @@
 			<id>RTOFS-Arctic</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-Bering</name>
 		<center>7</center>
@@ -51,10 +51,10 @@
 			<id>RTOFS-Bering</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-Guam</name>
 		<center>7</center>
@@ -63,10 +63,10 @@
 			<id>RTOFS-Guam</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-GulfAlaska</name>
 		<center>7</center>
@@ -75,10 +75,10 @@
 			<id>RTOFS-GulfAlaska</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-Honolulu</name>
 		<center>7</center>
@@ -87,10 +87,10 @@
 			<id>RTOFS-Honolulu</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-HudsonBaffin</name>
 		<center>7</center>
@@ -99,10 +99,10 @@
 			<id>RTOFS-HudsonBaffin</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-Samoa</name>
 		<center>7</center>
@@ -111,10 +111,10 @@
 			<id>RTOFS-Samoa</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-TropPaciLowres</name>
 		<center>7</center>
@@ -123,10 +123,10 @@
 			<id>RTOFS-TropPaciLowres</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-WestAtl</name>
 		<center>7</center>
@@ -135,10 +135,10 @@
 			<id>RTOFS-WestAtl</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-
 	<model>
 		<name>RTOFS-WestConus</name>
 		<center>7</center>
@@ -147,10 +147,10 @@
 			<id>RTOFS-WestConus</id>
 		</grids>
 		<process>
-			<id>0</id>
+			<id>85</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-	
 	<model>
 		<name>RTOFS-Atlantic</name>
 		<center>7</center>
@@ -160,7 +160,6 @@
 			<id>45</id>
 		</process>
 	</model>
-	
 	<model>
 		<name>RTOFS-Atlantic-HiRes</name>
 		<center>7</center>
@@ -169,8 +168,8 @@
 		<process>
 			<id>45</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-	
 	<model>
 		<name>RTOFS-GulfMaine</name>
 		<center>7</center>
@@ -179,8 +178,8 @@
 		<process>
 			<id>45</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-	
 	<model>
 		<name>RTOFS-GulfMexico</name>
 		<center>7</center>
@@ -189,8 +188,8 @@
 		<process>
 			<id>45</id>
 		</process>
+		<processType>Forecast</processType>
 	</model>
-	
 	<model>
 		<name>RTOFS-GulfStream</name>
 		<center>7</center>
@@ -199,5 +198,187 @@
 		<process>
 			<id>45</id>
 		</process>
+		<processType>Forecast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Alaska</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Alaska</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Arctic</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Arctic</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Bering</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Bering</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Guam</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Guam</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-GulfAlaska</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-GulfAlaska</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Honolulu</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Honolulu</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-HudsonBaffin</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-HudsonBaffin</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Samoa</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-Samoa</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-TropPaciLowres</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-TropPaciLowres</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-WestAtl</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-WestAtl</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-WestConus</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grids>
+			<id>RTOFS-WestConus</id>
+		</grids>
+		<process>
+			<id>85</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-Atlantic</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-Atlantic</grid>
+		<process>
+			<id>45</id>
+		</process>
+	</model>
+	<model>
+		<name>RTOFS-Now-Atlantic-HiRes</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-Atlantic-HiRes</grid>
+		<process>
+			<id>45</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-GulfMaine</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfMaine</grid>
+		<process>
+			<id>45</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-GulfMexico</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfMexico</grid>
+		<process>
+			<id>45</id>
+		</process>
+		<processType>Nowcast</processType>
+	</model>
+	<model>
+		<name>RTOFS-Now-GulfStream</name>
+		<center>7</center>
+		<subcenter>0</subcenter>
+		<grid>RTOFS-GulfStream</grid>
+		<process>
+			<id>45</id>
+		</process>
+		<processType>Nowcast</processType>
 	</model>
 </gribModelSet>
