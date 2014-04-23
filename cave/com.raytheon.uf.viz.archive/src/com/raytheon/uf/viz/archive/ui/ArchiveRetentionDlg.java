@@ -57,6 +57,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * Oct 01, 2013 #2147      rferrel      Change getEnd() to pick up files with future time stamps.
  * Oct 07, 2013 #2438      rferrel      Properly save and load retention times.
  * Apr 14, 2014 #3023      rferrel      Code clean up.
+ * Apr 24, 2014 #3045      rferrel      Implement loadedAllDsipalyData.
  * 
  * </pre>
  * 
@@ -414,5 +415,10 @@ public class ArchiveRetentionDlg extends AbstractArchiveDlg {
         super.preOpened();
         archiveComboSelection();
         categoryComboSelection();
+    }
+
+    @Override
+    public void loadedAllDisplayData() {
+        // nothing to update.
     }
 }
