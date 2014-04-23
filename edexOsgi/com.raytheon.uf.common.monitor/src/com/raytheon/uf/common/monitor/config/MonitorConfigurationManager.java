@@ -56,6 +56,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Nov 20 2012  1297      skorolev   Cleaned code
  * Oct 02 2013  2361      njensen    Use JAXBManager for XML
  * Oct 17 2013  16682     zhao       fixed a bug in readConfigXml()
+ * Apr 23 2014  3054      skorolev   Removed unnecessary parameter in the addArea method.
  * 
  * </pre>
  * 
@@ -325,11 +326,8 @@ public abstract class MonitorConfigurationManager {
      *            The area longitude
      * @param type
      *            The area type
-     * @param existingArea
-     *            Does the area already exist
      */
-    public void addArea(String areaId, double lat, double lon, ZoneType type,
-            boolean existingArea) {
+    public void addArea(String areaId, double lat, double lon, ZoneType type) {
         List<AreaIdXML> areaXmlList = configXml.getAreaIds();
         boolean areaExists = false;
         for (AreaIdXML area : areaXmlList) {
@@ -343,10 +341,10 @@ public abstract class MonitorConfigurationManager {
             AreaIdXML area = new AreaIdXML();
             area.setAreaId(areaId);
             area.setType(type);
-            if (lat < -90.0 || lat > 90.0) {
+            if (lat > -90.0 && lat < 90.0) {
                 area.setCLat(lat);
             }
-            if (lon < -180.0 || lon > 180.0) {
+            if (lon > -180.0 && lon < 180.0) {
                 area.setCLon(lon);
             }
             configXml.addAreaId(area);
@@ -380,7 +378,7 @@ public abstract class MonitorConfigurationManager {
                 stationXml.setName(stationId);
                 stationXml.setType(type);
                 area.addStationIdXml(stationXml);
-                addedStations.add(stationId);
+                addedStations.add(stationId + "#" + type);
             }
         }
     }
@@ -586,7 +584,7 @@ public abstract class MonitorConfigurationManager {
     public AreaIdXML getAreaXml(String area) {
         List<AreaIdXML> areaList = configXml.getAreaIds();
         for (AreaIdXML areaXml : areaList) {
-            if (areaXml.equals(area)) {
+            if (areaXml.getAreaId().equals(area)) {
                 return areaXml;
             }
         }
