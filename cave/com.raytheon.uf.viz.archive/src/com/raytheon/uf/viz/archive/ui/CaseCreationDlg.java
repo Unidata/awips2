@@ -72,6 +72,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
  * Apr 11, 2014 #3023      rferrel     Configurable Threshold options.
+ * Apr 23, 2014 #3045      rferrel     To prevent race condition only allow a case
+ *                                       load after all labels are loaded.
  * 
  * </pre>
  * 
@@ -165,6 +167,9 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
 
     /** Manager for configurable values for the dialog. */
     private final CaseCreationManager ccManager;
+
+    /** Flag to indicate all labels for all tables are loaded. */
+    private volatile boolean haveAllLabels = false;
 
     /**
      * Constructor.
@@ -490,34 +495,48 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         // }
         // });
 
+        String tooltip = "Waiting on loading of table labels.";
+        Color color = shell.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
         saveBtn = new Button(actionControlComp, SWT.PUSH);
         saveBtn.setText(" Save ");
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                saveSelection(selectName);
-                clearModified();
+                if (haveAllLabels) {
+                    saveSelection(selectName);
+                    clearModified();
+                }
             }
         });
+        saveBtn.setToolTipText(tooltip);
         saveBtn.setEnabled(false);
+        saveBtn.setBackground(color);
 
         saveAsBtn = new Button(actionControlComp, SWT.PUSH);
         saveAsBtn.setText(" Save As... ");
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                handleSaveAsCase();
+                if (haveAllLabels) {
+                    handleSaveAsCase();
+                }
             }
         });
+        saveAsBtn.setToolTipText(tooltip);
+        saveAsBtn.setBackground(color);
 
         loadBtn = new Button(actionControlComp, SWT.PUSH);
         loadBtn.setText(" Load... ");
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                handleLoadCase();
+                if (haveAllLabels) {
+                    handleLoadCase();
+                }
             }
         });
+        loadBtn.setToolTipText(tooltip);
+        loadBtn.setBackground(color);
 
         deleteBtn = new Button(actionControlComp, SWT.PUSH);
         deleteBtn.setText(" Delete... ");
@@ -606,11 +625,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                 public void dialogClosed(Object returnValue) {
                     if (returnValue instanceof String) {
                         String name = returnValue.toString();
-                        loadSelect(name);
-                        populateTableComp();
-                        updateTotals(null);
-                        setSelectName(name);
-                        clearModified();
+                        if (loadSelect(name)) {
+                            populateTableComp();
+                            updateTotals(null);
+                            setSelectName(name);
+                            clearModified();
+                        }
                     }
                 }
             });
@@ -1059,4 +1079,40 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         super.clearModified();
         saveBtn.setEnabled(false);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#haveAllLabels()
+     */
+    @Override
+    public void loadedAllDisplayData() {
+        haveAllLabels = true;
+
+        /*
+         * Restore the buttons' default background color and tooltip text. The
+         * buttons color is not the system standard and the tool tip text
+         * indicates it is waiting for the labels to be loaded.
+         */
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!isDisposed()) {
+                    saveBtn.setBackground(null);
+                    saveBtn.setToolTipText(null);
+                    saveAsBtn.setBackground(null);
+                    saveAsBtn.setToolTipText(null);
+                    loadBtn.setBackground(null);
+                    loadBtn.setToolTipText(null);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected boolean isModified() {
+        return super.isModified();
+    }
+
 }
