@@ -19,10 +19,11 @@
  **/
 package com.raytheon.viz.satellite.inventory;
 
+import java.awt.geom.Rectangle2D;
+
 import org.geotools.coverage.grid.GridEnvelope2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.Envelope2D;
-import org.opengis.geometry.BoundingBox;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
@@ -65,16 +66,46 @@ public class ComparableSatMapCoverage implements
 
     @Override
     public IGridGeometryProvider compare(IGridGeometryProvider other) {
+        if (other.equals(this)) {
+            return this;
+        }
         if (other instanceof ComparableSatMapCoverage) {
             ComparableSatMapCoverage otherCoverage = (ComparableSatMapCoverage) other;
-            if (otherCoverage.getCRS().equals(getCRS())
-                    && otherCoverage.getBoundingBox().intersects(
-                            getBoundingBox())){
-                if(getResolution() > otherCoverage.getResolution()){
+            if (compatibleArea(otherCoverage)) {
+                if (getResolution() > otherCoverage.getResolution()) {
                     return this;
-                }else{
+                } else if (getResolution() < otherCoverage.getResolution()) {
                     return other;
                 }
+                /* Resolutions are the same */
+                Envelope2D env = getEnvelope();
+                Envelope2D otherEnv = otherCoverage.getEnvelope();
+                if (area(env) < area(otherEnv)) {
+                    return this;
+                } else if (area(env) > area(otherEnv)) {
+                    return other;
+                }
+                /* Area is the same. */
+                /*
+                 * there is no meaningful way to pick one so start checking
+                 * meaningless things.
+                 */
+                if (env.x < otherEnv.x) {
+                    return this;
+                } else if (env.x > otherEnv.x) {
+                    return other;
+                }
+                if (env.y < otherEnv.y) {
+                    return this;
+                } else if (env.y > otherEnv.y) {
+                    return other;
+                }
+                if (env.width < otherEnv.width) {
+                    return this;
+                } else if (env.width > otherEnv.width) {
+                    return other;
+                }
+                /* This is nuts, why aren't they equal, give up. */
             }
         }
         return null;
@@ -88,7 +119,24 @@ public class ComparableSatMapCoverage implements
         return coverage.getGridGeometry().getCoordinateReferenceSystem();
     }
 
-    protected BoundingBox getBoundingBox() {
+    protected boolean compatibleArea(ComparableSatMapCoverage other) {
+        if (!other.getCRS().equals(getCRS())) {
+            return false;
+        }
+        Rectangle2D i = other.getEnvelope().createIntersection(getEnvelope());
+        if (i == null || i.isEmpty()) {
+            return false;
+        }
+        /* Intersection must cover at least 25% of area. */
+        double a = area(i) * 4;
+        if (a > area(getEnvelope()) || a > area(other.getEnvelope())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected Envelope2D getEnvelope() {
         return coverage.getGridGeometry().getEnvelope2D();
     }
 
@@ -100,7 +148,7 @@ public class ComparableSatMapCoverage implements
         GridGeometry2D gg = coverage.getGridGeometry();
         Envelope2D e = gg.getEnvelope2D();
         GridEnvelope2D r = gg.getGridRange2D();
-        return (r.width * r.height) / (e.width * e.height);
+        return area(r) / area(e);
     }
 
     @Override
@@ -127,6 +175,10 @@ public class ComparableSatMapCoverage implements
         } else if (!coverage.equals(other.coverage))
             return false;
         return true;
+    }
+
+    private static double area(Rectangle2D r) {
+        return r.getHeight() * r.getWidth();
     }
 
 }
