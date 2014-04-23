@@ -110,6 +110,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 16, 2014 3020       bclement    added check for invited rooms in roomExistsOnServer()
  * Apr 21, 2014 2822       bclement    added hasMultipleHandles()
  * Apr 22, 2014 2903       bclement    added connection test to close method
+ * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * 
  * 
  * </pre>
@@ -225,7 +226,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
         SessionPayload payload = new SessionPayload(PayloadType.Invitation,
                 invite);
         Message msg = new Message();
-        msg.setTo(id.getNormalizedId());
         UserId user = getAccount();
         msg.setFrom(user.getNormalizedId());
         msg.setType(Type.normal);
@@ -236,7 +236,17 @@ public class VenueSession extends BaseSession implements IVenueSession {
         } else if (!StringUtils.isBlank(invite.getSubject())) {
             reason = invite.getSubject();
         }
-        muc.invite(msg, id.getNormalizedId(), reason);
+        muc.invite(msg, formatInviteAddress(id), reason);
+    }
+
+    /**
+     * format invite address for user
+     * 
+     * @param id
+     * @return
+     */
+    protected String formatInviteAddress(UserId id) {
+        return id.getNormalizedId();
     }
 
     /*

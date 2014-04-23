@@ -67,6 +67,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.account.ClientAuthManager
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
@@ -99,6 +100,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 15, 2014 2822       bclement    added check for other participants being subscribed to topic
  * Apr 21, 2014 2822       bclement    removed use of resources in topicSubscribers, added skipCache
  * Apr 22, 2014 2903       bclement    added connection test to closePubSub() method
+ * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * 
  * </pre>
  * 
@@ -798,6 +800,33 @@ public class SharedDisplaySession extends VenueSession implements
                 log.error("Error checking if user is a shared display client",
                         e);
             }
+        }
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession#
+     * formatInviteAddress
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String formatInviteAddress(UserId id) {
+        CollaborationConnection manager = getConnection();
+        ContactsManager cm = manager.getContactsManager();
+        String resource = cm.getSharedDisplayEnabledResource(id);
+        /*
+         * resource will be null if we can't find a resource that supports
+         * shared displays for this user
+         */
+        String rval;
+        if (resource == null) {
+            rval = super.formatInviteAddress(id);
+        } else {
+            UserId newId = new UserId(id.getName(), id.getHost(), resource);
+            rval = newId.getFQName();
         }
         return rval;
     }
