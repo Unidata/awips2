@@ -45,6 +45,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.xmpp.PacketConstants;
 import com.raytheon.uf.common.xmpp.iq.AuthInfo;
 import com.raytheon.uf.common.xmpp.iq.AuthInfoProvider;
+import com.raytheon.uf.viz.collaboration.comm.Activator;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.IAccountManager;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
@@ -113,6 +114,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 14, 2014 2903       bclement    moved from session subpackage to connection, removed password from memory, 
  *                                      moved listeners to own classes, reworked connect/register listeners/login order
  * Apr 15, 2014 2822       bclement    added pubsub owner subscriptions provider registration
+ * Apr 23, 2014 2822       bclement    added resource name and getCollaborationVersion()
  * 
  * </pre>
  * 
@@ -143,6 +145,8 @@ public class CollaborationConnection implements IEventPublisher {
                 PubSubElementType.SUBSCRIPTIONS.getElementName(),
                 PubSubNamespace.OWNER.getXmlns(), new SubscriptionsProvider());
     }
+
+    private static final String RESOURCE_BASENAME = "CAVE";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CollaborationConnection.class);
@@ -303,7 +307,7 @@ public class CollaborationConnection implements IEventPublisher {
     private void loginInternal(String username, String password)
             throws CollaborationException {
         try {
-            connection.login(username, password);
+            connection.login(username, password, getResourceName());
         } catch (XMPPException e) {
             close();
             // get a nice reason for the user
@@ -331,6 +335,28 @@ public class CollaborationConnection implements IEventPublisher {
             /* remove password from smack */
             SmackConfigScrubber.scrubConfig(smackConfig);
         }
+    }
+
+    /**
+     * get name used for CAVE collaboration XMPP resource
+     * 
+     * @return
+     */
+    public static String getResourceName() {
+        String rval = RESOURCE_BASENAME;
+        String version = getCollaborationVersion();
+        if (version != null) {
+            rval += "-" + version;
+        }
+        return rval;
+    }
+
+    /**
+     * @see Activator#getBundleVersion()
+     * @return
+     */
+    public static String getCollaborationVersion() {
+        return Activator.getBundleVersion();
     }
 
     /**
