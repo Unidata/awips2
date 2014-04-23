@@ -31,7 +31,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
-import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
@@ -48,11 +47,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.collections.UpdatingSet;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.IRosterChangeEvent;
-import com.raytheon.uf.viz.collaboration.comm.identity.event.RosterChangeType;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
-import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
 
 /**
  * Manage contacts from local groups and roster on server
@@ -77,6 +73,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.event.RosterChangeEvent;
  * Feb  3, 2014 2699       bclement     fixed assumption that username search was exact
  * Apr 11, 2014 2903       bclement     moved roster listener from collaboration connection to here
  * Apr 16, 2014 2981       bclement     fixed NPE when cached shared group deleted on server
+ * Apr 23, 2014 2822       bclement     moved roster listener to ContactsListener, 
+ *                                      added getSharedDisplayEnabledResource()
  * 
  * </pre>
  * 
@@ -95,6 +93,8 @@ public class ContactsManager {
     private final UserSearch search;
 
     private Map<String, String> localAliases;
+
+    private final ContactsListener contactsListener;
 
     /**
      * Cached view of shared groups list on openfire. Will only reach out to
@@ -133,59 +133,9 @@ public class ContactsManager {
         this.search = connection.createSearch();
         localAliases = UserIdWrapper.readAliasMap();
         this.xmpp = xmpp;
-        final Roster roster = xmpp.getRoster();
-        roster.addRosterListener(new RosterListener() {
-
-            @Override
-            public void presenceChanged(Presence presence) {
-                String fromId = presence.getFrom();
-                UserId u = IDConverter.convertFrom(fromId);
-                if (u != null) {
-                    RosterEntry entry = getRosterEntry(u);
-                    post(entry);
-                    IRosterChangeEvent event = new RosterChangeEvent(
-                            RosterChangeType.PRESENCE, entry, presence);
-                    post(event);
-                }
-            }
-
-            @Override
-            public void entriesUpdated(Collection<String> addresses) {
-                send(addresses, RosterChangeType.MODIFY);
-            }
-
-            @Override
-            public void entriesDeleted(Collection<String> addresses) {
-                send(addresses, RosterChangeType.DELETE);
-            }
-
-            @Override
-            public void entriesAdded(Collection<String> addresses) {
-                send(addresses, RosterChangeType.ADD);
-            }
-
-            /**
-             * Send event bus notification for roster
-             * 
-             * @param addresses
-             * @param type
-             */
-            private void send(Collection<String> addresses,
-                    RosterChangeType type) {
-                for (String addy : addresses) {
-                    RosterEntry entry = roster.getEntry(addy);
-                    if (entry != null) {
-                        IRosterChangeEvent event = new RosterChangeEvent(type,
-                                entry);
-                        post(event);
-                    }
-                }
-            }
-
-            private void post(Object event) {
-                ContactsManager.this.connection.postEvent(event);
-            }
-        });
+        Roster roster = xmpp.getRoster();
+        this.contactsListener = new ContactsListener(this, roster);
+        roster.addRosterListener(this.contactsListener);
     }
 
     /**
@@ -745,6 +695,15 @@ public class ContactsManager {
             }
         }
         return rval;
+    }
+
+    /**
+     * @see ContactsListener#getSharedDisplayEnabledResource(UserId)
+     * @param user
+     * @return
+     */
+    public String getSharedDisplayEnabledResource(UserId user) {
+        return contactsListener.getSharedDisplayEnabledResource(user);
     }
 
     /**
