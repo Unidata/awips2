@@ -51,7 +51,8 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 7, 2012            mschenke     Initial creation
+ * Jun 07, 2012            mschenke    Initial creation
+ * Apr 23, 2014 3060       njensen     Safety checks for SWT widgets disposed
  * 
  * </pre>
  * 
@@ -179,11 +180,14 @@ public class CollaborationPaneManager extends PaneManager {
             setExclude(activeData, true);
             activeData = null;
         }
-        noDisplayLabel.setVisible(true);
-        ((GridData) noDisplayLabel.getLayoutData()).exclude = false;
-        composite.layout();
+        if (!noDisplayLabel.isDisposed() && !composite.isDisposed()) {
+            noDisplayLabel.setVisible(true);
+            ((GridData) noDisplayLabel.getLayoutData()).exclude = false;
+            composite.layout();
+        }
     }
 
+    @Override
     protected void adjustPaneLayout(int paneCount) {
         ;// don't do anything, we always want one pane displayed.
     }
