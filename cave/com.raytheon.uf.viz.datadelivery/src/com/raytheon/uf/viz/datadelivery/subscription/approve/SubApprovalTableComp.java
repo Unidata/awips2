@@ -74,6 +74,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  *                                      denied pending messages.
  * Apr 05, 2013 1841       djohnson     Refresh entire table on receiving a notification of the correct type.
  * Apr 10, 2013 1891       djohnson     Move logic to get column display text to the column definition, fix sorting.
+ * Apr 18, 2014  3012      dhladky      Null check.
  * </pre>
  * 
  * @author lvenable
@@ -270,6 +271,9 @@ public class SubApprovalTableComp extends TableComp {
         SubscriptionApprovalRowData rowData = pendingSubData.getDataRow(table
                 .getSelectionIndex());
 
+        if (rowData == null) {
+            return;
+        }
         // Get the subscription object
         InitialPendingSubscription pendingSub = rowData.getSubscription();
         diffDetails.append("Subscription Name: ")
