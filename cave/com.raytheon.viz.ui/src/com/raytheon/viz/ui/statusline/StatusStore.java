@@ -40,6 +40,8 @@ import com.raytheon.viz.ui.statusline.StatusMessage.Importance;
  * Jul 14, 2008				randerso	Initial creation
  * Sep 12, 2008             wdougherty  Added updateStatusTextI() method
  * Oct 22, 2012 1229        rferrel     Changes for non-blocking ViewMessagesDialog.
+ * Apr 10, 2014 15769       ryu         Resetting parent shell for banners
+ *                                      so they stay on top.
  * 
  * </pre>
  * 
@@ -208,24 +210,22 @@ public class StatusStore {
                 String bannerName = importanceDict.get(importance)
                         .getBannerName();
                 if (bannerName != null) {
+                    Shell shell = null;
+                    Display display = Display.getCurrent();
+                    if (display != null) {
+                        shell = display.getActiveShell();
+                        if (shell == null) {
+                            Shell[] shells = display.getShells();
+                            if (shells != null && shells.length > 0) {
+                                shell = shells[0];
+                            }
+                        }
+                    }
+                    
                     UrgentMessagesDialog umd = dialogDict.get(bannerName);
                     if (umd == null) {
                         // Instantiate an UrgentMessageDialog for this banner
                         // name
-                        Shell shell = null;
-                        Display display = Display.getCurrent();
-                        if (display == null) {
-                            throw new RuntimeException(
-                                    "No current display for status message.");
-                        } else {
-                            shell = display.getActiveShell();
-                            if (shell == null) {
-                                Shell[] shells = display.getShells();
-                                if (shells != null && shells.length > 0) {
-                                    shell = shells[0];
-                                }
-                            }
-                        }
                         if (shell == null) {
                             throw new RuntimeException(
                                     "Unable to obtain a shell for status message.");
@@ -236,6 +236,10 @@ public class StatusStore {
                                         .get(importance).getBannerBgColor());
                         dialogDict.put(bannerName, umd);
                     }
+                    else {
+                        umd.reparent(shell);
+                    }
+                    
                     umd.setBlockOnOpen(false);
                     umd.open();
                     umd.addMessage(message);

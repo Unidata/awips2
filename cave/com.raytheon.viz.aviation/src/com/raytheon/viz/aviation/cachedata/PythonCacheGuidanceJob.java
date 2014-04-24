@@ -22,8 +22,11 @@ package com.raytheon.viz.aviation.cachedata;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import jep.JepException;
 
@@ -56,6 +59,10 @@ import com.raytheon.viz.aviation.monitor.AvnPyUtil;
  *                                      adding dispose listener when not on the
  *                                      UI thread.
  * Aug 26, 2013 #2283      lvenable    Cleaned up some synchronized code.
+ * 09Apr2014    #3005      lvenable    Remove waitMonitor, replaced waitList array with a Set,
+ *                                     updated queueList to be a LinkedHashSet, added a catch
+ *                                     to capture a throwable to prevent the thread from dying
+ *                                     prematurely.
  * 
  * </pre>
  * 
@@ -90,17 +97,12 @@ public class PythonCacheGuidanceJob extends
     /**
      * Current executing thread or null if none pending.
      */
-    private CacheGuidanceRequest request = null;
+    private volatile CacheGuidanceRequest request = null;
 
     /**
-     * List of requests whose results are waiting to be cached.
+     * Set of requests whose results are waiting to be cached.
      */
-    private List<CacheGuidanceRequest> waitList;
-
-    /**
-     * Object to synchronize threads waiting on requests.
-     */
-    private Object waitMonitor;
+    private Set<CacheGuidanceRequest> waitSet;
 
     /**
      * Object to synchronize suspending/restarting the instance of this class.
@@ -146,10 +148,9 @@ public class PythonCacheGuidanceJob extends
     private PythonCacheGuidanceJob(String name) {
         super(name);
         siteObjMaps = new HashMap<String, Map<String, String>>();
-        waitMonitor = new Object();
         suspendMonitor = new Object();
         suspendJob = false;
-        waitList = new ArrayList<CacheGuidanceRequest>();
+        waitSet = new HashSet<CacheGuidanceRequest>();
     }
 
     /**
@@ -202,9 +203,9 @@ public class PythonCacheGuidanceJob extends
      * @param req
      */
     private void waitAdd(CacheGuidanceRequest req) {
-        synchronized (waitMonitor) {
-            if (waitList.contains(req) == false) {
-                waitList.add(req);
+        synchronized (waitSet) {
+            if (waitSet.contains(req) == false) {
+                waitSet.add(req);
             }
         }
     }
@@ -215,9 +216,9 @@ public class PythonCacheGuidanceJob extends
      * @param req
      */
     private void waitRemove(CacheGuidanceRequest req) {
-        synchronized (waitMonitor) {
-            waitList.remove(req);
-            waitMonitor.notify();
+        synchronized (waitSet) {
+            waitSet.remove(req);
+            waitSet.notifyAll();
         }
     }
 
@@ -229,31 +230,21 @@ public class PythonCacheGuidanceJob extends
      */
     private synchronized void addToQueue(
             List<CacheGuidanceRequest> cacheRequests) {
-        ArrayList<CacheGuidanceRequest> queueList = new ArrayList<CacheGuidanceRequest>();
+
+        Set<CacheGuidanceRequest> queueSet = new LinkedHashSet<CacheGuidanceRequest>(
+                cacheRequests);
+
         for (CacheGuidanceRequest req : cacheRequests) {
             waitAdd(req);
         }
 
-        // Get pending request to add after the cacheRequests.
-        while (queue.peek() != null) {
-            CacheGuidanceRequest qReq = queue.poll();
-            if (cacheRequests.contains(qReq) == false) {
-                queueList.add(qReq);
-            }
+        queue.drainTo(queueSet);
+
+        if (request != null) {
+            queueSet.remove(request);
         }
 
-        // Add cache request to head of the queue unless it is the current
-        // request.
-        for (CacheGuidanceRequest req : cacheRequests) {
-            if (req.equals(request) == false) {
-                queue.add(req);
-            }
-        }
-
-        // Queue other pending requests.
-        for (CacheGuidanceRequest qReq : queueList) {
-            queue.add(qReq);
-        }
+        queue.addAll(queueSet);
     }
 
     /**
@@ -266,15 +257,15 @@ public class PythonCacheGuidanceJob extends
         addToQueue(cacheRequests);
         try {
             for (CacheGuidanceRequest req : cacheRequests) {
-                synchronized (waitMonitor) {
-                    while (waitList.contains(req)) {
-                        waitMonitor.wait();
-                        // Notify another waiting thread.
-                        waitMonitor.notify();
+                synchronized (waitSet) {
+                    while (waitSet.contains(req)) {
+                        waitSet.wait();
                     }
                 }
             }
         } catch (InterruptedException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error occurred when requested were being cached...", e);
         }
     }
 
@@ -368,60 +359,60 @@ public class PythonCacheGuidanceJob extends
         }
         try {
             while (shutdown == false) {
-                if (suspendJob == true) {
-                    synchronized (suspendMonitor) {
-                        queue.clear();
-                        siteObjMaps.clear();
-                        suspendMonitor.wait();
-                    }
-                    continue;
-                }
-                if (queue.peek() != null) {
-                    request = queue.poll();
-                    Map<String, Object> args = request.getPythonArguments();
-                    String methodName = request.getGuidanceType()
-                            .getPythonMethod() + "Retrieve";
-                    try {
-                        // long t0 = System.currentTimeMillis();
-                        String result = (String) python.execute(methodName,
-                                args);
-                        // long t1 = System.currentTimeMillis();
-                        String siteID = request.getSiteID();
-                        String tag = request.getTag();
-                        setSiteObj(siteID, tag, result);
-                        // System.out.println("Python cache guidance time: "
-                        // + (t1 - t0) + ", " + siteID + " - " + tag);
-                        waitRemove(request);
-                    } catch (JepException e) {
-                        if (e.getMessage().contains("NoDataException")) {
-                            String msg = e.getMessage().split("'")[3];
-                            statusHandler.handle(Priority.PROBLEM, msg, e);
-                        } else {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    "Error generating guidance", e);
+
+                try {
+                    if (suspendJob == true) {
+                        synchronized (suspendMonitor) {
+                            queue.clear();
+                            siteObjMaps.clear();
+                            suspendMonitor.wait();
                         }
-                    } finally {
-                        request = null;
+                        continue;
                     }
-                } else {
-                    try {
-                        Thread.sleep(20);
-                    } catch (InterruptedException e) {
-                        break;
+                    if (queue.peek() != null) {
+                        request = queue.poll();
+                        Map<String, Object> args = request.getPythonArguments();
+                        String methodName = request.getGuidanceType()
+                                .getPythonMethod() + "Retrieve";
+                        try {
+                            String result = (String) python.execute(methodName,
+                                    args);
+                            String siteID = request.getSiteID();
+                            String tag = request.getTag();
+                            setSiteObj(siteID, tag, result);
+                            waitRemove(request);
+                        } catch (JepException e) {
+                            if (e.getMessage().contains("NoDataException")) {
+                                String msg = e.getMessage().split("'")[3];
+                                statusHandler.handle(Priority.PROBLEM, msg, e);
+                            } else {
+                                statusHandler.handle(Priority.PROBLEM,
+                                        "Error generating guidance", e);
+                            }
+                        } finally {
+                            request = null;
+                        }
+                    } else {
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            break;
+                        }
                     }
+                } catch (Throwable t) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error generating guidance", t);
                 }
             }
-        } catch (InterruptedException e) {
-            // Just go away
         } finally {
             siteObjMaps.clear();
             if (python != null) {
                 python.dispose();
                 python = null;
             }
-            synchronized (waitMonitor) {
-                waitList.clear();
-                waitMonitor.notify();
+            synchronized (waitSet) {
+                waitSet.clear();
+                waitSet.notifyAll();
             }
         }
         return Status.OK_STATUS;
