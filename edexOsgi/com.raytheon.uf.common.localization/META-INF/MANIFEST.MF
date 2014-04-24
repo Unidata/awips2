@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Localization Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.localization
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Require-Bundle: org.apache.commons.lang,
  com.raytheon.uf.common.serialization,
