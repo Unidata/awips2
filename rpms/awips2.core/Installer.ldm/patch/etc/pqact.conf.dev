@@ -538,6 +538,9 @@ ANY	^(ISXA..) (....) (..)(..)(..)
 ANY	^JSXX((0[1-9])|(10)) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex /data_store/bufrascat/(\5:yyyy)(\5:mm)\5/\6/JSXX\1_\4_\5\6\7_(seq).bufr.%Y%m%d%H
 
+ANY	^JSYY(0[1-9]) (....) (..)(..)(..)
+	FILE	-overwrite -close -edex /data_store/bufrascat/(\3:yyyy)(\3:mm)\3/\4/JSYY\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
+
 ANY	^ISXX(..) (....) (..)(..)(..)
 	FILE	-overwrite -close -edex /data_store/bufrquikscat/(\3:yyyy)(\3:mm)\3/\4/ISXX\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
