@@ -35,6 +35,7 @@
 #20130530            2054 rferrel     Minor fix to two grib patterns.
 #20130624            1966 rferrel     The acars pattern changed to place files in the proper subdirectories.
 #                                     Name changes to reflect plugin names for modelsounding, goessounding, poessounding.
+#20140424            3068 dgilling    Add pattern for MetOp-B ASCAT T winds.
 #***************************************************************
 # AWIPS 1 PATTERN GRAPHIC	^[PQ].*				/redbook/Raw
 # PGNA00 KWNS 010001 !redbook 1_1/NMCGPHMCD/MCDSUM/PXSF001CN/20110201 0001
@@ -684,6 +685,10 @@ HDS	^(ISXA..) (.{4}) (..)(..)(..)
 # AWIPS2 distribution file bufrascat.xml: ^JSXX(0[1-9]|10).* 
 HDS	^(JSXX(0[1-9]|10)) (.{4}) (..)(..)(..)
 	FILE	-overwrite -log -close -edex   /data_store/bufrascat/(\4:yyyy)(\4:mm)\4/\5/\1_\3_\4\5\6_(seq).bufr.%Y%m%d%H
+	
+# AWIPS2 distribution file bufrascat.xml: ^JSYY0[1-9].* 
+HDS	^(JSYY0[1-9]) (.{4}) (..)(..)(..)
+	FILE	-overwrite -log -close -edex   /data_store/bufrascat/(\3:yyyy)(\3:mm)\3/\4/\1_\2_\3\4\5_(seq).bufr.%Y%m%d%H
 
 # AWIPS2 distribution file bufrmthdw.xml: ^JUTX(([2-4]1)|53).* 
 HDS	^(JUTX(([2-4]1)|53)) (.{4}) (..)(..)(..)
