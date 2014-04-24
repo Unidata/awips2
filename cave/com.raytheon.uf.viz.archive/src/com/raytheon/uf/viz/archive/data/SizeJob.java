@@ -899,7 +899,7 @@ public class SizeJob extends Job {
         public LoadDisplayDataJob(
                 ILoadDisplayDataListener loadDisplayDataListener,
                 int loadDisplayDataCnt) {
-            super("Loading Category labels");
+            super("Loading Data Sets");
             this.loadDisplayDataListener = loadDisplayDataListener;
             this.loadDisplayDataCnt = loadDisplayDataCnt;
         }
