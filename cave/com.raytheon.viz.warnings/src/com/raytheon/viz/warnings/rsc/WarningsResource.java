@@ -33,12 +33,14 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
@@ -62,6 +64,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                     Removed no longer needed frameAltered. Do not set wire frame for a CAN.
  * Jul 24, 2013 DR16350  mgamazaychikov Fix the problem with plotting EXP warning
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
+ * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
  * </pre>
  * 
  * @author jsanchez
@@ -82,6 +85,7 @@ public class WarningsResource extends AbstractWWAResource {
             }
             for (WarningsResource rsc : rscs) {
                 rsc.issueRefresh();
+                rsc.redoTimeMatching();
             }
         }
 
@@ -357,4 +361,14 @@ public class WarningsResource extends AbstractWWAResource {
         return r.getOfficeid() + '.' + r.getPhensig() + '.' + r.getEtn();
     }
 
+    /**
+     * Redo the time matching
+     */
+    protected void redoTimeMatching() {
+        AbstractTimeMatcher timeMatcher = this.getDescriptor().getTimeMatcher();
+        if (timeMatcher != null) {
+            timeMatcher.redoTimeMatching(this);
+            TimeMatchingJob.scheduleTimeMatch(this.getDescriptor());
+        }
+    }
 }
