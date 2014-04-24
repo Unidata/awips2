@@ -61,6 +61,7 @@ import com.raytheon.uf.edex.ogc.common.db.SimpleLayer;
  * Jul 23, 2013            bclement     Initial creation
  * Aug 08, 2013            dhladky      Made operational
  * Jan 13, 2014  #2679     dhladky      multiple layers
+ * Apr 14, 2014  3012      dhladky      Cleaned up.
  * 
  * </pre>
  * 
@@ -118,7 +119,7 @@ public abstract class RegistryCollectorAddon<D extends SimpleDimension, L extend
 
         final String description = metaData.getDataSetDescription();
         statusHandler.info("Attempting store of DataSetMetaData[" + description
-                + "]");
+                + "] " + "Date: "+metaData.getDate());
 
         try {
             handler.update(metaData);
