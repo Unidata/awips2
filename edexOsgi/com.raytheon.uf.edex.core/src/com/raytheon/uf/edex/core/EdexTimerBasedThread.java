@@ -107,16 +107,18 @@ public abstract class EdexTimerBasedThread implements IContextStateProcessor {
                             "Error occurred during processing", e);
                 }
 
-                try {
-                    /*
-                     * use waiter to allow shutdown to wake thread for immediate
-                     * shutdown
-                     */
-                    synchronized (threads) {
-                        threads.wait(threadSleepInterval);
+                if (running) {
+                    try {
+                        /*
+                         * use waiter to allow shutdown to wake thread for
+                         * immediate shutdown
+                         */
+                        synchronized (threads) {
+                            threads.wait(threadSleepInterval);
+                        }
+                    } catch (InterruptedException e) {
+                        // ignore
                     }
-                } catch (InterruptedException e) {
-                    // ignore
                 }
             }
         } finally {
