@@ -495,7 +495,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         // }
         // });
 
-        String tooltip = "Waiting on loading of table labels.";
+        String tooltip = "Waiting on loading of Data Sets.";
         Color color = shell.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
         saveBtn = new Button(actionControlComp, SWT.PUSH);
         saveBtn.setText(" Save ");
