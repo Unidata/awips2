@@ -111,6 +111,7 @@ import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
  * 01/21/2014   2613       bphillip    Removed verbose log message from removeObjects
  * 2/19/2014    2769       bphillip    Added current time to audit trail events
  * 4/11/2014    3011       bphillip    Modified merge behavior
+ * 4/17/2014    3011       bphillip    Delete slot events now contain strings
  * 
  * 
  * </pre>
@@ -300,6 +301,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
                 event.setObjectType(objectType);
                 EventBus.publish(event);
             }
+            DeleteSlotEvent deleteEvent = new DeleteSlotEvent(obj.getSlot());
+            EventBus.publish(deleteEvent);
             EventBus.publish(new RegistryStatisticsEvent(obj.getObjectType(),
                     obj.getStatus(), obj.getOwner(), avTimePerRecord));
         }
@@ -756,9 +759,8 @@ public class LifecycleManagerImpl implements LifecycleManager {
 
     private void mergeObjects(RegistryObjectType newObject,
             RegistryObjectType existingObject) {
+        DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(existingObject.getSlot());
         registryObjectDao.merge(newObject, existingObject);
-        DeleteSlotEvent deleteSlotEvent = new DeleteSlotEvent(
-                existingObject.getSlot());
         EventBus.publish(deleteSlotEvent);
     }
 
