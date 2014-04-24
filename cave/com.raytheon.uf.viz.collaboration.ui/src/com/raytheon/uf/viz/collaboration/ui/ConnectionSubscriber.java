@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.viz.collaboration.ui;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -71,6 +74,7 @@ import com.raytheon.viz.ui.views.CaveWorkbenchPageManager;
  * Mar 06, 2014 2848      bclement    moved SharedDisplaySessionMgr.joinSession call to InviteDialog
  * Apr 08, 2014 2785      mpduff      removed preference listener
  * Apr 11, 2014 2903      bclement    added disconnect handler
+ * Apr 24, 2014 2955      bclement    ignore duplicate session invites
  * 
  * </pre>
  * 
@@ -90,6 +94,8 @@ public class ConnectionSubscriber {
     private final AwayTimeOut awayTimeOut = new AwayTimeOut();
 
     private final DisconnectHandler disconnect = new DisconnectHandler();
+
+    private final Set<String> pendingInviteDialogs = new HashSet<String>();
 
     private ConnectionSubscriber() {
     }
@@ -178,16 +184,53 @@ public class ConnectionSubscriber {
 
     @Subscribe
     public void handleInvitationEvent(final IVenueInvitationEvent event) {
+        final String roomId = event.getRoomId().getFQName();
+        
         VizApp.runAsync(new Runnable() {
 
             @Override
             public void run() {
-                Shell shell = new Shell(Display.getCurrent());
-                InviteDialog inviteBox = new InviteDialog(shell, event);
-                if (!(Boolean) inviteBox.open()) {
-                    return;
+                if (!invitePending(roomId)) {
+                    try {
+                        Shell shell = new Shell(Display.getCurrent());
+                        InviteDialog inviteBox = new InviteDialog(shell, event);
+                        if ((Boolean) inviteBox.open()) {
+                            /* user accepted invite */
+                            openSession(inviteBox);
+                        }
+                    } finally {
+                        synchronized (pendingInviteDialogs) {
+                            pendingInviteDialogs.remove(roomId);
+                        }
+                    }
+                } else {
+                    statusHandler.debug("Ignoring duplicate session invite: "
+                            + roomId);
                 }
+            }
 
+            /**
+             * @param roomId
+             * @return true if there is already an invitation pending for this
+             *         room
+             */
+            private boolean invitePending(String roomId) {
+                synchronized (pendingInviteDialogs) {
+                    boolean pending = pendingInviteDialogs.contains(roomId);
+                    if (!pending) {
+                        /* immediately set to pending to ignore dup invites */
+                        pendingInviteDialogs.add(roomId);
+                    }
+                    return pending;
+                }
+            }
+
+            /**
+             * Open session view after invite has been accepted
+             * 
+             * @param inviteBox
+             */
+            private void openSession(InviteDialog inviteBox) {
                 try {
                     IVenueSession session = inviteBox.getSession();
                     if (inviteBox.isSharedDisplay()) {
