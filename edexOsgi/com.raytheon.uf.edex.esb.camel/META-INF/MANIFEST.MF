@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Camel Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.esb.camel
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: Raytheon
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.apache.camel;bundle-version="1.0.0",
