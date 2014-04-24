@@ -43,6 +43,8 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.exception.ShutdownException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
@@ -61,7 +63,7 @@ import com.raytheon.uf.edex.database.cluster.handler.SharedLockHandler.LockType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 01, 2014 2862       rferrel     Initial creation
- * 
+ * Apr 24, 2014 2726       rjpeter     Added shutdown cancel
  * </pre>
  * 
  * @author rferrel
@@ -107,7 +109,8 @@ public class ArchivePurgeManager {
      * @param archive
      * @return purgeCount
      */
-    public int purgeExpiredFromArchive(ArchiveConfig archive) {
+    public int purgeExpiredFromArchive(ArchiveConfig archive)
+            throws ShutdownException {
         String archiveRootDirPath = archive.getRootDir();
         File archiveRootDir = new File(archiveRootDirPath);
 
@@ -332,7 +335,9 @@ public class ArchivePurgeManager {
     private int purgeDir(File dir, IOFileFilter defaultTimeFilter,
             Calendar minPurgeTime, Calendar extPurgeTime,
             CategoryFileDateHelper helper, CategoryConfig category,
-            ClusterTask ct) {
+            ClusterTask ct) throws ShutdownException {
+        EDEXUtil.checkShuttingDown();
+
         int purgeCount = 0;
 
         File[] dirFiles = dir.listFiles();
@@ -342,6 +347,7 @@ public class ArchivePurgeManager {
         }
 
         for (File file : dirFiles) {
+            EDEXUtil.checkShuttingDown();
             updateLockTime(ct);
 
             if (!file.isHidden()) {
@@ -408,13 +414,18 @@ public class ArchivePurgeManager {
      * @param fileDataFilter
      * @return purgeCount
      */
-    private int purgeDir(File dir, IOFileFilter fileDataFilter) {
+    private int purgeDir(File dir, IOFileFilter fileDataFilter)
+            throws ShutdownException {
+        EDEXUtil.checkShuttingDown();
+
         int purgeCount = 0;
         File[] dirFiles = dir.listFiles();
         if (dirFiles == null) {
             sendPurgeMessage();
         } else {
             for (File file : dirFiles) {
+                EDEXUtil.checkShuttingDown();
+
                 if (!file.isHidden()) {
                     if (file.isDirectory()) {
                         purgeCount += purgeDir(file, fileDataFilter);
