@@ -64,7 +64,7 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  * Aug 06, 2013 #2222      rferrel      Changes to display all selected data.
  * Aug 14, 2013 #2220      rferrel      Add refresh method.
  * Aug 26, 2013 #2225      rferrel      Add missing updates.
- * Apr 23, 2014 #3045      rferrel      Added clearTable method.
+ * Apr 23, 2014 #3045      rferrel      Added clearTable method and new column name.
  * 
  * </pre>
  * 
@@ -73,12 +73,19 @@ import com.raytheon.uf.viz.archive.data.SizeJob;
  */
 public class ArchiveTableComp extends Composite {
 
+    /** Column label when table displaying category information. */
+    private final String CATEGORY_COL_LABEL = "Data Set";
+
+    /** Column label when table displaying select all information. */
+    private final String SEL_ALL_COL_LABEL = "Archive | Category | Data Set";
+
     /** Column to display label information. */
     private final int LABEL_COL_INDEX = 0;
 
     /** Column to display size information,. */
     private final int SIZE_COL_INDEX = 1;
 
+    /** Flag to indicate all selections are being displayed. */
     private boolean showSelectAll = false;
 
     /** Name of table's archive. */
@@ -207,7 +214,7 @@ public class ArchiveTableComp extends Composite {
         });
 
         TableColumn pathColumn = new TableColumn(table, SWT.LEFT);
-        pathColumn.setText("Label");
+        pathColumn.setText(CATEGORY_COL_LABEL);
 
         TableColumn sizeColumn = new TableColumn(table, SWT.CENTER);
         if (type == Type.Retention) {
@@ -466,7 +473,7 @@ public class ArchiveTableComp extends Composite {
     protected void populateTable(String archiveName, String categoryName,
             List<DisplayData> displayDatas) {
         showSelectAll = false;
-        table.getColumn(0).setText("Label");
+        table.getColumn(0).setText(CATEGORY_COL_LABEL);
         populateTable(displayDatas);
     }
 
@@ -484,7 +491,7 @@ public class ArchiveTableComp extends Composite {
      */
     protected void populateSelectAll(List<DisplayData> displayDatas) {
         showSelectAll = true;
-        table.getColumn(0).setText("Archive | Category | Label");
+        table.getColumn(0).setText(SEL_ALL_COL_LABEL);
         populateTable(displayDatas);
     }
 
