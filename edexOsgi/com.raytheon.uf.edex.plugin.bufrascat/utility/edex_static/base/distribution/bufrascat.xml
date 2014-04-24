@@ -18,6 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    
+    <!--
+        CHANGE HISTORY
+
+        Apr 24, 2014  #3068     dgilling    Update for MetOp-B ASCAT T winds.
+    -->
 <requestPatterns xmlns:ns2="group">
     <regex>^JSXX(0[1-9]|10).*</regex>
+    <regex>^JSYY0[1-9].*</regex>
 </requestPatterns>
