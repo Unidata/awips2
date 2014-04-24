@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.viz.ghg.monitor.GhgDisplayManager;
 import com.raytheon.viz.ghg.monitor.IGhgSelectedTableColumn;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.AlertsEnum;
 import com.raytheon.viz.ghg.monitor.data.GhgConfigData.DataEnum;
@@ -49,6 +48,8 @@ import com.raytheon.viz.ghg.monitor.data.GhgConfigData.SelectionEnum;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 25 MAR 2008  N/A        lvenable    Initial creation
+ * 10 Apr 2014  15769      ryu         Changed isTestData() due to move of identifyTestEvents
+ *                                     to config data.
  * 
  * </pre>
  * 
@@ -439,6 +440,6 @@ public class GhgTableRowData implements Comparable<GhgTableRowData> {
      * @return the testData
      */
     public boolean isTestData() {
-        return GhgDisplayManager.getInstance().isIdentifyTestData();
+        return GhgConfigData.getInstance().isIdentifyTestEvents();
     }
 }
