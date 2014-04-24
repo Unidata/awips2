@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * 05/29/08     #875       bphillip    Initial Creation
  * 06/03/08     #875       bphillip    Added returned fields
  * 09/19/08     #1531      bphillip    Refactored to include join capability
+ * Apr 24, 2014  2060      njensen     Added toString()
  * </pre>
  * 
  * @author bphillip
@@ -675,12 +676,12 @@ public class DatabaseQuery {
                             }
                         }
                     } else if (parameters.get(i).getValue() instanceof List) {
-                        for (int j = 0; j < ((List) parameters.get(i)
+                        for (int j = 0; j < ((List<?>) parameters.get(i)
                                 .getValue()).size(); j++) {
                             queryString.append(QueryUtil.COLON);
                             queryString.append(QueryUtil.QUERY_CONSTRAINT
                                     + constraintIndex++);
-                            if (j != ((List) parameters.get(i).getValue())
+                            if (j != ((List<?>) parameters.get(i).getValue())
                                     .size() - 1) {
                                 queryString.append(QueryUtil.COMMA);
                             }
@@ -951,10 +952,12 @@ public class DatabaseQuery {
             }
 
         } else if (value instanceof List) {
-            for (int j = 0; j < ((List) value).size(); j++) {
-                if (((List) value).get(0) instanceof String) {
-                    ((List) value).add(ConvertUtil.convertObject(
-                            (String) ((List) value).remove(0), returnedClass));
+            for (int j = 0; j < ((List<?>) value).size(); j++) {
+                if (((List<?>) value).get(0) instanceof String) {
+                    ((List) value)
+                            .add(ConvertUtil.convertObject(
+                                    (String) ((List<?>) value).remove(0),
+                                    returnedClass));
                 }
             }
         }
@@ -1039,4 +1042,15 @@ public class DatabaseQuery {
     public void setEntityName(String entityName) {
         this.entityName = entityName;
     }
+
+    @Override
+    public String toString() {
+        return "DatabaseQuery [maxResults=" + maxResults + ", parameters="
+                + parameters + ", distinctParameter=" + distinctParameter
+                + ", returnedFields=" + returnedFields + ", orderFields="
+                + orderFields + ", joinedClasses=" + joinedClasses
+                + ", joinFields=" + joinFields + ", entityName=" + entityName
+                + "]";
+    }
+
 }
