@@ -28,6 +28,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    10/03/13        2424          randerso       Change localTC to use dateutil instead of pytz
 #                                                 to get correct offsets for Alaska
+#    04/17/14        2934          dgilling       Remove alias for TPCSurgeProb D2D database.
 
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
@@ -1107,7 +1108,7 @@ elif SID in CONUS_EAST_SITES:
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1156,7 +1157,7 @@ else:   #######DCS3501 WEST_CONUS
 #DR3511                 'HPCdelta',
                  'GLERL',
                  'WNAWAVE238',
-                 ('TPCSurgeProb','TPCStormSurge'), # DCS3462
+                 'TPCSurgeProb',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
