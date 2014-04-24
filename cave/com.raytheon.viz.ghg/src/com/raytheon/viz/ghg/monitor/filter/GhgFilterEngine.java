@@ -20,6 +20,7 @@
 package com.raytheon.viz.ghg.monitor.filter;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import com.raytheon.uf.common.site.SiteMap;
@@ -43,6 +44,7 @@ import com.raytheon.viz.ghg.monitor.data.GhgDataFilter;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 26May2010               mpduff      Initial creation.
+ * 11Apr2014    15769      ryu         Promote delta minutes if within a few seconds.
  * 
  * </pre>
  * 
@@ -213,10 +215,11 @@ public class GhgFilterEngine {
         long now = SimulatedTime.getSystemTime().getTime().getTime();
 
         // minutes until purge time
-        int deltaP = (int) ((gd.getPurgeDate().getTime() - now) / MILLIS_PER_MINUTE);
+        int margin = 4999; // promote the deltas if within 5 seconds
+        int deltaP = (int) ((gd.getPurgeDate().getTime() - now + margin) / MILLIS_PER_MINUTE);
 
         // minutes until end time
-        int deltaE = (int) ((gd.getEndDate().getTime() - now) / MILLIS_PER_MINUTE);
+        int deltaE = (int) ((gd.getEndDate().getTime() - now + margin) / MILLIS_PER_MINUTE);
 
         long earlierT = Math.min(gd.getPurgeDate().getTime(), gd.getEndDate()
                 .getTime());
