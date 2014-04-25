@@ -5,6 +5,7 @@
   May 07, 2013    #1974    randerso    Removed unnecessary TPCSG_ entries (should only need TPCSG-)
                                        Changed TP_XXX to tpXXX for RFC total precip
   Jul 03, 2013    #2044    randerso    Removed mappings from tpXXX to tp_XXX for RFCQPF
+  Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
  -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="AV">av</alias>
@@ -308,37 +309,6 @@
     <alias base="tp6c8">tp6c8</alias>
     <alias base="TP6mean">tpmean6</alias>
     <alias base="TP6sprd">tpsprd6</alias>
-    <alias base="PSurge0ftRun">PSurge0Ft</alias>
-    <alias base="PSurge1ftRun">PSurge1Ft</alias>
-    <alias base="PSurge4ftRun">PSurge4Ft</alias>
-    <alias base="PSurge5ftRun">PSurge5Ft</alias>
-    <alias base="PSurge6ftRun">PSurge6Ft</alias>
-    <alias base="Surge20pctRun">Surge20Pct</alias>
-    <alias base="PSurge7ftRun">PSurge7Ft</alias>
-    <alias base="PSurge8ftRun">PSurge8Ft</alias>
-    <alias base="PSurge9ftRun">PSurge9Ft</alias>
-    <alias base="PSurge10ftRun">PSurge10Ft</alias>
-    <alias base="Surge30pctRun">Surge30Pct</alias>
-    <alias base="PSurge11ftRun">PSurge11Ft</alias>
-    <alias base="PSurge12ftRun">PSurge12Ft</alias>
-    <alias base="PSurge13ftRun">PSurge13Ft</alias>
-    <alias base="Surge40pctRun">Surge40Pct</alias>
-    <alias base="PSurge14ftRun">PSurge14Ft</alias>
-    <alias base="PSurge15ftRun">PSurge15Ft</alias>
-    <alias base="PSurge16ftRun">PSurge16Ft</alias>
-    <alias base="Surge50pctRun">Surge50Pct</alias>
-    <alias base="PSurge17ftRun">PSurge17Ft</alias>
-    <alias base="PSurge18ftRun">PSurge18Ft</alias>
-    <alias base="PSurge19ftRun">PSurge19Ft</alias>
-    <alias base="PSurge20ftRun">PSurge20Ft</alias>
-    <alias base="PSurge2ftRun">PSurge2Ft</alias>
-    <alias base="PSurge21ftRun">PSurge21Ft</alias>
-    <alias base="PSurge22ftRun">PSurge22Ft</alias>
-    <alias base="PSurge23ftRun">PSurge23Ft</alias>
-    <alias base="PSurge24ftRun">PSurge24Ft</alias>
-    <alias base="PSurge25ftRun">PSurge25Ft</alias>
-    <alias base="PSurge3ftRun">PSurge3Ft</alias>
-    <alias base="Surge10pctRun">Surge10Pct</alias>
     <alias base="TP-ECMWF">tpecmwf</alias>
     <alias base="TPW">tpw</alias>
     <alias base="Tsprd">tsprd</alias>
@@ -373,4 +343,61 @@
     <alias base="WSsprd">wssprd</alias>
     <alias base="wxType">wx</alias>
     <alias base="zAGL">zagl</alias>
+    <alias base="Surge10pctCumul">Surge10Pct</alias>
+    <alias base="Surge20pctCumul">Surge20Pct</alias>
+    <alias base="Surge30pctCumul">Surge30Pct</alias>
+    <alias base="Surge40pctCumul">Surge40Pct</alias>
+    <alias base="Surge50pctCumul">Surge50Pct</alias>
+    <alias base="PSurge0ftCumul">PSurge0Ft</alias>
+    <alias base="PSurge1ftCumul">PSurge1Ft</alias>
+    <alias base="PSurge2ftCumul">PSurge2Ft</alias>
+    <alias base="PSurge3ftCumul">PSurge3Ft</alias>
+    <alias base="PSurge4ftCumul">PSurge4Ft</alias>
+    <alias base="PSurge5ftCumul">PSurge5Ft</alias>
+    <alias base="PSurge6ftCumul">PSurge6Ft</alias>
+    <alias base="PSurge7ftCumul">PSurge7Ft</alias>
+    <alias base="PSurge8ftCumul">PSurge8Ft</alias>
+    <alias base="PSurge9ftCumul">PSurge9Ft</alias>
+    <alias base="PSurge10ftCumul">PSurge10Ft</alias>
+    <alias base="PSurge11ftCumul">PSurge11Ft</alias>
+    <alias base="PSurge12ftCumul">PSurge12Ft</alias>
+    <alias base="PSurge13ftCumul">PSurge13Ft</alias>
+    <alias base="PSurge14ftCumul">PSurge14Ft</alias>
+    <alias base="PSurge15ftCumul">PSurge15Ft</alias>
+    <alias base="PSurge16ftCumul">PSurge16Ft</alias>
+    <alias base="PSurge17ftCumul">PSurge17Ft</alias>
+    <alias base="PSurge18ftCumul">PSurge18Ft</alias>
+    <alias base="PSurge19ftCumul">PSurge19Ft</alias>
+    <alias base="PSurge20ftCumul">PSurge20Ft</alias>
+    <alias base="PSurge21ftCumul">PSurge21Ft</alias>
+    <alias base="PSurge22ftCumul">PSurge22Ft</alias>
+    <alias base="PSurge23ftCumul">PSurge23Ft</alias>
+    <alias base="PSurge24ftCumul">PSurge24Ft</alias>
+    <alias base="PSurge25ftCumul">PSurge25Ft</alias>
+    <alias base="Surge10pct6hr">Surge10Pctincr</alias>
+    <alias base="Surge20pct6hr">Surge20Pctincr</alias>
+    <alias base="Surge30pct6hr">Surge30Pctincr</alias>
+    <alias base="Surge40pct6hr">Surge40Pctincr</alias>
+    <alias base="Surge50pct6hr">Surge50Pctincr</alias>
+    <alias base="PSurge0ft6hr">PSurge0Ftincr</alias>
+    <alias base="PSurge1ft6hr">PSurge1Ftincr</alias>
+    <alias base="PSurge2ft6hr">PSurge2Ftincr</alias>
+    <alias base="PSurge3ft6hr">PSurge3Ftincr</alias>
+    <alias base="PSurge4ft6hr">PSurge4Ftincr</alias>
+    <alias base="PSurge5ft6hr">PSurge5Ftincr</alias>
+    <alias base="PSurge6ft6hr">PSurge6Ftincr</alias>
+    <alias base="PSurge7ft6hr">PSurge7Ftincr</alias>
+    <alias base="PSurge8ft6hr">PSurge8Ftincr</alias>
+    <alias base="PSurge9ft6hr">PSurge9Ftincr</alias>
+    <alias base="PSurge10ft6hr">PSurge10Ftincr</alias>
+    <alias base="PSurge11ft6hr">PSurge11Ftincr</alias>
+    <alias base="PSurge12ft6hr">PSurge12Ftincr</alias>
+    <alias base="PSurge13ft6hr">PSurge13Ftincr</alias>
+    <alias base="PSurge14ft6hr">PSurge14Ftincr</alias>
+    <alias base="PSurge15ft6hr">PSurge15Ftincr</alias>
+    <alias base="PSurge16ft6hr">PSurge16Ftincr</alias>
+    <alias base="PSurge17ft6hr">PSurge17Ftincr</alias>
+    <alias base="PSurge18ft6hr">PSurge18Ftincr</alias>
+    <alias base="PSurge19ft6hr">PSurge19Ftincr</alias>
+    <alias base="PSurge20ft6hr">PSurge20Ftincr</alias>
 </aliasList>
