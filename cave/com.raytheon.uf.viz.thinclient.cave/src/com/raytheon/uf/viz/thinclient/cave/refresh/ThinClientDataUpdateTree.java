@@ -61,6 +61,7 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * ------------ ---------- ----------- --------------------------
  * Dec 13, 2011            bsteffen     Initial creation
  * Feb 21, 2014 DR 16744   D. Friedman  Add radar/grid updates
+ * Apr  1, 2014 DR 17220   D. Friedman Handle uninitialized grid inventory
  * 
  * </pre>
  * 
@@ -138,6 +139,10 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
         Set<AlertMessage> radarMessages = new HashSet<AlertMessage>();
         Map<String, RequestConstraint> metadata = RadarAdapter.getInstance()
                 .getUpdateConstraints();
+        if (metadata == null) {
+            // Can happen if grid inventory has not been initialized
+            return;
+        }
         metadata = new HashMap<String, RequestConstraint>(metadata);
         metadata.put("insertTime", new RequestConstraint(time,
                 ConstraintType.GREATER_THAN));
