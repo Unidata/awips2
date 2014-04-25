@@ -72,11 +72,13 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
 
     public void run() {
         run = true;
-        while (run) {
+
+        // continue as long as there is data in the map
+        while (run || !containerMap.isEmpty()) {
             try {
                 ModelSoundingStorageContainer container = null;
                 synchronized (containerMap) {
-                    while (containerMap.isEmpty() && run) {
+                    while (run && containerMap.isEmpty()) {
                         try {
                             containerMap.wait();
                         } catch (InterruptedException e) {
@@ -201,9 +203,8 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
     @Override
     public void preStop() {
         if (run) {
-            run = false;
-
             synchronized (containerMap) {
+                run = false;
                 containerMap.notifyAll();
 
                 while (!shutdown) {

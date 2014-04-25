@@ -17,11 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.database.processor;
+package com.raytheon.uf.edex.core.exception;
+
+import com.raytheon.uf.edex.core.EdexException;
 
 /**
- * Interface for working with a batched set of results inside a database
- * session. Process will be called for each row.
+ * Exception thrown during shutdown to allow for easy restart of transacted
+ * tasks.
  * 
  * <pre>
  * 
@@ -29,39 +31,41 @@ package com.raytheon.uf.edex.database.processor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 9, 2013  2555       rjpeter     Initial creation.
- * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
+ * Apr 23, 2014 2726       rjpeter     Initial creation
+ * 
  * </pre>
  * 
  * @author rjpeter
  * @version 1.0
  */
+public class ShutdownException extends EdexException {
 
-public interface IDatabaseProcessor<T> {
     /**
-     * Perform any processing on this row.
+     * Default serial verion UID
+     */
+    private static final long serialVersionUID = 1L;
+
+    public ShutdownException() {
+        super("Aborting process, EDEX shutting down");
+    }
+
+    /**
+     * Create a Shutdown Exception instance from only a message
      * 
-     * @param row
-     * @return True if should continue processing, false otherwise.
+     * @param message
      */
-    public boolean process(T row) throws Exception;
+    public ShutdownException(String message) {
+        super(message);
+    }
 
     /**
-     * Perform any post processing if necessary.
-     */
-    public void finish() throws Exception;
-
-    /**
-     * Get the batch size of the query.
+     * Create a Shutdown Exception instance from both a message and a cause
      * 
-     * @return
+     * @param message
+     * @param cause
      */
-    public int getBatchSize();
+    public ShutdownException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    /**
-     * Set the batch size of the query.
-     * 
-     * @param batchSize
-     */
-    public void setBatchSize(int batchSize);
 }
