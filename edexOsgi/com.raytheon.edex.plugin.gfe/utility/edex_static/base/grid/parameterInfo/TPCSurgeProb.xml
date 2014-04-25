@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Oct 03, 2013    #2418    dgilling    Update for pSurge 2.0 data.
+  Mar 20, 2014    #2934    dgilling    Added new parameters for PHISH/pSurge 2.0.
  -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>21600</fcst>
     <fcst>43200</fcst>
     <fcst>64800</fcst>
-    <fcst>75600</fcst>
     <fcst>86400</fcst>
-    <fcst>97200</fcst>
     <fcst>108000</fcst>
     <fcst>129600</fcst>
     <fcst>151200</fcst>
@@ -17,57 +15,95 @@
     <fcst>194400</fcst>
     <fcst>216000</fcst>
     <fcst>237600</fcst>
+    <fcst>259200</fcst>
+    <fcst>280800</fcst>
     <fcst>288000</fcst>
-    <fcst>432000</fcst>
   </valtimeMINUSreftime>
+
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge23Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 23 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge23c</uiname>
-    <valid_range>0.0</valid_range>
+    <short_name>Surge10Pct</short_name>
+    <long_name>Hurricane Storm Surge Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE10pct</uiname>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge20Pct</short_name>
+    <long_name>Hurricane Storm Surge Percentile(20)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE20pct</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge30Pct</short_name>
+    <long_name>Hurricane Storm Surge Percentile(30)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE30pct</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge40Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(40)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
+    <long_name>Hurricane Storm Surge Percentile(40)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
     <uiname>SURGE40pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge21Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 21 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge21c</uiname>
-    <valid_range>0.0</valid_range>
+    <valid_range>-100.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge50Pct</short_name>
+    <long_name>Hurricane Storm Surge Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE50pct</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge25Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 25 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 25 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge25c</uiname>
@@ -81,281 +117,8 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>staticCoriolis</short_name>
-    <long_name>Coriolis parameter</long_name>
-    <units>/s</units>
-    <fillValue>-99999.0</fillValue>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge30Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(30)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE30pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge20Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(20)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE20pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge16Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 16 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge16c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>staticSpacing</short_name>
-    <long_name>Grid spacing</long_name>
-    <units>meters</units>
-    <fillValue>-99999.0</fillValue>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge11Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 11 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge11c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge10Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 10 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge10c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge15Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 15 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge15c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge14Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 14 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge14c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge2Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 2 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge02c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge17Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge17c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge6Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 6 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge06c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge4Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 4 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge04c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge8Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 8 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge08c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge19Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 19 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge19c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>staticTopo</short_name>
-    <long_name>Topography</long_name>
-    <units>meters</units>
-    <fillValue>-99999.0</fillValue>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge18Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 18 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge18c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge50Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(50)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE50pct</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge22Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 22 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge22c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge20Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 20 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge20c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge24Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 24 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 24 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge24c</uiname>
@@ -369,8 +132,165 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge23Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 23 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge23c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge22Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 22 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge22c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge21Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 21 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge21c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC</levelsDesc>
+    <levels>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge20Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 20 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge20c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge19Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 19 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge19c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge18Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 18 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge18c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge17Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge17c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge16Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 16 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge16c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge15Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 15 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge15c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge14Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 14 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge14c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge13Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 13 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 13 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge13c</uiname>
@@ -378,14 +298,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge12Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 12 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 12 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge12c</uiname>
@@ -393,59 +314,47 @@
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge5Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 5 feet</long_name>
+    <short_name>PSurge11Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 11 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
-    <uiname>ProbSurge05c</uiname>
+    <uiname>ProbSurge11c</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge3Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 3 feet</long_name>
+    <short_name>PSurge10Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 10 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
-    <uiname>ProbSurge03c</uiname>
+    <uiname>ProbSurge10c</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>PSurge7Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 7 feet</long_name>
-    <units>%</units>
-    <udunits>percent</udunits>
-    <uiname>ProbSurge07c</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100.0</valid_range>
-    <fillValue>-9999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge9Ft</short_name>
-    <long_name>80 hr Prob of Hurricane Storm Surge &gt; 9 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 9 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge09c</uiname>
@@ -453,24 +362,562 @@
     <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>Surge10Pct</short_name>
-    <long_name>80 hr Hurricane Storm Surge Percentile(10)</long_name>
-    <units>feet</units>
-    <udunits>feet</udunits>
-    <uiname>SURGE10pct</uiname>
+    <short_name>PSurge8Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 8 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge08c</uiname>
     <valid_range>0.0</valid_range>
-    <valid_range>25.0</valid_range>
+    <valid_range>100.0</valid_range>
     <fillValue>-9999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
+      <level>FHAG0</level>
       <level>SFC</level>
     </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge7Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 7 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge07c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge6Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 6 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge06c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge5Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 5 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge05c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge4Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 4 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge04c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge3Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 3 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge03c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge2Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 2 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge02c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge1Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 1 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge01c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge0Ft</short_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 0 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge00c</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge10Pctincr</short_name>
+    <long_name>6 hr Hurricane Storm Surge Percentile(10)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE10pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge20Pctincr</short_name>
+    <long_name>6 hr Hurricane Storm Surge Percentile(20)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE20pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge30Pctincr</short_name>
+    <long_name>6 hr Hurricane Storm Surge Percentile(30)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE30pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge40Pctincr</short_name>
+    <long_name>6 hr Hurricane Storm Surge Percentile(40)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE40pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge50Pctincr</short_name>
+    <long_name>6 hr Hurricane Storm Surge Percentile(50)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE50pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge20Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 20 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge20c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge19Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 19 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge19c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge18Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 18 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge18c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge17Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge17c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge16Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 16 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge16c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge15Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 15 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge15c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge14Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 14 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge14c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge13Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 13 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge13c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge12Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 12 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge12c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge11Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 11 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge11c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge10Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 10 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge10c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge9Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 9 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge09c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge8Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 8 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge08c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge7Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 7 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge07c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge6Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 6 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge06c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge5Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 5 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge05c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge4Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 4 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge04c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge3Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 3 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge03c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge2Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 2 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge02c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge1Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 1 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge01c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>PSurge0Ftincr</short_name>
+    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 0 feet</long_name>
+    <units>%</units>
+    <udunits>percent</udunits>
+    <uiname>ProbSurge00c_incr</uiname>
+    <valid_range>0.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-9999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+    </levels>
+  </gridParameterInfo>
+  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticTopo</short_name>
+    <long_name>Topography</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticCoriolis</short_name>
+    <long_name>Coriolis parameter</long_name>
+    <units>/s</units>
+    <fillValue>-99999.0</fillValue>
+  </gridParameterInfo>
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>staticSpacing</short_name>
+    <long_name>Grid spacing</long_name>
+    <units>meters</units>
+    <fillValue>-99999.0</fillValue>
   </gridParameterInfo>
 </gridParamInfo>
