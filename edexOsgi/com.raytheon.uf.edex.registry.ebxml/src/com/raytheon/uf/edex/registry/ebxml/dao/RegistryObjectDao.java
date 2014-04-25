@@ -22,7 +22,6 @@ package com.raytheon.uf.edex.registry.ebxml.dao;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.RegistryObjectType;
-import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +44,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 7/29/2013    2191       bphillip    Added new methods to support registry synchronization
  * 8/1/2013     1693       bphillip    Added methods to facilitate implementation of the lifecyclemanager according to the 4.0 spec
  * 2/13/2014    2769       bphillip    Added read only flags to query methods
+ * 4/11/2014    3011       bphillip    Changed merge to not delete unused slots
  * 
  * </pre>
  * 
@@ -53,9 +53,6 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  */
 public class RegistryObjectDao extends
         RegistryObjectTypeDao<RegistryObjectType> {
-
-    /** Data access object for accessing slots */
-    private SlotTypeDao slotDao;
 
     /** Delete object type parameterized statement */
     private static final String GET_IDS_BY_OBJECT_TYPE = "SELECT regObj.id FROM RegistryObjectType regObj WHERE regObj.objectType=:objectType";
@@ -85,10 +82,6 @@ public class RegistryObjectDao extends
      */
     public void merge(RegistryObjectType newObject,
             RegistryObjectType existingObject) {
-        // Delete the existing slot to prevent orphans
-        for (SlotType slot : existingObject.getSlot()) {
-            slotDao.delete(slot);
-        }
         newObject.setId(existingObject.getId());
         template.merge(newObject);
     }
@@ -196,10 +189,6 @@ public class RegistryObjectDao extends
     @Override
     protected Class<RegistryObjectType> getEntityClass() {
         return RegistryObjectType.class;
-    }
-
-    public void setSlotDao(SlotTypeDao slotDao) {
-        this.slotDao = slotDao;
     }
 
 }
