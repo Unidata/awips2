@@ -19,6 +19,9 @@
  **/
 package com.raytheon.uf.edex.database;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.net.MalformedURLException;
 import java.util.Set;
 
 import javax.persistence.Embeddable;
@@ -26,8 +29,11 @@ import javax.persistence.Entity;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
 /**
  * Uses the reflections package to find classes on the classpath that match the
@@ -40,7 +46,7 @@ import org.reflections.util.ConfigurationBuilder;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 11, 2013            njensen     Initial creation
- * 
+ * Apr 25, 2014 2995       rjpeter     Updated to scan PLUGINDIR for all files.
  * </pre>
  * 
  * @author njensen
@@ -49,26 +55,59 @@ import org.reflections.util.ConfigurationBuilder;
 
 public class DatabaseClassAnnotationFinder {
 
-    private Set<Class<?>> dbAnnotatedClassSet;
+    private final Set<Class<?>> dbAnnotatedClassSet;
 
-    public DatabaseClassAnnotationFinder(String... packageNames) {
-        dbAnnotatedClassSet = findClasses(packageNames);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(DatabaseClassAnnotationFinder.class);
+
+    public DatabaseClassAnnotationFinder() {
+        dbAnnotatedClassSet = findClasses();
     }
 
     /**
-     * Searches the classpath for classes that will be needed by the database
+     * Searches the plugin dir for classes that will be needed by the database
      * layer.
      * 
-     * @param packageNames
-     *            The start of pacakge names to include, e.g. com.raytheon
      * @return
      */
-    protected Set<Class<?>> findClasses(String... packageNames) {
+    protected Set<Class<?>> findClasses() {
         long t0 = System.currentTimeMillis();
         ConfigurationBuilder cb = new ConfigurationBuilder();
-        for (String pkg : packageNames) {
-            cb.addUrls(ClasspathHelper.forPackage(pkg));
+        File pluginDir = new File(PropertiesFactory.getInstance()
+                .getEnvProperties().getEnvValue("PLUGINDIR"));
+
+        if (!pluginDir.exists()) {
+            throw new AssertionError(
+                    "Cannot find Database classes to load.  PluginDir ["
+                            + pluginDir.getAbsolutePath() + "] does not exist.");
         }
+
+        File[] pluginJarFiles = pluginDir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                if (file.isFile()) {
+                    String name = file.getName();
+                    if (name.endsWith(".jar")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        });
+
+        for (File jarFile : pluginJarFiles) {
+            try {
+                cb.addUrls(jarFile.toURI().toURL());
+            } catch (MalformedURLException e) {
+                statusHandler
+                        .error("Unable to scan jar file ["
+                                + jarFile.getAbsolutePath()
+                                + "] for database annotations.  File will be skipped",
+                                e);
+            }
+        }
+
         cb.setScanners(new TypeAnnotationsScanner());
         Reflections reflecs = cb.build();
         Set<Class<?>> set = reflecs.getTypesAnnotatedWith(Entity.class, false);
