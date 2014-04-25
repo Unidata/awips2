@@ -7,6 +7,7 @@
 ##     UPDATED -- Kurimski 9/17/13 Tor Emer Headline          ##
 ##     UPDATED -- Bookbinder 9/18/13 Implement config.vm      ##
 ##     Mike Dangelo 1/24/2014 added logic to keep defaultCTAs from being used in a TOR EMER (duplication)
+##     Mike Rega 4/23/14 fixed MND blank line in CAN segment  ##
 ################################################################
 ## Commented out Impact statements Feb 2013 and created file to
 ## be parsed into the template called impactStatements.vm
@@ -104,7 +105,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #elseif(${CORCAN}=="true")
 ${ugclinecan}
 /${productClass}.COR.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
@@ -115,7 +115,6 @@ ${area.name}##
 #end
 -##
 #end
-
 #else
 ${ugcline}
 /${productClass}.${action}.${vtecOffice}.${phenomena}.W.${etn}.000000T0000Z-${dateUtil.format(${expire},${timeFormat.ymdthmz})}/
