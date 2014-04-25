@@ -12,15 +12,8 @@
 	<tx:annotation-driven transaction-manager="metadataTxManager"
 		proxy-target-class="true" />
 	
-	<!-- The db class finder will search the packages listed for classes with @Entity or @Embeddable -->	
-	<bean id="dbClassFinder" class="com.raytheon.uf.edex.database.DatabaseClassAnnotationFinder" >
-       <constructor-arg>
-           <list>
-               <value>com.raytheon</value>
-               <value>gov.noaa</value>
-           </list>
-       </constructor-arg>      
-    </bean>
+	<!-- The db class finder will search the plugin dir for classes with @Entity or @Embeddable -->
+	<bean id="dbClassFinder" class="com.raytheon.uf.edex.database.DatabaseClassAnnotationFinder" />
 
 	<bean id="metadataDbSessionConfig"
 		class="com.raytheon.uf.edex.database.DatabaseSessionConfiguration">
