@@ -17,11 +17,16 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.common.registry.constants;
+package com.raytheon.uf.edex.registry.events;
+
+import java.util.List;
+
+import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
+
+import com.raytheon.uf.common.event.Event;
 
 /**
- * 
- * Valid responses from the Registry availability REST service
+ * Event containing slots to be deleted by the registry garbage collector
  * 
  * <pre>
  * 
@@ -29,20 +34,34 @@ package com.raytheon.uf.common.registry.constants;
  * 
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
- * 5/24/2013    2036        bphillip    Initial implementation
- * 9/5/2013     1538        bphillip    Changed status message
+ * 4/11/2014    3011         bphillip    Initial Coding
  * </pre>
  * 
  * @author bphillip
  * @version 1
  */
-public class RegistryAvailability {
+public class DeleteSlotEvent extends Event {
 
-    /** Registry Available */
-    public static final String AVAILABLE = "Registry services available.";
+	private static final long serialVersionUID = -2818002679753482984L;
+	
+	private List<SlotType> slotsToDelete;
+	
+	public DeleteSlotEvent(){
+		super();
+	}
+	
+	public DeleteSlotEvent(List<SlotType> slotsToDelete){
+		this.slotsToDelete = slotsToDelete;
+	}
 
-    /** Registry not available since the database is not yet initialized */
-    public static final String DB_NOT_INITIALIZED = "Registry database and services are currently initializing!";
-    
-    public static final String SYNC_IN_PROGRESS = "Registry currently being synchronized";
+	public List<SlotType> getSlotsToDelete() {
+		return slotsToDelete;
+	}
+
+	public void setSlotsToDelete(List<SlotType> slotsToDelete) {
+		this.slotsToDelete = slotsToDelete;
+	}
+	
+	
+
 }
