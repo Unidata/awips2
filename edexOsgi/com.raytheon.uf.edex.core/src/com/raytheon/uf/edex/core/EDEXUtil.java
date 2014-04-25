@@ -40,6 +40,7 @@ import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.exception.ShutdownException;
 import com.raytheon.uf.edex.core.props.EnvProperties;
 import com.raytheon.uf.edex.core.props.PropertiesFactory;
 
@@ -81,6 +82,17 @@ public class EDEXUtil implements ApplicationContextAware {
     private static final String alertEndpoint = "alertVizNotify";
 
     private static final Object waiter = new Object();
+
+    private static volatile boolean shuttingDown = false;
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                shuttingDown = true;
+            }
+        });
+    }
 
     @Override
     public void setApplicationContext(ApplicationContext context)
@@ -158,6 +170,26 @@ public class EDEXUtil implements ApplicationContextAware {
 
     public static boolean containsESBComponent(String name) {
         return CONTEXT.containsBean(name);
+    }
+
+    /**
+     * True if shutdown has been initiated, false otherwise.
+     * 
+     * @return
+     */
+    public static boolean isShuttingDown() {
+        return shuttingDown;
+    }
+
+    /**
+     * If EDEX is shutting down throws a ShutdownException
+     * 
+     * @throws ShutdownException
+     */
+    public static void checkShuttingDown() throws ShutdownException {
+        if (shuttingDown) {
+            throw new ShutdownException();
+        }
     }
 
     /**
