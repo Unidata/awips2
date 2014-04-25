@@ -22,6 +22,23 @@ package com.raytheon.uf.common.activetable;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
+/**
+ * VTEC Change container for VTECTableChangeNotification
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * 
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Mar 26, 2014            randerso    Initial creation
+ * Mar 25, 2014 #2884      randerso    Added xxxid to VTECChange
+ * 
+ * </pre>
+ * 
+ * @author randerso
+ * @version 1.0
+ */
 @DynamicSerialize
 public class VTECChange {
     @DynamicSerializeElement
@@ -33,13 +50,17 @@ public class VTECChange {
     @DynamicSerializeElement
     private String phensig;
 
+    @DynamicSerializeElement
+    private String xxxid;
+
     public VTECChange() {
     }
 
-    public VTECChange(String site, String pil, String phensig) {
+    public VTECChange(String site, String pil, String phensig, String xxxid) {
         this.site = site;
         this.pil = pil;
         this.phensig = phensig;
+        this.xxxid = xxxid;
     }
 
     public String getSite() {
@@ -54,6 +75,10 @@ public class VTECChange {
         return phensig;
     }
 
+    public String getXxxid() {
+        return xxxid;
+    }
+
     public void setSite(String site) {
         this.site = site;
     }
@@ -66,10 +91,14 @@ public class VTECChange {
         this.phensig = phensig;
     }
 
+    public void setXxxid(String xxxid) {
+        this.xxxid = xxxid;
+    }
+
     @Override
     public String toString() {
-        return String.format("(Site:%s, Pil:%s, PhenSig:%s)", site, pil,
-                phensig);
+        return String.format("(Site:%s, Pil:%s, PhenSig:%s, xxxID:%s)", site,
+                pil, phensig, xxxid);
     }
 
 }
