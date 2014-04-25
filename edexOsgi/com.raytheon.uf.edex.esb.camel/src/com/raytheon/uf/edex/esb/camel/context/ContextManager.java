@@ -155,7 +155,7 @@ public class ContextManager implements ApplicationContextAware,
                 .addAll(ContextDependencyMapping.DEPENDENCY_ENDPOINT_TYPES);
         internalEndpointTypes.add("timer");
         internalEndpointTypes.add("quartz");
-        internalEndpointTypes.add("clusteredquartz");
+        internalEndpointTypes.add("direct");
     }
 
     /**
@@ -343,117 +343,18 @@ public class ContextManager implements ApplicationContextAware,
                         .info("Spring Context not set.  Start up never completed, cannot orderly shutdown");
             }
 
-            statusHandler.info("Context Manager stopping routes");
+            statusHandler.info("Context Manager stopping contexts");
 
             try {
-                /*
-                 * begin immediate shutdown of routes that are not an internal
-                 * type
-                 */
-                LinkedList<Route> routesToStop = new LinkedList<Route>();
                 ContextData ctxData = getContextData();
                 List<CamelContext> contexts = ctxData.getContexts();
                 List<Future<Pair<CamelContext, Boolean>>> callbacks = new LinkedList<Future<Pair<CamelContext, Boolean>>>();
 
                 for (final CamelContext context : contexts) {
-                    /*
-                     * group routes by context due to sync lock at context level
-                     * for stopping a route
-                     */
-                    List<Route> routes = context.getRoutes();
-                    if ((routes != null) && (routes.size() > 0)) {
-                        for (Route route : routes) {
-                            String uri = route.getEndpoint().getEndpointUri();
-                            Pair<String, String> typeAndName = ContextData
-                                    .getEndpointTypeAndName(uri);
-                            String type = typeAndName.getFirst();
-                            if (!internalEndpointTypes.contains(type)) {
-                                routesToStop.add(route);
-                            }
-                        }
-                    }
-                    if (routesToStop.size() > 0) {
-                        final IContextStateManager stateMgr = getStateManager(context);
-                        final List<Route> tmp = routesToStop;
-                        callbacks
-                                .add(service
-                                        .submit(new Callable<Pair<CamelContext, Boolean>>() {
-                                            @Override
-                                            public Pair<CamelContext, Boolean> call()
-                                                    throws Exception {
-                                                boolean rval = true;
-                                                for (Route route : tmp) {
-                                                    try {
-                                                        statusHandler.info("Stopping route ["
-                                                                + route.getId()
-                                                                + "]");
-                                                        rval &= stateMgr
-                                                                .stopRoute(route);
-                                                    } catch (Exception e) {
-                                                        statusHandler.error(
-                                                                "Error occurred closing route: "
-                                                                        + route.getId(),
-                                                                e);
-                                                    }
-                                                }
-
-                                                return new Pair<CamelContext, Boolean>(
-                                                        context, rval);
-                                            }
-                                        }));
-                        routesToStop = new LinkedList<Route>();
-                    }
+                    callbacks.add(service.submit(new StopContext(context)));
                 }
 
                 List<CamelContext> failures = waitForCallbacks(callbacks,
-                        "Waiting for external routes to shutdown: ", 1000);
-
-                for (CamelContext failure : failures) {
-                    statusHandler.error("Context [" + failure.getName()
-                            + "] has routes that failed to stop");
-                }
-
-                statusHandler.info("Shutting down contexts");
-
-                for (final CamelContext context : contexts) {
-                    final IContextStateManager stateManager = getStateManager(context);
-                    if (stateManager.isContextStoppable(context)) {
-                        callbacks
-                                .add(service
-                                        .submit(new Callable<Pair<CamelContext, Boolean>>() {
-                                            @Override
-                                            public Pair<CamelContext, Boolean> call()
-                                                    throws Exception {
-                                                boolean rval = false;
-                                                try {
-                                                    statusHandler.info("Stopping context ["
-                                                            + context.getName()
-                                                            + "]");
-                                                    rval = stateManager
-                                                            .stopContext(context);
-
-                                                    if (!rval) {
-                                                        statusHandler.error("Context ["
-                                                                + context
-                                                                        .getName()
-                                                                + "] failed to stop");
-                                                    }
-                                                } catch (Throwable e) {
-                                                    statusHandler.fatal(
-                                                            "Error occurred stopping context: "
-                                                                    + context
-                                                                            .getName(),
-                                                            e);
-                                                }
-
-                                                return new Pair<CamelContext, Boolean>(
-                                                        context, rval);
-                                            }
-                                        }));
-                    }
-                }
-
-                failures = waitForCallbacks(callbacks,
                         "Waiting for contexts to shutdown: ", 1000);
 
                 for (CamelContext failure : failures) {
@@ -461,8 +362,69 @@ public class ContextManager implements ApplicationContextAware,
                             + "] had a failure trying to stop");
                 }
             } catch (Throwable e) {
-                statusHandler.fatal("Error occurred during shutdown", e);
+                statusHandler.error("Error occurred during shutdown", e);
             }
+        }
+    }
+
+    /**
+     * Private Callable for stopping a context. If context not immediately
+     * stoppable will instead shutdown external routes first.
+     */
+    private class StopContext implements Callable<Pair<CamelContext, Boolean>> {
+        final CamelContext context;
+
+        private StopContext(CamelContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public Pair<CamelContext, Boolean> call() throws Exception {
+            boolean rval = false;
+            IContextStateManager stateManager = getStateManager(context);
+
+            if (stateManager.isContextStoppable(context)) {
+                try {
+                    statusHandler.info("Stopping context [" + context.getName()
+                            + "]");
+                    rval = stateManager.stopContext(context);
+
+                    if (!rval) {
+                        statusHandler.error("Context [" + context.getName()
+                                + "] failed to stop");
+                    }
+                } catch (Throwable e) {
+                    statusHandler.fatal("Error occurred stopping context: "
+                            + context.getName(), e);
+                }
+            } else {
+                /*
+                 * context not immediately stoppable, begin shutting down
+                 * external routes instead
+                 */
+                List<Route> routes = context.getRoutes();
+                rval = true;
+
+                for (Route route : routes) {
+                    String uri = route.getEndpoint().getEndpointUri();
+                    Pair<String, String> typeAndName = ContextData
+                            .getEndpointTypeAndName(uri);
+                    String type = typeAndName.getFirst();
+                    if (!internalEndpointTypes.contains(type)) {
+                        try {
+                            statusHandler.info("Stopping route ["
+                                    + route.getId() + "]");
+                            rval &= stateManager.stopRoute(route);
+                        } catch (Exception e) {
+                            statusHandler.error(
+                                    "Error occurred Stopping route: "
+                                            + route.getId(), e);
+                        }
+                    }
+                }
+            }
+
+            return new Pair<CamelContext, Boolean>(context, rval);
         }
     }
 
