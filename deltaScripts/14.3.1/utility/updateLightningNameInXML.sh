@@ -53,7 +53,6 @@ for f in $files; do
         fi
     else
         echo "ERROR: Problem updating file $f"
-        exit 1
     fi
 done
 
