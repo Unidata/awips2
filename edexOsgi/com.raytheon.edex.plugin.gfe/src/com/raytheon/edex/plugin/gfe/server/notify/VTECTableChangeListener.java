@@ -20,21 +20,26 @@
 package com.raytheon.edex.plugin.gfe.server.notify;
 
 import java.util.List;
+import java.util.Set;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.VTECChange;
 import com.raytheon.uf.common.activetable.VTECTableChangeNotification;
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.DraftProduct;
+import com.raytheon.uf.common.localization.FileUpdatedMessage;
+import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 
 /**
  * Listener to handle VTEC Table Change notifications
@@ -45,7 +50,11 @@ import com.raytheon.uf.common.util.FileUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 5, 2012            randerso     Initial creation
+ * Jun  5, 2012            randerso    Initial creation
+ * Mar 25, 2014 #2884      randerso    Added xxxid to check for disabling drafts
+ *                                     Fixed to work with sites other than the EDEX site
+ *                                     Added work around to Localization not sending
+ *                                     FileUpdatedMessages on EDEX
  * 
  * </pre>
  * 
@@ -65,23 +74,32 @@ public class VTECTableChangeListener {
     }
 
     private void checkDrafts(ActiveTableMode tableName, VTECChange change) {
-        String siteid = change.getSite();
+        String officeId = change.getSite();
         String pil = change.getPil();
+        String xxxid = change.getXxxid();
+        String awipspil = officeId + pil + xxxid; // the KKKKCCCXXX
 
         statusHandler.handle(Priority.EVENTA, "checkDrafts: " + tableName + ":"
-                + siteid + ":" + pil);
+                + awipspil);
         String mode = "Standard";
         if (tableName.equals(ActiveTableMode.PRACTICE)) {
             mode = "PRACTICE";
         }
-        String awipspil = siteid + pil; // only the KKKKCCC
+
+        Set<String> siteList = SiteMap.getInstance()
+                .getSite3LetterIds(officeId);
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext siteContext = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+        LocalizationContext[] contexts = new LocalizationContext[siteList
+                .size()];
+        int i = 0;
+        for (String siteId : siteList) {
+            contexts[i++] = pathMgr.getContextForSite(
+                    LocalizationType.CAVE_STATIC, siteId);
+        }
         String path = FileUtil.join("gfe", "drafts");
-        LocalizationFile[] inv = pathMgr.listFiles(siteContext, path, null,
-                false, true);
+        LocalizationFile[] inv = pathMgr.listFiles(contexts, path, null, false,
+                true);
 
         for (LocalizationFile lf : inv) {
             String[] tokens = lf.getFile().getName().split("-");
@@ -98,19 +116,35 @@ public class VTECTableChangeListener {
 
             boolean markit = false;
 
-            // attempt a match for the pil in the DisableTable of related pils
+            // attempt a match for the pil in the DisableTable of related
+            // pils
             List<String> pils = VTECTableChangeNotification.DisableTable
                     .get(pil);
             if (pils != null) {
-                markit = pils.contains(fpil.substring(4, 7));
-            } else if (awipspil.equals(fpil.substring(0, 7))) {
+                markit = pils.contains(fpil.substring(4, 7))
+                        && xxxid.equals(fpil.substring(7, fpil.length()));
+            } else if (awipspil.equals(fpil)) {
                 markit = true;
-            } else if (siteid.equals("*ALL*")) {
+            } else if (officeId.equals("*ALL*")) {
+                // This is for the clear hazards GUI.
                 markit = true;
             }
 
             if (markit) {
                 markDraft(lf);
+
+                // TODO: remove sending of FileUpdateMessage after DR #2768 is
+                // fixed
+                try {
+                    EDEXUtil.getMessageProducer().sendAsync(
+                            "utilityNotify",
+                            new FileUpdatedMessage(lf.getContext(), lf
+                                    .getName(), FileChangeType.UPDATED, lf
+                                    .getTimeStamp().getTime()));
+                } catch (EdexException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
             }
         }
     }
