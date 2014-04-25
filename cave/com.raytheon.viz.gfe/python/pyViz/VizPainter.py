@@ -21,6 +21,7 @@
 from com.raytheon.uf.viz.core import GraphicsFactory
 from com.raytheon.uf.viz.core.drawables import PaintProperties
 from com.raytheon.viz.core.gl import GLTargetProxy
+from com.raytheon.uf.viz.core.rsc import ResourceProperties
 
 #
 # Base class for Viz painting from python
@@ -32,6 +33,7 @@ from com.raytheon.viz.core.gl import GLTargetProxy
 #    ------------    ----------    -----------    --------------------------
 #    04/01/09                      njensen        Initial Creation.
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
+#    Apr 16, 2014          3039    njensen        Ensure correct ResourceList.add() is used
 #    
 # 
 #
@@ -83,7 +85,7 @@ class VizPainter():
         desc = self.getDescriptor()
         vizResource.setDescriptor(desc)
         vizResource.init(self.target)
-        desc.getResourceList().add(vizResource)
+        desc.getResourceList().add(vizResource, ResourceProperties())
     
     def paint(self, time, canvas=None):
         if type(time) is str:
