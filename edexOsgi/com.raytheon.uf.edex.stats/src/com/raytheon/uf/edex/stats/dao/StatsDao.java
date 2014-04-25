@@ -117,8 +117,7 @@ public class StatsDao extends SessionManagedDao<Integer, StatsRecord> {
             sess = template.getSessionFactory().openStatelessSession();
             // vacuum can't run within a transaction, hack to allow vacuum to
             // run from within hibernate
-            Query query = sess
-                    .createSQLQuery("rollback; VACUUM ANALYZE events.stats");
+            Query query = sess.createSQLQuery("rollback; VACUUM events.stats");
             query.executeUpdate();
             statusHandler.info("stats vacuumed");
         } catch (Exception e) {
