@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.scan.ScanException;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
@@ -140,11 +141,11 @@ public abstract class GridProduct extends ScanProduct {
             String parameter, String levelName, String levelOne, String levelTwo)
             throws ScanException {
         DatabaseQuery dbQuery = new DatabaseQuery(GridRecord.class);
-        dbQuery.addQueryParam("info.datasetId", dataset);
-        dbQuery.addQueryParam("info.parameter.abbreviation", parameter);
-        dbQuery.addQueryParam("info.level.masterLevel.name", levelName);
-        dbQuery.addQueryParam("info.level.levelonevalue", levelOne);
-        dbQuery.addQueryParam("info.level.leveltwovalue", levelTwo);
+        dbQuery.addQueryParam(GridConstants.DATASET_ID, dataset);
+        dbQuery.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, parameter);
+        dbQuery.addQueryParam(GridConstants.MASTER_LEVEL_NAME, levelName);
+        dbQuery.addQueryParam(GridConstants.LEVEL_ONE, levelOne);
+        dbQuery.addQueryParam(GridConstants.LEVEL_TWO, levelTwo);
         dbQuery.addQueryParam("dataTime.refTime", new Date(SimulatedTime
                 .getSystemTime().getMillis()
                 - (interval * TimeUtil.MILLIS_PER_MINUTE)), ">");
@@ -153,7 +154,8 @@ public abstract class GridProduct extends ScanProduct {
         dbQuery.setMaxResults(1);
 
         try {
-            PluginDao dao = PluginFactory.getInstance().getPluginDao("grid");
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(
+                    GridConstants.GRID);
             List<?> list = dao.queryByCriteria(dbQuery);
             GridRecord result = null;
             if (list != null && !list.isEmpty()) {
