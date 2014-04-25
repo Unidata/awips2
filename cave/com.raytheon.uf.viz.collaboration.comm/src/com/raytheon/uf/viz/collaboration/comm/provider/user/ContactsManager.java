@@ -78,6 +78,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationC
  *                                      added getSharedDisplayEnabledResource()
  * Apr 24, 2014 3070       bclement     added checks for empty groups, added isContact(),
  *                                      added sendContactRequest()
+ *                                      fixed contact request logic in addToGroup()
  * 
  * </pre>
  * 
@@ -201,24 +202,14 @@ public class ContactsManager {
         if (group == null) {
             group = createGroup(groupName);
         }
-        String id = user.getNormalizedId();
-        RosterEntry entry = group.getEntry(id);
-        if (entry != null) {
-            if (isBlocked(entry)) {
-                // entry is in roster, but we aren't subscribed. Request a
-                // subscription.
-                try {
-                    connection.getAccountManager().sendPresence(user,
-                            new Presence(Type.subscribe));
-                } catch (CollaborationException e) {
-                    statusHandler.error("Problem subscribing to user", e);
-                }
-            } else {
-                statusHandler
-                        .debug("Attempted to add user to group it was already in: "
-                                + id + " in " + groupName);
+        RosterEntry entry = getRosterEntry(user);
+        if (entry != null && isBlocked(entry)) {
+            /* entry is in roster, but we are blocked */
+            try {
+                sendContactRequest(user);
+            } catch (CollaborationException e) {
+                statusHandler.error("Problem subscribing to user", e);
             }
-            return;
         }
         try {
             addToGroup(group, user);
@@ -227,8 +218,8 @@ public class ContactsManager {
             }
         } catch (XMPPException e) {
             String msg = getGroupModInfo(e);
-            statusHandler.error("Problem adding user to group: " + id + " to "
-                    + group.getName() + ". " + msg, e);
+            statusHandler.error("Problem adding user to group: " + user
+                    + " to " + group.getName() + ". " + msg, e);
         }
     }
 
