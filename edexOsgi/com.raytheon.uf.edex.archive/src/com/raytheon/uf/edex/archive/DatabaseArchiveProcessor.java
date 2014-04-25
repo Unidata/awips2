@@ -59,7 +59,9 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
+import com.raytheon.uf.edex.core.exception.ShutdownException;
 import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
 
@@ -78,6 +80,7 @@ import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
  * Jan 23, 2014 2555       rjpeter     Updated to be a row at a time using ScrollableResults.
  * Feb 04, 2014 2770       rferrel     The dumpPdos now dumps all PluginDataObjects.
  * Feb 12, 2014 2784       rjpeter     Update logging for dup elim scenarios.
+ * Apr 23, 2014 2726       rjpeter     Add shutdown checks to allow for timely shutdown.
  * </pre>
  * 
  * @author rjpeter
@@ -143,7 +146,7 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
      * .util.List)
      */
     @Override
-    public boolean process(T object) {
+    public boolean process(T object) throws ShutdownException {
         if (object != null) {
             if (pdosByFile == null) {
                 pdosByFile = new HashMap<String, List<PersistableDataObject<?>>>(
@@ -191,7 +194,7 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
      * archives any associated hdf5 files.
      */
     @Override
-    public void finish() {
+    public void finish() throws ShutdownException {
         if (entriesInMemory > 0) {
             try {
                 savePdoMap(pdosByFile);
@@ -228,6 +231,7 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
             }
 
             for (String dataStoreFile : datastoreFilesToArchive) {
+                EDEXUtil.checkShuttingDown();
                 IDataStore ds = DataStoreFactory.getDataStore(new File(FileUtil
                         .join(pluginName, dataStoreFile)));
                 // all dataStore files should end with .h5
@@ -346,12 +350,13 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
      * @throws IOException
      */
     protected void savePdoMap(Map<String, List<PersistableDataObject<?>>> pdoMap)
-            throws SerializationException, IOException {
+            throws SerializationException, IOException, ShutdownException {
         StringBuilder baseDir = new StringBuilder(160);
         Set<Object> identifierSet = null;
 
         for (Map.Entry<String, List<PersistableDataObject<?>>> entry : pdoMap
                 .entrySet()) {
+            EDEXUtil.checkShuttingDown();
             baseDir.setLength(0);
             baseDir.append(archivePath).append(File.separator)
                     .append(pluginName).append(File.separator)
@@ -421,10 +426,11 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
     protected List<PersistableDataObject<?>> dupElimPreviousFiles(
             SortedMap<Integer, File> fileMap,
             List<PersistableDataObject<?>> pdos, Set<Object> identifierSet)
-            throws IOException, SerializationException {
+            throws IOException, SerializationException, ShutdownException {
         if (!fileMap.isEmpty()) {
             Iterator<File> fileIter = fileMap.values().iterator();
             while (fileIter.hasNext()) {
+                EDEXUtil.checkShuttingDown();
                 File dataFile = fileIter.next();
                 int dupElimUntil = Integer.MAX_VALUE;
                 FileStatus prevFileStatus = filesCreatedThisSession
