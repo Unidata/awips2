@@ -10,9 +10,7 @@
      
         <route id="textdbsrvXml">
             <from uri="ref:textdbsrvXml_from" />
-            <bean ref="serializationUtil" method="unmarshalFromXml" />
-	    	<bean ref="textdbsrv" method="processMessage" />
-            <bean ref="serializationUtil" method="marshalToXml" />
+            <bean ref="textdbsrv" method="processXmlMessage" />
         </route>
     </camelContext>
 </beans>
