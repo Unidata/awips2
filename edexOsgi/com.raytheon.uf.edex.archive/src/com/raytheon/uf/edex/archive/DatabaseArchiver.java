@@ -38,6 +38,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
@@ -67,6 +68,7 @@ import com.raytheon.uf.edex.database.plugin.PluginFactory;
  * Dec 13, 2013 2555       rjpeter     Refactored logic into DatabaseArchiveProcessor.
  * Feb 12, 2014 2784       rjpeter     Fixed clusterLock to not update the time by default.
  * Apr 01, 2014 2862       rferrel     Add exclusive lock at plug-in level.
+ * Apr 23, 2014 2726       rjpeter     Added shutdown hook for quicker shutdown while archiver is running.
  * </pre>
  * 
  * @author rjpeter
@@ -92,7 +94,7 @@ public class DatabaseArchiver implements IPluginArchiver {
     private static final long MIN_DURATION_MILLIS = 30 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** Maximum time increment to archive, note based off of insertTime. */
-    private static final long MAX_DURATION_MILLIS = 120 * TimeUtil.MILLIS_PER_MINUTE;
+    private static final long MAX_DURATION_MILLIS = 60 * TimeUtil.MILLIS_PER_MINUTE;
 
     /** Default batch size for database queries */
     private static final Integer defaultBatchSize = 10000;
@@ -210,6 +212,10 @@ public class DatabaseArchiver implements IPluginArchiver {
     }
 
     public void archivePluginData(String pluginName, String archivePath) {
+        if (EDEXUtil.isShuttingDown()) {
+            return;
+        }
+
         File archiveDir = new File(archivePath);
         File pluginDir = new File(archiveDir, pluginName);
         ClusterTask ctPlugin = getWriteLock(pluginDir.getAbsolutePath());
@@ -281,8 +287,8 @@ public class DatabaseArchiver implements IPluginArchiver {
             processor.setDebugArchiver(debugArchiver);
             processor.setBatchSize(batchSize.intValue());
 
-            while ((startTime != null) && (endTime != null)
-                    && !processor.isFailed()) {
+            while (!EDEXUtil.isShuttingDown() && (startTime != null)
+                    && (endTime != null) && !processor.isFailed()) {
                 statusHandler.info(pluginName + ": Checking for records from "
                         + TimeUtil.formatDate(startTime) + " to "
                         + TimeUtil.formatDate(endTime));
