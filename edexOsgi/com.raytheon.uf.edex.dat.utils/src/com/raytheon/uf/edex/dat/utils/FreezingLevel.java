@@ -35,6 +35,7 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.DirectPosition2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialObject;
@@ -468,17 +469,18 @@ public class FreezingLevel {
         }
 
         DatabaseQuery dbQuery = new DatabaseQuery(GridRecord.class);
-        dbQuery.addQueryParam("info.datasetId", model);
-        dbQuery.addQueryParam("info.parameter.abbreviation", paramName);
-        dbQuery.addQueryParam("info.level.masterLevel.name", "MB");
-        dbQuery.addQueryParam("info.level.levelonevalue", level);
+        dbQuery.addQueryParam(GridConstants.DATASET_ID, model);
+        dbQuery.addQueryParam(GridConstants.PARAMETER_ABBREVIATION, paramName);
+        dbQuery.addQueryParam(GridConstants.MASTER_LEVEL_NAME, "MB");
+        dbQuery.addQueryParam(GridConstants.LEVEL_ONE, level);
         dbQuery.addQueryParam("dataTime.refTime", refTime);
         dbQuery.addQueryParam("dataTime.fcstTime", 0);
         dbQuery.addOrder("dataTime.refTime", false);
         dbQuery.setMaxResults(1);
 
         try {
-            PluginDao dao = PluginFactory.getInstance().getPluginDao("grid");
+            PluginDao dao = PluginFactory.getInstance().getPluginDao(
+                    GridConstants.GRID);
             List<?> list = dao.queryByCriteria(dbQuery);
             GridRecord result = null;
             if (list != null && !list.isEmpty()) {
