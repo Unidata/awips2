@@ -28,7 +28,7 @@ import org.osgi.framework.BundleContext;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
 /**
- * TODO Add Description
+ * Activator class for the thinclient
  * 
  * <pre>
  * 
@@ -37,7 +37,8 @@ import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 20, 2011            mschenke    Initial creation
- * Mar  3, 2014 2861       mschenke    Create preference store immediately
+ * Mar 03, 2014 2861       mschenke    Create preference store immediately
+ * Apr 25, 2014 2972       njensen     Fixed prefs so thinclient can start
  * 
  * 
  * </pre>
@@ -56,12 +57,17 @@ public class Activator extends AbstractUIPlugin {
 
     private BundleContext ctx;
 
-    // General preference store
-    private IPersistentPreferenceStore prefs = new HierarchicalPreferenceStore(
-            this);
+    /**
+     * General preference store. This must NOT be a HierarchicalPreferenceStore
+     * as those store to the server and this preference store contains the
+     * server addresses.
+     */
+    private ScopedPreferenceStore prefs = new ScopedPreferenceStore(
+            InstanceScope.INSTANCE, PLUGIN_ID);
 
     // Preferences for UI
-    private HierarchicalPreferenceStore uiPrefs;
+    private HierarchicalPreferenceStore uiPrefs = new HierarchicalPreferenceStore(
+            PLUGIN_ID);
 
     private IThinClientComponent component;
 
@@ -78,6 +84,7 @@ public class Activator extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         this.ctx = context;
@@ -95,6 +102,7 @@ public class Activator extends AbstractUIPlugin {
      * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
      * )
      */
+    @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
         super.stop(context);
@@ -121,15 +129,12 @@ public class Activator extends AbstractUIPlugin {
      */
     @Override
     public IPersistentPreferenceStore getPreferenceStore() {
-        if (prefs == null) {
-            prefs = new ScopedPreferenceStore(new InstanceScope(), PLUGIN_ID);
-        }
-
         return prefs;
     }
 
     /**
-     * Get the Ui preference store
+     * Get the UI preference store. This only contains the options for the
+     * refresh intervals that are shown on the preference page.
      * 
      * @return
      */
