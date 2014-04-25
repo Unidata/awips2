@@ -2,11 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Core
 Bundle-SymbolicName: com.raytheon.uf.edex.core
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.core.dataplugin,
+ com.raytheon.uf.edex.core.exception,
  com.raytheon.uf.edex.core.hdf5,
  com.raytheon.uf.edex.core.modes,
  com.raytheon.uf.edex.core.props
