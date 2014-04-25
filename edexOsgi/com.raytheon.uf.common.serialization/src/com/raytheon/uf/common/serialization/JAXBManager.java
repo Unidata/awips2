@@ -58,6 +58,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Sep 30, 2013 2361       njensen      Refactored for cleanliness
  * Nov 14, 2013 2361       njensen      Added lazy init option, improved unmarshal error message
  * Apr 16, 2014 2928       rjpeter      Updated marshalToStream to not close the stream.
+ * Apr 25, 2014 2060       njensen      Improved printout
  * </pre>
  * 
  * @author chammack
@@ -178,9 +179,11 @@ public class JAXBManager {
                 if (jaxbContext == null) {
                     long t0 = System.currentTimeMillis();
                     jaxbContext = JAXBContext.newInstance(clazz);
-                    System.out.println("JAXB context with " + clazz.length
-                            + " classes inited in: "
-                            + (System.currentTimeMillis() - t0));
+                    if (clazz.length == 1) {
+                        System.out.println("JAXB context for "
+                                + clazz[0].getSimpleName() + " inited in: "
+                                + (System.currentTimeMillis() - t0) + "ms");
+                    }
                     clazz = null;
                 }
             }
