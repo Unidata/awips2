@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Auth Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.auth
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.31",
