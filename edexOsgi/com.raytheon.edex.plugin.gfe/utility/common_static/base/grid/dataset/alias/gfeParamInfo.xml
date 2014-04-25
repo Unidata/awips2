@@ -195,4 +195,14 @@
     <alias base="RTOFS-TropPaciLowres">rtofsGlobal</alias>
     <alias base="RTOFS-WestAtl">rtofsGlobal</alias>
     <alias base="RTOFS-WestConus">rtofsGlobal</alias>
+    <alias base="GLOBHwave">GLOBHwave</alias>
+    <alias base="AKHwave10">AKHwave10</alias>
+    <alias base="AKHwave4">AKHwave4</alias>
+    <alias base="WPHwave10">WPHwave10</alias>
+    <alias base="NPHwave15">NPHwave15</alias>
+    <alias base="NPHwave10">NPHwave10</alias>
+    <alias base="NPHwave4">NPHwave4</alias>
+    <alias base="NAHwave15">NAHwave15</alias>
+    <alias base="NAHwave10">NAHwave10</alias>
+    <alias base="NAHwave4">NAHwave4</alias>
 </aliasList>
