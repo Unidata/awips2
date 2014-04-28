@@ -22,33 +22,29 @@ package com.raytheon.uf.edex.datadelivery.harvester.purge;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.SortedSet;
+import java.util.Map;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Ordering;
-import com.google.common.collect.TreeMultimap;
 import com.raytheon.uf.common.datadelivery.harvester.Agent;
 import com.raytheon.uf.common.datadelivery.harvester.CrawlAgent;
 import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfig;
+import com.raytheon.uf.common.datadelivery.harvester.HarvesterConfigurationManager;
+import com.raytheon.uf.common.datadelivery.registry.DataDeliveryRegistryObjectTypes;
 import com.raytheon.uf.common.datadelivery.registry.DataSetMetaData;
-import com.raytheon.uf.common.datadelivery.registry.IDataSetMetaDataVisitor;
-import com.raytheon.uf.common.datadelivery.registry.OpenDapGriddedDataSetMetaData;
 import com.raytheon.uf.common.datadelivery.registry.handlers.DataDeliveryHandlers;
 import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.registry.handler.RegistryHandlerException;
-import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.datadelivery.harvester.crawler.CrawlLauncher;
+import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
  * Purges {@link DataSetMetaData} instances that are no longer accessible on
@@ -66,50 +62,22 @@ import com.raytheon.uf.edex.datadelivery.harvester.crawler.CrawlLauncher;
  * Oct 05, 2012 1241       djohnson     Replace RegistryManager calls with registry handler calls.
  * Dec 12, 2012 1410       dhladky      multi provider configurations.
  * Sept 30, 2013 1797      dhladky      Generics
+ * Apr 12,2014   3012     dhladky      Purge never worked, fixed to make work.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
-        IDataSetMetaDataVisitor {
-
-    /**
-     * Maintains state for an instance of the purge task.
-     */
-    private static class State {
-        /**
-         * This boolean flag is used to mark whether or not the DataSetMetaData
-         * group should be continued, it will be set to false when the purge has
-         * found a DataSetMetaData instance that should NOT be purged
-         */
-        private boolean continueWithDataSet = true;
-
-        /**
-         * The harvester configurations instance at the time the purge started.
-         */
-        private List<HarvesterConfig> harvesterConfigs;
-    }
+public class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataSetMetaDataPurgeTaskImpl.class);
 
-    private static final IOpenDapGriddedPurge GRIDDED_OPENDAP = new OpenDapGriddedPurgeImpl();
 
-    /**
-     * This is the unique identifying key for this metadata's dataset in the
-     * map.
-     * 
-     * @param metaData
-     *            the metaDat
-     * @return the key
-     */
-    @VisibleForTesting
-    static String getDatasetMetaDataMapKey(DataSetMetaData<?> metaData) {
-        return metaData.getDataSetName() + metaData.getProviderName();
-    }
-
+    /** Data access object for registry objects */
+    private RegistryObjectDao rdo;
+    
     /**
      * Purges a {@link DataSetMetaData} instance.
      * 
@@ -133,83 +101,40 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
         }
     }
 
-    private final IOpenDapGriddedPurge openDapGriddedPurge;
-
-    // Used to maintain state on a per-thread basis, in case two purges somehow
-    // overrun each other
-    private final ThreadLocal<State> threadState = new ThreadLocal<State>();
-
     /**
      * Default Constructor.
      */
-    DataSetMetaDataPurgeTaskImpl() {
-        this(GRIDDED_OPENDAP);
+    public DataSetMetaDataPurgeTaskImpl(RegistryObjectDao rdo) {
+        this.rdo = rdo;
     }
-
+  
     /**
-     * Constructor accepting specific purge strategies.
-     * 
-     * @param openDapGriddedPurge
-     *            openDapGriddedPurge
-     * 
-     */
-    @VisibleForTesting
-    DataSetMetaDataPurgeTaskImpl(IOpenDapGriddedPurge openDapGriddedPurge) {
-        this.openDapGriddedPurge = openDapGriddedPurge;
-    }
-
-    /**
-     * Clears the state for a running instance.
-     */
-    private void clearState() {
-        threadState.set(null);
-    }
-
-    /**
-     * Returns all {@link DataSetMetaData} instances that are to be checked for
-     * validity.
-     * 
-     * @return the {@link DataSetMetaData} instances
-     */
-    @SuppressWarnings("rawtypes")
-    @VisibleForTesting
-    List<DataSetMetaData> getDataSetMetaDatas() {
-        try {
-            return DataDeliveryHandlers.getDataSetMetaDataHandler().getAll();
-        } catch (RegistryHandlerException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Unable to retrieve DataSetMetaData instances!", e);
-            return Collections.emptyList();
-        }
-    }
-
-    /**
-     * Creates a map from the DataSetMetaData key as defined by
-     * {@link #getDatasetMetaDataMapKey(DataSetMetaData)} to the
-     * {@link SortedSet} of instances.
+     * Gets the entire list of DSMD ids from the registry.
      * 
      * @return the map
      */
     @VisibleForTesting
-    Multimap<String, DataSetMetaData<?>> getDataSetNameKeyedInstanceMap() {
-        Multimap<String, DataSetMetaData<?>> map = TreeMultimap.create(
-                Ordering.<String> natural(), DataSetMetaData.DATE_COMPARATOR);
-
-        for (DataSetMetaData<?> metaData : getDataSetMetaDatas()) {
-            String key = getDatasetMetaDataMapKey(metaData);
-            map.put(key, metaData);
+    List<String> getDataSetMetaDataIds() {
+        ArrayList<String> ids = null;
+        try {
+            // Gets the list of all available lids for current DataSetMetaData objects
+            ids = (ArrayList<String>) rdo.getRegistryObjectIdsOfType(DataDeliveryRegistryObjectTypes.DATASETMETADATA);
+        } catch (Exception e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to retrieve DataSetMetaData ids!", e);
+            return Collections.emptyList();
         }
 
-        return map;
+        return ids;
     }
 
     /**
-     * Returns the HarvesterConfig Array from localization.
+     * Returns the Retention times by Provider name.
      * 
      * @return the {@link HarvesterConfig}
      */
     @VisibleForTesting
-    List<HarvesterConfig> getHarvesterConfigs() {
+    static Map<String, String> getHarvesterConfigs() {
 
         // first get the Localization directory and find all harvester
         // configs
@@ -220,8 +145,7 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
 
             HarvesterConfig hc = null;
             try {
-                hc = SerializationUtil.jaxbUnmarshalFromXmlFile(
-                        HarvesterConfig.class, lf.getFile());
+                hc = HarvesterConfigurationManager.getHarvesterFile(lf.getFile());
             } catch (Exception se) {
                 statusHandler.handle(Priority.PROBLEM,
                         se.getLocalizedMessage(), se);
@@ -238,102 +162,78 @@ class DataSetMetaDataPurgeTaskImpl implements IDataSetMetaDataPurgeTask,
                 }
             }
         }
+        
+        Map<String, String> configMap = null;
 
-        return configs;
-    }
-
-    /**
-     * This method consolidates the logic of applying a purge strategy for a
-     * specific data type and service (e.g. OpenDAP for Gridded data) on a
-     * specific {@link DataSetMetaData} of that type. The generics ensure strict
-     * adherence to the data type mappings.
-     * 
-     * @param <T>
-     *            the type that extends DataSetMetaData
-     * @param metaData
-     *            the metadata instance
-     * @param purge
-     *            the purge strategy
-     */
-    private <T extends DataSetMetaData<?>> void handleVisit(T metaData,
-            IServiceDataSetMetaDataPurge<T> purge) {
-        State state = threadState.get();
-        List<HarvesterConfig> harvesterConfigs = state.harvesterConfigs;
-
-        for (HarvesterConfig config : harvesterConfigs) {
-
-            if (purge.isTimeToPurge(metaData, config)) {
-                purgeMetaData(metaData);
-            } else {
-                // Found a non-purgeable metadata instance
-                state.continueWithDataSet = false;
-                if (statusHandler.isPriorityEnabled(Priority.DEBUG)) {
-                    final String id = RegistryUtil
-                            .getRegistryObjectKey(metaData);
-                    statusHandler
-                            .debug(String
-                                    .format("Provider: "
-                                            + config.getProvider().getName()
-                                            + " : DataSetMetaData with id [%s] does not require purging.",
-                                            id));
-                }
+        if (!configs.isEmpty()) {
+            configMap = new HashMap<String, String>(
+                    configs.size());
+            for (HarvesterConfig config : configs) {
+                configMap.put(config.getProvider().getName(), config.getRetention());
             }
+        } else {
+            return Collections.emptyMap();
         }
+
+        return configMap;
     }
-
-    /**
-     * Initializes the state for a running instance.
-     * 
-     * @return the State instance
-     */
-    @VisibleForTesting
-    State initializeState() {
-        State state = new State();
-        state.harvesterConfigs = getHarvesterConfigs();
-        threadState.set(state);
-
-        return state;
-    }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
     public void run() {
+
         ITimer timer = TimeUtil.getTimer();
         timer.start();
 
-        Multimap<String, DataSetMetaData<?>> dataSetKeyedMap = getDataSetNameKeyedInstanceMap();
+        List<String> idList = getDataSetMetaDataIds();
+        Map<String, String> configMap = getHarvesterConfigs();
+        int deletes = 0;
+        
+        for (String id : idList) {
 
-        try {
-            State state = initializeState();
+            try {
 
-            for (String key : dataSetKeyedMap.keySet()) {
-                Collection<DataSetMetaData<?>> metaDatas = dataSetKeyedMap
-                        .get(key);
-                Iterator<DataSetMetaData<?>> iter = metaDatas.iterator();
+                DataSetMetaData<?> metaData = DataDeliveryHandlers
+                        .getDataSetMetaDataHandler().getById(id);
+                Integer retention = Integer.valueOf(configMap.get(metaData.getProviderName()));
 
-                state.continueWithDataSet = true;
-                while (iter.hasNext() && state.continueWithDataSet) {
-                    DataSetMetaData<?> metaData = iter.next();
-                    metaData.accept(this);
+                if (retention != null) {
+
+                    if (retention == -1) {
+                        // no purging for this DSMD type
+                        continue;
+                    } else {
+                        // retention is in days
+                        retention = retention * (-1);
+                        // we are subtracting from current
+                        Calendar thresholdTime = TimeUtil.newGmtCalendar();
+                        thresholdTime.add(Calendar.DAY_OF_YEAR, retention);
+
+                        if (thresholdTime.getTimeInMillis() >= metaData
+                                .getDate().getTime()) {
+                            purgeMetaData(metaData);
+                            deletes++;
+                        }
+                    }
+
+                } else {
+                    statusHandler
+                            .warn("No retention time set for this DataSetMetaData provider! "
+                                    + id
+                                    + "Provider: "
+                                    + metaData.getProviderName());
                 }
+
+            } catch (Exception e) {
+                statusHandler.error("DataSetMetaData purge failed! " + id, e);
             }
-        } finally {
-            clearState();
         }
 
         timer.stop();
         statusHandler.info(String.format(
                 "DataSetMetaData purge completed in %s ms.",
-                timer.getElapsedTime()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void visit(OpenDapGriddedDataSetMetaData metaData) {
-        handleVisit(metaData, openDapGriddedPurge);
+                timer.getElapsedTime()+" deleted: "+deletes));
     }
 }
