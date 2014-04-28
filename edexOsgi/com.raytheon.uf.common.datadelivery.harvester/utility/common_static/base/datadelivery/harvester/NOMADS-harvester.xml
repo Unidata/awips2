@@ -28,6 +28,8 @@
 			<url>http://nomads.ncep.noaa.gov:9090/dods/</url>
 		</connection>
 	</provider>
+    <!-- default one week of DataSetMetaData retention -->
+    <retention>7</retention>
 	
 	<agent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="crawlAgent">
 		<crawlDir>/awips2/crawl</crawlDir>
