@@ -51,6 +51,7 @@ from com.raytheon.uf.common.localization import LocalizationContext_Localization
 #                                                 methods where it's needed.
 #    11/07/13        2517          randerso       Allow getLogger to override logLevel
 #    01/22/14/       2504          randerso       Added hostname to log path
+#    04/10/2014      17241         David Gillingham (code checked in by zhao)
 #
 #
 
@@ -297,8 +298,12 @@ def getLogger(scriptName, logName=None, logLevel=logging.INFO):
 
     logFile = os.path.join(logPath, logName)
 
-    if not os.path.exists(logPath):
+    try:
         os.makedirs(logPath)
+    except OSError as e:
+        import errno
+        if e.errno != errno.EEXIST:
+            raise e
 
     theLog = logging.getLogger(scriptName)
     theLog.setLevel(logLevel)
