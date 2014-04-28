@@ -19,6 +19,8 @@
 			<description>MADIS Test LatLon Coverage</description>
 		</projection>
 	</provider>
+    <!-- MADIS doesn't purge Data Set Meta Data -->
+    <retention>-1</retention>
 	<agent xsi:type="ogcAgent" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<dateFormat>HHddMMMyyyy</dateFormat>
 		<layer name="madis-conus" namespace="http://madis.edex.uf.raytheon.com">
