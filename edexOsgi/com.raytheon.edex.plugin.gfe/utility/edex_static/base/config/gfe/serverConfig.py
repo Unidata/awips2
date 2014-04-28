@@ -37,6 +37,7 @@
 #                                                 to get correct offsets for Alaska
 #    01/17/2014          #2719     randerso       Added NHA domain
 #    02/20/2014          #2824     randerso       Added log message when local override files are not found
+#    03/20/2014          #2418     dgilling       Remove unneeded D2D source PHISH.
 #
 ########################################################################
 
@@ -1023,7 +1024,6 @@ D2DDBVERSIONS = {
       "HPCERP": 5,
       "TPCProb": 30,
       "TPCStormSurge": 1,
-      "PHISH": 1,
       "CRMTopo": 1,
       "NED": 1,
       }
@@ -1138,7 +1138,6 @@ elif SID in CONUS_EAST_SITES:
                  'GLERL',
                  'WNAWAVE238',
                  ('TPCSurgeProb','TPCStormSurge'), # DCS3462
-                 'PHISH',
                  'GlobalWave',
                  'EPwave10',
                  'AKwave10',
@@ -1188,7 +1187,6 @@ else:   #######DCS3501 WEST_CONUS
                  'GLERL',
                  'WNAWAVE238',
                  ('TPCSurgeProb','TPCStormSurge'), # DCS3462
-                 'PHISH',
                  'GlobalWave',
                  'EPwave10',
                  'WCwave10',
