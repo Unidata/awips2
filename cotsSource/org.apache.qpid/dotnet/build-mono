@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nant -t:mono-2.0
