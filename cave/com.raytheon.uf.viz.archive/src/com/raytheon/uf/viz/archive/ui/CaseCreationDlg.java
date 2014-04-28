@@ -38,6 +38,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.common.archive.config.ArchiveConstants.Type;
 import com.raytheon.uf.common.archive.config.DisplayData;
@@ -71,6 +73,8 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 24, 2013 #2221      rferrel     Changes for select configuration.
  * Aug 06, 2013 #2222      rferrel     Changes to display all selected data.
  * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
+ * Mar 24, 2014 #2853      rferrel     Populate case label directory with default value.
+ * Mar 26, 2014 32880      rferrerl    Implement case compression and split.
  * 
  * </pre>
  * 
@@ -78,6 +82,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * @version 1.0
  */
 public class CaseCreationDlg extends AbstractArchiveDlg {
+
+    /** The case creation label's default directory. */
+    private final String defaultCaseDir;
 
     /** Start time label. */
     private Label startTimeLbl;
@@ -100,9 +107,8 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     /** Compression check box. */
     private Button compressChk;
 
-    // TODO restore when Multi-file implemented.
-    // /** Break files check box. */
-    // private Button breakFilesChk;
+    /** Break files check box. */
+    private Button breakFilesChk;
 
     /** Button to save new select case configuration. */
     private Button saveAsBtn;
@@ -113,17 +119,14 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     /** Button to delete select case configuration. */
     private Button deleteBtn;
 
-    // TODO restore when Multi-file implemented.
-    // /** File size spinner control. */
-    // private Spinner fileSizeSpnr;
+    /** File size spinner control. */
+    private Spinner fileSizeSpnr;
 
-    // TODO restore when Multi-file implemented.
-    // /** File size combo box. */
-    // private Combo fileSizeCbo;
+    /** File size combo box. */
+    private Combo fileSizeCbo;
 
-    // TODO restore when Multi-file implemented.
-    // /** Maximum file size label. */
-    // private Label maxFileSizeLbl;
+    /** Maximum file size label. */
+    private Label maxFileSizeLbl;
 
     /** Directory location label. */
     private Label locationLbl;
@@ -168,13 +171,14 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
      * @param parentShell
      *            Parent shell.
      */
-    public CaseCreationDlg(Shell parentShell) {
+    public CaseCreationDlg(Shell parentShell, String defaultCaseDir) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.MIN, CAVE.DO_NOT_BLOCK
                 | CAVE.PERSPECTIVE_INDEPENDENT | CAVE.MODE_INDEPENDENT
                 | CAVE.INDEPENDENT_SHELL);
         this.type = Type.Case;
         this.setSelect = false;
         this.type = Type.Case;
+        this.defaultCaseDir = defaultCaseDir;
     }
 
     /*
@@ -372,60 +376,58 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
          */
         compressChk = new Button(compressionComp, SWT.CHECK);
         compressChk.setText("Compress Files");
-        // TODO restore when Multi-file implemented.
-        // compressChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // handleCompressSelection();
-        // }
-        // });
+        compressChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleCompressSelection();
+            }
+        });
 
-        // TODO restore when Multi-file implemented.
-        // gd = new GridData();
-        // gd.horizontalIndent = 20;
-        // breakFilesChk = new Button(compressionComp, SWT.CHECK);
-        // breakFilesChk.setText("Break into multiple files");
-        // breakFilesChk.setLayoutData(gd);
-        // breakFilesChk.setEnabled(false);
-        // breakFilesChk.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // handleBreakFilesSelection(breakFilesChk.getSelection());
-        // }
-        // });
+        gd = new GridData();
+        gd.horizontalIndent = 20;
+        breakFilesChk = new Button(compressionComp, SWT.CHECK);
+        breakFilesChk.setText("Break into multiple files");
+        breakFilesChk.setLayoutData(gd);
+        breakFilesChk.setEnabled(false);
+        breakFilesChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleBreakFilesSelection(breakFilesChk.getSelection());
+            }
+        });
 
-        // Composite maxFileSizeComp = new Composite(compressionComp, SWT.NONE);
-        // gl = new GridLayout(3, false);
-        // gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // gd.horizontalIndent = 20;
-        // maxFileSizeComp.setLayout(gl);
-        // maxFileSizeComp.setLayoutData(gd);
-        //
-        // maxFileSizeLbl = new Label(maxFileSizeComp, SWT.NONE);
-        // maxFileSizeLbl.setText("Max File Size: ");
-        // maxFileSizeLbl.setEnabled(false);
-        //
-        // gd = new GridData(60, SWT.DEFAULT);
-        // fileSizeSpnr = new Spinner(maxFileSizeComp, SWT.BORDER);
-        // fileSizeSpnr.setIncrement(1);
-        // fileSizeSpnr.setPageIncrement(50);
-        // fileSizeSpnr.setMaximum(2000);
-        // fileSizeSpnr.setMinimum(500);
-        // fileSizeSpnr.setLayoutData(gd);
-        // fileSizeSpnr.setEnabled(false);
-        //
-        // fileSizeCbo = new Combo(maxFileSizeComp, SWT.VERTICAL | SWT.DROP_DOWN
-        // | SWT.BORDER | SWT.READ_ONLY);
-        // fileSizeCbo.setEnabled(false);
-        // fileSizeCbo.addSelectionListener(new SelectionAdapter() {
-        // @Override
-        // public void widgetSelected(SelectionEvent e) {
-        // handleFileSizeChangeSelection();
-        // }
-        // });
-        // fileSizeCbo.add("MB");
-        // fileSizeCbo.add("GB");
-        // fileSizeCbo.select(0);
+        Composite maxFileSizeComp = new Composite(compressionComp, SWT.NONE);
+        gl = new GridLayout(3, false);
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalIndent = 20;
+        maxFileSizeComp.setLayout(gl);
+        maxFileSizeComp.setLayoutData(gd);
+
+        maxFileSizeLbl = new Label(maxFileSizeComp, SWT.NONE);
+        maxFileSizeLbl.setText("Max File Size: ");
+        maxFileSizeLbl.setEnabled(false);
+
+        gd = new GridData(60, SWT.DEFAULT);
+        fileSizeSpnr = new Spinner(maxFileSizeComp, SWT.BORDER);
+        fileSizeSpnr.setIncrement(1);
+        fileSizeSpnr.setPageIncrement(50);
+        fileSizeSpnr.setMaximum(2000);
+        fileSizeSpnr.setMinimum(500);
+        fileSizeSpnr.setLayoutData(gd);
+        fileSizeSpnr.setEnabled(false);
+
+        fileSizeCbo = new Combo(maxFileSizeComp, SWT.VERTICAL | SWT.DROP_DOWN
+                | SWT.BORDER | SWT.READ_ONLY);
+        fileSizeCbo.setEnabled(false);
+        fileSizeCbo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handleFileSizeChangeSelection();
+            }
+        });
+        fileSizeCbo.add("MB");
+        fileSizeCbo.add("GB");
+        fileSizeCbo.select(0);
     }
 
     /**
@@ -648,14 +650,9 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         List<DisplayData> displayDatas = getSelectedData();
         boolean doCompress = compressChk.getSelection();
 
-        // TODO restore once Multi-file implemented.
-        // boolean doMultiFiles = breakFilesChk.getSelection();
-        // int compressSize = fileSizeSpnr.getSelection();
-        // String sizeType =
-        // fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex());
-        boolean doMultiFiles = false;
-        int compressSize = 500;
-        String sizeType = "MB";
+        boolean doMultiFiles = breakFilesChk.getSelection();
+        int compressSize = fileSizeSpnr.getSelection();
+        String sizeType = fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex());
 
         setCursorBusy(true);
         if (generateCaseDlg == null || generateCaseDlg.isDisposed()) {
@@ -698,19 +695,18 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
 
     }
 
-    // TODO restore when Multi-file implemented.
-    // /**
-    // * Enable/Disable controls based on the compression check box.
-    // */
-    // private void handleCompressSelection() {
-    // if (compressChk.getSelection()) {
-    // handleBreakFilesSelection(breakFilesChk.getSelection());
-    // } else {
-    // handleBreakFilesSelection(false);
-    // }
-    //
-    // breakFilesChk.setEnabled(compressChk.getSelection());
-    // }
+    /**
+     * Enable/Disable controls based on the compression check box.
+     */
+    private void handleCompressSelection() {
+        if (compressChk.getSelection()) {
+            handleBreakFilesSelection(breakFilesChk.getSelection());
+        } else {
+            handleBreakFilesSelection(false);
+        }
+
+        breakFilesChk.setEnabled(compressChk.getSelection());
+    }
 
     /**
      * Bring up modal dialog to get the case's directory name.
@@ -749,18 +745,17 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         }
     }
 
-    // TODO restore when Multi-file implemented.
-    // /**
-    // * Enable/Disable file size controls.
-    // *
-    // * @param enabled
-    // * Enabled flag.
-    // */
-    // private void handleBreakFilesSelection(boolean enabled) {
-    // maxFileSizeLbl.setEnabled(enabled);
-    // fileSizeSpnr.setEnabled(enabled);
-    // fileSizeCbo.setEnabled(enabled);
-    // }
+    /**
+     * Enable/Disable file size controls.
+     * 
+     * @param enabled
+     *            Enabled flag.
+     */
+    private void handleBreakFilesSelection(boolean enabled) {
+        maxFileSizeLbl.setEnabled(enabled);
+        fileSizeSpnr.setEnabled(enabled);
+        fileSizeCbo.setEnabled(enabled);
+    }
 
     /**
      * Enables the generate button will user has entered all needed elements.
@@ -772,36 +767,35 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         }
     }
 
-    // TODO restore when Multi-file implemented.
-    // /**
-    // * Action performed when the file size has changed.
-    // */
-    // private void handleFileSizeChangeSelection() {
-    // /*
-    // * If the same item was selected just return.
-    // */
-    // if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals(
-    // (String) fileSizeCbo.getData())) {
-    // return;
-    // }
-    //
-    // if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals("MB")) {
-    // fileSizeSpnr.setIncrement(1);
-    // fileSizeSpnr.setPageIncrement(50);
-    // fileSizeSpnr.setMaximum(2000);
-    // fileSizeSpnr.setMinimum(500);
-    // fileSizeSpnr.setSelection(500);
-    // } else {
-    // fileSizeSpnr.setIncrement(1);
-    // fileSizeSpnr.setPageIncrement(5);
-    // fileSizeSpnr.setMinimum(1);
-    // fileSizeSpnr.setMaximum(10);
-    // fileSizeSpnr.setSelection(1);
-    // }
-    //
-    // fileSizeCbo
-    // .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
-    // }
+    /**
+     * Action performed when the file size has changed.
+     */
+    private void handleFileSizeChangeSelection() {
+        /*
+         * If the same item was selected just return.
+         */
+        if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals(
+                (String) fileSizeCbo.getData())) {
+            return;
+        }
+
+        if (fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()).equals("MB")) {
+            fileSizeSpnr.setIncrement(1);
+            fileSizeSpnr.setPageIncrement(50);
+            fileSizeSpnr.setMaximum(2000);
+            fileSizeSpnr.setMinimum(500);
+            fileSizeSpnr.setSelection(500);
+        } else {
+            fileSizeSpnr.setIncrement(1);
+            fileSizeSpnr.setPageIncrement(5);
+            fileSizeSpnr.setMinimum(1);
+            fileSizeSpnr.setMaximum(10);
+            fileSizeSpnr.setSelection(1);
+        }
+
+        fileSizeCbo
+                .setData(fileSizeCbo.getItem(fileSizeCbo.getSelectionIndex()));
+    }
 
     /**
      * Display the directory browser dialog.
@@ -810,6 +804,15 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         DirectoryDialog dlg = new DirectoryDialog(shell, SWT.OPEN);
         dlg.setText("Case Location");
         String dirName = dlg.open();
+        updateLocationLbl(dirName);
+    }
+
+    /**
+     * Update the case label and fields dependent on the change.
+     * 
+     * @param dirName
+     */
+    private void updateLocationLbl(String dirName) {
         if (dirName != null) {
             locationLbl.setText(trimDirectoryName(dirName));
             locationLbl.setToolTipText(dirName);
@@ -1008,5 +1011,27 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     public void clearModified() {
         super.clearModified();
         saveBtn.setEnabled(false);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
+     */
+    @Override
+    protected void opened() {
+        super.opened();
+        File caseDir = new File(defaultCaseDir);
+        if (caseDir.isDirectory()) {
+            updateLocationLbl(defaultCaseDir);
+        } else {
+            MessageDialog
+                    .openError(
+                            shell,
+                            "Error",
+                            String.format(
+                                    "Unable to find Case Location directory:\n%s\nMay need to mount the directory.",
+                                    defaultCaseDir));
+        }
     }
 }
