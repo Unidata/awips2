@@ -311,9 +311,11 @@ public class ListSelectionDlg extends CaveSWTDialog {
      */
     private void action() {
 
-        int choice = displayConfirmationBox();
-        if (choice == SWT.CANCEL) {
-            return;
+        if (selectList.getSelectionCount() == 0) {
+            int choice = displayConfirmationBox();
+            if (choice == SWT.CANCEL) {
+                return;
+            }
         }
 
         if (returnAsArray == ReturnArray.ARRAY_STRING_ITEMS) {
