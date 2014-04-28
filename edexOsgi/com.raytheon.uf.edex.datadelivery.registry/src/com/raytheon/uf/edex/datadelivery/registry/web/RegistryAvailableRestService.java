@@ -65,11 +65,14 @@ public class RegistryAvailableRestService implements
     @GET
     @Produces("text/plain")
     public String isRegistryAvailable() {
-        if (DbInit.isDbInitialized()
-                && RegistryFederationManager.initialized.get()) {
-            return RegistryAvailability.AVAILABLE;
-        } else {
-            return RegistryAvailability.DB_NOT_INITIALIZED;
+        if (DbInit.isDbInitialized()) {
+            if (RegistryFederationManager.initialized.get()) {
+                if(RegistryFederationManager.SYNC_IN_PROGRESS.get()){
+                    return RegistryAvailability.SYNC_IN_PROGRESS;
+                }
+                return RegistryAvailability.AVAILABLE;
+            }
         }
+        return RegistryAvailability.DB_NOT_INITIALIZED;
     }
 }
