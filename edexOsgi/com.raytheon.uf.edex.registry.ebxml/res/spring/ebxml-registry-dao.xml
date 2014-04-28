@@ -28,7 +28,6 @@
 	<bean id="registryObjectDao"
 		class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao">
 		<property name="sessionFactory" ref="metadataSessionFactory" />
-		<property name="slotDao" ref="slotTypeDao" />
 	</bean>
 
 	<bean id="registryDao" class="com.raytheon.uf.edex.registry.ebxml.dao.RegistryDao">
