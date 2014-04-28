@@ -118,6 +118,7 @@ import com.raytheon.uf.edex.decodertools.time.TimeTools;
  *                                     data can be posted to appropriate pe-based tables only if the data 
  *                                     type is not READING like in A1 code.
  * 02/18/2014   16572      l. Bousaidi only apply adjust factor to non missing values.
+ * 04/24/2014   16904      lbousaidi   gross check should be applied to adjusted value.  
  * 04/29/2014   3088       mpduff      Change logging class, clean up/optimization.
  *                                     Updated with more performance fixes.
  * 05/28/2014   3222       mpduff      Fix posting time to be processed time so db doesn't show all post times the same
@@ -743,6 +744,8 @@ public class PostShef {
                 if (!dataValue.equals(ShefConstants.SHEF_MISSING)) {
                     adjustRawValue(locId, data);
                 }
+
+            dataValue = data.getStringValue();
                 /*
                  * multiply non-missing values of discharge values and
                  * unspecified height values by 1000 to change units
