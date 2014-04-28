@@ -43,6 +43,7 @@ import com.raytheon.viz.mpe.ui.dialogs.RadarBiasTableDialog;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 15, 2009            snaples     Initial creation
+ * Apr 04, 2014  17223     snaples     Updated get_rfc_bias to properly update and return values to calling procedure.    
  * 
  * </pre>
  * 
@@ -161,8 +162,8 @@ public class ReadBiasTableParam {
         return coefs;
     }
 
-    public static int get_rfc_bias_value(String rid, String office_id,
-            float pBias) {
+    public static int get_rfc_bias_value(String rid, String[] oid,
+            Float[] pBias) {
         String pFxaLocalSite = appsDefaults.getToken("fxa_local_site");
         String where = "";
         int bias_found = 0;
@@ -174,7 +175,6 @@ public class ReadBiasTableParam {
         String pRadarLoc = "";
         Rwbiasstat pRWBiasStat = new Rwbiasstat();
         Rwbiasdyn pRWBiasDynNode = new Rwbiasdyn();
-
         length = pFxaLocalSite.length();
 
         if (length > 0) {
@@ -219,8 +219,8 @@ public class ReadBiasTableParam {
                              * this does not exist, then set the bias to 1.
                              */
                             bias_found = 1;
-                            pBias = 1.00f;
-                            office_id = pRadarLoc;
+                            pBias[0] = 1.00f;
+                            oid[0] = pRadarLoc;
 
                             ListIterator<Rwbiasdyn> li = pRWBiasDynList
                                     .listIterator();
@@ -230,7 +230,7 @@ public class ReadBiasTableParam {
 
                                 if (pRWBiasDynNode.getNumpairs() >= pRWBiasStat
                                         .getNpairBiasSelect()) {
-                                    pBias = pRWBiasDynNode.getBias();
+                                    pBias[0] = pRWBiasDynNode.getBias();
                                     break;
                                 }
                             }
