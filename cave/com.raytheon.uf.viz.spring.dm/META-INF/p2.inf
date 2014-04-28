@@ -1,3 +1,0 @@
-instructions.configure = \
-       setStartLevel(startLevel:0);\
-       markStarted(started: true);
