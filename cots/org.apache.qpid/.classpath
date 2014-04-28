@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="qpid-client-0.18.jar" sourcepath="qpid-client-0.18-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="qpid-common-0.18.jar" sourcepath="qpid-common-0.18-sources.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
