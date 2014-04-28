@@ -1,4 +1,0 @@
-## The standard template gets all of its behavior from VM_global_library macros
-#if($mode == "select")
-#standardSelect($scriptLibrary $maxRecords $scriptMetadata false)
-#end
