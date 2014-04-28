@@ -73,13 +73,9 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
 
         Set<SatelliteRecord> base = findBaseRecords(requestableData);
         Set<String> creatingEntities = new HashSet<String>();
-        int interpolationLevels = 1;
         for (SatelliteRecord record : base) {
             creatingEntities.add(record.getCreatingEntity());
-            interpolationLevels = Math.max(interpolationLevels,
-                    record.getInterpolationLevels());
         }
-        setInterpolationLevels(interpolationLevels);
         if (creatingEntities.size() == 1) {
             setCreatingEntity(creatingEntities.iterator().next());
         } else {
@@ -92,6 +88,10 @@ public class DerivedSatelliteRecord extends SatelliteRecord {
             setCoverage(((ComparableSatMapCoverage) requestableData.getSpace())
                     .getCoverage());
         }
+        Rectangle[] levels = GridDownscaler
+                .getDownscaleSizes(getGridGeometry());
+        setInterpolationLevels(levels.length - 1);
+
     }
 
     /**
