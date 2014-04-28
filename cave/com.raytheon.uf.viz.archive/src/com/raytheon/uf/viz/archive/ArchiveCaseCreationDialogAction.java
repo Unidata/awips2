@@ -25,7 +25,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
-import com.raytheon.uf.common.archive.request.ArchiveAdminAuthRequest;
+import com.raytheon.uf.common.archive.request.ArchiveCaseCreationAuthRequest;
 import com.raytheon.uf.common.auth.user.IUser;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -56,7 +56,11 @@ public class ArchiveCaseCreationDialogAction extends AbstractHandler {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ArchiveCaseCreationDialogAction.class);
 
+    /** Dialog to display */
     private CaseCreationDlg dialog;
+
+    /** Default case directory location. */
+    private String caseDir;
 
     /** Case Administration permission */
     private final String PERMISSION = "archive.casecreation";
@@ -74,7 +78,7 @@ public class ArchiveCaseCreationDialogAction extends AbstractHandler {
             if (dialog == null || dialog.isDisposed()) {
                 Shell shell = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow().getShell();
-                dialog = new CaseCreationDlg(shell);
+                dialog = new CaseCreationDlg(shell, caseDir);
                 dialog.open();
             } else {
                 dialog.bringToTop();
@@ -93,16 +97,25 @@ public class ArchiveCaseCreationDialogAction extends AbstractHandler {
         IUser user = UserController.getUserObject();
         String msg = user.uniqueId()
                 + " does not have permission to access archive case creation dialog.";
-        ArchiveAdminAuthRequest request = new ArchiveAdminAuthRequest();
+        ArchiveCaseCreationAuthRequest request = new ArchiveCaseCreationAuthRequest();
         request.setRoleId(PERMISSION);
         request.setNotAuthorizedMessage(msg);
         request.setUser(user);
 
         try {
             Object o = ThriftClient.sendPrivilegedRequest(request);
-            if (o instanceof ArchiveAdminAuthRequest) {
-                ArchiveAdminAuthRequest r = (ArchiveAdminAuthRequest) o;
-                return r.isAuthorized();
+            if (o instanceof ArchiveCaseCreationAuthRequest) {
+                ArchiveCaseCreationAuthRequest r = (ArchiveCaseCreationAuthRequest) o;
+                if (r.isAuthorized()) {
+                    this.caseDir = r.getCaseDirectory();
+                    return true;
+                }
+            } else {
+                statusHandler
+                        .handle(Priority.ERROR,
+                                String.format(
+                                        "Cannot validate user expected response type ArchiveCaseCreationAuthRequest, received %s",
+                                        o.getClass().getName()));
             }
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);

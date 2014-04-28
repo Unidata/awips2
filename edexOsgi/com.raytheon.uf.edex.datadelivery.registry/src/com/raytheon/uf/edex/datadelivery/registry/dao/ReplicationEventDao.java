@@ -53,8 +53,8 @@ public class ReplicationEventDao extends
     }
 
     @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
-    public List<ReplicationEvent> getReplicationEvents(String remoteRegistry) {
+    public List<ReplicationEvent> getReplicationEvents(String remoteRegistry, int batchSize) {
         return this.executeHQLQuery(String.format(GET_REPLICATION_EVENT_QUERY,
-                remoteRegistry, remoteRegistry));
+                remoteRegistry, remoteRegistry),batchSize);
     }
 }
