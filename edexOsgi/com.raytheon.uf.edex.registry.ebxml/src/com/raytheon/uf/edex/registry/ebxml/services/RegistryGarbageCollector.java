@@ -27,10 +27,15 @@ import oasis.names.tc.ebxml.regrep.xsd.rim.v4.AuditableEventType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.eventbus.Subscribe;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.TimeUtil;
+import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.AuditableEventTypeDao;
+import com.raytheon.uf.edex.registry.ebxml.dao.SlotTypeDao;
 import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
+import com.raytheon.uf.edex.registry.events.DeleteSlotEvent;
 
 /**
  * 
@@ -49,6 +54,7 @@ import com.raytheon.uf.edex.registry.ebxml.exception.EbxmlRegistryException;
  * 1/15/2014    2613        bphillip    Added Hibernate flush() call
  * 2/4/2014     2769        bphillip    Removed flush and clear call
  * 2/13/2014    2769        bphillip    Refactored to no longer use executor threads
+ * 4/11/2014    3011        bphillip    Added slot purging via event bus notifications
  * </pre>
  * 
  * @author bphillip
@@ -68,6 +74,8 @@ public class RegistryGarbageCollector {
     /** Data access object for AuditableEventType */
     private AuditableEventTypeDao eventDao;
 
+    private SlotTypeDao slotDao;
+
     /** The number of events to delete per batch */
     private static final int DELETE_BATCH_SIZE = 100;
 
@@ -85,9 +93,11 @@ public class RegistryGarbageCollector {
      * @param eventDao
      *            The auditable event dao to use
      */
-    public RegistryGarbageCollector(AuditableEventTypeDao eventDao) {
+    public RegistryGarbageCollector(AuditableEventTypeDao eventDao,
+            SlotTypeDao slotDao) {
         this();
         this.eventDao = eventDao;
+        this.slotDao = slotDao;
 
     }
 
@@ -126,4 +136,18 @@ public class RegistryGarbageCollector {
             }
         } while (!expiredEvents.isEmpty());
     }
+
+    @Subscribe
+    public void deleteOrphanedSlot(DeleteSlotEvent slotEvent) {
+        if (!CollectionUtil.isNullOrEmpty(slotEvent.getSlotsToDelete())) {
+            long start = TimeUtil.currentTimeMillis();
+            statusHandler.info("Deleting "
+                    + slotEvent.getSlotsToDelete().size() + " slots...");
+            slotDao.deleteAll(slotEvent.getSlotsToDelete());
+            statusHandler.info("Deleted " + slotEvent.getSlotsToDelete().size()
+                    + " slots in " + (TimeUtil.currentTimeMillis() - start)
+                    + " ms");
+        }
+    }
+
 }
