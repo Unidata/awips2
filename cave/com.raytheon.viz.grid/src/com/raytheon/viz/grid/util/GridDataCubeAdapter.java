@@ -74,12 +74,15 @@ import com.raytheon.viz.grid.record.RequestableDataRecord;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 16, 2009            brockwoo    Initial creation
- * Nov 21, 2009 3576       rjpeter     Refactored use of DerivParamDesc.
- * Jun 04, 2013 2041       bsteffen    Improve exception handing in grid
- *                                     resources.
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- --------------------------
+ * Mar 16, 2009           brockwoo    Initial creation
+ * Nov 21, 2009  3576     rjpeter     Refactored use of DerivParamDesc.
+ * Jun 04, 2013  2041     bsteffen    Improve exception handing in grid
+ *                                    resources.
+ * Apr 04, 2014  2973     bsteffen    Use correct area for expanding subgrid
+ *                                    requests.
+ * 
  * </pre>
  * 
  * @author brockwoo
@@ -295,7 +298,6 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 continue;
             }
             GridRecord record = data.getGridSource();
-            area = record.getLocation();
             String file = HDF5Util.findHDF5Location(record).getPath();
             if (file != null) {
                 List<GridRequestableData> list = fileMap.get(file);
