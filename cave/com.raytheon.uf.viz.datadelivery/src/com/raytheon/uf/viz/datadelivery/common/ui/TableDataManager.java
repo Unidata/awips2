@@ -31,6 +31,7 @@ package com.raytheon.uf.viz.datadelivery.common.ui;
  * Jun 06, 2012            lvenable     Initial creation
  * Apr 10, 2013   1891     djohnson     Declare variable as List.
  * Feb 07, 2014   2453     mpduff       Added getSize().
+ * Apr 18, 2014  3012      dhladky      Null check.
  *
  * </pre>
  *
@@ -134,7 +135,11 @@ public class TableDataManager<T extends ITableData<T>> implements ISortTable {
         if (index >= 0 && index < tableData.size()) {
             return tableData.get(index);
         } else {
-            return tableData.get(0);
+            if (!tableData.isEmpty()) {
+                return tableData.get(0);
+            } else {
+                return null;
+            }
         }
     }
 
