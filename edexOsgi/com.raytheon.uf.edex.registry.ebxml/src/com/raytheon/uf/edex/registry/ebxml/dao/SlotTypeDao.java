@@ -19,13 +19,16 @@
  **/
 package com.raytheon.uf.edex.registry.ebxml.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import oasis.names.tc.ebxml.regrep.xsd.rim.v4.SlotType;
 
 import org.hibernate.SQLQuery;
+import org.hibernate.criterion.Property;
 
 import com.raytheon.uf.edex.database.dao.SessionManagedDao;
+import com.raytheon.uf.edex.registry.ebxml.services.query.QueryConstants;
 
 /**
  * 
@@ -83,5 +86,11 @@ public class SlotTypeDao extends SessionManagedDao<String, SlotType> {
         if (slot != null) {
             this.template.delete(slot);
         }
+    }
+    
+    public void deleteBySlotId(Collection<String> ids){
+        template.deleteAll(createCriteria().add(
+                Property.forName(QueryConstants.ID).in(ids))
+                .list());
     }
 }
