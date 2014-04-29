@@ -155,6 +155,7 @@ import com.raytheon.viz.ui.presenter.IDisplay;
  * Feb 04, 2014   2722     mpduff     Add auto-refresh task.
  * Feb 14, 2014   2806     mpduff     Disable activate/deactivate buttons when viewing other site's subscriptions
  * Feb 11, 2014   2771     bgonzale   Use Data Delivery ID instead of Site.
+ * Apr 18, 2014  3012      dhladky    Null check.
  * 
  * </pre>
  * 
@@ -997,18 +998,20 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                     SubscriptionManagerRowData removedItem = tableComp
                             .getSubscriptionData().getDataRow(idx);
                     Subscription sub = removedItem.getSubscription();
-                    if (sub instanceof SharedSubscription) {
-                        sub.getOfficeIDs().remove(CURRENT_SITE);
-                        if (sub.getOfficeIDs().size() > 0) {
-                            subsToUpdate.add(sub);
+                    if (sub != null) {
+                        if (sub instanceof SharedSubscription) {
+                            sub.getOfficeIDs().remove(CURRENT_SITE);
+                            if (sub.getOfficeIDs().size() > 0) {
+                                subsToUpdate.add(sub);
+                            } else {
+                                subsToDelete.add(sub);
+                            }
                         } else {
-                            subsToDelete.add(sub);
+                            subsToDelete.add(removedItem.getSubscription());
                         }
-                    } else {
-                        subsToDelete.add(removedItem.getSubscription());
-                    }
 
-                    deleteList.add(removedItem);
+                        deleteList.add(removedItem);
+                    }
                 }
 
                 String message = getMessage(subsToDelete, subsToUpdate);
@@ -1182,7 +1185,9 @@ public class SubscriptionManagerDlg extends CaveSWTDialog implements
                         int idx = selectionIndices[i];
                         SubscriptionManagerRowData rowData = tableComp
                                 .getSubscriptionData().getDataRow(idx);
-
+                        if (rowData == null) {
+                            continue;
+                        }
                         Subscription sub = rowData.getSubscription();
                         if (activate) {
                             sub.activate();
