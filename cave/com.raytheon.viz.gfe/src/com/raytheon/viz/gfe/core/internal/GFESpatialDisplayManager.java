@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.geometry.Envelope;
@@ -48,6 +50,7 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.viz.core.ColorUtil;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.actions.TopoHandler;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.ISampleSetManager;
@@ -80,6 +83,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 08/20/2009   2310       njensen     Separated most logic out into AbstractSpatialDisplayManager
  * 04/02/2014   2961       randerso    Added a listener to redo time matching when ISC mode changes
  * 
+ * 04/02/2014   2969       randerso    Fix state of Topography menu item
  * </pre>
  * 
  * @author chammack
@@ -366,6 +370,11 @@ public class GFESpatialDisplayManager extends AbstractSpatialDisplayManager
             for (Parm addParm : additions) {
                 createResourceFromParm(desc, addParm, false);
             }
+        }
+        if (PlatformUI.isWorkbenchRunning()) {
+            ICommandService service = (ICommandService) PlatformUI
+                    .getWorkbench().getService(ICommandService.class);
+            service.refreshElements(TopoHandler.commandId, null);
         }
     }
 
