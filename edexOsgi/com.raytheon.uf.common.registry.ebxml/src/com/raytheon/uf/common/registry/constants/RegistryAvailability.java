@@ -43,4 +43,6 @@ public class RegistryAvailability {
 
     /** Registry not available since the database is not yet initialized */
     public static final String DB_NOT_INITIALIZED = "Registry database and services are currently initializing!";
+    
+    public static final String SYNC_IN_PROGRESS = "Registry currently being synchronized";
 }
