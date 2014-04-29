@@ -112,6 +112,7 @@ import com.raytheon.uf.viz.datadelivery.utils.DataDeliveryUtils.TABLE_TYPE;
  * Jan 08, 2014  2642      mpduff       Enable/disable menus based on site, allow user to add their site to a shared sub.
  * Feb 04, 2014  2722      mpduff       Add last update time.
  * Feb 11, 2014  2771      bgonzale     Use Data Delivery ID instead of Site.
+ * Apr 18, 2014  3012      dhladky      Null check.
  * @version 1.0
  */
 
@@ -323,6 +324,9 @@ public class SubscriptionTableComp extends TableComp implements IGroupAction {
             SubscriptionManagerRowData rowData = subManagerData
                     .getDataRow(selectionIndices[i]);
 
+            if (rowData == null) {
+                continue;
+            }
             // get the subscription details to be displayed to the user
             printDetails.append(DataDeliveryUtils.formatDetails(rowData
                     .getSubscription()));
