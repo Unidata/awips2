@@ -52,8 +52,6 @@ import com.raytheon.uf.viz.collaboration.comm.identity.event.ParticipantEventTyp
 import com.raytheon.uf.viz.collaboration.comm.identity.info.IVenue;
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
-import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
-import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
 import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
@@ -111,6 +109,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 21, 2014 2822       bclement    added hasMultipleHandles()
  * Apr 22, 2014 2903       bclement    added connection test to close method
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
+ * Apr 29, 2014 3061       bclement    moved invite payload to shared display session
  * 
  * 
  * </pre>
@@ -223,20 +222,29 @@ public class VenueSession extends BaseSession implements IVenueSession {
     @Override
     public void sendInvitation(UserId id, VenueInvite invite)
             throws CollaborationException {
-        SessionPayload payload = new SessionPayload(PayloadType.Invitation,
-                invite);
-        Message msg = new Message();
-        UserId user = getAccount();
-        msg.setFrom(user.getNormalizedId());
-        msg.setType(Type.normal);
-        msg.addExtension(payload);
+        Message msg = createInviteMessage(id, invite);
         String reason = "";
-        if (!StringUtils.isBlank(invite.getMessage())) {
-            reason = invite.getMessage();
-        } else if (!StringUtils.isBlank(invite.getSubject())) {
+        if (!StringUtils.isBlank(invite.getSubject())) {
             reason = invite.getSubject();
+        } else if (!StringUtils.isBlank(invite.getMessage())) {
+            reason = invite.getMessage();
         }
         muc.invite(msg, formatInviteAddress(id), reason);
+    }
+
+    /**
+     * Create message object for session invitation
+     * 
+     * @param id
+     *            recipient of invite
+     * @param invite
+     * @return
+     */
+    protected Message createInviteMessage(UserId id, VenueInvite invite) {
+        Message msg = new Message();
+        msg.setType(Type.normal);
+        msg.setBody(invite.getMessage());
+        return msg;
     }
 
     /**
