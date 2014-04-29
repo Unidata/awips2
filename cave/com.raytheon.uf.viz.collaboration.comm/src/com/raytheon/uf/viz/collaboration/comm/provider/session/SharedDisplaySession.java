@@ -59,6 +59,7 @@ import com.raytheon.uf.common.xmpp.ext.ChangeAffiliationExtension;
 import com.raytheon.uf.viz.collaboration.comm.identity.CollaborationException;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISession;
 import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
+import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
@@ -101,6 +102,7 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Apr 21, 2014 2822       bclement    removed use of resources in topicSubscribers, added skipCache
  * Apr 22, 2014 2903       bclement    added connection test to closePubSub() method
  * Apr 23, 2014 2822       bclement    added formatInviteAddress()
+ * Apr 29, 2014 3061       bclement    added createInviteMessage()
  * 
  * </pre>
  * 
@@ -804,6 +806,39 @@ public class SharedDisplaySession extends VenueSession implements
         return rval;
     }
 
+
+    /**
+     * @see ContactsManager#getSharedDisplayEnabledResource(UserId)
+     * @param user
+     * @return null if none found
+     */
+    private String getSharedDisplayResource(UserId user) {
+        CollaborationConnection manager = getConnection();
+        ContactsManager cm = manager.getContactsManager();
+        return cm.getSharedDisplayEnabledResource(user);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession#
+     * createInviteMessage
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId,
+     * com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite)
+     */
+    @Override
+    protected Message createInviteMessage(UserId id, VenueInvite invite) {
+        Message rval = super.createInviteMessage(id, invite);
+        /* only send shared display invite if we know the user supports it */
+        if (getSharedDisplayResource(id) != null) {
+            SessionPayload payload = new SessionPayload(PayloadType.Invitation,
+                    invite);
+            rval.addExtension(payload);
+        }
+        return rval;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -814,9 +849,7 @@ public class SharedDisplaySession extends VenueSession implements
      */
     @Override
     protected String formatInviteAddress(UserId id) {
-        CollaborationConnection manager = getConnection();
-        ContactsManager cm = manager.getContactsManager();
-        String resource = cm.getSharedDisplayEnabledResource(id);
+        String resource = getSharedDisplayResource(id);
         /*
          * resource will be null if we can't find a resource that supports
          * shared displays for this user
