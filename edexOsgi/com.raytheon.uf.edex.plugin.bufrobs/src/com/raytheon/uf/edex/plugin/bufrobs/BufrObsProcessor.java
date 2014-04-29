@@ -44,7 +44,8 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 1, 2014  2906      bclement     Initial creation
+ * Apr 01, 2014 2906       bclement     Initial creation
+ * Apr 29, 2014 2906       bclement     close parser when finished
  * 
  * </pre>
  * 
@@ -69,9 +70,10 @@ public class BufrObsProcessor {
      */
     public PluginDataObject[] process(File bufrFile)
             throws BufrObsDecodeException {
+        BufrParser parser = null;
         PluginDataObject[] rval;
         try {
-            BufrParser parser = new BufrParser(bufrFile);
+            parser = new BufrParser(bufrFile);
             CategoryKey key = getBufrCategory(parser);
             AbstractBufrSfcObsDecoder decoder = getDecoder(key);
             if (decoder == null) {
@@ -86,6 +88,14 @@ public class BufrObsProcessor {
         } catch (IOException e) {
             throw new BufrObsDecodeException("Unable to read BUFR file: "
                     + bufrFile, e);
+        } finally {
+            if (parser != null)
+                try {
+                    parser.close();
+                } catch (IOException e) {
+                    throw new BufrObsDecodeException(
+                            "Unable to close parser for file: " + bufrFile, e);
+                }
         }
         return rval;
     }
