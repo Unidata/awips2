@@ -100,6 +100,7 @@ import com.vividsolutions.jts.geom.LineString;
  *  06-24-2013  DR 16317   D. Friedman Handle "motionless" track.
  *  01-28-2014  DR16465 mgamazaychikov Fixed the problem with anchor point when frame 
  *                                     count changes; made line width configurable.
+ *  04-07-2014  DR 17232   D. Friedman Make sure pivot indexes are valid.
  * 
  * </pre>
  * 
@@ -212,9 +213,10 @@ public class StormTrackDisplay implements IRenderable {
             }
 
             if (currentFrame == currentState.displayedPivotIndex) {
-                if (currentState.displayedPivotIndex == currentState.pivotIndex) {
+                if (currentState.displayedPivotIndex == currentState.pivotIndex &&
+                        currentState.otherPivotIndex >= 0) {
                     currentState.displayedPivotIndex = currentState.otherPivotIndex;
-                } else {
+                } else if (currentState.pivotIndex >= 0){
                     currentState.displayedPivotIndex = currentState.pivotIndex;
                 }
             }
@@ -236,9 +238,10 @@ public class StormTrackDisplay implements IRenderable {
                 currentState.displayedPivotIndex = currentState.pivotIndex;
                 currentState.nextPivotIndex = -1;
             } else if (currentFrame == currentState.displayedPivotIndex) {
-                if (currentState.displayedPivotIndex == currentState.pivotIndex) {
+                if (currentState.displayedPivotIndex == currentState.pivotIndex &&
+                        currentState.otherPivotIndex >= 0) {
                     currentState.displayedPivotIndex = currentState.otherPivotIndex;
-                } else {
+                } else if (currentState.pivotIndex >= 0){
                     currentState.displayedPivotIndex = currentState.pivotIndex;
                 }
             } else if (currentFrame != currentState.displayedPivotIndex) {
@@ -1413,4 +1416,5 @@ public class StormTrackDisplay implements IRenderable {
         data.setMotionSpeed((int) mpsToKts.convert(state.speed));
         dataManager.setStormTrackData(data);
     }
+
 }

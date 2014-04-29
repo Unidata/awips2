@@ -68,6 +68,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * Jan 30, 2013 #15719     jdynina      Allowed more than 128 chars in wx
  *                                      strings
  * 02/19/2013   1637       randerso    Added throws declarations to translateDataFrom
+ * 04/01/2014   17187      randerso (code checked in by zhao) To allow over 128 wx lements 
  * 
  * </pre>
  * 
@@ -902,19 +903,19 @@ public class WeatherGridData extends AbstractGridData implements INumpyable {
                 }
             }
         }
-        // COMBINE mode is more difficult, have to do each one
-        else {
-            for (int i = 0; i < dim.x; i++) {
-                for (int j = 0; j < dim.y; j++) {
-                    if (points.get(i, j) == 1) {
-                        WeatherKey combined = new WeatherKey(key.get(values
-                                .get(i, j)));
-                        combined.addAll(doGetWeatherValue(i, j));
-                        grid.set(i, j, lookupKeyValue(combined));
-                    }
-                }
-            }
-        }
+		// COMBINE mode is more difficult, have to do each one
+		else {
+			for (int i = 0; i < dim.x; i++) {
+				for (int j = 0; j < dim.y; j++) {
+					if (points.get(i, j) == 1) {
+						WeatherKey combined = new WeatherKey(
+								key.get(0xFF & values.get(i, j)));
+						combined.addAll(doGetWeatherValue(i, j));
+						grid.set(i, j, lookupKeyValue(combined));
+					}
+				}
+			}
+		}
 
         setGrid(grid);
     }
