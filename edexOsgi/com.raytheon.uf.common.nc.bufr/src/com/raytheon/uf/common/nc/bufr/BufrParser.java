@@ -58,6 +58,7 @@ import com.raytheon.uf.common.status.UFStatus;
  * Mar 26, 2014 2905       bclement    fixed types, added scale/offset
  * Apr 01, 2014 2905       bclement    moved splitter functionality to separate utility
  *                                     added scanForStructField()
+ * Apr 29, 2014 2906       bclement    added close()
  * 
  * </pre>
  * 
@@ -825,6 +826,15 @@ public class BufrParser {
      */
     public int getStructLevel() {
         return structStack.size();
+    }
+
+    /**
+     * Release resources associated with BUFR file.
+     * 
+     * @throws IOException
+     */
+    public void close() throws IOException {
+        this.ncfile.close();
     }
 
 }
