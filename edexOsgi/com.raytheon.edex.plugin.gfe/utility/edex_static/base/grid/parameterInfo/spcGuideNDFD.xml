@@ -110,7 +110,7 @@
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>hailprob</short_name>
     <long_name>Hail Probability</long_name>
     <units>%</units>
@@ -123,8 +123,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>windprob</short_name>
     <long_name>Damaging Wind Probability</long_name>
     <units>%</units>
@@ -137,8 +137,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>sigtrndprob</short_name>
     <long_name>Extreme Tornado Probability</long_name>
     <units>%</units>
@@ -151,8 +151,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>sighailprob</short_name>
     <long_name>Extreme Hail Probability</long_name>
     <units>%</units>
@@ -165,8 +165,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>sigwindprob</short_name>
     <long_name>Extreme Damaging Wind Probability</long_name>
     <units>%</units>
@@ -179,8 +179,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>prsvr</short_name>
     <long_name>Combined Severe Probability</long_name>
     <units>%</units>
@@ -193,8 +193,8 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
-  <gribParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  </gridParameterInfo>
+  <gridParameterInfo xsi:type="parameterInfo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <short_name>prsigsv</short_name>
     <long_name>Combined Extreme Severe Probability</long_name>
     <units>%</units>
@@ -208,5 +208,5 @@
     <levels>
       <level>SFC</level>
     </levels>
-  </gribParameterInfo>
+  </gridParameterInfo>
 </gridParamInfo>
