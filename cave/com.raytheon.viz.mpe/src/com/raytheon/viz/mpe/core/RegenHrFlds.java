@@ -19,6 +19,7 @@
  **/
 package com.raytheon.viz.mpe.core;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,6 +39,7 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
 import com.raytheon.uf.common.dataplugin.shef.tables.Pseudogageval;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpp;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
+import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.whfslib.GagePPOptions;
 import com.raytheon.viz.hydrocommon.whfslib.GagePPOptions.shef_dup;
@@ -56,6 +58,8 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEGageData;
  * Jan 02, 2013	 15565     snaples     Fixed problem with wrong time being sent to mpe_fieldgen
  * Mar 14, 2013   1457     mpduff      Fixed memory leak.
  * Jun 18, 2013  16053     snaples     Removed check for Radar Edit flag
+ * Apr 24, 2014  16308     lbousaidi   added the ability to send RFC Bias across the WAN
+ *                                     after Mpe fieldgen run.
  * </pre>
  * 
  * @author snaples
@@ -293,6 +297,22 @@ public class RegenHrFlds {
                 e.printStackTrace();
             }
 
+            /*-------------------------------------------------------------------------*/
+            /* send RFC Bias across the WAN if the tokens TRANSMIT_BIAS_ON_RERUN
+             * and  MPE_TRANSMIT_BIAS are both ON. The script rerun_mpe_fieldgen
+             * only run transmit_rfc_bias but it doesn't rerun mpe_fieldgen
+            /*-------------------------------------------------------------------------*/
+            AppsDefaults appsDefaults = AppsDefaults.getInstance();
+            String scriptDir = appsDefaults.getToken("pproc_bin");
+            String scriptName ="rerun_mpe_fieldgen";
+            String transmitRun= dr.format(datetime);
+            ProcessBuilder pb = new ProcessBuilder(scriptDir + "/" + scriptName ,hour,
+                                transmitRun);
+            try {
+                   pb.start();
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
             MPEDataManager.getInstance().clearEditGages();
             shell.setCursor(null);
     }
