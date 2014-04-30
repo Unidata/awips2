@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ccfp Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.ccfp;singleton:=true
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.viz.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

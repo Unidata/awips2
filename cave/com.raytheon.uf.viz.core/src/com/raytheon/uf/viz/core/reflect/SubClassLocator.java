@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.osgi.framework.internal.core.BundleRepository;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
@@ -56,6 +57,7 @@ import com.raytheon.uf.viz.core.Activator;
  * Dec 10, 2013  2602     bsteffen    Add null checks to detect unloaded
  *                                    bundles.
  * Feb 03, 2013  2764     bsteffen    Use OSGi API to get dependencies.
+ * Apr 17, 2014  3018     njensen     Synchronize against BundleRepository
  * 
  * </pre>
  * 
@@ -95,6 +97,7 @@ public class SubClassLocator implements ISubClassLocator {
      * @param base
      * @return
      */
+    @Override
     public Collection<Class<?>> locateSubClasses(Class<?> base) {
         Map<String, Set<Class<?>>> recursiveClasses = new HashMap<String, Set<Class<?>>>(
                 bundleLookup.size(), 1.0f);
@@ -109,6 +112,7 @@ public class SubClassLocator implements ISubClassLocator {
     /**
      * Store the cache to disk.
      */
+    @Override
     public void save() {
         cache.save();
     }
@@ -265,10 +269,25 @@ public class SubClassLocator implements ISubClassLocator {
         if (bundleWiring == null) {
             return Collections.emptySet();
         }
-        ClassLoader loader = bundleWiring.getClassLoader();
+
+        BundleRepository bundleRepo = BundleRepositoryGetter
+                .getFrameworkBundleRepository(bundle);
+        ClassLoader loader = null;
+        if (bundleRepo != null) {
+            synchronized (bundleRepo) {
+                loader = bundleWiring.getClassLoader();
+            }
+        } else {
+            /*
+             * even if we couldn't get the bundle repository to sync against,
+             * it's probably safe, see BundleRepositoryGetter javadoc
+             */
+            loader = bundleWiring.getClassLoader();
+        }
         if (loader == null) {
             return Collections.emptySet();
         }
+
         HashSet<Class<?>> result = new HashSet<Class<?>>(classNames.size(),
                 1.0f);
         for (String className : classNames) {
