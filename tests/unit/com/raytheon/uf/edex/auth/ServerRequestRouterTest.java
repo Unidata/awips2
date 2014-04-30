@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler;
@@ -54,7 +54,7 @@ public class ServerRequestRouterTest {
 
     private static final ServerRequestRouter ROUTER = new ServerRequestRouter();
 
-    private static final IBandwidthRequest PRIVILEGED_REQUEST = new IBandwidthRequest();
+    private static final BandwidthRequest PRIVILEGED_REQUEST = new BandwidthRequest();
 
     private static final GetServersRequest UNPRIVILEGED_REQUEST = new GetServersRequest();
 
