@@ -27,10 +27,8 @@ import java.util.List;
 
 import org.geotools.referencing.GeodeticCalculator;
 
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.binlightning.BinLightningRecord;
 import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
-import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
@@ -38,9 +36,6 @@ import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants;
 import com.raytheon.uf.common.dataplugin.scan.data.CellTableDataRow;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableData;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
-import com.raytheon.uf.common.datastorage.IDataStore;
-import com.raytheon.uf.common.datastorage.records.FloatDataRecord;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
@@ -49,8 +44,6 @@ import com.raytheon.uf.common.monitor.scan.ScanUtils;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.database.plugin.PluginDao;
-import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -63,7 +56,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 05/07/2009   2037      dhladky    Initial Creation.
+ * 05/07/2009   2037       dhladky     Initial Creation.
+ * Apr 30, 2014 2060       njensen     Updates for removal of grid dataURI column
  * 
  * </pre>
  * 
@@ -72,9 +66,6 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public abstract class ScanProduct implements Serializable {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     public String dataType = null;
@@ -242,34 +233,6 @@ public abstract class ScanProduct implements Serializable {
         }
 
         return cwa;
-    }
-
-    /**
-     * get Populated grib record
-     * 
-     * @param uri
-     * @return
-     */
-    public static GridRecord getGridRecord(String uri) throws PluginException {
-
-        GridRecord gr = new GridRecord(uri);
-        PluginDao gd = PluginFactory.getInstance().getPluginDao(
-                gr.getPluginName());
-        gr = (GridRecord) gd.getMetadata(uri);
-        IDataStore dataStore = gd.getDataStore(gr);
-
-        try {
-            IDataRecord[] dataRec = dataStore.retrieve(uri);
-            for (int i = 0; i < dataRec.length; i++) {
-                if (dataRec[i] instanceof FloatDataRecord) {
-                    gr.setMessageData(dataRec[i]);
-                }
-            }
-        } catch (Exception se) {
-            se.printStackTrace();
-        }
-
-        return gr;
     }
 
     /**
