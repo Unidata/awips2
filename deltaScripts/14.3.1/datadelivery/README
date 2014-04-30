@@ -1,0 +1,12 @@
+# README, DO NOT RUN THIS SCRIPT UNLESS YOU READ THIS!!!!!!!!!!!!!!!
+# This update needs to be performed with build 14.3.1.
+# This update is only for edex servers which have run DD and have subscriptions loaded.
+
+1.) Backup your subscriptions from the Registry Web Interface, 
+    http://$REGISTRY_HOST:8082/registry/RegistryInterface.html. 
+    hit the <Backup All Subscriptions> button.
+2.) Then run this update script, updateSubscriptionOwners.sh 
+3.) If you are satisfied the subs are correct, either clean up the backup files by running 
+    the deleteBackupSubs.sh or move them to a different directory for storage.
+3.) After script runs, hit the <Restore Subscriptions> button
+    That will update the subscriptions will reflect the correct ownership at the registry level.
