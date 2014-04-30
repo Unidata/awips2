@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
 import com.raytheon.uf.common.localization.msgs.GetServersRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.common.serialization.comm.IServerRequest;
@@ -58,7 +58,7 @@ import com.raytheon.uf.edex.auth.req.ServerPrivilegedRequestHandler.ServerPrivil
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ServerPrivilegedRequestHandlerTest {
 
-    private static final IBandwidthRequest BANDWIDTH_REQUEST = new IBandwidthRequest();
+    private static final BandwidthRequest BANDWIDTH_REQUEST = new BandwidthRequest();
 
     private final HandlerRegistry registry = mock(HandlerRegistry.class);
 
@@ -72,7 +72,7 @@ public class ServerPrivilegedRequestHandlerTest {
         RemoteRequestServer.getInstance().setRegistry(registry);
 
         when(
-                registry.getRequestHandler(IBandwidthRequest.class
+                registry.getRequestHandler(BandwidthRequest.class
                         .getCanonicalName())).thenReturn(bandwidthHandler);
     }
 
