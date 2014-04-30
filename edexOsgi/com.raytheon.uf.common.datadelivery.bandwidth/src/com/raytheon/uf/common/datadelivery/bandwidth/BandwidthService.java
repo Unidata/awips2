@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.raytheon.uf.common.auth.req.BasePrivilegedServerService;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.BandwidthGraphData;
 import com.raytheon.uf.common.datadelivery.bandwidth.data.SubscriptionStatusSummary;
 import com.raytheon.uf.common.datadelivery.registry.AdhocSubscription;
@@ -57,6 +57,7 @@ import com.raytheon.uf.common.util.LogUtil;
  * Oct 2,  2013 1797       dhladky      Generics
  * Oct 01, 2013 2267       bgonzale     Log error response from proposed scheduling.
  * Dec 11, 2013 2625       mpduff       Fix error handling to not return null.
+ * Apr 22, 2014 2992       dhladky      renamed BandwidthRequest
  * 
  * </pre>
  * 
@@ -64,7 +65,7 @@ import com.raytheon.uf.common.util.LogUtil;
  * @version 1.0
  */
 public abstract class BandwidthService<T extends Time, C extends Coverage>
-        extends BasePrivilegedServerService<IBandwidthRequest<T, C>> implements
+        extends BasePrivilegedServerService<BandwidthRequest<T, C>> implements
         IBandwidthService<T, C> {
 
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -84,7 +85,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
      */
     @Override
     public final int getBandwidthForNetworkInKilobytes(Network network) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.GET_BANDWIDTH);
         request.setNetwork(network);
 
@@ -105,7 +106,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
     @SuppressWarnings("unchecked")
     public Set<String> proposeBandwidthForNetworkInKilobytes(Network network,
             int bandwidth) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.PROPOSE_SET_BANDWIDTH);
         request.setNetwork(network);
         request.setBandwidth(bandwidth);
@@ -126,7 +127,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
     @Override
     public final boolean setBandwidthForNetworkInKilobytes(Network network,
             int bandwidth) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.FORCE_SET_BANDWIDTH);
         request.setNetwork(network);
         request.setBandwidth(bandwidth);
@@ -161,7 +162,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
      */
     @Override
     public Set<String> schedule(List<Subscription<T, C>> subscriptions) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.SCHEDULE_SUBSCRIPTION);
         request.setSubscriptions(subscriptions);
 
@@ -195,7 +196,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
     @Override
     public IProposeScheduleResponse proposeSchedule(
             List<Subscription<T, C>> subscriptions) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.PROPOSE_SCHEDULE_SUBSCRIPTION);
         request.setSubscriptions(subscriptions);
 
@@ -217,7 +218,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
      */
     @Override
     public void reinitialize() {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.REINITIALIZE);
 
         try {
@@ -234,7 +235,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
     @SuppressWarnings("unchecked")
     @Override
     public Date getEstimatedCompletionTime(AdhocSubscription<T, C> sub) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setSubscriptions(Arrays.<Subscription<T, C>> asList(sub));
         request.setRequestType(RequestType.GET_ESTIMATED_COMPLETION);
         try {
@@ -253,7 +254,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
      */
     @Override
     public BandwidthGraphData getBandwidthGraphData() {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setRequestType(RequestType.GET_BANDWIDTH_GRAPH_DATA);
         try {
             return sendRequest(request, BandwidthGraphData.class);
@@ -268,7 +269,7 @@ public abstract class BandwidthService<T extends Time, C extends Coverage>
     @Override
     public SubscriptionStatusSummary getSubscriptionStatusSummary(
             Subscription<T, C> subscription) {
-        IBandwidthRequest<T, C> request = new IBandwidthRequest<T, C>();
+        BandwidthRequest<T, C> request = new BandwidthRequest<T, C>();
         request.setSubscriptions(Arrays
                 .<Subscription<T, C>> asList(subscription));
         request.setRequestType(RequestType.GET_SUBSCRIPTION_STATUS);
