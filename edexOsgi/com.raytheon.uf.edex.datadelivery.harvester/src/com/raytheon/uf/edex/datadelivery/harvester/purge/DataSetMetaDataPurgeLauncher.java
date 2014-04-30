@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
  * Container class to hold the {@link IDataSetMetaDataPurgeTask} instance. It
@@ -36,28 +37,32 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 4, 2012  1102      djohnson     Initial creation
+ * Apr 12,2014   3012     dhladky      Purge never worked, fixed to make work.
  * 
  * </pre>
  * 
  * @author djohnson
  * @version 1.0
  */
-public final class DataSetMetaDataPurgeLauncher {
+public class DataSetMetaDataPurgeLauncher {
+    
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DataSetMetaDataPurgeLauncher.class);
 
-    private static final DataSetMetaDataPurgeLauncher INSTANCE = new DataSetMetaDataPurgeLauncher();
-
-    private static final IDataSetMetaDataPurgeTask PURGE_TASK = new DataSetMetaDataPurgeTaskImpl();
+    private IDataSetMetaDataPurgeTask PURGE_TASK = null;
 
     private static final AtomicBoolean running = new AtomicBoolean();
 
     /**
-     * Disabled constructor.
+     * Public constructor.
      */
-    private DataSetMetaDataPurgeLauncher() {
+    public DataSetMetaDataPurgeLauncher(RegistryObjectDao rdo) {
+        PURGE_TASK = new DataSetMetaDataPurgeTaskImpl(rdo);
     }
 
+    /**
+     * Try purging datasets.
+     */
     public void runPurge() {
         try {
             if (running.compareAndSet(false, true)) {
@@ -69,12 +74,5 @@ public final class DataSetMetaDataPurgeLauncher {
         } finally {
             running.set(false);
         }
-    }
-
-    /**
-     * @return the instance
-     */
-    public static DataSetMetaDataPurgeLauncher getInstance() {
-        return INSTANCE;
     }
 }
