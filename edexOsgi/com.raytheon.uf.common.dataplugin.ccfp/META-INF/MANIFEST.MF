@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CCFP common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.ccfp
-Bundle-Version: 1.14.0
+Bundle-Version: 1.14.0.qualifier
 Eclipse-RegisterBuddy: com.raytheon.uf.common.serialization
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

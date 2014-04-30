@@ -26,11 +26,27 @@ import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.persist.PersistablePluginDataObject;
+import com.raytheon.uf.common.dataplugin.scan.ScanException;
 import com.raytheon.uf.common.dataplugin.scan.data.ScanTableDataRow;
 import com.raytheon.uf.common.monitor.config.SCANRunSiteConfigurationManager;
 import com.raytheon.uf.common.monitor.scan.config.SCANConfigEnums.ScanTables;
 import com.raytheon.uf.edex.plugin.scan.ScanURIFilter;
 
+/**
+ * CAPE Product
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ *                                     Initial creation
+ * Apr 24, 2014 2060       njensen     Updates for removal of grid dataURI column
+ * 
+ * </pre>
+ * 
+ * @version 1.0
+ */
 public class CAPEProduct extends GridProduct {
 
     /**
@@ -113,13 +129,15 @@ public class CAPEProduct extends GridProduct {
     }
 
     /**
-     * The SQL for CAPE
+     * Retrieves the record for CAPE
      * 
      * @param wmo
      * @return
+     * @throws ScanException
      */
-    public static String getSQL(int interval, String model) {
-        return getGridSQL(interval, model, cape, "SFC", "0.0",
+    public static GridRecord getGridRecord(int interval, String model)
+            throws ScanException {
+        return getGridRecord(interval, model, cape, "SFC", "0.0",
                 Level.getInvalidLevelValueAsString());
     }
 }
