@@ -23,7 +23,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.ui.Activator;
 import com.raytheon.uf.viz.collaboration.ui.login.LoginDialog;
 import com.raytheon.uf.viz.core.icon.IconUtil;
@@ -38,6 +38,7 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 11, 2012            bsteffen     Initial creation
+ * Apr 11, 2014 2903       bclement    added success flag
  * 
  * </pre>
  * 
@@ -46,6 +47,8 @@ import com.raytheon.uf.viz.core.icon.IconUtil;
  */
 
 public class LoginAction extends Action {
+    
+    private boolean success = false;
 
     public LoginAction() {
         super("Login...", IconUtil.getImageDescriptor(Activator.getDefault()
@@ -62,9 +65,24 @@ public class LoginAction extends Action {
             if (shell == null) {
                 return;
             }
-            LoginDialog dlg = new LoginDialog(shell);
-            dlg.open();
+            success = new LoginDialog(shell).login();
         }
     }
 
+    /**
+     * @return the success
+     */
+    public boolean isSuccess() {
+        return success;
+    }
+
+    /**
+     * Convenience method to run action and return results
+     * 
+     * @return true if login was successful
+     */
+    public boolean login() {
+        this.run();
+        return isSuccess();
+    }
 }

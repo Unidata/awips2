@@ -75,6 +75,9 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Aug 26, 2013 #2225      rferrel     Make perspective independent and no longer modal.
  * Mar 24, 2014 #2853      rferrel     Populate case label directory with default value.
  * Mar 26, 2014 32880      rferrerl    Implement case compression and split.
+ * Apr 11, 2014 #3023      rferrel     Configurable Threshold options.
+ * Apr 23, 2014 #3045      rferrel     To prevent race condition only allow a case
+ *                                       load after all labels are loaded.
  * 
  * </pre>
  * 
@@ -165,6 +168,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
     /** Allow only single instance of dialog. */
     private GenerateCaseDlg generateCaseDlg;
 
+    /** Manager for configurable values for the dialog. */
+    private final CaseCreationManager ccManager;
+
+    /** Flag to indicate all labels for all tables are loaded. */
+    private volatile boolean haveAllLabels = false;
+
     /**
      * Constructor.
      * 
@@ -179,6 +188,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         this.setSelect = false;
         this.type = Type.Case;
         this.defaultCaseDir = defaultCaseDir;
+        this.ccManager = new CaseCreationManager();
     }
 
     /*
@@ -487,34 +497,48 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         // }
         // });
 
+        String tooltip = "Waiting on loading of Data Sets.";
+        Color color = shell.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
         saveBtn = new Button(actionControlComp, SWT.PUSH);
         saveBtn.setText(" Save ");
         saveBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                saveSelection(selectName);
-                clearModified();
+                if (haveAllLabels) {
+                    saveSelection(selectName);
+                    clearModified();
+                }
             }
         });
+        saveBtn.setToolTipText(tooltip);
         saveBtn.setEnabled(false);
+        saveBtn.setBackground(color);
 
         saveAsBtn = new Button(actionControlComp, SWT.PUSH);
         saveAsBtn.setText(" Save As... ");
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                handleSaveAsCase();
+                if (haveAllLabels) {
+                    handleSaveAsCase();
+                }
             }
         });
+        saveAsBtn.setToolTipText(tooltip);
+        saveAsBtn.setBackground(color);
 
         loadBtn = new Button(actionControlComp, SWT.PUSH);
         loadBtn.setText(" Load... ");
         loadBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent selectionEvent) {
-                handleLoadCase();
+                if (haveAllLabels) {
+                    handleLoadCase();
+                }
             }
         });
+        loadBtn.setToolTipText(tooltip);
+        loadBtn.setBackground(color);
 
         deleteBtn = new Button(actionControlComp, SWT.PUSH);
         deleteBtn.setText(" Delete... ");
@@ -603,11 +627,12 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                 public void dialogClosed(Object returnValue) {
                     if (returnValue instanceof String) {
                         String name = returnValue.toString();
-                        loadSelect(name);
-                        populateTableComp();
-                        updateTotals(null);
-                        setSelectName(name);
-                        clearModified();
+                        if (loadSelect(name)) {
+                            populateTableComp();
+                            updateTotals(null);
+                            setSelectName(name);
+                            clearModified();
+                        }
                     }
                 }
             });
@@ -832,24 +857,33 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         if (isDisposed()) {
             return;
         }
-        File dir = (File) locationLbl.getData();
+        Object o = locationLbl.getData();
+        if (!(o instanceof File)) {
+            return;
+        }
+        File dir = (File) o;
         long totSpace = dir.getTotalSpace();
         long freeSpace = dir.getUsableSpace();
+
+        o = uncompressSizeLbl.getData();
+        if (o instanceof Long) {
+            freeSpace -= (Long) o;
+        }
         long percentFull = (long) Math.round(((totSpace - freeSpace) * 100.0)
                 / totSpace);
         String state = null;
         Color bgColor = null;
         Color fgColor = null;
         Display display = shell.getDisplay();
-        if (percentFull <= 84) {
+        if (freeSpace > ccManager.getCautionThreshold()) {
             state = "GOOD";
             bgColor = display.getSystemColor(SWT.COLOR_GREEN);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
-        } else if (percentFull <= 94) {
+        } else if (freeSpace > ccManager.getDangerThreshold()) {
             state = "CAUTION";
             bgColor = display.getSystemColor(SWT.COLOR_YELLOW);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
-        } else if (percentFull <= 97) {
+        } else if (freeSpace > ccManager.getFatalThreshold()) {
             state = "DANGER";
             bgColor = display.getSystemColor(SWT.COLOR_RED);
             fgColor = display.getSystemColor(SWT.COLOR_BLACK);
@@ -958,10 +992,46 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         return str;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSizeText(java
+     * .lang.String)
+     */
+    @Override
     protected void setTotalSizeText(String text) {
-        uncompressSizeLbl.setText(text);
+        if (!uncompressSizeLbl.isDisposed()) {
+            uncompressSizeLbl.setText(text);
+        }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSelectedSize
+     * (long)
+     */
+    @Override
+    protected void setTotalSelectedSize(long totalSize) {
+        super.setTotalSelectedSize(totalSize);
+        Long tSize = null;
+        if (totalSize > 0) {
+            tSize = new Long(totalSize);
+        }
+        uncompressSizeLbl.setData(tSize);
+        updateLocationState();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#setTotalSelectedItems
+     * (int)
+     */
+    @Override
     protected void setTotalSelectedItems(int totalSelected) {
         selectedItemsSize = totalSelected;
         totalSelectedItemsLbl.setText("" + totalSelected);
@@ -1034,4 +1104,40 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                                     defaultCaseDir));
         }
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.uf.viz.archive.ui.AbstractArchiveDlg#haveAllLabels()
+     */
+    @Override
+    public void loadedAllDisplayData() {
+        haveAllLabels = true;
+
+        /*
+         * Restore the buttons' default background color and tooltip text. The
+         * buttons color is not the system standard and the tool tip text
+         * indicates it is waiting for the labels to be loaded.
+         */
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!isDisposed()) {
+                    saveBtn.setBackground(null);
+                    saveBtn.setToolTipText(null);
+                    saveAsBtn.setBackground(null);
+                    saveAsBtn.setToolTipText(null);
+                    loadBtn.setBackground(null);
+                    loadBtn.setToolTipText(null);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected boolean isModified() {
+        return super.isModified();
+    }
+
 }

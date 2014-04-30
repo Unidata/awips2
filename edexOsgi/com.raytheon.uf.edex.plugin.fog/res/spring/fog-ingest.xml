@@ -10,7 +10,7 @@
 		<constructor-arg ref="fogGenerator"/>
 	</bean>
 	
-	<camelContext id="fog-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="fog-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="FOGGenerate">
         	<from uri="jms-durable:queue:fogGenerate"/>
             <doTry>

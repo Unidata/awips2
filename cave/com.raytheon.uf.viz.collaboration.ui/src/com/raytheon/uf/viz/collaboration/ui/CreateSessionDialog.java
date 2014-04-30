@@ -56,9 +56,9 @@ import com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.identity.IVenueSession;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.CreateSessionData;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.display.data.SharedDisplaySessionMgr;
@@ -93,6 +93,8 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Feb  7, 2014 2699       bclement    removed handle validation
  * Feb 11, 2014 2699       bclement    require non-blank handle
  * Mar 06, 2014 2848       bclement    moved session creation logic to separate method
+ * Apr 16, 2014 3021       bclement    increased width of dialog
+ * Apr 22, 2014 3056       bclement    made room name lowercase to match xmpp server
  * 
  * </pre>
  * 
@@ -138,7 +140,7 @@ public class CreateSessionDialog extends CaveSWTDialog {
         label.setText("Name: ");
         nameTF = new Text(body, SWT.BORDER);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        gd.minimumWidth = 200;
+        gd.minimumWidth = 300;
         nameTF.setLayoutData(gd);
         VerifyListener validNameListener = new VerifyListener() {
 
@@ -451,7 +453,11 @@ public class CreateSessionDialog extends CaveSWTDialog {
                     List<String> errorMessages = new ArrayList<String>();
                     String subject = subjectTF.getText().trim();
                     String err = validateVenueName();
-                    String name = nameTF.getText();
+                    /*
+                     * xmpp server lowercases all room names, lowercase here to
+                     * match when we get names back from the server
+                     */
+                    String name = nameTF.getText().toLowerCase();
                     if (err != null) {
                         focusField = nameTF;
                         errorMessages.add(err);

@@ -18,15 +18,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.RadarRadarServer" />
 	</bean>
 
-    <bean id="radarCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="radar-camel"/>
-  	</bean>  
-	
 	<camelContext id="radar-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="radarFileEndpoint" uri="file:${edex.home}/data/sbn/radar?noop=true&amp;idempotent=false" />
 
