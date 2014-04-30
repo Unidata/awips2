@@ -54,6 +54,7 @@ import com.raytheon.uf.edex.plugin.redbook.ingest.xml.RedbookMenusXML;
  * Mar 07, 2014   2858     mpduff      Initial creation
  * Mar 14, 2014   2855     mpduff      Refactored common code.
  * Mar 19, 2014   2860     mpduff      Implemented Redbook UpperAir.
+ * Apr 30, 2014   2860     mpduff      Fixed instances of empty substitution tags.
  * 
  * </pre>
  * 
@@ -168,15 +169,8 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
             commonBundleMenuContribution.id = menuEntry.getId();
             commonBundleMenuContribution.text = menuEntry.getText();
 
-            if (menuEntry.getMenuEntryList().size() > 0) {
+            if (!menuEntry.getMenuEntryList().isEmpty()) {
                 List<VariableSubstitution> subList = new ArrayList<VariableSubstitution>();
-                for (MenuEntry substitute : menuEntry.getMenuEntryList()) {
-                    VariableSubstitution var = new VariableSubstitution();
-                    var.key = substitute.getKey();
-                    var.value = substitute.getValue();
-                    subList.add(var);
-                }
-
                 List<String> dataUriList = new ArrayList<String>();
 
                 for (MenuEntry me : menuEntry.getMenuEntryList()) {
@@ -190,7 +184,6 @@ public abstract class RedbookMenuUtil extends AbstractMenuUtil {
                     } else if (MenuEntryType.DataUri == me.getType()) {
                         dataUriList.add(me.getDataUri());
                     }
-
                 }
 
                 commonBundleMenuContribution.substitutions = subList
