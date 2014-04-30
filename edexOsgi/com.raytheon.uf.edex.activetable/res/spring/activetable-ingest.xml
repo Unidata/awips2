@@ -1,14 +1,11 @@
 <beans
   xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:context="http://www.springframework.org/schema/context"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 	<camelContext id="clusteredActiveTableContext"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 
 		<route id="activeTablePendingRoute">
 			<from uri="jms-durable:queue:activeTablePending"/>
@@ -37,8 +34,7 @@
 
 	</camelContext>
 		
-	<bean factory-bean="clusteredCamelContextMgr"
-		factory-method="register">
+	<bean factory-bean="contextManager" factory-method="registerClusteredContext">
 		<constructor-arg ref="clusteredActiveTableContext" />
   	</bean>
 </beans>

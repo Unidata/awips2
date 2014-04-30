@@ -15,16 +15,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.goessounding"/>
 	</bean>
 
-    <bean id="goessoundingCamelRegistered" factory-bean="contextManager"
-		factory-method="register" 
-		depends-on="persistCamelRegistered">
-		<constructor-arg ref="goessounding-camel"/>
-  	</bean>
-
 	<camelContext id="goessounding-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="goessndgFileEndpoint"
 			uri="file:${edex.home}/data/sbn/goessndg?noop=true&amp;idempotent=false" />

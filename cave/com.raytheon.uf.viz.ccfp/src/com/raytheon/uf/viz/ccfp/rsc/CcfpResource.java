@@ -32,8 +32,8 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.edex.plugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.ccfp.CcfpRecord;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IExtent;
