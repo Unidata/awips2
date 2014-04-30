@@ -59,7 +59,7 @@ from com.raytheon.uf.common.parameter.mapping import ParameterMapper;
 
 # Static values for accessing parameter lookup tables
 PARAMETER_TABLE = "4.2"
-GENPROCESS_TABLE = "A"
+PROCESS_TYPE_TABLE = "4.3"
 LEVELS_TABLE = "4.5"
 DOT = "."
 MISSING = "Missing"
@@ -429,6 +429,9 @@ class GribDecoder():
                     gribDict['parameterName'] = MISSING
                     parameterAbbreviation = MISSING
                     gribDict['parameterUnit'] = MISSING
+
+            processType = int(pdsTemplate[2])
+            gribDict['processType'] = str(GribTableLookup.getInstance().getTableValue(centerID, subcenterID, PROCESS_TYPE_TABLE, processType))
                 
             levelName = None;
             levelUnit = None;
@@ -1157,7 +1160,8 @@ class GribDecoder():
         subcenter = gribDict['subcenter']
 
         process = gribDict['genprocess']
-        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process)
+        processType = gribDict['processType']
+        gridModel = GribModelLookup.getInstance().getModel(center, subcenter, grid, process, processType)
         return gridModel
     
     def _createModelName(self, gribDict, grid):
@@ -1165,7 +1169,8 @@ class GribDecoder():
         subcenter = gribDict['subcenter']
 
         process = gribDict['genprocess']
-        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process)
+        processType = gribDict['processType']
+        return GribModelLookup.getInstance().getModelName(center, subcenter, grid, process, processType)
         
     def _checkForecastFlag(self, gribDict, grid, dataTime):
         gridModel = self._getGridModel(gribDict, grid)

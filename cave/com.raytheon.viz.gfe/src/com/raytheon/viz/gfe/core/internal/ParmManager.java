@@ -140,6 +140,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * 11/21/2013    #2331     randerso    Merge with AbstractParmManager and deleted MockParmManager
  *                                     to simplify maintenance of this class.
  *                                     Changed handling of enabling/disabling Topo parm
+ * 04/02/2014    #2969     randerso    Fix error when Toop parm is unloaded.
  * </pre>
  * 
  * @author chammack
@@ -780,7 +781,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                 parmIDs.addAll(Arrays.asList(vcParms));
             } else if ((cacheParmIDs == null)
                     && (!dbID.getDbType().equals("V"))) {
-                uncachedDbs.add(dbID);
+                if (this.availableServerDatabases.contains(dbID)) {
+                    uncachedDbs.add(dbID);
+                }
             } else {
                 parmIDs.addAll(cacheParmIDs);
 
