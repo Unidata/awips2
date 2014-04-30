@@ -16,15 +16,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.nonconvsigmet" />
 	</bean>
 
-    <bean id="nonconvsigmetCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="nonconvsigmet-camel"/>
-  	</bean> 
-    
     <camelContext id="nonconvsigmet-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <!--
         <endpoint id="nonconvsigmetFileEndpoint" uri="file:${edex.home}/data/sbn/nonconvsigmet?noop=true&amp;idempotent=false"/>
         

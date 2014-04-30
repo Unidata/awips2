@@ -56,6 +56,7 @@ import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.TextMessage;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.UserNicknameChangedEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueParticipantEvent;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.VenueUserEvent;
@@ -105,6 +106,11 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 07, 2014 2848       bclement    added getVenueName() and hasOtherParticipants()
  *                                      moved muc close logic to closeMuc()
  *                                      handle is now set in constructor
+ * Apr 11, 2014 2903       bclement    made constructor public b/c connection code moved packages
+ * Apr 16, 2014 3020       bclement    added check for invited rooms in roomExistsOnServer()
+ * Apr 21, 2014 2822       bclement    added hasMultipleHandles()
+ * Apr 22, 2014 2903       bclement    added connection test to close method
+ * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * 
  * 
  * </pre>
@@ -145,9 +151,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus,
-            CollaborationConnection manager, String venueName, String handle,
-            String sessionId) {
+    public VenueSession(EventBus externalBus, CollaborationConnection manager,
+            String venueName, String handle, String sessionId) {
         super(externalBus, manager, sessionId);
         this.venueName = venueName;
         this.handle = handle;
@@ -158,8 +163,8 @@ public class VenueSession extends BaseSession implements IVenueSession {
      * @param container
      * @param eventBus
      */
-    protected VenueSession(EventBus externalBus,
-            CollaborationConnection manager, CreateSessionData data) {
+    public VenueSession(EventBus externalBus, CollaborationConnection manager,
+            CreateSessionData data) {
         super(externalBus, manager);
         this.venueName = data.getName();
         this.handle = data.getHandle();
@@ -189,7 +194,10 @@ public class VenueSession extends BaseSession implements IVenueSession {
             muc.removeParticipantListener(participantListener);
             participantListener = null;
         }
-        muc.leave();
+        CollaborationConnection conn = getConnection();
+        if (conn != null && conn.isConnected()) {
+            muc.leave();
+        }
         muc = null;
     }
 
@@ -218,7 +226,6 @@ public class VenueSession extends BaseSession implements IVenueSession {
         SessionPayload payload = new SessionPayload(PayloadType.Invitation,
                 invite);
         Message msg = new Message();
-        msg.setTo(id.getNormalizedId());
         UserId user = getAccount();
         msg.setFrom(user.getNormalizedId());
         msg.setType(Type.normal);
@@ -229,7 +236,17 @@ public class VenueSession extends BaseSession implements IVenueSession {
         } else if (!StringUtils.isBlank(invite.getSubject())) {
             reason = invite.getSubject();
         }
-        muc.invite(msg, id.getNormalizedId(), reason);
+        muc.invite(msg, formatInviteAddress(id), reason);
+    }
+
+    /**
+     * format invite address for user
+     * 
+     * @param id
+     * @return
+     */
+    protected String formatInviteAddress(UserId id) {
+        return id.getNormalizedId();
     }
 
     /*
@@ -431,16 +448,30 @@ public class VenueSession extends BaseSession implements IVenueSession {
     public static boolean roomExistsOnServer(XMPPConnection conn, String roomId)
             throws XMPPException {
         String host = Tools.parseHost(roomId);
+
+        /* check for public rooms */
         ServiceDiscoveryManager serviceDiscoveryManager = new ServiceDiscoveryManager(
                 conn);
         DiscoverItems result = serviceDiscoveryManager.discoverItems(host);
-
         for (Iterator<DiscoverItems.Item> items = result.getItems(); items
                 .hasNext();) {
             DiscoverItems.Item item = items.next();
             if (roomId.equals(item.getEntityID())) {
                 return true;
             }
+        }
+
+        /* check for private rooms that we have access to */
+        try {
+            MultiUserChat.getRoomInfo(conn, roomId);
+            /* getRoomInfo only returns if the room was found */
+            return true;
+        } catch (XMPPException e) {
+            /*
+             * getRoomInfo throws a 404 if the room does exist or is private and
+             * we don't have access. In either case, we can't say that the room
+             * exists
+             */
         }
         return false;
     }
@@ -921,6 +952,25 @@ public class VenueSession extends BaseSession implements IVenueSession {
                     e);
         }
         return rval;
+    }
+
+    /**
+     * the return value is only accurate if the actual userIDs of all
+     * participants can be seen by this client
+     * 
+     * @param user
+     * @return true if the user is in the room under multiple handles
+     */
+    protected boolean hasMultipleHandles(UserId user) {
+        int count = 0;
+        IVenue v = getVenue();
+        for (VenueParticipant p : v.getParticipants()) {
+            UserId other = v.getParticipantUserid(p);
+            if (other != null && user.isSameUser(other)) {
+                count += 1;
+            }
+        }
+        return count > 1;
     }
 
     /*

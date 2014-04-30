@@ -19,15 +19,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.ldadprofiler"/>
 	</bean>
     
-    <bean id="ldadprofilerCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="ldadprofiler-camel"/>
-  	</bean>
-    
     <camelContext id="ldadprofiler-camel"
         xmlns="http://camel.apache.org/schema/spring"
-        errorHandlerRef="errorHandler"
-        autoStartup="false">
+        errorHandlerRef="errorHandler">
         <!--
         <endpoint id="ldadprofilerFileEndpoint" uri="file:${edex.home}/data/sbn/ldadprofiler?noop=true" />
 

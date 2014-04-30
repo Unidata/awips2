@@ -10,7 +10,7 @@
 		<constructor-arg ref="qpfGenerator"/>
 	</bean>
 	
-	<camelContext id="qpf-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">                
+	<camelContext id="qpf-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="QPFGenerate">
         	<from uri="jms-durable:queue:qpfGenerate"/>
             <doTry>

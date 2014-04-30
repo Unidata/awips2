@@ -63,7 +63,12 @@ import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload;
 import com.raytheon.uf.viz.collaboration.comm.packet.SessionPayload.PayloadType;
 import com.raytheon.uf.viz.collaboration.comm.provider.Tools;
+import com.raytheon.uf.viz.collaboration.comm.provider.account.ClientAuthManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.PeerToPeerCommHelper;
 import com.raytheon.uf.viz.collaboration.comm.provider.event.LeaderChangeEvent;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.ContactsManager;
+import com.raytheon.uf.viz.collaboration.comm.provider.user.IDConverter;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
 
@@ -92,6 +97,10 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant;
  * Mar 07, 2014 2848       bclement    moved pubsub close logic to closePubSub()
  *                                      ensure that subscription is setup before joining room
  * Mar 31, 2014 2899       mpduff      Improve error messages.
+ * Apr 15, 2014 2822       bclement    added check for other participants being subscribed to topic
+ * Apr 21, 2014 2822       bclement    removed use of resources in topicSubscribers, added skipCache
+ * Apr 22, 2014 2903       bclement    added connection test to closePubSub() method
+ * Apr 23, 2014 2822       bclement    added formatInviteAddress()
  * 
  * </pre>
  * 
@@ -112,6 +121,8 @@ public class SharedDisplaySession extends VenueSession implements
     private PubSubManager pubsubMgr;
 
     private LeafNode topic;
+
+    private final Set<String> topicSubscribers = new HashSet<String>();
 
     private XMPPConnection conn;
 
@@ -503,21 +514,24 @@ public class SharedDisplaySession extends VenueSession implements
         closePubSub();
     }
 
+    /**
+     * clean up pub sub subscription and objects
+     */
     private void closePubSub() {
         try {
-            if (pubsubMgr == null || topic == null || !topicExists()) {
-                return;
-            }
-            Subscription sub = findSubscription(getAccount());
-            if (sub == null) {
-                return;
-            }
-            topic.unsubscribe(sub.getJid(), sub.getId());
-            topic.removeItemDeleteListener(this);
-            topic.removeItemEventListener(this);
-            if (hasRole(SharedDisplayRole.SESSION_LEADER)) {
-                cleanUpHttpStorage(topic.getId());
-                pubsubMgr.deleteNode(topic.getId());
+            if (conn != null && conn.isConnected() && pubsubMgr != null
+                    && topic != null && topicExists()) {
+                Subscription sub = findSubscription(getAccount());
+                if (sub == null) {
+                    return;
+                }
+                topic.unsubscribe(sub.getJid(), sub.getId());
+                topic.removeItemDeleteListener(this);
+                topic.removeItemEventListener(this);
+                if (hasRole(SharedDisplayRole.SESSION_LEADER)) {
+                    cleanUpHttpStorage(topic.getId());
+                    pubsubMgr.deleteNode(topic.getId());
+                }
             }
             topic = null;
             pubsubMgr = null;
@@ -621,6 +635,41 @@ public class SharedDisplaySession extends VenueSession implements
         PubSubOperations.sendAffiliationPacket(conn, affiliation);
     }
 
+    /**
+     * may return false positives if skipCache is set to false, won't return a
+     * false negative
+     * 
+     * @param user
+     * @param skipCache
+     *            if true, a list of current subscribers is always retrieved
+     *            from the server
+     * @return return false if user doesn't have a subscription to the session
+     *         topic
+     * @throws XMPPException
+     */
+    private boolean isSubscribedToTopic(UserId user, boolean skipCache)
+            throws XMPPException {
+        boolean rval;
+        synchronized (topicSubscribers) {
+            rval = topicSubscribers.contains(user.getNormalizedId());
+            if (skipCache || !rval) {
+                topicSubscribers.clear();
+                List<Subscription> subs = PubSubOperations.getAllSubscriptions(
+                        conn, topic);
+                for (Subscription sub : subs) {
+                    /*
+                     * we can't use the resource from the subscription here
+                     * because the room user won't always have a resource
+                     */
+                    UserId subber = IDConverter.convertFrom(sub.getJid());
+                    topicSubscribers.add(subber.getNormalizedId());
+                }
+                rval = topicSubscribers.contains(user.getNormalizedId());
+            }
+        }
+        return rval;
+    }
+
     @Override
     public void changeLeader(VenueParticipant newLeader)
             throws CollaborationException {
@@ -634,6 +683,16 @@ public class SharedDisplaySession extends VenueSession implements
             throw new CollaborationException(
                     "Unable to grant ownership because new leader's actual userid is not known");
         }
+        /*
+         * leadership transfer must be sync'd between room ownership and topic
+         * ownership. If a user is in the room under multiple handles, we can't
+         * know for sure that this handle is associated with the same client
+         * that understands leadership and is subscribed to the pubsub topic
+         */
+        if (hasMultipleHandles(actualId)) {
+            throw new CollaborationException(
+                    "Unable to grant ownership because new leader is in the room under multiple handles");
+        }
 
         final String newLeaderId = actualId.getNormalizedId();
 
@@ -642,6 +701,16 @@ public class SharedDisplaySession extends VenueSession implements
         boolean othersNotified = false;
         String revokeTarget = null;
         try {
+            /*
+             * make sure that the new leader is not just in the room, but also
+             * subscribed to the pubsub topic. Skip cache to handle participants
+             * who may have switched clients since that last time we cached
+             */
+            if (!isSubscribedToTopic(actualId, true)) {
+                throw new CollaborationException(
+                        "Unable to grant ownership because new leader is not subscribed to session topic");
+            }
+
             // was formerly the data provider, so hand off pubsub ownership
             grantTopicOwnership(newLeaderId);
             topicOwnershipGranted = true;
@@ -667,6 +736,8 @@ public class SharedDisplaySession extends VenueSession implements
             // 'member' instead of just down to 'admin'
             revokeTarget = "room";
             muc.revokeAdmin(account.getNormalizedId());
+            // clear cache of topic subscribers
+            topicSubscribers.clear();
         } catch (XMPPException e) {
             if (!othersNotified) {
                 // transaction, attempt to roll back the ownership changes
@@ -708,6 +779,56 @@ public class SharedDisplaySession extends VenueSession implements
     @Override
     public boolean isClosed() {
         return closed;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.identity.ISharedDisplaySession
+     * #isSharedDisplayClient
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.VenueParticipant)
+     */
+    @Override
+    public boolean isSharedDisplayClient(VenueParticipant participant) {
+        UserId actualId = getVenue().getParticipantUserid(participant);
+        boolean rval = false;
+        if (actualId != null) {
+            try {
+                rval = isSubscribedToTopic(actualId, false);
+            } catch (XMPPException e) {
+                log.error("Error checking if user is a shared display client",
+                        e);
+            }
+        }
+        return rval;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession#
+     * formatInviteAddress
+     * (com.raytheon.uf.viz.collaboration.comm.provider.user.UserId)
+     */
+    @Override
+    protected String formatInviteAddress(UserId id) {
+        CollaborationConnection manager = getConnection();
+        ContactsManager cm = manager.getContactsManager();
+        String resource = cm.getSharedDisplayEnabledResource(id);
+        /*
+         * resource will be null if we can't find a resource that supports
+         * shared displays for this user
+         */
+        String rval;
+        if (resource == null) {
+            rval = super.formatInviteAddress(id);
+        } else {
+            UserId newId = new UserId(id.getName(), id.getHost(), resource);
+            rval = newId.getFQName();
+        }
+        return rval;
     }
 
 }
