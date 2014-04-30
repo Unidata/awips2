@@ -51,6 +51,7 @@ import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
  * Aug 13, 2010            mschenke    Initial creation
  * Feb 15, 2013 1638       mschenke    Moved IndexColorModel creation to common.colormap utility
  * Nov  4, 2013 2492       mschenke    Rewritten to model glsl equivalent
+ * Apr 15, 2014 3016       randerso    Check in Max's fix for getColorByIndex
  * Apr 22, 2014 2996       dgilling    Rewrite colorMap() to output images with
  *                                     proper transparency for GFE data.
  * 
@@ -388,8 +389,15 @@ public class Colormapper {
                     * high.getAlpha());
             return new com.raytheon.uf.common.colormap.Color(r, g, b, a);
         } else {
-            return colorMap.getColors().get(
-                    (int) (index * (colorMap.getSize() - 1)));
+            int colorIndex = (int) (index * colorMap.getSize());
+
+            if (colorIndex < 0) {
+                colorIndex = 0;
+            } else if (colorIndex >= colorMap.getSize()) {
+                colorIndex = colorMap.getSize() - 1;
+            }
+
+            return colorMap.getColors().get(colorIndex);
         }
     }
 

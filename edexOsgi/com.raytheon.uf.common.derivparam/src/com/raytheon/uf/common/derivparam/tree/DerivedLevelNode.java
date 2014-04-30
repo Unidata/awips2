@@ -61,6 +61,9 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------- -------- ----------- --------------------------
  * Dec 14, 2009           rjpeter     Initial creation
  * Apr 11, 2014  2947     bsteffen    Don't check units until data is requested.
+ * Apr 29, 2014  3081     bsteffen    Undo change for 2947 because it prevents
+ *                                    multiple level derivation from happening
+ *                                    simultaneously in the function adapter.
  * 
  * </pre>
  * 
@@ -401,11 +404,15 @@ public class DerivedLevelNode extends AbstractDerivedDataNode {
         Set<AbstractRequestableData> newRecs = new HashSet<AbstractRequestableData>(
                 records.size());
         for (AbstractRequestableData record : records) {
-            /* Wrap in an alias to perform unit conversion when necessary. */
-            AbstractRequestableData alias = new AliasRequestableData(record);
-            alias.setUnit(field.getUnit());
-            newRecs.add(alias);
-
+            if (record.getUnit() != null
+                    && !record.getUnit().equals(field.getUnit())
+                    && record.getUnit().isCompatible(field.getUnit())) {
+                AbstractRequestableData alias = new AliasRequestableData(record);
+                alias.setUnit(field.getUnit());
+                newRecs.add(alias);
+            } else {
+                newRecs.add(record);
+            }
         }
         return newRecs;
     }

@@ -50,7 +50,8 @@ import com.raytheon.uf.viz.collaboration.comm.provider.user.UserId;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 04, 2014    2785    mpduff      Initial creation
- * Apr 14, 2014 2903       bclement    moved from session subpackage to account
+ * Apr 14, 2014    2903    bclement    moved from session subpackage to account
+ * Apr 24, 2014    3070    bclement    RosterChangeEvent changes, adds back even if blocked
  * 
  * </pre>
  * 
@@ -119,10 +120,8 @@ public class SubscriptionPacketListener implements PacketListener,
      * @param fromID
      */
     private void handleSubscribed(UserId fromID) {
-        ContactsManager cm = sessionManager.getContactsManager();
-        RosterEntry entry = cm.getRosterEntry(fromID);
         IRosterChangeEvent event = new RosterChangeEvent(RosterChangeType.ADD,
-                entry);
+                fromID);
         sessionManager.postEvent(event);
     }
 
@@ -132,13 +131,8 @@ public class SubscriptionPacketListener implements PacketListener,
      * @param fromID
      */
     private void handleUnsubscribed(UserId fromID) {
-        ContactsManager cm = sessionManager.getContactsManager();
-        RosterEntry entry = cm.getRosterEntry(fromID);
-        if (entry == null) {
-            return;
-        }
         IRosterChangeEvent event = new RosterChangeEvent(
-                RosterChangeType.DELETE, entry);
+                RosterChangeType.DELETE, fromID);
         sessionManager.postEvent(event);
     }
 
@@ -149,28 +143,29 @@ public class SubscriptionPacketListener implements PacketListener,
      */
     private void handleSubResponse(UserId fromId, SubscriptionResponse response) {
         Presence.Type subscribedType;
-        ContactsManager cm = sessionManager.getContactsManager();
-        boolean addToRoster = false;
         if (response.isAccepted()) {
             subscribedType = Presence.Type.subscribed;
-            RosterEntry entry = cm.getRosterEntry(fromId);
-            if (entry == null) {
-                addToRoster = true;
-            }
         } else {
             subscribedType = Presence.Type.unsubscribed;
         }
-
         Presence presence = new Presence(subscribedType);
         try {
             sendPresence(fromId, presence);
-            if (addToRoster) {
-                if (response.addToGroup()) {
-                    cm.addToGroup(response.getGroup(), fromId);
-                } else {
-                    cm.addToRoster(fromId);
+            if (response.isAccepted()) {
+                /* add them back */
+                ContactsManager cm = sessionManager.getContactsManager();
+                RosterEntry entry = cm.getRosterEntry(fromId);
+                if (entry != null && ContactsManager.isBlocked(entry)) {
+                    /* in roster, but blocked */
+                    cm.sendContactRequest(fromId);
                 }
-
+                if (response.addToGroup()) {
+                    /*
+                     * if contact is not in roster, this will also send them a
+                     * contact request, otherwise it just add them to the group
+                     */
+                    cm.addToGroup(response.getGroup(), fromId);
+                }
             }
         } catch (CollaborationException e) {
             log.error("Unable to send presence", e);
