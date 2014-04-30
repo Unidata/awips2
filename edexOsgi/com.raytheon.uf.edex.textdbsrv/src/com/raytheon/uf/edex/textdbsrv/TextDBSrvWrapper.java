@@ -22,12 +22,13 @@ package com.raytheon.uf.edex.textdbsrv;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import com.raytheon.uf.common.message.Message;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.ByteArrayOutputStreamPool;
 import com.raytheon.uf.common.util.SizeUtil;
 import com.raytheon.uf.common.util.stream.LimitingInputStream;
@@ -56,6 +57,9 @@ public class TextDBSrvWrapper {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TextDBSrvWrapper.class);
 
+    private static final IUFStatusHandler textDbSrvLogger = UFStatus
+            .getNamedHandler("TextDBSrvRequestLogger");
+
     /**
      * The limit of bytes that we are able to read in without erroring off.
      */
@@ -74,11 +78,15 @@ public class TextDBSrvWrapper {
      * @return
      */
     public byte[] executeTextDBMessage(InputStream xmlDataStream) {
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
+
         /*
          * This stream does not need to be closed, Camel will handle closing of
          * data
          */
-        InputStream inputStream = null;
+        LimitingInputStream inputStream = null;
+        String sizeString = null;
         Message rval;
 
         try {
@@ -86,6 +94,10 @@ public class TextDBSrvWrapper {
                     * SizeUtil.BYTES_PER_MB);
             Message message = SerializationUtil.jaxbUnmarshalFromInputStream(
                     Message.class, inputStream);
+            sizeString = SizeUtil.prettyByteSize(inputStream.getBytesRead());
+            textDbSrvLogger.info("Processing xml message of length: "
+                    + sizeString);
+
             rval = textdbSrv.processMessage(message);
         } catch (Throwable e) {
             statusHandler
@@ -103,8 +115,9 @@ public class TextDBSrvWrapper {
             }
         }
 
-        OutputStream outStream = null;
+        LimitingOutputStream outStream = null;
         int tries = 0;
+        byte[] bytesOut = null;
 
         while (tries < 2) {
             try {
@@ -113,7 +126,7 @@ public class TextDBSrvWrapper {
                 outStream = new LimitingOutputStream(baos, byteLimitInMB
                         * SizeUtil.BYTES_PER_MB);
                 SerializationUtil.jaxbMarshalToStream(rval, outStream);
-                return baos.toByteArray();
+                bytesOut = baos.toByteArray();
             } catch (Exception e) {
                 statusHandler.error("Error occured marshalling response", e);
                 tries++;
@@ -131,7 +144,18 @@ public class TextDBSrvWrapper {
             }
         }
 
-        return null;
+        timer.stop();
+
+        StringBuilder sb = new StringBuilder(300);
+        sb.append("Processed message in ").append(timer.getElapsedTime())
+                .append("ms, ");
+        sb.append("request was size ").append(sizeString);
+        sb.append(", response was size ")
+                .append(SizeUtil
+                        .prettyByteSize(bytesOut != null ? bytesOut.length : 0));
+        textDbSrvLogger.info(sb.toString());
+
+        return bytesOut;
     }
 
     public long getByteLimitInMB() {
