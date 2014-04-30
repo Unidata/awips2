@@ -18,15 +18,9 @@
     <bean id="acarsSoundingSplitter" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSoundingSplitter" >
     </bean>
 
-	<bean id="acarsSoundingCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="acarsSoundingSrv-camel"/>
-  	</bean>  
-
     <camelContext id="acarsSoundingSrv-camel" 
                   xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler"
-                  autoStartup="false">
+                  errorHandlerRef="errorHandler">
         <endpoint id="acarsSoundingEndpoint"/>
         
         <endpoint id="scheduledSoundingCron" uri="clusteredquartz://acars/createSounding/?cron=${acarssounding.cron}"/>        
