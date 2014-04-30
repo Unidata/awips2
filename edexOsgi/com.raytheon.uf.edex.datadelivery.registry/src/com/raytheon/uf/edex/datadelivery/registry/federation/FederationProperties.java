@@ -38,7 +38,7 @@ import com.raytheon.uf.common.registry.constants.AssociationTypes;
 import com.raytheon.uf.common.registry.constants.RegistryObjectTypes;
 import com.raytheon.uf.common.registry.constants.StatusTypes;
 import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
-import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * 
@@ -187,14 +187,14 @@ public class FederationProperties {
      */
     public RegistryType createRegistryObject() {
         RegistryType registryObj = new RegistryType();
-        registryObj.setId(DataDeliveryIdUtil.getId() + REGISTRY_SUFFIX);
+        registryObj.setId(RegistryIdUtil.getId() + REGISTRY_SUFFIX);
         registryObj.setLid(registryObj.getId());
         registryObj.setName(RegistryUtil
-                .getInternationalString(DataDeliveryIdUtil.getId()
+                .getInternationalString(RegistryIdUtil.getId()
                         + " Registry Specification"));
         registryObj.setObjectType(RegistryObjectTypes.REGISTRY);
         registryObj.setDescription(registryObj.getName());
-        registryObj.setOwner(DataDeliveryIdUtil.getId());
+        registryObj.setOwner(RegistryIdUtil.getId());
         registryObj.setStatus(StatusTypes.APPROVED);
         registryObj.setCatalogingLatency(catalogingLatency);
         registryObj.setConformanceProfile(conformanceProfile);
@@ -218,13 +218,13 @@ public class FederationProperties {
         phone.setNumber(sitePrimaryContactPhoneNumber);
 
         PersonType person = new PersonType();
-        person.setId(DataDeliveryIdUtil.getId() + " Primary Contact");
+        person.setId(RegistryIdUtil.getId() + " Primary Contact");
         person.setLid(person.getId());
         person.setName(RegistryUtil.getInternationalString(person.getId()));
         person.setDescription(person.getName());
         person.setStatus(StatusTypes.APPROVED);
         person.setObjectType(RegistryObjectTypes.PERSON);
-        person.setOwner(DataDeliveryIdUtil.getId());
+        person.setOwner(RegistryIdUtil.getId());
         PersonNameType personName = new PersonNameType();
         personName.setFirstName(sitePrimaryContactFirstName);
         personName.setMiddleName(sitePrimaryContactMiddleName);
@@ -243,16 +243,16 @@ public class FederationProperties {
      */
     public OrganizationType createOrganization() {
         OrganizationType org = new OrganizationType();
-        org.setPrimaryContact(DataDeliveryIdUtil.getId() + " Primary Contact");
-        org.setId(DataDeliveryIdUtil.getId());
+        org.setPrimaryContact(RegistryIdUtil.getId() + " Primary Contact");
+        org.setId(RegistryIdUtil.getId());
         org.setLid(org.getId());
         org.setName(RegistryUtil
                 .getInternationalString("National Weather Service Office: "
-                        + DataDeliveryIdUtil.getId()));
+                        + RegistryIdUtil.getId()));
         org.setDescription(org.getName());
         org.setStatus(StatusTypes.APPROVED);
         org.setObjectType(RegistryObjectTypes.ORGANIZATION);
-        org.setOwner(DataDeliveryIdUtil.getId());
+        org.setOwner(RegistryIdUtil.getId());
         TelephoneNumberType phone = new TelephoneNumberType();
         phone.setAreaCode(sitePhoneAreaCode);
         phone.setNumber(sitePhoneNumber);
@@ -285,7 +285,7 @@ public class FederationProperties {
                 + " Federation Membership Association");
         association.setLid(association.getId());
         association.setObjectType(RegistryObjectTypes.ASSOCIATION);
-        association.setOwner(DataDeliveryIdUtil.getId());
+        association.setOwner(RegistryIdUtil.getId());
         association.setType(AssociationTypes.HAS_FEDERATION_MEMBER);
         association.setStatus(StatusTypes.APPROVED);
         association.setName(RegistryUtil.getInternationalString(registry
