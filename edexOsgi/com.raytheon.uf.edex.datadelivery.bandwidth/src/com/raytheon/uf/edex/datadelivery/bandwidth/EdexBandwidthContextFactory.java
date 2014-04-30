@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsF
 import com.raytheon.uf.edex.datadelivery.bandwidth.interfaces.BandwidthInitializer;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil;
 
 /**
  * {@link BandwidthContextFactory} for running in EDEX. Intentionally
@@ -59,6 +60,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
  * Nov 07, 2013 2506       bgonzale     Added notification handler to bandwidth context.
  * Jan 14, 2014 2692       dhladky      AdhocSubscription handler
  * Jan 30, 2014 2636       mpduff       Scheduling refactor.
+ * Apr 22, 2014 2992       dhladky      Added IdUtil for siteList
  * 
  * </pre>
  * 
@@ -81,6 +83,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage>
          * @param bandwidthDao
          * @param retrievalManager
          * @param bandwidthDaoUtil
+         * @param idUtil
          * @param dataSetMetaDataHandler
          * @param subscriptionHandler
          * @return the bandwidth manager
@@ -89,6 +92,7 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage>
                 IBandwidthDao<T, C> bandwidthDao,
                 RetrievalManager retrievalManager,
                 BandwidthDaoUtil<T, C> bandwidthDaoUtil,
+                RegistryIdUtil idUtil,
                 IDataSetMetaDataHandler dataSetMetaDataHandler,
                 ISubscriptionHandler subscriptionHandler,
                 IAdhocSubscriptionHandler adhocSubscriptionHandler,
@@ -253,9 +257,9 @@ public class EdexBandwidthContextFactory<T extends Time, C extends Coverage>
     @Override
     public IBandwidthManager<T, C> getBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
-            BandwidthDaoUtil bandwidthDaoUtil) {
+            BandwidthDaoUtil bandwidthDaoUtil,RegistryIdUtil idUtil) {
         return bandwidthManagerCreator.getBandwidthManager(dbInit,
-                bandwidthDao, retrievalManager, bandwidthDaoUtil,
+                bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil,
                 dataSetMetaDataHandler, subscriptionHandler,
                 adhocSubscriptionHandler, notificationService,
                 findSubscriptionsStrategy);

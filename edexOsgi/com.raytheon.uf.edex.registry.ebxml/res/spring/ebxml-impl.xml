@@ -56,5 +56,12 @@
 	</bean>
 	
 	<bean id="registryNamespaceMapper" class="com.raytheon.uf.common.registry.RegistryNamespaceMapper"/>
+    
+         
+    <!--  Util to get the IDS of the Registry server nodes -->
+    <bean id="registryIdUtil"
+        class="com.raytheon.uf.edex.registry.ebxml.util.RegistryIdUtil">
+        <constructor-arg ref="registryObjectDao" />
+    </bean>
 
 </beans>

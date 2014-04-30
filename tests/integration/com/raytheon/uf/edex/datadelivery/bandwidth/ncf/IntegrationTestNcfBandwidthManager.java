@@ -32,6 +32,7 @@ import com.raytheon.uf.edex.datadelivery.bandwidth.hibernate.IFindSubscriptionsF
 import com.raytheon.uf.edex.datadelivery.bandwidth.ncf.NcfBandwidthManagerCreator.NcfBandwidthManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.retrieval.RetrievalManager;
 import com.raytheon.uf.edex.datadelivery.bandwidth.util.BandwidthDaoUtil;
+import com.raytheon.uf.edex.datadelivery.util.DataDeliveryIdUtil;
 
 /**
  * An NCF {@link IBandwidthManager} that runs as an integration test, outside of
@@ -76,12 +77,13 @@ public class IntegrationTestNcfBandwidthManager extends NcfBandwidthManager {
     public IntegrationTestNcfBandwidthManager(IBandwidthDbInit dbInit,
             IBandwidthDao bandwidthDao, RetrievalManager retrievalManager,
             BandwidthDaoUtil bandwidthDaoUtil,
+            DataDeliveryIdUtil idUtil,
             IDataSetMetaDataHandler dataSetMetaDataHandler,
             ISubscriptionHandler subscriptionHandler,
             IAdhocSubscriptionHandler adhocSubscriptionHandler,
             ISubscriptionNotificationService subscriptionNotificationService,
             IFindSubscriptionsForScheduling findSubscriptionStrategy) {
-        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil,
+        super(dbInit, bandwidthDao, retrievalManager, bandwidthDaoUtil, idUtil,
                 dataSetMetaDataHandler, subscriptionHandler,
                 adhocSubscriptionHandler, subscriptionNotificationService,
                 findSubscriptionStrategy);
