@@ -35,8 +35,8 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.auth.resp.SuccessfulExecution;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest;
-import com.raytheon.uf.common.datadelivery.bandwidth.IBandwidthRequest.RequestType;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest;
+import com.raytheon.uf.common.datadelivery.bandwidth.BandwidthRequest.RequestType;
 import com.raytheon.uf.common.datadelivery.registry.Coverage;
 import com.raytheon.uf.common.datadelivery.registry.DataLevelType;
 import com.raytheon.uf.common.datadelivery.registry.DataType;
@@ -47,9 +47,8 @@ import com.raytheon.uf.common.datadelivery.registry.PointTime;
 import com.raytheon.uf.common.datadelivery.registry.Subscription;
 import com.raytheon.uf.common.datadelivery.registry.Time;
 import com.raytheon.uf.common.datadelivery.request.DataDeliveryConstants;
+import com.raytheon.uf.common.registry.ebxml.RegistryUtil;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
-import com.raytheon.uf.common.site.SiteData;
-import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.SizeUtil;
@@ -93,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 07, 2013 2291       skorolev     Added showText() method for messages with many lines.
  * Feb 11, 2014 2771       bgonzale     Added Data Delivery ID, getter, and retrieval method.
  * Apr 2,  2014 2974       dhladky      DD ID added to list for dropdowns in DD.
+ * Apr 22, 2014 2992       dhladky      Unique list of all registries with data in this node.
  * </pre>
  * 
  * @author mpduff
@@ -849,7 +849,7 @@ public class DataDeliveryUtils {
     }
 
     private static String retrieveDataDeliveryId() {
-        IBandwidthRequest request = new IBandwidthRequest();
+        BandwidthRequest request = new BandwidthRequest();
         request.setRequestType(RequestType.GET_DATADELIVERY_ID);
         try {
             SuccessfulExecution response = (SuccessfulExecution) RequestRouter
@@ -865,16 +865,28 @@ public class DataDeliveryUtils {
      * Gets the DD id containing site List.
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static List<String> getDataDeliverySiteList() {
         
-        Map<String, SiteData> siteData = SiteMap.getInstance().getSiteData();
-        Set<String> sites = siteData.keySet();
-        List<String> siteList = new ArrayList<String>(sites);
-        String DDid = DataDeliveryUtils.getDataDeliveryId();
+        BandwidthRequest request = new BandwidthRequest();
+        List<String> siteList = null;
+        request.setRequestType(RequestType.GET_DATADELIVERY_REGISTRIES);
+        try {
+            SuccessfulExecution response = (SuccessfulExecution) RequestRouter
+                    .route(request, DataDeliveryConstants.DATA_DELIVERY_SERVER);
+            siteList = (List<String>) response.getResponse();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Unable to retrieve Data Delivery Registry list from EDEX.", e);
+        }
+        // Should return itself, but just in case.
+        String DDid = getDataDeliveryId();
         if (!siteList.contains(DDid)) {
             siteList.add(DDid);
             Collections.sort(siteList);
         }
+        // remove "NCF", CAVE users don't care about things owned by NCF
+        siteList.remove(RegistryUtil.defaultUser);
         
         return siteList;
     }
