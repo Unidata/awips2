@@ -96,6 +96,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * Mar 21, 2014 2835       rjpeter     Optimized getDisplayData to only scan directories to the depth required to
  *                                     populate the display label.
  * Apr 01, 2014 2862       rferrel     Moved purge only routines to ArchivePurgeManager.
+ * Apr 29, 2014 3036       rferrel     Check for missing archive root directories.
  * </pre>
  * 
  * @author rferrel
@@ -578,7 +579,12 @@ public class ArchiveConfigManager {
                             List<File> dirList = polledDirs.get(dir);
                             if (dirList == null) {
                                 File[] list = dir.listFiles();
-                                dirList = Arrays.asList(list);
+                                // Missing directory.
+                                if (list == null) {
+                                    dirList = new ArrayList<File>(0);
+                                } else {
+                                    dirList = Arrays.asList(list);
+                                }
                                 polledDirs.put(dir, dirList);
                             }
 
@@ -732,6 +738,13 @@ public class ArchiveConfigManager {
         }
 
         File rootFile = new File(rootDirName);
+        if (!(rootFile.isDirectory() && rootFile.canRead())) {
+            statusHandler.handle(
+                    Priority.ERROR,
+                    "Unable to access archive directory: "
+                            + rootFile.getAbsolutePath());
+        }
+
         TreeMap<String, Map<CategoryDataSet, Set<File>>> displays = new TreeMap<String, Map<CategoryDataSet, Set<File>>>();
         Map<CategoryDataSet, List<File>> dirMap = getDirs(rootFile,
                 categoryConfig, maxDepth);

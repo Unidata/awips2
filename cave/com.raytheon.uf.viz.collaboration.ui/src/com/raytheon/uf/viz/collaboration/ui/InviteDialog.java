@@ -42,7 +42,7 @@ import com.raytheon.uf.viz.collaboration.comm.identity.invite.SharedDisplayVenue
 import com.raytheon.uf.viz.collaboration.comm.identity.invite.VenueInvite;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.IUser;
 import com.raytheon.uf.viz.collaboration.comm.identity.user.SharedDisplayRole;
-import com.raytheon.uf.viz.collaboration.comm.provider.session.CollaborationConnection;
+import com.raytheon.uf.viz.collaboration.comm.provider.connection.CollaborationConnection;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.SharedDisplaySession;
 import com.raytheon.uf.viz.collaboration.comm.provider.session.VenueSession;
 import com.raytheon.uf.viz.collaboration.comm.provider.user.VenueId;
@@ -67,6 +67,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialogBase;
  * Feb 13, 2014 2751       bclement    better types for roomid and inviter
  * Mar 06, 2014 2848       bclement    moved join logic to separate method
  * Mar 27, 2014 2632       mpduff      Set the OK button as the default button.
+ * Apr 18, 2014 2955       mpduff      Make dialog non-modal.
  * 
  * </pre>
  * 
@@ -105,18 +106,11 @@ public class InviteDialog extends CaveSWTDialogBase {
      * 
      * @param parentShell
      *            Parent shell.
-     * @param title
-     *            Title for the dialog.
-     * @param labelStr
-     *            Test to put in the label for the message text control.
-     * @param messageStr
-     *            Message to be displayed.
-     * @param iconStyle
-     *            Icon style to be displayed.
+     * @param event
+     *            The invitation event
      */
     public InviteDialog(Shell parentShell, IVenueInvitationEvent event) {
-        super(parentShell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL
-                | SWT.PRIMARY_MODAL | SWT.SYSTEM_MODAL, CAVE.NONE);
+        super(parentShell, SWT.DIALOG_TRIM, CAVE.NONE);
         setText("Session Invitation");
         IUser inviter = event.getInviter();
         VenueId room = event.getRoomId();
@@ -151,7 +145,7 @@ public class InviteDialog extends CaveSWTDialogBase {
     @Override
     protected void initializeComponents(Shell shell) {
         mainComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(2, false);
+        GridLayout gl = new GridLayout(1, false);
         gl.marginHeight = 0;
         gl.marginWidth = 0;
         gl.horizontalSpacing = 0;
@@ -233,10 +227,10 @@ public class InviteDialog extends CaveSWTDialogBase {
             font = new Font(Display.getCurrent(), fontData[0]);
         }
         if (heading) {
-            gd = new GridData(SWT.LEFT, SWT.NONE, false, false);
+            gd = new GridData(SWT.LEFT, SWT.CENTER, false, false);
             label.setFont(font);
         } else {
-            gd = new GridData(SWT.LEFT, SWT.NONE, true, true);
+            gd = new GridData(SWT.LEFT, SWT.CENTER, true, true);
             gd.widthHint = 300;
         }
         label.setLayoutData(gd);
@@ -250,16 +244,15 @@ public class InviteDialog extends CaveSWTDialogBase {
         Composite actionButtonComp = new Composite(mainComp, SWT.NONE);
         actionButtonComp.setLayout(new GridLayout(2, false));
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.horizontalSpan = 2;
         actionButtonComp.setLayoutData(gd);
 
         int btnWidth = 80;
         gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
         gd.widthHint = btnWidth;
-        Button okBtn = new Button(actionButtonComp, SWT.PUSH);
-        okBtn.setText("Join");
-        okBtn.setLayoutData(gd);
-        okBtn.addSelectionListener(new SelectionAdapter() {
+        Button joinBtn = new Button(actionButtonComp, SWT.PUSH);
+        joinBtn.setText("Join");
+        joinBtn.setLayoutData(gd);
+        joinBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent se) {
                 String handle = handleText.getText().trim();
@@ -294,7 +287,7 @@ public class InviteDialog extends CaveSWTDialogBase {
             }
         });
 
-        this.getShell().setDefaultButton(okBtn);
+        this.getShell().setDefaultButton(joinBtn);
     }
 
     /**
@@ -340,6 +333,11 @@ public class InviteDialog extends CaveSWTDialogBase {
         }
     }
 
+    /**
+     * Get the IVenueSession being used.
+     * 
+     * @return the IVenueSession
+     */
     public IVenueSession getSession() {
         return session;
     }

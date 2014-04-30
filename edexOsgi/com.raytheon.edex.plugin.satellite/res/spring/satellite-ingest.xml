@@ -7,7 +7,7 @@
 		<property name="dao" ref="satelliteDao" />
 	</bean>
 	
-	<bean id="satelliteDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao">
+	<bean id="satelliteDao" class="com.raytheon.edex.plugin.satellite.dao.SatelliteDao" depends-on="satelliteProperties">
 		<constructor-arg ref="satellitePluginName" />
 	</bean>
 	
@@ -17,15 +17,9 @@
 		<constructor-arg value="jms-durable:queue:Ingest.Satellite" />
 	</bean>
 
-    <bean id="satCamelRegistered" factory-bean="contextManager"
-		factory-method="register" depends-on="persistCamelRegistered">
-		<constructor-arg ref="sat-camel"/>
-  	</bean>
-  	
 	<camelContext id="sat-camel"
 		xmlns="http://camel.apache.org/schema/spring"
-		errorHandlerRef="errorHandler"
-		autoStartup="false">
+		errorHandlerRef="errorHandler">
 		<!--
 		<endpoint id="satFileEndpoint" uri="file:${edex.home}/data/sbn/sat?noop=true&amp;idempotent=false" />
 
