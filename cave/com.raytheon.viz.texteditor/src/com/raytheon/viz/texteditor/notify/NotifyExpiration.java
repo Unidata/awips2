@@ -42,6 +42,7 @@ import com.raytheon.viz.texteditor.util.VtecUtil;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 24, 2010            jsanchez     Initial creation
+ * Apr 25, 2014 DR 16668   D. Friedman Only notify on NEW products.
  * 
  * </pre>
  * 
@@ -83,7 +84,7 @@ public class NotifyExpiration {
         }
 
         VtecObject vtecObject = VtecUtil.parseMessage(warning);
-        if (vtecObject == null) {
+        if (vtecObject == null || !"NEW".equals(vtecObject.getAction())) {
             return;
         }
         Calendar expire = vtecObject.getEndTime();
